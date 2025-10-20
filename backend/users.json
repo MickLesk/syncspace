@@ -1,0 +1,10 @@
+[
+  {
+    "id": "e2ba1da3-b745-4e33-8e54-d7bb58edcb5b",
+    "username": "admin",
+    "totp_secret": null,
+    "totp_enabled": false,
+    "created_at": "2025-10-20T16:50:25.150258Z",
+    "last_login": null
+  }
+]

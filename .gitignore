@@ -1,2 +1,5 @@
 /backend/target/debug
 /backend/target/debug
+*.pdb
+*.exe
+*.d
