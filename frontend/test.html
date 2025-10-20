@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>SyncSpace Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+    button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    pre { background: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>🔧 SyncSpace Diagnose</h1>
+  
+  <div id="status"></div>
+  
+  <h2>Backend Tests</h2>
+  <button onclick="testStats()">Test Stats API</button>
+  <button onclick="testFiles()">Test Files API</button>
+  <button onclick="testPeers()">Test Peers API</button>
+  
+  <div id="results"></div>
+
+  <script>
+    const API_URL = 'http://localhost:8080';
+    
+    function showStatus(message, isError = false) {
+      const statusDiv = document.getElementById('status');
+      statusDiv.className = 'status ' + (isError ? 'error' : 'success');
+      statusDiv.textContent = message;
+    }
+    
+    function showResult(title, data) {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = `
+        <h3>${title}</h3>
+        <pre>${JSON.stringify(data, null, 2)}</pre>
+      `;
+    }
+    
+    async function testStats() {
+      try {
+        const response = await fetch(`${API_URL}/api/stats`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        showStatus('✓ Stats API funktioniert!');
+        showResult('Stats Response', data);
+      } catch (error) {
+        showStatus(`✗ Stats API Fehler: ${error.message}`, true);
+        showResult('Error Details', { error: error.toString() });
+      }
+    }
+    
+    async function testFiles() {
+      try {
+        const response = await fetch(`${API_URL}/api/files/`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        showStatus('✓ Files API funktioniert!');
+        showResult('Files Response', data);
+      } catch (error) {
+        showStatus(`✗ Files API Fehler: ${error.message}`, true);
+        showResult('Error Details', { error: error.toString() });
+      }
+    }
+    
+    async function testPeers() {
+      try {
+        const response = await fetch(`${API_URL}/api/peers`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        showStatus('✓ Peers API funktioniert!');
+        showResult('Peers Response', data);
+      } catch (error) {
+        showStatus(`✗ Peers API Fehler: ${error.message}`, true);
+        showResult('Error Details', { error: error.toString() });
+      }
+    }
+    
+    // Auto-test on load
+    window.addEventListener('load', () => {
+      showStatus('Backend erreichbar unter ' + API_URL);
+      setTimeout(testStats, 500);
+    });
+  </script>
+</body>
+</html>
