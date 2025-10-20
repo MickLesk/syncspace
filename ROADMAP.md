@@ -3,10 +3,12 @@
 ## Phase 1: Core Advanced Features (Week 1)
 
 ### 1. File Compression & Extraction ⏱️ 8h
+
 **Priority**: HIGH
 **Dependencies**: `zip`, `tar`, `flate2` crates
 
 #### Implementation Plan:
+
 ```rust
 // POST /api/compress
 // Request: { paths: ["file1.txt", "file2.txt"], archive_name: "backup.zip", format: "zip" }
@@ -36,6 +38,7 @@ async fn extract_archive(archive_path: String, req: ExtractRequest) -> Result<Ex
 ```
 
 **Testing**:
+
 - [ ] Create ZIP with single file
 - [ ] Create ZIP with multiple files
 - [ ] Create ZIP with directory structure
@@ -47,10 +50,12 @@ async fn extract_archive(archive_path: String, req: ExtractRequest) -> Result<Ex
 ---
 
 ### 2. Share Links with Expiry ⏱️ 6h
+
 **Priority**: HIGH
 **Dependencies**: None (using existing Warp + Serde)
 
 #### Implementation Plan:
+
 ```rust
 // POST /api/share
 // Request: { path: "document.pdf", duration_hours: 24, password: "secret", max_downloads: 10 }
@@ -89,6 +94,7 @@ async fn download_share_link(
 ```
 
 **Testing**:
+
 - [ ] Create share link with default expiry (24h)
 - [ ] Create share link with custom expiry
 - [ ] Create password-protected link
@@ -102,10 +108,12 @@ async fn download_share_link(
 ---
 
 ### 3. Trash/Recycle Bin ⏱️ 6h
+
 **Priority**: HIGH
 **Dependencies**: None
 
 #### Implementation Plan:
+
 ```rust
 // POST /api/trash/{path}
 // Move file to .trash/ folder instead of permanent delete
@@ -157,6 +165,7 @@ tokio::spawn(async move {
 ```
 
 **Testing**:
+
 - [ ] Move single file to trash
 - [ ] Move directory to trash (recursive)
 - [ ] List trash contents
@@ -170,10 +179,12 @@ tokio::spawn(async move {
 ## Phase 2: Performance & Search (Week 2)
 
 ### 4. Thumbnail Generation ⏱️ 10h
+
 **Priority**: MEDIUM
 **Dependencies**: `image`, `tempfile` crates
 
 #### Implementation Plan:
+
 ```rust
 // GET /api/thumbnail/{path}?size=150
 // Generate or serve cached thumbnail
@@ -203,15 +214,18 @@ async fn pregenerate_thumbnails(file_path: String) {
 ```
 
 **Supported Formats**:
+
 - Images: JPG, PNG, GIF, WebP
 - Videos: MP4, WebM (first frame extraction)
 
 **Cache Strategy**:
+
 - Store in `./data/.thumbnails/{size}/`
 - Filename: SHA256(path) + ".jpg"
 - Max cache size: 1GB (LRU eviction)
 
 **Testing**:
+
 - [ ] Generate 150x150 thumbnail
 - [ ] Generate 300x300 thumbnail
 - [ ] Serve cached thumbnail (faster)
@@ -222,10 +236,12 @@ async fn pregenerate_thumbnails(file_path: String) {
 ---
 
 ### 5. Full-Text Search & Indexing ⏱️ 12h
+
 **Priority**: MEDIUM
 **Dependencies**: `tantivy` or custom indexer
 
 #### Implementation Plan:
+
 ```rust
 // POST /api/search/index
 // Rebuild full search index (admin only)
@@ -254,12 +270,14 @@ async fn search_with_content(query: String, content_search: bool) -> Result<Vec<
 ```
 
 **Indexing Strategy**:
+
 - Index files: TXT, MD, JSON, Code files
 - Update index on file modification (WebSocket event)
 - Incremental indexing (only changed files)
 - Store index in `./search_index/`
 
 **Testing**:
+
 - [ ] Index all text files
 - [ ] Search in file contents
 - [ ] Match highlighting
@@ -270,10 +288,12 @@ async fn search_with_content(query: String, content_search: bool) -> Result<Vec<
 ---
 
 ### 6. File Versioning ⏱️ 12h
+
 **Priority**: LOW
 **Dependencies**: None
 
 #### Implementation Plan:
+
 ```rust
 // Automatic versioning on file upload
 
@@ -314,6 +334,7 @@ async fn restore_version(path: String, version_id: String) -> Result<FileVersion
 ```
 
 **Storage**:
+
 - `.versions/{file_path}/`
   - `v1` - First version
   - `v2` - Second version
@@ -322,6 +343,7 @@ async fn restore_version(path: String, version_id: String) -> Result<FileVersion
 - Auto-cleanup: Delete old versions when limit reached
 
 **Testing**:
+
 - [ ] Upload file (creates v1)
 - [ ] Upload again (creates v2)
 - [ ] List versions
@@ -335,17 +357,21 @@ async fn restore_version(path: String, version_id: String) -> Result<FileVersion
 ## Phase 3: Advanced Features (Week 3)
 
 ### 7. Activity Log & Audit Trail ⏱️ 4h
+
 **Priority**: MEDIUM
 **Dependencies**: None
 
 #### Implementation Plan:
+
 Already implemented in `features.rs`:
+
 - `ActivityLogEntry` struct
 - `append_activity_log()` function
 - `read_activity_log()` function
 
 **Integration**:
 Add logging to all file operations:
+
 ```rust
 // In upload handler:
 append_activity_log(&ActivityLogEntry::new(
@@ -365,6 +391,7 @@ append_activity_log(&ActivityLogEntry::new(
 ```
 
 **API Endpoints**:
+
 ```rust
 // GET /api/activity?limit=100&user=admin&action=delete
 async fn get_activity_log(
@@ -375,6 +402,7 @@ async fn get_activity_log(
 ```
 
 **Testing**:
+
 - [ ] Log upload action
 - [ ] Log delete action
 - [ ] Log rename action
@@ -386,10 +414,12 @@ async fn get_activity_log(
 ---
 
 ### 8. Duplicate File Detection ⏱️ 8h
+
 **Priority**: LOW
 **Dependencies**: SHA256 from `sha2` crate
 
 #### Implementation Plan:
+
 ```rust
 // POST /api/scan-duplicates
 // Background job to find duplicate files
@@ -410,6 +440,7 @@ async fn scan_duplicates() -> Result<Vec<DuplicateGroup>> {
 ```
 
 **Optimization**:
+
 - Skip files < 1KB (too small to matter)
 - Compare file sizes first (fast pre-filter)
 - Progressive hashing (first 8KB, then full file)
@@ -417,6 +448,7 @@ async fn scan_duplicates() -> Result<Vec<DuplicateGroup>> {
 - Background scanning (don't block API)
 
 **Testing**:
+
 - [ ] Detect exact duplicates
 - [ ] Group by checksum
 - [ ] Delete duplicates (keep one)
@@ -427,10 +459,12 @@ async fn scan_duplicates() -> Result<Vec<DuplicateGroup>> {
 ---
 
 ### 9. Bandwidth Control & Rate Limiting ⏱️ 6h
+
 **Priority**: LOW
 **Dependencies**: Token bucket algorithm
 
 #### Implementation Plan:
+
 ```rust
 struct BandwidthLimiter {
     tokens: f64,
@@ -466,6 +500,7 @@ async fn upload_with_rate_limit(
 ```
 
 **Configuration**:
+
 ```json
 {
   "bandwidth_limits": {
@@ -477,6 +512,7 @@ async fn upload_with_rate_limit(
 ```
 
 **Testing**:
+
 - [ ] Upload with limit (10 MB/s)
 - [ ] Download with limit (50 MB/s)
 - [ ] Rate limit enforcement
@@ -487,10 +523,12 @@ async fn upload_with_rate_limit(
 ---
 
 ### 10. WebDAV Support ⏱️ 16h
+
 **Priority**: LOW
 **Dependencies**: `warp` WebDAV middleware or custom implementation
 
 #### Implementation Plan:
+
 ```rust
 // WebDAV endpoints at /webdav/*
 
@@ -513,12 +551,14 @@ async fn webdav_propfind(path: String, depth: u8) -> Result<Response> {
 ```
 
 **Benefits**:
+
 - Mount as network drive on Windows/Mac/Linux
 - Standard protocol support
 - Native OS integration
 - No custom client needed
 
 **Testing**:
+
 - [ ] Mount on Windows (net use)
 - [ ] Mount on macOS (Finder)
 - [ ] Mount on Linux (davfs2)
@@ -534,18 +574,21 @@ async fn webdav_propfind(path: String, depth: u8) -> Result<Response> {
 ### Additional Enhancements
 
 #### 11. Smart File Locking
+
 - Prevent concurrent edits
 - Lock timeout (30 minutes)
 - Force unlock (admin)
 - Lock status indicator
 
 #### 12. Advanced Metadata
+
 - EXIF data for images
 - ID3 tags for audio
 - Video metadata
 - Custom file tags
 
 #### 13. Real-time Collaboration
+
 - WebSocket-based sync
 - Operational Transformation
 - Presence indicators
@@ -556,11 +599,13 @@ async fn webdav_propfind(path: String, depth: u8) -> Result<Response> {
 ## Testing Strategy
 
 ### Unit Tests
+
 ```bash
 cargo test
 ```
 
 ### Integration Tests
+
 ```rust
 #[tokio::test]
 async fn test_compress_and_extract() {
@@ -572,6 +617,7 @@ async fn test_compress_and_extract() {
 ```
 
 ### Load Tests
+
 ```bash
 # Apache Bench
 ab -n 1000 -c 10 http://localhost:8080/api/files/
@@ -589,6 +635,7 @@ done
 ## Deployment Checklist
 
 ### Pre-production
+
 - [ ] All tests passing
 - [ ] Documentation complete
 - [ ] Security audit
@@ -597,6 +644,7 @@ done
 - [ ] Monitoring setup
 
 ### Production
+
 - [ ] HTTPS enabled
 - [ ] Rate limiting configured
 - [ ] Logging enabled
@@ -609,6 +657,7 @@ done
 ## Success Metrics
 
 ### Performance Targets
+
 - Upload: 100 MB/s
 - Download: 200 MB/s
 - Search: < 100ms for 10,000 files
@@ -616,6 +665,7 @@ done
 - API response: < 50ms (95th percentile)
 
 ### Capacity Targets
+
 - Files: 1,000,000+
 - Total size: 10 TB+
 - Concurrent users: 100+
@@ -625,12 +675,12 @@ done
 
 ## Timeline Summary
 
-| Phase | Features | Duration | Priority |
-|-------|----------|----------|----------|
-| 1 | Compression, Share Links, Trash | 1 week | HIGH |
-| 2 | Thumbnails, Search, Versioning | 1 week | MEDIUM |
-| 3 | Activity Log, Duplicates, Bandwidth | 1 week | LOW |
-| 4 | WebDAV, Advanced Features | 1 week | LOW |
+| Phase | Features                            | Duration | Priority |
+| ----- | ----------------------------------- | -------- | -------- |
+| 1     | Compression, Share Links, Trash     | 1 week   | HIGH     |
+| 2     | Thumbnails, Search, Versioning      | 1 week   | MEDIUM   |
+| 3     | Activity Log, Duplicates, Bandwidth | 1 week   | LOW      |
+| 4     | WebDAV, Advanced Features           | 1 week   | LOW      |
 
 **Total**: 4 weeks for complete implementation
 

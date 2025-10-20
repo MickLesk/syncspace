@@ -1,18 +1,12 @@
 # 🚀 SyncSpace# SyncSpace Prototype
 
-
-
 **Modern Material 3 File Synchronization Service**This repository contains a cross‑platform synchronisation tool called **SyncSpace**. It consists of a Rust backend and a browser‑based frontend built with [Lit](https://lit.dev/) and styled in a Material 3 expressive aesthetic. The system allows you to manage a local folder, synchronise files, manage peers and receive live updates via WebSockets.
-
-
 
 A self-hosted, cross-platform file sync solution with a beautiful Material Design 3 Expressive interface. Built with Rust (backend) and Web Components (frontend).## Directory structure
 
-
-
 ![Version](https://img.shields.io/badge/version-0.2.0-blue)- `backend` – Rust backend exposing a REST API and WebSocket for file operations, peer management, search, rename and stats.
 
-![License](https://img.shields.io/badge/license-Apache--2.0-green)- `frontend` – Material‑inspired web UI built with Lit.  You can run it directly in a browser or embed it in Tauri or Electron.
+![License](https://img.shields.io/badge/license-Apache--2.0-green)- `frontend` – Material‑inspired web UI built with Lit. You can run it directly in a browser or embed it in Tauri or Electron.
 
 ![Material 3](https://img.shields.io/badge/Material-3%20Expressive-purple)- `desktop-app` – Placeholder for a Tauri configuration. A desktop app can embed the frontend here.
 
@@ -28,17 +22,17 @@ A self-hosted, cross-platform file sync solution with a beautiful Material Desig
 
 ### 🎨 **Material 3 Expressive Design**
 
-- Beautiful gradient app bar with smooth animations   ```bash
+- Beautiful gradient app bar with smooth animations ```bash
 
-- Adaptive dark/light theme with system integration   cd backend
+- Adaptive dark/light theme with system integration cd backend
 
-- Elevated cards with proper shadows and depth   cargo run
+- Elevated cards with proper shadows and depth cargo run
 
-- Material Design 3 color tokens and typography   ```
+- Material Design 3 color tokens and typography ```
 
 - Responsive layout for desktop and mobile
 
-   The backend listens on `http://localhost:8080`. It automatically creates a `data` folder for synchronised files and a `config.json` for peers and settings.
+  The backend listens on `http://localhost:8080`. It automatically creates a `data` folder for synchronised files and a `config.json` for peers and settings.
 
 ### 🌍 **Internationalization**
 
@@ -67,6 +61,7 @@ A self-hosted, cross-platform file sync solution with a beautiful Material Desig
 - Icon-based file type indicators
 
 ### 🔐 **Security & Authentication**
+
 - JWT-based authentication with Argon2 password hashing
 - **Two-Factor Authentication (2FA)** with TOTP
 - Rate limiting (5 attempts/minute)
@@ -74,16 +69,19 @@ A self-hosted, cross-platform file sync solution with a beautiful Material Desig
 - Default admin account (admin/admin)
 
 ### 🔍 **Search & Organization**
+
 - Real-time file search
 - Search results with file paths
 - Fast backend search with `walkdir`
 
 ### ⚡ **Real-Time Updates**
+
 - WebSocket connections for live file events
 - Automatic UI refresh on file changes
 - File system monitoring with `notify` crate
 
 ### 🎯 **Modern Tech Stack**
+
 - **Backend**: Rust with Warp, Tokio, and async/await
 - **Frontend**: Material Web Components from CDN
 - **No Build Tools**: Pure ES modules, instant reload
@@ -94,52 +92,60 @@ A self-hosted, cross-platform file sync solution with a beautiful Material Desig
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Rust 1.70+ ([Install Rust](https://rustup.rs/))
 - Modern web browser (Chrome 119+, Firefox 121+, Safari 17+)
 
 ### Installation
 
 1. **Clone the repository**
+
 ```bash
 git clone https://github.com/MickLesk/syncspace.git
 cd syncspace
 ```
 
 2. **Start the backend**
+
 ```bash
 cd backend
 cargo run --release
 ```
 
 3. **Access the app**
-Open your browser to: **http://localhost:8080**
+   Open your browser to: **http://localhost:8080**
 
 4. **Login**
+
 - Username: `admin`
 - Password: `admin`
-- *(Change this immediately in Settings!)*
+- _(Change this immediately in Settings!)_
 
 ---
 
 ## 📖 Usage
 
 ### File Upload
+
 - **Drag & drop**: Drag files onto the drop zone
 - **FAB button**: Click the floating action button (bottom right)
 - **Multiple files**: Upload multiple files at once
 
 ### Navigation
+
 - Click folders to navigate into them
 - Use breadcrumbs at the top to go back
 - Home icon returns to root directory
 
 ### File Operations
+
 - **Download**: Click download icon
 - **Rename**: Click edit icon, enter new name
 - **Delete**: Click delete icon, confirm deletion
-- **Preview**: Click on file name *(coming soon)*
+- **Preview**: Click on file name _(coming soon)_
 
 ### Settings
+
 - **Theme**: Toggle dark/light mode
 - **2FA**: Set up two-factor authentication
 - **Password**: Change your password
@@ -150,6 +156,7 @@ Open your browser to: **http://localhost:8080**
 ## 🏗️ Architecture
 
 ### Backend (Rust)
+
 ```
 backend/
 ├── src/
@@ -160,6 +167,7 @@ backend/
 ```
 
 **Key Dependencies:**
+
 - `warp` - Web framework
 - `tokio` - Async runtime
 - `jsonwebtoken` - JWT authentication
@@ -168,6 +176,7 @@ backend/
 - `notify` - File system monitoring
 
 ### Frontend
+
 ```
 frontend/
 ├── index.html       # Entry point with Material Web imports
@@ -176,6 +185,7 @@ frontend/
 ```
 
 **Features:**
+
 - Material Web Components via CDN (`@material/web`)
 - No build process required
 - Minified for production (< 10KB combined)
@@ -186,6 +196,7 @@ frontend/
 ## 🔐 Security
 
 ### Authentication Flow
+
 1. User enters credentials
 2. Backend validates with Argon2
 3. Optional 2FA verification
@@ -194,6 +205,7 @@ frontend/
 6. All API calls include Authorization header
 
 ### 2FA Setup
+
 1. Go to Settings
 2. Click "Setup 2FA"
 3. Scan QR code with authenticator app
@@ -201,6 +213,7 @@ frontend/
 5. 2FA enabled
 
 ### Rate Limiting
+
 - 5 login attempts per minute per IP
 - Automatic cooldown after limit reached
 
@@ -209,7 +222,9 @@ frontend/
 ## 🎨 Material 3 Design System
 
 ### Color Tokens
+
 The app uses the complete Material 3 color system:
+
 - **Primary**: Purple (`#6750A4`)
 - **Secondary**: Lavender (`#625B71`)
 - **Tertiary**: Rose (`#7D5260`)
@@ -217,11 +232,13 @@ The app uses the complete Material 3 color system:
 - **Error**: Red for warnings
 
 ### Typography
+
 - Roboto font family
 - Material typescale styles
 - Proper hierarchy and readability
 
 ### Components Used
+
 - `<md-filled-button>` - Primary actions
 - `<md-filled-text-field>` - Input fields
 - `<md-icon-button>` - Icon actions
@@ -234,6 +251,7 @@ The app uses the complete Material 3 color system:
 ## 🌐 API Reference
 
 ### Authentication
+
 - `POST /api/auth/register` - Create new user
 - `POST /api/auth/login` - Login with credentials
 - `GET /api/auth/me` - Get current user info
@@ -243,6 +261,7 @@ The app uses the complete Material 3 color system:
 - `POST /api/auth/change-password` - Change password
 
 ### Files (Protected)
+
 - `GET /api/files/:path` - List directory
 - `GET /api/file/:path` - Download file
 - `POST /api/upload/:path` - Upload file
@@ -251,12 +270,14 @@ The app uses the complete Material 3 color system:
 - `PUT /api/rename/:path` - Rename/move file
 
 ### Utility
+
 - `GET /api/search?q=:query` - Search files
 - `GET /api/stats` - File count and size
 - `GET /api/config` - Get config
 - `GET /api/peers` - List peers
 
 ### Real-Time
+
 - `GET /api/ws` - WebSocket for file events
 
 ---
@@ -264,6 +285,7 @@ The app uses the complete Material 3 color system:
 ## 🛠️ Configuration
 
 ### Backend Config (`config.json`)
+
 ```json
 {
   "sync_dirs": ["./data"],
@@ -273,7 +295,9 @@ The app uses the complete Material 3 color system:
 ```
 
 ### User Database (`users.json`)
+
 Automatically created and managed by the backend. Includes:
+
 - User ID (UUID)
 - Username
 - Password hash (Argon2)
@@ -285,6 +309,7 @@ Automatically created and managed by the backend. Includes:
 ## 🚧 Roadmap
 
 ### Phase 1: Core Features ✅
+
 - [x] Authentication with JWT
 - [x] 2FA with TOTP
 - [x] File upload/download
@@ -294,6 +319,7 @@ Automatically created and managed by the backend. Includes:
 - [x] i18n (EN/DE)
 
 ### Phase 2: Enhanced UX (In Progress)
+
 - [x] Drag & drop upload
 - [x] Breadcrumb navigation
 - [ ] File preview (images, text, PDF)
@@ -302,6 +328,7 @@ Automatically created and managed by the backend. Includes:
 - [ ] File context menus
 
 ### Phase 3: Sync & Collaboration
+
 - [ ] Peer-to-peer file synchronization
 - [ ] Conflict resolution
 - [ ] File versioning
@@ -309,6 +336,7 @@ Automatically created and managed by the backend. Includes:
 - [ ] User permissions
 
 ### Phase 4: Advanced Features
+
 - [ ] Mobile apps (Flutter)
 - [ ] Desktop app (Tauri)
 - [ ] Selective sync
@@ -323,6 +351,7 @@ Automatically created and managed by the backend. Includes:
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ### Development Setup
+
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
 3. Commit changes: `git commit -m 'feat: add amazing feature'`
@@ -330,7 +359,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 5. Open a Pull Request
 
 ### Commit Convention
+
 We follow [Conventional Commits](https://www.conventionalcommits.org/):
+
 - `feat:` New feature
 - `fix:` Bug fix
 - `docs:` Documentation
