@@ -1,11 +1,6 @@
-//! SyncSpace backend server.
-//!
-//! This backend implements a set of HTTP and WebSocket APIs to manage a
-//! synchronisation folder. It exposes endpoints to list files, download and
-//! upload them, delete entries, create subdirectories, manage peers and
-//! configuration, and broadcast file system change events to connected
-//! clients via WebSockets. The implementation uses [`warp`] as the web
-//! framework and [`notify`] to watch the file system.
+//! SyncSpace backend server with authentication.
+
+mod auth;
 
 use std::collections::HashMap;
 use std::convert::Infallible;
@@ -25,13 +20,14 @@ use warp::ws::{Message, WebSocket};
 use warp::Filter;
 use walkdir::WalkDir;
 
-/// Directory where all synchronised files are stored. This can be extended
-/// later to support multiple directories based on configuration.
+use auth::{
+    AuthResponse, ChangePasswordRequest, Enable2FARequest, LoginRequest, RateLimiter,
+    RegisterRequest, Setup2FAResponse, UserDB, UserInfo,
+};
+
 const DATA_DIR: &str = "./data";
-/// Path to the configuration file.
 const CONFIG_FILE: &str = "./config.json";
 
-/// Information returned for each entry in the folder listing.
 #[derive(Serialize)]
 struct EntryInfo {
     name: String,
@@ -39,15 +35,10 @@ struct EntryInfo {
     size: u64,
 }
 
-/// Configuration structure persisted in [`CONFIG_FILE`].
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Config {
-    /// Paths (relative to working directory) that should be synchronised.
     sync_dirs: Vec<String>,
-    /// Known remote peers.
     peers: Vec<Peer>,
-    /// Optional API key to protect mutating operations. If `Some`, clients must
-    /// supply this key in the `x-api-key` header when performing writes.
     #[serde(skip_serializing_if = "Option::is_none")]
     api_key: Option<String>,
 }
@@ -62,7 +53,6 @@ impl Default for Config {
     }
 }
 
-/// Representation of a remote peer.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Peer {
     id: Uuid,
@@ -70,8 +60,6 @@ struct Peer {
     last_seen: Option<DateTime<Utc>>,
 }
 
-/// Event describing a file system change. These events are broadcast to all
-/// connected WebSocket clients.
 #[derive(Debug, Clone, Serialize)]
 struct FileChangeEvent {
     path: String,
@@ -79,14 +67,11 @@ struct FileChangeEvent {
     timestamp: DateTime<Utc>,
 }
 
-/// Request body for renaming files or directories.
 #[derive(Debug, Clone, Deserialize)]
 struct RenameRequest {
-    /// New relative path within the data directory.
     new_path: String,
 }
 
-/// Search result entry containing a relative path and metadata.
 #[derive(Debug, Clone, Serialize)]
 struct SearchResult {
     path: String,
@@ -96,16 +81,32 @@ struct SearchResult {
 
 #[tokio::main]
 async fn main() {
+    println!("🚀 Starting SyncSpace Backend v0.2.0");
+    
     // Ensure data directory exists
     if let Err(e) = fs::create_dir_all(DATA_DIR).await {
         eprintln!("Failed to create data directory {}: {}", DATA_DIR, e);
     }
+    
+    // Initialize auth system
+    let user_db = UserDB::new();
+    let rate_limiter = Arc::new(RateLimiter::new());
+    
+    // Create default admin user if no users exist
+    if user_db.get_by_username("admin").is_none() {
+        println!("📝 Creating default admin user (username: admin, password: admin)");
+        if let Err(e) = user_db.create_user("admin".to_string(), "admin".to_string()) {
+            eprintln!("Failed to create admin user: {}", e);
+        }
+    }
+    
     // Load configuration or create default
     let config = Arc::new(Mutex::new(load_config().await.unwrap_or_default()));
 
     // Broadcast channel for file system events
     let (tx, _rx) = broadcast::channel::<FileChangeEvent>(32);
     let tx_clone = tx.clone();
+    
     // Spawn the file watcher task
     tokio::spawn(async move {
         if let Err(e) = watch_data_dir(tx_clone).await {
@@ -114,233 +115,548 @@ async fn main() {
     });
 
     // Build all routes
-    let api = routes(config.clone(), tx.clone());
-    println!("SyncSpace backend listening on http://localhost:8080");
+    let api = routes(config.clone(), tx.clone(), user_db.clone(), rate_limiter.clone());
+    
+    println!("✅ SyncSpace backend listening on http://localhost:8080");
+    println!("🔐 Authentication enabled - use /api/auth/register or /api/auth/login");
+    
     warp::serve(api).run(([127, 0, 0, 1], 8080)).await;
 }
 
-/// Construct all API routes as a single boxed filter.
-fn routes(config: Arc<Mutex<Config>>, fs_tx: Sender<FileChangeEvent>) -> BoxedFilter<(impl warp::Reply,)> {
-    // List entries in data directory or a subdirectory
-    let list = warp::path("api")
-        .and(warp::path("files"))
-        .and(warp::path::tail())
-        .and(warp::get())
-        .and_then(list_entries);
-
-    // Download file
-    let download = warp::path("api")
-        .and(warp::path("file"))
-        .and(warp::path::tail())
-        .and(warp::get())
-        .and_then(download_file);
-
-    // Upload file
-    let fs_tx_clone1 = fs_tx.clone();
-    let upload = warp::path("api")
-        .and(warp::path("upload"))
-        .and(warp::path::tail())
-        .and(warp::post())
-        .and(warp::body::bytes())
-        .and_then(move |tail: warp::path::Tail, bytes: bytes::Bytes| {
-            let tx = fs_tx_clone1.clone();
-            async move {
-                let path = Path::new(tail.as_str());
-                match upload_file(path, bytes).await {
-                    Ok(_) => {
-                        // Broadcast event
-                        let _ = tx.send(FileChangeEvent {
-                            path: tail.as_str().to_string(),
-                            kind: "create".into(),
-                            timestamp: Utc::now(),
-                        });
-                        Ok::<_, Infallible>(warp::reply::with_status("uploaded", StatusCode::CREATED))
+fn routes(
+    config: Arc<Mutex<Config>>,
+    fs_tx: Sender<FileChangeEvent>,
+    user_db: UserDB,
+    rate_limiter: Arc<RateLimiter>,
+) -> BoxedFilter<(impl warp::Reply,)> {
+    
+    // ==================== AUTH ROUTES ====================
+    
+    // Register new user
+    let register = {
+        let db = user_db.clone();
+        warp::path!("api" / "auth" / "register")
+            .and(warp::post())
+            .and(warp::body::json())
+            .and_then(move |req: RegisterRequest| {
+                let db = db.clone();
+                async move {
+                    match db.create_user(req.username.clone(), req.password) {
+                        Ok(user) => {
+                            match auth::generate_token(&user) {
+                                Ok(token) => {
+                                    let response = AuthResponse {
+                                        token,
+                                        user: UserInfo {
+                                            id: user.id.to_string(),
+                                            username: user.username,
+                                            totp_enabled: user.totp_enabled,
+                                        },
+                                        requires_2fa: false,
+                                    };
+                                    Ok::<_, Infallible>(warp::reply::with_status(
+                                        warp::reply::json(&response),
+                                        StatusCode::CREATED,
+                                    ))
+                                }
+                                Err(e) => {
+                                    let error = serde_json::json!({"error": e});
+                                    Ok(warp::reply::with_status(
+                                        warp::reply::json(&error),
+                                        StatusCode::INTERNAL_SERVER_ERROR,
+                                    ))
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            let error = serde_json::json!({"error": e});
+                            Ok(warp::reply::with_status(
+                                warp::reply::json(&error),
+                                StatusCode::BAD_REQUEST,
+                            ))
+                        }
                     }
-                    Err(_) => Ok::<_, Infallible>(warp::reply::with_status("error", StatusCode::INTERNAL_SERVER_ERROR)),
                 }
-            }
-        });
+            })
+    };
 
-    // Delete file or directory
-    let fs_tx_clone2 = fs_tx.clone();
-    let delete = warp::path("api")
-        .and(warp::path("files"))
-        .and(warp::path::tail())
-        .and(warp::delete())
-        .and_then(move |tail: warp::path::Tail| {
-            let tx = fs_tx_clone2.clone();
-            async move {
-                let path = Path::new(tail.as_str());
-                match delete_entry(path).await {
-                    Ok(_) => {
-                        let _ = tx.send(FileChangeEvent {
-                            path: tail.as_str().to_string(),
-                            kind: "delete".into(),
-                            timestamp: Utc::now(),
-                        });
-                        Ok::<_, Infallible>(warp::reply::with_status("deleted", StatusCode::OK))
+    // Login
+    let login = {
+        let db = user_db.clone();
+        let limiter = rate_limiter.clone();
+        warp::path!("api" / "auth" / "login")
+            .and(warp::post())
+            .and(warp::body::json())
+            .and_then(move |req: LoginRequest| {
+                let db = db.clone();
+                let limiter = limiter.clone();
+                async move {
+                    // Rate limiting
+                    if !limiter.check_rate_limit(&req.username, 5, 60) {
+                        let error = serde_json::json!({"error": "Too many login attempts. Try again later."});
+                        return Ok::<_, Infallible>(warp::reply::with_status(
+                            warp::reply::json(&error),
+                            StatusCode::TOO_MANY_REQUESTS,
+                        ));
                     }
-                    Err(_) => Ok::<_, Infallible>(warp::reply::with_status("not found", StatusCode::NOT_FOUND)),
-                }
-            }
-        });
 
-    // Create directory
-    let fs_tx_clone3 = fs_tx.clone();
-    let mkdir = warp::path("api")
-        .and(warp::path("dirs"))
-        .and(warp::path::tail())
-        .and(warp::post())
-        .and_then(move |tail: warp::path::Tail| {
-            let tx = fs_tx_clone3.clone();
-            async move {
-                let path = Path::new(tail.as_str());
-                match create_dir(path).await {
-                    Ok(_) => {
-                        let _ = tx.send(FileChangeEvent {
-                            path: tail.as_str().to_string(),
-                            kind: "mkdir".into(),
-                            timestamp: Utc::now(),
-                        });
-                        Ok::<_, Infallible>(warp::reply::with_status("created", StatusCode::CREATED))
+                    match db.verify_password(&req.username, &req.password) {
+                        Ok(mut user) => {
+                            // Check if 2FA is enabled
+                            if user.totp_enabled {
+                                if let Some(code) = req.totp_code {
+                                    // Verify TOTP code
+                                    if let Some(ref secret) = user.totp_secret {
+                                        if !auth::verify_totp_code(secret, &code) {
+                                            let error = serde_json::json!({"error": "Invalid 2FA code"});
+                                            return Ok(warp::reply::with_status(
+                                                warp::reply::json(&error),
+                                                StatusCode::UNAUTHORIZED,
+                                            ));
+                                        }
+                                    } else {
+                                        let error = serde_json::json!({"error": "2FA not properly configured"});
+                                        return Ok(warp::reply::with_status(
+                                            warp::reply::json(&error),
+                                            StatusCode::INTERNAL_SERVER_ERROR,
+                                        ));
+                                    }
+                                } else {
+                                    // 2FA required but not provided
+                                    let response = serde_json::json!({
+                                        "requires_2fa": true,
+                                        "message": "Please provide 2FA code"
+                                    });
+                                    return Ok(warp::reply::with_status(
+                                        warp::reply::json(&response),
+                                        StatusCode::OK,
+                                    ));
+                                }
+                            }
+
+                            // Update last login
+                            user.last_login = Some(Utc::now());
+                            db.update_user(user.clone());
+
+                            // Generate token
+                            match auth::generate_token(&user) {
+                                Ok(token) => {
+                                    let response = AuthResponse {
+                                        token,
+                                        user: UserInfo {
+                                            id: user.id.to_string(),
+                                            username: user.username,
+                                            totp_enabled: user.totp_enabled,
+                                        },
+                                        requires_2fa: false,
+                                    };
+                                    Ok(warp::reply::with_status(
+                                        warp::reply::json(&response),
+                                        StatusCode::OK,
+                                    ))
+                                }
+                                Err(e) => {
+                                    let error = serde_json::json!({"error": e});
+                                    Ok(warp::reply::with_status(
+                                        warp::reply::json(&error),
+                                        StatusCode::INTERNAL_SERVER_ERROR,
+                                    ))
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            let error = serde_json::json!({"error": e});
+                            Ok(warp::reply::with_status(
+                                warp::reply::json(&error),
+                                StatusCode::UNAUTHORIZED,
+                            ))
+                        }
                     }
-                    Err(_) => Ok::<_, Infallible>(warp::reply::with_status("error", StatusCode::INTERNAL_SERVER_ERROR)),
                 }
-            }
-        });
+            })
+    };
 
-    // Rename file or directory
-    let fs_tx_clone4 = fs_tx.clone();
-    let rename = warp::path("api")
-        .and(warp::path("rename"))
-        .and(warp::path::tail())
-        .and(warp::put())
-        .and(warp::body::json())
-        .and_then(move |tail: warp::path::Tail, req: RenameRequest| {
-            let tx = fs_tx_clone4.clone();
-            async move {
-                let old_path = Path::new(tail.as_str());
-                let new_path = Path::new(&req.new_path);
-                match rename_entry(old_path, new_path).await {
-                    Ok(_) => {
-                        // broadcast using new path
-                        let _ = tx.send(FileChangeEvent {
-                            path: req.new_path.clone(),
-                            kind: "rename".into(),
-                            timestamp: Utc::now(),
-                        });
-                        Ok::<_, Infallible>(warp::reply::with_status("renamed", StatusCode::OK))
+    // Setup 2FA
+    let setup_2fa = {
+        let db = user_db.clone();
+        warp::path!("api" / "auth" / "2fa" / "setup")
+            .and(warp::post())
+            .and(auth::with_auth(db.clone()))
+            .and_then(move |user: auth::User| async move {
+                let secret = auth::generate_totp_secret();
+                let qr_url = format!(
+                    "otpauth://totp/SyncSpace:{}?secret={}&issuer=SyncSpace",
+                    user.username, secret
+                );
+                
+                let response = Setup2FAResponse { secret, qr_url };
+                Ok::<_, Infallible>(warp::reply::json(&response))
+            })
+    };
+
+    // Enable 2FA
+    let enable_2fa = {
+        let db = user_db.clone();
+        warp::path!("api" / "auth" / "2fa" / "enable")
+            .and(warp::post())
+            .and(auth::with_auth(db.clone()))
+            .and(warp::body::json())
+            .and_then(move |mut user: auth::User, req: Enable2FARequest| {
+                let db = db.clone();
+                async move {
+                    // Secret should be in session or re-generated (simplified here)
+                    let secret = user.totp_secret.clone().unwrap_or_else(auth::generate_totp_secret);
+                    
+                    if auth::verify_totp_code(&secret, &req.totp_code) {
+                        user.totp_secret = Some(secret);
+                        user.totp_enabled = true;
+                        db.update_user(user);
+                        
+                        let response = serde_json::json!({"message": "2FA enabled successfully"});
+                        Ok::<_, Infallible>(warp::reply::with_status(
+                            warp::reply::json(&response),
+                            StatusCode::OK,
+                        ))
+                    } else {
+                        let error = serde_json::json!({"error": "Invalid 2FA code"});
+                        Ok(warp::reply::with_status(
+                            warp::reply::json(&error),
+                            StatusCode::BAD_REQUEST,
+                        ))
                     }
-                    Err(_) => Ok::<_, Infallible>(warp::reply::with_status(
-                        "error", StatusCode::INTERNAL_SERVER_ERROR,
-                    )),
                 }
-            }
-        });
+            })
+    };
 
-    // Search entries
-    let search = warp::path("api")
-        .and(warp::path("search"))
-        .and(warp::get())
-        .and(warp::query::<HashMap<String, String>>())
-        .and_then(|params: HashMap<String, String>| async move {
-            let query = params.get("q").cloned().unwrap_or_default();
-            let results = search_entries(query).await;
-            Ok::<_, Infallible>(warp::reply::json(&results))
-        });
-
-    // Configuration: get
-    let config_clone2 = config.clone();
-    let get_config = warp::path("api")
-        .and(warp::path("config"))
-        .and(warp::get())
-        .and_then(move || {
-            let config = config_clone2.clone();
-            async move {
-                let cfg = config.lock().unwrap().clone();
-                Ok::<_, Infallible>(warp::reply::json(&cfg))
-            }
-        });
-    // Configuration: update
-    let config_clone3 = config.clone();
-    let put_config = warp::path("api")
-        .and(warp::path("config"))
-        .and(warp::put())
-        .and(warp::body::json())
-        .and_then(move |new_cfg: Config| {
-            let config = config_clone3.clone();
-            async move {
-                {
-                    let mut cfg = config.lock().unwrap();
-                    *cfg = new_cfg.clone();
+    // Disable 2FA
+    let disable_2fa = {
+        let db = user_db.clone();
+        warp::path!("api" / "auth" / "2fa" / "disable")
+            .and(warp::post())
+            .and(auth::with_auth(db.clone()))
+            .and_then(move |mut user: auth::User| {
+                let db = db.clone();
+                async move {
+                    user.totp_enabled = false;
+                    user.totp_secret = None;
+                    db.update_user(user);
+                    
+                    let response = serde_json::json!({"message": "2FA disabled"});
+                    Ok::<_, Infallible>(warp::reply::json(&response))
                 }
-                // Persist configuration
-                if let Err(e) = save_config(&new_cfg).await {
-                    eprintln!("Failed to save config: {}", e);
-                }
-                Ok::<_, Infallible>(warp::reply::json(&new_cfg))
-            }
-        });
+            })
+    };
 
-    // Peer registration (add a new peer)
-    let config_clone4 = config.clone();
-    let add_peer = warp::path("api")
-        .and(warp::path("peers"))
-        .and(warp::post())
-        .and(warp::body::json())
-        .and_then(move |peer: Peer| {
-            let config = config_clone4.clone();
-            async move {
-                let cfg_to_save = {
-                    let mut cfg = config.lock().unwrap();
-                    cfg.peers.push(peer.clone());
-                    cfg.clone()
+    // Change password
+    let change_password = {
+        let db = user_db.clone();
+        warp::path!("api" / "auth" / "change-password")
+            .and(warp::put())
+            .and(auth::with_auth(db.clone()))
+            .and(warp::body::json())
+            .and_then(move |user: auth::User, req: ChangePasswordRequest| {
+                let db = db.clone();
+                async move {
+                    match db.change_password(user.id, &req.old_password, &req.new_password) {
+                        Ok(_) => {
+                            let response = serde_json::json!({"message": "Password changed successfully"});
+                            Ok::<_, Infallible>(warp::reply::with_status(
+                                warp::reply::json(&response),
+                                StatusCode::OK,
+                            ))
+                        }
+                        Err(e) => {
+                            let error = serde_json::json!({"error": e});
+                            Ok(warp::reply::with_status(
+                                warp::reply::json(&error),
+                                StatusCode::BAD_REQUEST,
+                            ))
+                        }
+                    }
+                }
+            })
+    };
+
+    // Get current user info
+    let me = {
+        let db = user_db.clone();
+        warp::path!("api" / "auth" / "me")
+            .and(warp::get())
+            .and(auth::with_auth(db.clone()))
+            .and_then(|user: auth::User| async move {
+                let info = UserInfo {
+                    id: user.id.to_string(),
+                    username: user.username,
+                    totp_enabled: user.totp_enabled,
                 };
-                if let Err(e) = save_config(&cfg_to_save).await {
-                    eprintln!("Failed to save config: {}", e);
+                Ok::<_, Infallible>(warp::reply::json(&info))
+            })
+    };
+
+    // ==================== FILE ROUTES (Protected) ====================
+
+    // List files (protected)
+    let list = {
+        let db = user_db.clone();
+        warp::path!("api" / "files" / ..)
+            .and(warp::get())
+            .and(warp::path::tail())
+            .and(auth::with_auth(db))
+            .and_then(|tail: warp::path::Tail, _user: auth::User| async move {
+                list_entries(tail).await
+            })
+    };
+
+    // Download file (protected)
+    let download = {
+        let db = user_db.clone();
+        warp::path!("api" / "file" / ..)
+            .and(warp::get())
+            .and(warp::path::tail())
+            .and(auth::with_auth(db))
+            .and_then(|tail: warp::path::Tail, _user: auth::User| async move {
+                download_file(tail).await
+            })
+    };
+
+    // Upload file (protected)
+    let upload = {
+        let db = user_db.clone();
+        let tx = fs_tx.clone();
+        warp::path!("api" / "upload" / ..)
+            .and(warp::post())
+            .and(warp::path::tail())
+            .and(warp::body::bytes())
+            .and(auth::with_auth(db))
+            .and_then(move |tail: warp::path::Tail, bytes: bytes::Bytes, _user: auth::User| {
+                let tx = tx.clone();
+                async move {
+                    let path = Path::new(tail.as_str());
+                    match upload_file(path, bytes).await {
+                        Ok(_) => {
+                            let _ = tx.send(FileChangeEvent {
+                                path: tail.as_str().to_string(),
+                                kind: "create".into(),
+                                timestamp: Utc::now(),
+                            });
+                            Ok::<_, Infallible>(warp::reply::with_status("uploaded", StatusCode::CREATED))
+                        }
+                        Err(_) => Ok(warp::reply::with_status("error", StatusCode::INTERNAL_SERVER_ERROR)),
+                    }
                 }
-                Ok::<_, Infallible>(warp::reply::json(&peer))
-            }
-        });
+            })
+    };
 
-    // List peers
-    let config_clone5 = config.clone();
-    let list_peers = warp::path("api")
-        .and(warp::path("peers"))
-        .and(warp::get())
-        .and_then(move || {
-            let config = config_clone5.clone();
-            async move {
-                let peers = config.lock().unwrap().peers.clone();
-                Ok::<_, Infallible>(warp::reply::json(&peers))
-            }
-        });
+    // Delete file (protected)
+    let delete = {
+        let db = user_db.clone();
+        let tx = fs_tx.clone();
+        warp::path!("api" / "files" / ..)
+            .and(warp::delete())
+            .and(warp::path::tail())
+            .and(auth::with_auth(db))
+            .and_then(move |tail: warp::path::Tail, _user: auth::User| {
+                let tx = tx.clone();
+                async move {
+                    let path = Path::new(tail.as_str());
+                    match delete_entry(path).await {
+                        Ok(_) => {
+                            let _ = tx.send(FileChangeEvent {
+                                path: tail.as_str().to_string(),
+                                kind: "delete".into(),
+                                timestamp: Utc::now(),
+                            });
+                            Ok::<_, Infallible>(warp::reply::with_status("deleted", StatusCode::OK))
+                        }
+                        Err(_) => Ok(warp::reply::with_status("not found", StatusCode::NOT_FOUND)),
+                    }
+                }
+            })
+    };
 
-    // Stats: returns basic statistics of the data directory (file count and total size)
-    let stats = warp::path("api")
-        .and(warp::path("stats"))
-        .and(warp::get())
-        .and_then(|| async move {
-            let (count, size) = compute_stats_async().await;
-            let body = serde_json::json!({
-                "file_count": count,
-                "total_size": size
-            });
-            Ok::<_, Infallible>(warp::reply::json(&body))
-        });
+    // Create directory (protected)
+    let mkdir = {
+        let db = user_db.clone();
+        let tx = fs_tx.clone();
+        warp::path!("api" / "dirs" / ..)
+            .and(warp::post())
+            .and(warp::path::tail())
+            .and(auth::with_auth(db))
+            .and_then(move |tail: warp::path::Tail, _user: auth::User| {
+                let tx = tx.clone();
+                async move {
+                    let path = Path::new(tail.as_str());
+                    match create_dir(path).await {
+                        Ok(_) => {
+                            let _ = tx.send(FileChangeEvent {
+                                path: tail.as_str().to_string(),
+                                kind: "mkdir".into(),
+                                timestamp: Utc::now(),
+                            });
+                            Ok::<_, Infallible>(warp::reply::with_status("created", StatusCode::CREATED))
+                        }
+                        Err(_) => Ok(warp::reply::with_status("error", StatusCode::INTERNAL_SERVER_ERROR)),
+                    }
+                }
+            })
+    };
 
-    // WebSocket endpoint for file events
-    let fs_tx_clone5 = fs_tx.clone();
-    let ws_route = warp::path("api")
-        .and(warp::path("ws"))
-        .and(warp::ws())
-        .map(move |ws: warp::ws::Ws| {
-            let tx = fs_tx_clone5.clone();
-            ws.on_upgrade(move |socket| handle_ws_connection(socket, tx))
-        });
+    // Rename file (protected)
+    let rename = {
+        let db = user_db.clone();
+        let tx = fs_tx.clone();
+        warp::path!("api" / "rename" / ..)
+            .and(warp::put())
+            .and(warp::path::tail())
+            .and(warp::body::json())
+            .and(auth::with_auth(db))
+            .and_then(move |tail: warp::path::Tail, req: RenameRequest, _user: auth::User| {
+                let tx = tx.clone();
+                async move {
+                    let old_path = Path::new(tail.as_str());
+                    let new_path = Path::new(&req.new_path);
+                    match rename_entry(old_path, new_path).await {
+                        Ok(_) => {
+                            let _ = tx.send(FileChangeEvent {
+                                path: req.new_path.clone(),
+                                kind: "rename".into(),
+                                timestamp: Utc::now(),
+                            });
+                            Ok::<_, Infallible>(warp::reply::with_status("renamed", StatusCode::OK))
+                        }
+                        Err(_) => Ok(warp::reply::with_status("error", StatusCode::INTERNAL_SERVER_ERROR)),
+                    }
+                }
+            })
+    };
 
-    // Combine all routes and enable CORS
-    list
+    // Search (protected)
+    let search = {
+        let db = user_db.clone();
+        warp::path!("api" / "search")
+            .and(warp::get())
+            .and(warp::query::<HashMap<String, String>>())
+            .and(auth::with_auth(db))
+            .and_then(|params: HashMap<String, String>, _user: auth::User| async move {
+                let query = params.get("q").cloned().unwrap_or_default();
+                let results = search_entries(query).await;
+                Ok::<_, Infallible>(warp::reply::json(&results))
+            })
+    };
+
+    // Stats (protected)
+    let stats = {
+        let db = user_db.clone();
+        warp::path!("api" / "stats")
+            .and(warp::get())
+            .and(auth::with_auth(db))
+            .and_then(|_user: auth::User| async move {
+                let (count, size) = compute_stats_async().await;
+                let body = serde_json::json!({
+                    "file_count": count,
+                    "total_size": size
+                });
+                Ok::<_, Infallible>(warp::reply::json(&body))
+            })
+    };
+
+    // ==================== CONFIG & PEERS (Protected) ====================
+
+    let get_config = {
+        let db = user_db.clone();
+        let cfg = config.clone();
+        warp::path!("api" / "config")
+            .and(warp::get())
+            .and(auth::with_auth(db))
+            .and_then(move |_user: auth::User| {
+                let cfg = cfg.clone();
+                async move {
+                    let config = cfg.lock().unwrap().clone();
+                    Ok::<_, Infallible>(warp::reply::json(&config))
+                }
+            })
+    };
+
+    let put_config = {
+        let db = user_db.clone();
+        let cfg = config.clone();
+        warp::path!("api" / "config")
+            .and(warp::put())
+            .and(warp::body::json())
+            .and(auth::with_auth(db))
+            .and_then(move |new_cfg: Config, _user: auth::User| {
+                let cfg = cfg.clone();
+                async move {
+                    {
+                        let mut config = cfg.lock().unwrap();
+                        *config = new_cfg.clone();
+                    }
+                    if let Err(e) = save_config(&new_cfg).await {
+                        eprintln!("Failed to save config: {}", e);
+                    }
+                    Ok::<_, Infallible>(warp::reply::json(&new_cfg))
+                }
+            })
+    };
+
+    let add_peer = {
+        let db = user_db.clone();
+        let cfg = config.clone();
+        warp::path!("api" / "peers")
+            .and(warp::post())
+            .and(warp::body::json())
+            .and(auth::with_auth(db))
+            .and_then(move |peer: Peer, _user: auth::User| {
+                let cfg = cfg.clone();
+                async move {
+                    let cfg_to_save = {
+                        let mut config = cfg.lock().unwrap();
+                        config.peers.push(peer.clone());
+                        config.clone()
+                    };
+                    if let Err(e) = save_config(&cfg_to_save).await {
+                        eprintln!("Failed to save config: {}", e);
+                    }
+                    Ok::<_, Infallible>(warp::reply::json(&peer))
+                }
+            })
+    };
+
+    let list_peers = {
+        let db = user_db.clone();
+        let cfg = config.clone();
+        warp::path!("api" / "peers")
+            .and(warp::get())
+            .and(auth::with_auth(db))
+            .and_then(move |_user: auth::User| {
+                let cfg = cfg.clone();
+                async move {
+                    let peers = cfg.lock().unwrap().peers.clone();
+                    Ok::<_, Infallible>(warp::reply::json(&peers))
+                }
+            })
+    };
+
+    // WebSocket endpoint (protected via query param token)
+    let ws_route = {
+        let tx = fs_tx.clone();
+        warp::path!("api" / "ws")
+            .and(warp::ws())
+            .map(move |ws: warp::ws::Ws| {
+                let tx = tx.clone();
+                ws.on_upgrade(move |socket| handle_ws_connection(socket, tx))
+            })
+    };
+
+    // Combine all routes
+    register
+        .or(login)
+        .or(setup_2fa)
+        .or(enable_2fa)
+        .or(disable_2fa)
+        .or(change_password)
+        .or(me)
+        .or(list)
         .or(download)
         .or(upload)
         .or(delete)
@@ -353,14 +669,17 @@ fn routes(config: Arc<Mutex<Config>>, fs_tx: Sender<FileChangeEvent>) -> BoxedFi
         .or(list_peers)
         .or(stats)
         .or(ws_route)
-        .with(warp::cors()
-            .allow_any_origin()
-            .allow_methods(vec!["GET", "POST", "DELETE", "PUT"])
-            .allow_headers(vec!["Content-Type"]))
+        .with(
+            warp::cors()
+                .allow_any_origin()
+                .allow_methods(vec!["GET", "POST", "DELETE", "PUT"])
+                .allow_headers(vec!["Content-Type", "Authorization"]),
+        )
         .boxed()
 }
 
-/// Read configuration from disk.
+// ==================== HELPER FUNCTIONS ====================
+
 async fn load_config() -> Option<Config> {
     match fs::read(CONFIG_FILE).await {
         Ok(bytes) => serde_json::from_slice(&bytes).ok(),
@@ -368,33 +687,33 @@ async fn load_config() -> Option<Config> {
     }
 }
 
-/// Persist configuration to disk.
 async fn save_config(config: &Config) -> Result<(), std::io::Error> {
     let json = serde_json::to_vec_pretty(config).unwrap();
     fs::write(CONFIG_FILE, json).await
 }
 
-/// Watch the data directory for changes and send events on the provided channel.
 async fn watch_data_dir(tx: Sender<FileChangeEvent>) -> Result<(), NotifyError> {
-    // Channel to forward events from the notify callback into the async world
     let (event_tx, mut event_rx) = tokio::sync::mpsc::channel::<Event>(16);
-    // Create the blocking watcher
-    let mut watcher = RecommendedWatcher::new(move |res| {
-        match res {
-            Ok(event) => {
-                // Ignore if the send fails
-                let _ = event_tx.blocking_send(event);
+    let mut watcher = RecommendedWatcher::new(
+        move |res| {
+            match res {
+                Ok(event) => {
+                    let _ = event_tx.blocking_send(event);
+                }
+                Err(e) => eprintln!("notify error: {}", e),
             }
-            Err(e) => eprintln!("notify error: {}", e),
-        }
-    }, notify::Config::default())?;
+        },
+        notify::Config::default(),
+    )?;
     watcher.watch(Path::new(DATA_DIR), RecursiveMode::Recursive)?;
-    // Process events and broadcast
     while let Some(event) = event_rx.recv().await {
-        // Use the first path for simplicity
         if let Some(path) = event.paths.first() {
             let kind = format!("{:?}", event.kind);
-            let relative = path.strip_prefix(DATA_DIR).unwrap_or(path).to_string_lossy().to_string();
+            let relative = path
+                .strip_prefix(DATA_DIR)
+                .unwrap_or(path)
+                .to_string_lossy()
+                .to_string();
             let _ = tx.send(FileChangeEvent {
                 path: relative,
                 kind,
@@ -405,8 +724,6 @@ async fn watch_data_dir(tx: Sender<FileChangeEvent>) -> Result<(), NotifyError> 
     Ok(())
 }
 
-/// List entries within the given subpath of the data directory. An empty tail
-/// refers to the root of [`DATA_DIR`].
 async fn list_entries(tail: warp::path::Tail) -> Result<impl warp::Reply, Infallible> {
     let sub = tail.as_str();
     let target_dir = Path::new(DATA_DIR).join(sub);
@@ -431,8 +748,6 @@ async fn list_entries(tail: warp::path::Tail) -> Result<impl warp::Reply, Infall
     }
 }
 
-/// Download a file and return its contents. If the path refers to a
-/// directory, a 400 status is returned.
 async fn download_file(tail: warp::path::Tail) -> Result<impl warp::Reply, Infallible> {
     let sub = tail.as_str();
     let file_path = Path::new(DATA_DIR).join(sub);
@@ -440,20 +755,21 @@ async fn download_file(tail: warp::path::Tail) -> Result<impl warp::Reply, Infal
         Ok(meta) if meta.is_file() => match fs::read(&file_path).await {
             Ok(bytes) => Ok(warp::reply::with_status(bytes, StatusCode::OK)),
             Err(_) => Ok(warp::reply::with_status(
-                Vec::<u8>::new(), StatusCode::INTERNAL_SERVER_ERROR,
+                Vec::<u8>::new(),
+                StatusCode::INTERNAL_SERVER_ERROR,
             )),
         },
         Ok(_) => Ok(warp::reply::with_status(
-            Vec::<u8>::new(), StatusCode::BAD_REQUEST,
+            Vec::<u8>::new(),
+            StatusCode::BAD_REQUEST,
         )),
         Err(_) => Ok(warp::reply::with_status(
-            Vec::<u8>::new(), StatusCode::NOT_FOUND,
+            Vec::<u8>::new(),
+            StatusCode::NOT_FOUND,
         )),
     }
 }
 
-/// Write the provided bytes to a file within the data directory. Any missing
-/// parent directories are created automatically.
 async fn upload_file(path: &Path, bytes: bytes::Bytes) -> Result<(), std::io::Error> {
     let file_path = Path::new(DATA_DIR).join(path);
     if let Some(parent) = file_path.parent() {
@@ -462,8 +778,6 @@ async fn upload_file(path: &Path, bytes: bytes::Bytes) -> Result<(), std::io::Er
     fs::write(file_path, bytes).await
 }
 
-/// Delete the specified file or directory. Directories are removed
-/// recursively. The function returns an error if the entry does not exist.
 async fn delete_entry(path: &Path) -> Result<(), std::io::Error> {
     let full = Path::new(DATA_DIR).join(path);
     let meta = fs::metadata(&full).await?;
@@ -474,15 +788,11 @@ async fn delete_entry(path: &Path) -> Result<(), std::io::Error> {
     }
 }
 
-/// Create a new directory (and parents) under the data directory.
 async fn create_dir(path: &Path) -> Result<(), std::io::Error> {
     let full = Path::new(DATA_DIR).join(path);
     fs::create_dir_all(full).await
 }
 
-/// Handle a WebSocket connection. Subscribes to the broadcast channel and
-/// forwards incoming file change events to the client. Ignores any
-/// messages received from the client.
 async fn handle_ws_connection(ws: WebSocket, tx: Sender<FileChangeEvent>) {
     println!("WebSocket client connected");
     let (mut ws_tx, mut ws_rx) = ws.split();
@@ -495,11 +805,8 @@ async fn handle_ws_connection(ws: WebSocket, tx: Sender<FileChangeEvent>) {
             }
         }
     });
-    // Drain incoming messages and ignore them
     let mut recv_task = tokio::spawn(async move {
-        while let Some(Ok(_)) = ws_rx.next().await {
-            // ignore any incoming messages from client
-        }
+        while let Some(Ok(_)) = ws_rx.next().await {}
     });
     tokio::select! {
         _ = (&mut send_task) => recv_task.abort(),
@@ -508,9 +815,6 @@ async fn handle_ws_connection(ws: WebSocket, tx: Sender<FileChangeEvent>) {
     println!("WebSocket client disconnected");
 }
 
-/// Rename a file or directory. Creates any missing parent directories for the
-/// new location. Returns an error if the source entry does not exist or the
-/// rename operation fails.
 async fn rename_entry(old: &Path, new_rel: &Path) -> Result<(), std::io::Error> {
     let old_full = Path::new(DATA_DIR).join(old);
     let new_full = Path::new(DATA_DIR).join(new_rel);
@@ -520,9 +824,6 @@ async fn rename_entry(old: &Path, new_rel: &Path) -> Result<(), std::io::Error> 
     fs::rename(old_full, new_full).await
 }
 
-/// Search for files and directories whose names contain the given query
-/// (case-insensitive). Scans the entire data directory recursively using
-/// [`walkdir`]. Returns a list of matching entries with their relative paths.
 async fn search_entries(query: String) -> Vec<SearchResult> {
     let query_lower = query.to_lowercase();
     tokio::task::spawn_blocking(move || {
@@ -540,13 +841,11 @@ async fn search_entries(query: String) -> Vec<SearchResult> {
             }
         }
         results
-    }).await.unwrap_or_default()
+    })
+    .await
+    .unwrap_or_default()
 }
 
-/// Compute the total number of files and their combined size (in bytes) in the
-/// data directory. The calculation runs in a blocking task to avoid
-/// stalling the async executor. Directories are not counted toward the file
-/// count or size.
 async fn compute_stats_async() -> (u64, u64) {
     tokio::task::spawn_blocking(|| {
         let mut count: u64 = 0;

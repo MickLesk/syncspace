@@ -25,7 +25,8 @@ try {
     Write-Host "   ✅ Registration successful!" -ForegroundColor Green
     Write-Host "   Username: $($response.user.username)" -ForegroundColor Gray
     Write-Host "   Token: $($TOKEN.Substring(0,20))..." -ForegroundColor Gray
-} catch {
+}
+catch {
     Write-Host "   ❌ Registration failed: $_" -ForegroundColor Red
 }
 
@@ -47,7 +48,8 @@ try {
     $TOKEN = $response.token
     Write-Host "   ✅ Login successful!" -ForegroundColor Green
     Write-Host "   Token: $($TOKEN.Substring(0,20))..." -ForegroundColor Gray
-} catch {
+}
+catch {
     Write-Host "   ❌ Login failed: $_" -ForegroundColor Red
 }
 
@@ -67,7 +69,8 @@ try {
     Write-Host "   ✅ User info retrieved!" -ForegroundColor Green
     Write-Host "   Username: $($response.username)" -ForegroundColor Gray
     Write-Host "   2FA Enabled: $($response.totp_enabled)" -ForegroundColor Gray
-} catch {
+}
+catch {
     Write-Host "   ❌ Get user info failed: $_" -ForegroundColor Red
 }
 
@@ -86,7 +89,8 @@ try {
 
     Write-Host "   ✅ Files listed!" -ForegroundColor Green
     Write-Host "   Files found: $($response.Count)" -ForegroundColor Gray
-} catch {
+}
+catch {
     Write-Host "   ❌ List files failed: $_" -ForegroundColor Red
 }
 
@@ -109,7 +113,8 @@ try {
 
     Write-Host "   ✅ File uploaded!" -ForegroundColor Green
     Write-Host "   Filename: $testFile" -ForegroundColor Gray
-} catch {
+}
+catch {
     Write-Host "   ❌ Upload failed: $_" -ForegroundColor Red
 }
 
@@ -129,7 +134,8 @@ try {
     Write-Host "   ✅ Statistics retrieved!" -ForegroundColor Green
     Write-Host "   File count: $($response.file_count)" -ForegroundColor Gray
     Write-Host "   Total size: $($response.total_size) bytes" -ForegroundColor Gray
-} catch {
+}
+catch {
     Write-Host "   ❌ Statistics failed: $_" -ForegroundColor Red
 }
 
@@ -148,7 +154,8 @@ try {
 
     Write-Host "   ✅ Search completed!" -ForegroundColor Green
     Write-Host "   Results: $($response.Count)" -ForegroundColor Gray
-} catch {
+}
+catch {
     Write-Host "   ❌ Search failed: $_" -ForegroundColor Red
 }
 
@@ -169,7 +176,8 @@ try {
 
     Write-Host "   ✅ Directory created!" -ForegroundColor Green
     Write-Host "   Directory: $testDir" -ForegroundColor Gray
-} catch {
+}
+catch {
     Write-Host "   ❌ Create directory failed: $_" -ForegroundColor Red
 }
 
@@ -190,7 +198,8 @@ try {
     Write-Host "   ✅ 2FA setup initiated!" -ForegroundColor Green
     Write-Host "   Secret: $($response.secret)" -ForegroundColor Gray
     Write-Host "   QR URL: $($response.qr_url.Substring(0,40))..." -ForegroundColor Gray
-} catch {
+}
+catch {
     Write-Host "   ❌ 2FA setup failed: $_" -ForegroundColor Red
 }
 
@@ -204,7 +213,8 @@ try {
         -ErrorAction Stop
 
     Write-Host "   ❌ Security issue: Unauthorized access allowed!" -ForegroundColor Red
-} catch {
+}
+catch {
     Write-Host "   ✅ Access correctly denied!" -ForegroundColor Green
 }
 
