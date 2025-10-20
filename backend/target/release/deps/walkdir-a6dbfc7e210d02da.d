@@ -1,0 +1,10 @@
+C:\Users\LeskowitzMickey\Documents\GitHub\syncspace\backend\target\release\deps\walkdir-a6dbfc7e210d02da.d: C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\lib.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\dent.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\error.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\util.rs
+
+C:\Users\LeskowitzMickey\Documents\GitHub\syncspace\backend\target\release\deps\libwalkdir-a6dbfc7e210d02da.rlib: C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\lib.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\dent.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\error.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\util.rs
+
+C:\Users\LeskowitzMickey\Documents\GitHub\syncspace\backend\target\release\deps\libwalkdir-a6dbfc7e210d02da.rmeta: C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\lib.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\dent.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\error.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\util.rs
+
+C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\lib.rs:
+C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\dent.rs:
+C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\error.rs:
+C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\walkdir-2.5.0\src\util.rs:

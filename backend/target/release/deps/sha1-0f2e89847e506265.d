@@ -1,0 +1,10 @@
+C:\Users\LeskowitzMickey\Documents\GitHub\syncspace\backend\target\release\deps\sha1-0f2e89847e506265.d: C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\lib.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\compress.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\compress\soft.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\compress\x86.rs
+
+C:\Users\LeskowitzMickey\Documents\GitHub\syncspace\backend\target\release\deps\libsha1-0f2e89847e506265.rlib: C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\lib.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\compress.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\compress\soft.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\compress\x86.rs
+
+C:\Users\LeskowitzMickey\Documents\GitHub\syncspace\backend\target\release\deps\libsha1-0f2e89847e506265.rmeta: C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\lib.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\compress.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\compress\soft.rs C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\compress\x86.rs
+
+C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\lib.rs:
+C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\compress.rs:
+C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\compress\soft.rs:
+C:\Users\LeskowitzMickey\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sha1-0.10.6\src\compress\x86.rs:

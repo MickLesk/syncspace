@@ -18,6 +18,9 @@ class MyApp extends LitElement {
     currentPath: { state: true },
     searchQuery: { state: true },
     searchResults: { state: true },
+    isDragging: { state: true },
+    isLoading: { state: true },
+    notification: { state: true },
   };
 
   constructor() {
@@ -31,6 +34,9 @@ class MyApp extends LitElement {
     this.searchQuery = '';
     this.searchResults = [];
     this.ws = null;
+    this.isDragging = false;
+    this.isLoading = false;
+    this.notification = '';
   }
 
   /**
@@ -102,36 +108,88 @@ class MyApp extends LitElement {
   }
 
   /** Upload the selected file to the backend. */
-  async uploadFile() {
-    const input = this.renderRoot?.getElementById('fileInput');
-    const file = input?.files?.[0];
-    if (!file) return;
+  async uploadFile(file = null) {
+    this.isLoading = true;
     try {
-      const arrayBuffer = await file.arrayBuffer();
+      let fileToUpload = file;
+      if (!fileToUpload) {
+        const input = this.renderRoot?.getElementById('fileInput');
+        fileToUpload = input?.files?.[0];
+        if (!fileToUpload) return;
+      }
+      
+      const arrayBuffer = await fileToUpload.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
-      const path = this.currentPath ? `${this.currentPath}/${file.name}` : file.name;
+      const path = this.currentPath ? `${this.currentPath}/${fileToUpload.name}` : fileToUpload.name;
       const url = `http://localhost:8080/api/upload/${encodeURIComponent(path)}`;
       const res = await fetch(url, { method: 'POST', body: bytes });
       if (!res.ok) throw new Error('Upload failed');
+      
+      this.showNotification(`✓ Uploaded: ${fileToUpload.name}`, 'success');
       await this.loadFiles();
       await this.loadStats();
-      input.value = '';
+      
+      const input = this.renderRoot?.getElementById('fileInput');
+      if (input) input.value = '';
     } catch (err) {
       console.error(err);
+      this.showNotification('✗ Upload failed', 'error');
+    } finally {
+      this.isLoading = false;
     }
+  }
+
+  /** Handle drag and drop events. */
+  handleDragOver(e) {
+    e.preventDefault();
+    this.isDragging = true;
+  }
+
+  handleDragLeave(e) {
+    e.preventDefault();
+    this.isDragging = false;
+  }
+
+  async handleDrop(e) {
+    e.preventDefault();
+    this.isDragging = false;
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0) return;
+    
+    // Upload all dropped files
+    for (const file of files) {
+      await this.uploadFile(file);
+    }
+  }
+
+  /** Show a notification message. */
+  showNotification(message, type = 'info') {
+    this.notification = { message, type };
+    setTimeout(() => {
+      this.notification = '';
+    }, 3000);
   }
 
   /** Delete a file or directory by name (relative to currentPath). */
   async deleteEntry(name) {
+    if (!confirm(`Delete "${name}"?`)) return;
+    
+    this.isLoading = true;
     try {
       const path = this.currentPath ? `${this.currentPath}/${name}` : name;
       const url = `http://localhost:8080/api/files/${encodeURIComponent(path)}`;
       const res = await fetch(url, { method: 'DELETE' });
       if (!res.ok) throw new Error('Delete failed');
+      
+      this.showNotification(`✓ Deleted: ${name}`, 'success');
       await this.loadFiles();
       await this.loadStats();
     } catch (err) {
       console.error(err);
+      this.showNotification('✗ Delete failed', 'error');
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -145,15 +203,22 @@ class MyApp extends LitElement {
   /** Create a new directory relative to currentPath. */
   async createDir() {
     if (!this.newDir) return;
+    
+    this.isLoading = true;
     try {
       const path = this.currentPath ? `${this.currentPath}/${this.newDir}` : this.newDir;
       const url = `http://localhost:8080/api/dirs/${encodeURIComponent(path)}`;
       const res = await fetch(url, { method: 'POST' });
       if (!res.ok) throw new Error('Failed to create directory');
+      
+      this.showNotification(`✓ Created: ${this.newDir}`, 'success');
       this.newDir = '';
       await this.loadFiles();
     } catch (err) {
       console.error(err);
+      this.showNotification('✗ Failed to create directory', 'error');
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -200,6 +265,8 @@ class MyApp extends LitElement {
   async renameEntry(name) {
     const newName = prompt('Enter new name', name);
     if (!newName || newName === name) return;
+    
+    this.isLoading = true;
     const oldPath = this.currentPath ? `${this.currentPath}/${name}` : name;
     const newPath = this.currentPath ? `${this.currentPath}/${newName}` : newName;
     try {
@@ -210,9 +277,14 @@ class MyApp extends LitElement {
         body: JSON.stringify({ new_path: newPath }),
       });
       if (!res.ok) throw new Error('Rename failed');
+      
+      this.showNotification(`✓ Renamed to: ${newName}`, 'success');
       await this.loadFiles();
     } catch (err) {
       console.error(err);
+      this.showNotification('✗ Rename failed', 'error');
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -349,6 +421,80 @@ class MyApp extends LitElement {
       border-color: var(--primary-color);
       box-shadow: 0 0 0 2px rgba(103, 80, 164, 0.2);
     }
+    .drop-zone {
+      border: 2px dashed #ccc;
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      transition: all 0.3s ease;
+      margin-bottom: 16px;
+      background: #fafafa;
+    }
+    .drop-zone.dragging {
+      border-color: var(--primary-color);
+      background: rgba(103, 80, 164, 0.1);
+      transform: scale(1.02);
+    }
+    .notification {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+      max-width: 300px;
+    }
+    .notification.success {
+      border-left: 4px solid #4caf50;
+    }
+    .notification.error {
+      border-left: 4px solid #f44336;
+    }
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(103, 80, 164, 0.3);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
   `;
 
   /** Render the component UI. */
@@ -357,6 +503,18 @@ class MyApp extends LitElement {
       ? this.currentPath.split('/').filter(Boolean)
       : [];
     return html`
+      ${this.isLoading ? html`
+        <div class="loading-overlay">
+          <div class="loading-spinner"></div>
+        </div>
+      ` : ''}
+      
+      ${this.notification ? html`
+        <div class="notification ${this.notification.type}">
+          ${this.notification.message}
+        </div>
+      ` : ''}
+      
       <div class="header">
         <h1>SyncSpace</h1>
       </div>
@@ -405,6 +563,16 @@ class MyApp extends LitElement {
 
       <div class="card">
         <h2>Upload & Directory</h2>
+        
+        <div 
+          class="drop-zone ${this.isDragging ? 'dragging' : ''}"
+          @dragover=${this.handleDragOver}
+          @dragleave=${this.handleDragLeave}
+          @drop=${this.handleDrop}
+        >
+          <p>📁 Drag & Drop files here or use the button below</p>
+        </div>
+        
         <div style="margin-bottom: 12px;">
           <input id="fileInput" type="file" />
           <button class="button" @click=${this.uploadFile}>Upload</button>
@@ -416,7 +584,7 @@ class MyApp extends LitElement {
             @input=${(e) => (this.newDir = e.target.value)}
             placeholder="Directory name"
           />
-          <button class="button" @click=${this.createDir}>Create</button>
+          <button class="button" @click=${this.createDir}>Create Directory</button>
         </div>
       </div>
 

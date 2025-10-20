@@ -1,0 +1,1 @@
+cargo:rustc-env=MIME_TYPES_GENERATED_PATH=C:\Users\LeskowitzMickey\Documents\GitHub\syncspace\backend\target\release\build\mime_guess-bccb7a585e8a0865\out\mime_types_generated.rs

@@ -9,7 +9,7 @@
 
 use std::collections::HashMap;
 use std::convert::Infallible;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 use chrono::{DateTime, Utc};
@@ -19,7 +19,7 @@ use tokio::fs;
 use tokio::sync::broadcast::{self, Sender};
 use uuid::Uuid;
 use warp::filters::BoxedFilter;
-use futures_util::StreamExt;
+use futures_util::{SinkExt, StreamExt};
 use warp::http::StatusCode;
 use warp::ws::{Message, WebSocket};
 use warp::Filter;
@@ -136,13 +136,14 @@ fn routes(config: Arc<Mutex<Config>>, fs_tx: Sender<FileChangeEvent>) -> BoxedFi
         .and_then(download_file);
 
     // Upload file
+    let fs_tx_clone1 = fs_tx.clone();
     let upload = warp::path("api")
         .and(warp::path("upload"))
         .and(warp::path::tail())
         .and(warp::post())
         .and(warp::body::bytes())
         .and_then(move |tail: warp::path::Tail, bytes: bytes::Bytes| {
-            let tx = fs_tx.clone();
+            let tx = fs_tx_clone1.clone();
             async move {
                 let path = Path::new(tail.as_str());
                 match upload_file(path, bytes).await {
@@ -153,20 +154,21 @@ fn routes(config: Arc<Mutex<Config>>, fs_tx: Sender<FileChangeEvent>) -> BoxedFi
                             kind: "create".into(),
                             timestamp: Utc::now(),
                         });
-                        Ok(warp::reply::with_status("uploaded", StatusCode::CREATED))
+                        Ok::<_, Infallible>(warp::reply::with_status("uploaded", StatusCode::CREATED))
                     }
-                    Err(_) => Ok(warp::reply::with_status("error", StatusCode::INTERNAL_SERVER_ERROR)),
+                    Err(_) => Ok::<_, Infallible>(warp::reply::with_status("error", StatusCode::INTERNAL_SERVER_ERROR)),
                 }
             }
         });
 
     // Delete file or directory
+    let fs_tx_clone2 = fs_tx.clone();
     let delete = warp::path("api")
         .and(warp::path("files"))
         .and(warp::path::tail())
         .and(warp::delete())
         .and_then(move |tail: warp::path::Tail| {
-            let tx = fs_tx.clone();
+            let tx = fs_tx_clone2.clone();
             async move {
                 let path = Path::new(tail.as_str());
                 match delete_entry(path).await {
@@ -176,20 +178,21 @@ fn routes(config: Arc<Mutex<Config>>, fs_tx: Sender<FileChangeEvent>) -> BoxedFi
                             kind: "delete".into(),
                             timestamp: Utc::now(),
                         });
-                        Ok(warp::reply::with_status("deleted", StatusCode::OK))
+                        Ok::<_, Infallible>(warp::reply::with_status("deleted", StatusCode::OK))
                     }
-                    Err(_) => Ok(warp::reply::with_status("not found", StatusCode::NOT_FOUND)),
+                    Err(_) => Ok::<_, Infallible>(warp::reply::with_status("not found", StatusCode::NOT_FOUND)),
                 }
             }
         });
 
     // Create directory
+    let fs_tx_clone3 = fs_tx.clone();
     let mkdir = warp::path("api")
         .and(warp::path("dirs"))
         .and(warp::path::tail())
         .and(warp::post())
         .and_then(move |tail: warp::path::Tail| {
-            let tx = fs_tx.clone();
+            let tx = fs_tx_clone3.clone();
             async move {
                 let path = Path::new(tail.as_str());
                 match create_dir(path).await {
@@ -199,21 +202,22 @@ fn routes(config: Arc<Mutex<Config>>, fs_tx: Sender<FileChangeEvent>) -> BoxedFi
                             kind: "mkdir".into(),
                             timestamp: Utc::now(),
                         });
-                        Ok(warp::reply::with_status("created", StatusCode::CREATED))
+                        Ok::<_, Infallible>(warp::reply::with_status("created", StatusCode::CREATED))
                     }
-                    Err(_) => Ok(warp::reply::with_status("error", StatusCode::INTERNAL_SERVER_ERROR)),
+                    Err(_) => Ok::<_, Infallible>(warp::reply::with_status("error", StatusCode::INTERNAL_SERVER_ERROR)),
                 }
             }
         });
 
     // Rename file or directory
+    let fs_tx_clone4 = fs_tx.clone();
     let rename = warp::path("api")
         .and(warp::path("rename"))
         .and(warp::path::tail())
         .and(warp::put())
         .and(warp::body::json())
         .and_then(move |tail: warp::path::Tail, req: RenameRequest| {
-            let tx = fs_tx.clone();
+            let tx = fs_tx_clone4.clone();
             async move {
                 let old_path = Path::new(tail.as_str());
                 let new_path = Path::new(&req.new_path);
@@ -246,23 +250,25 @@ fn routes(config: Arc<Mutex<Config>>, fs_tx: Sender<FileChangeEvent>) -> BoxedFi
         });
 
     // Configuration: get
+    let config_clone2 = config.clone();
     let get_config = warp::path("api")
         .and(warp::path("config"))
         .and(warp::get())
         .and_then(move || {
-            let config = config.clone();
+            let config = config_clone2.clone();
             async move {
                 let cfg = config.lock().unwrap().clone();
                 Ok::<_, Infallible>(warp::reply::json(&cfg))
             }
         });
     // Configuration: update
+    let config_clone3 = config.clone();
     let put_config = warp::path("api")
         .and(warp::path("config"))
         .and(warp::put())
         .and(warp::body::json())
         .and_then(move |new_cfg: Config| {
-            let config = config.clone();
+            let config = config_clone3.clone();
             async move {
                 {
                     let mut cfg = config.lock().unwrap();
@@ -277,18 +283,20 @@ fn routes(config: Arc<Mutex<Config>>, fs_tx: Sender<FileChangeEvent>) -> BoxedFi
         });
 
     // Peer registration (add a new peer)
+    let config_clone4 = config.clone();
     let add_peer = warp::path("api")
         .and(warp::path("peers"))
         .and(warp::post())
         .and(warp::body::json())
         .and_then(move |peer: Peer| {
-            let config = config.clone();
+            let config = config_clone4.clone();
             async move {
-                {
+                let cfg_to_save = {
                     let mut cfg = config.lock().unwrap();
                     cfg.peers.push(peer.clone());
-                }
-                if let Err(e) = save_config(&config.lock().unwrap()).await {
+                    cfg.clone()
+                };
+                if let Err(e) = save_config(&cfg_to_save).await {
                     eprintln!("Failed to save config: {}", e);
                 }
                 Ok::<_, Infallible>(warp::reply::json(&peer))
@@ -296,11 +304,12 @@ fn routes(config: Arc<Mutex<Config>>, fs_tx: Sender<FileChangeEvent>) -> BoxedFi
         });
 
     // List peers
+    let config_clone5 = config.clone();
     let list_peers = warp::path("api")
         .and(warp::path("peers"))
         .and(warp::get())
         .and_then(move || {
-            let config = config.clone();
+            let config = config_clone5.clone();
             async move {
                 let peers = config.lock().unwrap().peers.clone();
                 Ok::<_, Infallible>(warp::reply::json(&peers))
@@ -321,11 +330,12 @@ fn routes(config: Arc<Mutex<Config>>, fs_tx: Sender<FileChangeEvent>) -> BoxedFi
         });
 
     // WebSocket endpoint for file events
+    let fs_tx_clone5 = fs_tx.clone();
     let ws_route = warp::path("api")
         .and(warp::path("ws"))
         .and(warp::ws())
         .map(move |ws: warp::ws::Ws| {
-            let tx = fs_tx.clone();
+            let tx = fs_tx_clone5.clone();
             ws.on_upgrade(move |socket| handle_ws_connection(socket, tx))
         });
 
@@ -369,7 +379,7 @@ async fn watch_data_dir(tx: Sender<FileChangeEvent>) -> Result<(), NotifyError> 
     // Channel to forward events from the notify callback into the async world
     let (event_tx, mut event_rx) = tokio::sync::mpsc::channel::<Event>(16);
     // Create the blocking watcher
-    let mut watcher: RecommendedWatcher = Watcher::new_immediate(move |res| {
+    let mut watcher = RecommendedWatcher::new(move |res| {
         match res {
             Ok(event) => {
                 // Ignore if the send fails
@@ -377,7 +387,7 @@ async fn watch_data_dir(tx: Sender<FileChangeEvent>) -> Result<(), NotifyError> 
             }
             Err(e) => eprintln!("notify error: {}", e),
         }
-    })?;
+    }, notify::Config::default())?;
     watcher.watch(Path::new(DATA_DIR), RecursiveMode::Recursive)?;
     // Process events and broadcast
     while let Some(event) = event_rx.recv().await {
@@ -414,10 +424,10 @@ async fn list_entries(tail: warp::path::Tail) -> Result<impl warp::Reply, Infall
             }
             Ok(warp::reply::json(&entries))
         }
-        Err(_) => Ok(warp::reply::with_status(
-            "directory not found",
-            StatusCode::NOT_FOUND,
-        )),
+        Err(_) => {
+            let error = serde_json::json!({"error": "directory not found"});
+            Ok(warp::reply::json(&error))
+        }
     }
 }
 
@@ -430,14 +440,14 @@ async fn download_file(tail: warp::path::Tail) -> Result<impl warp::Reply, Infal
         Ok(meta) if meta.is_file() => match fs::read(&file_path).await {
             Ok(bytes) => Ok(warp::reply::with_status(bytes, StatusCode::OK)),
             Err(_) => Ok(warp::reply::with_status(
-                "failed to read file", StatusCode::INTERNAL_SERVER_ERROR,
+                Vec::<u8>::new(), StatusCode::INTERNAL_SERVER_ERROR,
             )),
         },
         Ok(_) => Ok(warp::reply::with_status(
-            "not a file", StatusCode::BAD_REQUEST,
+            Vec::<u8>::new(), StatusCode::BAD_REQUEST,
         )),
         Err(_) => Ok(warp::reply::with_status(
-            "file not found", StatusCode::NOT_FOUND,
+            Vec::<u8>::new(), StatusCode::NOT_FOUND,
         )),
     }
 }
