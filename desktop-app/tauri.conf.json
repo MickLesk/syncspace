@@ -1,0 +1,21 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "../frontend",
+    "distDir": "../frontend"
+  },
+  "package": {
+    "productName": "SyncApp",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "windows": [
+      {
+        "title": "SyncApp",
+        "fullscreen": false,
+        "resizable": true
+      }
+    ]
+  }
+}
