@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyncSpace - Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
+      max-width: 400px;
+      text-align: center;
+    }
+    h1 {
+      color: #6750a4;
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+    p {
+      color: #666;
+      margin-bottom: 30px;
+    }
+    .button {
+      background: #6750a4;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 250ms ease;
+    }
+    .button:hover {
+      background: #764ba2;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(103, 80, 164, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>SyncSpace</h1>
+    <p>Modern File Management System</p>
+    <button class="button" onclick="alert('Loading full app...')">Launch App</button>
+    <p style="font-size: 12px; margin-top: 20px; color: #999;">CSS is working! ✅</p>
+  </div>
+</body>
+</html>
