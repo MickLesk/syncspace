@@ -648,8 +648,21 @@ fn routes(
             })
     };
 
+    // ==================== FRONTEND ROUTES ====================
+    
+    // Serve index.html for root path
+    let frontend_root = warp::path::end()
+        .and(warp::get())
+        .and(warp::fs::file("./frontend/index.html"));
+    
+    // Serve static assets (JS, CSS, etc.)
+    let frontend_static = warp::path("static")
+        .and(warp::fs::dir("./frontend"));
+
     // Combine all routes
-    register
+    frontend_root
+        .or(frontend_static)
+        .or(register)
         .or(login)
         .or(setup_2fa)
         .or(enable_2fa)

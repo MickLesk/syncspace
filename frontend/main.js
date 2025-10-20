@@ -1,317 +1,631 @@
-import { LitElement, html, css } from 'https://cdn.jsdelivr.net/gh/lit/dist@3/core/lit-all.min.js';
+// ========================import { LitElement, html, css } from 'https://cdn.jsdelivr.net/gh/lit/dist@3/core/lit-all.min.js';
 
-/**
- * Main component for the SyncSpace web UI. This component provides a
+// SyncSpace Main Entry
+
+// Material 3 Expressive with Lit/**
+
+// ======================== * Main component for the SyncSpace web UI. This component provides a
+
  * Material‐inspired interface to interact with the backend API: it lists
- * synchronised files and directories, allows uploads, renames, deletions,
+
+import { LitElement, html, css } from 'https://cdn.jsdelivr.net/gh/lit/dist@3/core/lit-core.min.js'; * synchronised files and directories, allows uploads, renames, deletions,
+
  * directory creation, searching, peer management and displays basic
- * statistics. The design draws inspiration from Material 3 Expressive
- * guidelines with card layouts, vibrant colours and rounded corners.
- */
+
+// ======================== * statistics. The design draws inspiration from Material 3 Expressive
+
+// App Shell Component * guidelines with card layouts, vibrant colours and rounded corners.
+
+// ======================== */
+
 class MyApp extends LitElement {
-  static properties = {
-    files: { state: true },
-    peers: { state: true },
-    stats: { state: true },
-    newDir: { state: true },
-    newPeer: { state: true },
-    currentPath: { state: true },
+
+class AppShell extends LitElement {  static properties = {
+
+  static properties = {    files: { state: true },
+
+    isLoggedIn: { type: Boolean },    peers: { state: true },
+
+    currentView: { type: String },    stats: { state: true },
+
+    darkMode: { type: Boolean },    newDir: { state: true },
+
+    drawerOpen: { type: Boolean }    newPeer: { state: true },
+
+  };    currentPath: { state: true },
+
     searchQuery: { state: true },
-    searchResults: { state: true },
-    isDragging: { state: true },
-    isLoading: { state: true },
-    notification: { state: true },
-  };
 
-  constructor() {
+  static styles = css`    searchResults: { state: true },
+
+    :host {    isDragging: { state: true },
+
+      display: block;    isLoading: { state: true },
+
+      width: 100vw;    notification: { state: true },
+
+      height: 100vh;  };
+
+      overflow: hidden;
+
+    }  constructor() {
+
+        super();
+
+    .app-container {    this.files = [];
+
+      display: flex;    this.peers = [];
+
+      flex-direction: column;    this.stats = { file_count: 0, total_size: 0 };
+
+      height: 100%;    this.newDir = '';
+
+    }    this.newPeer = '';
+
+        this.currentPath = '';
+
+    /* Top App Bar - Material 3 Expressive */    this.searchQuery = '';
+
+    .top-app-bar {    this.searchResults = [];
+
+      display: flex;    this.ws = null;
+
+      align-items: center;    this.isDragging = false;
+
+      justify-content: space-between;    this.isLoading = false;
+
+      height: 64px;    this.notification = '';
+
+      padding: 0 16px;  }
+
+      background: linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary) 100%);
+
+      color: var(--md-sys-color-on-primary);  /**
+
+      box-shadow: var(--md-sys-elevation-level2);   * Lifecycle hook: invoked when the element is added to the DOM. Initialise
+
+      position: relative;   * data and connect the WebSocket.
+
+      z-index: 100;   */
+
+    }  connectedCallback() {
+
+        super.connectedCallback();
+
+    .app-bar-left {    this.loadFiles();
+
+      display: flex;    this.loadPeers();
+
+      align-items: center;    this.loadStats();
+
+      gap: 16px;    this.initWebSocket();
+
+    }  }
+
+    
+
+    .menu-button {  disconnectedCallback() {
+
+      background: none;    super.disconnectedCallback();
+
+      border: none;    if (this.ws) this.ws.close();
+
+      color: inherit;  }
+
+      font-size: 24px;
+
+      cursor: pointer;  /** Fetch the list of entries for the current directory. */
+
+      padding: 8px;  async loadFiles(sub = '') {
+
+      border-radius: 50%;    try {
+
+      transition: background 0.2s;      const path = sub || this.currentPath || '';
+
+    }      const res = await fetch(`http://localhost:8080/api/files/${encodeURIComponent(path)}`);
+
+          if (!res.ok) throw new Error('Failed to load files');
+
+    .menu-button:hover {      const data = await res.json();
+
+      background: rgba(255, 255, 255, 0.1);      this.files = Array.isArray(data) ? data : [];
+
+    }    } catch (err) {
+
+          console.error(err);
+
+    .app-title {    }
+
+      font-size: 22px;  }
+
+      font-weight: 500;
+
+      letter-spacing: 0.5px;  /** Fetch the list of peers. */
+
+    }  async loadPeers() {
+
+        try {
+
+    .app-bar-actions {      const res = await fetch('http://localhost:8080/api/peers');
+
+      display: flex;      if (!res.ok) throw new Error('Failed to load peers');
+
+      gap: 8px;      const data = await res.json();
+
+    }      this.peers = Array.isArray(data) ? data : [];
+
+        } catch (err) {
+
+    /* Main Content Area */      console.error(err);
+
+    .main-content {    }
+
+      display: flex;  }
+
+      flex: 1;
+
+      overflow: hidden;  /** Fetch basic statistics about the sync directory. */
+
+    }  async loadStats() {
+
+        try {
+
+    /* Navigation Drawer */      const res = await fetch('http://localhost:8080/api/stats');
+
+    .nav-drawer {      if (!res.ok) throw new Error('Failed to load stats');
+
+      width: 280px;      const data = await res.json();
+
+      background: var(--md-sys-color-surface);      this.stats = data;
+
+      border-right: 1px solid var(--md-sys-color-outline-variant);    } catch (err) {
+
+      padding: 16px 0;      console.error(err);
+
+      overflow-y: auto;    }
+
+      transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);  }
+
+    }
+
+      /** Set up a WebSocket connection for live file system updates. */
+
+    .nav-drawer.closed {  initWebSocket() {
+
+      transform: translateX(-100%);    try {
+
+    }      this.ws = new WebSocket('ws://localhost:8080/api/ws');
+
+          this.ws.onmessage = () => {
+
+    .nav-item {        // When a file change event is received, reload files and stats
+
+      display: flex;        this.loadFiles();
+
+      align-items: center;        this.loadStats();
+
+      gap: 12px;      };
+
+      padding: 12px 24px;    } catch (err) {
+
+      margin: 4px 12px;      console.error('WebSocket init error', err);
+
+      border-radius: 24px;    }
+
+      cursor: pointer;  }
+
+      transition: all 0.2s;
+
+      color: var(--md-sys-color-on-surface);  /** Upload the selected file to the backend. */
+
+    }  async uploadFile(file = null) {
+
+        this.isLoading = true;
+
+    .nav-item:hover {    try {
+
+      background: var(--md-sys-color-secondary-container);      let fileToUpload = file;
+
+    }      if (!fileToUpload) {
+
+            const input = this.renderRoot?.getElementById('fileInput');
+
+    .nav-item.active {        fileToUpload = input?.files?.[0];
+
+      background: var(--md-sys-color-secondary-container);        if (!fileToUpload) return;
+
+      color: var(--md-sys-color-on-secondary-container);      }
+
+    }      
+
+          const arrayBuffer = await fileToUpload.arrayBuffer();
+
+    .nav-icon {      const bytes = new Uint8Array(arrayBuffer);
+
+      font-size: 24px;      const path = this.currentPath ? `${this.currentPath}/${fileToUpload.name}` : fileToUpload.name;
+
+    }      const url = `http://localhost:8080/api/upload/${encodeURIComponent(path)}`;
+
+          const res = await fetch(url, { method: 'POST', body: bytes });
+
+    /* Content Area */      if (!res.ok) throw new Error('Upload failed');
+
+    .content-area {      
+
+      flex: 1;      this.showNotification(`✓ Uploaded: ${fileToUpload.name}`, 'success');
+
+      overflow-y: auto;      await this.loadFiles();
+
+      padding: 24px;      await this.loadStats();
+
+      background: var(--md-sys-color-background);      
+
+    }      const input = this.renderRoot?.getElementById('fileInput');
+
+          if (input) input.value = '';
+
+    /* FAB - Floating Action Button */    } catch (err) {
+
+    .fab {      console.error(err);
+
+      position: fixed;      this.showNotification('✗ Upload failed', 'error');
+
+      bottom: 24px;    } finally {
+
+      right: 24px;      this.isLoading = false;
+
+      width: 56px;    }
+
+      height: 56px;  }
+
+      border-radius: 16px;
+
+      background: var(--md-sys-color-primary-container);  /** Handle drag and drop events. */
+
+      color: var(--md-sys-color-on-primary-container);  handleDragOver(e) {
+
+      border: none;    e.preventDefault();
+
+      box-shadow: var(--md-sys-elevation-level3);    this.isDragging = true;
+
+      cursor: pointer;  }
+
+      font-size: 24px;
+
+      display: flex;  handleDragLeave(e) {
+
+      align-items: center;    e.preventDefault();
+
+      justify-content: center;    this.isDragging = false;
+
+      transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);  }
+
+    }
+
+      async handleDrop(e) {
+
+    .fab:hover {    e.preventDefault();
+
+      box-shadow: var(--md-sys-elevation-level4);    this.isDragging = false;
+
+      transform: scale(1.05);    
+
+    }    const files = Array.from(e.dataTransfer.files);
+
+        if (files.length === 0) return;
+
+    .fab:active {    
+
+      transform: scale(0.95);    // Upload all dropped files
+
+    }    for (const file of files) {
+
+  `;      await this.uploadFile(file);
+
+    }
+
+  constructor() {  }
+
     super();
-    this.files = [];
-    this.peers = [];
-    this.stats = { file_count: 0, total_size: 0 };
-    this.newDir = '';
-    this.newPeer = '';
-    this.currentPath = '';
-    this.searchQuery = '';
-    this.searchResults = [];
-    this.ws = null;
-    this.isDragging = false;
-    this.isLoading = false;
-    this.notification = '';
-  }
 
-  /**
-   * Lifecycle hook: invoked when the element is added to the DOM. Initialise
-   * data and connect the WebSocket.
-   */
-  connectedCallback() {
-    super.connectedCallback();
-    this.loadFiles();
-    this.loadPeers();
-    this.loadStats();
-    this.initWebSocket();
-  }
+    this.isLoggedIn = !!localStorage.getItem('authToken');  /** Show a notification message. */
 
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    if (this.ws) this.ws.close();
-  }
+    this.currentView = 'files';  showNotification(message, type = 'info') {
 
-  /** Fetch the list of entries for the current directory. */
-  async loadFiles(sub = '') {
-    try {
-      const path = sub || this.currentPath || '';
-      const res = await fetch(`http://localhost:8080/api/files/${encodeURIComponent(path)}`);
-      if (!res.ok) throw new Error('Failed to load files');
-      const data = await res.json();
-      this.files = Array.isArray(data) ? data : [];
-    } catch (err) {
-      console.error(err);
-    }
-  }
+    this.darkMode = localStorage.getItem('theme') === 'dark';    this.notification = { message, type };
 
-  /** Fetch the list of peers. */
-  async loadPeers() {
-    try {
-      const res = await fetch('http://localhost:8080/api/peers');
-      if (!res.ok) throw new Error('Failed to load peers');
-      const data = await res.json();
-      this.peers = Array.isArray(data) ? data : [];
-    } catch (err) {
-      console.error(err);
-    }
-  }
+    this.drawerOpen = true;    setTimeout(() => {
 
-  /** Fetch basic statistics about the sync directory. */
-  async loadStats() {
-    try {
-      const res = await fetch('http://localhost:8080/api/stats');
-      if (!res.ok) throw new Error('Failed to load stats');
-      const data = await res.json();
-      this.stats = data;
-    } catch (err) {
-      console.error(err);
-    }
-  }
+          this.notification = '';
 
-  /** Set up a WebSocket connection for live file system updates. */
-  initWebSocket() {
-    try {
-      this.ws = new WebSocket('ws://localhost:8080/api/ws');
-      this.ws.onmessage = () => {
-        // When a file change event is received, reload files and stats
-        this.loadFiles();
-        this.loadStats();
-      };
-    } catch (err) {
-      console.error('WebSocket init error', err);
-    }
-  }
+    // Hide loading screen    }, 3000);
 
-  /** Upload the selected file to the backend. */
-  async uploadFile(file = null) {
-    this.isLoading = true;
-    try {
-      let fileToUpload = file;
-      if (!fileToUpload) {
-        const input = this.renderRoot?.getElementById('fileInput');
-        fileToUpload = input?.files?.[0];
-        if (!fileToUpload) return;
-      }
-      
-      const arrayBuffer = await fileToUpload.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuffer);
-      const path = this.currentPath ? `${this.currentPath}/${fileToUpload.name}` : fileToUpload.name;
-      const url = `http://localhost:8080/api/upload/${encodeURIComponent(path)}`;
-      const res = await fetch(url, { method: 'POST', body: bytes });
-      if (!res.ok) throw new Error('Upload failed');
-      
-      this.showNotification(`✓ Uploaded: ${fileToUpload.name}`, 'success');
-      await this.loadFiles();
-      await this.loadStats();
-      
-      const input = this.renderRoot?.getElementById('fileInput');
-      if (input) input.value = '';
-    } catch (err) {
-      console.error(err);
-      this.showNotification('✗ Upload failed', 'error');
-    } finally {
-      this.isLoading = false;
-    }
-  }
+    setTimeout(() => {  }
 
-  /** Handle drag and drop events. */
-  handleDragOver(e) {
-    e.preventDefault();
-    this.isDragging = true;
-  }
+      const loading = document.getElementById('app-loading');
 
-  handleDragLeave(e) {
-    e.preventDefault();
-    this.isDragging = false;
-  }
+      if (loading) loading.style.display = 'none';  /** Delete a file or directory by name (relative to currentPath). */
 
-  async handleDrop(e) {
-    e.preventDefault();
-    this.isDragging = false;
-    
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length === 0) return;
-    
-    // Upload all dropped files
-    for (const file of files) {
-      await this.uploadFile(file);
-    }
-  }
+    }, 100);  async deleteEntry(name) {
 
-  /** Show a notification message. */
-  showNotification(message, type = 'info') {
-    this.notification = { message, type };
-    setTimeout(() => {
-      this.notification = '';
-    }, 3000);
-  }
+        if (!confirm(`Delete "${name}"?`)) return;
 
-  /** Delete a file or directory by name (relative to currentPath). */
-  async deleteEntry(name) {
-    if (!confirm(`Delete "${name}"?`)) return;
-    
-    this.isLoading = true;
-    try {
+    // Apply theme    
+
+    this.applyTheme();    this.isLoading = true;
+
+  }    try {
+
       const path = this.currentPath ? `${this.currentPath}/${name}` : name;
-      const url = `http://localhost:8080/api/files/${encodeURIComponent(path)}`;
-      const res = await fetch(url, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Delete failed');
-      
-      this.showNotification(`✓ Deleted: ${name}`, 'success');
-      await this.loadFiles();
-      await this.loadStats();
+
+  applyTheme() {      const url = `http://localhost:8080/api/files/${encodeURIComponent(path)}`;
+
+    if (this.darkMode) {      const res = await fetch(url, { method: 'DELETE' });
+
+      document.body.classList.add('dark-theme');      if (!res.ok) throw new Error('Delete failed');
+
+    } else {      
+
+      document.body.classList.remove('dark-theme');      this.showNotification(`✓ Deleted: ${name}`, 'success');
+
+    }      await this.loadFiles();
+
+  }      await this.loadStats();
+
     } catch (err) {
-      console.error(err);
-      this.showNotification('✗ Delete failed', 'error');
-    } finally {
-      this.isLoading = false;
-    }
+
+  toggleTheme() {      console.error(err);
+
+    this.darkMode = !this.darkMode;      this.showNotification('✗ Delete failed', 'error');
+
+    localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');    } finally {
+
+    this.applyTheme();      this.isLoading = false;
+
+  }    }
+
   }
 
-  /** Download a file by opening a new window to the file endpoint. */
-  downloadEntry(name) {
+  toggleDrawer() {
+
+    this.drawerOpen = !this.drawerOpen;  /** Download a file by opening a new window to the file endpoint. */
+
+  }  downloadEntry(name) {
+
     const path = this.currentPath ? `${this.currentPath}/${name}` : name;
-    const url = `http://localhost:8080/api/file/${encodeURIComponent(path)}`;
-    window.open(url, '_blank');
-  }
 
-  /** Create a new directory relative to currentPath. */
-  async createDir() {
-    if (!this.newDir) return;
-    
+  navigate(view) {    const url = `http://localhost:8080/api/file/${encodeURIComponent(path)}`;
+
+    this.currentView = view;    window.open(url, '_blank');
+
+  }  }
+
+
+
+  logout() {  /** Create a new directory relative to currentPath. */
+
+    localStorage.removeItem('authToken');  async createDir() {
+
+    this.isLoggedIn = false;    if (!this.newDir) return;
+
+  }    
+
     this.isLoading = true;
-    try {
-      const path = this.currentPath ? `${this.currentPath}/${this.newDir}` : this.newDir;
-      const url = `http://localhost:8080/api/dirs/${encodeURIComponent(path)}`;
-      const res = await fetch(url, { method: 'POST' });
+
+  render() {    try {
+
+    if (!this.isLoggedIn) {      const path = this.currentPath ? `${this.currentPath}/${this.newDir}` : this.newDir;
+
+      return html`<login-view @login=${() => this.isLoggedIn = true}></login-view>`;      const url = `http://localhost:8080/api/dirs/${encodeURIComponent(path)}`;
+
+    }      const res = await fetch(url, { method: 'POST' });
+
       if (!res.ok) throw new Error('Failed to create directory');
-      
-      this.showNotification(`✓ Created: ${this.newDir}`, 'success');
-      this.newDir = '';
-      await this.loadFiles();
-    } catch (err) {
-      console.error(err);
-      this.showNotification('✗ Failed to create directory', 'error');
-    } finally {
-      this.isLoading = false;
-    }
-  }
 
-  /** Add a new peer address. */
-  async addPeer() {
-    if (!this.newPeer) return;
-    try {
-      const peer = { id: crypto.randomUUID(), address: this.newPeer, last_seen: null };
-      const res = await fetch('http://localhost:8080/api/peers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(peer),
+    return html`      
+
+      <div class="app-container">      this.showNotification(`✓ Created: ${this.newDir}`, 'success');
+
+        <!-- Top App Bar -->      this.newDir = '';
+
+        <div class="top-app-bar">      await this.loadFiles();
+
+          <div class="app-bar-left">    } catch (err) {
+
+            <button class="menu-button" @click=${this.toggleDrawer}>      console.error(err);
+
+              <span class="material-symbols-outlined">menu</span>      this.showNotification('✗ Failed to create directory', 'error');
+
+            </button>    } finally {
+
+            <span class="app-title">SyncSpace</span>      this.isLoading = false;
+
+          </div>    }
+
+          <div class="app-bar-actions">  }
+
+            <button class="menu-button" @click=${this.toggleTheme}>
+
+              <span class="material-symbols-outlined">  /** Add a new peer address. */
+
+                ${this.darkMode ? 'light_mode' : 'dark_mode'}  async addPeer() {
+
+              </span>    if (!this.newPeer) return;
+
+            </button>    try {
+
+            <button class="menu-button" @click=${this.logout}>      const peer = { id: crypto.randomUUID(), address: this.newPeer, last_seen: null };
+
+              <span class="material-symbols-outlined">logout</span>      const res = await fetch('http://localhost:8080/api/peers', {
+
+            </button>        method: 'POST',
+
+          </div>        headers: { 'Content-Type': 'application/json' },
+
+        </div>        body: JSON.stringify(peer),
+
       });
-      if (!res.ok) throw new Error('Failed to add peer');
-      this.newPeer = '';
-      await this.loadPeers();
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
-  /** Navigate into a directory. */
-  navigate(dir) {
-    this.currentPath = this.currentPath ? `${this.currentPath}/${dir}` : dir;
-    this.searchQuery = '';
+        <!-- Main Content -->      if (!res.ok) throw new Error('Failed to add peer');
+
+        <div class="main-content">      this.newPeer = '';
+
+          <!-- Navigation Drawer -->      await this.loadPeers();
+
+          <nav class="nav-drawer ${this.drawerOpen ? '' : 'closed'}">    } catch (err) {
+
+            <div class="nav-item ${this.currentView === 'files' ? 'active' : ''}"      console.error(err);
+
+                 @click=${() => this.navigate('files')}>    }
+
+              <span class="material-symbols-outlined nav-icon">folder</span>  }
+
+              <span>Files</span>
+
+            </div>  /** Navigate into a directory. */
+
+            <div class="nav-item ${this.currentView === 'search' ? 'active' : ''}"  navigate(dir) {
+
+                 @click=${() => this.navigate('search')}>    this.currentPath = this.currentPath ? `${this.currentPath}/${dir}` : dir;
+
+              <span class="material-symbols-outlined nav-icon">search</span>    this.searchQuery = '';
+
+              <span>Search</span>    this.searchResults = [];
+
+            </div>    this.loadFiles();
+
+            <div class="nav-item ${this.currentView === 'peers' ? 'active' : ''}"  }
+
+                 @click=${() => this.navigate('peers')}>
+
+              <span class="material-symbols-outlined nav-icon">devices</span>  /** Navigate using breadcrumb index. Pass -1 to go to root. */
+
+              <span>Peers</span>  navigateToIndex(index) {
+
+            </div>    if (index < 0) {
+
+            <div class="nav-item ${this.currentView === 'settings' ? 'active' : ''}"      this.currentPath = '';
+
+                 @click=${() => this.navigate('settings')}>    } else {
+
+              <span class="material-symbols-outlined nav-icon">settings</span>      const parts = this.currentPath.split('/').filter(Boolean);
+
+              <span>Settings</span>      this.currentPath = parts.slice(0, index + 1).join('/');
+
+            </div>    }
+
+          </nav>    this.searchQuery = '';
+
     this.searchResults = [];
-    this.loadFiles();
-  }
 
-  /** Navigate using breadcrumb index. Pass -1 to go to root. */
-  navigateToIndex(index) {
-    if (index < 0) {
-      this.currentPath = '';
-    } else {
-      const parts = this.currentPath.split('/').filter(Boolean);
-      this.currentPath = parts.slice(0, index + 1).join('/');
-    }
-    this.searchQuery = '';
-    this.searchResults = [];
-    this.loadFiles();
-  }
+          <!-- Content Area -->    this.loadFiles();
 
-  /** Rename a file or directory. */
-  async renameEntry(name) {
+          <main class="content-area">  }
+
+            ${this.renderView()}
+
+          </main>  /** Rename a file or directory. */
+
+        </div>  async renameEntry(name) {
+
     const newName = prompt('Enter new name', name);
-    if (!newName || newName === name) return;
-    
-    this.isLoading = true;
-    const oldPath = this.currentPath ? `${this.currentPath}/${name}` : name;
-    const newPath = this.currentPath ? `${this.currentPath}/${newName}` : newName;
-    try {
-      const url = `http://localhost:8080/api/rename/${encodeURIComponent(oldPath)}`;
-      const res = await fetch(url, {
-        method: 'PUT',
+
+        <!-- FAB -->    if (!newName || newName === name) return;
+
+        ${this.currentView === 'files' ? html`    
+
+          <button class="fab" @click=${this.handleFabClick}>    this.isLoading = true;
+
+            <span class="material-symbols-outlined">add</span>    const oldPath = this.currentPath ? `${this.currentPath}/${name}` : name;
+
+          </button>    const newPath = this.currentPath ? `${this.currentPath}/${newName}` : newName;
+
+        ` : ''}    try {
+
+      </div>      const url = `http://localhost:8080/api/rename/${encodeURIComponent(oldPath)}`;
+
+    `;      const res = await fetch(url, {
+
+  }        method: 'PUT',
+
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ new_path: newPath }),
-      });
-      if (!res.ok) throw new Error('Rename failed');
-      
-      this.showNotification(`✓ Renamed to: ${newName}`, 'success');
-      await this.loadFiles();
-    } catch (err) {
-      console.error(err);
-      this.showNotification('✗ Rename failed', 'error');
-    } finally {
-      this.isLoading = false;
-    }
+
+  renderView() {        body: JSON.stringify({ new_path: newPath }),
+
+    switch (this.currentView) {      });
+
+      case 'files':      if (!res.ok) throw new Error('Rename failed');
+
+        return html`<files-view></files-view>`;      
+
+      case 'search':      this.showNotification(`✓ Renamed to: ${newName}`, 'success');
+
+        return html`<search-view></search-view>`;      await this.loadFiles();
+
+      case 'peers':    } catch (err) {
+
+        return html`<peers-view></peers-view>`;      console.error(err);
+
+      case 'settings':      this.showNotification('✗ Rename failed', 'error');
+
+        return html`<settings-view></settings-view>`;    } finally {
+
+      default:      this.isLoading = false;
+
+        return html`<p>Unknown view</p>`;    }
+
+    }  }
+
   }
 
   /** Perform a search across all files/directories. */
-  async search() {
-    if (!this.searchQuery) {
-      this.searchResults = [];
-      return;
-    }
-    try {
-      const url = `http://localhost:8080/api/search?q=${encodeURIComponent(this.searchQuery)}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Search failed');
-      const data = await res.json();
-      this.searchResults = Array.isArray(data) ? data : [];
-    } catch (err) {
-      console.error(err);
-    }
+
+  handleFabClick() {  async search() {
+
+    // Show upload dialog or menu    if (!this.searchQuery) {
+
+    const input = document.createElement('input');      this.searchResults = [];
+
+    input.type = 'file';      return;
+
+    input.multiple = true;    }
+
+    input.onchange = (e) => {    try {
+
+      const filesView = this.shadowRoot.querySelector('files-view');      const url = `http://localhost:8080/api/search?q=${encodeURIComponent(this.searchQuery)}`;
+
+      if (filesView) {      const res = await fetch(url);
+
+        filesView.uploadFiles(Array.from(e.target.files));      if (!res.ok) throw new Error('Search failed');
+
+      }      const data = await res.json();
+
+    };      this.searchResults = Array.isArray(data) ? data : [];
+
+    input.click();    } catch (err) {
+
+  }      console.error(err);
+
+}    }
+
   }
 
+customElements.define('app-shell', AppShell);
+
   /** Format bytes into a human readable string. */
-  formatSize(bytes) {
-    const thresh = 1024;
-    if (Math.abs(bytes) < thresh) return `${bytes} B`;
-    const units = ['KB', 'MB', 'GB', 'TB'];
-    let u = -1;
-    let size = bytes;
+
+// Import all components  formatSize(bytes) {
+
+import './components/login-view.js';    const thresh = 1024;
+
+import './components/files-view.js';    if (Math.abs(bytes) < thresh) return `${bytes} B`;
+
+import './components/search-view.js';    const units = ['KB', 'MB', 'GB', 'TB'];
+
+import './components/peers-view.js';    let u = -1;
+
+import './components/settings-view.js';    let size = bytes;
+
     do {
       size /= thresh;
       ++u;
