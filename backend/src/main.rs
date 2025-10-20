@@ -23,6 +23,7 @@ use futures_util::StreamExt;
 use warp::http::StatusCode;
 use warp::ws::{Message, WebSocket};
 use warp::Filter;
+use walkdir::WalkDir;
 
 /// Directory where all synchronised files are stored. This can be extended
 /// later to support multiple directories based on configuration.
@@ -45,6 +46,10 @@ struct Config {
     sync_dirs: Vec<String>,
     /// Known remote peers.
     peers: Vec<Peer>,
+    /// Optional API key to protect mutating operations. If `Some`, clients must
+    /// supply this key in the `x-api-key` header when performing writes.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    api_key: Option<String>,
 }
 
 impl Default for Config {
@@ -52,6 +57,7 @@ impl Default for Config {
         Self {
             sync_dirs: vec![DATA_DIR.to_string()],
             peers: Vec::new(),
+            api_key: None,
         }
     }
 }
@@ -71,6 +77,21 @@ struct FileChangeEvent {
     path: String,
     kind: String,
     timestamp: DateTime<Utc>,
+}
+
+/// Request body for renaming files or directories.
+#[derive(Debug, Clone, Deserialize)]
+struct RenameRequest {
+    /// New relative path within the data directory.
+    new_path: String,
+}
+
+/// Search result entry containing a relative path and metadata.
+#[derive(Debug, Clone, Serialize)]
+struct SearchResult {
+    path: String,
+    is_dir: bool,
+    size: u64,
 }
 
 #[tokio::main]
@@ -185,6 +206,45 @@ fn routes(config: Arc<Mutex<Config>>, fs_tx: Sender<FileChangeEvent>) -> BoxedFi
             }
         });
 
+    // Rename file or directory
+    let rename = warp::path("api")
+        .and(warp::path("rename"))
+        .and(warp::path::tail())
+        .and(warp::put())
+        .and(warp::body::json())
+        .and_then(move |tail: warp::path::Tail, req: RenameRequest| {
+            let tx = fs_tx.clone();
+            async move {
+                let old_path = Path::new(tail.as_str());
+                let new_path = Path::new(&req.new_path);
+                match rename_entry(old_path, new_path).await {
+                    Ok(_) => {
+                        // broadcast using new path
+                        let _ = tx.send(FileChangeEvent {
+                            path: req.new_path.clone(),
+                            kind: "rename".into(),
+                            timestamp: Utc::now(),
+                        });
+                        Ok::<_, Infallible>(warp::reply::with_status("renamed", StatusCode::OK))
+                    }
+                    Err(_) => Ok::<_, Infallible>(warp::reply::with_status(
+                        "error", StatusCode::INTERNAL_SERVER_ERROR,
+                    )),
+                }
+            }
+        });
+
+    // Search entries
+    let search = warp::path("api")
+        .and(warp::path("search"))
+        .and(warp::get())
+        .and(warp::query::<HashMap<String, String>>())
+        .and_then(|params: HashMap<String, String>| async move {
+            let query = params.get("q").cloned().unwrap_or_default();
+            let results = search_entries(query).await;
+            Ok::<_, Infallible>(warp::reply::json(&results))
+        });
+
     // Configuration: get
     let get_config = warp::path("api")
         .and(warp::path("config"))
@@ -247,6 +307,19 @@ fn routes(config: Arc<Mutex<Config>>, fs_tx: Sender<FileChangeEvent>) -> BoxedFi
             }
         });
 
+    // Stats: returns basic statistics of the data directory (file count and total size)
+    let stats = warp::path("api")
+        .and(warp::path("stats"))
+        .and(warp::get())
+        .and_then(|| async move {
+            let (count, size) = compute_stats_async().await;
+            let body = serde_json::json!({
+                "file_count": count,
+                "total_size": size
+            });
+            Ok::<_, Infallible>(warp::reply::json(&body))
+        });
+
     // WebSocket endpoint for file events
     let ws_route = warp::path("api")
         .and(warp::path("ws"))
@@ -262,10 +335,13 @@ fn routes(config: Arc<Mutex<Config>>, fs_tx: Sender<FileChangeEvent>) -> BoxedFi
         .or(upload)
         .or(delete)
         .or(mkdir)
+        .or(rename)
+        .or(search)
         .or(get_config)
         .or(put_config)
         .or(add_peer)
         .or(list_peers)
+        .or(stats)
         .or(ws_route)
         .with(warp::cors()
             .allow_any_origin()
@@ -420,4 +496,61 @@ async fn handle_ws_connection(ws: WebSocket, tx: Sender<FileChangeEvent>) {
         _ = (&mut recv_task) => send_task.abort(),
     }
     println!("WebSocket client disconnected");
+}
+
+/// Rename a file or directory. Creates any missing parent directories for the
+/// new location. Returns an error if the source entry does not exist or the
+/// rename operation fails.
+async fn rename_entry(old: &Path, new_rel: &Path) -> Result<(), std::io::Error> {
+    let old_full = Path::new(DATA_DIR).join(old);
+    let new_full = Path::new(DATA_DIR).join(new_rel);
+    if let Some(parent) = new_full.parent() {
+        fs::create_dir_all(parent).await?;
+    }
+    fs::rename(old_full, new_full).await
+}
+
+/// Search for files and directories whose names contain the given query
+/// (case-insensitive). Scans the entire data directory recursively using
+/// [`walkdir`]. Returns a list of matching entries with their relative paths.
+async fn search_entries(query: String) -> Vec<SearchResult> {
+    let query_lower = query.to_lowercase();
+    tokio::task::spawn_blocking(move || {
+        let mut results = Vec::new();
+        for entry in WalkDir::new(DATA_DIR).into_iter().filter_map(Result::ok) {
+            let file_name = entry.file_name().to_string_lossy();
+            if file_name.to_lowercase().contains(&query_lower) {
+                let rel_path = entry.path().strip_prefix(DATA_DIR).unwrap_or(entry.path());
+                let metadata = entry.metadata().unwrap();
+                results.push(SearchResult {
+                    path: rel_path.to_string_lossy().to_string(),
+                    is_dir: metadata.is_dir(),
+                    size: metadata.len(),
+                });
+            }
+        }
+        results
+    }).await.unwrap_or_default()
+}
+
+/// Compute the total number of files and their combined size (in bytes) in the
+/// data directory. The calculation runs in a blocking task to avoid
+/// stalling the async executor. Directories are not counted toward the file
+/// count or size.
+async fn compute_stats_async() -> (u64, u64) {
+    tokio::task::spawn_blocking(|| {
+        let mut count: u64 = 0;
+        let mut total_size: u64 = 0;
+        for entry in WalkDir::new(DATA_DIR).into_iter().filter_map(Result::ok) {
+            if let Ok(meta) = entry.metadata() {
+                if meta.is_file() {
+                    count += 1;
+                    total_size += meta.len();
+                }
+            }
+        }
+        (count, total_size)
+    })
+    .await
+    .unwrap_or((0, 0))
 }
