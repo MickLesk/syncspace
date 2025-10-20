@@ -5,6 +5,7 @@
 ### ✅ Frontend Features (Implementiert)
 
 #### **1. Rich File Preview System**
+
 - **Status**: ✅ Vollständig implementiert
 - **Funktion**: `handlePreview(filename)`
 - **Unterstützte Formate**:
@@ -17,6 +18,7 @@
 - **Keyboard**: `Escape` schließt Preview
 
 #### **2. Material 3 Dialog System**
+
 - **Status**: ✅ Implementiert
 - **Dialoge**:
   - Context Menu (Rechtsklick)
@@ -26,6 +28,7 @@
 - **Besonderheit**: Native `prompt()` wird noch verwendet, kann zu MD-Dialogs migriert werden
 
 #### **3. Context Menu**
+
 - **Status**: ✅ Vollständig funktional
 - **Funktion**: `showContextMenu(e, filename, isDir)`
 - **Aktionen**:
@@ -43,6 +46,7 @@
   - Danger zone styling for delete
 
 #### **4. Keyboard Shortcuts**
+
 - **Status**: ✅ Komplett implementiert
 - **Shortcuts**:
   - `Ctrl+U`: Upload files
@@ -58,6 +62,7 @@
 - **Besonderheit**: Global event listener, verhindert Browser-Defaults
 
 #### **5. Multi-Select Mode**
+
 - **Status**: ✅ Funktional
 - **Features**:
   - Toggle via Icon-Button in view controls
@@ -69,6 +74,7 @@
 - **Keyboard**: `Ctrl+A` select all, `Escape` deselect
 
 #### **6. Drag & Drop**
+
 - **Status**: ✅ Vollständig
 - **Features**:
   - Dedicated Drop Zone mit Animation
@@ -79,6 +85,7 @@
 - **Events**: dragenter, dragover, dragleave, drop
 
 #### **7. Grid/List View Toggle**
+
 - **Status**: ✅ Implementiert
 - **Modi**:
   - **Grid**: Card-basiert, 180px min-width, auto-fill
@@ -88,6 +95,7 @@
 - **Responsive**: Grid passt sich an (768px breakpoint)
 
 #### **8. Favorites/Bookmarks**
+
 - **Status**: ✅ Funktional
 - **Features**:
   - Add/Remove via Context Menu
@@ -98,6 +106,7 @@
 - **Array**: `favorites` in localStorage als JSON
 
 #### **9. Breadcrumb Navigation**
+
 - **Status**: ✅ Vollständig
 - **Features**:
   - Home icon für root
@@ -107,6 +116,7 @@
   - Dynamic build from currentPath
 
 #### **10. i18n (Internationalization)**
+
 - **Status**: ✅ Vollständig
 - **Sprachen**: English (EN), Deutsch (DE)
 - **Coverage**: 50+ translation keys
@@ -122,6 +132,7 @@
 ### 🎨 UI/UX Features (Implementiert)
 
 #### **11. Material 3 Expressive Design**
+
 - **Status**: ✅ Vollständig
 - **Komponenten**:
   - `<md-filled-button>`, `<md-text-button>`
@@ -135,6 +146,7 @@
 - **Icons**: Material Symbols Outlined
 
 #### **12. Dark Theme**
+
 - **Status**: ✅ Implementiert
 - **Toggle**: Icon-Button im App Bar
 - **Persistenz**: localStorage `darkMode`
@@ -142,6 +154,7 @@
 - **Class**: `dark-theme` auf body
 
 #### **13. Responsive Design**
+
 - **Status**: ✅ Optimiert
 - **Breakpoints**: 768px für mobile
 - **Features**:
@@ -152,6 +165,7 @@
 - **Touch-friendly**: Large tap targets
 
 #### **14. Animations & Transitions**
+
 - **Status**: ✅ Implementiert
 - **Effekte**:
   - Spinner animation (360° rotation)
@@ -166,6 +180,7 @@
 ### 🗂️ File Management Features (Implementiert)
 
 #### **15. File Operations**
+
 - **Status**: ✅ Vollständig
 - **Operationen**:
   - Upload (single/multiple)
@@ -178,6 +193,7 @@
 - **Error Handling**: 401 redirects to login
 
 #### **16. Search Functionality**
+
 - **Status**: ✅ Funktional
 - **Features**:
   - Dedicated Search View
@@ -189,6 +205,7 @@
 - **Performance**: Debouncing empfohlen (TODO)
 
 #### **17. Copy/Cut/Paste**
+
 - **Status**: ⚠️ Basis implementiert
 - **Clipboard Object**: `{operation: 'copy'|'cut', files: []}`
 - **Keyboard**: Ctrl+C, Ctrl+X, Ctrl+V
@@ -200,6 +217,7 @@
 ### 🔧 Backend Features (Geplant/Teilweise)
 
 #### **18. File Compression/Archive**
+
 - **Status**: 🚧 Geplant
 - **Frontend**: `isArchive()` detector vorhanden
 - **Context Menu**: Compress/Extract actions vorbereitet
@@ -209,6 +227,7 @@
   - Support: ZIP, TAR, GZ
 
 #### **19. Share Links**
+
 - **Status**: 🚧 Geplant
 - **Context Menu**: "Share" option vorhanden
 - **Backend TODO**:
@@ -218,6 +237,7 @@
   - Password protection optional
 
 #### **20. Trash/Recycle Bin**
+
 - **Status**: 🚧 UI vorhanden, Backend TODO
 - **Frontend**: Dedicated Trash View
 - **Features geplant**:
@@ -235,18 +255,21 @@
 ## 🔮 Zusätzliche Geplante Features
 
 ### **21. Thumbnail Generation**
+
 - **Backend**: Server-side Image/Video thumbnails
 - **Cache**: Redis/Filesystem cache
 - **Formats**: 150x150, 300x300
 - **API**: GET `/api/thumbnail/{path}?size=150`
 
 ### **22. Full-Text Search**
+
 - **Backend**: Index text file contents
 - **Search**: In-file search results
 - **Formats**: TXT, MD, Code files
 - **Highlighting**: Match highlighting in results
 
 ### **23. File Versioning**
+
 - **Backend**: Git-like version history
 - **Storage**: `.versions/` folder
 - **API**:
@@ -255,6 +278,7 @@
   - POST `/api/restore-version/{path}/{version}` - Restore
 
 ### **24. File Locking**
+
 - **Backend**: Concurrent edit protection
 - **Lock timeout**: 30 minutes
 - **API**:
@@ -263,6 +287,7 @@
   - GET `/api/locks` - List all locks
 
 ### **25. Activity Log**
+
 - **Backend**: Audit trail
 - **Events**: Upload, Delete, Rename, Download
 - **Storage**: SQLite database
@@ -270,29 +295,34 @@
 - **Frontend**: Settings view integration
 
 ### **26. Duplicate Detection**
+
 - **Backend**: SHA256 hash-based
 - **Scan**: Background job
 - **API**: GET `/api/duplicates`
 - **Frontend**: Duplicate manager view
 
 ### **27. Bandwidth Control**
+
 - **Backend**: Rate limiting per user
 - **Config**: Upload/Download MB/s
 - **Implementation**: Token bucket algorithm
 
 ### **28. WebDAV Support**
+
 - **Backend**: Standard protocol
 - **Client**: Native OS integration
 - **Endpoints**: `/webdav/*`
 - **Auth**: Same JWT token
 
 ### **29. File Metadata**
+
 - **Backend**: EXIF, ID3 tags
 - **Display**: Extended file properties
 - **Edit**: Update metadata
 - **Search**: Search by metadata
 
 ### **30. Collaborative Editing**
+
 - **Backend**: WebSocket-based
 - **OT**: Operational Transformation
 - **Formats**: Text files
@@ -303,16 +333,19 @@
 ## 📊 Implementierungs-Statistik
 
 ### Vollständig implementiert: **17/30** (57%)
+
 - ✅ 1-10: Frontend Core Features
 - ✅ 11-14: UI/UX Features
 - ✅ 15-17: File Management
 
 ### Teilweise implementiert: **3/30** (10%)
+
 - ⚠️ 18: Compression (Frontend ready)
 - ⚠️ 19: Share Links (UI ready)
 - ⚠️ 20: Trash (UI ready)
 
 ### Geplant: **10/30** (33%)
+
 - 🚧 21-30: Advanced Backend Features
 
 ---
@@ -320,18 +353,21 @@
 ## 🎯 Prioritäten für nächste Schritte
 
 ### **High Priority** (Sofort)
+
 1. **Backend API Extensions** für Features 18-20
 2. **File Compression** - ZIP erstellen/extrahieren
 3. **Share Links** - Temporary download links
 4. **Trash System** - Soft delete implementieren
 
 ### **Medium Priority** (Diese Woche)
+
 5. **Thumbnail Generation** - Bessere Performance
 6. **Activity Log** - Audit trail
 7. **File Versioning** - History tracking
 8. **Full-Text Search** - Content indexing
 
 ### **Low Priority** (Später)
+
 9. **WebDAV** - Standard protocol
 10. **Collaborative Editing** - Real-time features
 11. **Advanced Metadata** - EXIF/ID3
@@ -342,6 +378,7 @@
 ## 🧪 Testing Checklist
 
 ### Frontend Tests
+
 - [ ] Login flow (admin/admin)
 - [ ] File upload (single/multiple)
 - [ ] Folder navigation
@@ -359,6 +396,7 @@
 - [ ] Responsive design (mobile)
 
 ### Backend Tests
+
 - [ ] Auth endpoints (login, 2FA)
 - [ ] File CRUD operations
 - [ ] Search endpoint
@@ -372,6 +410,7 @@
 ## 📝 Code-Qualität
 
 ### Metrics
+
 - **Frontend**:
   - `app.js`: 36,629 bytes (~1000 lines)
   - `styles.css`: 13,678 bytes (~500 lines)
@@ -379,6 +418,7 @@
   - **Total**: ~51 KB (uncompressed)
 
 ### Best Practices
+
 - ✅ ESLint-konform (keine globals außer window)
 - ✅ Material 3 Design System
 - ✅ Accessibility (ARIA labels möglich)
@@ -392,6 +432,7 @@
 ## 🚀 Deployment
 
 ### Production Checklist
+
 - [x] Minify CSS (optional)
 - [x] Minify JS (optional)
 - [ ] Enable HTTPS
@@ -402,6 +443,7 @@
 - [ ] Monitor storage usage
 
 ### Performance Optimizations
+
 - [ ] Lazy loading for large file lists
 - [ ] Virtual scrolling (1000+ files)
 - [ ] Image lazy loading
@@ -414,6 +456,7 @@
 ## 📚 Dokumentation
 
 ### User Guide (TODO)
+
 - [ ] Quick Start Tutorial
 - [ ] Keyboard Shortcuts Reference
 - [ ] Feature Showcase (Screenshots)
@@ -421,6 +464,7 @@
 - [ ] Troubleshooting
 
 ### Developer Guide
+
 - [x] Feature list (dieses Dokument)
 - [x] API Reference (in README)
 - [ ] Architecture diagram
@@ -432,6 +476,7 @@
 ## 🎉 Fazit
 
 **SyncSpace** hat jetzt ein **professionelles, modernes Frontend** mit:
+
 - 17 vollständig implementierten Features
 - Material 3 Expressive Design
 - Vollständige i18n (EN/DE)
