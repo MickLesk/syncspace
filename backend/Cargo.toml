@@ -16,5 +16,3 @@ chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 futures-util = "0.3"
 walkdir = "2.3"
-walkdir = "2.3"
-walkdir = "2.3"
