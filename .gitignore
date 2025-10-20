@@ -5,3 +5,4 @@
 *.d
 QUICKSTART.md
 README_NEW.md
+/backend/target
