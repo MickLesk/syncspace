@@ -1,0 +1,122 @@
+/* Material 3 Design System Variables */:root {
+
+:root[data-theme="light"] {  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  --primary: #6750a4;  line-height: 1.5;
+
+  --secondary: #625b71;  font-weight: 400;
+
+  --bg: #fafafa;
+
+  --surface: #ffffff;  color-scheme: light dark;
+
+  --text: #202124;  color: rgba(255, 255, 255, 0.87);
+
+  --text-secondary: #5f6368;  background-color: #242424;
+
+  --border: #dadce0;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);  font-synthesis: none;
+
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.15);  text-rendering: optimizeLegibility;
+
+}  -webkit-font-smoothing: antialiased;
+
+  -moz-osx-font-smoothing: grayscale;
+
+:root[data-theme="dark"] {}
+
+  --primary: #d0bcff;
+
+  --secondary: #ccc2dc;a {
+
+  --bg: #1c1b1f;  font-weight: 500;
+
+  --surface: #2b2930;  color: #646cff;
+
+  --text: #e6e1e5;  text-decoration: inherit;
+
+  --text-secondary: #cac4d0;}
+
+  --border: #49454f;a:hover {
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);  color: #535bf2;
+
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);}
+
+}
+
+body {
+
+* {  margin: 0;
+
+  margin: 0;  display: flex;
+
+  padding: 0;  place-items: center;
+
+  box-sizing: border-box;  min-width: 320px;
+
+}  min-height: 100vh;
+
+}
+
+html, body, #app {
+
+  height: 100%;h1 {
+
+  margin: 0;  font-size: 3.2em;
+
+  padding: 0;  line-height: 1.1;
+
+}}
+
+
+
+body {.card {
+
+  background: var(--bg);  padding: 2em;
+
+  color: var(--text);}
+
+  transition: background 0.3s, color 0.3s;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;#app {
+
+}  max-width: 1280px;
+
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
