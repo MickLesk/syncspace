@@ -31,18 +31,19 @@
 
 <style>
   .sidebar {
-    width: 280px;
+    width: 240px;
+    min-width: 240px;
     background: var(--md-sys-color-surface);
     border-right: 1px solid var(--md-sys-color-outline);
     overflow-y: auto;
-    padding: 12px 8px;
+    padding: 8px;
   }
   
   .nav-item {
     width: 100%;
-    padding: 12px 16px;
-    margin: 4px 0;
-    border-radius: 28px;
+    padding: 10px 16px;
+    margin: 2px 0;
+    border-radius: 24px;
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
@@ -71,6 +72,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
+    width: 20px;
   }
 </style>
