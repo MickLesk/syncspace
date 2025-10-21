@@ -9,6 +9,11 @@ const API_BASE = "http://localhost:8080/api";
  * Get auth token from localStorage
  */
 function getToken() {
+  // Try new format first
+  const token = localStorage.getItem("authToken");
+  if (token) return token;
+  
+  // Fallback to old format
   const authData = localStorage.getItem("auth");
   if (!authData) return null;
   try {
@@ -23,13 +28,13 @@ function getToken() {
  * Create headers with auth token
  */
 function getHeaders(includeContentType = true) {
-  const headers = {};
+  const headers = new Headers();
   const token = getToken();
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    headers.set("Authorization", `Bearer ${token}`);
   }
   if (includeContentType) {
-    headers["Content-Type"] = "application/json";
+    headers.set("Content-Type", "application/json");
   }
   return headers;
 }
@@ -38,14 +43,22 @@ function getHeaders(includeContentType = true) {
  * Handle API errors
  */
 async function handleResponse(response) {
+  console.log(`[api.js] Response status: ${response.status}, ok: ${response.ok}`);
   if (!response.ok) {
     const errorText = await response.text();
+    console.error(`[api.js] API Error ${response.status}: ${errorText}`);
     throw new Error(`API Error ${response.status}: ${errorText}`);
   }
   const contentType = response.headers.get("content-type");
+  console.log(`[api.js] Content-Type: ${contentType}`);
   if (contentType && contentType.includes("application/json")) {
-    return response.json();
+    const data = await response.json();
+    console.log(`[api.js] JSON data:`, data);
+    console.log(`[api.js] Is Array?`, Array.isArray(data));
+    console.log(`[api.js] Type:`, typeof data);
+    return data;
   }
+  console.log(`[api.js] Non-JSON response, returning raw response`);
   return response;
 }
 
@@ -124,7 +137,14 @@ export const files = {
    * List files in a directory
    */
   async list(path = "") {
-    const encodedPath = encodeURIComponent(path);
+    // Don't encode slashes - only encode individual path segments
+    // Backend expects /api/files/ for root, /api/files/folder/ for folders
+    const cleanPath = path.replace(/^\/+|\/+$/g, ''); // Remove leading/trailing slashes
+    const encodedPath = cleanPath
+      .split('/')
+      .map(segment => encodeURIComponent(segment))
+      .join('/');
+    
     const response = await fetch(`${API_BASE}/files/${encodedPath}`, {
       headers: getHeaders(false),
     });
@@ -135,7 +155,11 @@ export const files = {
    * Download a file
    */
   async download(path) {
-    const encodedPath = encodeURIComponent(path);
+    const cleanPath = path.replace(/^\/+|\/+$/g, '');
+    const encodedPath = cleanPath
+      .split('/')
+      .map(segment => encodeURIComponent(segment))
+      .join('/');
     const response = await fetch(`${API_BASE}/file/${encodedPath}`, {
       headers: getHeaders(false),
     });
@@ -149,7 +173,13 @@ export const files = {
    * Upload a file
    */
   async upload(path, file) {
-    const encodedPath = encodeURIComponent(path);
+    // Don't encode the entire path - split by /, encode segments, rejoin
+    const cleanPath = path.replace(/^\/+/, ''); // Remove leading slashes
+    const encodedPath = cleanPath
+      .split('/')
+      .map(segment => encodeURIComponent(segment))
+      .join('/');
+    
     const headers = getHeaders(false);
     
     const response = await fetch(`${API_BASE}/upload/${encodedPath}`, {
@@ -164,7 +194,11 @@ export const files = {
    * Delete a file or directory
    */
   async delete(path) {
-    const encodedPath = encodeURIComponent(path);
+    const cleanPath = path.replace(/^\/+|\/+$/g, '');
+    const encodedPath = cleanPath
+      .split('/')
+      .map(segment => encodeURIComponent(segment))
+      .join('/');
     const response = await fetch(`${API_BASE}/files/${encodedPath}`, {
       method: "DELETE",
       headers: getHeaders(false),
@@ -176,7 +210,11 @@ export const files = {
    * Create a directory
    */
   async createDir(path) {
-    const encodedPath = encodeURIComponent(path);
+    const cleanPath = path.replace(/^\/+|\/+$/g, '');
+    const encodedPath = cleanPath
+      .split('/')
+      .map(segment => encodeURIComponent(segment))
+      .join('/');
     const response = await fetch(`${API_BASE}/dirs/${encodedPath}`, {
       method: "POST",
       headers: getHeaders(false),
@@ -188,7 +226,11 @@ export const files = {
    * Rename/move a file
    */
   async rename(oldPath, newPath) {
-    const encodedOldPath = encodeURIComponent(oldPath);
+    const cleanOld = oldPath.replace(/^\/+|\/+$/g, '');
+    const encodedOldPath = cleanOld
+      .split('/')
+      .map(segment => encodeURIComponent(segment))
+      .join('/');
     const response = await fetch(`${API_BASE}/rename/${encodedOldPath}`, {
       method: "PUT",
       headers: getHeaders(),

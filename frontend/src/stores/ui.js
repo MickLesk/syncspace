@@ -48,9 +48,47 @@ function createSidebarStore() {
   };
 }
 
-export const currentView = writable('files');
+// Persist current path to sessionStorage (lost on tab close, which is desired)
+function createPathStore() {
+  const stored = sessionStorage.getItem('currentPath') || '/';
+  console.log(`[ui.js] Initial currentPath from storage: "${stored}"`);
+  const { subscribe, set, update } = writable(stored);
+  
+  return {
+    subscribe,
+    set: (value) => {
+      console.log(`[ui.js] currentPath.set("${value}")`);
+      sessionStorage.setItem('currentPath', value);
+      set(value);
+    },
+    update: (fn) => {
+      update(n => {
+        const newValue = fn(n);
+        console.log(`[ui.js] currentPath.update() → "${newValue}"`);
+        sessionStorage.setItem('currentPath', newValue);
+        return newValue;
+      });
+    }
+  };
+}
+
+// Persist current view to sessionStorage
+function createViewStore() {
+  const stored = sessionStorage.getItem('currentView') || 'files';
+  const { subscribe, set } = writable(stored);
+  
+  return {
+    subscribe,
+    set: (value) => {
+      sessionStorage.setItem('currentView', value);
+      set(value);
+    }
+  };
+}
+
+export const currentView = createViewStore();
 export const currentTheme = createThemeStore();
 export const currentLang = createLangStore();
 export const sidebarCollapsed = createSidebarStore();
 export const files = writable([]);
-export const currentPath = writable('');
+export const currentPath = createPathStore();

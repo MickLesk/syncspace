@@ -36,8 +36,8 @@ pub async fn init_db() -> Result<SqlitePool, sqlx::Error> {
     
     println!("📂 Absolute path: {}", abs_path.display());
 
-    // Simple SQLite URL without protocol prefix - just the file path
-    let db_url = format!("sqlite:{}", db_path.display());
+    // SQLite URL with create flag - this creates the file if it doesn't exist
+    let db_url = format!("sqlite:{}?mode=rwc", db_path.display());
     
     println!("🔗 Connecting to database...");
 
@@ -183,7 +183,7 @@ fn get_db_path() -> PathBuf {
         std::fs::create_dir_all(&path).ok();
     }
     
-    path.push(DB_FILENAME);
+    path.push("syncspace.db");
     path
 }
 
