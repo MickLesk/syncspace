@@ -1,227 +1,138 @@
-/* Material 3 Design System - Expressive Theme *//* Material 3 Design System Variables */:root {
+/* Material 3 Design System - Expressive Theme */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap');
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-
-:root[data-theme="light"] {  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-
-/* Light Theme Colors */
-
-:root[data-theme="light"] {  --primary: #6750a4;  line-height: 1.5;
-
-  --md-sys-color-primary: rgb(103, 80, 164);
-
-  --md-sys-color-on-primary: rgb(255, 255, 255);  --secondary: #625b71;  font-weight: 400;
-
-  --md-sys-color-primary-container: rgb(234, 221, 255);
-
-  --md-sys-color-on-primary-container: rgb(33, 0, 93);  --bg: #fafafa;
-
-  
-
-  --md-sys-color-secondary: rgb(98, 91, 113);  --surface: #ffffff;  color-scheme: light dark;
-
-  --md-sys-color-on-secondary: rgb(255, 255, 255);
-
-  --md-sys-color-secondary-container: rgb(232, 222, 248);  --text: #202124;  color: rgba(255, 255, 255, 0.87);
-
-  
-
-  --md-sys-color-surface: rgb(254, 247, 255);  --text-secondary: #5f6368;  background-color: #242424;
-
-  --md-sys-color-on-surface: rgb(29, 27, 32);
-
-  --md-sys-color-surface-variant: rgb(231, 224, 236);  --border: #dadce0;
-
-  --md-sys-color-on-surface-variant: rgb(73, 69, 79);
-
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);  font-synthesis: none;
-
-  --md-sys-color-background: rgb(254, 247, 255);
-
-  --md-sys-color-on-background: rgb(29, 27, 32);  --shadow-md: 0 4px 12px rgba(0,0,0,0.15);  text-rendering: optimizeLegibility;
-
-  
-
-  --md-sys-color-error: rgb(179, 38, 30);}  -webkit-font-smoothing: antialiased;
-
-  --md-sys-color-outline: rgb(121, 116, 126);
-
-  --md-sys-color-shadow: rgba(0, 0, 0, 0.2);  -moz-osx-font-smoothing: grayscale;
-
-}
-
-:root[data-theme="dark"] {}
-
-/* Dark Theme Colors */
-
-:root[data-theme="dark"] {  --primary: #d0bcff;
-
-  --md-sys-color-primary: rgb(208, 188, 255);
-
-  --md-sys-color-on-primary: rgb(55, 30, 115);  --secondary: #ccc2dc;a {
-
-  --md-sys-color-primary-container: rgb(79, 55, 139);
-
-  --md-sys-color-on-primary-container: rgb(234, 221, 255);  --bg: #1c1b1f;  font-weight: 500;
-
-  
-
-  --md-sys-color-secondary: rgb(204, 194, 220);  --surface: #2b2930;  color: #646cff;
-
-  --md-sys-color-on-secondary: rgb(51, 45, 65);
-
-  --md-sys-color-secondary-container: rgb(74, 68, 88);  --text: #e6e1e5;  text-decoration: inherit;
-
-  
-
-  --md-sys-color-surface: rgb(20, 18, 24);  --text-secondary: #cac4d0;}
-
-  --md-sys-color-on-surface: rgb(230, 225, 229);
-
-  --md-sys-color-surface-variant: rgb(73, 69, 79);  --border: #49454f;a:hover {
-
-  --md-sys-color-on-surface-variant: rgb(202, 196, 208);
-
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);  color: #535bf2;
-
-  --md-sys-color-background: rgb(20, 18, 24);
-
-  --md-sys-color-on-background: rgb(230, 225, 229);  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);}
-
-  
-
-  --md-sys-color-error: rgb(242, 184, 181);}
-
-  --md-sys-color-outline: rgb(147, 143, 153);
-
-  --md-sys-color-shadow: rgba(0, 0, 0, 0.5);body {
-
-}
-
-* {  margin: 0;
-
-/* Elevation System */
-
-:root {  margin: 0;  display: flex;
-
-  --md-elevation-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
-
-  --md-elevation-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);  padding: 0;  place-items: center;
-
-  --md-elevation-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.3);
-
-}  box-sizing: border-box;  min-width: 320px;
-
-
-
-/* Base Reset */}  min-height: 100vh;
-
-*, *::before, *::after {
-
-  margin: 0;}
-
+/* Global Reset */
+* {
+  margin: 0;
   padding: 0;
-
-  box-sizing: border-box;html, body, #app {
-
+  box-sizing: border-box;
 }
-
-  height: 100%;h1 {
-
-html, body {
-
-  height: 100%;  margin: 0;  font-size: 3.2em;
-
-  width: 100%;
-
-  overflow: hidden;  padding: 0;  line-height: 1.1;
-
-}
-
-}}
 
 body {
-
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-
-  -webkit-font-smoothing: antialiased;
-
-  -moz-osx-font-smoothing: grayscale;body {.card {
-
-  background-color: var(--md-sys-color-background);
-
-  color: var(--md-sys-color-on-background);  background: var(--bg);  padding: 2em;
-
+  font-family: 'Roboto', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
-
-}  color: var(--text);}
-
-
-
-#app {  transition: background 0.3s, color 0.3s;
-
-  height: 100%;
-
-  width: 100%;  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;#app {
-
-  display: flex;
-
-  flex-direction: column;}  max-width: 1280px;
-
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-  margin: 0 auto;
+/* Light Theme Colors */
+:root[data-theme="light"] {
+  /* Primary */
+  --md-sys-color-primary: rgb(103, 80, 164);
+  --md-sys-color-on-primary: rgb(255, 255, 255);
+  --md-sys-color-primary-container: rgb(234, 221, 255);
+  --md-sys-color-on-primary-container: rgb(33, 0, 93);
+  
+  /* Secondary */
+  --md-sys-color-secondary: rgb(98, 91, 113);
+  --md-sys-color-on-secondary: rgb(255, 255, 255);
+  --md-sys-color-secondary-container: rgb(232, 222, 248);
+  --md-sys-color-on-secondary-container: rgb(30, 25, 43);
+  
+  /* Surface */
+  --md-sys-color-surface: rgb(254, 247, 255);
+  --md-sys-color-on-surface: rgb(29, 27, 32);
+  --md-sys-color-surface-variant: rgb(231, 224, 236);
+  --md-sys-color-on-surface-variant: rgb(73, 69, 79);
+  
+  /* Background */
+  --md-sys-color-background: rgb(254, 247, 255);
+  --md-sys-color-on-background: rgb(29, 27, 32);
+  
+  /* Error */
+  --md-sys-color-error: rgb(179, 38, 30);
+  --md-sys-color-on-error: rgb(255, 255, 255);
+  
+  /* Outline */
+  --md-sys-color-outline: rgb(121, 116, 126);
+  --md-sys-color-shadow: rgba(0, 0, 0, 0.2);
+  
+  /* Elevation */
+  --md-elevation-1: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --md-elevation-2: 0 2px 6px rgba(0, 0, 0, 0.12);
+  --md-elevation-3: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
 
-/* Scrollbar */  padding: 2rem;
+/* Dark Theme Colors */
+:root[data-theme="dark"] {
+  /* Primary */
+  --md-sys-color-primary: rgb(208, 188, 255);
+  --md-sys-color-on-primary: rgb(55, 30, 115);
+  --md-sys-color-primary-container: rgb(79, 55, 139);
+  --md-sys-color-on-primary-container: rgb(234, 221, 255);
+  
+  /* Secondary */
+  --md-sys-color-secondary: rgb(204, 194, 220);
+  --md-sys-color-on-secondary: rgb(51, 45, 65);
+  --md-sys-color-secondary-container: rgb(74, 68, 88);
+  --md-sys-color-on-secondary-container: rgb(232, 222, 248);
+  
+  /* Surface */
+  --md-sys-color-surface: rgb(20, 18, 24);
+  --md-sys-color-on-surface: rgb(230, 225, 229);
+  --md-sys-color-surface-variant: rgb(73, 69, 79);
+  --md-sys-color-on-surface-variant: rgb(202, 196, 208);
+  
+  /* Background */
+  --md-sys-color-background: rgb(20, 18, 24);
+  --md-sys-color-on-background: rgb(230, 225, 229);
+  
+  /* Error */
+  --md-sys-color-error: rgb(242, 184, 181);
+  --md-sys-color-on-error: rgb(55, 11, 10);
+  
+  /* Outline */
+  --md-sys-color-outline: rgb(147, 143, 153);
+  --md-sys-color-shadow: rgba(0, 0, 0, 0.5);
+  
+  /* Elevation */
+  --md-elevation-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --md-elevation-2: 0 2px 6px rgba(0, 0, 0, 0.4);
+  --md-elevation-3: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
 
-::-webkit-scrollbar {  text-align: center;
-
-  width: 8px;}
-
-  height: 8px;
-
-}button {
-
-  border-radius: 8px;
-
-::-webkit-scrollbar-track {  border: 1px solid transparent;
-
-  background: transparent;  padding: 0.6em 1.2em;
-
-}  font-size: 1em;
-
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
   font-weight: 500;
-
-::-webkit-scrollbar-thumb {  font-family: inherit;
-
-  background: var(--md-sys-color-outline);  background-color: #1a1a1a;
-
-  border-radius: 4px;  cursor: pointer;
-
-}  transition: border-color 0.25s;
-
 }
 
-::-webkit-scrollbar-thumb:hover {button:hover {
-
-  background: var(--md-sys-color-on-surface-variant);  border-color: #646cff;
-
-}}
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+/* Links */
+a {
+  color: var(--md-sys-color-primary);
+  text-decoration: none;
+  transition: opacity 0.2s;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+a:hover {
+  opacity: 0.8;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--md-sys-color-surface-variant);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--md-sys-color-outline);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--md-sys-color-on-surface-variant);
+}
+
+/* Focus Styles */
+*:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+button {
+  font-family: inherit;
 }
