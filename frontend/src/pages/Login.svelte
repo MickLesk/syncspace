@@ -21,170 +21,242 @@
   }
 </script>
 
-<div class="login-container">
+<div class="login-page">
   <div class="login-card">
-    <div class="login-logo">S</div>
-    <h1>SyncSpace</h1>
-    <p class="subtitle">Modern File Synchronization</p>
+    <div class="brand">
+      <div class="logo">S</div>
+      <h1 class="title">SyncSpace</h1>
+      <p class="subtitle">Modern File Synchronization</p>
+    </div>
     
-    <form on:submit={handleLogin}>
-      <div class="form-group">
+    <form class="login-form" on:submit={handleLogin}>
+      <div class="text-field">
         <label for="username">Username</label>
         <input 
           id="username" 
           type="text" 
           bind:value={username}
-          placeholder="admin" 
+          placeholder="Enter username" 
           required 
           disabled={loading}
+          autocomplete="username"
         />
       </div>
       
-      <div class="form-group">
+      <div class="text-field">
         <label for="password">Password</label>
         <input 
           id="password" 
           type="password" 
           bind:value={password}
-          placeholder="••••••" 
+          placeholder="Enter password" 
           required 
           disabled={loading}
+          autocomplete="current-password"
         />
       </div>
       
       {#if error}
-        <div class="error-box">❌ {error}</div>
+        <div class="error-message">
+          <span class="error-icon">⚠️</span>
+          <span>{error}</span>
+        </div>
       {/if}
       
-      <button type="submit" class="login-btn" disabled={loading}>
-        {loading ? '⏳ Logging in...' : '🚀 Login'}
+      <button type="submit" class="filled-button" disabled={loading}>
+        {#if loading}
+          <span class="loading-spinner"></span>
+          Logging in...
+        {:else}
+          Login
+        {/if}
       </button>
     </form>
     
-    <div class="demo-box">
-      <strong>Demo:</strong> admin / admin
+    <div class="demo-hint">
+      <strong>Demo credentials:</strong> admin / admin
     </div>
   </div>
 </div>
 
 <style>
-  .login-container {
+  .login-page {
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #6750a4 0%, #625b71 100%);
+    background: linear-gradient(135deg, 
+      var(--md-sys-color-primary) 0%, 
+      var(--md-sys-color-secondary) 100%
+    );
+    padding: 24px;
   }
   
   .login-card {
-    background: white;
-    border-radius: 24px;
-    padding: 48px;
+    background: var(--md-sys-color-surface);
+    border-radius: 28px;
+    padding: 48px 40px;
     width: 100%;
-    max-width: 420px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    max-width: 400px;
+    box-shadow: var(--md-elevation-3);
   }
   
-  .login-logo {
-    width: 64px;
-    height: 64px;
+  .brand {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #6750a4, #625b71);
+    background: linear-gradient(135deg, 
+      var(--md-sys-color-primary), 
+      var(--md-sys-color-secondary)
+    );
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 24px;
-    font-size: 32px;
-    font-weight: bold;
-    color: white;
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--md-sys-color-on-primary);
+    box-shadow: var(--md-elevation-2);
   }
   
-  h1 {
-    text-align: center;
-    font-size: 28px;
+  .title {
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--md-sys-color-on-surface);
     margin-bottom: 8px;
-    color: #202124;
   }
   
   .subtitle {
-    text-align: center;
-    color: #5f6368;
-    margin-bottom: 32px;
     font-size: 14px;
+    color: var(--md-sys-color-on-surface-variant);
   }
   
-  .form-group {
-    margin-bottom: 20px;
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
   }
   
-  .form-group label {
+  /* Material 3 Text Field */
+  .text-field {
+    position: relative;
+  }
+  
+  .text-field label {
     display: block;
+    font-size: 12px;
     font-weight: 500;
+    color: var(--md-sys-color-on-surface-variant);
     margin-bottom: 8px;
-    color: #202124;
-    font-size: 14px;
+    letter-spacing: 0.5px;
   }
   
-  .form-group input {
+  .text-field input {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #dadce0;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: all 0.2s;
-  }
-  
-  .form-group input:focus {
+    padding: 16px;
+    font-size: 16px;
+    font-family: inherit;
+    color: var(--md-sys-color-on-surface);
+    background: var(--md-sys-color-surface-variant);
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: 12px;
+    transition: all 0.2s ease;
     outline: none;
-    border-color: #6750a4;
-    box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.1);
   }
   
-  .form-group input:disabled {
-    background: #f1f3f4;
-    cursor: not-allowed;
+  .text-field input:focus {
+    border-color: var(--md-sys-color-primary);
+    background: var(--md-sys-color-surface);
+    box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.12);
   }
   
-  .error-box {
-    background: #fce8e6;
-    border: 1px solid #b3261e;
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 20px;
-    color: #b3261e;
-    font-size: 14px;
-  }
-  
-  .login-btn {
-    width: 100%;
-    padding: 12px;
-    background: linear-gradient(135deg, #6750a4, #625b71);
-    color: white;
-    border: none;
-    border-radius: 24px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.3s;
-  }
-  
-  .login-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(103, 80, 164, 0.3);
-  }
-  
-  .login-btn:disabled {
+  .text-field input:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
   
-  .demo-box {
-    margin-top: 24px;
-    padding: 12px;
-    background: rgba(103, 80, 164, 0.1);
-    border-left: 4px solid #6750a4;
+  /* Material 3 Filled Button */
+  .filled-button {
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    letter-spacing: 0.1px;
+    color: var(--md-sys-color-on-primary);
+    background: var(--md-sys-color-primary);
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--md-elevation-1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .filled-button:hover:not(:disabled) {
+    background: var(--md-sys-color-primary-container);
+    box-shadow: var(--md-elevation-2);
+  }
+  
+  .filled-button:active:not(:disabled) {
+    box-shadow: var(--md-elevation-1);
+  }
+  
+  .filled-button:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  
+  .loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--md-sys-color-on-primary);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .error-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(179, 38, 30, 0.1);
+    border-left: 3px solid var(--md-sys-color-error);
     border-radius: 8px;
+    font-size: 14px;
+    color: var(--md-sys-color-error);
+  }
+  
+  .error-icon {
+    font-size: 20px;
+  }
+  
+  .demo-hint {
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--md-sys-color-primary-container);
+    border-radius: 12px;
     font-size: 13px;
-    color: #202124;
+    text-align: center;
+    color: var(--md-sys-color-on-primary-container);
+  }
+  
+  .demo-hint strong {
+    display: block;
+    margin-bottom: 4px;
   }
 </style>

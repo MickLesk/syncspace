@@ -8,14 +8,16 @@
   
   // Apply theme to document
   $: {
-    document.documentElement.setAttribute('data-theme', $currentTheme);
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-theme', $currentTheme);
+    }
   }
 </script>
 
 {#if !$auth.isLoggedIn}
   <Login />
 {:else}
-  <div class="app">
+  <div class="app-container">
     <Header />
     <div class="app-body">
       <Sidebar />
@@ -27,28 +29,24 @@
 {/if}
 
 <style>
-  :global(body) {
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  }
-  
-  .app {
+  .app-container {
+    height: 100vh;
+    width: 100vw;
     display: flex;
     flex-direction: column;
-    height: 100vh;
     overflow: hidden;
+    background: var(--md-sys-color-background);
   }
   
   .app-body {
-    display: flex;
     flex: 1;
+    display: flex;
     overflow: hidden;
   }
   
   .main-content {
     flex: 1;
     overflow-y: auto;
-    background: var(--bg);
+    background: var(--md-sys-color-background);
   }
 </style>

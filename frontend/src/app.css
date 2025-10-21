@@ -1,108 +1,213 @@
-/* Material 3 Design System Variables */:root {
+/* Material 3 Design System - Expressive Theme *//* Material 3 Design System Variables */:root {
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
 :root[data-theme="light"] {  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 
-  --primary: #6750a4;  line-height: 1.5;
+/* Light Theme Colors */
 
-  --secondary: #625b71;  font-weight: 400;
+:root[data-theme="light"] {  --primary: #6750a4;  line-height: 1.5;
 
-  --bg: #fafafa;
+  --md-sys-color-primary: rgb(103, 80, 164);
 
-  --surface: #ffffff;  color-scheme: light dark;
+  --md-sys-color-on-primary: rgb(255, 255, 255);  --secondary: #625b71;  font-weight: 400;
 
-  --text: #202124;  color: rgba(255, 255, 255, 0.87);
+  --md-sys-color-primary-container: rgb(234, 221, 255);
 
-  --text-secondary: #5f6368;  background-color: #242424;
+  --md-sys-color-on-primary-container: rgb(33, 0, 93);  --bg: #fafafa;
 
-  --border: #dadce0;
+  
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);  font-synthesis: none;
+  --md-sys-color-secondary: rgb(98, 91, 113);  --surface: #ffffff;  color-scheme: light dark;
 
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.15);  text-rendering: optimizeLegibility;
+  --md-sys-color-on-secondary: rgb(255, 255, 255);
 
-}  -webkit-font-smoothing: antialiased;
+  --md-sys-color-secondary-container: rgb(232, 222, 248);  --text: #202124;  color: rgba(255, 255, 255, 0.87);
 
-  -moz-osx-font-smoothing: grayscale;
+  
+
+  --md-sys-color-surface: rgb(254, 247, 255);  --text-secondary: #5f6368;  background-color: #242424;
+
+  --md-sys-color-on-surface: rgb(29, 27, 32);
+
+  --md-sys-color-surface-variant: rgb(231, 224, 236);  --border: #dadce0;
+
+  --md-sys-color-on-surface-variant: rgb(73, 69, 79);
+
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);  font-synthesis: none;
+
+  --md-sys-color-background: rgb(254, 247, 255);
+
+  --md-sys-color-on-background: rgb(29, 27, 32);  --shadow-md: 0 4px 12px rgba(0,0,0,0.15);  text-rendering: optimizeLegibility;
+
+  
+
+  --md-sys-color-error: rgb(179, 38, 30);}  -webkit-font-smoothing: antialiased;
+
+  --md-sys-color-outline: rgb(121, 116, 126);
+
+  --md-sys-color-shadow: rgba(0, 0, 0, 0.2);  -moz-osx-font-smoothing: grayscale;
+
+}
 
 :root[data-theme="dark"] {}
 
-  --primary: #d0bcff;
+/* Dark Theme Colors */
 
-  --secondary: #ccc2dc;a {
+:root[data-theme="dark"] {  --primary: #d0bcff;
 
-  --bg: #1c1b1f;  font-weight: 500;
+  --md-sys-color-primary: rgb(208, 188, 255);
 
-  --surface: #2b2930;  color: #646cff;
+  --md-sys-color-on-primary: rgb(55, 30, 115);  --secondary: #ccc2dc;a {
 
-  --text: #e6e1e5;  text-decoration: inherit;
+  --md-sys-color-primary-container: rgb(79, 55, 139);
 
-  --text-secondary: #cac4d0;}
+  --md-sys-color-on-primary-container: rgb(234, 221, 255);  --bg: #1c1b1f;  font-weight: 500;
 
-  --border: #49454f;a:hover {
+  
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);  color: #535bf2;
+  --md-sys-color-secondary: rgb(204, 194, 220);  --surface: #2b2930;  color: #646cff;
 
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);}
+  --md-sys-color-on-secondary: rgb(51, 45, 65);
+
+  --md-sys-color-secondary-container: rgb(74, 68, 88);  --text: #e6e1e5;  text-decoration: inherit;
+
+  
+
+  --md-sys-color-surface: rgb(20, 18, 24);  --text-secondary: #cac4d0;}
+
+  --md-sys-color-on-surface: rgb(230, 225, 229);
+
+  --md-sys-color-surface-variant: rgb(73, 69, 79);  --border: #49454f;a:hover {
+
+  --md-sys-color-on-surface-variant: rgb(202, 196, 208);
+
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);  color: #535bf2;
+
+  --md-sys-color-background: rgb(20, 18, 24);
+
+  --md-sys-color-on-background: rgb(230, 225, 229);  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);}
+
+  
+
+  --md-sys-color-error: rgb(242, 184, 181);}
+
+  --md-sys-color-outline: rgb(147, 143, 153);
+
+  --md-sys-color-shadow: rgba(0, 0, 0, 0.5);body {
 
 }
-
-body {
 
 * {  margin: 0;
 
-  margin: 0;  display: flex;
+/* Elevation System */
 
-  padding: 0;  place-items: center;
+:root {  margin: 0;  display: flex;
 
-  box-sizing: border-box;  min-width: 320px;
+  --md-elevation-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
 
-}  min-height: 100vh;
+  --md-elevation-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);  padding: 0;  place-items: center;
+
+  --md-elevation-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.3);
+
+}  box-sizing: border-box;  min-width: 320px;
+
+
+
+/* Base Reset */}  min-height: 100vh;
+
+*, *::before, *::after {
+
+  margin: 0;}
+
+  padding: 0;
+
+  box-sizing: border-box;html, body, #app {
 
 }
-
-html, body, #app {
 
   height: 100%;h1 {
 
-  margin: 0;  font-size: 3.2em;
+html, body {
 
-  padding: 0;  line-height: 1.1;
+  height: 100%;  margin: 0;  font-size: 3.2em;
+
+  width: 100%;
+
+  overflow: hidden;  padding: 0;  line-height: 1.1;
+
+}
 
 }}
 
+body {
+
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+
+  -moz-osx-font-smoothing: grayscale;body {.card {
+
+  background-color: var(--md-sys-color-background);
+
+  color: var(--md-sys-color-on-background);  background: var(--bg);  padding: 2em;
+
+  line-height: 1.5;
+
+}  color: var(--text);}
 
 
-body {.card {
 
-  background: var(--bg);  padding: 2em;
+#app {  transition: background 0.3s, color 0.3s;
 
-  color: var(--text);}
+  height: 100%;
 
-  transition: background 0.3s, color 0.3s;
+  width: 100%;  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;#app {
 
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;#app {
+  display: flex;
 
-}  max-width: 1280px;
+  flex-direction: column;}  max-width: 1280px;
+
+}
 
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+
+/* Scrollbar */  padding: 2rem;
+
+::-webkit-scrollbar {  text-align: center;
+
+  width: 8px;}
+
+  height: 8px;
+
+}button {
+
+  border-radius: 8px;
+
+::-webkit-scrollbar-track {  border: 1px solid transparent;
+
+  background: transparent;  padding: 0.6em 1.2em;
+
+}  font-size: 1em;
+
+  font-weight: 500;
+
+::-webkit-scrollbar-thumb {  font-family: inherit;
+
+  background: var(--md-sys-color-outline);  background-color: #1a1a1a;
+
+  border-radius: 4px;  cursor: pointer;
+
+}  transition: border-color 0.25s;
+
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
+::-webkit-scrollbar-thumb:hover {button:hover {
+
+  background: var(--md-sys-color-on-surface-variant);  border-color: #646cff;
+
+}}
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
