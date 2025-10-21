@@ -48,6 +48,8 @@
 <Toast />
 
 <style>
+  @import 'bootstrap-icons/font/bootstrap-icons.css';
+
   .app-container {
     height: 100vh;
     width: 100vw;
