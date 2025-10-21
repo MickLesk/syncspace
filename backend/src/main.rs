@@ -867,8 +867,24 @@ async fn list_entries(tail: warp::path::Tail) -> Result<impl warp::Reply, Infall
         Ok(mut dir) => {
             while let Ok(Some(e)) = dir.next_entry().await {
                 if let Ok(meta) = e.metadata().await {
+                    let filename = e.file_name().to_string_lossy().to_string();
+                    
+                    // Filter out system files (DB, search index, lock files)
+                    // Only show in root directory (when sub is empty)
+                    if sub.is_empty() {
+                        // Skip database, search index, and lock files
+                        if filename == "syncspace.db" 
+                            || filename == "syncspace.db-shm" 
+                            || filename == "syncspace.db-wal"
+                            || filename == "search_index"
+                            || filename.ends_with(".lock") 
+                            || filename.starts_with(".tantivy-") {
+                            continue;
+                        }
+                    }
+                    
                     entries.push(EntryInfo {
-                        name: e.file_name().to_string_lossy().to_string(),
+                        name: filename,
                         is_dir: meta.is_dir(),
                         size: meta.len(),
                     });

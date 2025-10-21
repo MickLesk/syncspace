@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { files, currentPath, currentLang } from "../stores/ui";
+  import { files, currentPath, currentLang, currentView } from "../stores/ui";
   import { auth } from "../stores/auth";
   import { t } from "../i18n";
   import { success, error as errorToast } from "../stores/toast";
@@ -21,6 +21,15 @@
   let isSearching = false;
   let searchTimeout;
   let viewMode = localStorage.getItem("filesViewMode") || "grid"; // 'grid' or 'list'
+  let uploadProgress = { current: 0, total: 0, uploading: false };
+  let showUploadPanel = false; // Toggle floating upload panel
+
+  // Drag & Drop for file moving
+  let draggedFile = null;
+  let dropTargetFolder = null;
+
+  let mounted = false;
+  let lastLoadPath = null; // Track last loaded path to prevent duplicate loads
 
   // Dialog states
   let showDeleteDialog = false;
@@ -38,8 +47,31 @@
     currentPath.update((path) => path + folderName + "/");
     searchQuery = ""; // Clear search when navigating
     searchResults = [];
-    loadFiles();
+    // loadFiles() will be triggered by reactive statement
   }
+
+  function navigateToPath(targetPath) {
+    currentPath.set(targetPath);
+    searchQuery = "";
+    searchResults = [];
+    // loadFiles() will be triggered by reactive statement
+  }
+
+  // Parse currentPath into breadcrumb parts
+  $: breadcrumbs = (() => {
+    if ($currentPath === "/") return [{ name: "Home", path: "/" }];
+
+    const parts = $currentPath.split("/").filter(Boolean);
+    const crumbs = [{ name: "Home", path: "/" }];
+
+    let accumulated = "/";
+    for (const part of parts) {
+      accumulated += part + "/";
+      crumbs.push({ name: part, path: accumulated });
+    }
+
+    return crumbs;
+  })();
 
   // Tantivy Search with debouncing
   async function performSearch(query) {
@@ -92,13 +124,56 @@
         : $files;
 
   onMount(() => {
-    loadFiles();
+    console.log(
+      `[FilesView] onMount - currentPath: "${$currentPath}", currentView: "${$currentView}"`
+    );
+    mounted = true;
+    // loadFiles() will be called by reactive statement
+
+    // Watch for view changes - reset path when returning to files view
+    const unsubscribe = currentView.subscribe((view) => {
+      console.log(`[FilesView] currentView changed to: "${view}"`);
+      if (view === "files" && mounted) {
+        // Ensure we have a valid path when entering files view
+        if (!$currentPath || $currentPath === "") {
+          console.log(`[FilesView] Resetting empty path to "/"`);
+          currentPath.set("/");
+        }
+      }
+    });
+
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
   });
+
+  // Reactive statement: Reload files whenever currentPath changes
+  // This handles breadcrumb navigation, folder clicks, and initial mount
+  $: if (
+    mounted &&
+    $currentPath &&
+    $currentView === "files" &&
+    $currentPath !== lastLoadPath
+  ) {
+    console.log(
+      `[FilesView] Reactive: mounted=${mounted}, path="${$currentPath}", view="${$currentView}", lastLoadPath="${lastLoadPath}"`
+    );
+    console.log(`[FilesView] Loading path: ${$currentPath}`);
+    lastLoadPath = $currentPath;
+    loadFiles();
+  } else if (mounted) {
+    console.log(
+      `[FilesView] Reactive SKIPPED: mounted=${mounted}, path="${$currentPath}", view="${$currentView}", lastLoadPath="${lastLoadPath}"`
+    );
+  }
 
   async function loadFiles() {
     loading = true;
     try {
+      console.log(`[FilesView] API call: list(${$currentPath})`);
       const data = await api.files.list($currentPath);
+      console.log(`[FilesView] Received ${data.length} files`);
       files.set(data);
     } catch (error) {
       console.error("Failed to load files:", error);
@@ -112,30 +187,51 @@
     if (!fileList || fileList.length === 0) return;
 
     uploading = true;
+    uploadProgress = { current: 0, total: fileList.length, uploading: true };
     let successCount = 0;
     let failCount = 0;
+    const failedFiles = [];
 
     for (const file of fileList) {
       try {
         const path = `${$currentPath}${file.name}`;
         await api.files.upload(path, file);
         successCount++;
+        uploadProgress.current++;
+
+        // Show progress toast for each file
+        if (fileList.length > 1) {
+          success(
+            `📤 ${uploadProgress.current}/${uploadProgress.total}: ${file.name}`,
+            1000
+          );
+        }
       } catch (err) {
         console.error(`Upload error for ${file.name}:`, err);
         failCount++;
+        failedFiles.push(file.name);
       }
     }
 
     uploading = false;
+    uploadProgress.uploading = false;
 
-    if (successCount > 0) {
-      success(`${successCount} ${t($currentLang, "filesUploaded")}`);
-    }
-    if (failCount > 0) {
-      errorToast(`${failCount} files failed to upload`);
+    // Summary toast
+    if (successCount > 0 && failCount === 0) {
+      success(
+        `✅ ${successCount} ${successCount === 1 ? "Datei" : "Dateien"} erfolgreich hochgeladen!`
+      );
+    } else if (successCount > 0 && failCount > 0) {
+      success(`✅ ${successCount} erfolgreich, ❌ ${failCount} fehlgeschlagen`);
+      if (failedFiles.length > 0) {
+        errorToast(`Fehlgeschlagen: ${failedFiles.join(", ")}`);
+      }
+    } else if (failCount > 0) {
+      errorToast(`❌ Alle ${failCount} Uploads fehlgeschlagen`);
     }
 
-    await loadFiles();
+    // Reload files with a small delay to ensure backend processing is done
+    setTimeout(() => loadFiles(), 300);
   }
 
   function handleUploadClick() {
@@ -149,7 +245,10 @@
   // Drag and drop handlers
   function handleDragOver(e) {
     e.preventDefault();
-    dragOver = true;
+    // Only show dropzone highlight for file uploads (not internal moves)
+    if (!draggedFile) {
+      dragOver = true;
+    }
   }
 
   function handleDragLeave(e) {
@@ -160,7 +259,60 @@
   function handleDrop(e) {
     e.preventDefault();
     dragOver = false;
-    handleUpload(e.dataTransfer.files);
+    // Only handle file uploads, not internal file moves
+    if (e.dataTransfer.files.length > 0) {
+      handleUpload(e.dataTransfer.files);
+    }
+  }
+
+  // Drag & Drop for moving files into folders
+  function handleFileDragStart(e, file) {
+    draggedFile = file;
+    e.dataTransfer.effectAllowed = "move";
+    e.target.style.opacity = "0.5";
+  }
+
+  function handleFileDragEnd(e) {
+    e.target.style.opacity = "1";
+    draggedFile = null;
+    dropTargetFolder = null;
+  }
+
+  function handleFolderDragOver(e, folder) {
+    if (!draggedFile || !folder.is_dir || draggedFile.name === folder.name) {
+      return;
+    }
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    dropTargetFolder = folder.name;
+  }
+
+  function handleFolderDragLeave(e, folder) {
+    if (dropTargetFolder === folder.name) {
+      dropTargetFolder = null;
+    }
+  }
+
+  async function handleFolderDrop(e, folder) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropTargetFolder = null;
+
+    if (!draggedFile || !folder.is_dir) return;
+
+    try {
+      const oldPath = `${$currentPath}${draggedFile.name}`;
+      const newPath = `${$currentPath}${folder.name}/${draggedFile.name}`;
+
+      await api.files.rename(oldPath, newPath);
+      success(`📁 "${draggedFile.name}" → "${folder.name}"`);
+      await loadFiles();
+    } catch (err) {
+      console.error("Failed to move file:", err);
+      errorToast(`❌ Fehler beim Verschieben: ${err.message}`);
+    }
+
+    draggedFile = null;
   }
 
   async function createFolder() {
@@ -290,31 +442,60 @@
           size={18}
         />
       </button>
-      <Button onClick={handleUploadClick} disabled={uploading}>
-        <Icon name="upload" size={16} />
-        {uploading ? "Wird hochgeladen..." : t($currentLang, "upload")}
-      </Button>
-      <Button variant="outlined" onClick={createFolder}>
+      <Button onClick={createFolder} variant="outlined">
         <Icon name="folder-plus" size={16} />
         {t($currentLang, "newFolder")}
       </Button>
     </div>
   </div>
 
+  <!-- Floating Upload Button (FAB - Floating Action Button) -->
+  <button
+    class="fab-upload"
+    class:uploading
+    on:click={handleUploadClick}
+    disabled={uploading}
+    title="Dateien hochladen"
+  >
+    <Icon name={uploading ? "clock-history" : "cloud-upload-fill"} size={24} />
+    {#if uploadProgress.uploading}
+      <span class="upload-badge"
+        >{uploadProgress.current}/{uploadProgress.total}</span
+      >
+    {/if}
+  </button>
+
+  <!-- Breadcrumb Navigation -->
+  <div class="breadcrumb-nav">
+    {#each breadcrumbs as crumb, i}
+      {#if i > 0}
+        <span class="breadcrumb-separator">/</span>
+      {/if}
+      <button
+        class="breadcrumb-item"
+        class:active={i === breadcrumbs.length - 1}
+        on:click={() => navigateToPath(crumb.path)}
+        disabled={i === breadcrumbs.length - 1}
+      >
+        {#if i === 0}
+          <Icon name="house-fill" size={14} />
+        {/if}
+        {crumb.name}
+      </button>
+    {/each}
+  </div>
+
+  <!-- Compact Drop Zone -->
   <div
-    class="drop-zone"
+    class="drop-zone-compact"
     class:drag-over={dragOver}
     on:dragover={handleDragOver}
     on:dragleave={handleDragLeave}
     on:drop={handleDrop}
-    on:click={handleUploadClick}
-    on:keydown={(e) => e.key === "Enter" && handleUploadClick()}
-    role="button"
-    tabindex="0"
+    role="region"
   >
-    <p class="drop-icon">📤</p>
-    <p class="drop-title">{t($currentLang, "dragAndDropHere")}</p>
-    <p class="drop-subtitle">{t($currentLang, "uploadFiles")}</p>
+    <Icon name="cloud-arrow-up" size={16} />
+    <span>{dragOver ? "📦 Drop hier!" : "Drag & Drop Dateien hier"}</span>
   </div>
 
   <!-- Search Mode Indicator -->
@@ -369,6 +550,13 @@
         <div
           class="file-card"
           class:folder={file.is_dir}
+          class:drag-over={file.is_dir && dropTargetFolder === file.name}
+          draggable="true"
+          on:dragstart={(e) => handleFileDragStart(e, file)}
+          on:dragend={handleFileDragEnd}
+          on:dragover={(e) => file.is_dir && handleFolderDragOver(e, file)}
+          on:dragleave={(e) => file.is_dir && handleFolderDragLeave(e, file)}
+          on:drop={(e) => file.is_dir && handleFolderDrop(e, file)}
           on:click={() => file.is_dir && navigateTo(file.name)}
           on:keydown={(e) =>
             e.key === "Enter" && file.is_dir && navigateTo(file.name)}
@@ -421,6 +609,13 @@
         <div
           class="file-row"
           class:folder={file.is_dir}
+          class:drag-over={file.is_dir && dropTargetFolder === file.name}
+          draggable="true"
+          on:dragstart={(e) => handleFileDragStart(e, file)}
+          on:dragend={handleFileDragEnd}
+          on:dragover={(e) => file.is_dir && handleFolderDragOver(e, file)}
+          on:dragleave={(e) => file.is_dir && handleFolderDragLeave(e, file)}
+          on:drop={(e) => file.is_dir && handleFolderDrop(e, file)}
           on:click={() => file.is_dir && navigateTo(file.name)}
           on:keydown={(e) =>
             e.key === "Enter" && file.is_dir && navigateTo(file.name)}
@@ -544,6 +739,49 @@
     border-color: var(--md-sys-color-secondary);
   }
 
+  /* Breadcrumb Navigation */
+  .breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--md-sys-color-surface-container-low);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--md-sys-color-primary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .breadcrumb-item:hover:not(:disabled) {
+    background: var(--md-sys-color-primary-container);
+  }
+
+  .breadcrumb-item:disabled,
+  .breadcrumb-item.active {
+    color: var(--md-sys-color-on-surface);
+    cursor: default;
+    font-weight: 600;
+  }
+
+  .breadcrumb-separator {
+    color: var(--md-sys-color-outline);
+    user-select: none;
+  }
+
   h2 {
     font-size: 28px;
     font-weight: 500;
@@ -554,14 +792,83 @@
     gap: 12px;
   }
 
-  .drop-zone {
-    border: 2px dashed var(--md-sys-color-primary);
-    border-radius: 20px;
-    padding: 48px;
-    text-align: center;
+  /* Floating Action Button for Upload */
+  .fab-upload {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 8px 24px rgba(103, 80, 164, 0.4);
     cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    overflow: visible;
+  }
+
+  .fab-upload:hover:not(:disabled) {
+    transform: scale(1.1) translateY(-4px);
+    box-shadow: 0 12px 32px rgba(103, 80, 164, 0.5);
+  }
+
+  .fab-upload:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  .fab-upload:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .fab-upload.uploading {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      box-shadow: 0 8px 24px rgba(103, 80, 164, 0.4);
+    }
+    50% {
+      box-shadow: 0 8px 32px rgba(103, 80, 164, 0.7);
+    }
+  }
+
+  .upload-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff5252;
+    color: white;
+    border-radius: 12px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Compact Drop Zone */
+  .drop-zone-compact {
+    border: 2px dashed var(--md-sys-color-outline);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
     transition: all 0.3s ease;
-    background: rgba(103, 80, 164, 0.05);
+    background: var(--md-sys-color-surface-container-lowest);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--md-sys-color-on-surface-variant);
     margin-bottom: 32px;
   }
 
@@ -665,6 +972,13 @@
     border-color: var(--md-sys-color-tertiary);
   }
 
+  .file-card.drag-over {
+    background: var(--md-sys-color-primary-container);
+    border: 2px dashed var(--md-sys-color-primary);
+    box-shadow: var(--md-elevation-4);
+    transform: scale(1.05);
+  }
+
   .file-icon {
     display: flex;
     justify-content: center;
@@ -751,6 +1065,12 @@
   .file-row.folder:hover {
     background: var(--md-sys-color-tertiary-container);
     border-color: var(--md-sys-color-tertiary);
+  }
+
+  .file-row.drag-over {
+    background: var(--md-sys-color-primary-container);
+    border: 2px dashed var(--md-sys-color-primary);
+    box-shadow: var(--md-elevation-3);
   }
 
   .file-icon-small {

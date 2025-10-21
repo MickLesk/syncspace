@@ -93,8 +93,8 @@
 
   .toast-warning {
     border-left-color: #f57c00;
-    background: #fff3e0;
-    color: #e65100;
+    background: rgba(255, 152, 0, 0.15);
+    color: var(--md-sys-color-on-surface);
   }
 
   .toast-info {
@@ -113,6 +113,7 @@
     font-size: 14px;
     font-weight: 500;
     line-height: 1.4;
+    color: var(--md-sys-color-on-surface);
   }
 
   .toast-close {
