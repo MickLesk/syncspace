@@ -11,8 +11,23 @@
   import InputDialog from "../components/ui/InputDialog.svelte";
   import Icon from "../components/ui/Icon.svelte";
   import api from "../lib/api";
-
   let loading = true;
+
+  // Helper: return a display-friendly filename (decode percent-encoding for UI only)
++
++  function displayName(name) {
++    try {
++      return decodeURIComponent(name);
++    } catch (e) {
++      return name;
++    }
++  }
++
++  function toggleUploadPanel() {
++    showUploadPanel = !showUploadPanel;
++  }
++
++
   let uploadInput;
   let dragOver = false;
   let uploading = false;
@@ -446,6 +461,13 @@
         <Icon name="folder-plus" size={16} />
         {t($currentLang, "newFolder")}
       </Button>
+
+      <!-- Upload toggle (shows/hides compact drop-zone) -->
++
+      <button class="btn-upload-toggle" on:click={toggleUploadPanel} title="Upload anzeigen/verbergen">
+        <Icon name="cloud-upload" size={16} />
++      </button>
++
     </div>
   </div>
 
@@ -486,17 +508,19 @@
   </div>
 
   <!-- Compact Drop Zone -->
-  <div
-    class="drop-zone-compact"
-    class:drag-over={dragOver}
-    on:dragover={handleDragOver}
-    on:dragleave={handleDragLeave}
-    on:drop={handleDrop}
-    role="region"
-  >
-    <Icon name="cloud-arrow-up" size={16} />
-    <span>{dragOver ? "📦 Drop hier!" : "Drag & Drop Dateien hier"}</span>
-  </div>
+  {#if showUploadPanel}
+    <div
+      class="drop-zone-compact"
+      class:drag-over={dragOver}
+      on:dragover={handleDragOver}
+      on:dragleave={handleDragLeave}
+      on:drop={handleDrop}
+      role="region"
+    >
+      <Icon name="cloud-arrow-up" size={16} />
+      <span>{dragOver ? "📦 Drop hier!" : "Drag & Drop Dateien hier"}</span>
+    </div>
+  {/if}
 
   <!-- Search Mode Indicator -->
   {#if searchQuery && searchQuery.length >= 2}
@@ -566,7 +590,7 @@
           <div class="file-icon">
             <Icon name={getFileIcon(file.name, file.is_dir)} size={48} />
           </div>
-          <div class="file-name" title={file.name}>{file.name}</div>
+          <div class="file-name" title={displayName(file.name)}>{displayName(file.name)}</div>
           <div class="file-meta">
             {#if file.is_dir}
               <Icon name="folder" size={14} /> Ordner
@@ -625,7 +649,7 @@
           <div class="file-icon-small">
             <Icon name={getFileIcon(file.name, file.is_dir)} size={24} />
           </div>
-          <div class="file-name-list" title={file.name}>{file.name}</div>
+          <div class="file-name-list" title={displayName(file.name)}>{displayName(file.name)}</div>
           <div class="file-size-list">
             {#if file.is_dir}
               <Icon name="folder" size={14} /> Ordner
