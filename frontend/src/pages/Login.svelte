@@ -82,6 +82,7 @@
 <style>
   .login-page {
     min-height: 100vh;
+    width: 100vw;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -90,6 +91,9 @@
       var(--md-sys-color-secondary) 100%
     );
     padding: 24px;
+    position: fixed;
+    top: 0;
+    left: 0;
   }
   
   .login-card {

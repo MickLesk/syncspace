@@ -62,24 +62,25 @@
   .header {
     background: var(--md-sys-color-surface);
     border-bottom: 1px solid var(--md-sys-color-outline);
-    padding: 12px 24px;
+    padding: 8px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: var(--md-elevation-1);
     z-index: 100;
-    min-height: 64px;
+    height: 56px;
+    min-height: 56px;
   }
   
   .header-left {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
   }
   
   .header-logo {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: linear-gradient(135deg, 
       var(--md-sys-color-primary), 
@@ -90,12 +91,13 @@
     justify-content: center;
     font-weight: 700;
     color: var(--md-sys-color-on-primary);
-    font-size: 18px;
+    font-size: 16px;
     box-shadow: var(--md-elevation-1);
+    flex-shrink: 0;
   }
   
   h1 {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 500;
     color: var(--md-sys-color-on-surface);
     margin: 0;
@@ -104,22 +106,26 @@
   .header-right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
   
   button {
-    padding: 10px 16px;
+    padding: 8px 12px;
+    height: 36px;
     border: 1px solid var(--md-sys-color-outline);
-    border-radius: 20px;
+    border-radius: 18px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     transition: all 0.2s ease;
     background: var(--md-sys-color-surface-variant);
     color: var(--md-sys-color-on-surface);
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   
   button:hover {
@@ -128,23 +134,26 @@
   }
   
   .theme-toggle {
-    border-radius: 20px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
   }
   
   .theme-toggle:hover {
     background: var(--md-sys-color-primary);
     color: var(--md-sys-color-on-primary);
-    transform: scale(1.05);
   }
   
   .user-badge {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
+    gap: 6px;
+    padding: 4px 12px;
+    height: 36px;
     background: var(--md-sys-color-primary-container);
-    border-radius: 20px;
-    font-size: 14px;
+    border-radius: 18px;
+    font-size: 13px;
     border: none;
     cursor: default;
   }
@@ -155,16 +164,17 @@
   }
   
   .user-avatar {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background: var(--md-sys-color-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--md-sys-color-on-primary);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
+    flex-shrink: 0;
   }
   
   .logout-btn {
