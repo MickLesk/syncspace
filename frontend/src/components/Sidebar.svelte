@@ -17,53 +17,60 @@
 
 <nav class="sidebar">
   {#each navItems as item}
-    <div 
+    <button 
       class="nav-item" 
       class:active={$currentView === item.id}
       on:click={() => selectView(item.id)}
+      type="button"
     >
       <span class="icon">{item.icon}</span>
       <span>{item.label}</span>
-    </div>
+    </button>
   {/each}
 </nav>
 
 <style>
   .sidebar {
     width: 280px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
+    background: var(--md-sys-color-surface);
+    border-right: 1px solid var(--md-sys-color-outline);
     overflow-y: auto;
-    padding: 16px 0;
+    padding: 12px 8px;
   }
   
   .nav-item {
-    padding: 12px 20px;
-    margin: 4px 8px;
-    border-radius: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    margin: 4px 0;
+    border-radius: 28px;
     cursor: pointer;
     font-size: 14px;
-    color: var(--text-secondary);
-    transition: all 0.2s;
-    border-left: 3px solid transparent;
     font-weight: 500;
+    color: var(--md-sys-color-on-surface-variant);
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
     display: flex;
     align-items: center;
     gap: 12px;
+    text-align: left;
   }
   
   .nav-item:hover {
-    background: var(--bg);
+    background: var(--md-sys-color-secondary-container);
   }
   
   .nav-item.active {
-    background: var(--bg);
-    color: var(--primary);
-    border-left-color: var(--primary);
+    background: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
     font-weight: 600;
   }
   
   .icon {
-    font-size: 18px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
   }
 </style>

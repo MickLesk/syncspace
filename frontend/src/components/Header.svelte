@@ -60,77 +60,80 @@
 
 <style>
   .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 24px;
+    background: var(--md-sys-color-surface);
+    border-bottom: 1px solid var(--md-sys-color-outline);
+    padding: 12px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--md-elevation-1);
     z-index: 100;
+    min-height: 64px;
   }
   
   .header-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
   }
   
   .header-logo {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(135deg, 
+      var(--md-sys-color-primary), 
+      var(--md-sys-color-secondary)
+    );
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    color: white;
+    font-weight: 700;
+    color: var(--md-sys-color-on-primary);
     font-size: 18px;
+    box-shadow: var(--md-elevation-1);
   }
   
   h1 {
     font-size: 22px;
-    font-weight: 600;
-    color: var(--text);
+    font-weight: 500;
+    color: var(--md-sys-color-on-surface);
     margin: 0;
   }
   
   .header-right {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
   }
   
   button {
     padding: 10px 16px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: 20px;
     cursor: pointer;
     font-size: 14px;
-    transition: all 0.2s;
-    background: var(--surface);
-    color: var(--text);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background: var(--md-sys-color-surface-variant);
+    color: var(--md-sys-color-on-surface);
     display: flex;
     align-items: center;
     gap: 8px;
-    font-weight: 500;
   }
   
   button:hover {
-    background: var(--bg);
+    background: var(--md-sys-color-secondary-container);
+    border-color: var(--md-sys-color-primary);
   }
   
   .theme-toggle {
-    border-width: 2px;
-    border-radius: 24px;
-    font-weight: 600;
+    border-radius: 20px;
   }
   
   .theme-toggle:hover {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
     transform: scale(1.05);
   }
   
@@ -138,32 +141,38 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 12px;
-    background: var(--bg);
-    border-radius: 16px;
-    font-size: 13px;
+    padding: 8px 16px;
+    background: var(--md-sys-color-primary-container);
+    border-radius: 20px;
+    font-size: 14px;
     border: none;
+    cursor: default;
+  }
+  
+  .user-badge:hover {
+    background: var(--md-sys-color-primary-container);
+    border-color: transparent;
   }
   
   .user-avatar {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: var(--primary);
+    background: var(--md-sys-color-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
+    color: var(--md-sys-color-on-primary);
+    font-size: 13px;
+    font-weight: 600;
   }
   
   .logout-btn {
-    color: var(--text-secondary);
+    color: var(--md-sys-color-error);
+    border-color: var(--md-sys-color-error);
   }
   
   .logout-btn:hover {
-    color: #b3261e;
-    border-color: #b3261e;
+    background: rgba(179, 38, 30, 0.1);
   }
 </style>
