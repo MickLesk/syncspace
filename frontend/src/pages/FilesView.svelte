@@ -10,13 +10,17 @@
   import Dialog from "../components/ui/Dialog.svelte";
   import InputDialog from "../components/ui/InputDialog.svelte";
   import Icon from "../components/ui/Icon.svelte";
+  import api from "../lib/api";
 
   let loading = true;
   let uploadInput;
   let dragOver = false;
   let uploading = false;
   let searchQuery = "";
-  let viewMode = localStorage.getItem('filesViewMode') || 'grid'; // 'grid' or 'list'
+  let searchResults = [];
+  let isSearching = false;
+  let searchTimeout;
+  let viewMode = localStorage.getItem("filesViewMode") || "grid"; // 'grid' or 'list'
 
   // Dialog states
   let showDeleteDialog = false;
@@ -26,20 +30,66 @@
   let fileToRename = null;
 
   function toggleViewMode() {
-    viewMode = viewMode === 'grid' ? 'list' : 'grid';
-    localStorage.setItem('filesViewMode', viewMode);
+    viewMode = viewMode === "grid" ? "list" : "grid";
+    localStorage.setItem("filesViewMode", viewMode);
   }
 
   function navigateTo(folderName) {
-    currentPath.update(path => path + folderName + '/');
+    currentPath.update((path) => path + folderName + "/");
+    searchQuery = ""; // Clear search when navigating
+    searchResults = [];
     loadFiles();
   }
 
-  $: filteredFiles = searchQuery
-    ? $files.filter((f) =>
-        f.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : $files;
+  // Tantivy Search with debouncing
+  async function performSearch(query) {
+    if (!query || query.length < 2) {
+      searchResults = [];
+      isSearching = false;
+      return;
+    }
+
+    isSearching = true;
+    try {
+      const data = await api.search.query(query, 50, true);
+      searchResults = data.results || [];
+      console.log(`🔍 Found ${searchResults.length} results for "${query}"`);
+    } catch (error) {
+      console.error("Search failed:", error);
+      searchResults = [];
+    }
+    isSearching = false;
+  }
+
+  function handleSearchInput(event) {
+    const query = event.detail || event.target?.value || "";
+    searchQuery = query;
+
+    // Debouncing: Wait 300ms after last keystroke
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      performSearch(query);
+    }, 300);
+  }
+
+  // Use search results if searching, otherwise local filtered files
+  $: displayedFiles =
+    searchQuery && searchQuery.length >= 2
+      ? searchResults.map((result) => ({
+          name: result.filename,
+          path: result.path,
+          type: result.file_type === "unknown" ? "file" : result.file_type,
+          is_dir: false,
+          size: result.size,
+          modified: result.modified,
+          _searchScore: result.score,
+          _snippet: result.snippet,
+        }))
+      : searchQuery
+        ? $files.filter((f) =>
+            f.name.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        : $files;
 
   onMount(() => {
     loadFiles();
@@ -48,21 +98,11 @@
   async function loadFiles() {
     loading = true;
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/files/${$currentPath}`,
-        {
-          headers: {
-            Authorization: `Bearer ${$auth.token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        files.set(data);
-      }
+      const data = await api.files.list($currentPath);
+      files.set(data);
     } catch (error) {
       console.error("Failed to load files:", error);
+      errorToast("Failed to load files: " + error.message);
       files.set([]);
     }
     loading = false;
@@ -71,60 +111,30 @@
   async function handleUpload(fileList) {
     if (!fileList || fileList.length === 0) return;
 
-    console.log("🚀 Starting upload:", fileList.length, "files");
-    console.log("📦 Auth token:", $auth.token.substring(0, 20) + "...");
-    console.log("📁 Current path:", $currentPath);
-
     uploading = true;
     let successCount = 0;
     let failCount = 0;
 
     for (const file of fileList) {
       try {
-        const arrayBuffer = await file.arrayBuffer();
-        const uploadUrl = `http://localhost:8080/api/upload/${$currentPath}${file.name}`;
-        
-        console.log(`⬆️ Uploading ${file.name} to:`, uploadUrl);
-        
-        const response = await fetch(uploadUrl, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${$auth.token}`,
-            "Content-Type": "application/octet-stream",
-          },
-          body: arrayBuffer,
-        });
-
-        console.log(`📡 Response status for ${file.name}:`, response.status);
-
-        if (response.ok) {
-          console.log(`✅ ${file.name} uploaded successfully`);
-          successCount++;
-        } else {
-          // Check for auth errors
-          if (auth.checkAuthError(response)) {
-            errorToast("Sitzung abgelaufen. Bitte neu anmelden.");
-            return;
-          }
-          const errorText = await response.text();
-          console.error(`❌ ${file.name} upload failed (${response.status}):`, errorText);
-          failCount++;
-        }
+        const path = `${$currentPath}${file.name}`;
+        await api.files.upload(path, file);
+        successCount++;
       } catch (err) {
-        console.error(`💥 Upload error for ${file.name}:`, err);
+        console.error(`Upload error for ${file.name}:`, err);
         failCount++;
       }
     }
 
     uploading = false;
-    
+
     if (successCount > 0) {
-      success(`${successCount} Datei(en) erfolgreich hochgeladen`);
+      success(`${successCount} ${t($currentLang, "filesUploaded")}`);
     }
     if (failCount > 0) {
-      errorToast(`${failCount} Datei(en) konnten nicht hochgeladen werden`);
+      errorToast(`${failCount} files failed to upload`);
     }
-    
+
     await loadFiles();
   }
 
@@ -161,66 +171,31 @@
     const folderName = event.detail;
     if (!folderName) return;
 
-    const createUrl = `http://localhost:8080/api/dirs/${$currentPath}${folderName}`;
-    console.log("📁 Creating folder:", folderName, "at URL:", createUrl);
-    console.log("🔑 Using token:", $auth.token.substring(0, 20) + "...");
-
     try {
-      const response = await fetch(createUrl, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${$auth.token}`,
-        },
-      });
-
-      console.log("📡 Create folder response:", response.status);
-
-      if (response.ok) {
-        console.log("✅ Folder created successfully");
-        success(`Ordner "${folderName}" wurde erstellt`);
-        await loadFiles();
-      } else {
-        // Check for auth errors
-        if (auth.checkAuthError(response)) {
-          errorToast("Sitzung abgelaufen. Bitte neu anmelden.");
-          return;
-        }
-        const errorText = await response.text();
-        console.error("❌ Folder creation failed:", response.status, errorText);
-        errorToast(`Fehler beim Erstellen: ${errorText}`);
-      }
+      const path = `${$currentPath}${folderName}`;
+      await api.files.createDir(path);
+      success(`${t($currentLang, "folder")} "${folderName}" ${t($currentLang, "created")}`);
+      await loadFiles();
     } catch (err) {
-      console.error("💥 Failed to create folder:", err);
-      errorToast(`Fehler beim Erstellen: ${err.message}`);
+      console.error("Failed to create folder:", err);
+      errorToast(`Error: ${err.message}`);
     }
   }
 
   async function downloadFile(file) {
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/file/${$currentPath}${file.name}`,
-        {
-          headers: {
-            Authorization: `Bearer ${$auth.token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = file.name;
-        a.click();
-        URL.revokeObjectURL(url);
-        success(`"${file.name}" wird heruntergeladen`);
-      } else {
-        errorToast('Fehler beim Herunterladen');
-      }
+      const path = `${$currentPath}${file.name}`;
+      const blob = await api.files.download(path);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.name;
+      a.click();
+      URL.revokeObjectURL(url);
+      success(`"${file.name}" ${t($currentLang, "downloading")}`);
     } catch (err) {
       console.error("Failed to download file:", err);
-      errorToast(`Fehler: ${err.message}`);
+      errorToast(`Error: ${err.message}`);
     }
   }
 
@@ -235,26 +210,13 @@
     const fileName = fileToDelete.name;
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/files/${$currentPath}${fileName}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${$auth.token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        success(`"${fileName}" wurde gelöscht`);
-        await loadFiles();
-      } else {
-        const errorText = await response.text();
-        errorToast(`Fehler: ${errorText}`);
-      }
+      const path = `${$currentPath}${fileName}`;
+      await api.files.delete(path);
+      success(`"${fileName}" ${t($currentLang, "deleted")}`);
+      await loadFiles();
     } catch (err) {
       console.error("Failed to delete file:", err);
-      errorToast(`Fehler: ${err.message}`);
+      errorToast(`Error: ${err.message}`);
     }
 
     fileToDelete = null;
@@ -272,28 +234,14 @@
     const oldName = fileToRename.name;
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/rename/${$currentPath}${oldName}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${$auth.token}`,
-          },
-          body: JSON.stringify({ new_path: `${$currentPath}${newName}` }),
-        }
-      );
-
-      if (response.ok) {
-        success(`"${oldName}" → "${newName}"`);
-        await loadFiles();
-      } else {
-        const errorText = await response.text();
-        errorToast(`Fehler: ${errorText}`);
-      }
+      const oldPath = `${$currentPath}${oldName}`;
+      const newPath = `${$currentPath}${newName}`;
+      await api.files.rename(oldPath, newPath);
+      success(`"${oldName}" → "${newName}"`);
+      await loadFiles();
     } catch (err) {
       console.error("Failed to rename file:", err);
-      errorToast(`Fehler: ${err.message}`);
+      errorToast(`Error: ${err.message}`);
     }
 
     fileToRename = null;
@@ -322,14 +270,23 @@
     <div class="header-actions">
       <SearchBar
         bind:value={searchQuery}
-        placeholder="🔍 {t($currentLang, 'search')}..."
+        placeholder="{t($currentLang, 'search')}..."
+        on:input={handleSearchInput}
+        on:clear={() => {
+          searchQuery = "";
+          searchResults = [];
+          loadFiles();
+        }}
       />
-      <button 
+      <button
         class="btn-view-toggle"
         on:click={toggleViewMode}
-        title={viewMode === 'grid' ? 'Listen-Ansicht' : 'Karten-Ansicht'}
+        title={viewMode === "grid" ? "Listen-Ansicht" : "Karten-Ansicht"}
       >
-        <Icon name={viewMode === 'grid' ? 'list-ul' : 'grid-3x3-gap'} size={18} />
+        <Icon
+          name={viewMode === "grid" ? "list-ul" : "grid-3x3-gap"}
+          size={18}
+        />
       </button>
       <Button onClick={handleUploadClick} disabled={uploading}>
         <Icon name="upload" size={16} />
@@ -358,26 +315,54 @@
     <p class="drop-subtitle">{t($currentLang, "uploadFiles")}</p>
   </div>
 
+  <!-- Search Mode Indicator -->
+  {#if searchQuery && searchQuery.length >= 2}
+    <div class="search-mode-indicator">
+      <span class="search-icon">🔍</span>
+      <span class="search-info">
+        Search results for <strong>"{searchQuery}"</strong>
+        {#if searchResults.length > 0}
+          — {searchResults.length} {searchResults.length === 1 ? "file" : "files"} found
+        {/if}
+      </span>
+      <button 
+        class="btn-clear-search"
+        on:click={() => {
+          searchQuery = "";
+          searchResults = [];
+          loadFiles();
+        }}
+      >
+        Clear search
+      </button>
+    </div>
+  {/if}
+
   {#if loading}
     <div class="loading">
       <div class="spinner"></div>
       <p>Loading files...</p>
     </div>
-  {:else if filteredFiles.length === 0}
-    <div class="empty-state">
-      <p class="empty-icon">📂</p>
-      <p class="empty-title">{t($currentLang, "noFiles")}</p>
-      <p class="empty-subtitle">{t($currentLang, "dragAndDropHere")}</p>
+  {:else if isSearching}
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>🔍 Searching...</p>
     </div>
-  {:else}
-    {#if viewMode === 'grid'}
+  {:else if displayedFiles.length === 0}
+    <div class="empty-state">
+      <p class="empty-icon">{searchQuery ? "�" : "�📂"}</p>
+      <p class="empty-title">{searchQuery ? "No results found" : t($currentLang, "noFiles")}</p>
+      <p class="empty-subtitle">{searchQuery ? `Try different keywords` : t($currentLang, "dragAndDropHere")}</p>
+    </div>
+  {:else if viewMode === "grid"}
     <div class="file-grid">
-      {#each filteredFiles as file}
-        <div 
-          class="file-card" 
+      {#each displayedFiles as file}
+        <div
+          class="file-card"
           class:folder={file.is_dir}
           on:click={() => file.is_dir && navigateTo(file.name)}
-          on:keydown={(e) => e.key === 'Enter' && file.is_dir && navigateTo(file.name)}
+          on:keydown={(e) =>
+            e.key === "Enter" && file.is_dir && navigateTo(file.name)}
           role={file.is_dir ? "button" : undefined}
           tabindex={file.is_dir ? 0 : undefined}
         >
@@ -420,15 +405,16 @@
         </div>
       {/each}
     </div>
-    {:else}
+  {:else}
     <!-- List View -->
     <div class="file-list">
-      {#each filteredFiles as file}
-        <div 
-          class="file-row" 
+      {#each displayedFiles as file}
+        <div
+          class="file-row"
           class:folder={file.is_dir}
           on:click={() => file.is_dir && navigateTo(file.name)}
-          on:keydown={(e) => e.key === 'Enter' && file.is_dir && navigateTo(file.name)}
+          on:keydown={(e) =>
+            e.key === "Enter" && file.is_dir && navigateTo(file.name)}
           role={file.is_dir ? "button" : undefined}
           tabindex={file.is_dir ? 0 : undefined}
         >
@@ -471,7 +457,6 @@
         </div>
       {/each}
     </div>
-    {/if}
   {/if}
 </div>
 
@@ -489,8 +474,8 @@
   bind:open={showRenameDialog}
   title="Umbenennen"
   label="Neuer Name"
-  placeholder={fileToRename.name || ''}
-  initialValue={fileToRename.name || ''}
+  placeholder={fileToRename?.name || ""}
+  initialValue={fileToRename?.name || ""}
   confirmText="Umbenennen"
   on:confirm={handleRenameConfirm}
 />
@@ -809,5 +794,65 @@
   .btn-icon-small:hover {
     background: var(--md-sys-color-secondary-container);
     transform: scale(1.1);
+  }
+
+  /* Search Mode Indicator */
+  .search-mode-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    margin: 16px 0;
+    background: linear-gradient(
+      135deg,
+      var(--md-sys-color-primary-container) 0%,
+      var(--md-sys-color-secondary-container) 100%
+    );
+    border-radius: 12px;
+    border-left: 4px solid var(--md-sys-color-primary);
+    animation: slideDown 0.3s ease;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .search-icon {
+    font-size: 20px;
+  }
+
+  .search-info {
+    flex: 1;
+    color: var(--md-sys-color-on-primary-container);
+    font-size: 14px;
+  }
+
+  .search-info strong {
+    font-weight: 600;
+    color: var(--md-sys-color-primary);
+  }
+
+  .btn-clear-search {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: none;
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-clear-search:hover {
+    background: var(--md-sys-color-secondary);
+    transform: scale(1.05);
   }
 </style>

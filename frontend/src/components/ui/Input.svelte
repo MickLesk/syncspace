@@ -1,12 +1,12 @@
 <script>
-  export let value = '';
-  export let label = '';
-  export let type = 'text';
-  export let placeholder = '';
+  export let value = "";
+  export let label = "";
+  export let type = "text";
+  export let placeholder = "";
   export let disabled = false;
-  export let error = '';
+  export let error = "";
   export let required = false;
-  export let icon = '';
+  export let icon = "";
 
   let focused = false;
   let filled = value.length > 0;
@@ -14,11 +14,16 @@
   $: filled = value.length > 0 || focused;
 </script>
 
-<div class="input-wrapper" class:focused class:filled class:error={error.length > 0}>
+<div
+  class="input-wrapper"
+  class:focused
+  class:filled
+  class:error={error.length > 0}
+>
   {#if icon}
     <span class="leading-icon">{icon}</span>
   {/if}
-  
+
   <div class="input-container">
     <input
       class="md-input"
@@ -27,13 +32,13 @@
       {disabled}
       {required}
       bind:value
-      on:focus={() => focused = true}
-      on:blur={() => focused = false}
+      on:focus={() => (focused = true)}
+      on:blur={() => (focused = false)}
       on:input
       on:change
       id="input-{Math.random()}"
     />
-    
+
     {#if label}
       <label class="input-label" for="input-{Math.random()}">
         {label}{#if required}<span class="required">*</span>{/if}
@@ -94,7 +99,7 @@
     border-radius: 12px;
     background: var(--md-sys-color-surface);
     color: var(--md-sys-color-on-surface);
-    font-family: 'Roboto', sans-serif;
+    font-family: "Roboto", sans-serif;
     font-size: 16px;
     outline: none;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);

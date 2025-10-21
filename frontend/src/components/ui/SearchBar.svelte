@@ -1,8 +1,8 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher } from "svelte";
 
-  export let value = '';
-  export let placeholder = 'Suchen...';
+  export let value = "";
+  export let placeholder = "Suchen...";
   export let fullWidth = false;
 
   const dispatch = createEventDispatcher();
@@ -10,12 +10,12 @@
 
   function handleInput(e) {
     value = e.target.value;
-    dispatch('input', value);
+    dispatch("input", value);
   }
 
   function handleClear() {
-    value = '';
-    dispatch('clear');
+    value = "";
+    dispatch("clear");
   }
 </script>
 
@@ -27,8 +27,8 @@
     {placeholder}
     bind:value
     on:input={handleInput}
-    on:focus={() => focused = true}
-    on:blur={() => focused = false}
+    on:focus={() => (focused = true)}
+    on:blur={() => (focused = false)}
   />
   {#if value}
     <button class="clear-button" on:click={handleClear} type="button">
@@ -71,7 +71,7 @@
     border: none;
     background: transparent;
     color: var(--md-sys-color-on-surface);
-    font-family: 'Roboto', sans-serif;
+    font-family: "Roboto", sans-serif;
     font-size: 16px;
     outline: none;
   }

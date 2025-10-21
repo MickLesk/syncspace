@@ -70,9 +70,14 @@ A self-hosted, cross-platform file sync solution with a beautiful Material Desig
 
 ### 🔍 **Search & Organization**
 
-- Real-time file search
-- Search results with file paths
-- Fast backend search with `walkdir`
+- **Full-text search** powered by Tantivy (Rust search engine)
+- **Fuzzy matching** - Find files even with typos (2-edit distance)
+- **Content indexing** - Search inside text files, code, and PDFs
+- **BM25 ranking** - Results sorted by relevance
+- **Background indexing** - Non-blocking automatic indexing on upload/delete
+- **Debounced search** - 300ms delay for smooth UX
+- **40+ file types** supported (text, code, documents)
+- Search results with file paths and metadata
 
 ### ⚡ **Real-Time Updates**
 
@@ -82,8 +87,9 @@ A self-hosted, cross-platform file sync solution with a beautiful Material Desig
 
 ### 🎯 **Modern Tech Stack**
 
-- **Backend**: Rust with Warp, Tokio, and async/await
+- **Backend**: Rust with Warp, Tokio, async/await, SQLx (SQLite), and Tantivy (search)
 - **Frontend**: Material Web Components from CDN
+- **Search**: Tantivy 0.22 (BM25 ranking, fuzzy matching, PDF extraction with lopdf)
 - **No Build Tools**: Pure ES modules, instant reload
 - **Minified Assets**: Production-ready compressed CSS/JS
 

@@ -1,31 +1,36 @@
 <script>
-  import { toasts, removeToast } from '../../stores/toast.js';
-  
+  import { toasts, removeToast } from "../../stores/toast.js";
+
   function getIcon(type) {
     switch (type) {
-      case 'success': return '✅';
-      case 'error': return '❌';
-      case 'warning': return '⚠️';
-      case 'info': return 'ℹ️';
-      default: return 'ℹ️';
+      case "success":
+        return "✅";
+      case "error":
+        return "❌";
+      case "warning":
+        return "⚠️";
+      case "info":
+        return "ℹ️";
+      default:
+        return "ℹ️";
     }
   }
 </script>
 
 <div class="toast-container">
   {#each $toasts as toast (toast.id)}
-    <div 
+    <div
       class="toast toast-{toast.type}"
       on:click={() => removeToast(toast.id)}
-      on:keydown={(e) => e.key === 'Enter' && removeToast(toast.id)}
+      on:keydown={(e) => e.key === "Enter" && removeToast(toast.id)}
       role="button"
       aria-live="polite"
       tabindex="0"
     >
       <span class="toast-icon">{getIcon(toast.type)}</span>
       <span class="toast-message">{toast.message}</span>
-      <button 
-        class="toast-close" 
+      <button
+        class="toast-close"
         on:click|stopPropagation={() => removeToast(toast.id)}
         aria-label="Schließen"
       >

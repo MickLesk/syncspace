@@ -1,24 +1,24 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
-  import Button from './Button.svelte';
+  import { createEventDispatcher } from "svelte";
+  import Button from "./Button.svelte";
 
   export let open = false;
-  export let title = '';
-  export let confirmText = 'OK';
-  export let cancelText = 'Abbrechen';
-  export let confirmVariant = 'filled';
+  export let title = "";
+  export let confirmText = "OK";
+  export let cancelText = "Abbrechen";
+  export let confirmVariant = "filled";
   export let showCancel = true;
   export let danger = false;
 
   const dispatch = createEventDispatcher();
 
   function handleConfirm() {
-    dispatch('confirm');
+    dispatch("confirm");
     open = false;
   }
 
   function handleCancel() {
-    dispatch('cancel');
+    dispatch("cancel");
     open = false;
   }
 
@@ -30,10 +30,10 @@
 </script>
 
 {#if open}
-  <div 
-    class="dialog-backdrop" 
+  <div
+    class="dialog-backdrop"
     on:click={handleBackdropClick}
-    on:keydown={(e) => e.key === 'Escape' && handleCancel()}
+    on:keydown={(e) => e.key === "Escape" && handleCancel()}
     role="button"
     tabindex="-1"
   >
@@ -41,7 +41,7 @@
       {#if title}
         <h2 class="dialog-title">{title}</h2>
       {/if}
-      
+
       <div class="dialog-content">
         <slot />
       </div>

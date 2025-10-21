@@ -1,8 +1,8 @@
 <script>
-  export let variant = 'filled'; // filled, outlined, text, tonal
-  export let size = 'medium'; // small, medium, large
+  export let variant = "filled"; // filled, outlined, text, tonal
+  export let size = "medium"; // small, medium, large
   export let disabled = false;
-  export let icon = '';
+  export let icon = "";
   export let fullWidth = false;
   export let onClick = () => {};
 </script>
@@ -30,7 +30,7 @@
     gap: 8px;
     border: none;
     border-radius: 20px;
-    font-family: 'Roboto', sans-serif;
+    font-family: "Roboto", sans-serif;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -40,7 +40,7 @@
   }
 
   .md-button::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     background: currentColor;

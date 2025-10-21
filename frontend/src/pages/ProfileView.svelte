@@ -1,33 +1,33 @@
 <script>
-  import { onMount } from 'svelte';
-  import { currentTheme, currentLang } from '../stores/ui';
-  import { t } from '../i18n';
-  import Avatar from '../components/ui/Avatar.svelte';
-  import Button from '../components/ui/Button.svelte';
-  import Dialog from '../components/ui/Dialog.svelte';
-  import Input from '../components/ui/Input.svelte';
+  import { onMount } from "svelte";
+  import { currentTheme, currentLang } from "../stores/ui";
+  import { t } from "../i18n";
+  import Avatar from "../components/ui/Avatar.svelte";
+  import Button from "../components/ui/Button.svelte";
+  import Dialog from "../components/ui/Dialog.svelte";
+  import Input from "../components/ui/Input.svelte";
 
   let user = {
-    username: 'admin',
-    email: 'admin@syncspace.local',
-    created: '2025-01-15',
-    profileImage: '',
-    theme: 'system',
-    language: 'de'
+    username: "admin",
+    email: "admin@syncspace.local",
+    created: "2025-01-15",
+    profileImage: "",
+    theme: "system",
+    language: "de",
   };
 
   let showPasswordDialog = false;
   let showImageUploadDialog = false;
-  let passwordData = { current: '', new: '', confirm: '' };
-  let passwordError = '';
+  let passwordData = { current: "", new: "", confirm: "" };
+  let passwordError = "";
   let imageFile = null;
-  let imagePreview = '';
+  let imagePreview = "";
 
   onMount(() => {
     loadUserProfile();
-    
+
     // Sync theme and language from stores
-    user.theme = $currentTheme || 'system';
+    user.theme = $currentTheme || "system";
     user.language = $currentLang;
   });
 
@@ -47,32 +47,32 @@
     //   method: 'PUT',
     //   body: JSON.stringify(user)
     // });
-    
-    alert('Profil gespeichert!');
+
+    alert("Profil gespeichert!");
   }
 
   function handlePasswordChange() {
-    passwordError = '';
-    
+    passwordError = "";
+
     if (!passwordData.current || !passwordData.new || !passwordData.confirm) {
-      passwordError = 'Bitte fülle alle Felder aus';
+      passwordError = "Bitte fülle alle Felder aus";
       return;
     }
 
     if (passwordData.new !== passwordData.confirm) {
-      passwordError = 'Passwörter stimmen nicht überein';
+      passwordError = "Passwörter stimmen nicht überein";
       return;
     }
 
     if (passwordData.new.length < 8) {
-      passwordError = 'Passwort muss mindestens 8 Zeichen lang sein';
+      passwordError = "Passwort muss mindestens 8 Zeichen lang sein";
       return;
     }
 
     // TODO: Send to backend
     showPasswordDialog = false;
-    passwordData = { current: '', new: '', confirm: '' };
-    alert('Passwort erfolgreich geändert!');
+    passwordData = { current: "", new: "", confirm: "" };
+    alert("Passwort erfolgreich geändert!");
   }
 
   function handleImageSelect(event) {
@@ -81,7 +81,7 @@
       imageFile = file;
       const reader = new FileReader();
       reader.onload = (e) => {
-        if (e.target && typeof e.target.result === 'string') {
+        if (e.target && typeof e.target.result === "string") {
           imagePreview = e.target.result;
         }
       };
@@ -99,23 +99,23 @@
     //   method: 'POST',
     //   body: formData
     // });
-    
+
     user.profileImage = imagePreview;
     showImageUploadDialog = false;
     imageFile = null;
-    imagePreview = '';
-    alert('Profilbild hochgeladen!');
+    imagePreview = "";
+    alert("Profilbild hochgeladen!");
   }
 
   function handleRemoveImage() {
-    user.profileImage = '';
+    user.profileImage = "";
     // TODO: Delete from backend
   }
 </script>
 
 <div class="profile-view">
   <div class="profile-header">
-    <h1>👤 {t($currentLang, 'profile')}</h1>
+    <h1>👤 {t($currentLang, "profile")}</h1>
   </div>
 
   <div class="profile-content">
@@ -123,9 +123,13 @@
     <div class="card avatar-section">
       <h2>Profilbild</h2>
       <div class="avatar-controls">
-        <Avatar name={user.username} imageUrl={user.profileImage} size="xlarge" />
+        <Avatar
+          name={user.username}
+          imageUrl={user.profileImage}
+          size="xlarge"
+        />
         <div class="avatar-actions">
-          <Button onClick={() => showImageUploadDialog = true} icon="📷">
+          <Button onClick={() => (showImageUploadDialog = true)} icon="📷">
             Bild hochladen
           </Button>
           {#if user.profileImage}
@@ -147,14 +151,25 @@
         </div>
         <div class="info-item">
           <span class="item-label">E-Mail</span>
-          <Input bind:value={user.email} type="email" placeholder="deine@email.com" />
+          <Input
+            bind:value={user.email}
+            type="email"
+            placeholder="deine@email.com"
+          />
         </div>
         <div class="info-item">
           <span class="item-label">Mitglied seit</span>
-          <div class="info-value">{new Date(user.created).toLocaleDateString('de-DE')}</div>
+          <div class="info-value">
+            {new Date(user.created).toLocaleDateString("de-DE")}
+          </div>
         </div>
         <div class="info-item">
-          <Button variant="outlined" onClick={() => showPasswordDialog = true} icon="🔒" fullWidth>
+          <Button
+            variant="outlined"
+            onClick={() => (showPasswordDialog = true)}
+            icon="🔒"
+            fullWidth
+          >
             Passwort ändern
           </Button>
         </div>
@@ -173,7 +188,7 @@
             <option value="system">💻 System</option>
           </select>
         </div>
-        
+
         <div class="setting-item">
           <label for="language">Sprache</label>
           <select id="language" bind:value={user.language} class="md-select">
@@ -264,7 +279,11 @@
 
   .profile-header {
     padding: 32px;
-    background: linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--md-sys-color-primary) 0%,
+      var(--md-sys-color-tertiary) 100%
+    );
     color: white;
   }
 
@@ -359,7 +378,7 @@
     border-radius: 12px;
     background: var(--md-sys-color-surface);
     color: var(--md-sys-color-on-surface);
-    font-family: 'Roboto', sans-serif;
+    font-family: "Roboto", sans-serif;
     font-size: 16px;
     cursor: pointer;
     outline: none;

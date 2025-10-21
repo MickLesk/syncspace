@@ -26,6 +26,13 @@ sha2 = "0.10"
 hex = "0.4"
 base32 = "0.4"
 
+# Database
+sqlx = { version = "0.8", features = ["runtime-tokio-native-tls", "sqlite", "chrono", "uuid"] }
+
+# Search
+tantivy = "0.22"
+lopdf = "0.32"  # PDF text extraction
+
 # Advanced Features
 zip = "0.6"
 tar = "0.4"
