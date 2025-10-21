@@ -12,14 +12,16 @@ SyncSpace now includes a powerful **full-text search** powered by **Tantivy**, a
 ✅ **Content Extraction** - Indexes text, code, and PDF files  
 ✅ **Background Indexing** - Non-blocking, automatic indexing on upload  
 ✅ **Real-time Updates** - Index automatically updated on delete  
-✅ **Debounced Search** - 300ms delay for smooth UX  
+✅ **Debounced Search** - 300ms delay for smooth UX
 
 ## Supported File Types
 
 ### Text Files
+
 - `.txt`, `.md`, `.json`, `.xml`, `.yaml`, `.yml`, `.toml`, `.ini`, `.csv`
 
 ### Code Files
+
 - Rust: `.rs`
 - Python: `.py`
 - JavaScript/TypeScript: `.js`, `.ts`, `.jsx`, `.tsx`
@@ -30,6 +32,7 @@ SyncSpace now includes a powerful **full-text search** powered by **Tantivy**, a
 - Config: `.env`, `.gitignore`
 
 ### Documents
+
 - PDF: `.pdf` (first 100 pages)
 
 ## How to Use
@@ -37,11 +40,13 @@ SyncSpace now includes a powerful **full-text search** powered by **Tantivy**, a
 ### Frontend Search
 
 1. **Basic Search**:
+
    - Type in the search bar at the top of the Files page
    - Results appear after 300ms debounce delay
    - Minimum 2 characters required
 
 2. **Clear Search**:
+
    - Click "Clear search" button in the search indicator
    - Or clear the search input manually
 
@@ -55,17 +60,20 @@ SyncSpace now includes a powerful **full-text search** powered by **Tantivy**, a
 **Endpoint**: `GET /api/search`
 
 **Parameters**:
+
 - `q` (required): Search query string
 - `limit` (optional): Max results (default: 50)
 - `fuzzy` (optional): Enable fuzzy matching (default: true)
 
 **Example Request**:
+
 ```bash
 curl -H "Authorization: Bearer YOUR_TOKEN" \
   "http://localhost:8080/api/search?q=example&limit=20&fuzzy=true"
 ```
 
 **Example Response**:
+
 ```json
 {
   "results": [
@@ -91,15 +99,15 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 
 The Tantivy index contains 7 fields:
 
-| Field      | Type    | Stored | Indexed | Description                    |
-|------------|---------|--------|---------|--------------------------------|
-| file_id    | Text    | Yes    | Yes     | Unique file identifier (UUID)  |
-| filename   | Text    | Yes    | Yes     | Name of the file               |
-| path       | Text    | Yes    | Yes     | Full path including subdirs    |
-| content    | Text    | No     | Yes     | Extracted file contents        |
-| modified   | Date    | Yes    | Yes     | Last modified timestamp        |
-| size       | u64     | Yes    | Yes     | File size in bytes             |
-| file_type  | Text    | Yes    | Yes     | Category (text/code/document)  |
+| Field     | Type | Stored | Indexed | Description                   |
+| --------- | ---- | ------ | ------- | ----------------------------- |
+| file_id   | Text | Yes    | Yes     | Unique file identifier (UUID) |
+| filename  | Text | Yes    | Yes     | Name of the file              |
+| path      | Text | Yes    | Yes     | Full path including subdirs   |
+| content   | Text | No     | Yes     | Extracted file contents       |
+| modified  | Date | Yes    | Yes     | Last modified timestamp       |
+| size      | u64  | Yes    | Yes     | File size in bytes            |
+| file_type | Text | Yes    | Yes     | Category (text/code/document) |
 
 ### Indexing Flow
 
@@ -169,10 +177,12 @@ const response = await fetch(
 ### Search Returns No Results
 
 1. **Check if file is indexed**:
+
    - Backend logs should show "📇 Indexed: filename" after upload
    - Check `./data/search_index/` directory exists
 
 2. **Verify file type is supported**:
+
    - See "Supported File Types" section above
    - Unsupported types (images, videos) won't be indexed
 
@@ -184,6 +194,7 @@ const response = await fetch(
 ### Indexing Not Working
 
 1. **Check backend logs**:
+
    ```bash
    cd backend
    cargo run
@@ -191,6 +202,7 @@ const response = await fetch(
    ```
 
 2. **Verify file permissions**:
+
    - Backend needs write access to `./data/search_index/`
    - Check directory permissions
 
@@ -203,9 +215,11 @@ const response = await fetch(
 ### Search Too Slow
 
 1. **Reduce result limit**:
+
    - Change `limit=50` to `limit=20` in API call
 
 2. **Disable fuzzy search**:
+
    - Change `fuzzy=true` to `fuzzy=false`
 
 3. **Increase writer buffer**:
@@ -214,10 +228,12 @@ const response = await fetch(
 ### PDF Content Not Extracted
 
 1. **Check file size**:
+
    - Only first 100 pages are extracted
    - Large PDFs may timeout
 
 2. **Verify PDF is valid**:
+
    - Try opening PDF manually
    - Some encrypted PDFs can't be read
 
@@ -251,11 +267,13 @@ const response = await fetch(
 **GET** `/api/search`
 
 **Query Parameters**:
+
 - `q` (string, required): Search query
 - `limit` (integer, optional, default=50): Max results
 - `fuzzy` (boolean, optional, default=true): Enable fuzzy matching
 
 **Response**:
+
 ```json
 {
   "results": [
@@ -276,6 +294,7 @@ const response = await fetch(
 ```
 
 **Status Codes**:
+
 - `200 OK`: Success
 - `401 Unauthorized`: Missing or invalid token
 - `500 Internal Server Error`: Search failed
@@ -285,6 +304,7 @@ const response = await fetch(
 ### Adding New File Type Support
 
 1. **Update detect_file_type()** in `search.rs`:
+
    ```rust
    match extension {
        "docx" => "document",
@@ -293,6 +313,7 @@ const response = await fetch(
    ```
 
 2. **Add extraction function**:
+
    ```rust
    async fn extract_docx_content(file_path: &Path) -> Option<String> {
        // Your extraction logic
@@ -310,6 +331,7 @@ const response = await fetch(
 ### Testing Search
 
 1. **Upload test files**:
+
    ```bash
    curl -X POST http://localhost:8080/api/upload/test.txt \
      -H "Authorization: Bearer TOKEN" \
@@ -317,6 +339,7 @@ const response = await fetch(
    ```
 
 2. **Search for content**:
+
    ```bash
    curl "http://localhost:8080/api/search?q=test&limit=10"
    ```

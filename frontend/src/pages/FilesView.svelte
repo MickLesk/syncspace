@@ -174,7 +174,9 @@
     try {
       const path = `${$currentPath}${folderName}`;
       await api.files.createDir(path);
-      success(`${t($currentLang, "folder")} "${folderName}" ${t($currentLang, "created")}`);
+      success(
+        `${t($currentLang, "folder")} "${folderName}" ${t($currentLang, "created")}`
+      );
       await loadFiles();
     } catch (err) {
       console.error("Failed to create folder:", err);
@@ -322,10 +324,11 @@
       <span class="search-info">
         Search results for <strong>"{searchQuery}"</strong>
         {#if searchResults.length > 0}
-          — {searchResults.length} {searchResults.length === 1 ? "file" : "files"} found
+          — {searchResults.length}
+          {searchResults.length === 1 ? "file" : "files"} found
         {/if}
       </span>
-      <button 
+      <button
         class="btn-clear-search"
         on:click={() => {
           searchQuery = "";
@@ -351,8 +354,14 @@
   {:else if displayedFiles.length === 0}
     <div class="empty-state">
       <p class="empty-icon">{searchQuery ? "�" : "�📂"}</p>
-      <p class="empty-title">{searchQuery ? "No results found" : t($currentLang, "noFiles")}</p>
-      <p class="empty-subtitle">{searchQuery ? `Try different keywords` : t($currentLang, "dragAndDropHere")}</p>
+      <p class="empty-title">
+        {searchQuery ? "No results found" : t($currentLang, "noFiles")}
+      </p>
+      <p class="empty-subtitle">
+        {searchQuery
+          ? `Try different keywords`
+          : t($currentLang, "dragAndDropHere")}
+      </p>
     </div>
   {:else if viewMode === "grid"}
     <div class="file-grid">

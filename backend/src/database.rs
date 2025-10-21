@@ -6,10 +6,9 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use sqlx::sqlite::{SqlitePool, SqlitePoolOptions};
 use sqlx::FromRow;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use uuid::Uuid;
 
-const DB_FILENAME: &str = "syncspace.db";
 const MAX_CONNECTIONS: u32 = 10;
 
 /// Initialize database pool and run migrations

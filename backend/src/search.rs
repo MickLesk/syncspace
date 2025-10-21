@@ -4,7 +4,7 @@
 //! Supports fuzzy search, faceting, and content extraction.
 
 use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::Arc;
 use tantivy::collector::TopDocs;
 use tantivy::query::{FuzzyTermQuery, QueryParser};
