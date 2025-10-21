@@ -86,7 +86,7 @@ async fn main() {
     println!("🚀 Starting SyncSpace Backend v0.2.0");
     
     // Initialize database
-    let db_pool = match database::init_db().await {
+    let _db_pool = match database::init_db().await {
         Ok(pool) => {
             println!("✅ Database initialized");
             Arc::new(pool)
@@ -464,7 +464,7 @@ fn routes(
             .and(warp::path::tail())
             .and(warp::body::bytes())
             .and(auth::with_auth(db))
-            .and_then(move |tail: warp::path::Tail, bytes: bytes::Bytes, user: auth::User| {
+            .and_then(move |tail: warp::path::Tail, bytes: bytes::Bytes, _user: auth::User| {
                 let tx = tx.clone();
                 let index = index.clone();
                 async move {

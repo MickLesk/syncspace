@@ -3,6 +3,7 @@
 ## Quick Start
 
 Both backend and frontend are running:
+
 - **Backend**: http://localhost:8080
 - **Frontend**: http://localhost:5173
 
@@ -18,6 +19,7 @@ Both backend and frontend are running:
 ### 2. Upload Test Files
 
 **Upload a text file:**
+
 ```bash
 # Create test file
 echo "This is a test file with searchable content about Tantivy search engine" > test.txt
@@ -29,6 +31,7 @@ curl -X POST http://localhost:8080/api/upload/test.txt \
 ```
 
 **Or use the UI:**
+
 1. Go to Files page
 2. Click "Upload" button
 3. Select `test.txt`
@@ -76,6 +79,7 @@ curl -X POST http://localhost:8080/api/upload/test.txt \
 ### 8. Upload PDF and Test
 
 **Create test PDF** (or use existing):
+
 ```bash
 # If you have a PDF, upload it:
 curl -X POST http://localhost:8080/api/upload/document.pdf \
@@ -84,12 +88,14 @@ curl -X POST http://localhost:8080/api/upload/document.pdf \
 ```
 
 **Then search for content inside PDF**:
+
 1. Type text that appears in the PDF
 2. **Expected**: PDF file appears in results
 
 ### 9. Test with Many Files
 
 **Upload multiple files:**
+
 ```bash
 for i in {1..20}; do
   echo "Test file number $i with content" > test$i.txt
@@ -100,6 +106,7 @@ done
 ```
 
 **Search for common term:**
+
 1. Type: `content`
 2. **Expected**: Multiple results (up to 50)
 3. **Result**: All files with "content" appear
@@ -118,6 +125,7 @@ done
 ## UI Checklist
 
 ### Search Bar
+
 - [ ] Appears at top of Files page
 - [ ] Has 🔍 placeholder icon
 - [ ] Focus styles work (blue border)
@@ -126,6 +134,7 @@ done
 - [ ] Clear button removes text
 
 ### Search Indicator
+
 - [ ] Appears below header when searching
 - [ ] Shows query in bold
 - [ ] Shows result count
@@ -134,6 +143,7 @@ done
 - [ ] Animates in with slide-down effect
 
 ### Search Results
+
 - [ ] Display as grid or list (based on view mode)
 - [ ] Show filename correctly
 - [ ] Show file size
@@ -142,11 +152,13 @@ done
 - [ ] Click file downloads it
 
 ### Loading States
+
 - [ ] Shows spinner while searching
 - [ ] Shows "🔍 Searching..." text
 - [ ] Replaces with results when done
 
 ### Empty States
+
 - [ ] Shows 🔍 icon when no results
 - [ ] Shows "No results found" message
 - [ ] Shows "Try different keywords" subtitle
@@ -157,16 +169,19 @@ done
 ## Performance Testing
 
 ### 1. Debouncing
+
 - Type quickly: `t` `e` `s` `t`
 - **Expected**: Only 1 API call after 300ms
 - **Check**: Browser DevTools Network tab
 
 ### 2. Search Speed
+
 - Search for common term
 - **Check**: Backend logs for timing
 - **Expected**: < 50ms response time
 
 ### 3. Large Result Set
+
 - Upload 100+ files
 - Search for common term
 - **Expected**: Returns max 50 results (API limit)
@@ -179,11 +194,13 @@ done
 ### Check Logs
 
 **Upload should log:**
+
 ```
 📇 Indexed: test.txt
 ```
 
 **Search should show:**
+
 ```rust
 // In console if you add debug logging:
 Search query: "test", limit: 50, fuzzy: true
@@ -191,6 +208,7 @@ Found: 3 results in 8ms
 ```
 
 **Delete should log:**
+
 ```
 🗑️ Removed from index: /test.txt
 ```
@@ -203,6 +221,7 @@ ls ./data/search_index/
 ```
 
 **Expected files:**
+
 - `.managed.json` - Index metadata
 - Several `.idx` files - Index segments
 - `.meta` file - Index configuration
@@ -212,6 +231,7 @@ ls ./data/search_index/
 ## API Testing (Manual)
 
 ### Get Auth Token
+
 ```bash
 # Login
 curl -X POST http://localhost:8080/api/login \
@@ -223,6 +243,7 @@ curl -X POST http://localhost:8080/api/login \
 ```
 
 ### Test Search Endpoint
+
 ```bash
 TOKEN="your_token_here"
 
@@ -239,6 +260,7 @@ curl "http://localhost:8080/api/search?q=test&limit=10&fuzzy=true" \
 ```
 
 ### Test Without Fuzzy
+
 ```bash
 curl "http://localhost:8080/api/search?q=test&limit=10&fuzzy=false" \
   -H "Authorization: Bearer $TOKEN"
@@ -249,15 +271,19 @@ curl "http://localhost:8080/api/search?q=test&limit=10&fuzzy=false" \
 ## Troubleshooting
 
 ### Search Returns Empty
+
 1. **Check if file is indexed**:
+
    - Upload file in UI
    - Check backend logs for "📇 Indexed"
    - If not, check file type is supported
 
 2. **Check index exists**:
+
    ```bash
    ls ./data/search_index/
    ```
+
    - Should have `.managed.json` and `.idx` files
 
 3. **Try exact filename search**:
@@ -265,13 +291,17 @@ curl "http://localhost:8080/api/search?q=test&limit=10&fuzzy=false" \
    - Should always work if file exists
 
 ### Frontend Not Connecting
+
 1. **Check backend is running**:
+
    ```bash
    curl http://localhost:8080/api/config
    ```
+
    - Should return config JSON
 
 2. **Check CORS**:
+
    - Backend should allow `http://localhost:5173`
    - Check browser console for CORS errors
 
@@ -281,11 +311,14 @@ curl "http://localhost:8080/api/search?q=test&limit=10&fuzzy=false" \
    - Check Network tab for 401 errors
 
 ### Search Too Slow
+
 1. **Reduce result limit**:
+
    - Change `limit=50` to `limit=20` in FilesView.svelte
    - Line ~62: `&limit=20&fuzzy=true`
 
 2. **Disable fuzzy search**:
+
    - Change `fuzzy=true` to `fuzzy=false`
    - Faster but less flexible
 
@@ -300,27 +333,32 @@ curl "http://localhost:8080/api/search?q=test&limit=10&fuzzy=false" \
 ### Successful Test Run
 
 ✅ **Upload**:
+
 - File appears in file list
 - Backend logs "📇 Indexed: filename"
 - Index files updated in ./data/search_index/
 
 ✅ **Search**:
+
 - Results appear after 300ms
 - Search indicator shows query and count
 - Results include filename, size, icon
 - Loading spinner shows briefly
 
 ✅ **Clear**:
+
 - "Clear search" button works
 - Returns to file list
 - Search bar cleared
 
 ✅ **Navigation**:
+
 - Clicking folder clears search
 - Navigates into folder
 - Breadcrumb updates
 
 ✅ **Delete**:
+
 - Delete file from UI
 - Backend logs "🗑️ Removed from index"
 - Search no longer finds deleted file
@@ -330,18 +368,21 @@ curl "http://localhost:8080/api/search?q=test&limit=10&fuzzy=false" \
 ## Browser DevTools Checklist
 
 ### Network Tab
+
 - [ ] `GET /api/search?q=...` returns 200
 - [ ] Response time < 100ms
 - [ ] Only 1 request per search (debounced)
 - [ ] Authorization header present
 
 ### Console Tab
+
 - [ ] No JavaScript errors
 - [ ] Search logs (if added): `🔍 Found N results`
 - [ ] No CORS errors
 - [ ] No authentication errors
 
 ### Application Tab
+
 - [ ] localStorage has `auth_token`
 - [ ] localStorage has `filesViewMode`
 
@@ -350,6 +391,7 @@ curl "http://localhost:8080/api/search?q=test&limit=10&fuzzy=false" \
 ## Success Criteria
 
 **The search feature is working if:**
+
 1. ✅ Can type in search bar
 2. ✅ Results appear after 300ms
 3. ✅ Search indicator shows query and count
@@ -366,6 +408,7 @@ curl "http://localhost:8080/api/search?q=test&limit=10&fuzzy=false" \
 **Happy Testing! 🎉**
 
 If you encounter any issues, check:
+
 - `docs/SEARCH_FEATURE.md` for feature documentation
 - `docs/SEARCH_IMPLEMENTATION_COMPLETE.md` for implementation details
 - Backend logs for indexing confirmation
