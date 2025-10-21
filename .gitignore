@@ -7,6 +7,7 @@ backend/*.exe
 backend/*.d
 
 # All Rust build artifacts (debug + release)
+**/target/
 **/target/debug/
 **/target/release/
 **/target/**/deps/
@@ -15,7 +16,13 @@ backend/*.d
 **/target/**/*.d
 **/target/**/*.rlib
 **/target/**/*.rmeta
+**/target/**/*.json
 **/.fingerprint/
+**/bin-syncbackend*
+**/syncbackend.exe
+**/syncbackend.pdb
+**/syncbackend.d
+**/dep-bin-syncbackend
 
 # Node.js / Frontend
 frontend/node_modules/
@@ -50,6 +57,17 @@ backend/config.json
 backend/users.json
 backend/*.db
 backend/*.sqlite
+backend/data/syncspace.db
+backend/data/syncspace.db-shm
+backend/data/syncspace.db-wal
+backend/data/search_index/
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
 
 # IDE / Editor
 .vscode/

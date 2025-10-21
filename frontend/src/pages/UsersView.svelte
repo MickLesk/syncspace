@@ -11,14 +11,14 @@
 
   let users = [];
   let loading = true;
-  
+
   // Dialog states
   let showAddDialog = false;
   let showPasswordDialog = false;
   let showDeleteDialog = false;
   let showEditDialog = false;
-  let newUsername = '';
-  let newPassword = '';
+  let newUsername = "";
+  let newPassword = "";
   let userToDelete = null;
   let userToChangePassword = null;
   let userToEdit = null;
@@ -46,7 +46,7 @@
 
   function handleAddUserConfirm() {
     if (!newUsername || !newPassword) {
-      errorToast('Bitte alle Felder ausfüllen');
+      errorToast("Bitte alle Felder ausfüllen");
       return;
     }
 
@@ -60,10 +60,10 @@
         twoFactor: false,
       },
     ];
-    
+
     success(`Benutzer "${newUsername}" wurde erstellt`);
-    newUsername = '';
-    newPassword = '';
+    newUsername = "";
+    newPassword = "";
     showAddDialog = false;
   }
 
@@ -75,7 +75,7 @@
   function handlePasswordChange(event) {
     const newPassword = event.detail;
     if (!newPassword || !userToChangePassword) return;
-    
+
     // TODO: Add backend API call
     success(`Passwort für "${userToChangePassword.username}" wurde geändert`);
     userToChangePassword = null;
@@ -88,7 +88,7 @@
 
   function handleEditConfirm() {
     if (!userToEdit) return;
-    
+
     // TODO: Add backend API call for editing user details
     info(`Benutzerdaten für "${userToEdit.username}" bearbeiten`);
     userToEdit = null;
@@ -96,20 +96,20 @@
 
   function handleDeleteUser(user) {
     // Protect admin user
-    if (user.username === 'admin') {
-      errorToast('Der Admin-Benutzer kann nicht gelöscht werden!');
+    if (user.username === "admin") {
+      errorToast("Der Admin-Benutzer kann nicht gelöscht werden!");
       return;
     }
-    
+
     userToDelete = user;
     showDeleteDialog = true;
   }
 
   function handleDeleteConfirm() {
     if (!userToDelete) return;
-    
+
     const username = userToDelete.username;
-    
+
     // TODO: Add backend API call
     users = users.filter((u) => u.id !== userToDelete.id);
     success(`Benutzer "${username}" wurde gelöscht`);
@@ -141,28 +141,42 @@
           <div class="col-username">
             <Avatar name={user.username} size="small" />
             <span>{user.username}</span>
-            {#if user.username === 'admin'}
+            {#if user.username === "admin"}
               <span class="admin-badge">Admin</span>
             {/if}
           </div>
           <div class="col-created">{user.created}</div>
           <div class="col-2fa">
-            <span class="badge" class:enabled={user.twoFactor} class:disabled={!user.twoFactor}>
-              {user.twoFactor ? t($currentLang, "enabled") : t($currentLang, "disabled")}
+            <span
+              class="badge"
+              class:enabled={user.twoFactor}
+              class:disabled={!user.twoFactor}
+            >
+              {user.twoFactor
+                ? t($currentLang, "enabled")
+                : t($currentLang, "disabled")}
             </span>
           </div>
           <div class="col-actions">
-            <button class="btn-icon" on:click={() => handleChangePassword(user)} title="Passwort ändern">
+            <button
+              class="btn-icon"
+              on:click={() => handleChangePassword(user)}
+              title="Passwort ändern"
+            >
               🔑
             </button>
-            <button class="btn-icon" on:click={() => handleEditUser(user)} title="Bearbeiten">
+            <button
+              class="btn-icon"
+              on:click={() => handleEditUser(user)}
+              title="Bearbeiten"
+            >
               ✏️
             </button>
-            <button 
-              class="btn-icon delete-btn" 
-              on:click={() => handleDeleteUser(user)} 
+            <button
+              class="btn-icon delete-btn"
+              on:click={() => handleDeleteUser(user)}
               title="Löschen"
-              disabled={user.username === 'admin'}
+              disabled={user.username === "admin"}
             >
               🗑️
             </button>
@@ -183,7 +197,11 @@
 >
   <div style="display: flex; flex-direction: column; gap: 16px;">
     <div>
-      <label for="new-username" style="display: block; margin-bottom: 8px; font-weight: 500;">Benutzername</label>
+      <label
+        for="new-username"
+        style="display: block; margin-bottom: 8px; font-weight: 500;"
+        >Benutzername</label
+      >
       <input
         id="new-username"
         type="text"
@@ -193,7 +211,11 @@
       />
     </div>
     <div>
-      <label for="new-password" style="display: block; margin-bottom: 8px; font-weight: 500;">Passwort</label>
+      <label
+        for="new-password"
+        style="display: block; margin-bottom: 8px; font-weight: 500;"
+        >Passwort</label
+      >
       <input
         id="new-password"
         type="password"
@@ -225,7 +247,11 @@
   <div style="display: flex; flex-direction: column; gap: 16px;">
     <p><strong>Benutzer:</strong> {userToEdit?.username}</p>
     <div>
-      <label for="edit-email" style="display: block; margin-bottom: 8px; font-weight: 500;">E-Mail</label>
+      <label
+        for="edit-email"
+        style="display: block; margin-bottom: 8px; font-weight: 500;"
+        >E-Mail</label
+      >
       <input
         id="edit-email"
         type="email"
@@ -234,13 +260,17 @@
       />
     </div>
     <div>
-      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+      <label
+        style="display: flex; align-items: center; gap: 8px; cursor: pointer;"
+      >
         <input type="checkbox" />
         <span>2-Faktor-Authentifizierung aktivieren</span>
       </label>
     </div>
     <div>
-      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+      <label
+        style="display: flex; align-items: center; gap: 8px; cursor: pointer;"
+      >
         <input type="checkbox" />
         <span>Administrator-Rechte</span>
       </label>
@@ -256,8 +286,13 @@
   danger={true}
   on:confirm={handleDeleteConfirm}
 >
-  <p>Möchten Sie den Benutzer <strong>"{userToDelete?.username}"</strong> wirklich löschen?</p>
-  <p style="color: var(--md-sys-color-error); margin-top: 12px;">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+  <p>
+    Möchten Sie den Benutzer <strong>"{userToDelete?.username}"</strong> wirklich
+    löschen?
+  </p>
+  <p style="color: var(--md-sys-color-error); margin-top: 12px;">
+    Diese Aktion kann nicht rückgängig gemacht werden.
+  </p>
 </Dialog>
 
 <style>

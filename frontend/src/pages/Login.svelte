@@ -11,7 +11,7 @@
   let mounted = false;
 
   onMount(() => {
-    setTimeout(() => mounted = true, 100);
+    setTimeout(() => (mounted = true), 100);
   });
 
   async function handleLogin(e) {
@@ -35,18 +35,18 @@
       <div class="logo">
         <span class="logo-text">S</span>
       </div>
-      <h1 class="title">{t($currentLang, 'loginTitle')}</h1>
-      <p class="subtitle">{t($currentLang, 'loginSubtitle')}</p>
+      <h1 class="title">{t($currentLang, "loginTitle")}</h1>
+      <p class="subtitle">{t($currentLang, "loginSubtitle")}</p>
     </div>
 
     <form class="login-form" on:submit={handleLogin}>
       <div class="text-field">
-        <label for="username">{t($currentLang, 'username')}</label>
+        <label for="username">{t($currentLang, "username")}</label>
         <input
           id="username"
           type="text"
           bind:value={username}
-          placeholder={t($currentLang, 'enterUsername')}
+          placeholder={t($currentLang, "enterUsername")}
           required
           disabled={loading}
           autocomplete="username"
@@ -54,12 +54,12 @@
       </div>
 
       <div class="text-field">
-        <label for="password">{t($currentLang, 'password')}</label>
+        <label for="password">{t($currentLang, "password")}</label>
         <input
           id="password"
           type="password"
           bind:value={password}
-          placeholder={t($currentLang, 'enterPassword')}
+          placeholder={t($currentLang, "enterPassword")}
           required
           disabled={loading}
           autocomplete="current-password"
@@ -76,15 +76,15 @@
       <button type="submit" class="filled-button" disabled={loading}>
         {#if loading}
           <span class="loading-spinner"></span>
-          {t($currentLang, 'loggingIn')}
+          {t($currentLang, "loggingIn")}
         {:else}
-          {t($currentLang, 'login')}
+          {t($currentLang, "login")}
         {/if}
       </button>
     </form>
 
     <div class="demo-hint">
-      <strong>{t($currentLang, 'demoCredentials')}:</strong> admin / admin
+      <strong>{t($currentLang, "demoCredentials")}:</strong> admin / admin
     </div>
   </div>
 
@@ -101,12 +101,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(
-      135deg,
-      #667eea 0%,
-      #764ba2 50%,
-      #f093fb 100%
-    );
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
     padding: 24px;
     position: fixed;
     top: 0;
@@ -115,22 +110,38 @@
   }
 
   .login-page::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
-      radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.4), transparent 50%),
-      radial-gradient(circle at 80% 50%, rgba(118, 75, 162, 0.4), transparent 50%),
-      radial-gradient(circle at 50% 80%, rgba(240, 147, 251, 0.4), transparent 50%);
+    background: radial-gradient(
+        circle at 20% 50%,
+        rgba(102, 126, 234, 0.4),
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 50%,
+        rgba(118, 75, 162, 0.4),
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 50% 80%,
+        rgba(240, 147, 251, 0.4),
+        transparent 50%
+      );
     animation: pulse 10s ease-in-out infinite;
   }
 
   @keyframes pulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
+    0%,
+    100% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 
   .orb {
@@ -166,9 +177,16 @@
   }
 
   @keyframes float {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(50px, -50px) scale(1.1); }
-    66% { transform: translate(-50px, 50px) scale(0.9); }
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(50px, -50px) scale(1.1);
+    }
+    66% {
+      transform: translate(-50px, 50px) scale(0.9);
+    }
   }
 
   .login-card {
@@ -178,7 +196,7 @@
     padding: 56px 48px;
     width: 100%;
     max-width: 440px;
-    box-shadow: 
+    box-shadow:
       0 20px 60px rgba(0, 0, 0, 0.3),
       0 0 1px rgba(255, 255, 255, 0.5) inset;
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -214,7 +232,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 
+    box-shadow:
       0 8px 32px rgba(102, 126, 234, 0.4),
       0 0 0 8px rgba(255, 255, 255, 0.8) inset;
     position: relative;
@@ -222,8 +240,17 @@
   }
 
   @keyframes logoGlow {
-    0%, 100% { box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4), 0 0 0 8px rgba(255, 255, 255, 0.8) inset; }
-    50% { box-shadow: 0 8px 48px rgba(118, 75, 162, 0.6), 0 0 0 8px rgba(255, 255, 255, 1) inset; }
+    0%,
+    100% {
+      box-shadow:
+        0 8px 32px rgba(102, 126, 234, 0.4),
+        0 0 0 8px rgba(255, 255, 255, 0.8) inset;
+    }
+    50% {
+      box-shadow:
+        0 8px 48px rgba(118, 75, 162, 0.6),
+        0 0 0 8px rgba(255, 255, 255, 1) inset;
+    }
   }
 
   .logo-text {
@@ -277,7 +304,7 @@
     background: rgba(255, 255, 255, 0.9);
     border: 2px solid rgba(0, 0, 0, 0.1);
     border-radius: 16px;
-    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     outline: none;
   }
 
@@ -305,7 +332,7 @@
     border: none;
     border-radius: 16px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
     display: flex;
     align-items: center;
@@ -316,13 +343,18 @@
   }
 
   .filled-button::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
     transition: left 0.5s;
   }
 
@@ -355,7 +387,9 @@
   }
 
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .error-message {
@@ -373,9 +407,16 @@
   }
 
   @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    75% { transform: translateX(10px); }
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-10px);
+    }
+    75% {
+      transform: translateX(10px);
+    }
   }
 
   .error-icon {

@@ -10,8 +10,8 @@
   export let className = "";
 </script>
 
-<i 
-  class="bi bi-{name} {className}" 
+<i
+  class="bi bi-{name} {className}"
   style="font-size: {size}px; color: {color};"
   aria-hidden="true"
 ></i>

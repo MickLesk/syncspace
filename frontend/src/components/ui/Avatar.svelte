@@ -1,25 +1,25 @@
 <script>
-  export let name = '';
-  export let imageUrl = '';
-  export let size = 'medium'; // small, medium, large, xlarge
+  export let name = "";
+  export let imageUrl = "";
+  export let size = "medium"; // small, medium, large, xlarge
 
   const sizes = {
     small: 32,
     medium: 40,
     large: 56,
-    xlarge: 96
+    xlarge: 96,
   };
 
   const fontSize = {
     small: 14,
     medium: 16,
     large: 20,
-    xlarge: 32
+    xlarge: 32,
   };
 
   function getInitials(name) {
-    if (!name) return '?';
-    const parts = name.trim().split(' ');
+    if (!name) return "?";
+    const parts = name.trim().split(" ");
     if (parts.length >= 2) {
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
@@ -28,16 +28,16 @@
 
   function getAvatarColor(name) {
     const colors = [
-      'rgb(255, 87, 34)',   // Deep Orange
-      'rgb(103, 80, 164)',  // Deep Purple
-      'rgb(0, 188, 212)',   // Cyan
-      'rgb(76, 175, 80)',   // Green
-      'rgb(255, 152, 0)',   // Orange
-      'rgb(233, 30, 99)',   // Pink
-      'rgb(63, 81, 181)',   // Indigo
-      'rgb(0, 150, 136)',   // Teal
+      "rgb(255, 87, 34)", // Deep Orange
+      "rgb(103, 80, 164)", // Deep Purple
+      "rgb(0, 188, 212)", // Cyan
+      "rgb(76, 175, 80)", // Green
+      "rgb(255, 152, 0)", // Orange
+      "rgb(233, 30, 99)", // Pink
+      "rgb(63, 81, 181)", // Indigo
+      "rgb(0, 150, 136)", // Teal
     ];
-    
+
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
       hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -45,13 +45,15 @@
     return colors[Math.abs(hash) % colors.length];
   }
 
-  $: bgColor = imageUrl ? 'transparent' : getAvatarColor(name);
+  $: bgColor = imageUrl ? "transparent" : getAvatarColor(name);
   $: initials = getInitials(name);
 </script>
 
 <div
   class="avatar {size}"
-  style="--avatar-size: {sizes[size]}px; --avatar-font-size: {fontSize[size]}px; --avatar-bg: {bgColor};"
+  style="--avatar-size: {sizes[size]}px; --avatar-font-size: {fontSize[
+    size
+  ]}px; --avatar-bg: {bgColor};"
 >
   {#if imageUrl}
     <img src={imageUrl} alt={name} class="avatar-image" />

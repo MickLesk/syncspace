@@ -1,38 +1,38 @@
 <script>
-  import Dialog from './Dialog.svelte';
-  import Input from './Input.svelte';
-  import { createEventDispatcher } from 'svelte';
+  import Dialog from "./Dialog.svelte";
+  import Input from "./Input.svelte";
+  import { createEventDispatcher } from "svelte";
 
   export let open = false;
-  export let title = '';
-  export let label = '';
-  export let placeholder = '';
-  export let initialValue = '';
-  export let type = 'text';
+  export let title = "";
+  export let label = "";
+  export let placeholder = "";
+  export let initialValue = "";
+  export let type = "text";
   export let required = true;
-  export let confirmText = 'OK';
-  export let cancelText = 'Abbrechen';
+  export let confirmText = "OK";
+  export let cancelText = "Abbrechen";
 
   const dispatch = createEventDispatcher();
   let value = initialValue;
-  let error = '';
+  let error = "";
 
   $: if (open) {
     value = initialValue;
-    error = '';
+    error = "";
   }
 
   function handleConfirm() {
     if (required && !value.trim()) {
-      error = 'Dieses Feld ist erforderlich';
+      error = "Dieses Feld ist erforderlich";
       return;
     }
-    dispatch('confirm', value);
+    dispatch("confirm", value);
     open = false;
   }
 
   function handleCancel() {
-    dispatch('cancel');
+    dispatch("cancel");
     open = false;
   }
 </script>
@@ -52,6 +52,6 @@
     {type}
     {required}
     {error}
-    on:input={() => error = ''}
+    on:input={() => (error = "")}
   />
 </Dialog>

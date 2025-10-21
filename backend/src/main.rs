@@ -1,13 +1,15 @@
-//! SyncSpace backend server with authentication.
+//! SyncSpace backend server with authentication and database.
 
 mod auth;
+mod database;
+mod search;
 
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, TimeZone, Utc};
 use notify::{Error as NotifyError, Event, RecommendedWatcher, RecursiveMode, Watcher};
 use serde::{Deserialize, Serialize};
 use tokio::fs;
@@ -83,16 +85,41 @@ struct SearchResult {
 async fn main() {
     println!("🚀 Starting SyncSpace Backend v0.2.0");
     
+    // Initialize database
+    let db_pool = match database::init_db().await {
+        Ok(pool) => {
+            println!("✅ Database initialized");
+            Arc::new(pool)
+        }
+        Err(e) => {
+            eprintln!("❌ Failed to initialize database: {}", e);
+            std::process::exit(1);
+        }
+    };
+    
+    // Initialize search index
+    let search_index = match search::SearchIndex::new() {
+        Ok(index) => {
+            println!("✅ Search index initialized");
+            Arc::new(index)
+        }
+        Err(e) => {
+            eprintln!("❌ Failed to initialize search index: {}", e);
+            std::process::exit(1);
+        }
+    };
+    
     // Ensure data directory exists
     if let Err(e) = fs::create_dir_all(DATA_DIR).await {
         eprintln!("Failed to create data directory {}: {}", DATA_DIR, e);
     }
     
-    // Initialize auth system
+    // Initialize auth system (legacy - will be migrated to DB)
     let user_db = UserDB::new();
     let rate_limiter = Arc::new(RateLimiter::new());
     
     // Create default admin user if no users exist
+    // TODO: Migrate this to use database
     if user_db.get_by_username("admin").is_none() {
         println!("📝 Creating default admin user (username: admin, password: admin)");
         if let Err(e) = user_db.create_user("admin".to_string(), "admin".to_string()) {
@@ -115,10 +142,17 @@ async fn main() {
     });
 
     // Build all routes
-    let api = routes(config.clone(), tx.clone(), user_db.clone(), rate_limiter.clone());
+    let api = routes(
+        config.clone(),
+        tx.clone(),
+        user_db.clone(),
+        rate_limiter.clone(),
+        search_index.clone(),
+    );
     
     println!("✅ SyncSpace backend listening on http://localhost:8080");
     println!("🔐 Authentication enabled - use /api/auth/register or /api/auth/login");
+    println!("🔍 Search available at /api/search?q=term");
     
     warp::serve(api).run(([127, 0, 0, 1], 8080)).await;
 }
@@ -128,6 +162,7 @@ fn routes(
     fs_tx: Sender<FileChangeEvent>,
     user_db: UserDB,
     rate_limiter: Arc<RateLimiter>,
+    search_index: Arc<search::SearchIndex>,
 ) -> BoxedFilter<(impl warp::Reply,)> {
     
     // ==================== AUTH ROUTES ====================
@@ -423,13 +458,15 @@ fn routes(
     let upload = {
         let db = user_db.clone();
         let tx = fs_tx.clone();
+        let index = search_index.clone();
         warp::path!("api" / "upload" / ..)
             .and(warp::post())
             .and(warp::path::tail())
             .and(warp::body::bytes())
             .and(auth::with_auth(db))
-            .and_then(move |tail: warp::path::Tail, bytes: bytes::Bytes, _user: auth::User| {
+            .and_then(move |tail: warp::path::Tail, bytes: bytes::Bytes, user: auth::User| {
                 let tx = tx.clone();
+                let index = index.clone();
                 async move {
                     let path = Path::new(tail.as_str());
                     match upload_file(path, bytes).await {
@@ -439,6 +476,45 @@ fn routes(
                                 kind: "create".into(),
                                 timestamp: Utc::now(),
                             });
+                            
+                            // Background indexing
+                            let file_path = Path::new(DATA_DIR).join(tail.as_str());
+                            let filename = path.file_name()
+                                .and_then(|n| n.to_str())
+                                .unwrap_or("")
+                                .to_string();
+                            let path_str = tail.as_str().to_string();
+                            let file_id = uuid::Uuid::new_v4().to_string();
+                            
+                            tokio::spawn(async move {
+                                // Extract content if text file
+                                let content = search::extract_content(&file_path).await;
+                                
+                                // Get file metadata
+                                if let Ok(metadata) = tokio::fs::metadata(&file_path).await {
+                                    let size = metadata.len();
+                                    let modified = metadata.modified()
+                                        .ok()
+                                        .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+                                        .map(|d| chrono::Utc.timestamp_opt(d.as_secs() as i64, 0).unwrap())
+                                        .unwrap_or_else(chrono::Utc::now);
+                                    
+                                    // Index file
+                                    if let Err(e) = index.index_file(
+                                        &file_id,
+                                        &filename,
+                                        &path_str,
+                                        content,
+                                        modified,
+                                        size,
+                                    ).await {
+                                        eprintln!("⚠️ Failed to index file {}: {}", filename, e);
+                                    } else {
+                                        println!("📇 Indexed: {}", filename);
+                                    }
+                                }
+                            });
+                            
                             Ok::<_, Infallible>(warp::reply::with_status("uploaded", StatusCode::CREATED))
                         }
                         Err(_) => Ok(warp::reply::with_status("error", StatusCode::INTERNAL_SERVER_ERROR)),
@@ -451,14 +527,18 @@ fn routes(
     let delete = {
         let db = user_db.clone();
         let tx = fs_tx.clone();
+        let index = search_index.clone();
         warp::path!("api" / "files" / ..)
             .and(warp::delete())
             .and(warp::path::tail())
             .and(auth::with_auth(db))
             .and_then(move |tail: warp::path::Tail, _user: auth::User| {
                 let tx = tx.clone();
+                let index = index.clone();
                 async move {
                     let path = Path::new(tail.as_str());
+                    let path_str = tail.as_str().to_string();
+                    
                     match delete_entry(path).await {
                         Ok(_) => {
                             let _ = tx.send(FileChangeEvent {
@@ -466,6 +546,22 @@ fn routes(
                                 kind: "delete".into(),
                                 timestamp: Utc::now(),
                             });
+                            
+                            // Background: Remove from search index
+                            tokio::spawn(async move {
+                                // In production, we'd need to store file_id in database
+                                // For now, we search by path to find the file_id
+                                if let Ok(results) = index.search(&path_str, 1, false) {
+                                    if let Some(result) = results.first() {
+                                        if let Err(e) = index.delete_from_index(&result.file_id).await {
+                                            eprintln!("⚠️ Failed to remove from index: {}", e);
+                                        } else {
+                                            println!("🗑️ Removed from index: {}", path_str);
+                                        }
+                                    }
+                                }
+                            });
+                            
                             Ok::<_, Infallible>(warp::reply::with_status("deleted", StatusCode::OK))
                         }
                         Err(_) => Ok(warp::reply::with_status("not found", StatusCode::NOT_FOUND)),
@@ -533,14 +629,40 @@ fn routes(
     // Search (protected)
     let search = {
         let db = user_db.clone();
+        let index = search_index.clone();
         warp::path!("api" / "search")
             .and(warp::get())
             .and(warp::query::<HashMap<String, String>>())
             .and(auth::with_auth(db))
-            .and_then(|params: HashMap<String, String>, _user: auth::User| async move {
-                let query = params.get("q").cloned().unwrap_or_default();
-                let results = search_entries(query).await;
-                Ok::<_, Infallible>(warp::reply::json(&results))
+            .and_then(move |params: HashMap<String, String>, _user: auth::User| {
+                let index = index.clone();
+                async move {
+                    let query = params.get("q").cloned().unwrap_or_default();
+                    let limit = params.get("limit")
+                        .and_then(|s| s.parse::<usize>().ok())
+                        .unwrap_or(50);
+                    let fuzzy = params.get("fuzzy")
+                        .and_then(|s| s.parse::<bool>().ok())
+                        .unwrap_or(true);
+                    
+                    // Use Tantivy search
+                    match index.search(&query, limit, fuzzy) {
+                        Ok(results) => {
+                            let response = serde_json::json!({
+                                "results": results,
+                                "total": results.len(),
+                                "query": query,
+                            });
+                            Ok::<_, Infallible>(warp::reply::json(&response))
+                        }
+                        Err(e) => {
+                            let error = serde_json::json!({
+                                "error": format!("Search failed: {}", e)
+                            });
+                            Ok(warp::reply::json(&error))
+                        }
+                    }
+                }
             })
     };
 

@@ -105,10 +105,18 @@
           <div class="user-details">
             <div class="user-name">{$auth.username}</div>
             <div class="user-actions">
-              <button class="user-action-btn" on:click={() => selectView('profile')} title="Profil">
+              <button
+                class="user-action-btn"
+                on:click={() => selectView("profile")}
+                title="Profil"
+              >
                 👤
               </button>
-              <button class="user-action-btn" on:click={handleLogout} title={t($currentLang, "logout")}>
+              <button
+                class="user-action-btn"
+                on:click={handleLogout}
+                title={t($currentLang, "logout")}
+              >
                 🚪
               </button>
             </div>
@@ -118,7 +126,7 @@
     {:else}
       <button
         class="action-btn"
-        on:click={() => selectView('profile')}
+        on:click={() => selectView("profile")}
         title="Profil"
       >
         <span class="icon">👤</span>
@@ -239,7 +247,7 @@
     overflow-y: auto;
     overflow-x: hidden;
   }
-  
+
   .nav-section::-webkit-scrollbar {
     width: 0px;
   }
