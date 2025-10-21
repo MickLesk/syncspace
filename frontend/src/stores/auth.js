@@ -1,6 +1,15 @@
 import { writable } from 'svelte/store';
 
 function createAuthStore() {
+  // Clean up old demo tokens
+  const storedToken = localStorage.getItem('authToken');
+  if (storedToken && storedToken.startsWith('demo-token-')) {
+    console.warn('🧹 Cleaning up old demo token, please login again');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('username');
+    localStorage.removeItem('userId');
+  }
+
   const { subscribe, set, update } = writable({
     isLoggedIn: !!localStorage.getItem('authToken'),
     token: localStorage.getItem('authToken'),
@@ -8,8 +17,17 @@ function createAuthStore() {
     userId: localStorage.getItem('userId')
   });
 
-  return {
+  const authStore = {
     subscribe,
+    // Helper to check if response is auth error
+    checkAuthError: (response) => {
+      if (response.status === 401 || response.status === 403) {
+        console.warn('🔒 Authentication failed, logging out...');
+        authStore.logout();
+        return true;
+      }
+      return false;
+    },
     login: async (username, password) => {
       try {
         const response = await fetch('http://localhost:8080/api/auth/login', {
@@ -37,24 +55,8 @@ function createAuthStore() {
           return { success: false, error: data.error || 'Invalid credentials' };
         }
       } catch (error) {
-        console.error('Login error:', error);
-        // Fallback Demo Mode
-        if (username === 'admin' && password === 'admin') {
-          const demoToken = 'demo-token-' + Date.now();
-          localStorage.setItem('authToken', demoToken);
-          localStorage.setItem('username', username);
-          localStorage.setItem('userId', 'demo-user');
-          
-          set({
-            isLoggedIn: true,
-            token: demoToken,
-            username: username,
-            userId: 'demo-user'
-          });
-          
-          return { success: true, demo: true };
-        }
-        return { success: false, error: 'Backend offline - use admin/admin' };
+        console.error('❌ Login error:', error);
+        return { success: false, error: 'Backend nicht erreichbar. Läuft der Server auf localhost:8080?' };
       }
     },
     logout: () => {
@@ -69,6 +71,8 @@ function createAuthStore() {
       });
     }
   };
+  
+  return authStore;
 }
 
 export const auth = createAuthStore();

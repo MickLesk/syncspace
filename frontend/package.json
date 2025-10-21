@@ -15,5 +15,8 @@
   },
   "overrides": {
     "vite": "npm:rolldown-vite@7.1.14"
+  },
+  "dependencies": {
+    "bootstrap-icons": "^1.13.1"
   }
 }

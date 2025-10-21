@@ -1,5 +1,5 @@
 <script>
-  import { toasts, removeToast } from '../stores/toast';
+  import { toasts, removeToast } from '../../stores/toast.js';
   
   function getIcon(type) {
     switch (type) {

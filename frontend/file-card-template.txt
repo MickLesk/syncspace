@@ -1,0 +1,44 @@
+<!-- This is the corrected file-card section with proper icons and folder support -->
+<div 
+  class="file-card" 
+  class:folder={file.is_dir}
+  on:click={() => file.is_dir && navigateTo(file.name)}
+  on:keydown={(e) => e.key === 'Enter' && file.is_dir && navigateTo(file.name)}
+  role={file.is_dir ? "button" : undefined}
+  tabindex={file.is_dir ? "0" : undefined}
+>
+  <span class="file-icon">{getFileIcon(file.name, file.is_dir)}</span>
+  <div class="file-name" title={file.name}>{file.name}</div>
+  <div class="file-meta">
+    {#if file.is_dir}
+      Ordner
+    {:else}
+      {formatSize(file.size)}
+    {/if}
+  </div>
+  <div class="file-actions">
+    {#if !file.is_dir}
+      <button
+        class="btn-icon"
+        on:click|stopPropagation={() => downloadFile(file)}
+        title={t($currentLang, "download")}
+      >
+        ⬇️
+      </button>
+    {/if}
+    <button
+      class="btn-icon"
+      on:click|stopPropagation={() => renameFile(file)}
+      title={t($currentLang, "rename")}
+    >
+      ✏️
+    </button>
+    <button
+      class="btn-icon btn-delete"
+      on:click|stopPropagation={() => deleteFile(file)}
+      title={t($currentLang, "delete")}
+    >
+      🗑️
+    </button>
+  </div>
+</div>

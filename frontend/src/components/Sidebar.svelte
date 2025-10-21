@@ -394,23 +394,6 @@
     opacity: 1;
   }
 
-  /* Remove old logout-btn styles */
-  .logout-btn {
-    font-size: 12px;
-    color: var(--md-sys-color-primary);
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    text-decoration: none;
-    transition: opacity 0.2s ease;
-  }
-
-  .logout-btn:hover {
-    opacity: 0.8;
-    text-decoration: underline;
-  }
-
   /* Scrollbar */
   .nav-section::-webkit-scrollbar {
     width: 4px;
