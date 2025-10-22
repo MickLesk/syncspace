@@ -1,17 +1,30 @@
 ﻿<script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { files, currentPath, currentLang, currentView } from "../stores/ui";
   import { auth } from "../stores/auth";
   import { favorites } from "../stores/favorites";
+  import { activity } from "../stores/activity";
+  import { comments, tags } from "../stores/comments";
   import { t } from "../i18n";
   import { success, error as errorToast } from "../stores/toast";
   import { getFileIcon, getFileType, isPreviewable } from "../utils/fileIcons";
+  import { shortcuts } from "../utils/keyboardShortcuts";
+  import {
+    getThumbnail,
+    canGenerateThumbnail,
+    cleanupCache,
+  } from "../utils/thumbnailGenerator";
+  import { TouchGestureHandler } from "../utils/touchGestures";
   import Button from "../components/ui/Button.svelte";
   import SearchBar from "../components/ui/SearchBar.svelte";
+  import FilterPanel from "../components/ui/FilterPanel.svelte";
   import Dialog from "../components/ui/Dialog.svelte";
   import InputDialog from "../components/ui/InputDialog.svelte";
   import PreviewModal from "../components/ui/PreviewModal.svelte";
   import Icon from "../components/ui/Icon.svelte";
+  import SkeletonLoader from "../components/ui/SkeletonLoader.svelte";
+  import ContextMenu from "../components/ui/ContextMenu.svelte";
+  import CommentsPanel from "../components/CommentsPanel.svelte";
   import api from "../lib/api";
   let loading = true;
 
@@ -36,6 +49,14 @@
   let searchResults = [];
   let isSearching = false;
   let searchTimeout;
+
+  // Advanced filter state
+  let showFilterPanel = false;
+  let activeFilters = {
+    fileTypes: [],
+    sizeRange: { min: 0, max: Infinity },
+    dateRange: { from: null, to: null },
+  };
   let viewMode = localStorage.getItem("filesViewMode") || "grid"; // 'grid' or 'list'
   let uploadProgress = { current: 0, total: 0, uploading: false };
 
@@ -54,17 +75,34 @@
   let draggedFile = null;
   let dropTargetFolder = null;
 
+  // Context menu state
+  let contextMenuVisible = false;
+  let contextMenuX = 0;
+  let contextMenuY = 0;
+  let contextMenuFile = null;
+
+  // Touch gesture handler
+  let touchGesture = new TouchGestureHandler();
+  let pullToRefreshThreshold = 80; // pixels
+  let pullDistance = 0;
+  let isPulling = false;
+
   let mounted = false;
   let lastLoadPath = null; // Track last loaded path to prevent duplicate loads
+
+  // Thumbnail cache
+  let thumbnails = new Map(); // filePath -> dataUrl
 
   // Dialog states
   let showDeleteDialog = false;
   let showRenameDialog = false;
   let showNewFolderDialog = false;
   let showPreviewModal = false;
+  let showCommentsPanel = false;
   let fileToDelete = null;
   let fileToRename = null;
   let fileToPreview = null;
+  let fileForComments = null;
 
   function toggleViewMode() {
     viewMode = viewMode === "grid" ? "list" : "grid";
@@ -135,21 +173,118 @@
   // Use search results if searching, otherwise local filtered files
   $: displayedFiles =
     searchQuery && searchQuery.length >= 2
-      ? searchResults.map((result) => ({
-          name: result.filename,
-          path: result.path,
-          type: result.file_type === "unknown" ? "file" : result.file_type,
-          is_dir: false,
-          size: result.size,
-          modified: result.modified,
-          _searchScore: result.score,
-          _snippet: result.snippet,
-        }))
+      ? applyFilters(
+          searchResults.map((result) => ({
+            name: result.filename,
+            path: result.path,
+            type: result.file_type === "unknown" ? "file" : result.file_type,
+            is_dir: false,
+            size: result.size,
+            modified: result.modified,
+            _searchScore: result.score,
+            _snippet: result.snippet,
+          }))
+        )
       : searchQuery
-        ? $files.filter((f) =>
-            f.name.toLowerCase().includes(searchQuery.toLowerCase())
+        ? applyFilters(
+            $files.filter((f) =>
+              f.name.toLowerCase().includes(searchQuery.toLowerCase())
+            )
           )
-        : $files;
+        : applyFilters($files);
+
+  /**
+   * Apply active filters to file list
+   */
+  function applyFilters(files) {
+    let filtered = [...files];
+
+    // File type filter
+    if (activeFilters.fileTypes.length > 0) {
+      filtered = filtered.filter((file) => {
+        if (file.is_dir) return true; // Always show folders
+
+        const ext = file.name.toLowerCase().slice(file.name.lastIndexOf("."));
+        const type = getFileTypeCategory(ext);
+        return activeFilters.fileTypes.includes(type);
+      });
+    }
+
+    // Size filter
+    if (
+      activeFilters.sizeRange.min > 0 ||
+      activeFilters.sizeRange.max < Infinity
+    ) {
+      filtered = filtered.filter((file) => {
+        if (file.is_dir) return true; // Always show folders
+        return (
+          file.size >= activeFilters.sizeRange.min &&
+          file.size <= activeFilters.sizeRange.max
+        );
+      });
+    }
+
+    // Date filter
+    if (activeFilters.dateRange.from || activeFilters.dateRange.to) {
+      filtered = filtered.filter((file) => {
+        const fileDate = new Date(file.modified_at || file.modified);
+
+        if (
+          activeFilters.dateRange.from &&
+          fileDate < activeFilters.dateRange.from
+        ) {
+          return false;
+        }
+        if (activeFilters.dateRange.to) {
+          const endOfDay = new Date(activeFilters.dateRange.to);
+          endOfDay.setHours(23, 59, 59, 999);
+          if (fileDate > endOfDay) return false;
+        }
+        return true;
+      });
+    }
+
+    return filtered;
+  }
+
+  /**
+   * Get file type category from extension
+   */
+  function getFileTypeCategory(ext) {
+    const categories = {
+      images: [
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".gif",
+        ".bmp",
+        ".webp",
+        ".svg",
+        ".ico",
+      ],
+      documents: [
+        ".pdf",
+        ".doc",
+        ".docx",
+        ".txt",
+        ".md",
+        ".rtf",
+        ".odt",
+        ".xls",
+        ".xlsx",
+        ".ppt",
+        ".pptx",
+      ],
+      videos: [".mp4", ".avi", ".mov", ".mkv", ".webm", ".flv", ".wmv"],
+      audio: [".mp3", ".wav", ".ogg", ".m4a", ".flac", ".aac"],
+      archives: [".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"],
+    };
+
+    for (const [category, extensions] of Object.entries(categories)) {
+      if (extensions.includes(ext)) return category;
+    }
+    return "other";
+  }
 
   onMount(() => {
     console.log(
@@ -157,6 +292,102 @@
     );
     mounted = true;
     // loadFiles() will be called by reactive statement
+
+    // Cleanup old thumbnails
+    cleanupCache().catch((err) =>
+      console.error("Thumbnail cleanup failed:", err)
+    );
+
+    // Setup keyboard shortcuts
+    shortcuts.init();
+
+    // Ctrl+A - Select all files
+    shortcuts.register(
+      "ctrl+a",
+      () => {
+        if ($currentView === "files" && $files.length > 0) {
+          multiSelectMode = true;
+          selectedFiles = new Set(
+            $files.filter((f) => !f.is_dir).map((f) => f.name)
+          );
+          success(`${selectedFiles.size} Dateien ausgewählt`);
+        }
+      },
+      { description: "Select all files" }
+    );
+
+    // Delete - Delete selected files
+    shortcuts.register(
+      "delete",
+      () => {
+        if ($currentView === "files" && selectedFiles.size > 0) {
+          bulkDelete();
+        }
+      },
+      { description: "Delete selected files" }
+    );
+
+    // F2 - Rename file
+    shortcuts.register(
+      "f2",
+      () => {
+        if ($currentView === "files" && selectedFiles.size === 1) {
+          const fileName = Array.from(selectedFiles)[0];
+          const file = $files.find((f) => f.name === fileName);
+          if (file) renameFile(file);
+        }
+      },
+      { description: "Rename file" }
+    );
+
+    // Ctrl+U - Upload
+    shortcuts.register(
+      "ctrl+u",
+      () => {
+        if ($currentView === "files") {
+          handleUploadClick();
+        }
+      },
+      { description: "Upload files" }
+    );
+
+    // Ctrl+D - Download
+    shortcuts.register(
+      "ctrl+d",
+      () => {
+        if ($currentView === "files" && selectedFiles.size > 0) {
+          bulkDownload();
+        }
+      },
+      { description: "Download selected" }
+    );
+
+    // Escape - Clear selection/close modals
+    shortcuts.register(
+      "escape",
+      () => {
+        if (multiSelectMode) {
+          toggleMultiSelect();
+        }
+      },
+      { description: "Clear selection" }
+    );
+
+    // Ctrl+M - Toggle multi-select mode
+    shortcuts.register(
+      "ctrl+m",
+      () => {
+        if ($currentView === "files") {
+          toggleMultiSelect();
+          success(
+            multiSelectMode
+              ? "Multi-select enabled 📋"
+              : "Multi-select disabled"
+          );
+        }
+      },
+      { description: "Toggle multi-select mode" }
+    );
 
     // Watch for view changes - reset path when returning to files view
     const unsubscribe = currentView.subscribe((view) => {
@@ -203,12 +434,38 @@
       const data = await api.files.list($currentPath);
       console.log(`[FilesView] Received ${data.length} files`);
       files.set(data);
+
+      // Generate thumbnails for image files
+      loadThumbnails(data);
     } catch (error) {
       console.error("Failed to load files:", error);
       errorToast("Failed to load files: " + error.message);
       files.set([]);
     }
     loading = false;
+  }
+
+  /**
+   * Load thumbnails for image files
+   */
+  async function loadThumbnails(fileList) {
+    for (const file of fileList) {
+      if (file.is_dir || !canGenerateThumbnail(file.name)) continue;
+
+      const filePath = $currentPath ? `${$currentPath}${file.name}` : file.name;
+
+      // Load thumbnail asynchronously
+      getThumbnail(filePath, file.modified_at)
+        .then((dataUrl) => {
+          if (dataUrl) {
+            thumbnails.set(filePath, dataUrl);
+            thumbnails = thumbnails; // Trigger reactivity
+          }
+        })
+        .catch((err) => {
+          console.error(`Failed to load thumbnail for ${file.name}:`, err);
+        });
+    }
   }
 
   async function handleUpload(fileList) {
@@ -245,6 +502,9 @@
 
         successCount++;
         uploadProgress.current++;
+
+        // Track activity
+        activity.add("upload", file.name, $currentPath);
 
         // Mark file as complete
         fileUploadProgress[file.name].percent = 100;
@@ -338,6 +598,14 @@
   function handleFileDragStart(e, file) {
     draggedFile = file;
     e.dataTransfer.effectAllowed = "move";
+
+    // If file is part of multi-selection, show count badge
+    if (multiSelectMode && selectedFiles.has(file.name)) {
+      const count = selectedFiles.size;
+      const dragImage = createDragGhost(count);
+      e.dataTransfer.setDragImage(dragImage, 25, 25);
+    }
+
     e.target.style.opacity = "0.5";
   }
 
@@ -345,6 +613,34 @@
     e.target.style.opacity = "1";
     draggedFile = null;
     dropTargetFolder = null;
+  }
+
+  /**
+   * Create custom drag ghost element
+   */
+  function createDragGhost(count) {
+    const ghost = document.createElement("div");
+    ghost.style.cssText = `
+      position: absolute;
+      top: -9999px;
+      padding: 8px 16px;
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    `;
+    ghost.textContent = count > 1 ? `${count} files` : "1 file";
+    document.body.appendChild(ghost);
+
+    // Clean up after a short delay
+    setTimeout(() => document.body.removeChild(ghost), 0);
+
+    return ghost;
   }
 
   function handleFolderDragOver(e, folder) {
@@ -384,6 +680,69 @@
     draggedFile = null;
   }
 
+  /**
+   * Enhanced folder drop handler with multi-select support
+   */
+  async function handleFolderDropMulti(e, folder) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropTargetFolder = null;
+
+    if (!draggedFile || !folder.is_dir) return;
+
+    // Check if multi-select mode and file is in selection
+    const filesToMove =
+      multiSelectMode && selectedFiles.has(draggedFile.name)
+        ? Array.from(selectedFiles)
+            .map((name) => $files.find((f) => f.name === name))
+            .filter(Boolean)
+        : [draggedFile];
+
+    try {
+      let successCount = 0;
+      let failCount = 0;
+
+      for (const file of filesToMove) {
+        if (file.is_dir) continue; // Skip folders for now
+
+        try {
+          const oldPath = `${$currentPath}${file.name}`;
+          const newPath = `${$currentPath}${folder.name}/${file.name}`;
+
+          await api.files.rename(oldPath, newPath);
+          successCount++;
+        } catch (err) {
+          console.error(`Failed to move ${file.name}:`, err);
+          failCount++;
+        }
+      }
+
+      if (successCount > 0) {
+        success(
+          `📁 Moved ${successCount} file${successCount > 1 ? "s" : ""} to "${folder.name}"`
+        );
+      }
+      if (failCount > 0) {
+        errorToast(
+          `Failed to move ${failCount} file${failCount > 1 ? "s" : ""}`
+        );
+      }
+
+      await loadFiles();
+
+      // Clear selection after successful move
+      if (multiSelectMode && successCount > 0) {
+        selectedFiles.clear();
+        selectedFiles = selectedFiles;
+      }
+    } catch (err) {
+      console.error("Failed to move files:", err);
+      errorToast(`Error moving files: ${err.message}`);
+    }
+
+    draggedFile = null;
+  }
+
   async function createFolder() {
     showNewFolderDialog = true;
   }
@@ -415,6 +774,10 @@
       a.download = file.name;
       a.click();
       URL.revokeObjectURL(url);
+
+      // Track activity
+      activity.add("download", file.name, $currentPath);
+
       success(`"${file.name}" ${t($currentLang, "downloading")}`);
     } catch (err) {
       console.error("Failed to download file:", err);
@@ -495,8 +858,214 @@
   }
 
   function isFavorite(file) {
+    if (!file) return false;
     const fullPath = $currentPath ? `${$currentPath}/${file.name}` : file.name;
     return $favorites.has(fullPath);
+  }
+
+  /**
+   * Show context menu on right-click
+   */
+  function handleContextMenu(event, file) {
+    event.preventDefault();
+    contextMenuFile = file;
+    contextMenuX = event.clientX;
+    contextMenuY = event.clientY;
+    contextMenuVisible = true;
+  }
+
+  /**
+   * Hide context menu
+   */
+  function hideContextMenu() {
+    contextMenuVisible = false;
+    contextMenuFile = null;
+  }
+
+  /**
+   * Handle context menu item clicks
+   */
+  function handleContextMenuAction(action) {
+    if (!contextMenuFile) return;
+
+    switch (action) {
+      case "open":
+        handleFileClick(contextMenuFile);
+        break;
+      case "download":
+        downloadFile(contextMenuFile);
+        break;
+      case "rename":
+        renameFile(contextMenuFile);
+        break;
+      case "delete":
+        deleteFile(contextMenuFile);
+        break;
+      case "favorite":
+        toggleFavorite(contextMenuFile);
+        break;
+      case "copyLink":
+        copyFileLink(contextMenuFile);
+        break;
+      case "comments":
+        showComments(contextMenuFile);
+        break;
+      case "properties":
+        showFileProperties(contextMenuFile);
+        break;
+    }
+
+    hideContextMenu();
+  }
+
+  /**
+   * Copy file download link to clipboard
+   */
+  async function copyFileLink(file) {
+    if (file.is_dir) return;
+    const filePath = $currentPath ? `${$currentPath}/${file.name}` : file.name;
+    const link = `${window.location.origin}/api/file/${encodeURIComponent(filePath)}`;
+
+    try {
+      await navigator.clipboard.writeText(link);
+      success(`🔗 Link copied to clipboard`);
+    } catch (err) {
+      errorToast("Failed to copy link");
+    }
+  }
+
+  /**
+   * Show file properties dialog (placeholder)
+   */
+  function showFileProperties(file) {
+    const props = [
+      `Name: ${file.name}`,
+      `Size: ${formatFileSize(file.size)}`,
+      `Modified: ${formatDate(file.modified_at)}`,
+      `Type: ${file.is_dir ? "Folder" : getFileType(file.name)}`,
+    ].join("\n");
+
+    alert(`File Properties\n\n${props}`);
+  }
+
+  /**
+   * Show comments & tags panel for file
+   */
+  function showComments(file) {
+    fileForComments = file;
+    showCommentsPanel = true;
+  }
+
+  // ============================================
+  // TOUCH GESTURE HANDLERS
+  // ============================================
+
+  /**
+   * Handle swipe gestures on file cards
+   */
+  function handleFileSwipe(file, direction, distance) {
+    if (direction === "right" && distance > 80) {
+      // Swipe right: Toggle favorite
+      toggleFavorite(file);
+      success(
+        `${favorites.isFavorite(file.name) ? "Added to" : "Removed from"} favorites`
+      );
+    } else if (direction === "left" && distance > 80) {
+      // Swipe left: Quick delete
+      fileToDelete = file;
+      showDeleteDialog = true;
+    }
+  }
+
+  /**
+   * Handle double-tap on file card
+   */
+  function handleFileDoubleTap(file) {
+    if (file.is_directory) {
+      navigateTo(file.name);
+    } else {
+      openPreview(file);
+    }
+  }
+
+  /**
+   * Handle long-press on file card
+   */
+  function handleFileLongPress(file, event) {
+    // Show context menu on long press
+    contextMenuFile = file;
+    contextMenuX = event.touches?.[0]?.clientX || event.clientX;
+    contextMenuY = event.touches?.[0]?.clientY || event.clientY;
+    contextMenuVisible = true;
+
+    // Haptic feedback if available
+    if (navigator.vibrate) {
+      navigator.vibrate(50);
+    }
+  }
+
+  /**
+   * Handle pull-to-refresh gesture
+   */
+  function handlePullStart(e) {
+    if (window.scrollY === 0) {
+      touchGesture.handleTouchStart(e);
+      isPulling = true;
+    }
+  }
+
+  function handlePullMove(e) {
+    if (!isPulling) return;
+
+    const touch = e.touches[0];
+    const startY = touchGesture.startY;
+    pullDistance = Math.max(
+      0,
+      Math.min(touch.clientY - startY, pullToRefreshThreshold * 1.5)
+    );
+
+    if (pullDistance > 0) {
+      e.preventDefault(); // Prevent scroll
+    }
+  }
+
+  function handlePullEnd(e) {
+    if (!isPulling) return;
+
+    if (pullDistance >= pullToRefreshThreshold) {
+      // Trigger refresh
+      loadFiles();
+      success("Refreshing files...");
+    }
+
+    isPulling = false;
+    pullDistance = 0;
+  }
+
+  /**
+   * Apply touch gesture handlers to file card element
+   */
+  function attachFileGestures(element, file) {
+    if (!element || !TouchGestureHandler.isMobile()) return;
+
+    element.addEventListener("touchstart", (e) => {
+      touchGesture.handleTouchStart(e);
+    });
+
+    element.addEventListener("touchend", (e) => {
+      touchGesture.handleTouchEnd(e, {
+        onSwipeRight: (dist) => handleFileSwipe(file, "right", dist),
+        onSwipeLeft: (dist) => handleFileSwipe(file, "left", dist),
+        onDoubleTap: () => handleFileDoubleTap(file),
+      });
+    });
+
+    // Long press handler
+    touchGesture.handleLongPress(
+      element,
+      (e) => handleFileLongPress(file, e),
+      600
+    );
   }
 
   function selectAll() {
@@ -541,6 +1110,33 @@
     selectedFiles.clear();
     selectedFiles = selectedFiles;
     await loadFiles();
+  }
+
+  async function bulkDownload() {
+    if (selectedFiles.size === 0) return;
+
+    success(`📥 Downloading ${selectedFiles.size} file(s)...`);
+
+    for (const filename of selectedFiles) {
+      try {
+        const file = $files.find((f) => f.name === filename);
+        if (file && !file.is_dir) {
+          await downloadFile(file);
+          // Small delay to avoid overwhelming the browser
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+      } catch (err) {
+        console.error(`Failed to download ${filename}:`, err);
+        errorToast(`Failed to download ${filename}`);
+      }
+    }
+  }
+
+  function selectAllFiles() {
+    if ($files.length === 0) return;
+    multiSelectMode = true;
+    selectedFiles = new Set($files.filter((f) => !f.is_dir).map((f) => f.name));
+    success(`${selectedFiles.size} Dateien ausgewählt`);
   }
 
   async function handleRenameConfirm(event) {
@@ -594,6 +1190,21 @@
           loadFiles();
         }}
       />
+      <button
+        class="btn-filter"
+        on:click={() => (showFilterPanel = true)}
+        title="Advanced Filters"
+        class:active={activeFilters.fileTypes.length > 0 ||
+          activeFilters.sizeRange.min > 0 ||
+          activeFilters.sizeRange.max < Infinity ||
+          activeFilters.dateRange.from ||
+          activeFilters.dateRange.to}
+      >
+        <Icon name="funnel" size={18} />
+        {#if activeFilters.fileTypes.length > 0}
+          <span class="filter-badge">{activeFilters.fileTypes.length}</span>
+        {/if}
+      </button>
       <button
         class="btn-view-toggle"
         on:click={toggleViewMode}
@@ -773,10 +1384,7 @@
   {/if}
 
   {#if loading}
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Loading files...</p>
-    </div>
+    <SkeletonLoader count={12} type={viewMode} />
   {:else if isSearching}
     <div class="loading">
       <div class="spinner"></div>
@@ -809,6 +1417,7 @@
           on:dragleave={(e) => file.is_dir && handleFolderDragLeave(e, file)}
           on:drop={(e) => file.is_dir && handleFolderDrop(e, file)}
           on:click={() => handleFileClick(file)}
+          on:contextmenu={(e) => handleContextMenu(e, file)}
           on:keydown={(e) => e.key === "Enter" && handleFileClick(file)}
           role="button"
           tabindex="0"
@@ -824,7 +1433,19 @@
             </div>
           {/if}
           <div class="file-icon">
-            <Icon name={getFileIcon(file.name, file.is_dir)} size={48} />
+            {#if !file.is_dir && thumbnails.has($currentPath ? `${$currentPath}${file.name}` : file.name)}
+              <div class="file-thumbnail">
+                <img
+                  src={thumbnails.get(
+                    $currentPath ? `${$currentPath}${file.name}` : file.name
+                  )}
+                  alt={file.name}
+                  loading="lazy"
+                />
+              </div>
+            {:else}
+              <Icon name={getFileIcon(file.name, file.is_dir)} size={48} />
+            {/if}
           </div>
           <div class="file-name" title={displayName(file.name)}>
             {displayName(file.name)}
@@ -836,6 +1457,35 @@
               {formatSize(file.size)}
             {/if}
           </div>
+
+          <!-- Comments & Tags badges -->
+          {#if comments.getCount($currentPath + file.name, $comments) > 0 || tags.getTags($currentPath + file.name, $tags).length > 0}
+            <div class="file-badges">
+              {#if comments.getCount($currentPath + file.name, $comments) > 0}
+                <span
+                  class="badge badge-comments"
+                  title="{comments.getCount(
+                    $currentPath + file.name,
+                    $comments
+                  )} comments"
+                >
+                  <Icon name="chat-dots" size={12} />
+                  {comments.getCount($currentPath + file.name, $comments)}
+                </span>
+              {/if}
+              {#if tags.getTags($currentPath + file.name, $tags).length > 0}
+                <span
+                  class="badge badge-tags"
+                  title="{tags.getTags($currentPath + file.name, $tags)
+                    .length} tags"
+                >
+                  <Icon name="tag" size={12} />
+                  {tags.getTags($currentPath + file.name, $tags).length}
+                </span>
+              {/if}
+            </div>
+          {/if}
+
           <div class="file-actions">
             <button
               class="btn-icon btn-favorite"
@@ -888,6 +1538,7 @@
           on:dragleave={(e) => file.is_dir && handleFolderDragLeave(e, file)}
           on:drop={(e) => file.is_dir && handleFolderDrop(e, file)}
           on:click={() => handleFileClick(file)}
+          on:contextmenu={(e) => handleContextMenu(e, file)}
           on:keydown={(e) => e.key === "Enter" && handleFileClick(file)}
           role="button"
           tabindex="0"
@@ -991,6 +1642,90 @@
   />
 {/if}
 
+<!-- Comments & Tags Panel -->
+<CommentsPanel bind:visible={showCommentsPanel} bind:file={fileForComments} />
+
+<!-- Filter Panel -->
+<FilterPanel
+  bind:visible={showFilterPanel}
+  on:apply={(e) => {
+    activeFilters = e.detail;
+    success(
+      `Filters applied: ${activeFilters.fileTypes.length} types selected`
+    );
+  }}
+  on:reset={() => {
+    activeFilters = {
+      fileTypes: [],
+      sizeRange: { min: 0, max: Infinity },
+      dateRange: { from: null, to: null },
+    };
+    success("Filters cleared");
+  }}
+/>
+
+<!-- Context Menu -->
+<ContextMenu
+  visible={contextMenuVisible}
+  x={contextMenuX}
+  y={contextMenuY}
+  items={[
+    {
+      label: contextMenuFile?.is_dir ? "Open" : "Preview",
+      icon: contextMenuFile?.is_dir ? "folder-open" : "eye",
+      action: "open",
+      shortcut: "Enter",
+    },
+    {
+      label: "Download",
+      icon: "download",
+      action: "download",
+      shortcut: "Ctrl+D",
+      disabled: contextMenuFile?.is_dir,
+    },
+    { divider: true },
+    {
+      label: "Rename",
+      icon: "pencil",
+      action: "rename",
+      shortcut: "F2",
+    },
+    {
+      label: "Delete",
+      icon: "trash",
+      action: "delete",
+      shortcut: "Del",
+    },
+    { divider: true },
+    {
+      label: isFavorite(contextMenuFile)
+        ? "Remove from Favorites"
+        : "Add to Favorites",
+      icon: isFavorite(contextMenuFile) ? "star-fill" : "star",
+      action: "favorite",
+    },
+    {
+      label: "Copy Link",
+      icon: "link",
+      action: "copyLink",
+      disabled: contextMenuFile?.is_dir,
+    },
+    { divider: true },
+    {
+      label: "Comments & Tags",
+      icon: "chat-dots",
+      action: "comments",
+    },
+    {
+      label: "Properties",
+      icon: "info-circle",
+      action: "properties",
+    },
+  ]}
+  on:close={hideContextMenu}
+  on:itemClick={(e) => handleContextMenuAction(e.detail.action)}
+/>
+
 <style>
   .files-view {
     padding: 32px;
@@ -1014,7 +1749,8 @@
     flex-wrap: wrap;
   }
 
-  .btn-view-toggle {
+  .btn-view-toggle,
+  .btn-filter {
     width: 40px;
     height: 40px;
     border-radius: 12px;
@@ -1025,11 +1761,37 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
   }
 
-  .btn-view-toggle:hover {
+  .btn-view-toggle:hover,
+  .btn-filter:hover {
     background: var(--md-sys-color-secondary-container);
     border-color: var(--md-sys-color-secondary);
+  }
+
+  .btn-filter.active {
+    background: var(--md-sys-color-primary-container);
+    border-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary-container);
+  }
+
+  .filter-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: var(--md-sys-color-error);
+    color: var(--md-sys-color-on-error);
+    border-radius: 10px;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
 
   /* Breadcrumb Navigation */
@@ -1150,8 +1912,8 @@
   /* Compact Drop Zone */
   .drop-zone-compact {
     border: 2px dashed var(--md-sys-color-outline);
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 16px;
+    padding: 24px;
     text-align: center;
     transition: all 0.3s ease;
     background: var(--md-sys-color-surface-container-lowest);
@@ -1163,6 +1925,44 @@
     font-size: 14px;
     color: var(--md-sys-color-on-surface-variant);
     margin-bottom: 32px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .drop-zone-compact::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(103, 80, 164, 0.1),
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
+
+  .drop-zone-compact:hover {
+    border-color: var(--md-sys-color-primary);
+    background: var(--md-sys-color-surface-container);
+    transform: translateY(-2px);
+  }
+
+  .drop-zone-compact:hover::before {
+    left: 100%;
+  }
+
+  .drop-zone-compact.drag-over {
+    border-color: var(--md-sys-color-primary);
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    border-width: 3px;
+    transform: scale(1.02);
+    box-shadow: 0 8px 24px rgba(103, 80, 164, 0.2);
   }
 
   /* Upload Progress Panel */
@@ -1406,6 +2206,38 @@
     border: 1px solid var(--md-sys-color-outline);
     transition: all 0.2s ease;
     cursor: default;
+    animation: fadeInUp 0.3s ease-out backwards;
+  }
+
+  /* Stagger animation for grid items */
+  .file-card:nth-child(1) {
+    animation-delay: 0s;
+  }
+  .file-card:nth-child(2) {
+    animation-delay: 0.05s;
+  }
+  .file-card:nth-child(3) {
+    animation-delay: 0.1s;
+  }
+  .file-card:nth-child(4) {
+    animation-delay: 0.15s;
+  }
+  .file-card:nth-child(5) {
+    animation-delay: 0.2s;
+  }
+  .file-card:nth-child(6) {
+    animation-delay: 0.25s;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .file-card.folder {
@@ -1430,6 +2262,29 @@
     border: 2px dashed var(--md-sys-color-primary);
     box-shadow: var(--md-elevation-4);
     transform: scale(1.05);
+    animation: pulse 0.6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+      box-shadow: var(--md-elevation-4);
+    }
+    50% {
+      opacity: 0.9;
+      box-shadow: var(--md-elevation-5);
+    }
+  }
+
+  /* Dragging state */
+  .file-card[draggable="true"]:active {
+    cursor: grabbing !important;
+  }
+
+  .file-card.selected {
+    background: var(--md-sys-color-secondary-container);
+    border-color: var(--md-sys-color-secondary);
   }
 
   .file-icon {
@@ -1441,6 +2296,28 @@
 
   .file-card.folder .file-icon {
     color: var(--md-sys-color-tertiary);
+  }
+
+  .file-thumbnail {
+    width: 100%;
+    height: 120px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--md-sys-color-surface-variant);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .file-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .file-card:hover .file-thumbnail img {
+    transform: scale(1.05);
   }
 
   .file-name {
@@ -1456,7 +2333,36 @@
   .file-meta {
     font-size: 12px;
     color: var(--md-sys-color-on-surface-variant);
-    margin-bottom: 16px;
+    margin-bottom: 8px;
+  }
+
+  .file-badges {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .badge-comments {
+    background: #e3f2fd;
+    color: #1976d2;
+  }
+
+  .badge-tags {
+    background: #fff3e0;
+    color: #f57c00;
   }
 
   .file-actions {
@@ -1645,5 +2551,243 @@
   .btn-clear-search:hover {
     background: var(--md-sys-color-secondary);
     transform: scale(1.05);
+  }
+
+  /* ============================================
+     MOBILE & RESPONSIVE STYLES
+     ============================================ */
+
+  /* Tablet breakpoint (768px - 1024px) */
+  @media (max-width: 1024px) {
+    .files-view {
+      padding: 24px 16px;
+    }
+
+    .file-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+    }
+
+    .page-header {
+      flex-direction: column;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .header-actions {
+      justify-content: space-between;
+    }
+
+    .filter-badge {
+      top: -6px;
+      right: -6px;
+    }
+  }
+
+  /* Mobile breakpoint (< 768px) */
+  @media (max-width: 768px) {
+    .files-view {
+      padding: 16px 12px;
+    }
+
+    .page-header h2 {
+      font-size: 20px;
+    }
+
+    .file-grid {
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .file-card {
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    .file-name {
+      font-size: 13px;
+    }
+
+    .file-meta {
+      font-size: 11px;
+    }
+
+    .file-actions {
+      gap: 8px;
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+    }
+
+    /* Hide some buttons on mobile */
+    .btn-view-toggle,
+    .btn-filter {
+      width: 36px;
+      height: 36px;
+    }
+
+    /* Simplify breadcrumbs on mobile */
+    .breadcrumb-nav {
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .breadcrumb-item {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    /* Floating action button positioning */
+    .fab-upload {
+      bottom: 20px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+    }
+
+    /* List view optimized for mobile */
+    .file-row {
+      padding: 12px;
+      gap: 12px;
+    }
+
+    .file-name-list {
+      font-size: 14px;
+    }
+
+    .file-size-list {
+      font-size: 12px;
+    }
+
+    /* Drop zone on mobile */
+    .drop-zone-compact {
+      padding: 16px;
+      font-size: 13px;
+    }
+
+    /* Multi-select toolbar mobile */
+    .multi-select-toolbar {
+      padding: 12px;
+      gap: 8px;
+    }
+
+    /* Touch-friendly tap targets */
+    .file-card,
+    .file-row {
+      min-height: 44px; /* iOS minimum tap target */
+    }
+  }
+
+  /* Small mobile (< 480px) */
+  @media (max-width: 480px) {
+    .files-view {
+      padding: 12px 8px;
+    }
+
+    .file-grid {
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 8px;
+    }
+
+    .file-card {
+      padding: 12px;
+    }
+
+    .page-header h2 {
+      font-size: 18px;
+    }
+
+    /* Stack header actions vertically on very small screens */
+    .header-actions {
+      flex-wrap: wrap;
+    }
+
+    /* Simplify file list */
+    .file-icon {
+      font-size: 32px;
+    }
+
+    /* Compact stats */
+    .stats-summary {
+      flex-direction: column;
+    }
+
+    /* Hide less important UI on tiny screens */
+    .file-meta {
+      display: none;
+    }
+
+    /* Bottom sheet style for modals on mobile */
+    :global(.modal-content) {
+      border-radius: 24px 24px 0 0 !important;
+      position: fixed !important;
+      bottom: 0 !important;
+      top: auto !important;
+      left: 0 !important;
+      right: 0 !important;
+      max-height: 90vh !important;
+      animation: slideUp 0.3s ease-out !important;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+  }
+
+  /* Landscape mobile adjustments */
+  @media (max-width: 768px) and (orientation: landscape) {
+    .file-grid {
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .fab-upload {
+      bottom: 12px;
+      right: 12px;
+      width: 48px;
+      height: 48px;
+    }
+  }
+
+  /* Dark mode adjustments for mobile */
+  @media (max-width: 768px) and (prefers-color-scheme: dark) {
+    .file-card {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .drop-zone-compact {
+      background: var(--md-sys-color-surface-container-high);
+    }
+  }
+
+  /* Reduce animations on mobile for performance */
+  @media (max-width: 768px) {
+    .file-card {
+      animation-duration: 0.2s;
+    }
+
+    .file-card:hover {
+      transform: translateY(-2px); /* Reduced transform */
+    }
+  }
+
+  /* Safe area insets for notched devices */
+  @supports (padding: max(0px)) {
+    .files-view {
+      padding-left: max(12px, env(safe-area-inset-left));
+      padding-right: max(12px, env(safe-area-inset-right));
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+
+    .fab-upload {
+      bottom: max(20px, env(safe-area-inset-bottom));
+      right: max(20px, env(safe-area-inset-right));
+    }
   }
 </style>

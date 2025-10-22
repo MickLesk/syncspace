@@ -47,6 +47,7 @@ struct AppState {
     user_db: UserDB,
     rate_limiter: Arc<RateLimiter>,
     search_index: Arc<search::SearchIndex>,
+    db_pool: sqlx::SqlitePool,
 }
 
 // ==================== DATA STRUCTURES ====================
@@ -109,10 +110,10 @@ async fn main() {
     println!("🚀 Starting SyncSpace Backend v0.3.0 (Axum)");
     
     // Initialize database
-    let _db_pool = match database::init_db().await {
+    let db_pool = match database::init_db().await {
         Ok(pool) => {
             println!("✅ Database initialized");
-            Arc::new(pool)
+            pool
         }
         Err(e) => {
             eprintln!("❌ Failed to initialize database: {}", e);
@@ -170,6 +171,7 @@ async fn main() {
         user_db,
         rate_limiter,
         search_index,
+        db_pool,
     };
 
     // Build router
@@ -208,6 +210,14 @@ fn build_router(state: AppState) -> Router {
         .route("/api/dirs/*path", post(create_dir_handler))
         .route("/api/rename/*path", put(rename_file_handler));
     
+    // Trash routes (protected)
+    let trash_routes = Router::new()
+        .route("/api/trash", get(list_trash_handler))
+        .route("/api/trash/restore/*path", post(restore_trash_handler))
+        .route("/api/trash/permanent/*path", delete(permanent_delete_handler))
+        .route("/api/trash/cleanup", delete(cleanup_trash_handler))
+        .route("/api/trash/empty", delete(empty_trash_handler));
+    
     // Utility routes (protected)
     let utility_routes = Router::new()
         .route("/api/search", get(search_handler))
@@ -223,6 +233,7 @@ fn build_router(state: AppState) -> Router {
     Router::new()
         .merge(auth_routes)
         .merge(file_routes)
+        .merge(trash_routes)
         .merge(utility_routes)
         .merge(ws_route)
         .nest_service("/", ServeFile::new("../frontend/index.html"))
@@ -520,25 +531,165 @@ async fn upload_multipart_handler(
 
 async fn delete_file_handler(
     State(state): State<AppState>,
-    _user: auth::User,
+    user: auth::User,
     AxumPath(path): AxumPath<String>,
 ) -> Result<(StatusCode, &'static str), StatusCode> {
     let full_path = Path::new(DATA_DIR).join(&path);
+    let pool = &state.db_pool;
+    
+    // Get auto_trash_cleanup_days setting for auto-delete timestamp
+    let cleanup_days: i64 = sqlx::query_as::<_, (String,)>(
+        "SELECT value FROM settings WHERE key = 'auto_trash_cleanup_days'"
+    )
+    .fetch_optional(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    .and_then(|r| r.0.parse().ok())
+    .unwrap_or(30);
+    
+    let auto_delete_at = if cleanup_days > 0 {
+        Some(Utc::now() + chrono::Duration::days(cleanup_days))
+    } else {
+        None
+    };
     
     if let Ok(meta) = fs::metadata(&full_path).await {
-        if meta.is_dir() {
-            fs::remove_dir_all(&full_path).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        let is_dir = meta.is_dir();
+        let size = if is_dir {
+            // Calculate folder size recursively
+            WalkDir::new(&full_path)
+                .into_iter()
+                .filter_map(|e| e.ok())
+                .filter(|e| e.file_type().is_file())
+                .filter_map(|e| e.metadata().ok())
+                .map(|m| m.len())
+                .sum::<u64>() as i64
         } else {
-            fs::remove_file(&full_path).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-        }
+            meta.len() as i64
+        };
         
+        // Check if item exists in database
+        let item_id = if is_dir {
+            // Find or create folder in database
+            let folder_id: Option<String> = sqlx::query_as(
+                "SELECT id FROM folders WHERE path = ? AND owner_id = ?"
+            )
+            .bind(&path)
+            .bind(&user.id)
+            .fetch_optional(pool)
+            .await
+            .ok()
+            .flatten();
+            
+            if let Some(id) = folder_id {
+                // Mark as deleted
+                sqlx::query(
+                    "UPDATE folders SET is_deleted = 1, deleted_at = datetime('now'), deleted_by = ? 
+                     WHERE id = ?"
+                )
+                .bind(&user.id)
+                .bind(&id)
+                .execute(pool)
+                .await
+                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+                
+                id
+            } else {
+                // Create folder entry then mark deleted
+                let id = Uuid::new_v4().to_string();
+                sqlx::query(
+                    "INSERT INTO folders (id, name, path, owner_id, is_deleted, deleted_at, deleted_by, created_at, updated_at)
+                     VALUES (?, ?, ?, ?, 1, datetime('now'), ?, datetime('now'), datetime('now'))"
+                )
+                .bind(&id)
+                .bind(full_path.file_name().and_then(|n| n.to_str()).unwrap_or(""))
+                .bind(&path)
+                .bind(&user.id)
+                .bind(&user.id)
+                .execute(pool)
+                .await
+                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+                
+                id
+            }
+        } else {
+            // Find or create file in database
+            let file_id: Option<String> = sqlx::query_as(
+                "SELECT id FROM files WHERE path = ? AND owner_id = ?"
+            )
+            .bind(&path)
+            .bind(&user.id)
+            .fetch_optional(pool)
+            .await
+            .ok()
+            .flatten();
+            
+            if let Some(id) = file_id {
+                // Mark as deleted
+                sqlx::query(
+                    "UPDATE files SET is_deleted = 1, deleted_at = datetime('now'), deleted_by = ? 
+                     WHERE id = ?"
+                )
+                .bind(&user.id)
+                .bind(&id)
+                .execute(pool)
+                .await
+                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+                
+                id
+            } else {
+                // Create file entry then mark deleted
+                let id = Uuid::new_v4().to_string();
+                let storage_path = full_path.to_str().unwrap_or("");
+                
+                sqlx::query(
+                    "INSERT INTO files (id, name, path, owner_id, size_bytes, storage_path, is_deleted, deleted_at, deleted_by, created_at, updated_at)
+                     VALUES (?, ?, ?, ?, ?, ?, 1, datetime('now'), ?, datetime('now'), datetime('now'))"
+                )
+                .bind(&id)
+                .bind(full_path.file_name().and_then(|n| n.to_str()).unwrap_or(""))
+                .bind(&path)
+                .bind(&user.id)
+                .bind(size)
+                .bind(storage_path)
+                .bind(&user.id)
+                .execute(pool)
+                .await
+                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+                
+                id
+            }
+        };
+        
+        // Add to trash table
+        let trash_id = Uuid::new_v4().to_string();
+        let item_type = if is_dir { "folder" } else { "file" };
+        let auto_delete_str = auto_delete_at.map(|dt| dt.to_rfc3339());
+        
+        sqlx::query(
+            "INSERT INTO trash (id, item_type, item_id, original_path, original_name, deleted_by, deleted_at, auto_delete_at, size_bytes)
+             VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?)"
+        )
+        .bind(&trash_id)
+        .bind(item_type)
+        .bind(&item_id)
+        .bind(&path)
+        .bind(full_path.file_name().and_then(|n| n.to_str()).unwrap_or(""))
+        .bind(&user.id)
+        .bind(auto_delete_str)
+        .bind(size)
+        .execute(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        
+        // Broadcast delete event
         let _ = state.fs_tx.send(FileChangeEvent {
             path: path.clone(),
             kind: "delete".to_string(),
             timestamp: Utc::now(),
         });
         
-        Ok((StatusCode::OK, "deleted"))
+        Ok((StatusCode::OK, "moved to trash"))
     } else {
         Err(StatusCode::NOT_FOUND)
     }
@@ -583,6 +734,345 @@ async fn rename_file_handler(
     });
     
     Ok((StatusCode::OK, "renamed"))
+}
+
+// ==================== TRASH HANDLERS ====================
+
+#[derive(Serialize, sqlx::FromRow)]
+struct TrashItem {
+    id: String,
+    item_type: String,
+    original_path: String,
+    original_name: String,
+    deleted_at: String,
+    deleted_by_username: String,
+    size_bytes: i64,
+    auto_delete_at: Option<String>,
+}
+
+async fn list_trash_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<Json<Vec<TrashItem>>, StatusCode> {
+    let pool = &state.db_pool;
+    
+    let items = sqlx::query_as::<_, TrashItem>(
+        r#"
+        SELECT 
+            t.id,
+            t.item_type,
+            t.original_path,
+            t.original_name,
+            t.deleted_at,
+            u.username as deleted_by_username,
+            t.size_bytes,
+            t.auto_delete_at
+        FROM trash t
+        JOIN users u ON t.deleted_by = u.id
+        WHERE t.deleted_by = ?
+        ORDER BY t.deleted_at DESC
+        "#
+    )
+    .bind(&user.id)
+    .fetch_all(pool)
+    .await
+    .map_err(|e| {
+        eprintln!("Failed to fetch trash: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+    
+    Ok(Json(items))
+}
+
+async fn restore_trash_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    AxumPath(path): AxumPath<String>,
+) -> Result<(StatusCode, &'static str), StatusCode> {
+    let pool = &state.db_pool;
+    
+    // Find trash item by original path
+    let trash_item: Option<(String, String, String, Option<String>)> = sqlx::query_as(
+        "SELECT id, item_type, item_id, original_parent_id FROM trash 
+         WHERE original_path = ? AND deleted_by = ?"
+    )
+    .bind(&path)
+    .bind(&user.id)
+    .fetch_optional(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    if let Some((trash_id, item_type, item_id, _)) = trash_item {
+        // Update the item to unmark deletion
+        match item_type.as_str() {
+            "file" => {
+                sqlx::query(
+                    "UPDATE files SET is_deleted = 0, deleted_at = NULL, deleted_by = NULL 
+                     WHERE id = ?"
+                )
+                .bind(&item_id)
+                .execute(pool)
+                .await
+                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            }
+            "folder" => {
+                sqlx::query(
+                    "UPDATE folders SET is_deleted = 0, deleted_at = NULL, deleted_by = NULL 
+                     WHERE id = ?"
+                )
+                .bind(&item_id)
+                .execute(pool)
+                .await
+                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            }
+            _ => return Err(StatusCode::BAD_REQUEST),
+        }
+        
+        // Remove from trash
+        sqlx::query("DELETE FROM trash WHERE id = ?")
+            .bind(&trash_id)
+            .execute(pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        
+        // Broadcast restore event
+        let _ = state.fs_tx.send(FileChangeEvent {
+            path: path.clone(),
+            kind: "restore".to_string(),
+            timestamp: Utc::now(),
+        });
+        
+        Ok((StatusCode::OK, "restored"))
+    } else {
+        Err(StatusCode::NOT_FOUND)
+    }
+}
+
+async fn permanent_delete_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    AxumPath(path): AxumPath<String>,
+) -> Result<(StatusCode, &'static str), StatusCode> {
+    let pool = &state.db_pool;
+    
+    // Find trash item
+    let trash_item: Option<(String, String, String, String)> = sqlx::query_as(
+        "SELECT id, item_type, item_id, original_path FROM trash 
+         WHERE original_path = ? AND deleted_by = ?"
+    )
+    .bind(&path)
+    .bind(&user.id)
+    .fetch_optional(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    if let Some((trash_id, item_type, item_id, original_path)) = trash_item {
+        // Get storage path before deletion
+        let storage_path: Option<String> = if item_type == "file" {
+            sqlx::query_as("SELECT storage_path FROM files WHERE id = ?")
+                .bind(&item_id)
+                .fetch_optional(pool)
+                .await
+                .ok()
+                .flatten()
+        } else {
+            None
+        };
+        
+        // Delete from database
+        match item_type.as_str() {
+            "file" => {
+                sqlx::query("DELETE FROM files WHERE id = ?")
+                    .bind(&item_id)
+                    .execute(pool)
+                    .await
+                    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+                
+                // Delete physical file
+                if let Some(storage_path) = storage_path {
+                    let full_path = Path::new(&storage_path);
+                    let _ = fs::remove_file(full_path).await;
+                }
+            }
+            "folder" => {
+                sqlx::query("DELETE FROM folders WHERE id = ?")
+                    .bind(&item_id)
+                    .execute(pool)
+                    .await
+                    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+                
+                // Delete physical folder
+                let full_path = Path::new(DATA_DIR).join(&original_path);
+                let _ = fs::remove_dir_all(full_path).await;
+            }
+            _ => return Err(StatusCode::BAD_REQUEST),
+        }
+        
+        // Remove from trash
+        sqlx::query("DELETE FROM trash WHERE id = ?")
+            .bind(&trash_id)
+            .execute(pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        
+        Ok((StatusCode::OK, "permanently deleted"))
+    } else {
+        Err(StatusCode::NOT_FOUND)
+    }
+}
+
+async fn cleanup_trash_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let pool = &state.db_pool;
+    
+    // Get auto_trash_cleanup_days setting
+    let cleanup_days: i64 = sqlx::query_as(
+        "SELECT value FROM settings WHERE key = 'auto_trash_cleanup_days'"
+    )
+    .fetch_optional(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    .and_then(|(value,): (String,)| value.parse().ok())
+    .unwrap_or(30);
+    
+    if cleanup_days == 0 {
+        return Ok(Json(serde_json::json!({
+            "deleted_count": 0,
+            "message": "Auto-cleanup disabled"
+        })));
+    }
+    
+    // Find expired trash items
+    let expired_items: Vec<(String, String, String)> = sqlx::query_as(
+        r#"
+        SELECT id, item_type, item_id 
+        FROM trash 
+        WHERE auto_delete_at IS NOT NULL 
+        AND datetime(auto_delete_at) <= datetime('now')
+        "#
+    )
+    .fetch_all(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let mut deleted_count = 0;
+    
+    for (trash_id, item_type, item_id) in expired_items {
+        // Delete from database
+        match item_type.as_str() {
+            "file" => {
+                // Get storage path
+                let storage_path: Option<String> = sqlx::query_as(
+                    "SELECT storage_path FROM files WHERE id = ?"
+                )
+                .bind(&item_id)
+                .fetch_optional(pool)
+                .await
+                .ok()
+                .flatten();
+                
+                sqlx::query("DELETE FROM files WHERE id = ?")
+                    .bind(&item_id)
+                    .execute(pool)
+                    .await
+                    .ok();
+                
+                if let Some(storage_path) = storage_path {
+                    let _ = fs::remove_file(Path::new(&storage_path)).await;
+                }
+            }
+            "folder" => {
+                sqlx::query("DELETE FROM folders WHERE id = ?")
+                    .bind(&item_id)
+                    .execute(pool)
+                    .await
+                    .ok();
+            }
+            _ => continue,
+        }
+        
+        // Remove from trash
+        sqlx::query("DELETE FROM trash WHERE id = ?")
+            .bind(&trash_id)
+            .execute(pool)
+            .await
+            .ok();
+        
+        deleted_count += 1;
+    }
+    
+    Ok(Json(serde_json::json!({
+        "deleted_count": deleted_count,
+        "message": format!("Cleaned up {} expired items", deleted_count)
+    })))
+}
+
+async fn empty_trash_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let pool = &state.db_pool;
+    
+    // Get all trash items for user
+    let trash_items: Vec<(String, String, String)> = sqlx::query_as(
+        "SELECT id, item_type, item_id FROM trash WHERE deleted_by = ?"
+    )
+    .bind(&user.id)
+    .fetch_all(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let mut deleted_count = 0;
+    
+    for (trash_id, item_type, item_id) in trash_items {
+        // Delete from database
+        match item_type.as_str() {
+            "file" => {
+                let storage_path: Option<String> = sqlx::query_as(
+                    "SELECT storage_path FROM files WHERE id = ?"
+                )
+                .bind(&item_id)
+                .fetch_optional(pool)
+                .await
+                .ok()
+                .flatten();
+                
+                sqlx::query("DELETE FROM files WHERE id = ?")
+                    .bind(&item_id)
+                    .execute(pool)
+                    .await
+                    .ok();
+                
+                if let Some(storage_path) = storage_path {
+                    let _ = fs::remove_file(Path::new(&storage_path)).await;
+                }
+            }
+            "folder" => {
+                sqlx::query("DELETE FROM folders WHERE id = ?")
+                    .bind(&item_id)
+                    .execute(pool)
+                    .await
+                    .ok();
+            }
+            _ => continue,
+        }
+        
+        // Remove from trash
+        sqlx::query("DELETE FROM trash WHERE id = ?")
+            .bind(&trash_id)
+            .execute(pool)
+            .await
+            .ok();
+        
+        deleted_count += 1;
+    }
+    
+    Ok(Json(serde_json::json!({
+        "deleted_count": deleted_count,
+        "message": "Trash emptied"
+    })))
 }
 
 // ==================== UTILITY HANDLERS ====================

@@ -10,6 +10,10 @@
   import UsersView from "./pages/UsersView.svelte";
   import SettingsView from "./pages/SettingsView.svelte";
   import ProfileView from "./pages/ProfileView.svelte";
+  import StorageView from "./pages/StorageView.svelte";
+  import ActivityView from "./pages/ActivityView.svelte";
+  import DuplicatesView from "./pages/DuplicatesView.svelte";
+  import BackupView from "./pages/BackupView.svelte";
   import Toast from "./components/ui/Toast.svelte";
 
   // Apply theme to document
@@ -40,6 +44,14 @@
         <SettingsView />
       {:else if $currentView === "profile"}
         <ProfileView />
+      {:else if $currentView === "storage"}
+        <StorageView />
+      {:else if $currentView === "activity"}
+        <ActivityView />
+      {:else if $currentView === "duplicates"}
+        <DuplicatesView />
+      {:else if $currentView === "backup"}
+        <BackupView />
       {/if}
     </main>
   </div>

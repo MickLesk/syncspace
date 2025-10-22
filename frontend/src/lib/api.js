@@ -384,4 +384,23 @@ export default {
   config,
   peers,
   createWebSocket,
+  // Trash endpoints
+  listTrash: () => fetch(`${API_BASE}/trash`, { headers: getHeaders() }),
+  restoreTrash: (path) => fetch(`${API_BASE}/trash/restore/${encodeURIComponent(path)}`, { 
+    method: 'POST', 
+    headers: getHeaders() 
+  }),
+  permanentDeleteTrash: (path) => fetch(`${API_BASE}/trash/permanent/${encodeURIComponent(path)}`, { 
+    method: 'DELETE', 
+    headers: getHeaders() 
+  }),
+  cleanupTrash: () => fetch(`${API_BASE}/trash/cleanup`, { 
+    method: 'DELETE', 
+    headers: getHeaders() 
+  }),
+  emptyTrash: () => fetch(`${API_BASE}/trash/empty`, { 
+    method: 'DELETE', 
+    headers: getHeaders() 
+  }),
 };
+
