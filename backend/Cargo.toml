@@ -5,7 +5,8 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
-axum = { version = "0.7", features = ["multipart"] }
+# Web framework - Axum with tower ecosystem
+axum = { version = "0.7", features = ["multipart", "ws", "macros"] }
 axum-extra = { version = "0.9", features = ["typed-header"] }
 tower = "0.4"
 tower-http = { version = "0.5", features = ["fs", "cors", "trace"] }

@@ -1,7 +1,8 @@
-<script>
+﻿<script>
   import { onMount } from "svelte";
   import { files, currentPath, currentLang, currentView } from "../stores/ui";
   import { auth } from "../stores/auth";
+  import { favorites } from "../stores/favorites";
   import { t } from "../i18n";
   import { success, error as errorToast } from "../stores/toast";
   import { getFileIcon, getFileType, isPreviewable } from "../utils/fileIcons";
@@ -15,20 +16,19 @@
   let loading = true;
 
   // Helper: return a display-friendly filename (decode percent-encoding for UI only)
-+
-+  function displayName(name) {
-+    try {
-+      return decodeURIComponent(name);
-+    } catch (e) {
-+      return name;
-+    }
-+  }
-+
-+  function toggleUploadPanel() {
-+    showUploadPanel = !showUploadPanel;
-+  }
-+
-+
+
+  function displayName(name) {
+    try {
+      return decodeURIComponent(name);
+    } catch (e) {
+      return name;
+    }
+  }
+
+  function toggleUploadPanel() {
+    showUploadPanel = !showUploadPanel;
+  }
+
   let uploadInput;
   let dragOver = false;
   let uploading = false;
@@ -38,13 +38,14 @@
   let searchTimeout;
   let viewMode = localStorage.getItem("filesViewMode") || "grid"; // 'grid' or 'list'
   let uploadProgress = { current: 0, total: 0, uploading: false };
-  
+
   // Auto-open drop zone for first-time users
-  const hasUploadedBefore = localStorage.getItem("hasUploadedBefore") === "true";
+  const hasUploadedBefore =
+    localStorage.getItem("hasUploadedBefore") === "true";
   let showUploadPanel = !hasUploadedBefore; // Show by default if never uploaded
-  
+
   let fileUploadProgress = {}; // Track individual file upload progress { filename: { percent, loaded, total } }
-  
+
   // Multi-select state
   let multiSelectMode = false;
   let selectedFiles = new Set();
@@ -112,7 +113,7 @@
     try {
       const data = await api.search.query(query, 50, true);
       searchResults = data.results || [];
-      console.log(`🔍 Found ${searchResults.length} results for "${query}"`);
+      console.log(`ðŸ” Found ${searchResults.length} results for "${query}"`);
     } catch (error) {
       console.error("Search failed:", error);
       searchResults = [];
@@ -223,24 +224,28 @@
     for (const file of fileList) {
       try {
         const path = `${$currentPath}${file.name}`;
-        
+
         // Initialize progress for this file
-        fileUploadProgress[file.name] = { percent: 0, loaded: 0, total: file.size };
-        
+        fileUploadProgress[file.name] = {
+          percent: 0,
+          loaded: 0,
+          total: file.size,
+        };
+
         // Upload with progress tracking
         await api.files.uploadWithProgress(
-          path, 
-          file, 
+          path,
+          file,
           (percent, loaded, total) => {
             fileUploadProgress[file.name] = { percent, loaded, total };
             // Trigger reactivity
             fileUploadProgress = { ...fileUploadProgress };
           }
         );
-        
+
         successCount++;
         uploadProgress.current++;
-        
+
         // Mark file as complete
         fileUploadProgress[file.name].percent = 100;
         fileUploadProgress = { ...fileUploadProgress };
@@ -248,7 +253,7 @@
         // Show progress toast for each file
         if (fileList.length > 1) {
           success(
-            `📤 ${uploadProgress.current}/${uploadProgress.total}: ${file.name}`,
+            `ðŸ“¤ ${uploadProgress.current}/${uploadProgress.total}: ${file.name}`,
             1000
           );
         }
@@ -256,7 +261,7 @@
         console.error(`Upload error for ${file.name}:`, err);
         failCount++;
         failedFiles.push(file.name);
-        
+
         // Mark file as failed
         if (fileUploadProgress[file.name]) {
           fileUploadProgress[file.name].error = true;
@@ -271,15 +276,17 @@
     // Summary toast
     if (successCount > 0 && failCount === 0) {
       success(
-        `✅ ${successCount} ${successCount === 1 ? "Datei" : "Dateien"} erfolgreich hochgeladen!`
+        `âœ… ${successCount} ${successCount === 1 ? "Datei" : "Dateien"} erfolgreich hochgeladen!`
       );
     } else if (successCount > 0 && failCount > 0) {
-      success(`✅ ${successCount} erfolgreich, ❌ ${failCount} fehlgeschlagen`);
+      success(
+        `âœ… ${successCount} erfolgreich, âŒ ${failCount} fehlgeschlagen`
+      );
       if (failedFiles.length > 0) {
         errorToast(`Fehlgeschlagen: ${failedFiles.join(", ")}`);
       }
     } else if (failCount > 0) {
-      errorToast(`❌ Alle ${failCount} Uploads fehlgeschlagen`);
+      errorToast(`âŒ Alle ${failCount} Uploads fehlgeschlagen`);
     }
 
     // Clear progress after a delay
@@ -367,11 +374,11 @@
       const newPath = `${$currentPath}${folder.name}/${draggedFile.name}`;
 
       await api.files.rename(oldPath, newPath);
-      success(`📁 "${draggedFile.name}" → "${folder.name}"`);
+      success(`ðŸ“ "${draggedFile.name}" â†’ "${folder.name}"`);
       await loadFiles();
     } catch (err) {
       console.error("Failed to move file:", err);
-      errorToast(`❌ Fehler beim Verschieben: ${err.message}`);
+      errorToast(`âŒ Fehler beim Verschieben: ${err.message}`);
     }
 
     draggedFile = null;
@@ -477,8 +484,23 @@
     selectedFiles = selectedFiles; // Trigger reactivity
   }
 
+  function toggleFavorite(file) {
+    const fullPath = $currentPath ? `${$currentPath}/${file.name}` : file.name;
+    favorites.toggle(fullPath);
+    success(
+      $favorites.has(fullPath)
+        ? `⭐ ${file.name} zu Favoriten hinzugefügt`
+        : `${file.name} aus Favoriten entfernt`
+    );
+  }
+
+  function isFavorite(file) {
+    const fullPath = $currentPath ? `${$currentPath}/${file.name}` : file.name;
+    return $favorites.has(fullPath);
+  }
+
   function selectAll() {
-    displayedFiles.forEach(file => {
+    displayedFiles.forEach((file) => {
       if (!file.is_dir) selectedFiles.add(file.name);
     });
     selectedFiles = selectedFiles;
@@ -491,7 +513,7 @@
 
   async function bulkDelete() {
     if (selectedFiles.size === 0) return;
-    
+
     const confirmed = confirm(`Delete ${selectedFiles.size} selected files?`);
     if (!confirmed) return;
 
@@ -510,10 +532,10 @@
     }
 
     if (successCount > 0) {
-      success(`✅ Deleted ${successCount} file(s)`);
+      success(`âœ… Deleted ${successCount} file(s)`);
     }
     if (failCount > 0) {
-      errorToast(`❌ Failed to delete ${failCount} file(s)`);
+      errorToast(`âŒ Failed to delete ${failCount} file(s)`);
     }
 
     selectedFiles.clear();
@@ -531,7 +553,7 @@
       const oldPath = `${$currentPath}${oldName}`;
       const newPath = `${$currentPath}${newName}`;
       await api.files.rename(oldPath, newPath);
-      success(`"${oldName}" → "${newName}"`);
+      success(`"${oldName}" â†’ "${newName}"`);
       await loadFiles();
     } catch (err) {
       console.error("Failed to rename file:", err);
@@ -679,7 +701,7 @@
       role="region"
     >
       <Icon name="cloud-arrow-up" size={16} />
-      <span>{dragOver ? "📦 Drop hier!" : "Drag & Drop Dateien hier"}</span>
+      <span>{dragOver ? "ðŸ“¦ Drop hier!" : "Drag & Drop Dateien hier"}</span>
     </div>
   {/if}
 
@@ -729,11 +751,11 @@
   <!-- Search Mode Indicator -->
   {#if searchQuery && searchQuery.length >= 2}
     <div class="search-mode-indicator">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon">ðŸ”</span>
       <span class="search-info">
         Search results for <strong>"{searchQuery}"</strong>
         {#if searchResults.length > 0}
-          — {searchResults.length}
+          â€” {searchResults.length}
           {searchResults.length === 1 ? "file" : "files"} found
         {/if}
       </span>
@@ -758,11 +780,11 @@
   {:else if isSearching}
     <div class="loading">
       <div class="spinner"></div>
-      <p>🔍 Searching...</p>
+      <p>ðŸ” Searching...</p>
     </div>
   {:else if displayedFiles.length === 0}
     <div class="empty-state">
-      <p class="empty-icon">{searchQuery ? "�" : "�📂"}</p>
+      <p class="empty-icon">{searchQuery ? "ï¿½" : "ï¿½ðŸ“‚"}</p>
       <p class="empty-title">
         {searchQuery ? "No results found" : t($currentLang, "noFiles")}
       </p>
@@ -815,6 +837,15 @@
             {/if}
           </div>
           <div class="file-actions">
+            <button
+              class="btn-icon btn-favorite"
+              on:click|stopPropagation={() => toggleFavorite(file)}
+              title={isFavorite(file)
+                ? "Aus Favoriten entfernen"
+                : "Zu Favoriten hinzufügen"}
+            >
+              <Icon name={isFavorite(file) ? "star-fill" : "star"} size={16} />
+            </button>
             {#if !file.is_dir}
               <button
                 class="btn-icon"
@@ -875,6 +906,15 @@
             {/if}
           </div>
           <div class="file-actions-list">
+            <button
+              class="btn-icon-small btn-favorite"
+              on:click|stopPropagation={() => toggleFavorite(file)}
+              title={isFavorite(file)
+                ? "Aus Favoriten entfernen"
+                : "Zu Favoriten hinzufügen"}
+            >
+              <Icon name={isFavorite(file) ? "star-fill" : "star"} size={14} />
+            </button>
             {#if !file.is_dir}
               <button
                 class="btn-icon-small"
@@ -927,15 +967,15 @@
 
 <Dialog
   bind:open={showDeleteDialog}
-  title="Löschen bestätigen"
-  confirmText="Löschen"
+  title="LÃ¶schen bestÃ¤tigen"
+  confirmText="LÃ¶schen"
   cancelText="Abbrechen"
   danger={true}
   on:confirm={handleDeleteConfirm}
 >
-  <p>Möchten Sie <strong>"{fileToDelete?.name}"</strong> wirklich löschen</p>
+  <p>MÃ¶chten Sie <strong>"{fileToDelete?.name}"</strong> wirklich lÃ¶schen</p>
   <p style="color: var(--md-sys-color-error); margin-top: 12px;">
-    Diese Aktion kann nicht rückgängig gemacht werden.
+    Diese Aktion kann nicht rÃ¼ckgÃ¤ngig gemacht werden.
   </p>
 </Dialog>
 
@@ -1442,6 +1482,15 @@
   .btn-icon:hover {
     background: var(--md-sys-color-secondary-container);
     transform: scale(1.1);
+  }
+
+  .btn-icon.btn-favorite {
+    color: var(--md-sys-color-tertiary);
+  }
+
+  .btn-icon.btn-favorite:hover {
+    background: var(--md-sys-color-tertiary-container);
+    color: var(--md-sys-color-on-tertiary-container);
   }
 
   /* List View Styles */

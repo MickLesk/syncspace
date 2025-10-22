@@ -6,6 +6,11 @@ use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
 };
+use axum::{
+    async_trait,
+    extract::FromRequestParts,
+    http::{request::Parts, StatusCode},
+};
 use chrono::{DateTime, Duration, Utc};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
@@ -14,7 +19,6 @@ use std::fs;
 use std::sync::{Arc, Mutex};
 use totp_lite::{totp_custom, Sha1};
 use uuid::Uuid;
-use warp::{Filter, Rejection};
 
 const USERS_FILE: &str = "./users.json";
 const JWT_SECRET: &str = "your-secret-key-change-this-in-production"; // TODO: Move to env var
@@ -236,24 +240,39 @@ pub fn verify_totp_code(secret: &str, code: &str) -> bool {
 }
 
 /// Warp filter to extract authenticated user from JWT token
-pub fn with_auth(db: UserDB) -> impl Filter<Extract = (User,), Error = Rejection> + Clone {
-    warp::header::optional::<String>("authorization")
-        .and(warp::any().map(move || db.clone()))
-        .and_then(|auth_header: Option<String>, db: UserDB| async move {
-            if let Some(header) = auth_header {
-                if header.starts_with("Bearer ") {
-                    let token = header.trim_start_matches("Bearer ");
-                    if let Ok(claims) = verify_token(token) {
-                        if let Ok(user_id) = Uuid::parse_str(&claims.sub) {
-                            if let Some(user) = db.get_by_id(&user_id) {
-                                return Ok::<User, Rejection>(user);
-                            }
-                        }
-                    }
-                }
-            }
-            Err(warp::reject::reject())
-        })
+/// Axum extractor for authenticated requests
+#[async_trait]
+impl<S> FromRequestParts<S> for User
+where
+    S: Send + Sync,
+{
+    type Rejection = (StatusCode, &'static str);
+
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        // Extract Authorization header
+        let auth_header = parts
+            .headers
+            .get("authorization")
+            .and_then(|v| v.to_str().ok())
+            .ok_or((StatusCode::UNAUTHORIZED, "Missing authorization header"))?;
+
+        // Verify Bearer token
+        if !auth_header.starts_with("Bearer ") {
+            return Err((StatusCode::UNAUTHORIZED, "Invalid authorization header"));
+        }
+
+        let token = auth_header.trim_start_matches("Bearer ");
+        let claims = verify_token(token)
+            .map_err(|_| (StatusCode::UNAUTHORIZED, "Invalid token"))?;
+
+        let user_id = Uuid::parse_str(&claims.sub)
+            .map_err(|_| (StatusCode::UNAUTHORIZED, "Invalid user ID"))?;
+
+        // Load user from database
+        let db = UserDB::new(); // TODO: Pass via extension layer instead
+        db.get_by_id(&user_id)
+            .ok_or((StatusCode::UNAUTHORIZED, "User not found"))
+    }
 }
 
 /// Auth request/response structures
