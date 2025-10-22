@@ -1,5 +1,3 @@
-# 🚀 SyncSpace# SyncSpace Prototype
-
 # 🚀 SyncSpace
 
 **Modern Material 3 File Synchronization Service**
