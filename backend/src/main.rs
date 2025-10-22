@@ -221,6 +221,7 @@ fn build_router(state: AppState) -> Router {
     
     // Utility routes (protected)
     let utility_routes = Router::new()
+        .route("/api/status", get(status_handler))  // Status endpoint (public)
         .route("/api/search", get(search_handler))
         .route("/api/stats", get(stats_handler))
         .route("/api/config", get(get_config_handler).put(put_config_handler))
@@ -230,8 +231,13 @@ fn build_router(state: AppState) -> Router {
     let ws_route = Router::new()
         .route("/api/ws", get(ws_handler));
     
+    // Root route (status page)
+    let root_route = Router::new()
+        .route("/", get(root_handler));
+    
     // Combine all routes
     Router::new()
+        .merge(root_route)
         .merge(auth_routes)
         .merge(file_routes)
         .merge(trash_routes)
@@ -1269,4 +1275,229 @@ async fn compute_stats_async() -> (u64, u64) {
     })
     .await
     .unwrap_or((0, 0))
+}
+
+// ==================== STATUS HANDLERS ====================
+
+#[derive(Serialize)]
+struct ServerStatus {
+    version: String,
+    status: String,
+    uptime_seconds: u64,
+    data_dir: String,
+    file_count: u64,
+    total_size_bytes: u64,
+    users_count: usize,
+    database_connected: bool,
+    search_enabled: bool,
+}
+
+async fn status_handler(
+    State(state): State<AppState>,
+) -> Json<ServerStatus> {
+    let (file_count, total_size) = compute_stats_async().await;
+    let users_count = state.user_db.list_users().len();
+    
+    Json(ServerStatus {
+        version: "0.3.0".to_string(),
+        status: "running".to_string(),
+        uptime_seconds: 0, // TODO: Track actual uptime
+        data_dir: DATA_DIR.to_string(),
+        file_count,
+        total_size_bytes: total_size,
+        users_count,
+        database_connected: true,
+        search_enabled: true,
+    })
+}
+
+async fn root_handler() -> Response {
+    let html = r#"<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyncSpace Backend</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 48px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #f0fdf4;
+            border-radius: 12px;
+            border-left: 4px solid #22c55e;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .info-item {
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .info-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .endpoints {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .endpoints h3 {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+        .endpoint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .method {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        .get { background: #dbeafe; color: #1e40af; }
+        .post { background: #dcfce7; color: #166534; }
+        .footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-top: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🚀 SyncSpace Backend</h1>
+        <div class="subtitle">Self-hosted file synchronization server</div>
+        
+        <div class="status">
+            <div class="status-dot"></div>
+            <div>
+                <strong>Server is running</strong>
+                <div style="font-size: 13px; color: #666;">Version 0.3.0 (Axum)</div>
+            </div>
+        </div>
+        
+        <div id="stats" class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Loading...</div>
+                <div class="info-value">...</div>
+            </div>
+        </div>
+        
+        <div class="endpoints">
+            <h3>API Endpoints</h3>
+            <div class="endpoint"><span class="method get">GET</span> /api/status</div>
+            <div class="endpoint"><span class="method post">POST</span> /api/auth/login</div>
+            <div class="endpoint"><span class="method get">GET</span> /api/files/*path</div>
+            <div class="endpoint"><span class="method post">POST</span> /api/upload/*path</div>
+            <div class="endpoint"><span class="method get">GET</span> /api/search?q=term</div>
+        </div>
+        
+        <div class="footer">
+            Frontend: <a href="http://localhost:5173" style="color: #667eea;">http://localhost:5173</a>
+        </div>
+    </div>
+    
+    <script>
+        fetch('/api/status')
+            .then(r => r.json())
+            .then(data => {
+                const formatBytes = (bytes) => {
+                    if (bytes === 0) return '0 B';
+                    const k = 1024;
+                    const sizes = ['B', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+                };
+                
+                document.getElementById('stats').innerHTML = `
+                    <div class="info-item">
+                        <div class="info-label">Files</div>
+                        <div class="info-value">${data.file_count}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Storage</div>
+                        <div class="info-value">${formatBytes(data.total_size_bytes)}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Users</div>
+                        <div class="info-value">${data.users_count}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Database</div>
+                        <div class="info-value">${data.database_connected ? '✓' : '✗'}</div>
+                    </div>
+                `;
+            })
+            .catch(() => {
+                document.getElementById('stats').innerHTML = '<div class="info-item"><div class="info-value">Error loading stats</div></div>';
+            });
+    </script>
+</body>
+</html>"#;
+    
+    (StatusCode::OK, [("content-type", "text/html; charset=utf-8")], html).into_response()
 }

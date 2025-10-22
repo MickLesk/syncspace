@@ -161,6 +161,11 @@ impl UserDB {
         self.update_user(user);
         Ok(())
     }
+
+    pub fn list_users(&self) -> Vec<User> {
+        let users = self.users.lock().unwrap();
+        users.values().cloned().collect()
+    }
 }
 
 /// JWT Claims structure
