@@ -9,6 +9,7 @@
   import SearchBar from "../components/ui/SearchBar.svelte";
   import Dialog from "../components/ui/Dialog.svelte";
   import InputDialog from "../components/ui/InputDialog.svelte";
+  import PreviewModal from "../components/ui/PreviewModal.svelte";
   import Icon from "../components/ui/Icon.svelte";
   import api from "../lib/api";
   let loading = true;
@@ -37,7 +38,16 @@
   let searchTimeout;
   let viewMode = localStorage.getItem("filesViewMode") || "grid"; // 'grid' or 'list'
   let uploadProgress = { current: 0, total: 0, uploading: false };
-  let showUploadPanel = false; // Toggle floating upload panel
+  
+  // Auto-open drop zone for first-time users
+  const hasUploadedBefore = localStorage.getItem("hasUploadedBefore") === "true";
+  let showUploadPanel = !hasUploadedBefore; // Show by default if never uploaded
+  
+  let fileUploadProgress = {}; // Track individual file upload progress { filename: { percent, loaded, total } }
+  
+  // Multi-select state
+  let multiSelectMode = false;
+  let selectedFiles = new Set();
 
   // Drag & Drop for file moving
   let draggedFile = null;
@@ -50,8 +60,10 @@
   let showDeleteDialog = false;
   let showRenameDialog = false;
   let showNewFolderDialog = false;
+  let showPreviewModal = false;
   let fileToDelete = null;
   let fileToRename = null;
+  let fileToPreview = null;
 
   function toggleViewMode() {
     viewMode = viewMode === "grid" ? "list" : "grid";
@@ -203,6 +215,7 @@
 
     uploading = true;
     uploadProgress = { current: 0, total: fileList.length, uploading: true };
+    fileUploadProgress = {}; // Reset progress tracking
     let successCount = 0;
     let failCount = 0;
     const failedFiles = [];
@@ -210,9 +223,27 @@
     for (const file of fileList) {
       try {
         const path = `${$currentPath}${file.name}`;
-        await api.files.upload(path, file);
+        
+        // Initialize progress for this file
+        fileUploadProgress[file.name] = { percent: 0, loaded: 0, total: file.size };
+        
+        // Upload with progress tracking
+        await api.files.uploadWithProgress(
+          path, 
+          file, 
+          (percent, loaded, total) => {
+            fileUploadProgress[file.name] = { percent, loaded, total };
+            // Trigger reactivity
+            fileUploadProgress = { ...fileUploadProgress };
+          }
+        );
+        
         successCount++;
         uploadProgress.current++;
+        
+        // Mark file as complete
+        fileUploadProgress[file.name].percent = 100;
+        fileUploadProgress = { ...fileUploadProgress };
 
         // Show progress toast for each file
         if (fileList.length > 1) {
@@ -225,6 +256,12 @@
         console.error(`Upload error for ${file.name}:`, err);
         failCount++;
         failedFiles.push(file.name);
+        
+        // Mark file as failed
+        if (fileUploadProgress[file.name]) {
+          fileUploadProgress[file.name].error = true;
+          fileUploadProgress = { ...fileUploadProgress };
+        }
       }
     }
 
@@ -243,6 +280,16 @@
       }
     } else if (failCount > 0) {
       errorToast(`❌ Alle ${failCount} Uploads fehlgeschlagen`);
+    }
+
+    // Clear progress after a delay
+    setTimeout(() => {
+      fileUploadProgress = {};
+    }, 3000);
+
+    // Mark that user has uploaded at least once
+    if (successCount > 0) {
+      localStorage.setItem("hasUploadedBefore", "true");
     }
 
     // Reload files with a small delay to ensure backend processing is done
@@ -396,6 +443,84 @@
     showRenameDialog = true;
   }
 
+  function previewFile(file) {
+    if (!file.is_dir && isPreviewable(file.name)) {
+      fileToPreview = file;
+      showPreviewModal = true;
+    }
+  }
+
+  function handleFileClick(file) {
+    if (multiSelectMode && !file.is_dir) {
+      toggleFileSelection(file);
+    } else if (file.is_dir) {
+      navigateTo(file.name);
+    } else if (isPreviewable(file.name)) {
+      previewFile(file);
+    }
+  }
+
+  function toggleMultiSelect() {
+    multiSelectMode = !multiSelectMode;
+    if (!multiSelectMode) {
+      selectedFiles.clear();
+      selectedFiles = selectedFiles;
+    }
+  }
+
+  function toggleFileSelection(file) {
+    if (selectedFiles.has(file.name)) {
+      selectedFiles.delete(file.name);
+    } else {
+      selectedFiles.add(file.name);
+    }
+    selectedFiles = selectedFiles; // Trigger reactivity
+  }
+
+  function selectAll() {
+    displayedFiles.forEach(file => {
+      if (!file.is_dir) selectedFiles.add(file.name);
+    });
+    selectedFiles = selectedFiles;
+  }
+
+  function deselectAll() {
+    selectedFiles.clear();
+    selectedFiles = selectedFiles;
+  }
+
+  async function bulkDelete() {
+    if (selectedFiles.size === 0) return;
+    
+    const confirmed = confirm(`Delete ${selectedFiles.size} selected files?`);
+    if (!confirmed) return;
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const filename of selectedFiles) {
+      try {
+        const path = `${$currentPath}${filename}`;
+        await api.files.delete(path);
+        successCount++;
+      } catch (err) {
+        console.error(`Failed to delete ${filename}:`, err);
+        failCount++;
+      }
+    }
+
+    if (successCount > 0) {
+      success(`✅ Deleted ${successCount} file(s)`);
+    }
+    if (failCount > 0) {
+      errorToast(`❌ Failed to delete ${failCount} file(s)`);
+    }
+
+    selectedFiles.clear();
+    selectedFiles = selectedFiles;
+    await loadFiles();
+  }
+
   async function handleRenameConfirm(event) {
     const newName = event.detail;
     if (!fileToRename || !newName || newName === fileToRename.name) return;
@@ -467,9 +592,40 @@
       <button class="btn-upload-toggle" on:click={toggleUploadPanel} title="Upload anzeigen/verbergen">
         <Icon name="cloud-upload" size={16} />
 +      </button>
+
+      <!-- Multi-select toggle -->
+      <button 
+        class="btn-multiselect-toggle" 
+        class:active={multiSelectMode}
+        on:click={toggleMultiSelect} 
+        title="Multi-Select Mode"
+      >
+        <Icon name={multiSelectMode ? "check-square" : "square"} size={16} />
+      </button>
 +
     </div>
   </div>
+
+  <!-- Multi-select toolbar -->
+  {#if multiSelectMode && selectedFiles.size > 0}
+    <div class="multiselect-toolbar">
+      <span class="selected-count">{selectedFiles.size} selected</span>
+      <div class="multiselect-actions">
+        <button class="btn-multiselect" on:click={selectAll}>
+          <Icon name="check-all" size={16} />
+          Select All
+        </button>
+        <button class="btn-multiselect" on:click={deselectAll}>
+          <Icon name="x-square" size={16} />
+          Deselect All
+        </button>
+        <button class="btn-multiselect btn-danger" on:click={bulkDelete}>
+          <Icon name="trash" size={16} />
+          Delete Selected
+        </button>
+      </div>
+    </div>
+  {/if}
 
   <!-- Floating Upload Button (FAB - Floating Action Button) -->
   <button
@@ -519,6 +675,34 @@
     >
       <Icon name="cloud-arrow-up" size={16} />
       <span>{dragOver ? "📦 Drop hier!" : "Drag & Drop Dateien hier"}</span>
+    </div>
+  {/if}
+
+  <!-- Upload Progress Panel -->
+  {#if Object.keys(fileUploadProgress).length > 0}
+    <div class="upload-progress-panel">
+      <div class="upload-progress-header">
+        <Icon name="cloud-upload" size={16} />
+        <span>Uploading {Object.keys(fileUploadProgress).length} {Object.keys(fileUploadProgress).length === 1 ? 'file' : 'files'}...</span>
+      </div>
+      <div class="upload-files-list">
+        {#each Object.entries(fileUploadProgress) as [filename, progress]}
+          <div class="upload-file-item" class:error={progress.error}>
+            <div class="upload-file-info">
+              <Icon name={progress.error ? 'x-circle' : progress.percent === 100 ? 'check-circle' : 'file-earmark'} size={14} />
+              <span class="upload-filename">{filename}</span>
+              <span class="upload-size">
+                {progress.error ? 'Failed' : `${Math.round(progress.percent)}%`}
+              </span>
+            </div>
+            {#if !progress.error}
+              <div class="upload-progress-bar">
+                <div class="upload-progress-fill" style="width: {progress.percent}%"></div>
+              </div>
+            {/if}
+          </div>
+        {/each}
+      </div>
     </div>
   {/if}
 
@@ -574,6 +758,7 @@
         <div
           class="file-card"
           class:folder={file.is_dir}
+          class:selected={multiSelectMode && selectedFiles.has(file.name)}
           class:drag-over={file.is_dir && dropTargetFolder === file.name}
           draggable="true"
           on:dragstart={(e) => handleFileDragStart(e, file)}
@@ -581,12 +766,17 @@
           on:dragover={(e) => file.is_dir && handleFolderDragOver(e, file)}
           on:dragleave={(e) => file.is_dir && handleFolderDragLeave(e, file)}
           on:drop={(e) => file.is_dir && handleFolderDrop(e, file)}
-          on:click={() => file.is_dir && navigateTo(file.name)}
+          on:click={() => handleFileClick(file)}
           on:keydown={(e) =>
-            e.key === "Enter" && file.is_dir && navigateTo(file.name)}
-          role={file.is_dir ? "button" : undefined}
-          tabindex={file.is_dir ? 0 : undefined}
+            e.key === "Enter" && handleFileClick(file)}
+          role="button"
+          tabindex="0"
         >
+          {#if multiSelectMode && !file.is_dir}
+            <div class="file-checkbox">
+              <Icon name={selectedFiles.has(file.name) ? "check-square-fill" : "square"} size={20} />
+            </div>
+          {/if}
           <div class="file-icon">
             <Icon name={getFileIcon(file.name, file.is_dir)} size={48} />
           </div>
@@ -640,11 +830,11 @@
           on:dragover={(e) => file.is_dir && handleFolderDragOver(e, file)}
           on:dragleave={(e) => file.is_dir && handleFolderDragLeave(e, file)}
           on:drop={(e) => file.is_dir && handleFolderDrop(e, file)}
-          on:click={() => file.is_dir && navigateTo(file.name)}
+          on:click={() => handleFileClick(file)}
           on:keydown={(e) =>
-            e.key === "Enter" && file.is_dir && navigateTo(file.name)}
-          role={file.is_dir ? "button" : undefined}
-          tabindex={file.is_dir ? 0 : undefined}
+            e.key === "Enter" && handleFileClick(file)}
+          role="button"
+          tabindex="0"
         >
           <div class="file-icon-small">
             <Icon name={getFileIcon(file.name, file.is_dir)} size={24} />
@@ -716,11 +906,23 @@
   danger={true}
   on:confirm={handleDeleteConfirm}
 >
-  <p>Möchten Sie <strong>"{fileToDelete.name}"</strong> wirklich löschen</p>
+  <p>Möchten Sie <strong>"{fileToDelete?.name}"</strong> wirklich löschen</p>
   <p style="color: var(--md-sys-color-error); margin-top: 12px;">
     Diese Aktion kann nicht rückgängig gemacht werden.
   </p>
 </Dialog>
+
+{#if showPreviewModal && fileToPreview}
+  <PreviewModal
+    file={fileToPreview}
+    files={displayedFiles}
+    currentPath={$currentPath}
+    on:close={() => {
+      showPreviewModal = false;
+      fileToPreview = null;
+    }}
+  />
+{/if}
 
 <style>
   .files-view {
@@ -894,6 +1096,166 @@
     font-size: 14px;
     color: var(--md-sys-color-on-surface-variant);
     margin-bottom: 32px;
+  }
+
+  /* Upload Progress Panel */
+  .upload-progress-panel {
+    background: var(--md-sys-color-surface-container);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .upload-progress-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: var(--md-sys-color-on-surface);
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  .upload-files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .upload-file-item {
+    background: var(--md-sys-color-surface-container-low);
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+
+  .upload-file-item.error {
+    background: rgba(179, 38, 30, 0.1);
+  }
+
+  .upload-file-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .upload-filename {
+    flex: 1;
+    font-size: 13px;
+    color: var(--md-sys-color-on-surface);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .upload-size {
+    font-size: 12px;
+    color: var(--md-sys-color-on-surface-variant);
+    font-weight: 500;
+  }
+
+  .upload-progress-bar {
+    height: 4px;
+    background: var(--md-sys-color-surface-container-highest);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .upload-progress-fill {
+    height: 100%;
+    background: var(--md-sys-color-primary);
+    transition: width 0.3s ease;
+  }
+
+  /* Multi-select UI */
+  .btn-multiselect-toggle {
+    background: transparent;
+    border: none;
+    color: var(--md-sys-color-on-surface);
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-multiselect-toggle:hover {
+    background: var(--md-sys-color-surface-container-highest);
+  }
+
+  .btn-multiselect-toggle.active {
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+  }
+
+  .multiselect-toolbar {
+    background: var(--md-sys-color-primary-container);
+    border-radius: 16px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .selected-count {
+    font-weight: 500;
+    color: var(--md-sys-color-on-primary-container);
+  }
+
+  .multiselect-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-multiselect {
+    background: var(--md-sys-color-surface);
+    border: none;
+    color: var(--md-sys-color-on-surface);
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .btn-multiselect:hover {
+    background: var(--md-sys-color-surface-container-high);
+    transform: translateY(-1px);
+  }
+
+  .btn-multiselect.btn-danger {
+    background: var(--md-sys-color-error);
+    color: var(--md-sys-color-on-error);
+  }
+
+  .btn-multiselect.btn-danger:hover {
+    background: var(--md-sys-color-error-container);
+    color: var(--md-sys-color-on-error-container);
+  }
+
+  .file-checkbox {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: var(--md-sys-color-surface);
+    border-radius: 4px;
+    padding: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+  }
+
+  .file-card.selected {
+    border: 2px solid var(--md-sys-color-primary);
+    background: var(--md-sys-color-primary-container);
   }
 
   .drop-zone:hover,

@@ -16,7 +16,7 @@ use tokio::fs;
 use tokio::sync::broadcast::{self, Sender};
 use uuid::Uuid;
 use warp::filters::BoxedFilter;
-use futures_util::{SinkExt, StreamExt};
+use futures_util::{SinkExt, StreamExt, TryStreamExt};
 use warp::http::StatusCode;
 use warp::ws::{Message, WebSocket};
 use warp::Filter;
@@ -815,6 +815,19 @@ fn routes(
 
 // ==================== HELPER FUNCTIONS ====================
 
+// Check if a filename is a system file that should be hidden
+fn is_system_file(filename: &str) -> bool {
+    filename == "syncspace.db" 
+        || filename == "syncspace.db-shm" 
+        || filename == "syncspace.db-wal"
+        || filename == "search_index"
+        || filename.ends_with(".lock") 
+        || filename.starts_with(".tantivy-")
+        || filename.starts_with(".git")
+        || filename == ".DS_Store"
+        || filename == "Thumbs.db"
+}
+
 async fn load_config() -> Option<Config> {
     match fs::read(CONFIG_FILE).await {
         Ok(bytes) => serde_json::from_slice(&bytes).ok(),
@@ -869,18 +882,9 @@ async fn list_entries(tail: warp::path::Tail) -> Result<impl warp::Reply, Infall
                 if let Ok(meta) = e.metadata().await {
                     let filename = e.file_name().to_string_lossy().to_string();
                     
-                    // Filter out system files (DB, search index, lock files)
-                    // Only show in root directory (when sub is empty)
-                    if sub.is_empty() {
-                        // Skip database, search index, and lock files
-                        if filename == "syncspace.db" 
-                            || filename == "syncspace.db-shm" 
-                            || filename == "syncspace.db-wal"
-                            || filename == "search_index"
-                            || filename.ends_with(".lock") 
-                            || filename.starts_with(".tantivy-") {
-                            continue;
-                        }
+                    // Filter out system files in ALL directories (not just root)
+                    if is_system_file(&filename) {
+                        continue;
                     }
                     
                     entries.push(EntryInfo {
