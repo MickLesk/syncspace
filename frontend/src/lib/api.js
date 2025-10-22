@@ -191,6 +191,63 @@ export const files = {
   },
 
   /**
+   * Upload a file with FormData and progress tracking
+   */
+  async uploadWithProgress(path, file, onProgress) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      
+      // Progress tracking
+      if (onProgress) {
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            const percentComplete = (e.loaded / e.total) * 100;
+            onProgress(percentComplete, e.loaded, e.total);
+          }
+        });
+      }
+      
+      // Response handling
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            resolve(data);
+          } catch {
+            resolve({ success: true });
+          }
+        } else {
+          reject(new Error(`Upload failed: ${xhr.status}`));
+        }
+      });
+      
+      xhr.addEventListener('error', () => {
+        reject(new Error('Upload failed'));
+      });
+      
+      xhr.addEventListener('abort', () => {
+        reject(new Error('Upload cancelled'));
+      });
+      
+      // Prepare FormData
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('path', path);
+      
+      // Open and send request
+      xhr.open('POST', `${API_BASE}/upload-multipart`);
+      
+      // Add auth header
+      const token = getToken();
+      if (token) {
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      }
+      
+      xhr.send(formData);
+    });
+  },
+
+  /**
    * Delete a file or directory
    */
   async delete(path) {
