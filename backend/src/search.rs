@@ -68,6 +68,13 @@ impl SearchIndex {
         
         let schema = schema_builder.build();
         
+        // Clean up stale lock file if exists
+        let lock_path = Path::new(SEARCH_INDEX_DIR).join(".tantivy-writer.lock");
+        if lock_path.exists() {
+            println!("🧹 Cleaning up stale search index lock");
+            let _ = std::fs::remove_file(&lock_path);
+        }
+        
         // Open or create index
         let index = if Path::new(SEARCH_INDEX_DIR).join("meta.json").exists() {
             println!("🔍 Opening existing search index");
