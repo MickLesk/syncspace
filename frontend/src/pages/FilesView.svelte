@@ -28,6 +28,25 @@
   import api from "../lib/api";
   let loading = true;
 
+  /**
+   * Convert UI path (e.g. "/testfolder/") to backend-compatible path (e.g. "testfolder")
+   * Backend expects paths WITHOUT leading slash (relative to DATA_DIR)
+   */
+  function toBackendPath(uiPath) {
+    if (!uiPath || uiPath === "/") return "";
+    // Remove leading and trailing slashes
+    return uiPath.replace(/^\/+|\/+$/g, "");
+  }
+
+  /**
+   * Build full file path for backend API
+   * Example: buildFilePath("/testfolder/", "file.pdf") → "testfolder/file.pdf"
+   */
+  function buildFilePath(dirPath, fileName) {
+    const cleanDir = toBackendPath(dirPath);
+    return cleanDir ? `${cleanDir}/${fileName}` : fileName;
+  }
+
   // Helper: return a display-friendly filename (decode percent-encoding for UI only)
 
   function displayName(name) {
@@ -174,16 +193,22 @@
   $: displayedFiles =
     searchQuery && searchQuery.length >= 2
       ? applyFilters(
-          searchResults.map((result) => ({
-            name: result.filename,
-            path: result.path,
-            type: result.file_type === "unknown" ? "file" : result.file_type,
-            is_dir: false,
-            size: result.size,
-            modified: result.modified,
-            _searchScore: result.score,
-            _snippet: result.snippet,
-          }))
+          searchResults
+            .filter((result) => {
+              // Only show files in current directory
+              const resultDir = result.path.substring(0, result.path.lastIndexOf('/') + 1) || '/';
+              return resultDir === $currentPath;
+            })
+            .map((result) => ({
+              name: result.filename,
+              path: result.path,
+              type: result.file_type === "unknown" ? "file" : result.file_type,
+              is_dir: false,
+              size: result.size,
+              modified: result.modified,
+              _searchScore: result.score,
+              _snippet: result.snippet,
+            }))
         )
       : searchQuery
         ? applyFilters(
@@ -430,8 +455,9 @@
   async function loadFiles() {
     loading = true;
     try {
-      console.log(`[FilesView] API call: list(${$currentPath})`);
-      const data = await api.files.list($currentPath);
+      const backendPath = toBackendPath($currentPath);
+      console.log(`[FilesView] API call: list("${backendPath}") (UI path: "${$currentPath}")`);
+      const data = await api.files.list(backendPath);
       console.log(`[FilesView] Received ${data.length} files`);
       files.set(data);
 
@@ -452,7 +478,7 @@
     for (const file of fileList) {
       if (file.is_dir || !canGenerateThumbnail(file.name)) continue;
 
-      const filePath = $currentPath ? `${$currentPath}${file.name}` : file.name;
+      const filePath = buildFilePath($currentPath, file.name);
 
       // Load thumbnail asynchronously
       getThumbnail(filePath, file.modified_at)
@@ -480,7 +506,7 @@
 
     for (const file of fileList) {
       try {
-        const path = `${$currentPath}${file.name}`;
+        const path = buildFilePath($currentPath, file.name);
 
         // Initialize progress for this file
         fileUploadProgress[file.name] = {
@@ -666,8 +692,8 @@
     if (!draggedFile || !folder.is_dir) return;
 
     try {
-      const oldPath = `${$currentPath}${draggedFile.name}`;
-      const newPath = `${$currentPath}${folder.name}/${draggedFile.name}`;
+      const oldPath = buildFilePath($currentPath, draggedFile.name);
+      const newPath = buildFilePath($currentPath, `${folder.name}/${draggedFile.name}`);
 
       await api.files.rename(oldPath, newPath);
       success(`ðŸ“ "${draggedFile.name}" â†’ "${folder.name}"`);
@@ -706,8 +732,8 @@
         if (file.is_dir) continue; // Skip folders for now
 
         try {
-          const oldPath = `${$currentPath}${file.name}`;
-          const newPath = `${$currentPath}${folder.name}/${file.name}`;
+          const oldPath = buildFilePath($currentPath, file.name);
+          const newPath = buildFilePath($currentPath, `${folder.name}/${file.name}`);
 
           await api.files.rename(oldPath, newPath);
           successCount++;
@@ -796,7 +822,7 @@
     const fileName = fileToDelete.name;
 
     try {
-      const path = `${$currentPath}${fileName}`;
+      const path = buildFilePath($currentPath, fileName);
       await api.files.delete(path);
       success(`"${fileName}" ${t($currentLang, "deleted")}`);
       await loadFiles();
@@ -843,7 +869,17 @@
       selectedFiles.delete(file.name);
     } else {
       selectedFiles.add(file.name);
+      // Auto-enable multi-select mode when first file is selected
+      if (!multiSelectMode) {
+        multiSelectMode = true;
+      }
     }
+    
+    // Auto-disable when no files selected
+    if (selectedFiles.size === 0 && multiSelectMode) {
+      multiSelectMode = false;
+    }
+    
     selectedFiles = selectedFiles; // Trigger reactivity
   }
 
@@ -1091,7 +1127,7 @@
 
     for (const filename of selectedFiles) {
       try {
-        const path = `${$currentPath}${filename}`;
+        const path = buildFilePath($currentPath, filename);
         await api.files.delete(path);
         successCount++;
       } catch (err) {
@@ -1221,31 +1257,18 @@
       </Button>
 
       <!-- Upload toggle (shows/hides compact drop-zone) -->
-      +
       <button
         class="btn-upload-toggle"
         on:click={toggleUploadPanel}
         title="Upload anzeigen/verbergen"
       >
         <Icon name="cloud-upload" size={16} />
-        +
       </button>
-
-      <!-- Multi-select toggle -->
-      <button
-        class="btn-multiselect-toggle"
-        class:active={multiSelectMode}
-        on:click={toggleMultiSelect}
-        title="Multi-Select Mode"
-      >
-        <Icon name={multiSelectMode ? "check-square" : "square"} size={16} />
-      </button>
-      +
     </div>
   </div>
 
   <!-- Multi-select toolbar -->
-  {#if multiSelectMode && selectedFiles.size > 0}
+  {#if selectedFiles.size > 0}
     <div class="multiselect-toolbar">
       <span class="selected-count">{selectedFiles.size} selected</span>
       <div class="multiselect-actions">

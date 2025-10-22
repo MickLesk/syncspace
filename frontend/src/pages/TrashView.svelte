@@ -137,7 +137,12 @@
   }
 
   async function permanentDelete(item) {
-    if (!confirm(`PERMANENTLY delete "${item.original_name}"? This cannot be undone!`)) return;
+    if (
+      !confirm(
+        `PERMANENTLY delete "${item.original_name}"? This cannot be undone!`
+      )
+    )
+      return;
     try {
       const response = await api.permanentDeleteTrash(item.original_path);
       if (response.ok) {
@@ -169,7 +174,12 @@
 
   async function deleteSelected() {
     if (selectedItems.size === 0) return;
-    if (!confirm(`PERMANENTLY delete ${selectedItems.size} item(s)? This cannot be undone!`)) return;
+    if (
+      !confirm(
+        `PERMANENTLY delete ${selectedItems.size} item(s)? This cannot be undone!`
+      )
+    )
+      return;
 
     const items = filteredItems.filter((item) => selectedItems.has(item.id));
     for (const item of items) {
@@ -199,7 +209,10 @@
   }
 
   async function emptyTrash() {
-    if (!confirm("PERMANENTLY delete ALL items in trash? This cannot be undone!")) return;
+    if (
+      !confirm("PERMANENTLY delete ALL items in trash? This cannot be undone!")
+    )
+      return;
     try {
       const response = await api.emptyTrash();
       if (response.ok) {
@@ -287,7 +300,8 @@
             <th class="checkbox-col">
               <input
                 type="checkbox"
-                checked={selectedItems.size === filteredItems.length && filteredItems.length > 0}
+                checked={selectedItems.size === filteredItems.length &&
+                  filteredItems.length > 0}
                 onchange={toggleSelectAll}
               />
             </th>
@@ -295,20 +309,26 @@
             <th class="name-col sortable" onclick={() => toggleSort("name")}>
               Name
               {#if sortBy === "name"}
-                <i class="bi bi-arrow-{sortOrder === "asc" ? "up" : "down"}"></i>
+                <i class="bi bi-arrow-{sortOrder === 'asc' ? 'up' : 'down'}"
+                ></i>
               {/if}
             </th>
             <th class="path-col">Original Path</th>
             <th class="size-col sortable" onclick={() => toggleSort("size")}>
               Size
               {#if sortBy === "size"}
-                <i class="bi bi-arrow-{sortOrder === "asc" ? "up" : "down"}"></i>
+                <i class="bi bi-arrow-{sortOrder === 'asc' ? 'up' : 'down'}"
+                ></i>
               {/if}
             </th>
-            <th class="date-col sortable" onclick={() => toggleSort("deleted_at")}>
+            <th
+              class="date-col sortable"
+              onclick={() => toggleSort("deleted_at")}
+            >
               Deleted
               {#if sortBy === "deleted_at"}
-                <i class="bi bi-arrow-{sortOrder === "asc" ? "up" : "down"}"></i>
+                <i class="bi bi-arrow-{sortOrder === 'asc' ? 'up' : 'down'}"
+                ></i>
               {/if}
             </th>
             <th class="user-col">Deleted By</th>
@@ -327,7 +347,11 @@
                 />
               </td>
               <td>
-                <i class="bi bi-{item.item_type === "folder" ? "folder-fill" : "file-earmark"}"></i>
+                <i
+                  class="bi bi-{item.item_type === 'folder'
+                    ? 'folder-fill'
+                    : 'file-earmark'}"
+                ></i>
               </td>
               <td class="name-cell">
                 <span class="filename">{item.original_name}</span>
@@ -339,7 +363,11 @@
               <td class="date-cell">{formatDate(item.deleted_at)}</td>
               <td class="user-cell">{item.deleted_by_username}</td>
               <td class="expiry-cell">
-                <span class="expiry-badge" class:expired={getTimeRemaining(item.auto_delete_at) === "Expired"}>
+                <span
+                  class="expiry-badge"
+                  class:expired={getTimeRemaining(item.auto_delete_at) ===
+                    "Expired"}
+                >
                   {getTimeRemaining(item.auto_delete_at)}
                 </span>
               </td>
