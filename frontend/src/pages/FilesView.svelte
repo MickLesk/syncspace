@@ -588,21 +588,26 @@
       </Button>
 
       <!-- Upload toggle (shows/hides compact drop-zone) -->
-+
-      <button class="btn-upload-toggle" on:click={toggleUploadPanel} title="Upload anzeigen/verbergen">
+      +
+      <button
+        class="btn-upload-toggle"
+        on:click={toggleUploadPanel}
+        title="Upload anzeigen/verbergen"
+      >
         <Icon name="cloud-upload" size={16} />
-+      </button>
+        +
+      </button>
 
       <!-- Multi-select toggle -->
-      <button 
-        class="btn-multiselect-toggle" 
+      <button
+        class="btn-multiselect-toggle"
         class:active={multiSelectMode}
-        on:click={toggleMultiSelect} 
+        on:click={toggleMultiSelect}
         title="Multi-Select Mode"
       >
         <Icon name={multiSelectMode ? "check-square" : "square"} size={16} />
       </button>
-+
+      +
     </div>
   </div>
 
@@ -683,21 +688,36 @@
     <div class="upload-progress-panel">
       <div class="upload-progress-header">
         <Icon name="cloud-upload" size={16} />
-        <span>Uploading {Object.keys(fileUploadProgress).length} {Object.keys(fileUploadProgress).length === 1 ? 'file' : 'files'}...</span>
+        <span
+          >Uploading {Object.keys(fileUploadProgress).length}
+          {Object.keys(fileUploadProgress).length === 1
+            ? "file"
+            : "files"}...</span
+        >
       </div>
       <div class="upload-files-list">
         {#each Object.entries(fileUploadProgress) as [filename, progress]}
           <div class="upload-file-item" class:error={progress.error}>
             <div class="upload-file-info">
-              <Icon name={progress.error ? 'x-circle' : progress.percent === 100 ? 'check-circle' : 'file-earmark'} size={14} />
+              <Icon
+                name={progress.error
+                  ? "x-circle"
+                  : progress.percent === 100
+                    ? "check-circle"
+                    : "file-earmark"}
+                size={14}
+              />
               <span class="upload-filename">{filename}</span>
               <span class="upload-size">
-                {progress.error ? 'Failed' : `${Math.round(progress.percent)}%`}
+                {progress.error ? "Failed" : `${Math.round(progress.percent)}%`}
               </span>
             </div>
             {#if !progress.error}
               <div class="upload-progress-bar">
-                <div class="upload-progress-fill" style="width: {progress.percent}%"></div>
+                <div
+                  class="upload-progress-fill"
+                  style="width: {progress.percent}%"
+                ></div>
               </div>
             {/if}
           </div>
@@ -767,20 +787,26 @@
           on:dragleave={(e) => file.is_dir && handleFolderDragLeave(e, file)}
           on:drop={(e) => file.is_dir && handleFolderDrop(e, file)}
           on:click={() => handleFileClick(file)}
-          on:keydown={(e) =>
-            e.key === "Enter" && handleFileClick(file)}
+          on:keydown={(e) => e.key === "Enter" && handleFileClick(file)}
           role="button"
           tabindex="0"
         >
           {#if multiSelectMode && !file.is_dir}
             <div class="file-checkbox">
-              <Icon name={selectedFiles.has(file.name) ? "check-square-fill" : "square"} size={20} />
+              <Icon
+                name={selectedFiles.has(file.name)
+                  ? "check-square-fill"
+                  : "square"}
+                size={20}
+              />
             </div>
           {/if}
           <div class="file-icon">
             <Icon name={getFileIcon(file.name, file.is_dir)} size={48} />
           </div>
-          <div class="file-name" title={displayName(file.name)}>{displayName(file.name)}</div>
+          <div class="file-name" title={displayName(file.name)}>
+            {displayName(file.name)}
+          </div>
           <div class="file-meta">
             {#if file.is_dir}
               <Icon name="folder" size={14} /> Ordner
@@ -831,15 +857,16 @@
           on:dragleave={(e) => file.is_dir && handleFolderDragLeave(e, file)}
           on:drop={(e) => file.is_dir && handleFolderDrop(e, file)}
           on:click={() => handleFileClick(file)}
-          on:keydown={(e) =>
-            e.key === "Enter" && handleFileClick(file)}
+          on:keydown={(e) => e.key === "Enter" && handleFileClick(file)}
           role="button"
           tabindex="0"
         >
           <div class="file-icon-small">
             <Icon name={getFileIcon(file.name, file.is_dir)} size={24} />
           </div>
-          <div class="file-name-list" title={displayName(file.name)}>{displayName(file.name)}</div>
+          <div class="file-name-list" title={displayName(file.name)}>
+            {displayName(file.name)}
+          </div>
           <div class="file-size-list">
             {#if file.is_dir}
               <Icon name="folder" size={14} /> Ordner
