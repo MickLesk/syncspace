@@ -1,91 +1,118 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
-  import Icon from './Icon.svelte';
-  
+  import { createEventDispatcher } from "svelte";
+  import Icon from "./Icon.svelte";
+
   export let file = null;
   export let files = [];
   export let currentPath = "";
-  
+
   const dispatch = createEventDispatcher();
-  
+
   let currentIndex = 0;
   let previewUrl = null;
   let previewType = null;
   let loading = true;
   let error = null;
-  
+
   $: if (file) {
-    currentIndex = files.findIndex(f => f.name === file.name);
+    currentIndex = files.findIndex((f) => f.name === file.name);
     loadPreview();
   }
-  
+
   async function loadPreview() {
     loading = true;
     error = null;
-    
+
     try {
       const fullPath = `${currentPath}${file.name}`;
-      const response = await fetch(`http://localhost:8080/api/file/${encodeURIComponent(fullPath)}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      const response = await fetch(
+        `http://localhost:8080/api/file/${encodeURIComponent(fullPath)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-      });
-      
-      if (!response.ok) throw new Error('Failed to load file');
-      
+      );
+
+      if (!response.ok) throw new Error("Failed to load file");
+
       const blob = await response.blob();
       previewUrl = URL.createObjectURL(blob);
-      
+
       // Determine preview type
-      const ext = file.name.split('.').pop().toLowerCase();
-      if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(ext)) {
-        previewType = 'image';
-      } else if (['mp4', 'webm', 'ogg'].includes(ext)) {
-        previewType = 'video';
-      } else if (ext === 'pdf') {
-        previewType = 'pdf';
-      } else if (['txt', 'md', 'json', 'js', 'css', 'html', 'xml', 'csv'].includes(ext)) {
-        previewType = 'text';
+      const ext = file.name.split(".").pop().toLowerCase();
+      if (["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext)) {
+        previewType = "image";
+      } else if (["mp4", "webm", "ogg"].includes(ext)) {
+        previewType = "video";
+      } else if (ext === "pdf") {
+        previewType = "pdf";
+      } else if (
+        ["txt", "md", "json", "js", "css", "html", "xml", "csv"].includes(ext)
+      ) {
+        previewType = "text";
         const text = await blob.text();
         previewUrl = text;
       } else {
-        previewType = 'unsupported';
+        previewType = "unsupported";
       }
-      
+
       loading = false;
     } catch (err) {
-      console.error('Preview error:', err);
+      console.error("Preview error:", err);
       error = err.message;
       loading = false;
     }
   }
-  
+
   function close() {
-    if (previewUrl && previewType !== 'text') {
+    if (previewUrl && previewType !== "text") {
       URL.revokeObjectURL(previewUrl);
     }
-    dispatch('close');
+    dispatch("close");
   }
-  
+
   function navigate(direction) {
-    const previewableFiles = files.filter(f => !f.is_dir && isPreviewable(f.name));
+    const previewableFiles = files.filter(
+      (f) => !f.is_dir && isPreviewable(f.name)
+    );
     let newIndex = currentIndex + direction;
-    
+
     if (newIndex < 0) newIndex = previewableFiles.length - 1;
     if (newIndex >= previewableFiles.length) newIndex = 0;
-    
+
     file = previewableFiles[newIndex];
   }
-  
+
   function isPreviewable(filename) {
-    const ext = filename.split('.').pop().toLowerCase();
-    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'mp4', 'webm', 'ogg', 'pdf', 'txt', 'md', 'json', 'js', 'css', 'html', 'xml', 'csv'].includes(ext);
+    const ext = filename.split(".").pop().toLowerCase();
+    return [
+      "jpg",
+      "jpeg",
+      "png",
+      "gif",
+      "webp",
+      "svg",
+      "bmp",
+      "mp4",
+      "webm",
+      "ogg",
+      "pdf",
+      "txt",
+      "md",
+      "json",
+      "js",
+      "css",
+      "html",
+      "xml",
+      "csv",
+    ].includes(ext);
   }
-  
+
   function handleKeydown(e) {
-    if (e.key === 'Escape') close();
-    if (e.key === 'ArrowLeft') navigate(-1);
-    if (e.key === 'ArrowRight') navigate(1);
+    if (e.key === "Escape") close();
+    if (e.key === "ArrowLeft") navigate(-1);
+    if (e.key === "ArrowRight") navigate(1);
   }
 </script>
 
@@ -100,7 +127,11 @@
           <span>{file.name}</span>
         </div>
         <div class="preview-actions">
-          <button class="btn-nav" on:click={() => navigate(-1)} title="Previous">
+          <button
+            class="btn-nav"
+            on:click={() => navigate(-1)}
+            title="Previous"
+          >
             <Icon name="chevron-left" size={20} />
           </button>
           <button class="btn-nav" on:click={() => navigate(1)} title="Next">
@@ -111,7 +142,7 @@
           </button>
         </div>
       </div>
-      
+
       <div class="preview-content">
         {#if loading}
           <div class="preview-loading">
@@ -123,19 +154,21 @@
             <Icon name="exclamation-triangle" size={48} />
             <p>{error}</p>
           </div>
-        {:else if previewType === 'image'}
+        {:else if previewType === "image"}
           <img src={previewUrl} alt={file.name} />
-        {:else if previewType === 'video'}
+        {:else if previewType === "video"}
           <video src={previewUrl} controls />
-        {:else if previewType === 'pdf'}
+        {:else if previewType === "pdf"}
           <iframe src={previewUrl} title={file.name}></iframe>
-        {:else if previewType === 'text'}
+        {:else if previewType === "text"}
           <pre><code>{previewUrl}</code></pre>
         {:else}
           <div class="preview-unsupported">
             <Icon name="file-earmark-x" size={64} />
             <p>Preview not available for this file type</p>
-            <small>{file.name.split('.').pop().toUpperCase()} files cannot be previewed</small>
+            <small
+              >{file.name.split(".").pop().toUpperCase()} files cannot be previewed</small
+            >
           </div>
         {/if}
       </div>
@@ -157,7 +190,7 @@
     z-index: 9999;
     backdrop-filter: blur(4px);
   }
-  
+
   .preview-modal {
     background: var(--md-sys-color-surface);
     border-radius: 24px;
@@ -168,7 +201,7 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     overflow: hidden;
   }
-  
+
   .preview-header {
     display: flex;
     justify-content: space-between;
@@ -177,7 +210,7 @@
     border-bottom: 1px solid var(--md-sys-color-outline-variant);
     background: var(--md-sys-color-surface-container);
   }
-  
+
   .preview-title {
     display: flex;
     align-items: center;
@@ -186,12 +219,12 @@
     color: var(--md-sys-color-on-surface);
     font-size: 16px;
   }
-  
+
   .preview-actions {
     display: flex;
     gap: 8px;
   }
-  
+
   .btn-nav,
   .btn-close {
     background: transparent;
@@ -205,12 +238,12 @@
     align-items: center;
     justify-content: center;
   }
-  
+
   .btn-nav:hover,
   .btn-close:hover {
     background: var(--md-sys-color-surface-container-highest);
   }
-  
+
   .preview-content {
     flex: 1;
     display: flex;
@@ -220,27 +253,27 @@
     overflow: auto;
     min-height: 400px;
   }
-  
+
   .preview-content img {
     max-width: 100%;
     max-height: 70vh;
     object-fit: contain;
     border-radius: 12px;
   }
-  
+
   .preview-content video {
     max-width: 100%;
     max-height: 70vh;
     border-radius: 12px;
   }
-  
+
   .preview-content iframe {
     width: 80vw;
     height: 70vh;
     border: none;
     border-radius: 12px;
   }
-  
+
   .preview-content pre {
     background: var(--md-sys-color-surface-container-low);
     padding: 16px;
@@ -248,19 +281,19 @@
     max-width: 800px;
     max-height: 70vh;
     overflow: auto;
-    font-family: 'Courier New', monospace;
+    font-family: "Courier New", monospace;
     font-size: 13px;
     line-height: 1.5;
     color: var(--md-sys-color-on-surface);
   }
-  
+
   .preview-loading,
   .preview-error,
   .preview-unsupported {
     text-align: center;
     color: var(--md-sys-color-on-surface-variant);
   }
-  
+
   .preview-loading .spinner {
     width: 48px;
     height: 48px;
@@ -270,17 +303,19 @@
     margin: 0 auto 16px;
     animation: spin 0.8s linear infinite;
   }
-  
+
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
-  
+
   .preview-error p,
   .preview-unsupported p {
     margin-top: 16px;
     font-size: 16px;
   }
-  
+
   .preview-unsupported small {
     display: block;
     margin-top: 8px;
