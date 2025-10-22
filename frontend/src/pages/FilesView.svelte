@@ -41,8 +41,14 @@
   /**
    * Build full file path for backend API
    * Example: buildFilePath("/testfolder/", "file.pdf") → "testfolder/file.pdf"
+   * IMPORTANT: If fileName already contains path separators, use it as-is
    */
   function buildFilePath(dirPath, fileName) {
+    // If fileName already has path info (from search results etc.), use it directly
+    if (fileName.includes('/')) {
+      return fileName.startsWith('/') ? fileName.slice(1) : fileName;
+    }
+    
     const cleanDir = toBackendPath(dirPath);
     return cleanDir ? `${cleanDir}/${fileName}` : fileName;
   }
@@ -895,12 +901,16 @@
 
   function toggleFavorite(file) {
     const fullPath = buildFilePath($currentPath, file.name);
+    console.log(`[toggleFavorite] Toggling favorite: ${fullPath}`);
     favorites.toggle(fullPath);
     success(
       $favorites.has(fullPath)
         ? `⭐ ${file.name} zu Favoriten hinzugefügt`
         : `${file.name} aus Favoriten entfernt`
     );
+    
+    // Force UI update by triggering reactivity
+    files.update(f => f);
   }
 
   function isFavorite(file) {
@@ -1651,15 +1661,15 @@
 
 <Dialog
   bind:open={showDeleteDialog}
-  title="LÃ¶schen bestÃ¤tigen"
-  confirmText="LÃ¶schen"
+  title="Löschen bestätigen"
+  confirmText="Löschen"
   cancelText="Abbrechen"
   danger={true}
   on:confirm={handleDeleteConfirm}
 >
-  <p>MÃ¶chten Sie <strong>"{fileToDelete?.name}"</strong> wirklich lÃ¶schen</p>
+  <p>Möchten Sie <strong>"{displayName(fileToDelete?.name || '')}"</strong> wirklich löschen?</p>
   <p style="color: var(--md-sys-color-error); margin-top: 12px;">
-    Diese Aktion kann nicht rÃ¼ckgÃ¤ngig gemacht werden.
+    Diese Aktion kann nicht rückgängig gemacht werden.
   </p>
 </Dialog>
 
