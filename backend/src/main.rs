@@ -26,7 +26,7 @@ use tokio::fs;
 use tokio::sync::broadcast::{self, Sender};
 use tokio::sync::Mutex;
 use tower_http::cors::{Any, CorsLayer};
-use tower_http::services::{ServeDir, ServeFile};
+// ServeDir/ServeFile removed - using Vite dev server on port 5173
 use uuid::Uuid;
 use walkdir::WalkDir;
 
@@ -202,7 +202,8 @@ fn build_router(state: AppState) -> Router {
     
     // File routes (protected)
     let file_routes = Router::new()
-        .route("/api/files/*path", get(list_files_handler))
+        .route("/api/files/", get(list_files_root))  // Root directory with trailing slash
+        .route("/api/files/*path", get(list_files_handler))  // Subdirectories
         .route("/api/file/*path", get(download_file_handler))
         .route("/api/upload/*path", post(upload_file_handler))
         .route("/api/upload-multipart", post(upload_multipart_handler))
@@ -236,8 +237,8 @@ fn build_router(state: AppState) -> Router {
         .merge(trash_routes)
         .merge(utility_routes)
         .merge(ws_route)
-        .nest_service("/", ServeFile::new("../frontend/index.html"))
-        .nest_service("/static", ServeDir::new("../frontend"))
+        // Note: Frontend is served by Vite on port 5173 in development
+        // In production, use a reverse proxy (nginx/caddy) or build frontend into ./dist
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
@@ -407,6 +408,15 @@ async fn me_handler(user: auth::User) -> Json<UserInfo> {
 
 // ==================== FILE HANDLERS ====================
 
+// Handler for root directory listing (/api/files/)
+async fn list_files_root(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<Json<Vec<EntryInfo>>, (StatusCode, Json<serde_json::Value>)> {
+    // Call the main handler with empty path
+    list_files_handler(State(state), user, AxumPath(String::new())).await
+}
+
 async fn list_files_handler(
     State(_state): State<AppState>,
     _user: auth::User,
@@ -538,13 +548,13 @@ async fn delete_file_handler(
     let pool = &state.db_pool;
     
     // Get auto_trash_cleanup_days setting for auto-delete timestamp
-    let cleanup_days: i64 = sqlx::query_as::<_, (String,)>(
+    let cleanup_days: i64 = sqlx::query_scalar::<_, String>(
         "SELECT value FROM settings WHERE key = 'auto_trash_cleanup_days'"
     )
     .fetch_optional(pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-    .and_then(|r| r.0.parse().ok())
+    .and_then(|s| s.parse().ok())
     .unwrap_or(30);
     
     let auto_delete_at = if cleanup_days > 0 {
@@ -571,7 +581,7 @@ async fn delete_file_handler(
         // Check if item exists in database
         let item_id = if is_dir {
             // Find or create folder in database
-            let folder_id: Option<String> = sqlx::query_as(
+            let folder_id: Option<String> = sqlx::query_scalar(
                 "SELECT id FROM folders WHERE path = ? AND owner_id = ?"
             )
             .bind(&path)
@@ -614,7 +624,7 @@ async fn delete_file_handler(
             }
         } else {
             // Find or create file in database
-            let file_id: Option<String> = sqlx::query_as(
+            let file_id: Option<String> = sqlx::query_scalar(
                 "SELECT id FROM files WHERE path = ? AND owner_id = ?"
             )
             .bind(&path)
@@ -869,7 +879,7 @@ async fn permanent_delete_handler(
     if let Some((trash_id, item_type, item_id, original_path)) = trash_item {
         // Get storage path before deletion
         let storage_path: Option<String> = if item_type == "file" {
-            sqlx::query_as("SELECT storage_path FROM files WHERE id = ?")
+            sqlx::query_scalar("SELECT storage_path FROM files WHERE id = ?")
                 .bind(&item_id)
                 .fetch_optional(pool)
                 .await
@@ -928,13 +938,13 @@ async fn cleanup_trash_handler(
     let pool = &state.db_pool;
     
     // Get auto_trash_cleanup_days setting
-    let cleanup_days: i64 = sqlx::query_as(
+    let cleanup_days: i64 = sqlx::query_scalar::<_, String>(
         "SELECT value FROM settings WHERE key = 'auto_trash_cleanup_days'"
     )
     .fetch_optional(pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-    .and_then(|(value,): (String,)| value.parse().ok())
+    .and_then(|s| s.parse().ok())
     .unwrap_or(30);
     
     if cleanup_days == 0 {
@@ -964,7 +974,7 @@ async fn cleanup_trash_handler(
         match item_type.as_str() {
             "file" => {
                 // Get storage path
-                let storage_path: Option<String> = sqlx::query_as(
+                let storage_path: Option<String> = sqlx::query_scalar(
                     "SELECT storage_path FROM files WHERE id = ?"
                 )
                 .bind(&item_id)
@@ -1030,7 +1040,7 @@ async fn empty_trash_handler(
         // Delete from database
         match item_type.as_str() {
             "file" => {
-                let storage_path: Option<String> = sqlx::query_as(
+                let storage_path: Option<String> = sqlx::query_scalar(
                     "SELECT storage_path FROM files WHERE id = ?"
                 )
                 .bind(&item_id)
