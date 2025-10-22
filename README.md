@@ -1,6 +1,93 @@
 # 🚀 SyncSpace# SyncSpace Prototype
 
-**Modern Material 3 File Synchronization Service**This repository contains a cross‑platform synchronisation tool called **SyncSpace**. It consists of a Rust backend and a browser‑based frontend built with [Lit](https://lit.dev/) and styled in a Material 3 expressive aesthetic. The system allows you to manage a local folder, synchronise files, manage peers and receive live updates via WebSockets.
+# 🚀 SyncSpace
+
+**Modern Material 3 File Synchronization Service**
+
+A self-hosted, cross-platform file sync solution with a beautiful Material Design 3 Expressive interface. Built with Rust (backend) and Svelte 5 (frontend).
+
+![Version](https://img.shields.io/badge/version-0.3.0-blue)
+![License](https://img.shields.io/badge/license-Apache--2.0-green)
+![Material 3](https://img.shields.io/badge/Material-3%20Expressive-purple)
+![Rust](https://img.shields.io/badge/Rust-axum%200.7-orange)
+![Svelte](https://img.shields.io/badge/Svelte-5-red)
+
+---
+
+## 📂 Directory Structure
+
+- `backend/` – Rust backend with REST API + WebSocket (migrating to **axum 0.7**)
+- `frontend/` – Svelte 5 + Vite frontend with Material 3 styling
+- `data/` – File storage (created automatically)
+- `docs/` – Comprehensive documentation
+- `scripts/` – Testing and utility scripts
+- `start.ps1` / `start.bat` – One-command startup scripts
+
+---
+
+## ⚡ Quick Start
+
+**One-Command Startup** (Windows):
+```powershell
+.\start.ps1   # PowerShell with process monitoring
+```
+```batch
+start.bat     # Batch with auto-browser
+```
+
+**Manual Startup**:
+
+1. **Backend:**
+   ```bash
+   cd backend
+   cargo run --release
+   ```
+   Backend runs on `http://localhost:8080`
+
+2. **Frontend:**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+   Frontend runs on `http://localhost:5173`
+
+3. **Login:**
+   - Username: `admin`
+   - Password: `admin`
+   - _(Change immediately in Settings!)_
+
+---
+
+## ✨ Features
+
+### 🎨 **Material 3 Expressive Design**
+
+- Beautiful gradient app bar with smooth animations
+- Adaptive dark/light theme with system integration
+- Elevated cards with proper shadows and depth
+- Material Design 3 color tokens and typography
+- Responsive layout for desktop and mobile
+
+### 🌍 **Internationalization**
+
+- **English** and **German** translations
+- Easy language switcher in app bar
+- LocalStorage persistence
+- Extensible translation system
+
+### 📁 **File Management**
+
+- **Drag & drop upload** with visual feedback
+- **Breadcrumb navigation** for folder hierarchy
+- **File operations**: Rename, Delete, Download
+- **File Preview Modal** - Images, videos, PDFs, text files
+- **Multi-Select Mode** - Bulk operations with checkboxes
+- **Upload Progress Tracking** - Per-file progress bars
+- Directory navigation with keyboard shortcuts
+- File size display with proper formatting
+- Icon-based file type indicators
+- **Universal system file filtering** - Hides .git, .DS_Store, database files, etc.
 
 A self-hosted, cross-platform file sync solution with a beautiful Material Design 3 Expressive interface. Built with Rust (backend) and Web Components (frontend).## Directory structure
 
@@ -87,45 +174,62 @@ A self-hosted, cross-platform file sync solution with a beautiful Material Desig
 
 ### 🎯 **Modern Tech Stack**
 
-- **Backend**: Rust with Warp, Tokio, async/await, SQLx (SQLite), and Tantivy (search)
-- **Frontend**: Material Web Components from CDN
+- **Backend**: Rust with **axum 0.7** (migrating from warp), Tokio, async/await, SQLx (SQLite), Tantivy (search)
+- **Frontend**: **Svelte 5** + Vite with TypeScript
 - **Search**: Tantivy 0.22 (BM25 ranking, fuzzy matching, PDF extraction with lopdf)
-- **No Build Tools**: Pure ES modules, instant reload
-- **Minified Assets**: Production-ready compressed CSS/JS
+- **Architecture**: REST API + WebSocket with tower middleware
+- **Developer Experience**: Hot reload, startup scripts, organized project structure
 
 ---
 
-## 🚀 Quick Start
+## � Prerequisites
 
-### Prerequisites
-
-- Rust 1.70+ ([Install Rust](https://rustup.rs/))
+- **Rust 1.70+** ([Install Rust](https://rustup.rs/))
+- **Node.js 18+** ([Install Node](https://nodejs.org/))
 - Modern web browser (Chrome 119+, Firefox 121+, Safari 17+)
 
-### Installation
+---
 
-1. **Clone the repository**
+## 🛠️ Installation
 
-```bash
-git clone https://github.com/MickLesk/syncspace.git
-cd syncspace
+### Option 1: One-Command Startup (Recommended)
+
+**Windows:**
+```powershell
+# PowerShell (with process monitoring)
+.\start.ps1
+
+# Batch (with auto-browser)
+start.bat
 ```
 
-2. **Start the backend**
+This will:
+- Build and start the Rust backend on `localhost:8080`
+- Install dependencies and start Vite dev server on `localhost:5173`
+- Open browser automatically (batch version)
+- Monitor processes (PowerShell version)
 
+### Option 2: Manual Startup
+
+**Terminal 1 - Backend:**
 ```bash
 cd backend
 cargo run --release
 ```
 
-3. **Access the app**
-   Open your browser to: **http://localhost:8080**
+**Terminal 2 - Frontend:**
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-4. **Login**
+**Access:** Open browser to `http://localhost:5173`
 
+**Default Login:**
 - Username: `admin`
 - Password: `admin`
-- _(Change this immediately in Settings!)_
+- ⚠️ **Change immediately in Settings!**
 
 ---
 
@@ -133,22 +237,47 @@ cargo run --release
 
 ### File Upload
 
-- **Drag & drop**: Drag files onto the drop zone
-- **FAB button**: Click the floating action button (bottom right)
-- **Multiple files**: Upload multiple files at once
+- **Drag & drop**: Drag files onto the drop zone (auto-opens for first-time users)
+- **Upload progress**: Real-time progress bars for each file
+- **Multiple files**: Upload multiple files simultaneously
+- **First-time user experience**: Upload panel automatically opens on first visit
+
+### File Preview
+
+- **Click any file** to preview (instead of download)
+- **Supported formats**:
+  - Images: JPG, PNG, GIF, WebP, SVG, BMP
+  - Videos: MP4, WebM, OGG
+  - PDFs: Inline viewer
+  - Text: TXT, MD, JSON, JS, CSS, HTML, XML, CSV
+- **Keyboard navigation**:
+  - Arrow keys: Previous/Next file
+  - ESC: Close preview
+
+### Multi-Select Operations
+
+- **Toggle multi-select mode** via button in header
+- **Checkboxes** appear on all files
+- **Bulk operations**:
+  - Select All
+  - Deselect All
+  - Delete Selected
+- **Visual highlighting** for selected files
 
 ### Navigation
 
 - Click folders to navigate into them
 - Use breadcrumbs at the top to go back
 - Home icon returns to root directory
+- Universal system file filtering (hides .git, .DS_Store, database files)
 
 ### File Operations
 
-- **Download**: Click download icon
+- **Download**: Click download icon (in non-preview mode)
+- **Preview**: Click file name
 - **Rename**: Click edit icon, enter new name
 - **Delete**: Click delete icon, confirm deletion
-- **Preview**: Click on file name _(coming soon)_
+- **Multi-delete**: Use multi-select mode for bulk operations
 
 ### Settings
 
@@ -166,36 +295,70 @@ cargo run --release
 ```
 backend/
 ├── src/
-│   ├── main.rs      # API routes, WebSocket, static serving
+│   ├── main.rs      # API routes, WebSocket, file operations
 │   └── auth.rs      # Authentication, JWT, 2FA, rate limiting
-├── Cargo.toml       # Dependencies
-└── data/            # File storage (created automatically)
+├── Cargo.toml       # Dependencies (axum 0.7, tower, tantivy)
+└── data/            # File storage (auto-created)
+    ├── syncspace.db       # SQLite database
+    ├── search_index/      # Tantivy search index
+    └── [user files]       # Uploaded files
 ```
+
+**Migration Status**: 🔄 **Transitioning from warp 0.3 to axum 0.7**
+- Dependencies updated
+- Code migration in progress
+- Enables native multipart upload support
 
 **Key Dependencies:**
 
-- `warp` - Web framework
+- `axum` 0.7 - Modern web framework with tower ecosystem
+- `tower` / `tower-http` - Middleware (CORS, static files, tracing)
 - `tokio` - Async runtime
 - `jsonwebtoken` - JWT authentication
 - `argon2` - Password hashing
 - `totp-lite` - 2FA implementation
 - `notify` - File system monitoring
+- `tantivy` 0.22 - Full-text search engine
+- `sqlx` - Async SQLite driver
 
-### Frontend
+### Frontend (Svelte 5)
 
 ```
 frontend/
-├── index.html       # Entry point with Material Web imports
-├── styles.css       # Material 3 tokens (minified)
-└── app.js           # Complete app logic with i18n (minified)
+├── src/
+│   ├── App.svelte                 # Main app component
+│   ├── pages/
+│   │   ├── Login.svelte          # Auth page
+│   │   ├── FilesView.svelte      # File browser (preview, multi-select)
+│   │   ├── Settings.svelte       # User settings
+│   │   └── Search.svelte         # Search interface
+│   ├── components/
+│   │   ├── ui/
+│   │   │   ├── PreviewModal.svelte  # File preview component
+│   │   │   ├── AppBar.svelte        # Top navigation
+│   │   │   └── Card.svelte          # Material card
+│   │   └── FileItem.svelte       # File list item
+│   ├── lib/
+│   │   ├── api.js               # API client with upload progress
+│   │   ├── auth.js              # Auth state management
+│   │   └── i18n.js              # Internationalization
+│   └── styles/
+│       └── theme.css            # Material 3 tokens
+├── index.html
+├── vite.config.js
+└── package.json
 ```
 
 **Features:**
 
-- Material Web Components via CDN (`@material/web`)
-- No build process required
-- Minified for production (< 10KB combined)
-- Complete i18n support built-in
+- Svelte 5 with runes and snippets
+- Vite for fast HMR
+- Material 3 design system
+- TypeScript support
+- Complete i18n (EN/DE)
+- Upload progress tracking with `XMLHttpRequest`
+- File preview modal with keyboard navigation
+- Multi-select mode with bulk operations
 
 ---
 
@@ -259,32 +422,40 @@ The app uses the complete Material 3 color system:
 ### Authentication
 
 - `POST /api/auth/register` - Create new user
-- `POST /api/auth/login` - Login with credentials
+- `POST /api/auth/login` - Login with credentials (+ optional 2FA)
 - `GET /api/auth/me` - Get current user info
-- `POST /api/auth/2fa/setup` - Generate 2FA secret
-- `POST /api/auth/2fa/enable` - Enable 2FA
+- `POST /api/auth/2fa/setup` - Generate 2FA secret + QR code
+- `POST /api/auth/2fa/enable` - Enable 2FA with verification
 - `POST /api/auth/2fa/disable` - Disable 2FA
 - `POST /api/auth/change-password` - Change password
 
 ### Files (Protected)
 
-- `GET /api/files/:path` - List directory
+- `GET /api/files/:path` - List directory entries (filters system files)
 - `GET /api/file/:path` - Download file
-- `POST /api/upload/:path` - Upload file
-- `DELETE /api/files/:path` - Delete file/folder
-- `POST /api/dirs/:path` - Create directory
-- `PUT /api/rename/:path` - Rename/move file
+- `POST /api/upload/:path` - Upload file (raw bytes)
+- `POST /api/upload-multipart` - Upload with FormData + progress _(coming with axum)_
+- `DELETE /api/files/:path` - Delete file/folder (recursive)
+- `POST /api/dirs/:path` - Create directory (creates parents)
+- `PUT /api/rename/:old-path` - Rename/move file (JSON: `{new_path: string}`)
 
-### Utility
+### Search & Stats
 
-- `GET /api/search?q=:query` - Search files
-- `GET /api/stats` - File count and size
-- `GET /api/config` - Get config
-- `GET /api/peers` - List peers
+- `GET /api/search?q=:query` - Full-text search with fuzzy matching
+- `GET /api/stats` - File count and total size
+
+### Configuration
+
+- `GET /api/config` - Get current config
+- `PUT /api/config` - Update config (JSON body)
+- `GET /api/peers` - List known peers
+- `POST /api/peers` - Add new peer
 
 ### Real-Time
 
-- `GET /api/ws` - WebSocket for file events
+- `GET /api/ws` - WebSocket upgrade for file system events
+  - **Server → Client**: `{path: string, kind: string, timestamp: DateTime}`
+  - Auto-refresh UI on file changes
 
 ---
 
@@ -300,15 +471,33 @@ The app uses the complete Material 3 color system:
 }
 ```
 
-### User Database (`users.json`)
+Auto-created on first run in `backend/` directory.
 
-Automatically created and managed by the backend. Includes:
+### User Database (`syncspace.db`)
 
-- User ID (UUID)
-- Username
-- Password hash (Argon2)
-- TOTP secret (if 2FA enabled)
-- Created/last login timestamps
+SQLite database with:
+- User accounts (UUID, username, password hash)
+- TOTP secrets (if 2FA enabled)
+- Timestamps (created, last login)
+
+Managed automatically by SQLx migrations.
+
+### Search Index (`data/search_index/`)
+
+Tantivy index directory:
+- Auto-created on first search
+- Background indexing on file changes
+- Supports 40+ file types
+- BM25 ranking with fuzzy matching
+
+### System File Filtering
+
+Automatically hides from all directory listings:
+- Database files: `syncspace.db`, `*.db-shm`, `*.db-wal`
+- Search index: `search_index/`, `.tantivy-*`
+- Lock files: `*.lock`
+- Version control: `.git/`
+- OS files: `.DS_Store`, `Thumbs.db`
 
 ---
 
@@ -323,32 +512,49 @@ Automatically created and managed by the backend. Includes:
 - [x] Material 3 UI
 - [x] Dark mode
 - [x] i18n (EN/DE)
+- [x] Full-text search with Tantivy
+- [x] SQLite database integration
 
-### Phase 2: Enhanced UX (In Progress)
+### Phase 2: Enhanced UX ✅
 
 - [x] Drag & drop upload
 - [x] Breadcrumb navigation
-- [ ] File preview (images, text, PDF)
-- [ ] Material dialogs for confirm actions
-- [ ] Upload progress indicators
-- [ ] File context menus
+- [x] **File preview** (images, text, PDF, video)
+- [x] **Multi-select mode** with bulk operations
+- [x] **Upload progress indicators**
+- [x] **System file filtering** (universal, all directories)
+- [x] First-time user experience (auto-open upload panel)
+- [x] Startup scripts (PowerShell + Batch)
 
-### Phase 3: Sync & Collaboration
+### Phase 3: Framework Migration 🔄 (In Progress)
+
+- [x] Dependencies updated (axum 0.7, tower ecosystem)
+- [ ] Code migration from warp to axum
+- [ ] **Multipart upload** with native axum support
+- [ ] Upload progress API endpoint
+- [ ] File context menus (right-click)
+- [ ] Material dialogs for confirm actions
+
+### Phase 4: Sync & Collaboration
 
 - [ ] Peer-to-peer file synchronization
 - [ ] Conflict resolution
 - [ ] File versioning
 - [ ] Shared folders
 - [ ] User permissions
+- [ ] Real-time collaboration indicators
 
-### Phase 4: Advanced Features
+### Phase 5: Advanced Features
 
 - [ ] Mobile apps (Flutter)
 - [ ] Desktop app (Tauri)
 - [ ] Selective sync
 - [ ] Encryption at rest
 - [ ] Audit logging
-- [ ] Bulk operations
+- [ ] Bulk operations API
+- [ ] Advanced search filters (type, date, size)
+- [ ] Upload queue management (pause/resume/retry)
+- [ ] Folder upload support
 
 ---
 
@@ -358,11 +564,45 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ### Development Setup
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'feat: add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
+1. **Fork the repository**
+2. **Clone your fork:**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/syncspace.git
+   cd syncspace
+   ```
+3. **Install dependencies:**
+   ```bash
+   # Backend dependencies (auto-installed by Cargo)
+   cd backend
+   cargo build
+   
+   # Frontend dependencies
+   cd ../frontend
+   npm install
+   ```
+4. **Create a feature branch:**
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+5. **Start development servers:**
+   ```powershell
+   # Windows: Use startup scripts
+   .\start.ps1
+   
+   # Or manually in separate terminals
+   cd backend && cargo run --release
+   cd frontend && npm run dev
+   ```
+6. **Make your changes and test thoroughly**
+7. **Commit your changes:**
+   ```bash
+   git commit -m 'feat: add amazing feature'
+   ```
+8. **Push to your fork:**
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+9. **Open a Pull Request**
 
 ### Commit Convention
 
@@ -370,11 +610,43 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 - `feat:` New feature
 - `fix:` Bug fix
-- `docs:` Documentation
-- `style:` Formatting
-- `refactor:` Code restructuring
-- `test:` Adding tests
-- `chore:` Maintenance
+- `docs:` Documentation changes
+- `style:` Code formatting (no logic changes)
+- `refactor:` Code restructuring (no behavior changes)
+- `perf:` Performance improvements
+- `test:` Adding or updating tests
+- `chore:` Maintenance tasks (dependencies, configs)
+- `ci:` CI/CD changes
+
+**Examples:**
+```bash
+feat: add file preview modal with keyboard navigation
+fix: resolve upload progress tracking race condition
+docs: update README with axum migration status
+refactor: migrate from warp to axum framework
+```
+
+### Code Style
+
+**Rust:**
+- Follow [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
+- Run `cargo fmt` before committing
+- Run `cargo clippy` and fix warnings
+- Use `?` operator for error propagation
+- Document public functions with `///` rustdoc comments
+
+**JavaScript/Svelte:**
+- Use ESLint configuration (provided)
+- Prefer arrow functions for callbacks
+- Use TypeScript for type safety
+- Follow Svelte best practices (runes, snippets)
+- Keep components focused and reusable
+
+**General:**
+- Write descriptive commit messages
+- Add tests for new features
+- Update documentation
+- Keep PRs focused on single features/fixes
 
 ---
 

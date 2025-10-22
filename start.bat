@@ -1,15 +1,18 @@
 @echo off
+title SyncSpace Launcher
+color 0B
+
 echo ========================================
 echo  SyncSpace Startup Script
 echo ========================================
 echo.
-echo Starting Backend Server...
-start "SyncSpace Backend" cmd /k "cd backend && cargo run"
+echo [1/2] Starting Backend Server (Rust)...
+start "SyncSpace Backend" cmd /k "cd backend && cargo run --release"
 timeout /t 3 /nobreak > nul
 
 echo.
-echo Starting Frontend Server...
-start "SyncSpace Frontend" cmd /k "cd frontend && python -m http.server 8000"
+echo [2/2] Starting Frontend Server (Vite)...
+start "SyncSpace Frontend" cmd /k "cd frontend && npm run dev"
 timeout /t 2 /nobreak > nul
 
 echo.
@@ -17,14 +20,14 @@ echo ========================================
 echo  Servers sind gestartet!
 echo ========================================
 echo  Backend:  http://localhost:8080
-echo  Frontend: http://localhost:8000
+echo  Frontend: http://localhost:5173
 echo ========================================
 echo.
-echo Öffne Browser...
-start http://localhost:8000
+echo Oeffne Browser...
+start http://localhost:5173
 
 echo.
-echo Drücke eine Taste um die Server zu beenden...
+echo Druecke eine Taste um die Server zu beenden...
 pause > nul
 
 echo.
