@@ -45,6 +45,16 @@ function getHeaders(includeContentType = true) {
 async function handleResponse(response) {
   console.log(`[api.js] Response status: ${response.status}, ok: ${response.ok}`);
   if (!response.ok) {
+    // Handle 401 Unauthorized - redirect to login
+    if (response.status === 401) {
+      console.warn("[api.js] 401 Unauthorized - clearing auth and redirecting to login");
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("auth");
+      // Redirect to login page
+      if (!window.location.hash.includes("#/login")) {
+        window.location.hash = "#/login";
+      }
+    }
     const errorText = await response.text();
     console.error(`[api.js] API Error ${response.status}: ${errorText}`);
     throw new Error(`API Error ${response.status}: ${errorText}`);
@@ -252,11 +262,8 @@ export const files = {
    */
   async delete(path) {
     const cleanPath = path.replace(/^\/+|\/+$/g, '');
-    const encodedPath = cleanPath
-      .split('/')
-      .map(segment => encodeURIComponent(segment))
-      .join('/');
-    const response = await fetch(`${API_BASE}/files/${encodedPath}`, {
+    // Don't manually encode - fetch API does it automatically
+    const response = await fetch(`${API_BASE}/files/${cleanPath}`, {
       method: "DELETE",
       headers: getHeaders(false),
     });
@@ -268,11 +275,8 @@ export const files = {
    */
   async createDir(path) {
     const cleanPath = path.replace(/^\/+|\/+$/g, '');
-    const encodedPath = cleanPath
-      .split('/')
-      .map(segment => encodeURIComponent(segment))
-      .join('/');
-    const response = await fetch(`${API_BASE}/dirs/${encodedPath}`, {
+    // Don't manually encode - fetch API does it automatically
+    const response = await fetch(`${API_BASE}/dirs/${cleanPath}`, {
       method: "POST",
       headers: getHeaders(false),
     });
@@ -284,11 +288,8 @@ export const files = {
    */
   async rename(oldPath, newPath) {
     const cleanOld = oldPath.replace(/^\/+|\/+$/g, '');
-    const encodedOldPath = cleanOld
-      .split('/')
-      .map(segment => encodeURIComponent(segment))
-      .join('/');
-    const response = await fetch(`${API_BASE}/rename/${encodedOldPath}`, {
+    // Don't manually encode - fetch API does it automatically
+    const response = await fetch(`${API_BASE}/rename/${cleanOld}`, {
       method: "PUT",
       headers: getHeaders(),
       body: JSON.stringify({ new_path: newPath }),

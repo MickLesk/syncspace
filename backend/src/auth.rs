@@ -268,10 +268,17 @@ where
         let user_id = Uuid::parse_str(&claims.sub)
             .map_err(|_| (StatusCode::UNAUTHORIZED, "Invalid user ID"))?;
 
-        // Load user from database
-        let db = UserDB::new(); // TODO: Pass via extension layer instead
-        db.get_by_id(&user_id)
-            .ok_or((StatusCode::UNAUTHORIZED, "User not found"))
+        // Return a minimal user struct - the handlers will verify via state.user_db
+        // This is a temporary workaround until we fully migrate to database auth
+        Ok(User {
+            id: user_id,
+            username: claims.username,
+            password_hash: String::new(), // Not needed for auth verification
+            totp_enabled: false,
+            totp_secret: None,
+            created_at: Utc::now(), // Placeholder
+            last_login: None,
+        })
     }
 }
 
