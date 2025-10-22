@@ -367,24 +367,36 @@ frontend/
 ### Authentication Flow
 
 1. User enters credentials
-2. Backend validates with Argon2
-3. Optional 2FA verification
-4. JWT token issued (24h expiration)
-5. Token stored in localStorage
-6. All API calls include Authorization header
+2. Backend validates with **Argon2** (memory-hard hashing)
+3. Optional **2FA verification** (TOTP)
+4. **JWT token** issued (24h expiration)
+5. Token stored in `localStorage`
+6. All API calls include `Authorization: Bearer <token>` header
 
 ### 2FA Setup
 
-1. Go to Settings
-2. Click "Setup 2FA"
-3. Scan QR code with authenticator app
-4. Enter verification code
-5. 2FA enabled
+1. Navigate to **Settings** page
+2. Click **"Setup 2FA"**
+3. Scan **QR code** with authenticator app (Google Authenticator, Authy, etc.)
+4. Enter **verification code** from app
+5. 2FA is now **enabled** for your account
 
 ### Rate Limiting
 
-- 5 login attempts per minute per IP
+- **5 login attempts per minute** per IP address
 - Automatic cooldown after limit reached
+- Prevents brute-force attacks
+
+### Best Practices
+
+⚠️ **IMPORTANT**: Change the default `admin/admin` credentials immediately after first login!
+
+**Recommendations:**
+- Use strong passwords (12+ characters, mixed case, numbers, symbols)
+- Enable 2FA for all accounts
+- Regularly update passwords
+- Monitor login attempts
+- Keep Rust dependencies up to date (`cargo update`)
 
 ---
 
@@ -650,19 +662,84 @@ refactor: migrate from warp to axum framework
 
 ---
 
-## 📄 License
+## � Documentation
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+**Essential Docs** (in `/docs` folder):
+
+- **[QUICKSTART.md](docs/QUICKSTART.md)** - Get up and running in 5 minutes
+- **[FEATURES.md](docs/FEATURES.md)** - Complete feature reference
+- **[DATABASE.md](docs/DATABASE.md)** - SQLite schema and migrations
+- **[SEARCH_FEATURE.md](docs/SEARCH_FEATURE.md)** - Tantivy search implementation
+- **[AUTH_README.md](docs/AUTH_README.md)** - Authentication system details
+- **[KEYBOARD_SHORTCUTS.md](docs/KEYBOARD_SHORTCUTS.md)** - Keyboard shortcuts reference
+- **[ROADMAP.md](docs/ROADMAP.md)** - Future plans and development timeline
+
+**Test Scripts** (in `/scripts` folder):
+
+- `test-api.ps1` - Comprehensive API testing script
+- `test-api-simple.ps1` - Basic API smoke tests
+
+---
+
+## 🔧 Troubleshooting
+
+### Backend won't compile
+
+**Issue:** Migration to axum in progress
+```
+error[E0599]: no method named `and` found for...
+```
+
+**Solution:** The codebase is currently being migrated from warp to axum. If you encounter compilation errors:
+1. Ensure you're on the correct branch
+2. Check that all dependencies in `Cargo.toml` are up to date
+3. Run `cargo clean && cargo build`
+
+### Frontend shows "Failed to fetch"
+
+**Issue:** Backend not running or CORS misconfigured
+
+**Solution:**
+1. Ensure backend is running on `http://localhost:8080`
+2. Check backend terminal for errors
+3. Verify CORS is enabled in backend configuration
+
+### Upload fails silently
+
+**Issue:** Multipart upload endpoint not yet available
+
+**Solution:**
+- Currently only single-file upload supported
+- Multipart upload coming with axum migration
+- Check browser console for specific error messages
+
+### Search returns no results
+
+**Issue:** Search index not created
+
+**Solution:**
+1. Upload some files to trigger indexing
+2. Check `data/search_index/` directory exists
+3. Backend logs will show indexing progress
+4. Wait a few seconds for background indexing to complete
 
 ---
 
 ## 🙏 Acknowledgments
 
-- [Material Design 3](https://m3.material.io/) by Google
-- [Material Web Components](https://github.com/material-components/material-web)
-- [Warp Web Framework](https://github.com/seanmonstar/warp)
 - [Lit](https://lit.dev/) for web component inspiration
-- [Home Assistant](https://www.home-assistant.io/) for SPA design patterns
+- [Material Design 3](https://m3.material.io/) by Google - Design system
+- [Svelte](https://svelte.dev/) - Reactive UI framework
+- [axum](https://github.com/tokio-rs/axum) - Modern web framework
+- [Tantivy](https://github.com/quickwit-oss/tantivy) - Full-text search
+- [Tower](https://github.com/tower-rs/tower) - Middleware ecosystem
+- [Home Assistant](https://www.home-assistant.io/) - SPA design inspiration
+
+---
+
+## 📄 License
+
+This project is licensed under the **Apache License 2.0** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
@@ -670,9 +747,11 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 - **Issues**: [GitHub Issues](https://github.com/MickLesk/syncspace/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/MickLesk/syncspace/discussions)
+- **Documentation**: See `/docs` folder
 
 ---
 
 **Made with ❤️ by [MickLesk](https://github.com/MickLesk)**
 
-**Material 3 Expressive Design** • **Rust Backend** • **Zero Build Frontend**
+**Material 3 Expressive Design** • **Rust (axum) Backend** • **Svelte 5 Frontend** • **Self-Hosted Sync**
+
