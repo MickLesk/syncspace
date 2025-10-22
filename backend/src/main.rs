@@ -219,6 +219,11 @@ fn build_router(state: AppState) -> Router {
         .route("/api/trash/cleanup", delete(cleanup_trash_handler))
         .route("/api/trash/empty", delete(empty_trash_handler));
     
+    // Favorites routes (protected)
+    let favorites_routes = Router::new()
+        .route("/api/favorites", get(list_favorites_handler).post(toggle_favorite_handler))
+        .route("/api/favorites/:id", delete(delete_favorite_handler));
+    
     // Utility routes (protected)
     let utility_routes = Router::new()
         .route("/api/status", get(status_handler))  // Status endpoint (public)
@@ -241,6 +246,7 @@ fn build_router(state: AppState) -> Router {
         .merge(auth_routes)
         .merge(file_routes)
         .merge(trash_routes)
+        .merge(favorites_routes)
         .merge(utility_routes)
         .merge(ws_route)
         // Note: Frontend is served by Vite on port 5173 in development
@@ -591,7 +597,7 @@ async fn delete_file_handler(
                 "SELECT id FROM folders WHERE path = ? AND owner_id = ?"
             )
             .bind(&path)
-            .bind(&user.id)
+            .bind(&user.id.to_string())
             .fetch_optional(pool)
             .await
             .ok()
@@ -603,7 +609,7 @@ async fn delete_file_handler(
                     "UPDATE folders SET is_deleted = 1, deleted_at = datetime('now'), deleted_by = ? 
                      WHERE id = ?"
                 )
-                .bind(&user.id)
+                .bind(&user.id.to_string())
                 .bind(&id)
                 .execute(pool)
                 .await
@@ -620,8 +626,8 @@ async fn delete_file_handler(
                 .bind(&id)
                 .bind(full_path.file_name().and_then(|n| n.to_str()).unwrap_or(""))
                 .bind(&path)
-                .bind(&user.id)
-                .bind(&user.id)
+                .bind(&user.id.to_string())
+                .bind(&user.id.to_string())
                 .execute(pool)
                 .await
                 .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -634,7 +640,7 @@ async fn delete_file_handler(
                 "SELECT id FROM files WHERE path = ? AND owner_id = ?"
             )
             .bind(&path)
-            .bind(&user.id)
+            .bind(&user.id.to_string())
             .fetch_optional(pool)
             .await
             .ok()
@@ -646,7 +652,7 @@ async fn delete_file_handler(
                     "UPDATE files SET is_deleted = 1, deleted_at = datetime('now'), deleted_by = ? 
                      WHERE id = ?"
                 )
-                .bind(&user.id)
+                .bind(&user.id.to_string())
                 .bind(&id)
                 .execute(pool)
                 .await
@@ -665,10 +671,10 @@ async fn delete_file_handler(
                 .bind(&id)
                 .bind(full_path.file_name().and_then(|n| n.to_str()).unwrap_or(""))
                 .bind(&path)
-                .bind(&user.id)
+                .bind(&user.id.to_string())
                 .bind(size)
                 .bind(storage_path)
-                .bind(&user.id)
+                .bind(&user.id.to_string())
                 .execute(pool)
                 .await
                 .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -681,17 +687,19 @@ async fn delete_file_handler(
         let trash_id = Uuid::new_v4().to_string();
         let item_type = if is_dir { "folder" } else { "file" };
         let auto_delete_str = auto_delete_at.map(|dt| dt.to_rfc3339());
+        let deleted_at = Utc::now().to_rfc3339();
         
         sqlx::query(
             "INSERT INTO trash (id, item_type, item_id, original_path, original_name, deleted_by, deleted_at, auto_delete_at, size_bytes)
-             VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?)"
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
         .bind(&trash_id)
         .bind(item_type)
         .bind(&item_id)
         .bind(&path)
         .bind(full_path.file_name().and_then(|n| n.to_str()).unwrap_or(""))
-        .bind(&user.id)
+        .bind(&user.id.to_string())
+        .bind(&deleted_at)
         .bind(auto_delete_str)
         .bind(size)
         .execute(pool)
@@ -789,7 +797,7 @@ async fn list_trash_handler(
         ORDER BY t.deleted_at DESC
         "#
     )
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .fetch_all(pool)
     .await
     .map_err(|e| {
@@ -1500,4 +1508,118 @@ async fn root_handler() -> Response {
 </html>"#;
     
     (StatusCode::OK, [("content-type", "text/html; charset=utf-8")], html).into_response()
+}
+
+// ==================== FAVORITES HANDLERS ====================
+
+#[derive(Debug, Serialize, Deserialize)]
+struct FavoriteRequest {
+    item_type: String,  // 'file' or 'folder'
+    item_id: String,    // file/folder ID or path
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct FavoriteResponse {
+    id: String,
+    user_id: String,
+    item_type: String,
+    item_id: String,
+    created_at: String,
+}
+
+async fn list_favorites_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<Json<Vec<FavoriteResponse>>, StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    
+    let favorites = sqlx::query_as::<_, (String, String, String, String, String)>(
+        "SELECT id, user_id, item_type, item_id, created_at FROM favorites WHERE user_id = ? ORDER BY created_at DESC"
+    )
+    .bind(&user_id)
+    .fetch_all(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let result = favorites.into_iter().map(|(id, user_id, item_type, item_id, created_at)| {
+        FavoriteResponse { id, user_id, item_type, item_id, created_at }
+    }).collect();
+    
+    Ok(Json(result))
+}
+
+async fn toggle_favorite_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Json(req): Json<FavoriteRequest>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    
+    // Check if already favorited
+    let existing: Option<String> = sqlx::query_scalar(
+        "SELECT id FROM favorites WHERE user_id = ? AND item_type = ? AND item_id = ?"
+    )
+    .bind(&user_id)
+    .bind(&req.item_type)
+    .bind(&req.item_id)
+    .fetch_optional(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    if let Some(fav_id) = existing {
+        // Remove favorite
+        sqlx::query("DELETE FROM favorites WHERE id = ?")
+            .bind(&fav_id)
+            .execute(pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        
+        Ok(Json(serde_json::json!({
+            "status": "removed",
+            "item_type": req.item_type,
+            "item_id": req.item_id
+        })))
+    } else {
+        // Add favorite
+        let fav_id = Uuid::new_v4().to_string();
+        let now = Utc::now().to_rfc3339();
+        
+        sqlx::query(
+            "INSERT INTO favorites (id, user_id, item_type, item_id, created_at) VALUES (?, ?, ?, ?, ?)"
+        )
+        .bind(&fav_id)
+        .bind(&user_id)
+        .bind(&req.item_type)
+        .bind(&req.item_id)
+        .bind(&now)
+        .execute(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        
+        Ok(Json(serde_json::json!({
+            "status": "added",
+            "item_type": req.item_type,
+            "item_id": req.item_id
+        })))
+    }
+}
+async fn delete_favorite_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    AxumPath(id): AxumPath<String>,
+) -> Result<(StatusCode, &'static str), StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    
+    // Verify ownership and delete
+    sqlx::query("DELETE FROM favorites WHERE id = ? AND user_id = ?")
+        .bind(&id)
+        .bind(&user_id)
+        .execute(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    Ok((StatusCode::OK, ""))
 }

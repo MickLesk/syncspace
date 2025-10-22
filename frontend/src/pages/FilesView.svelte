@@ -45,10 +45,10 @@
    */
   function buildFilePath(dirPath, fileName) {
     // If fileName already has path info (from search results etc.), use it directly
-    if (fileName.includes('/')) {
-      return fileName.startsWith('/') ? fileName.slice(1) : fileName;
+    if (fileName.includes("/")) {
+      return fileName.startsWith("/") ? fileName.slice(1) : fileName;
     }
-    
+
     const cleanDir = toBackendPath(dirPath);
     return cleanDir ? `${cleanDir}/${fileName}` : fileName;
   }
@@ -319,11 +319,15 @@
     return "other";
   }
 
-  onMount(() => {
+  onMount(async () => {
     console.log(
       `[FilesView] onMount - currentPath: "${$currentPath}", currentView: "${$currentView}"`
     );
     mounted = true;
+
+    // Load favorites from API on mount
+    await favorites.load();
+
     // loadFiles() will be called by reactive statement
 
     // Cleanup old thumbnails
@@ -517,6 +521,9 @@
     for (const file of fileList) {
       try {
         const path = buildFilePath($currentPath, file.name);
+        console.log(
+          `[Upload] Current path: "${$currentPath}", File: "${file.name}", Full path: "${path}"`
+        );
 
         // Initialize progress for this file
         fileUploadProgress[file.name] = {
@@ -701,11 +708,14 @@
 
     if (!draggedFile || !folder.is_dir) return;
 
+    // Save draggedFile reference before it gets cleared
+    const fileToMove = draggedFile;
+
     try {
-      const oldPath = buildFilePath($currentPath, draggedFile.name);
+      const oldPath = buildFilePath($currentPath, fileToMove.name);
       const newPath = buildFilePath(
         $currentPath,
-        `${folder.name}/${draggedFile.name}`
+        `${folder.name}/${fileToMove.name}`
       );
 
       await api.files.rename(oldPath, newPath);
@@ -863,12 +873,23 @@
   }
 
   function handleFileClick(file) {
+    console.log(
+      `[handleFileClick] File: ${file.name}, is_dir: ${file.is_dir}, multiSelectMode: ${multiSelectMode}`
+    );
+
     if (multiSelectMode && !file.is_dir) {
+      console.log("[handleFileClick] Multi-select mode - toggling selection");
       toggleFileSelection(file);
     } else if (file.is_dir) {
+      console.log("[handleFileClick] Directory - navigating");
       navigateTo(file.name);
     } else if (isPreviewable(file.name)) {
+      console.log(
+        `[handleFileClick] Previewable file - opening preview for ${file.name}`
+      );
       previewFile(file);
+    } else {
+      console.log(`[handleFileClick] Not previewable: ${file.name}`);
     }
   }
 
@@ -899,18 +920,24 @@
     selectedFiles = selectedFiles; // Trigger reactivity
   }
 
-  function toggleFavorite(file) {
+  async function toggleFavorite(file) {
+    if (!file) return;
     const fullPath = buildFilePath($currentPath, file.name);
     console.log(`[toggleFavorite] Toggling favorite: ${fullPath}`);
-    favorites.toggle(fullPath);
-    success(
-      $favorites.has(fullPath)
-        ? `⭐ ${file.name} zu Favoriten hinzugefügt`
-        : `${file.name} aus Favoriten entfernt`
-    );
-    
-    // Force UI update by triggering reactivity
-    files.update(f => f);
+
+    try {
+      await favorites.toggle(fullPath, file.is_dir ? "folder" : "file");
+      // Check if now favorite by checking if it exists in store
+      const isFav = favorites.getAll().some((f) => f.item_id === fullPath);
+      success(
+        isFav
+          ? `⭐ ${file.name} zu Favoriten hinzugefügt`
+          : `${file.name} aus Favoriten entfernt`
+      );
+    } catch (err) {
+      console.error("Failed to toggle favorite:", err);
+      errorToast(`Failed to toggle favorite: ${err.message}`);
+    }
   }
 
   function isFavorite(file) {
@@ -1275,15 +1302,6 @@
         <Icon name="folder-plus" size={16} />
         {t($currentLang, "newFolder")}
       </Button>
-
-      <!-- Upload toggle (shows/hides compact drop-zone) -->
-      <button
-        class="btn-upload-toggle"
-        on:click={toggleUploadPanel}
-        title="Upload anzeigen/verbergen"
-      >
-        <Icon name="cloud-upload" size={16} />
-      </button>
     </div>
   </div>
 
@@ -1667,7 +1685,10 @@
   danger={true}
   on:confirm={handleDeleteConfirm}
 >
-  <p>Möchten Sie <strong>"{displayName(fileToDelete?.name || '')}"</strong> wirklich löschen?</p>
+  <p>
+    Möchten Sie <strong>"{displayName(fileToDelete?.name || "")}"</strong> wirklich
+    löschen?
+  </p>
   <p style="color: var(--md-sys-color-error); margin-top: 12px;">
     Diese Aktion kann nicht rückgängig gemacht werden.
   </p>
