@@ -196,7 +196,9 @@
           searchResults
             .filter((result) => {
               // Only show files in current directory
-              const resultDir = result.path.substring(0, result.path.lastIndexOf('/') + 1) || '/';
+              const resultDir =
+                result.path.substring(0, result.path.lastIndexOf("/") + 1) ||
+                "/";
               return resultDir === $currentPath;
             })
             .map((result) => ({
@@ -456,7 +458,9 @@
     loading = true;
     try {
       const backendPath = toBackendPath($currentPath);
-      console.log(`[FilesView] API call: list("${backendPath}") (UI path: "${$currentPath}")`);
+      console.log(
+        `[FilesView] API call: list("${backendPath}") (UI path: "${$currentPath}")`
+      );
       const data = await api.files.list(backendPath);
       console.log(`[FilesView] Received ${data.length} files`);
       files.set(data);
@@ -693,7 +697,10 @@
 
     try {
       const oldPath = buildFilePath($currentPath, draggedFile.name);
-      const newPath = buildFilePath($currentPath, `${folder.name}/${draggedFile.name}`);
+      const newPath = buildFilePath(
+        $currentPath,
+        `${folder.name}/${draggedFile.name}`
+      );
 
       await api.files.rename(oldPath, newPath);
       success(`ðŸ“ "${draggedFile.name}" â†’ "${folder.name}"`);
@@ -733,7 +740,10 @@
 
         try {
           const oldPath = buildFilePath($currentPath, file.name);
-          const newPath = buildFilePath($currentPath, `${folder.name}/${file.name}`);
+          const newPath = buildFilePath(
+            $currentPath,
+            `${folder.name}/${file.name}`
+          );
 
           await api.files.rename(oldPath, newPath);
           successCount++;
@@ -778,7 +788,7 @@
     if (!folderName) return;
 
     try {
-      const path = `${$currentPath}${folderName}`;
+      const path = buildFilePath($currentPath, folderName);
       await api.files.createDir(path);
       success(
         `${t($currentLang, "folder")} "${folderName}" ${t($currentLang, "created")}`
@@ -792,7 +802,7 @@
 
   async function downloadFile(file) {
     try {
-      const path = `${$currentPath}${file.name}`;
+      const path = buildFilePath($currentPath, file.name);
       const blob = await api.files.download(path);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -874,17 +884,17 @@
         multiSelectMode = true;
       }
     }
-    
+
     // Auto-disable when no files selected
     if (selectedFiles.size === 0 && multiSelectMode) {
       multiSelectMode = false;
     }
-    
+
     selectedFiles = selectedFiles; // Trigger reactivity
   }
 
   function toggleFavorite(file) {
-    const fullPath = $currentPath ? `${$currentPath}/${file.name}` : file.name;
+    const fullPath = buildFilePath($currentPath, file.name);
     favorites.toggle(fullPath);
     success(
       $favorites.has(fullPath)
@@ -895,7 +905,7 @@
 
   function isFavorite(file) {
     if (!file) return false;
-    const fullPath = $currentPath ? `${$currentPath}/${file.name}` : file.name;
+    const fullPath = buildFilePath($currentPath, file.name);
     return $favorites.has(fullPath);
   }
 
@@ -1182,8 +1192,8 @@
     const oldName = fileToRename.name;
 
     try {
-      const oldPath = `${$currentPath}${oldName}`;
-      const newPath = `${$currentPath}${newName}`;
+      const oldPath = buildFilePath($currentPath, oldName);
+      const newPath = buildFilePath($currentPath, newName);
       await api.files.rename(oldPath, newPath);
       success(`"${oldName}" â†’ "${newName}"`);
       await loadFiles();
