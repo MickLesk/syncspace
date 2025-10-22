@@ -2,20 +2,30 @@
   import { onMount } from "svelte";
   import { currentTheme, currentLang } from "../stores/ui";
   import { t } from "../i18n";
+  import { success, error as errorToast } from "../stores/toast";
+  import api from "../lib/api";
   import Avatar from "../components/ui/Avatar.svelte";
   import Button from "../components/ui/Button.svelte";
   import Dialog from "../components/ui/Dialog.svelte";
   import Input from "../components/ui/Input.svelte";
 
   let user = {
-    username: "admin",
-    email: "admin@syncspace.local",
-    created: "2025-01-15",
-    profileImage: "",
-    theme: "system",
-    language: "de",
+    id: "",
+    username: "",
+    email: "",
+    display_name: "",
+    avatar_base64: "",
+    created_at: "",
   };
 
+  let settings = {
+    theme: "light",
+    language: "de",
+    default_view: "grid",
+  };
+
+  let loading = true;
+  let saving = false;
   let showPasswordDialog = false;
   let showImageUploadDialog = false;
   let passwordData = { current: "", new: "", confirm: "" };
@@ -25,33 +35,81 @@
 
   onMount(() => {
     loadUserProfile();
-
-    // Sync theme and language from stores
-    user.theme = $currentTheme || "system";
-    user.language = $currentLang;
+    loadUserSettings();
   });
 
   async function loadUserProfile() {
-    // TODO: Load from backend API
-    // const response = await fetch('/api/user/profile');
-    // user = await response.json();
+    try {
+      loading = true;
+      const profile = await api.users.getProfile();
+      user = profile;
+      imagePreview = profile.avatar_base64 || "";
+      console.log("[ProfileView] Loaded user:", user);
+    } catch (err) {
+      console.error("Failed to load user profile:", err);
+      errorToast("Fehler beim Laden des Profils");
+    } finally {
+      loading = false;
+    }
+  }
+
+  async function loadUserSettings() {
+    try {
+      const userSettings = await api.users.getSettings();
+      settings = userSettings;
+      // Sync with UI stores
+      currentTheme.set(userSettings.theme);
+      currentLang.set(userSettings.language);
+      console.log("[ProfileView] Loaded settings:", userSettings);
+    } catch (err) {
+      console.error("Failed to load settings:", err);
+    }
   }
 
   async function handleSaveProfile() {
-    // Save theme and language to stores
-    currentTheme.set(user.theme);
-    currentLang.set(user.language);
+    if (!user.email) {
+      errorToast("E-Mail ist erforderlich");
+      return;
+    }
 
-    // TODO: Save to backend
-    // await fetch('/api/user/profile', {
-    //   method: 'PUT',
-    //   body: JSON.stringify(user)
-    // });
-
-    alert("Profil gespeichert!");
+    try {
+      saving = true;
+      const updated = await api.users.updateProfile({
+        email: user.email,
+        display_name: user.display_name,
+        avatar_base64: imagePreview,
+      });
+      user = updated;
+      success("Profil erfolgreich gespeichert!");
+    } catch (err) {
+      console.error("Failed to save profile:", err);
+      errorToast("Fehler beim Speichern des Profils");
+    } finally {
+      saving = false;
+    }
   }
 
-  function handlePasswordChange() {
+  async function handleSaveSettings() {
+    try {
+      saving = true;
+      const updated = await api.users.updateSettings({
+        language: settings.language,
+        theme: settings.theme,
+        default_view: settings.default_view,
+      });
+      settings = updated;
+      currentTheme.set(updated.theme);
+      currentLang.set(updated.language);
+      success("Einstellungen gespeichert!");
+    } catch (err) {
+      console.error("Failed to save settings:", err);
+      errorToast("Fehler beim Speichern der Einstellungen");
+    } finally {
+      saving = false;
+    }
+  }
+
+  async function handlePasswordChange() {
     passwordError = "";
 
     if (!passwordData.current || !passwordData.new || !passwordData.confirm) {
@@ -69,13 +127,22 @@
       return;
     }
 
-    // TODO: Send to backend
-    showPasswordDialog = false;
-    passwordData = { current: "", new: "", confirm: "" };
-    alert("Passwort erfolgreich geändert!");
+    try {
+      saving = true;
+      await api.auth.changePassword(passwordData.current, passwordData.new);
+      showPasswordDialog = false;
+      passwordData = { current: "", new: "", confirm: "" };
+      success("Passwort erfolgreich geändert!");
+    } catch (err) {
+      console.error("Password change failed:", err);
+      passwordError =
+        "Fehler beim Ändern des Passworts. Überprüfe dein aktuelles Passwort.";
+    } finally {
+      saving = false;
+    }
   }
 
-  function handleImageSelect(event) {
+  async function handleImageSelect(event) {
     const file = event.target.files?.[0];
     if (file) {
       imageFile = file;
@@ -90,26 +157,28 @@
   }
 
   async function handleImageUpload() {
-    if (!imageFile) return;
+    if (!imagePreview) return;
 
-    // TODO: Upload to backend
-    // const formData = new FormData();
-    // formData.append('image', imageFile);
-    // const response = await fetch('/api/user/profile/image', {
-    //   method: 'POST',
-    //   body: formData
-    // });
-
-    user.profileImage = imagePreview;
-    showImageUploadDialog = false;
-    imageFile = null;
-    imagePreview = "";
-    alert("Profilbild hochgeladen!");
-  }
-
-  function handleRemoveImage() {
-    user.profileImage = "";
-    // TODO: Delete from backend
+    try {
+      saving = true;
+      // Update profile with new avatar
+      user.avatar_base64 = imagePreview;
+      const updated = await api.users.updateProfile({
+        avatar_base64: imagePreview,
+        email: user.email,
+        display_name: user.display_name,
+      });
+      user = updated;
+      showImageUploadDialog = false;
+      imageFile = null;
+      success("Profilbild hochgeladen!");
+    } catch (err) {
+      console.error("Failed to upload profile image:", err);
+      errorToast("Fehler beim Hochladen des Profilbilds");
+      imagePreview = user.avatar_base64 || "";
+    } finally {
+      saving = false;
+    }
   }
 </script>
 
@@ -118,94 +187,147 @@
     <h1>👤 {t($currentLang, "profile")}</h1>
   </div>
 
-  <div class="profile-content">
-    <!-- Avatar Section -->
-    <div class="card avatar-section">
-      <h2>Profilbild</h2>
-      <div class="avatar-controls">
-        <Avatar
-          name={user.username}
-          imageUrl={user.profileImage}
-          size="xlarge"
-        />
-        <div class="avatar-actions">
-          <Button onClick={() => (showImageUploadDialog = true)} icon="📷">
-            Bild hochladen
-          </Button>
-          {#if user.profileImage}
-            <Button variant="outlined" onClick={handleRemoveImage} icon="🗑️">
-              Bild entfernen
-            </Button>
-          {/if}
-        </div>
-      </div>
+  {#if loading}
+    <div class="loading-state">
+      <p>Lädt Profil...</p>
     </div>
-
-    <!-- Basic Info -->
-    <div class="card info-section">
-      <h2>Benutzerdaten</h2>
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="item-label">Benutzername</span>
-          <div class="info-value">{user.username}</div>
-        </div>
-        <div class="info-item">
-          <span class="item-label">E-Mail</span>
-          <Input
-            bind:value={user.email}
-            type="email"
-            placeholder="deine@email.com"
+  {:else}
+    <div class="profile-content">
+      <!-- Avatar Section -->
+      <div class="card avatar-section">
+        <h2>Profilbild</h2>
+        <div class="avatar-controls">
+          <Avatar
+            name={user.username}
+            imageUrl={user.avatar_base64}
+            size="xlarge"
           />
-        </div>
-        <div class="info-item">
-          <span class="item-label">Mitglied seit</span>
-          <div class="info-value">
-            {new Date(user.created).toLocaleDateString("de-DE")}
+          <div class="avatar-actions">
+            <Button onClick={() => (showImageUploadDialog = true)} icon="📷">
+              Bild hochladen
+            </Button>
+            {#if user.avatar_base64}
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  imagePreview = "";
+                  user.avatar_base64 = "";
+                }}
+                icon="🗑️"
+              >
+                Bild entfernen
+              </Button>
+            {/if}
           </div>
         </div>
-        <div class="info-item">
-          <Button
-            variant="outlined"
-            onClick={() => (showPasswordDialog = true)}
-            icon="🔒"
-            fullWidth
-          >
-            Passwort ändern
-          </Button>
+      </div>
+
+      <!-- Basic Info -->
+      <div class="card info-section">
+        <h2>Benutzerdaten</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="item-label">Benutzername</span>
+            <div class="info-value">{user.username}</div>
+          </div>
+          <div class="info-item">
+            <span class="item-label">E-Mail</span>
+            <Input
+              bind:value={user.email}
+              type="email"
+              placeholder="deine@email.com"
+            />
+          </div>
+          <div class="info-item">
+            <span class="item-label">Anzeigename</span>
+            <Input
+              bind:value={user.display_name}
+              type="text"
+              placeholder="Dein Name"
+            />
+          </div>
+          <div class="info-item">
+            <span class="item-label">Mitglied seit</span>
+            <div class="info-value">
+              {new Date(user.created_at).toLocaleDateString("de-DE")}
+            </div>
+          </div>
+          <div class="info-item">
+            <Button
+              variant="outlined"
+              onClick={() => (showPasswordDialog = true)}
+              icon="🔒"
+              fullWidth
+            >
+              Passwort ändern
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Appearance Settings -->
-    <div class="card appearance-section">
-      <h2>🎨 Darstellung</h2>
-      <div class="settings-grid">
-        <div class="setting-item">
-          <label for="theme">Theme</label>
-          <select id="theme" bind:value={user.theme} class="md-select">
-            <option value="light">☀️ Hell</option>
-            <option value="dark">🌙 Dunkel</option>
-            <option value="system">💻 System</option>
-          </select>
-        </div>
+      <!-- Appearance Settings -->
+      <div class="card appearance-section">
+        <h2>🎨 Darstellung</h2>
+        <div class="settings-grid">
+          <div class="setting-item">
+            <label for="theme">Theme</label>
+            <select id="theme" bind:value={settings.theme} class="md-select">
+              <option value="light">☀️ Hell</option>
+              <option value="dark">🌙 Dunkel</option>
+              <option value="system">💻 System</option>
+            </select>
+          </div>
 
-        <div class="setting-item">
-          <label for="language">Sprache</label>
-          <select id="language" bind:value={user.language} class="md-select">
-            <option value="de">🇩🇪 Deutsch</option>
-            <option value="en">🇬🇧 English</option>
-          </select>
+          <div class="setting-item">
+            <label for="language">Sprache</label>
+            <select
+              id="language"
+              bind:value={settings.language}
+              class="md-select"
+            >
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="en">🇬🇧 English</option>
+            </select>
+          </div>
+
+          <div class="setting-item">
+            <label for="default_view">Standard-Ansicht</label>
+            <select
+              id="default_view"
+              bind:value={settings.default_view}
+              class="md-select"
+            >
+              <option value="grid">🔲 Kacheln</option>
+              <option value="list">📋 Liste</option>
+            </select>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Save Button -->
-    <div class="save-section">
-      <Button onClick={handleSaveProfile} icon="💾" size="large" fullWidth>
-        Profil speichern
-      </Button>
+      <!-- Save Buttons -->
+      <div class="save-section">
+        <Button
+          onClick={handleSaveProfile}
+          icon="💾"
+          size="large"
+          fullWidth
+          disabled={saving}
+        >
+          {saving ? "Speichern..." : "Profil speichern"}
+        </Button>
+        <Button
+          onClick={handleSaveSettings}
+          variant="outlined"
+          icon="⚙️"
+          size="large"
+          fullWidth
+          disabled={saving}
+        >
+          {saving ? "Speichern..." : "Einstellungen speichern"}
+        </Button>
+      </div>
     </div>
-  </div>
+  {/if}
 </div>
 
 <!-- Password Change Dialog -->

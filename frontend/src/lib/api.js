@@ -139,6 +139,56 @@ export const auth = {
 };
 
 // ============================================
+// USER ENDPOINTS
+// ============================================
+
+export const users = {
+  /**
+   * Get user profile
+   */
+  async getProfile() {
+    const response = await fetch(`${API_BASE}/users/profile`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update user profile
+   */
+  async updateProfile(data) {
+    const response = await fetch(`${API_BASE}/users/profile`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get user settings (theme, language, view preference)
+   */
+  async getSettings() {
+    const response = await fetch(`${API_BASE}/users/settings`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update user settings
+   */
+  async updateSettings(data) {
+    const response = await fetch(`${API_BASE}/users/settings`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================
 // FILE ENDPOINTS
 // ============================================
 
@@ -324,6 +374,40 @@ export const search = {
     });
     const response = await fetch(`${API_BASE}/search?${params}`, {
       headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================
+// ACTIVITY LOG / AUDIT TRAIL
+// ============================================
+
+export const activity = {
+  /**
+   * List activity logs for current user
+   */
+  async list(limit = 100, offset = 0, actionFilter = null) {
+    const params = new URLSearchParams({
+      limit: limit.toString(),
+      offset: offset.toString(),
+    });
+    if (actionFilter) {
+      params.append('action', actionFilter);
+    }
+    
+    const response = await fetch(`${API_BASE}/activity?${params}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get activity statistics
+   */
+  async getStats() {
+    const response = await fetch(`${API_BASE}/activity/stats`, {
+      headers: getHeaders(),
     });
     return handleResponse(response);
   },
