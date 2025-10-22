@@ -12,7 +12,7 @@ use std::sync::Arc;
 
 use axum::{
     extract::{ws::{Message, WebSocket, WebSocketUpgrade}, DefaultBodyLimit, Multipart, Path as AxumPath, Query, State},
-    http::{HeaderValue, Method, StatusCode},
+    http::{Method, StatusCode},
     response::{IntoResponse, Json, Response},
     routing::{delete, get, post, put},
     Router,
