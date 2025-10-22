@@ -24,17 +24,45 @@
     error = null;
 
     try {
-      const fullPath = `${currentPath}${file.name}`;
+      // Build full path: if currentPath is "/", use just filename
+      const fullPath =
+        currentPath === "/" ? file.name : `${currentPath}${file.name}`;
+
+      // Get token - try new format first, then fallback to old
+      let token = localStorage.getItem("authToken");
+      if (!token) {
+        const authData = localStorage.getItem("auth");
+        if (authData) {
+          try {
+            const parsed = JSON.parse(authData);
+            token = parsed.token;
+          } catch (e) {
+            // ignore parse errors
+          }
+        }
+      }
+
+      if (!token) {
+        throw new Error("Not authenticated - no token found in localStorage");
+      }
+
+      console.log(`[PreviewModal] Loading: ${fullPath}`);
+      console.log(
+        `[PreviewModal] Token available: ${token.substring(0, 20)}...`
+      );
+
       const response = await fetch(
         `http://localhost:8080/api/file/${encodeURIComponent(fullPath)}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      if (!response.ok) throw new Error("Failed to load file");
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Failed to load file`);
+      }
 
       const blob = await response.blob();
       previewUrl = URL.createObjectURL(blob);

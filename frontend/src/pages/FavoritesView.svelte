@@ -1,53 +1,61 @@
 <script>
+  import { onMount } from "svelte";
   import { favorites } from "../stores/favorites";
   import { currentPath, currentLang } from "../stores/ui.js";
   import { t } from "../i18n.js";
-  import { success } from "../stores/toast";
+  import { success, error as errorToast } from "../stores/toast";
   import Icon from "../components/ui/Icon.svelte";
   import { getFileIcon } from "../utils/fileIcons";
-  import api from "../lib/api";
 
   let favoriteFiles = [];
   let loading = false;
 
-  $: updateFavorites($favorites);
+  onMount(async () => {
+    await loadFavorites();
+  });
 
-  async function updateFavorites(favSet) {
-    if (favSet.size === 0) {
-      favoriteFiles = [];
-      return;
-    }
+  $: $favorites, loadFavorites(); // Reactively reload when store changes
 
+  async function loadFavorites() {
     loading = true;
-    const files = [];
 
-    for (const path of favSet) {
-      try {
-        // Try to get file info (this would need backend support)
-        // For now, just display the path
-        files.push({
-          path,
-          name: path.split("/").pop() || path,
-          fullPath: path,
-        });
-      } catch (e) {
-        console.error("Failed to load favorite:", path, e);
-      }
+    try {
+      const favs = favorites.getAll();
+      console.log("[FavoritesView] Loaded favorites:", favs);
+
+      // Convert favorites objects to display format
+      favoriteFiles = favs.map((fav) => ({
+        id: fav.id,
+        itemId: fav.item_id,
+        itemType: fav.item_type,
+        name: fav.item_id.split("/").pop() || fav.item_id,
+        fullPath: fav.item_id,
+      }));
+
+      console.log("[FavoritesView] Display files:", favoriteFiles);
+    } catch (err) {
+      console.error("Failed to load favorites:", err);
+      errorToast("Failed to load favorites: " + err.message);
     }
 
-    favoriteFiles = files;
     loading = false;
   }
 
-  function removeFavorite(filePath) {
-    favorites.remove(filePath);
-    success(`Aus Favoriten entfernt`);
+  async function removeFavorite(fav) {
+    try {
+      await favorites.remove(fav.itemId);
+      success(`${fav.name} aus Favoriten entfernt`);
+      await loadFavorites();
+    } catch (err) {
+      console.error("Failed to remove favorite:", err);
+      errorToast("Failed to remove favorite");
+    }
   }
 
   function navigateToFile(filePath) {
     const parts = filePath.split("/");
     const fileName = parts.pop();
-    const dirPath = parts.join("/");
+    const dirPath = "/" + (parts.length > 0 ? parts.join("/") + "/" : "");
     currentPath.set(dirPath);
   }
 
@@ -59,10 +67,10 @@
 <div class="view-container">
   <div class="page-header">
     <h2>⭐ {t($currentLang, "favorites")}</h2>
-    {#if $favorites.size > 0}
+    {#if favoriteFiles.length > 0}
       <p class="subtitle">
-        {$favorites.size}
-        {$favorites.size === 1 ? "Datei" : "Dateien"}
+        {favoriteFiles.length}
+        {favoriteFiles.length === 1 ? "Datei" : "Dateien"}
       </p>
     {/if}
   </div>
@@ -84,7 +92,10 @@
         <div class="favorite-item">
           <div class="file-info" on:click={() => navigateToFile(file.fullPath)}>
             <div class="file-icon">
-              <Icon name={getFileIcon(file.name, false)} size={32} />
+              <Icon
+                name={getFileIcon(file.name, file.itemType === "folder")}
+                size={32}
+              />
             </div>
             <div class="file-details">
               <div class="file-name">{file.name}</div>
@@ -93,7 +104,7 @@
           </div>
           <button
             class="btn-remove"
-            on:click|stopPropagation={() => removeFavorite(file.fullPath)}
+            on:click|stopPropagation={() => removeFavorite(file)}
             title="Aus Favoriten entfernen"
           >
             <Icon name="x-lg" size={20} />
