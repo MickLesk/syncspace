@@ -198,7 +198,9 @@ fn build_router(state: AppState) -> Router {
         .route("/api/auth/2fa/enable", post(enable_2fa_handler))
         .route("/api/auth/2fa/disable", post(disable_2fa_handler))
         .route("/api/auth/change-password", put(change_password_handler))
-        .route("/api/auth/me", get(me_handler));
+        .route("/api/auth/me", get(me_handler))
+        .route("/api/users/profile", get(get_profile_handler).put(update_profile_handler))
+        .route("/api/users/settings", get(get_user_settings_handler).put(update_user_settings_handler));
     
     // File routes (protected)
     let file_routes = Router::new()
@@ -224,6 +226,19 @@ fn build_router(state: AppState) -> Router {
         .route("/api/favorites", get(list_favorites_handler).post(toggle_favorite_handler))
         .route("/api/favorites/:id", delete(delete_favorite_handler));
     
+    // Activity/Audit Log routes (protected)
+    let activity_routes = Router::new()
+        .route("/api/activity", get(list_activity_handler))
+        .route("/api/activity/stats", get(activity_stats_handler));
+    
+    // Comments & Tags routes (protected)
+    let comments_tags_routes = Router::new()
+        .route("/api/comments", post(create_comment_handler).get(list_comments_handler))
+        .route("/api/comments/:id", delete(delete_comment_handler))
+        .route("/api/tags", get(list_tags_handler).post(create_tag_handler))
+        .route("/api/tags/:id", delete(delete_tag_handler))
+        .route("/api/files/:id/tags", post(tag_file_handler).delete(untag_file_handler));
+    
     // Utility routes (protected)
     let utility_routes = Router::new()
         .route("/api/status", get(status_handler))  // Status endpoint (public)
@@ -247,6 +262,8 @@ fn build_router(state: AppState) -> Router {
         .merge(file_routes)
         .merge(trash_routes)
         .merge(favorites_routes)
+        .merge(activity_routes)
+        .merge(comments_tags_routes)
         .merge(utility_routes)
         .merge(ws_route)
         // Note: Frontend is served by Vite on port 5173 in development
@@ -418,7 +435,181 @@ async fn me_handler(user: auth::User) -> Json<UserInfo> {
     })
 }
 
-// ==================== FILE HANDLERS ====================
+// ==================== USER PROFILE HANDLERS ====================
+
+#[derive(Debug, Serialize, Deserialize)]
+struct UserProfile {
+    id: String,
+    username: String,
+    email: Option<String>,
+    display_name: Option<String>,
+    avatar_base64: Option<String>,
+    created_at: String,
+    updated_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct UpdateProfileRequest {
+    email: Option<String>,
+    display_name: Option<String>,
+    avatar_base64: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct UserSettings {
+    language: String,
+    theme: String,
+    default_view: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct UpdateSettingsRequest {
+    language: Option<String>,
+    theme: Option<String>,
+    default_view: Option<String>,
+}
+
+/// Get user profile information
+async fn get_profile_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<Json<UserProfile>, StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    
+    let profile: Option<(String, String, Option<String>, Option<String>, Option<String>, String, String)> = 
+        sqlx::query_as(
+            "SELECT id, username, email, display_name, avatar_base64, created_at, updated_at FROM users WHERE id = ?"
+        )
+        .bind(&user_id)
+        .fetch_optional(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    match profile {
+        Some((id, username, email, display_name, avatar_base64, created_at, updated_at)) => {
+            Ok(Json(UserProfile {
+                id,
+                username,
+                email,
+                display_name,
+                avatar_base64,
+                created_at,
+                updated_at,
+            }))
+        }
+        None => Err(StatusCode::NOT_FOUND),
+    }
+}
+
+/// Update user profile information
+async fn update_profile_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Json(req): Json<UpdateProfileRequest>,
+) -> Result<Json<UserProfile>, StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    let now = Utc::now().to_rfc3339();
+    
+    // Update profile fields
+    sqlx::query(
+        "UPDATE users SET email = COALESCE(?, email), display_name = COALESCE(?, display_name), avatar_base64 = COALESCE(?, avatar_base64), updated_at = ? WHERE id = ?"
+    )
+    .bind(&req.email)
+    .bind(&req.display_name)
+    .bind(&req.avatar_base64)
+    .bind(&now)
+    .bind(&user_id)
+    .execute(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    // Fetch and return updated profile
+    get_profile_handler(State(state), user).await
+}
+
+/// Get user settings (theme, language, default view)
+async fn get_user_settings_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<Json<UserSettings>, StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    
+    let settings: Option<(String, String, String)> = 
+        sqlx::query_as(
+            "SELECT language, theme, default_view FROM users WHERE id = ?"
+        )
+        .bind(&user_id)
+        .fetch_optional(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    match settings {
+        Some((language, theme, default_view)) => {
+            Ok(Json(UserSettings {
+                language,
+                theme,
+                default_view,
+            }))
+        }
+        None => Err(StatusCode::NOT_FOUND),
+    }
+}
+
+/// Update user settings
+async fn update_user_settings_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Json(req): Json<UpdateSettingsRequest>,
+) -> Result<Json<UserSettings>, StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    let now = Utc::now().to_rfc3339();
+    
+    // Update settings (only non-null values)
+    let query_str = if req.language.is_some() && req.theme.is_some() && req.default_view.is_some() {
+        "UPDATE users SET language = ?, theme = ?, default_view = ?, updated_at = ? WHERE id = ?"
+    } else if req.language.is_some() && req.theme.is_some() {
+        "UPDATE users SET language = ?, theme = ?, updated_at = ? WHERE id = ?"
+    } else if req.language.is_some() && req.default_view.is_some() {
+        "UPDATE users SET language = ?, default_view = ?, updated_at = ? WHERE id = ?"
+    } else if req.theme.is_some() && req.default_view.is_some() {
+        "UPDATE users SET theme = ?, default_view = ?, updated_at = ? WHERE id = ?"
+    } else if req.language.is_some() {
+        "UPDATE users SET language = ?, updated_at = ? WHERE id = ?"
+    } else if req.theme.is_some() {
+        "UPDATE users SET theme = ?, updated_at = ? WHERE id = ?"
+    } else if req.default_view.is_some() {
+        "UPDATE users SET default_view = ?, updated_at = ? WHERE id = ?"
+    } else {
+        // Nothing to update
+        return get_user_settings_handler(State(state), user).await;
+    };
+    
+    // Build query dynamically based on provided fields
+    let mut query = sqlx::query(query_str);
+    
+    if let Some(lang) = req.language {
+        query = query.bind(lang);
+    }
+    if let Some(theme) = req.theme {
+        query = query.bind(theme);
+    }
+    if let Some(view) = req.default_view {
+        query = query.bind(view);
+    }
+    query = query.bind(&now).bind(&user_id);
+    
+    query
+        .execute(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    // Fetch and return updated settings
+    get_user_settings_handler(State(state), user).await
+}
 
 // Handler for root directory listing (/api/files/)
 async fn list_files_root(
@@ -475,7 +666,7 @@ async fn download_file_handler(
 
 async fn upload_file_handler(
     State(state): State<AppState>,
-    _user: auth::User,
+    user: auth::User,
     AxumPath(path): AxumPath<String>,
     body: Bytes,
 ) -> Result<(StatusCode, &'static str), StatusCode> {
@@ -488,6 +679,23 @@ async fn upload_file_handler(
     fs::write(Path::new(DATA_DIR).join(&path), &body)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    // Log activity
+    let user_id = user.id.to_string();
+    let pool = &state.db_pool;
+    let log_id = Uuid::new_v4().to_string();
+    let _ = sqlx::query(
+        "INSERT INTO file_history (id, user_id, action, file_path, status, error_message, created_at) 
+         VALUES (?, ?, ?, ?, ?, ?, datetime('now'))"
+    )
+    .bind(&log_id)
+    .bind(&user_id)
+    .bind("created")
+    .bind(&path)
+    .bind("success")
+    .bind::<Option<String>>(None)
+    .execute(pool)
+    .await;
     
     // Broadcast event
     let _ = state.fs_tx.send(FileChangeEvent {
@@ -713,6 +921,21 @@ async fn delete_file_handler(
             timestamp: Utc::now(),
         });
         
+        // Log activity
+        let log_id = Uuid::new_v4().to_string();
+        let _ = sqlx::query(
+            "INSERT INTO file_history (id, user_id, action, file_path, status, error_message, created_at) 
+             VALUES (?, ?, ?, ?, ?, ?, datetime('now'))"
+        )
+        .bind(&log_id)
+        .bind(&user.id.to_string())
+        .bind("deleted")
+        .bind(&path)
+        .bind("success")
+        .bind::<Option<String>>(None)
+        .execute(pool)
+        .await;
+        
         Ok((StatusCode::OK, "moved to trash"))
     } else {
         Err(StatusCode::NOT_FOUND)
@@ -738,7 +961,7 @@ async fn create_dir_handler(
 
 async fn rename_file_handler(
     State(state): State<AppState>,
-    _user: auth::User,
+    user: auth::User,
     AxumPath(old_path): AxumPath<String>,
     Json(req): Json<RenameRequest>,
 ) -> Result<(StatusCode, &'static str), StatusCode> {
@@ -750,6 +973,23 @@ async fn rename_file_handler(
     }
     
     fs::rename(old_full, new_full).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    // Log activity
+    let user_id = user.id.to_string();
+    let pool = &state.db_pool;
+    let log_id = Uuid::new_v4().to_string();
+    let _ = sqlx::query(
+        "INSERT INTO file_history (id, user_id, action, file_path, status, error_message, created_at) 
+         VALUES (?, ?, ?, ?, ?, ?, datetime('now'))"
+    )
+    .bind(&log_id)
+    .bind(&user_id)
+    .bind("renamed")
+    .bind(&req.new_path)
+    .bind("success")
+    .bind::<Option<String>>(None)
+    .execute(pool)
+    .await;
     
     let _ = state.fs_tx.send(FileChangeEvent {
         path: req.new_path,
@@ -1622,4 +1862,402 @@ async fn delete_favorite_handler(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
     Ok((StatusCode::OK, ""))
+}
+
+// ==================== COMMENTS & TAGS HANDLERS ====================
+
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
+struct Comment {
+    id: String,
+    item_type: String,
+    item_id: String,
+    file_path: String,
+    author_id: String,
+    text: String,
+    is_resolved: bool,
+    created_at: String,
+    updated_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct CreateCommentRequest {
+    item_type: String, // 'file' or 'folder'
+    item_id: String,
+    file_path: String,
+    text: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
+struct Tag {
+    id: String,
+    name: String,
+    color: Option<String>,
+    owner_id: String,
+    created_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct CreateTagRequest {
+    name: String,
+    color: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct FileTagRequest {
+    item_type: String, // 'file' or 'folder'
+    file_id: String,
+    file_path: String,
+    tag_ids: Vec<String>,
+}
+
+/// Create a comment on a file or folder
+async fn create_comment_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Json(req): Json<CreateCommentRequest>,
+) -> Result<(StatusCode, Json<Comment>), StatusCode> {
+    let pool = &state.db_pool;
+    let comment_id = Uuid::new_v4().to_string();
+    let now = Utc::now().to_rfc3339();
+    let user_id = user.id.to_string();
+    
+    sqlx::query(
+        "INSERT INTO comments (id, item_type, item_id, file_path, author_id, text, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    )
+    .bind(&comment_id)
+    .bind(&req.item_type)
+    .bind(&req.item_id)
+    .bind(&req.file_path)
+    .bind(&user_id)
+    .bind(&req.text)
+    .bind(&now)
+    .bind(&now)
+    .execute(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    Ok((
+        StatusCode::CREATED,
+        Json(Comment {
+            id: comment_id,
+            item_type: req.item_type,
+            item_id: req.item_id,
+            file_path: req.file_path,
+            author_id: user_id,
+            text: req.text,
+            is_resolved: false,
+            created_at: now.clone(),
+            updated_at: now,
+        }),
+    ))
+}
+
+/// List comments for a file/folder
+async fn list_comments_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    Query(params): Query<HashMap<String, String>>,
+) -> Result<Json<Vec<Comment>>, StatusCode> {
+    let pool = &state.db_pool;
+    let file_path = params.get("file_path").ok_or(StatusCode::BAD_REQUEST)?;
+    
+    let comments = sqlx::query_as::<_, Comment>(
+        "SELECT id, item_type, item_id, file_path, author_id, text, is_resolved, created_at, updated_at
+         FROM comments WHERE file_path = ? ORDER BY created_at DESC"
+    )
+    .bind(file_path)
+    .fetch_all(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    Ok(Json(comments))
+}
+
+/// Delete a comment
+async fn delete_comment_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    AxumPath(comment_id): AxumPath<String>,
+) -> Result<(StatusCode, &'static str), StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    
+    // Verify ownership
+    sqlx::query("DELETE FROM comments WHERE id = ? AND author_id = ?")
+        .bind(&comment_id)
+        .bind(&user_id)
+        .execute(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    Ok((StatusCode::OK, "deleted"))
+}
+
+/// Create a new tag for the user
+async fn create_tag_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Json(req): Json<CreateTagRequest>,
+) -> Result<(StatusCode, Json<Tag>), StatusCode> {
+    let pool = &state.db_pool;
+    let tag_id = Uuid::new_v4().to_string();
+    let now = Utc::now().to_rfc3339();
+    let user_id = user.id.to_string();
+    
+    sqlx::query(
+        "INSERT INTO tags (id, name, color, owner_id, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?)"
+    )
+    .bind(&tag_id)
+    .bind(&req.name)
+    .bind(&req.color)
+    .bind(&user_id)
+    .bind(&now)
+    .bind(&now)
+    .execute(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    Ok((
+        StatusCode::CREATED,
+        Json(Tag {
+            id: tag_id,
+            name: req.name,
+            color: req.color,
+            owner_id: user_id,
+            created_at: now.clone(),
+        }),
+    ))
+}
+
+/// List all tags for the user
+async fn list_tags_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<Json<Vec<Tag>>, StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    
+    let tags = sqlx::query_as::<_, Tag>(
+        "SELECT id, name, color, owner_id, created_at FROM tags WHERE owner_id = ? ORDER BY name ASC"
+    )
+    .bind(&user_id)
+    .fetch_all(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    Ok(Json(tags))
+}
+
+/// Delete a tag
+async fn delete_tag_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    AxumPath(tag_id): AxumPath<String>,
+) -> Result<(StatusCode, &'static str), StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    
+    // Verify ownership and delete
+    sqlx::query("DELETE FROM tags WHERE id = ? AND owner_id = ?")
+        .bind(&tag_id)
+        .bind(&user_id)
+        .execute(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    Ok((StatusCode::OK, "deleted"))
+}
+
+/// Add tags to a file
+async fn tag_file_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Json(req): Json<FileTagRequest>,
+) -> Result<(StatusCode, &'static str), StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    
+    // Add each tag
+    for tag_id in req.tag_ids {
+        let file_tag_id = Uuid::new_v4().to_string();
+        let now = Utc::now().to_rfc3339();
+        
+        let _ = sqlx::query(
+            "INSERT OR IGNORE INTO file_tags (id, file_id, tag_id, item_type, file_path, tagged_by, created_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?)"
+        )
+        .bind(&file_tag_id)
+        .bind(&req.file_id)
+        .bind(&tag_id)
+        .bind(&req.item_type)
+        .bind(&req.file_path)
+        .bind(&user_id)
+        .bind(&now)
+        .execute(pool)
+        .await;
+    }
+    
+    Ok((StatusCode::OK, "tagged"))
+}
+
+/// Remove tags from a file
+async fn untag_file_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    AxumPath(file_id): AxumPath<String>,
+    Query(params): Query<HashMap<String, String>>,
+) -> Result<(StatusCode, &'static str), StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    let tag_id = params.get("tag_id").ok_or(StatusCode::BAD_REQUEST)?;
+    
+    sqlx::query(
+        "DELETE FROM file_tags WHERE file_id = ? AND tag_id = ? AND tagged_by = ?"
+    )
+    .bind(&file_id)
+    .bind(tag_id)
+    .bind(&user_id)
+    .execute(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    Ok((StatusCode::OK, "untagged"))
+}
+
+// ==================== ACTIVITY LOG HANDLERS ====================
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ActivityLog {
+    id: String,
+    user_id: String,
+    action: String,
+    file_path: String,
+    status: String,
+    error_message: Option<String>,
+    created_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct ActivityQuery {
+    limit: Option<i64>,
+    offset: Option<i64>,
+    action: Option<String>,
+}
+
+/// List activity logs for the current user
+async fn list_activity_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Query(params): Query<ActivityQuery>,
+) -> Result<Json<Vec<ActivityLog>>, StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    let limit = params.limit.unwrap_or(100).min(1000);
+    let offset = params.offset.unwrap_or(0);
+    
+    let query_str = if params.action.is_some() {
+        "SELECT id, user_id, action, file_path, status, error_message, created_at FROM file_history 
+         WHERE user_id = ? AND action = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
+    } else {
+        "SELECT id, user_id, action, file_path, status, error_message, created_at FROM file_history 
+         WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
+    };
+    
+    let mut query = sqlx::query_as::<_, (String, String, String, String, String, Option<String>, String)>(query_str)
+        .bind(&user_id);
+    
+    if let Some(action) = params.action {
+        query = query.bind(action);
+    }
+    
+    let activities: Vec<(String, String, String, String, String, Option<String>, String)> = query
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let result = activities.into_iter().map(|(id, user_id, action, file_path, status, error_message, created_at)| {
+        ActivityLog { id, user_id, action, file_path, status, error_message, created_at }
+    }).collect();
+    
+    Ok(Json(result))
+}
+
+#[derive(Debug, Serialize)]
+struct ActivityStats {
+    total_actions: i64,
+    uploads_count: i64,
+    downloads_count: i64,
+    deletes_count: i64,
+    renames_count: i64,
+    failed_actions: i64,
+}
+
+/// Get activity statistics for the current user
+async fn activity_stats_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<Json<ActivityStats>, StatusCode> {
+    let pool = &state.db_pool;
+    let user_id = user.id.to_string();
+    
+    let total: (i64,) = sqlx::query_as(
+        "SELECT COUNT(*) FROM file_history WHERE user_id = ?"
+    )
+    .bind(&user_id)
+    .fetch_one(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let uploads: (i64,) = sqlx::query_as(
+        "SELECT COUNT(*) FROM file_history WHERE user_id = ? AND action = 'created'"
+    )
+    .bind(&user_id)
+    .fetch_one(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let downloads: (i64,) = sqlx::query_as(
+        "SELECT COUNT(*) FROM file_history WHERE user_id = ? AND action = 'downloaded'"
+    )
+    .bind(&user_id)
+    .fetch_one(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let deletes: (i64,) = sqlx::query_as(
+        "SELECT COUNT(*) FROM file_history WHERE user_id = ? AND action = 'deleted'"
+    )
+    .bind(&user_id)
+    .fetch_one(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let renames: (i64,) = sqlx::query_as(
+        "SELECT COUNT(*) FROM file_history WHERE user_id = ? AND action = 'renamed'"
+    )
+    .bind(&user_id)
+    .fetch_one(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let failed: (i64,) = sqlx::query_as(
+        "SELECT COUNT(*) FROM file_history WHERE user_id = ? AND status = 'failed'"
+    )
+    .bind(&user_id)
+    .fetch_one(pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    Ok(Json(ActivityStats {
+        total_actions: total.0,
+        uploads_count: uploads.0,
+        downloads_count: downloads.0,
+        deletes_count: deletes.0,
+        renames_count: renames.0,
+        failed_actions: failed.0,
+    }))
 }
