@@ -14,9 +14,16 @@
   );
   $: groupedActivities = groupByDate(filteredActivities);
 
-  onMount(() => {
-    // Cleanup old activities on mount
-    activity.cleanup(30);
+  onMount(async () => {
+    // Load activities from backend
+    await activity.load({ limit: 100 });
+    
+    // Cleanup old localStorage data if exists
+    const oldKey = 'syncspace_activity';
+    if (localStorage.getItem(oldKey)) {
+      localStorage.removeItem(oldKey);
+      console.log('Cleaned up old localStorage activities');
+    }
   });
 
   /**

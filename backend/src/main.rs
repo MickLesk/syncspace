@@ -195,7 +195,7 @@ async fn main() {
 fn build_router(state: AppState) -> Router {
     // API key middleware enforces a configured api_key for mutating requests (POST/PUT/DELETE).
     // If `config.api_key` is None, middleware lets requests through (development mode).
-    async fn api_key_middleware(state: AppState, req: Request<Body>, next: middleware::Next<Body>) -> Response {
+    async fn api_key_middleware(State(state): State<AppState>, req: Request<Body>, next: middleware::Next) -> Response {
         // Allow safe methods and CORS preflight through
         if req.method() == Method::GET || req.method() == Method::OPTIONS {
             return next.run(req).await;
@@ -250,26 +250,26 @@ fn build_router(state: AppState) -> Router {
     // File routes (protected)
     let file_routes = Router::new()
         .route("/api/files/", get(list_files_root))  // Root directory with trailing slash
-        .route("/api/files/*path", get(list_files_handler))  // Subdirectories
-        .route("/api/file/*path", get(download_file_handler))
-        .route("/api/upload/*path", post(upload_file_handler))
+        .route("/api/file/{*path}", get(download_file_handler))
+        .route("/api/upload/{*path}", post(upload_file_handler))
         .route("/api/upload-multipart", post(upload_multipart_handler))
-        .route("/api/files/*path", delete(delete_file_handler))
-        .route("/api/dirs/*path", post(create_dir_handler))
-        .route("/api/rename/*path", put(rename_file_handler));
+        .route("/api/dirs/{*path}", post(create_dir_handler))
+        .route("/api/rename/{*path}", put(rename_file_handler))
+        // Wildcard routes LAST
+        .route("/api/files/{*path}", get(list_files_handler).delete(delete_file_handler));
     
     // Trash routes (protected)
     let trash_routes = Router::new()
         .route("/api/trash", get(list_trash_handler))
-        .route("/api/trash/restore/*path", post(restore_trash_handler))
-        .route("/api/trash/permanent/*path", delete(permanent_delete_handler))
+        .route("/api/trash/restore/{*path}", post(restore_trash_handler))
+        .route("/api/trash/permanent/{*path}", delete(permanent_delete_handler))
         .route("/api/trash/cleanup", delete(cleanup_trash_handler))
         .route("/api/trash/empty", delete(empty_trash_handler));
     
     // Favorites routes (protected)
     let favorites_routes = Router::new()
         .route("/api/favorites", get(list_favorites_handler).post(toggle_favorite_handler))
-        .route("/api/favorites/:id", delete(delete_favorite_handler));
+        .route("/api/favorites/{id}", delete(delete_favorite_handler));
     
     // Activity/Audit Log routes (protected)
     let activity_routes = Router::new()
@@ -279,10 +279,10 @@ fn build_router(state: AppState) -> Router {
     // Comments & Tags routes (protected)
     let comments_tags_routes = Router::new()
         .route("/api/comments", post(create_comment_handler).get(list_comments_handler))
-        .route("/api/comments/:id", delete(delete_comment_handler))
+        .route("/api/comments/{id}", delete(delete_comment_handler))
         .route("/api/tags", get(list_tags_handler).post(create_tag_handler))
-        .route("/api/tags/:id", delete(delete_tag_handler))
-        .route("/api/files/:id/tags", post(tag_file_handler).delete(untag_file_handler));
+        .route("/api/tags/{id}", delete(delete_tag_handler))
+        .route("/api/file-tags/{id}", post(tag_file_handler).delete(untag_file_handler));  // Changed from /api/files/{id}/tags
     
     // Utility routes (protected)
     let utility_routes = Router::new()
@@ -422,7 +422,7 @@ async fn login_handler(
 }
 
 async fn setup_2fa_handler(
-    State(state): State<AppState>,
+    State(_state): State<AppState>,
     user: auth::User,
 ) -> Json<Setup2FAResponse> {
     let secret = auth::generate_totp_secret();
@@ -703,13 +703,32 @@ async fn list_files_handler(
 }
 
 async fn download_file_handler(
-    State(_state): State<AppState>,
-    _user: auth::User,
+    State(state): State<AppState>,
+    user: auth::User,
     AxumPath(path): AxumPath<String>,
 ) -> Result<Bytes, StatusCode> {
     let file_path = Path::new(DATA_DIR).join(&path);
     match fs::read(&file_path).await {
-        Ok(bytes) => Ok(Bytes::from(bytes)),
+        Ok(bytes) => {
+            // Log download activity
+            let user_id = user.id.to_string();
+            let pool = &state.db_pool;
+            let log_id = Uuid::new_v4().to_string();
+            let _ = sqlx::query(
+                "INSERT INTO file_history (id, user_id, action, file_path, status, error_message, created_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, datetime('now'))"
+            )
+            .bind(&log_id)
+            .bind(&user_id)
+            .bind("downloaded")
+            .bind(&path)
+            .bind("success")
+            .bind::<Option<String>>(None)
+            .execute(pool)
+            .await;
+            
+            Ok(Bytes::from(bytes))
+        },
         Err(_) => Err(StatusCode::NOT_FOUND),
     }
 }
@@ -1494,7 +1513,7 @@ async fn handle_ws_connection(socket: WebSocket, tx: Sender<FileChangeEvent>) {
     let mut send_task = tokio::spawn(async move {
         while let Ok(event) = rx.recv().await {
             if let Ok(msg) = serde_json::to_string(&event) {
-                if sender.send(Message::Text(msg)).await.is_err() {
+                if sender.send(Message::Text(msg.into())).await.is_err() {
                     break;
                 }
             }
@@ -2196,7 +2215,7 @@ async fn untag_file_handler(
 
 // ==================== ACTIVITY LOG HANDLERS ====================
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 struct ActivityLog {
     id: String,
     user_id: String,
@@ -2222,36 +2241,41 @@ async fn list_activity_handler(
 ) -> Result<Json<Vec<ActivityLog>>, StatusCode> {
     let pool = &state.db_pool;
     let user_id = user.id.to_string();
-    let limit = params.limit.unwrap_or(100).min(1000);
-    let offset = params.offset.unwrap_or(0);
+    let limit = params.limit.unwrap_or(100).min(1000) as i32;
+    let offset = params.offset.unwrap_or(0) as i32;
     
-    let query_str = if params.action.is_some() {
-        "SELECT id, user_id, action, file_path, status, error_message, created_at FROM file_history 
-         WHERE user_id = ? AND action = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
-    } else {
-        "SELECT id, user_id, action, file_path, status, error_message, created_at FROM file_history 
-         WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
-    };
-    
-    let mut query = sqlx::query_as::<_, (String, String, String, String, String, Option<String>, String)>(query_str)
-        .bind(&user_id);
-    
-    if let Some(action) = params.action {
-        query = query.bind(action);
-    }
-    
-    let activities: Vec<(String, String, String, String, String, Option<String>, String)> = query
+    let activities: Vec<ActivityLog> = if let Some(action) = params.action {
+        sqlx::query_as::<_, ActivityLog>(
+            "SELECT id, user_id, action, file_path, status, error_message, created_at FROM file_history 
+             WHERE user_id = ? AND action = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
+        )
+        .bind(&user_id)
+        .bind(action)
         .bind(limit)
         .bind(offset)
         .fetch_all(pool)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| {
+            eprintln!("Activity query error: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?
+    } else {
+        sqlx::query_as::<_, ActivityLog>(
+            "SELECT id, user_id, action, file_path, status, error_message, created_at FROM file_history 
+             WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
+        )
+        .bind(&user_id)
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(pool)
+        .await
+        .map_err(|e| {
+            eprintln!("Activity query error: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?
+    };
     
-    let result = activities.into_iter().map(|(id, user_id, action, file_path, status, error_message, created_at)| {
-        ActivityLog { id, user_id, action, file_path, status, error_message, created_at }
-    }).collect();
-    
-    Ok(Json(result))
+    Ok(Json(activities))
 }
 
 #[derive(Debug, Serialize)]

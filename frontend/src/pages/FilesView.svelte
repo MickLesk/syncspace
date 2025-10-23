@@ -132,10 +132,15 @@
   let showNewFolderDialog = false;
   let showPreviewModal = false;
   let showCommentsPanel = false;
+  let showMoveDialog = false;
+  let showPropertiesDialog = false;
   let fileToDelete = null;
   let fileToRename = null;
   let fileToPreview = null;
   let fileForComments = null;
+  let fileToMove = null;
+  let fileForProperties = null;
+  let availableFolders = [];
 
   function toggleViewMode() {
     viewMode = viewMode === "grid" ? "list" : "grid";
@@ -335,6 +340,9 @@
 
     // Load favorites from API on mount
     await favorites.load();
+    
+    // Load activities from backend
+    await activity.load({ limit: 50 });
 
     // loadFiles() will be called by reactive statement
 
@@ -575,8 +583,7 @@
           successCount++;
           uploadProgress.current++;
 
-          // Track activity
-          activity.add("upload", file.name, $currentPath);
+          // Backend logs upload automatically, no need to track here
 
           // Mark file as complete
           fileUploadProgress[file.name].percent = 100;
@@ -859,8 +866,7 @@
       a.click();
       URL.revokeObjectURL(url);
 
-      // Track activity
-      activity.add("download", file.name, $currentPath);
+      // Backend can log downloads if needed
 
       success(`"${file.name}" ${t($currentLang, "downloading")}`);
     } catch (err) {
@@ -1019,6 +1025,9 @@
       case "rename":
         renameFile(contextMenuFile);
         break;
+      case "move":
+        openMoveDialog(contextMenuFile);
+        break;
       case "delete":
         deleteFile(contextMenuFile);
         break;
@@ -1032,7 +1041,7 @@
         showComments(contextMenuFile);
         break;
       case "properties":
-        showFileProperties(contextMenuFile);
+        openPropertiesDialog(contextMenuFile);
         break;
     }
 
@@ -1053,6 +1062,85 @@
     } catch (err) {
       errorToast(t(lang, "failedToCopyLink"));
     }
+  }
+
+  /**
+   * Open move dialog with folder selection
+   */
+  async function openMoveDialog(file) {
+    fileToMove = file;
+    // Load all available folders recursively
+    await loadAvailableFolders();
+    showMoveDialog = true;
+  }
+
+  /**
+   * Load all folders in the system for move dialog
+   */
+  async function loadAvailableFolders() {
+    try {
+      const allFolders = [{ name: "Home", path: "/" }];
+      await recursivelyLoadFolders("/", allFolders);
+      availableFolders = allFolders;
+    } catch (err) {
+      console.error("Failed to load folders:", err);
+      availableFolders = [{ name: "Home", path: "/" }];
+    }
+  }
+
+  /**
+   * Recursively load folders from a path
+   */
+  async function recursivelyLoadFolders(path, foldersList) {
+    try {
+      const backendPath = toBackendPath(path);
+      const response = await api.files.list(backendPath);
+      const folders = response.files.filter(f => f.is_dir);
+      
+      for (const folder of folders) {
+        const folderPath = path === "/" ? `/${folder.name}/` : `${path}${folder.name}/`;
+        foldersList.push({ name: folderPath, path: folderPath });
+        // Recursively load subfolders (limit depth to avoid infinite loops)
+        if (foldersList.length < 100) {
+          await recursivelyLoadFolders(folderPath, foldersList);
+        }
+      }
+    } catch (err) {
+      console.error(`Failed to load folders from ${path}:`, err);
+    }
+  }
+
+  /**
+   * Execute file move to selected folder
+   */
+  async function executeMoveFile(targetPath) {
+    if (!fileToMove) return;
+
+    try {
+      const oldPath = buildFilePath($currentPath, fileToMove.name);
+      const newPath = targetPath === "/" 
+        ? fileToMove.name 
+        : `${toBackendPath(targetPath)}/${fileToMove.name}`;
+
+      await api.files.rename(oldPath, newPath);
+      success(`📁 "${fileToMove.name}" → "${targetPath}"`);
+      
+      showMoveDialog = false;
+      fileToMove = null;
+      
+      await loadFiles();
+    } catch (err) {
+      console.error("Failed to move file:", err);
+      errorToast(`❌ Fehler beim Verschieben: ${err.message}`);
+    }
+  }
+
+  /**
+   * Open properties dialog with file details
+   */
+  function openPropertiesDialog(file) {
+    fileForProperties = file;
+    showPropertiesDialog = true;
   }
 
   /**
@@ -1795,6 +1883,12 @@
       shortcut: "F2",
     },
     {
+      label: "Move to...",
+      icon: "arrows-move",
+      action: "move",
+      shortcut: "Ctrl+M",
+    },
+    {
       label: "Delete",
       icon: "trash",
       action: "delete",
@@ -1829,6 +1923,79 @@
   on:close={hideContextMenu}
   on:itemClick={(e) => handleContextMenuAction(e.detail.action)}
 />
+
+<!-- Move File Dialog -->
+{#if showMoveDialog && fileToMove}
+  <div class="custom-dialog-backdrop" on:click={() => { showMoveDialog = false; fileToMove = null; }}>
+    <div class="custom-dialog" on:click|stopPropagation>
+      <div class="dialog-header">
+        <h2>Move '{fileToMove.name}' to...</h2>
+        <button class="close-btn" onclick={() => { showMoveDialog = false; fileToMove = null; }}>
+          <Icon name="x" />
+        </button>
+      </div>
+      
+      <div class="folder-list">
+        {#if availableFolders.length === 0}
+          <div class="empty-state">
+            <p>Loading folders...</p>
+          </div>
+        {:else}
+          {#each availableFolders as folder}
+            <button
+              class="folder-item"
+              onclick={() => executeMoveFile(folder.path)}
+            >
+              <Icon name="folder" />
+              <span>{folder.name}</span>
+            </button>
+          {/each}
+        {/if}
+      </div>
+    </div>
+  </div>
+{/if}
+
+<!-- File Properties Dialog -->
+{#if showPropertiesDialog && fileForProperties}
+  <div class="custom-dialog-backdrop" on:click={() => { showPropertiesDialog = false; fileForProperties = null; }}>
+    <div class="custom-dialog" on:click|stopPropagation>
+      <div class="dialog-header">
+        <h2>Properties</h2>
+        <button class="close-btn" onclick={() => { showPropertiesDialog = false; fileForProperties = null; }}>
+          <Icon name="x" />
+        </button>
+      </div>
+      
+      <div class="properties-grid">
+        <div class="prop-row">
+          <span class="prop-label">Name:</span>
+          <span class="prop-value">{fileForProperties.name}</span>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">Size:</span>
+          <span class="prop-value">{formatSize(fileForProperties.size)}</span>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">Type:</span>
+          <span class="prop-value">
+            {fileForProperties.is_dir ? "Folder" : getFileType(fileForProperties.name)}
+          </span>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">Modified:</span>
+          <span class="prop-value">
+            {new Date(fileForProperties.modified_at).toLocaleString()}
+          </span>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">Location:</span>
+          <span class="prop-value">{$currentPath}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+{/if}
 
 <style>
   .files-view {
@@ -2894,4 +3061,79 @@
       right: max(20px, env(safe-area-inset-right));
     }
   }
+
+  /* Move Dialog Styles */
+  .folder-list {
+    max-height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .folder-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: none;
+    background: var(--md-sys-color-surface-container-low);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--md-sys-color-on-surface);
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+  }
+
+  .folder-item:hover {
+    background: var(--md-sys-color-surface-container-high);
+    transform: translateX(4px);
+  }
+
+  .folder-item :global(.icon) {
+    font-size: 20px;
+    color: var(--md-sys-color-primary);
+  }
+
+  .empty-state {
+    padding: 40px;
+    text-align: center;
+    color: var(--md-sys-color-on-surface-variant);
+  }
+
+  /* Properties Dialog Styles */
+  .properties-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 8px;
+  }
+
+  .prop-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 16px;
+    align-items: center;
+    padding: 12px;
+    background: var(--md-sys-color-surface-container-low);
+    border-radius: 8px;
+  }
+
+  .prop-label {
+    font-weight: 600;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .prop-value {
+    color: var(--md-sys-color-on-surface);
+    font-size: 14px;
+    word-break: break-word;
+  }
 </style>
+
