@@ -237,7 +237,9 @@ fn build_router(state: AppState) -> Router {
         .route("/api/comments/:id", delete(delete_comment_handler))
         .route("/api/tags", get(list_tags_handler).post(create_tag_handler))
         .route("/api/tags/:id", delete(delete_tag_handler))
-        .route("/api/files/:id/tags", post(tag_file_handler).delete(untag_file_handler));
+        // Use file-tags namespace to avoid conflict with /api/files/*path
+        .route("/api/file-tags", post(tag_file_handler))
+        .route("/api/file-tags/:id", delete(untag_file_handler));
     
     // Utility routes (protected)
     let utility_routes = Router::new()
