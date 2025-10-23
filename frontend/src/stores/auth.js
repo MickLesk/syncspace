@@ -1,4 +1,8 @@
 import { writable } from 'svelte/store';
+import { t } from '../i18n.js';
+
+// TODO: Get from settings store once implemented
+const getCurrentLanguage = () => localStorage.getItem('language') || 'de';
 
 function createAuthStore() {
   // Clean up old demo tokens
@@ -52,11 +56,13 @@ function createAuthStore() {
           
           return { success: true };
         } else {
-          return { success: false, error: data.error || 'Invalid credentials' };
+          const lang = getCurrentLanguage();
+          return { success: false, error: data.error || t(lang, 'invalidCredentials') };
         }
       } catch (error) {
         console.error('❌ Login error:', error);
-        return { success: false, error: 'Backend nicht erreichbar. Läuft der Server auf localhost:8080?' };
+        const lang = getCurrentLanguage();
+        return { success: false, error: t(lang, 'backendNotReachable') };
       }
     },
     logout: () => {

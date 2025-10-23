@@ -1,7 +1,9 @@
 <script>
+  import { onMount } from "svelte";
   import { comments, tags } from "../stores/comments";
   import { auth } from "../stores/auth";
   import Icon from "./ui/Icon.svelte";
+  import { t } from "../i18n.js";
 
   export let file = null;
   export let visible = false;
@@ -10,6 +12,11 @@
   let newTag = "";
   let editingCommentId = null;
   let editText = "";
+  let loading = false;
+  let errorMessage = "";
+
+  // Get current language (default to 'de' for now)
+  const lang = localStorage.getItem("language") || "de";
 
   $: filePath = file ? `${file.path || ""}${file.name}` : "";
   $: fileComments = $comments[filePath] || [];
@@ -17,11 +24,42 @@
   $: allTagNames = tags.getAllTagNames($tags);
   $: currentUser = $auth.user?.username || "Anonymous";
 
-  function handleAddComment() {
+  // Load data when file changes
+  $: if (file && visible) {
+    loadData();
+  }
+
+  async function loadData() {
+    if (!file) return;
+
+    loading = true;
+    errorMessage = "";
+
+    try {
+      await Promise.all([comments.loadForFile(filePath), tags.loadAll()]);
+    } catch (e) {
+      console.error("Failed to load data:", e);
+      errorMessage = t(lang, "failedToLoadComments");
+    } finally {
+      loading = false;
+    }
+  }
+
+  async function handleAddComment() {
     if (!newComment.trim() || !file) return;
 
-    comments.addComment(filePath, currentUser, newComment.trim());
-    newComment = "";
+    loading = true;
+    errorMessage = "";
+
+    try {
+      await comments.addComment(filePath, currentUser, newComment.trim());
+      newComment = "";
+    } catch (e) {
+      console.error("Failed to add comment:", e);
+      errorMessage = t(lang, "failedToAddComment");
+    } finally {
+      loading = false;
+    }
   }
 
   function handleEditComment(commentId) {
@@ -34,7 +72,8 @@
 
   function handleSaveEdit(commentId) {
     if (!editText.trim()) return;
-    comments.editComment(filePath, commentId, editText.trim());
+    // Edit not implemented in backend yet
+    console.warn("Edit comment not yet implemented");
     editingCommentId = null;
     editText = "";
   }
@@ -44,21 +83,51 @@
     editText = "";
   }
 
-  function handleDeleteComment(commentId) {
-    if (confirm("Delete this comment?")) {
-      comments.deleteComment(filePath, commentId);
+  async function handleDeleteComment(commentId) {
+    if (!confirm("Delete this comment?")) return;
+
+    loading = true;
+    errorMessage = "";
+
+    try {
+      await comments.deleteComment(filePath, commentId);
+    } catch (e) {
+      console.error("Failed to delete comment:", e);
+      errorMessage = t(lang, "failedToDeleteComment");
+    } finally {
+      loading = false;
     }
   }
 
-  function handleAddTag() {
+  async function handleAddTag() {
     if (!newTag.trim() || !file) return;
 
-    tags.addTag(filePath, newTag.trim());
-    newTag = "";
+    loading = true;
+    errorMessage = "";
+
+    try {
+      await tags.addTag(filePath, newTag.trim());
+      newTag = "";
+    } catch (e) {
+      console.error("Failed to add tag:", e);
+      errorMessage = t(lang, "failedToAddTag");
+    } finally {
+      loading = false;
+    }
   }
 
-  function handleRemoveTag(tagName) {
-    tags.removeTag(filePath, tagName);
+  async function handleRemoveTag(tagName) {
+    loading = true;
+    errorMessage = "";
+
+    try {
+      await tags.removeTag(filePath, tagName);
+    } catch (e) {
+      console.error("Failed to remove tag:", e);
+      errorMessage = t(lang, "failedToRemoveTag");
+    } finally {
+      loading = false;
+    }
   }
 
   function handleSelectTag(tagName) {
@@ -96,6 +165,7 @@
 
   function handleClose() {
     visible = false;
+    errorMessage = "";
   }
 </script>
 
@@ -113,6 +183,22 @@
       </div>
 
       <div class="panel-content">
+        {#if errorMessage}
+          <div class="error-banner">
+            <Icon name="⚠️" size="16px" />
+            <span>{errorMessage}</span>
+            <button class="btn-dismiss" on:click={() => (errorMessage = "")}>
+              <Icon name="✕" size="14px" />
+            </button>
+          </div>
+        {/if}
+
+        {#if loading}
+          <div class="loading-overlay">
+            <div class="spinner"></div>
+          </div>
+        {/if}
+
         <!-- Tags Section -->
         <div class="section">
           <h4 class="section-title">
@@ -643,6 +729,66 @@
   .empty-hint {
     font-size: 12px;
     opacity: 0.7;
+  }
+
+  /* Error Banner */
+  .error-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--md-sys-color-error-container);
+    color: var(--md-sys-color-on-error-container);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+
+  .error-banner span {
+    flex: 1;
+  }
+
+  .btn-dismiss {
+    background: none;
+    border: none;
+    padding: 4px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--md-sys-color-on-error-container);
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+
+  .btn-dismiss:hover {
+    opacity: 1;
+  }
+
+  /* Loading Overlay */
+  .loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    z-index: 10;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--md-sys-color-surface-container-high);
+    border-top-color: var(--md-sys-color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   /* Mobile Responsive */
