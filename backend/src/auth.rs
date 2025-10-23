@@ -7,7 +7,6 @@ use argon2::{
     Argon2,
 };
 use axum::{
-    async_trait,
     extract::FromRequestParts,
     http::{request::Parts, StatusCode},
 };
@@ -169,7 +168,7 @@ impl UserDB {
 }
 
 /// JWT Claims structure
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
     pub sub: String, // user_id
     pub username: String,
@@ -213,13 +212,13 @@ pub fn verify_token(token: &str) -> Result<Claims, String> {
 /// TOTP 2FA Functions
 pub fn generate_totp_secret() -> String {
     use rand::Rng;
-    let mut rng = rand::thread_rng();
-    let bytes: Vec<u8> = (0..20).map(|_| rng.gen()).collect();
-    base32::encode(base32::Alphabet::RFC4648 { padding: false }, &bytes)
+    let mut rng = rand::rng();
+    let bytes: Vec<u8> = (0..20).map(|_| rng.random()).collect();
+    base32::encode(base32::Alphabet::Rfc4648 { padding: false }, &bytes)
 }
 
 pub fn generate_totp_code(secret: &str, time_step: u64) -> Result<String, String> {
-    let secret_bytes = base32::decode(base32::Alphabet::RFC4648 { padding: false }, secret)
+    let secret_bytes = base32::decode(base32::Alphabet::Rfc4648 { padding: false }, secret)
         .ok_or("Invalid base32 secret")?;
 
     let code = totp_custom::<Sha1>(30, 6, &secret_bytes, time_step);
@@ -246,7 +245,6 @@ pub fn verify_totp_code(secret: &str, code: &str) -> bool {
 
 /// Warp filter to extract authenticated user from JWT token
 /// Axum extractor for authenticated requests
-#[async_trait]
 impl<S> FromRequestParts<S> for User
 where
     S: Send + Sync,

@@ -1,106 +1,123 @@
 /**
- * Activity Timeline Store
- * Tracks file operations and user actions
+ * Activity Timeline Store - BACKEND-BASIERT
+ * Lädt Activities vom Backend für Multi-Client-Support (Web/Flutter/Windows)
  */
 
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 
-const STORAGE_KEY = 'syncspace_activity';
-const MAX_ACTIVITIES = 100;
-
-/**
- * Activity entry structure:
- * {
- *   id: string,
- *   type: 'upload' | 'download' | 'delete' | 'rename' | 'create' | 'move' | 'share',
- *   filename: string,
- *   path: string,
- *   timestamp: number,
- *   details?: string,
- *   icon: string
- * }
- */
+// Get auth token
+function getToken() {
+  let token = localStorage.getItem("authToken");
+  if (!token) {
+    try {
+      const authData = localStorage.getItem("auth");
+      if (authData) {
+        const parsed = JSON.parse(authData);
+        token = parsed.token;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+  return token;
+}
 
 function createActivityStore() {
-  // Load initial activities from localStorage
-  const stored = typeof localStorage !== 'undefined' 
-    ? localStorage.getItem(STORAGE_KEY) 
-    : null;
-  
-  const initial = stored ? JSON.parse(stored) : [];
-  
-  const { subscribe, set, update } = writable(initial);
+  const { subscribe, set, update } = writable([]);
+  const loading = writable(false);
+
+  // Icon mapping for display
+  const icons = {
+    created: '⬆️',
+    uploaded: '⬆️',
+    downloaded: '⬇️',
+    deleted: '🗑️',
+    renamed: '✏️',
+    moved: '📦',
+    shared: '🔗'
+  };
 
   return {
     subscribe,
     
     /**
-     * Add a new activity
+     * Load activities from backend API
      */
-    add: (type, filename, path = '', details = '') => {
-      const icons = {
-        upload: '⬆️',
-        download: '⬇️',
-        delete: '🗑️',
-        rename: '✏️',
-        create: '📁',
-        move: '📦',
-        share: '🔗',
-        favorite: '⭐',
-        unfavorite: '☆'
-      };
-
-      const activity = {
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        type,
-        filename,
-        path,
-        timestamp: Date.now(),
-        details,
-        icon: icons[type] || '📄'
-      };
-
-      update(activities => {
-        const updated = [activity, ...activities].slice(0, MAX_ACTIVITIES);
-        
-        // Persist to localStorage
-        if (typeof localStorage !== 'undefined') {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    load: async (params = {}) => {
+      loading.set(true);
+      
+      try {
+        const token = getToken();
+        if (!token) {
+          console.warn('Not authenticated - cannot load activities');
+          set([]);
+          loading.set(false);
+          return;
         }
         
-        return updated;
-      });
-    },
-
-    /**
-     * Clear all activities
-     */
-    clear: () => {
-      set([]);
-      if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem(STORAGE_KEY);
+        const queryParams = new URLSearchParams();
+        if (params.limit) queryParams.set('limit', params.limit.toString());
+        if (params.offset) queryParams.set('offset', params.offset.toString());
+        if (params.action) queryParams.set('action', params.action);
+        
+        const url = `http://localhost:8080/api/activity?${queryParams.toString()}`;
+        
+        const response = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const activities = await response.json();
+          
+          // Transform to frontend format
+          const transformed = activities.map(a => ({
+            ...a,
+            type: a.action,
+            filename: a.file_path.split('/').pop() || a.file_path,
+            path: a.file_path,
+            timestamp: new Date(a.created_at).getTime(),
+            details: a.error_message || '',
+            icon: icons[a.action] || '📄'
+          }));
+          
+          set(transformed);
+        } else {
+          console.error('Failed to load activities:', response.status);
+          set([]);
+        }
+      } catch (err) {
+        console.error('Failed to load activities from API:', err);
+        set([]);
+      } finally {
+        loading.set(false);
       }
     },
-
+    
     /**
-     * Remove activities older than N days
+     * Get activity statistics from backend
      */
-    cleanup: (daysOld = 30) => {
-      const cutoff = Date.now() - (daysOld * 24 * 60 * 60 * 1000);
-      
-      update(activities => {
-        const filtered = activities.filter(a => a.timestamp > cutoff);
+    getStats: async () => {
+      try {
+        const token = getToken();
+        if (!token) return null;
         
-        if (typeof localStorage !== 'undefined') {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+        const response = await fetch('http://localhost:8080/api/activity/stats', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          return await response.json();
         }
         
-        return filtered;
-      });
+        return null;
+      } catch (err) {
+        console.error('Failed to load activity stats:', err);
+        return null;
+      }
     },
-
+    
     /**
-     * Get activities for today
+     * Get activities for today (client-side filter)
      */
     getToday: () => {
       const today = new Date();
@@ -115,24 +132,20 @@ function createActivityStore() {
       
       return result;
     },
-
-    /**
-     * Get activity stats
-     */
-    getStats: () => {
-      let result = { total: 0, byType: {} };
-      const unsubscribe = subscribe(activities => {
-        result.total = activities.length;
-        result.byType = activities.reduce((acc, a) => {
-          acc[a.type] = (acc[a.type] || 0) + 1;
-          return acc;
-        }, {});
-      });
-      unsubscribe();
-      
-      return result;
-    }
+    
+    loading: { subscribe: loading.subscribe }
   };
 }
 
 export const activity = createActivityStore();
+
+// Derived stores
+export const activityCount = derived(
+  activity,
+  $activity => $activity.length
+);
+
+export const failedActivities = derived(
+  activity,
+  $activity => $activity.filter(a => a.status === 'failed')
+);

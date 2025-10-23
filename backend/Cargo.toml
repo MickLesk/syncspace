@@ -8,6 +8,7 @@ tokio = { version = "1", features = ["full"] }
 # Web framework - Axum with tower ecosystem
 axum = { version = "0.8", features = ["multipart", "ws", "macros"] }
 axum-extra = { version = "0.10", features = ["typed-header"] }
+async-trait = "0.1"
 tower = "0.5"
 tower-http = { version = "0.6", features = ["fs", "cors", "trace"] }
 base64 = "0.22"
@@ -22,7 +23,7 @@ futures-util = "0.3"
 walkdir = "2.5"
 
 # Authentication & Security
-jsonwebtoken = "10.1"
+jsonwebtoken = { version = "10.1", default-features = false, features = ["rust_crypto"] }
 argon2 = "0.5"
 rand = "0.9"
 totp-lite = "2.0"
