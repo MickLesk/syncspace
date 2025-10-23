@@ -414,6 +414,78 @@ export const activity = {
 };
 
 // ============================================
+// COMMENTS & TAGS
+// ============================================
+
+export const comments = {
+  async create(req) {
+    const response = await fetch(`${API_BASE}/comments`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(req),
+    });
+    return handleResponse(response);
+  },
+
+  async list(file_path) {
+    const params = new URLSearchParams({ file_path });
+    const response = await fetch(`${API_BASE}/comments?${params}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  async delete(id) {
+    const response = await fetch(`${API_BASE}/comments/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  }
+};
+
+export const tags = {
+  async list() {
+    const response = await fetch(`${API_BASE}/tags`, { headers: getHeaders() });
+    return handleResponse(response);
+  },
+
+  async create(req) {
+    const response = await fetch(`${API_BASE}/tags`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(req),
+    });
+    return handleResponse(response);
+  },
+
+  async delete(id) {
+    const response = await fetch(`${API_BASE}/tags/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  async tagFile(req) {
+    const response = await fetch(`${API_BASE}/file-tags`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(req),
+    });
+    return handleResponse(response);
+  },
+
+  async untagFile(file_tag_id) {
+    const response = await fetch(`${API_BASE}/file-tags/${encodeURIComponent(file_tag_id)}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  }
+};
+
+// ============================================
 // CONFIG & PEERS
 // ============================================
 
@@ -468,6 +540,8 @@ export default {
   search,
   config,
   peers,
+  comments,
+  tags,
   createWebSocket,
   // Trash endpoints
   listTrash: () => fetch(`${API_BASE}/trash`, { headers: getHeaders() }),
