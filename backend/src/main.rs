@@ -12,9 +12,11 @@ use std::sync::Arc;
 
 use axum::{
     extract::{ws::{Message, WebSocket, WebSocketUpgrade}, DefaultBodyLimit, Multipart, Path as AxumPath, Query, State},
-    http::{Method, StatusCode},
+    http::{Method, Request, StatusCode},
     response::{IntoResponse, Json, Response},
     routing::{delete, get, post, put},
+    middleware,
+    body::Body,
     Router,
 };
 use bytes::Bytes;
@@ -25,6 +27,7 @@ use serde::{Deserialize, Serialize};
 use tokio::fs;
 use tokio::sync::broadcast::{self, Sender};
 use tokio::sync::Mutex;
+use tokio::io::AsyncWriteExt;
 use tower_http::cors::{Any, CorsLayer};
 // ServeDir/ServeFile removed - using Vite dev server on port 5173
 use uuid::Uuid;
@@ -190,6 +193,48 @@ async fn main() {
 // ==================== ROUTER ====================
 
 fn build_router(state: AppState) -> Router {
+    // API key middleware enforces a configured api_key for mutating requests (POST/PUT/DELETE).
+    // If `config.api_key` is None, middleware lets requests through (development mode).
+    async fn api_key_middleware(state: AppState, req: Request<Body>, next: middleware::Next<Body>) -> Response {
+        // Allow safe methods and CORS preflight through
+        if req.method() == Method::GET || req.method() == Method::OPTIONS {
+            return next.run(req).await;
+        }
+
+        // Only enforce for mutating methods
+        let is_mutating = matches!(req.method(), &Method::POST | &Method::PUT | &Method::DELETE);
+        if !is_mutating {
+            return next.run(req).await;
+        }
+
+        // Allow public paths to bypass API-key check (auth endpoints, status, search, websocket)
+        if let Some(path) = req.uri().path().strip_prefix('/') {
+            let p = format!("/{}", path);
+            let public_prefixes = ["/api/auth", "/api/status", "/api/search", "/api/ws"];
+            for pref in &public_prefixes {
+                if p.starts_with(pref) {
+                    return next.run(req).await;
+                }
+            }
+        }
+
+        // Check configured api_key
+        let cfg = state.config.lock().await;
+        if let Some(expected) = &cfg.api_key {
+            // Extract header
+            let provided = req
+                .headers()
+                .get("x-api-key")
+                .and_then(|v| v.to_str().ok())
+                .unwrap_or("");
+
+            if provided != expected.as_str() {
+                return (StatusCode::UNAUTHORIZED).into_response();
+            }
+        }
+
+        next.run(req).await
+    }
     // Auth routes (public)
     let auth_routes = Router::new()
         .route("/api/auth/register", post(register_handler))
@@ -237,9 +282,7 @@ fn build_router(state: AppState) -> Router {
         .route("/api/comments/:id", delete(delete_comment_handler))
         .route("/api/tags", get(list_tags_handler).post(create_tag_handler))
         .route("/api/tags/:id", delete(delete_tag_handler))
-        // Use file-tags namespace to avoid conflict with /api/files/*path
-        .route("/api/file-tags", post(tag_file_handler))
-        .route("/api/file-tags/:id", delete(untag_file_handler));
+        .route("/api/files/:id/tags", post(tag_file_handler).delete(untag_file_handler));
     
     // Utility routes (protected)
     let utility_routes = Router::new()
@@ -258,7 +301,7 @@ fn build_router(state: AppState) -> Router {
         .route("/", get(root_handler));
     
     // Combine all routes
-    Router::new()
+    let router = Router::new()
         .merge(root_route)
         .merge(auth_routes)
         .merge(file_routes)
@@ -268,8 +311,13 @@ fn build_router(state: AppState) -> Router {
         .merge(comments_tags_routes)
         .merge(utility_routes)
         .merge(ws_route)
-        // Note: Frontend is served by Vite on port 5173 in development
-        // In production, use a reverse proxy (nginx/caddy) or build frontend into ./dist
+    ;
+
+    // Note: Frontend is served by Vite on port 5173 in development
+    // In production, use a reverse proxy (nginx/caddy) or build frontend into ./dist
+    router
+        // API-key middleware applied with state (cloned)
+        .layer(middleware::from_fn_with_state(state.clone(), api_key_middleware))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
@@ -678,9 +726,22 @@ async fn upload_file_handler(
         fs::create_dir_all(parent).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     }
     
-    fs::write(Path::new(DATA_DIR).join(&path), &body)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    // Write atomically: write to a .tmp file in the same directory, then rename
+    let target = Path::new(DATA_DIR).join(&path);
+    let tmp_name = format!("{}.{}.tmp", target.file_name().and_then(|n| n.to_str()).unwrap_or("upload"), Uuid::new_v4());
+    let tmp_path = target.with_file_name(tmp_name);
+
+    // Create and write tmp file
+    if let Some(parent) = tmp_path.parent() {
+        fs::create_dir_all(parent).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    }
+
+    let mut tmp_file = fs::File::create(&tmp_path).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    tmp_file.write_all(&body).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    tmp_file.flush().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Atomically rename into place
+    fs::rename(&tmp_path, &target).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
     // Log activity
     let user_id = user.id.to_string();
@@ -740,12 +801,17 @@ async fn upload_multipart_handler(
         if let Some(filename) = field.file_name().map(|s| s.to_string()) {
             let data = field.bytes().await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
             
-            let file_path = Path::new(DATA_DIR).join(&filename);
-            if let Some(parent) = file_path.parent() {
+            let target = Path::new(DATA_DIR).join(&filename);
+            if let Some(parent) = target.parent() {
                 fs::create_dir_all(parent).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
             }
-            
-            fs::write(&file_path, &data).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+            let tmp_name = format!("{}.{}.tmp", target.file_name().and_then(|n| n.to_str()).unwrap_or("upload"), Uuid::new_v4());
+            let tmp_path = target.with_file_name(tmp_name);
+            let mut tmp_file = fs::File::create(&tmp_path).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+            tmp_file.write_all(&data).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+            tmp_file.flush().await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+            fs::rename(&tmp_path, &target).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
             
             // Broadcast event
             let _ = state.fs_tx.send(FileChangeEvent {
