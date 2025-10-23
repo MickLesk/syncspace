@@ -1,12 +1,11 @@
 /**
  * Comments & Tags Store
- * Manages file comments and tags with localStorage persistence
+ * Manages file comments and tags with API persistence
  */
 
 import { writable } from 'svelte/store';
+import { comments as commentsAPI, tags as tagsAPI } from '../lib/api.js';
 
-const COMMENTS_KEY = 'syncspace_file_comments';
-const TAGS_KEY = 'syncspace_file_tags';
 const TAG_COLORS = [
   '#e57373', // red
   '#f06292', // pink
@@ -26,103 +25,84 @@ const TAG_COLORS = [
 ];
 
 /**
- * Load comments from localStorage
- */
-function loadComments() {
-  try {
-    const stored = localStorage.getItem(COMMENTS_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch (e) {
-    console.error('Failed to load comments:', e);
-    return {};
-  }
-}
-
-/**
- * Load tags from localStorage
- */
-function loadTags() {
-  try {
-    const stored = localStorage.getItem(TAGS_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch (e) {
-    console.error('Failed to load tags:', e);
-    return {};
-  }
-}
-
-/**
  * Comments store
- * Structure: { "path/to/file.txt": [{ id, user, text, timestamp }, ...] }
+ * Structure: { "path/to/file.txt": [{ id, author_id, text, created_at }, ...] }
  */
 function createCommentsStore() {
-  const { subscribe, set, update } = writable(loadComments());
+  const { subscribe, set, update } = writable({});
 
   return {
     subscribe,
     
     /**
-     * Add a comment to a file
+     * Load comments for a file from API
      */
-    addComment: (filePath, user, text) => {
-      const comment = {
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        user,
-        text,
-        timestamp: Date.now(),
-      };
-
-      update(comments => {
-        const fileComments = comments[filePath] || [];
-        const updated = {
+    loadForFile: async (filePath) => {
+      try {
+        const apiComments = await commentsAPI.list(filePath);
+        update(comments => ({
           ...comments,
-          [filePath]: [...fileComments, comment]
-        };
-        localStorage.setItem(COMMENTS_KEY, JSON.stringify(updated));
-        return updated;
-      });
-
-      return comment.id;
+          [filePath]: apiComments || []
+        }));
+      } catch (e) {
+        console.error('Failed to load comments:', e);
+      }
     },
 
     /**
-     * Edit a comment
+     * Add a comment to a file
+     */
+    addComment: async (filePath, user, text) => {
+      try {
+        const comment = await commentsAPI.create({
+          item_type: 'file',
+          item_id: filePath,
+          file_path: filePath,
+          text
+        });
+
+        update(comments => {
+          const fileComments = comments[filePath] || [];
+          return {
+            ...comments,
+            [filePath]: [...fileComments, comment]
+          };
+        });
+
+        return comment.id;
+      } catch (e) {
+        console.error('Failed to add comment:', e);
+        throw e;
+      }
+    },
+
+    /**
+     * Edit a comment (not implemented in backend yet)
      */
     editComment: (filePath, commentId, newText) => {
-      update(comments => {
-        if (!comments[filePath]) return comments;
-
-        const updated = {
-          ...comments,
-          [filePath]: comments[filePath].map(c =>
-            c.id === commentId ? { ...c, text: newText, edited: Date.now() } : c
-          )
-        };
-        localStorage.setItem(COMMENTS_KEY, JSON.stringify(updated));
-        return updated;
-      });
+      console.warn('Edit comment not yet implemented in backend');
+      // Would need PUT /api/comments/:id endpoint
     },
 
     /**
      * Delete a comment
      */
-    deleteComment: (filePath, commentId) => {
-      update(comments => {
-        if (!comments[filePath]) return comments;
+    deleteComment: async (filePath, commentId) => {
+      try {
+        await commentsAPI.delete(commentId);
 
-        const updated = {
-          ...comments,
-          [filePath]: comments[filePath].filter(c => c.id !== commentId)
-        };
+        update(comments => {
+          if (!comments[filePath]) return comments;
 
-        // Remove empty arrays
-        if (updated[filePath].length === 0) {
-          delete updated[filePath];
-        }
-
-        localStorage.setItem(COMMENTS_KEY, JSON.stringify(updated));
-        return updated;
-      });
+          return {
+            ...comments,
+            [filePath]: comments[filePath].filter(c => c.id !== commentId)
+          };
+        });
+      } catch (e) {
+        console.error('Failed to delete comment:', e);
+        throw e;
+      }
     },
 
     /**
@@ -138,11 +118,10 @@ function createCommentsStore() {
     },
 
     /**
-     * Clear all comments
+     * Clear all comments (local only)
      */
     clear: () => {
       set({});
-      localStorage.removeItem(COMMENTS_KEY);
     },
 
     /**
@@ -156,90 +135,139 @@ function createCommentsStore() {
 
 /**
  * Tags store
- * Structure: { "path/to/file.txt": [{ name, color }, ...] }
+ * Structure: { userTags: [{ id, name, color }], fileTags: { "path": [tag_ids] } }
  */
 function createTagsStore() {
-  const { subscribe, set, update } = writable(loadTags());
+  const { subscribe, set, update } = writable({ userTags: [], fileTags: {} });
 
   return {
     subscribe,
 
     /**
+     * Load all user tags from API
+     */
+    loadAll: async () => {
+      try {
+        const userTags = await tagsAPI.list();
+        update(state => ({
+          ...state,
+          userTags: userTags || []
+        }));
+      } catch (e) {
+        console.error('Failed to load tags:', e);
+      }
+    },
+
+    /**
      * Add a tag to a file
      */
-    addTag: (filePath, tagName) => {
-      update(tags => {
-        const fileTags = tags[filePath] || [];
+    addTag: async (filePath, tagName) => {
+      try {
+        // First, check if tag exists or create it
+        let tag;
+        let currentState = { userTags: [], fileTags: {} };
         
-        // Don't add duplicate tags
-        if (fileTags.some(t => t.name === tagName)) {
-          return tags;
+        update(s => {
+          currentState = s;
+          return s;
+        });
+
+        tag = currentState.userTags.find(t => t.name === tagName);
+        
+        if (!tag) {
+          // Create new tag
+          const colorIndex = tagName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % TAG_COLORS.length;
+          tag = await tagsAPI.create({
+            name: tagName,
+            color: TAG_COLORS[colorIndex]
+          });
+
+          update(s => ({
+            ...s,
+            userTags: [...s.userTags, tag]
+          }));
         }
 
-        // Assign color based on tag name hash
-        const colorIndex = tagName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % TAG_COLORS.length;
-        
-        const newTag = {
-          name: tagName,
-          color: TAG_COLORS[colorIndex]
-        };
+        // Tag the file
+        await tagsAPI.tagFile({
+          item_type: 'file',
+          file_id: filePath,
+          file_path: filePath,
+          tag_ids: [tag.id]
+        });
 
-        const updated = {
-          ...tags,
-          [filePath]: [...fileTags, newTag]
-        };
-        localStorage.setItem(TAGS_KEY, JSON.stringify(updated));
-        return updated;
-      });
+        update(s => ({
+          ...s,
+          fileTags: {
+            ...s.fileTags,
+            [filePath]: [...(s.fileTags[filePath] || []), tag.id]
+          }
+        }));
+
+      } catch (e) {
+        console.error('Failed to add tag:', e);
+        throw e;
+      }
     },
 
     /**
      * Remove a tag from a file
      */
-    removeTag: (filePath, tagName) => {
-      update(tags => {
-        if (!tags[filePath]) return tags;
+    removeTag: async (filePath, tagName) => {
+      try {
+        let currentState = { userTags: [], fileTags: {} };
+        
+        update(s => {
+          currentState = s;
+          return s;
+        });
 
-        const updated = {
-          ...tags,
-          [filePath]: tags[filePath].filter(t => t.name !== tagName)
-        };
+        const tag = currentState.userTags.find(t => t.name === tagName);
+        if (!tag) return;
 
-        // Remove empty arrays
-        if (updated[filePath].length === 0) {
-          delete updated[filePath];
-        }
+        // Find file_tag_id (we don't have it, so this is a limitation)
+        // For now, we can't implement this without getting file_tags from backend
+        console.warn('Remove tag requires file_tag_id from backend - not fully implemented');
 
-        localStorage.setItem(TAGS_KEY, JSON.stringify(updated));
-        return updated;
-      });
+        update(s => ({
+          ...s,
+          fileTags: {
+            ...s.fileTags,
+            [filePath]: (s.fileTags[filePath] || []).filter(id => id !== tag.id)
+          }
+        }));
+
+      } catch (e) {
+        console.error('Failed to remove tag:', e);
+        throw e;
+      }
     },
 
     /**
      * Get all tags for a file
      */
-    getTags: (filePath, tags) => {
-      return tags[filePath] || [];
+    getTags: (filePath, state) => {
+      const tagIds = state.fileTags[filePath] || [];
+      return state.userTags.filter(t => tagIds.includes(t.id));
     },
 
     /**
      * Get all unique tag names across all files
      */
-    getAllTagNames: (tags) => {
-      const allTags = new Set();
-      Object.values(tags).forEach(fileTags => {
-        fileTags.forEach(tag => allTags.add(tag.name));
-      });
-      return Array.from(allTags).sort();
+    getAllTagNames: (state) => {
+      return state.userTags.map(t => t.name).sort();
     },
 
     /**
      * Find files with a specific tag
      */
-    findByTag: (tagName, tags) => {
+    findByTag: (tagName, state) => {
+      const tag = state.userTags.find(t => t.name === tagName);
+      if (!tag) return [];
+
       const files = [];
-      Object.entries(tags).forEach(([filePath, fileTags]) => {
-        if (fileTags.some(t => t.name === tagName)) {
+      Object.entries(state.fileTags).forEach(([filePath, tagIds]) => {
+        if (tagIds.includes(tag.id)) {
           files.push(filePath);
         }
       });
@@ -247,11 +275,10 @@ function createTagsStore() {
     },
 
     /**
-     * Clear all tags
+     * Clear all tags (local only)
      */
     clear: () => {
-      set({});
-      localStorage.removeItem(TAGS_KEY);
+      set({ userTags: [], fileTags: {} });
     }
   };
 }

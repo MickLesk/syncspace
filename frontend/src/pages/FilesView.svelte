@@ -13,8 +13,10 @@
     getThumbnail,
     canGenerateThumbnail,
     cleanupCache,
+    invalidateThumbnails,
   } from "../utils/thumbnailGenerator";
   import { TouchGestureHandler } from "../utils/touchGestures";
+  import { RequestQueue, retryWithBackoff } from "../utils/debounce";
   import Button from "../components/ui/Button.svelte";
   import SearchBar from "../components/ui/SearchBar.svelte";
   import FilterPanel from "../components/ui/FilterPanel.svelte";
@@ -27,6 +29,12 @@
   import CommentsPanel from "../components/CommentsPanel.svelte";
   import api from "../lib/api";
   let loading = true;
+
+  // Get current language
+  const lang = localStorage.getItem("language") || "de";
+
+  // Upload queue to prevent parallel uploads
+  const uploadQueue = new RequestQueue(2); // Max 2 concurrent uploads
 
   /**
    * Convert UI path (e.g. "/testfolder/") to backend-compatible path (e.g. "testfolder")
@@ -479,7 +487,7 @@
       loadThumbnails(data);
     } catch (error) {
       console.error("Failed to load files:", error);
-      errorToast("Failed to load files: " + error.message);
+      errorToast(t(lang, "failedToLoadFiles") + ": " + error.message);
       files.set([]);
     }
     loading = false;
@@ -493,12 +501,18 @@
       if (file.is_dir || !canGenerateThumbnail(file.name)) continue;
 
       const filePath = buildFilePath($currentPath, file.name);
+      const fileId = file.id || filePath; // Use ID if available
 
-      // Load thumbnail asynchronously
-      getThumbnail(filePath, file.modified_at)
+      // Load thumbnail asynchronously with new API
+      getThumbnail({
+        id: fileId,
+        path: $currentPath,
+        name: file.name,
+        modified: file.modified_at,
+      })
         .then((dataUrl) => {
           if (dataUrl) {
-            thumbnails.set(filePath, dataUrl);
+            thumbnails.set(fileId, dataUrl); // Use fileId as key
             thumbnails = thumbnails; // Trigger reactivity
           }
         })
@@ -518,63 +532,82 @@
     let failCount = 0;
     const failedFiles = [];
 
+    // Process uploads through queue (max 2 concurrent)
     for (const file of fileList) {
-      try {
-        const path = buildFilePath($currentPath, file.name);
-        console.log(
-          `[Upload] Current path: "${$currentPath}", File: "${file.name}", Full path: "${path}"`
-        );
+      await uploadQueue.add(async () => {
+        try {
+          const path = buildFilePath($currentPath, file.name);
+          console.log(
+            `[Upload] Current path: "${$currentPath}", File: "${file.name}", Full path: "${path}"`
+          );
 
-        // Initialize progress for this file
-        fileUploadProgress[file.name] = {
-          percent: 0,
-          loaded: 0,
-          total: file.size,
-        };
+          // Initialize progress for this file
+          fileUploadProgress[file.name] = {
+            percent: 0,
+            loaded: 0,
+            total: file.size,
+          };
 
-        // Upload with progress tracking
-        await api.files.uploadWithProgress(
-          path,
-          file,
-          (percent, loaded, total) => {
-            fileUploadProgress[file.name] = { percent, loaded, total };
-            // Trigger reactivity
+          // Upload with progress tracking and retry logic
+          await retryWithBackoff(
+            () =>
+              api.files.uploadWithProgress(
+                path,
+                file,
+                (percent, loaded, total) => {
+                  fileUploadProgress[file.name] = { percent, loaded, total };
+                  // Trigger reactivity
+                  fileUploadProgress = { ...fileUploadProgress };
+                }
+              ),
+            {
+              maxRetries: 2,
+              initialDelay: 1000,
+              shouldRetry: (error) => {
+                // Only retry on network errors, not on validation errors
+                return (
+                  error.name === "TypeError" || error.message.includes("fetch")
+                );
+              },
+            }
+          );
+
+          successCount++;
+          uploadProgress.current++;
+
+          // Track activity
+          activity.add("upload", file.name, $currentPath);
+
+          // Mark file as complete
+          fileUploadProgress[file.name].percent = 100;
+          fileUploadProgress = { ...fileUploadProgress };
+
+          // Show progress toast for each file
+          if (fileList.length > 1) {
+            success(
+              `ðŸ“¤ ${uploadProgress.current}/${uploadProgress.total}: ${file.name}`,
+              1000
+            );
+          }
+        } catch (err) {
+          console.error(`Upload error for ${file.name}:`, err);
+          failCount++;
+          failedFiles.push(file.name);
+
+          // Mark file as failed
+          if (fileUploadProgress[file.name]) {
+            fileUploadProgress[file.name].error = true;
             fileUploadProgress = { ...fileUploadProgress };
           }
-        );
-
-        successCount++;
-        uploadProgress.current++;
-
-        // Track activity
-        activity.add("upload", file.name, $currentPath);
-
-        // Mark file as complete
-        fileUploadProgress[file.name].percent = 100;
-        fileUploadProgress = { ...fileUploadProgress };
-
-        // Show progress toast for each file
-        if (fileList.length > 1) {
-          success(
-            `ðŸ“¤ ${uploadProgress.current}/${uploadProgress.total}: ${file.name}`,
-            1000
-          );
         }
-      } catch (err) {
-        console.error(`Upload error for ${file.name}:`, err);
-        failCount++;
-        failedFiles.push(file.name);
-
-        // Mark file as failed
-        if (fileUploadProgress[file.name]) {
-          fileUploadProgress[file.name].error = true;
-          fileUploadProgress = { ...fileUploadProgress };
-        }
-      }
+      });
     }
 
     uploading = false;
     uploadProgress.uploading = false;
+
+    // Reload files to reflect changes
+    await loadFiles();
 
     // Summary toast
     if (successCount > 0 && failCount === 0) {
@@ -776,10 +809,9 @@
       }
       if (failCount > 0) {
         errorToast(
-          `Failed to move ${failCount} file${failCount > 1 ? "s" : ""}`
+          `${t(lang, "failedToMove")} ${failCount} ${failCount > 1 ? "Dateien" : "Datei"}`
         );
       }
-
       await loadFiles();
 
       // Clear selection after successful move
@@ -812,7 +844,7 @@
       await loadFiles();
     } catch (err) {
       console.error("Failed to create folder:", err);
-      errorToast(`Error: ${err.message}`);
+      errorToast(`${t(lang, "failedToCreateFolder")}: ${err.message}`);
     }
   }
 
@@ -833,7 +865,7 @@
       success(`"${file.name}" ${t($currentLang, "downloading")}`);
     } catch (err) {
       console.error("Failed to download file:", err);
-      errorToast(`Error: ${err.message}`);
+      errorToast(`${t(lang, "failedToDownload")}: ${err.message}`);
     }
   }
 
@@ -849,12 +881,18 @@
 
     try {
       const path = buildFilePath($currentPath, fileName);
+      const fileId = fileToDelete.id || path;
+
       await api.files.delete(path);
+
+      // Invalidate thumbnail cache
+      await invalidateThumbnails(fileId);
+
       success(`"${fileName}" ${t($currentLang, "deleted")}`);
       await loadFiles();
     } catch (err) {
       console.error("Failed to delete file:", err);
-      errorToast(`Error: ${err.message}`);
+      errorToast(`${t(lang, "failedToDelete")}: ${err.message}`);
     }
 
     fileToDelete = null;
@@ -936,7 +974,7 @@
       );
     } catch (err) {
       console.error("Failed to toggle favorite:", err);
-      errorToast(`Failed to toggle favorite: ${err.message}`);
+      errorToast(`${t(lang, "failedToToggleFavorite")}: ${err.message}`);
     }
   }
 
@@ -1013,7 +1051,7 @@
       await navigator.clipboard.writeText(link);
       success(`🔗 Link copied to clipboard`);
     } catch (err) {
-      errorToast("Failed to copy link");
+      errorToast(t(lang, "failedToCopyLink"));
     }
   }
 
@@ -1023,8 +1061,8 @@
   function showFileProperties(file) {
     const props = [
       `Name: ${file.name}`,
-      `Size: ${formatFileSize(file.size)}`,
-      `Modified: ${formatDate(file.modified_at)}`,
+      `Size: ${formatSize(file.size)}`,
+      `Modified: ${new Date(file.modified_at).toLocaleString()}`,
       `Type: ${file.is_dir ? "Folder" : getFileType(file.name)}`,
     ].join("\n");
 
@@ -1067,7 +1105,9 @@
     if (file.is_directory) {
       navigateTo(file.name);
     } else {
-      openPreview(file);
+      // Open preview modal
+      selectedFile = file;
+      showPreviewModal = true;
     }
   }
 
@@ -1210,7 +1250,7 @@
         }
       } catch (err) {
         console.error(`Failed to download ${filename}:`, err);
-        errorToast(`Failed to download ${filename}`);
+        errorToast(`${t(lang, "failedToDownload")} ${filename}`);
       }
     }
   }

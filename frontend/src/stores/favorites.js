@@ -1,4 +1,5 @@
 import { writable, derived } from 'svelte/store';
+import { debounce } from '../utils/debounce.js';
 
 // Utility: Get auth token
 function getToken() {
@@ -19,6 +20,9 @@ function getToken() {
 
 function createFavoritesStore() {
   const { subscribe, set, update } = writable(new Map()); // Map of item_id -> favorite
+
+  // Pending toggles map to prevent duplicate requests
+  const pendingToggles = new Map();
 
   // Load favorites from API on startup
   async function loadFromAPI() {
@@ -50,8 +54,16 @@ function createFavoritesStore() {
     // Load from API
     load: loadFromAPI,
     
-    // Toggle favorite via API
+    // Toggle favorite via API with debouncing
     toggle: async (itemId, itemType = 'file') => {
+      // Prevent duplicate toggles for the same item
+      if (pendingToggles.has(itemId)) {
+        console.log(`Toggle for ${itemId} already pending, skipping`);
+        return;
+      }
+
+      pendingToggles.set(itemId, true);
+
       try {
         const token = getToken();
         if (!token) {
@@ -89,6 +101,11 @@ function createFavoritesStore() {
         }
       } catch (err) {
         console.error('Failed to toggle favorite:', err);
+      } finally {
+        // Remove from pending after a short delay to prevent rapid re-toggles
+        setTimeout(() => {
+          pendingToggles.delete(itemId);
+        }, 300);
       }
     },
     
