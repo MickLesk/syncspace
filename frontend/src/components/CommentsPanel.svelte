@@ -170,14 +170,14 @@
 </script>
 
 {#if visible && file}
-  <div class="comments-panel-overlay" on:click={handleClose}>
-    <div class="comments-panel" on:click|stopPropagation>
+  <div class="comments-panel-overlay" onclick={handleClose}>
+    <div class="comments-panel" onclick={(e) => e.stopPropagation()}>
       <div class="panel-header">
         <div class="panel-title">
           <Icon name="💬" size="20px" />
           <h3>{file.name}</h3>
         </div>
-        <button class="btn-close" on:click={handleClose}>
+        <button class="btn-close" onclick={handleClose}>
           <Icon name="✕" size="18px" />
         </button>
       </div>
@@ -187,7 +187,7 @@
           <div class="error-banner">
             <Icon name="⚠️" size="16px" />
             <span>{errorMessage}</span>
-            <button class="btn-dismiss" on:click={() => (errorMessage = "")}>
+            <button class="btn-dismiss" onclick={() => (errorMessage = "")}>
               <Icon name="✕" size="14px" />
             </button>
           </div>
@@ -215,7 +215,7 @@
                 {tag.name}
                 <button
                   class="tag-remove"
-                  on:click={() => handleRemoveTag(tag.name)}
+                  onclick={() => handleRemoveTag(tag.name)}
                 >
                   <Icon name="✕" size="12px" />
                 </button>
@@ -229,7 +229,7 @@
               class="input-tag"
               placeholder="Add a tag..."
               bind:value={newTag}
-              on:keydown={(e) => e.key === "Enter" && handleAddTag()}
+              onkeydown={(e) => e.key === "Enter" && handleAddTag()}
               list="tag-suggestions"
             />
             <datalist id="tag-suggestions">
@@ -239,7 +239,7 @@
             </datalist>
             <button
               class="btn-add-tag"
-              on:click={handleAddTag}
+              onclick={handleAddTag}
               disabled={!newTag.trim()}
             >
               <Icon name="➕" size="14px" />
@@ -272,18 +272,18 @@
                     <textarea
                       class="textarea-edit"
                       bind:value={editText}
-                      on:keydown={handleKeydown}
+                      onkeydown={handleKeydown}
                       rows="3"
                       autofocus
                     />
                     <div class="edit-actions">
                       <button
                         class="btn-save"
-                        on:click={() => handleSaveEdit(comment.id)}
+                        onclick={() => handleSaveEdit(comment.id)}
                       >
                         Save
                       </button>
-                      <button class="btn-cancel" on:click={handleCancelEdit}>
+                      <button class="btn-cancel" onclick={handleCancelEdit}>
                         Cancel
                       </button>
                     </div>
@@ -294,14 +294,14 @@
                     <div class="comment-actions">
                       <button
                         class="btn-action"
-                        on:click={() => handleEditComment(comment.id)}
+                        onclick={() => handleEditComment(comment.id)}
                       >
                         <Icon name="✏️" size="12px" />
                         Edit
                       </button>
                       <button
                         class="btn-action"
-                        on:click={() => handleDeleteComment(comment.id)}
+                        onclick={() => handleDeleteComment(comment.id)}
                       >
                         <Icon name="🗑️" size="12px" />
                         Delete
@@ -326,12 +326,12 @@
               class="textarea-comment"
               placeholder="Add a comment..."
               bind:value={newComment}
-              on:keydown={handleKeydown}
+              onkeydown={handleKeydown}
               rows="3"
             />
             <button
               class="btn-add-comment"
-              on:click={handleAddComment}
+              onclick={handleAddComment}
               disabled={!newComment.trim()}
             >
               <Icon name="📨" size="16px" />

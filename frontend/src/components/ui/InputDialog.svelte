@@ -52,6 +52,6 @@
     {type}
     {required}
     {error}
-    on:input={() => (error = "")}
+    oninput={() => (error = "")}
   />
 </Dialog>

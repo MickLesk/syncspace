@@ -2,6 +2,10 @@
   import { onMount } from "svelte";
   import { activity } from "../stores/activity";
   import Icon from "../components/ui/Icon.svelte";
+  import PageHeader from "../components/ui/PageHeader.svelte";
+  import StatCard from "../components/ui/StatCard.svelte";
+  import Chip from "../components/ui/Chip.svelte";
+  import Button from "../components/ui/Button.svelte";
 
   let groupedActivities = {};
   let selectedFilter = "all";
@@ -174,119 +178,90 @@
   }
 </script>
 
-<div class="activity-timeline">
-  <div class="timeline-header">
-    <h2><Icon name="clock-history" size={24} /> Activity Timeline</h2>
-    <button
-      class="btn-clear"
-      on:click={handleClearAll}
-      disabled={$activity.length === 0}
-    >
-      <Icon name="trash" size={16} />
-      Clear All
-    </button>
-  </div>
+<div class="activity-view">
+  <PageHeader 
+    title="Activity Feed"
+    subtitle=""
+    icon="clock-history"
+    gradient="blue"
+  />
 
-  <!-- Filters -->
-  <div class="filter-bar">
-    <div class="filter-chips">
-      <button
-        class="filter-chip"
-        class:active={selectedFilter === "all"}
-        on:click={() => (selectedFilter = "all")}
-      >
-        All
-      </button>
-      <button
-        class="filter-chip"
-        class:active={selectedFilter === "upload"}
-        on:click={() => (selectedFilter = "upload")}
-      >
-        <span style="color: {getTypeColor('upload')}">⬆️</span> Uploads
-      </button>
-      <button
-        class="filter-chip"
-        class:active={selectedFilter === "download"}
-        on:click={() => (selectedFilter = "download")}
-      >
-        <span style="color: {getTypeColor('download')}">⬇️</span> Downloads
-      </button>
-      <button
-        class="filter-chip"
-        class:active={selectedFilter === "delete"}
-        on:click={() => (selectedFilter = "delete")}
-      >
-        <span style="color: {getTypeColor('delete')}">🗑️</span> Deletes
-      </button>
-      <button
-        class="filter-chip"
-        class:active={selectedFilter === "move"}
-        on:click={() => (selectedFilter = "move")}
-      >
-        <span style="color: {getTypeColor('move')}">📦</span> Moves
-      </button>
+  <div class="page-content">
+    <!-- Stats -->
+    {#if $activity.length > 0}
+      <div class="stats-grid">
+        <StatCard
+          icon="bi-activity"
+          label="Total Events"
+          value={$activity.length}
+          gradient="linear-gradient(135deg, #6366f1, #8b5cf6)"
+        />
+        
+        <StatCard
+          icon="bi-calendar-check"
+          label="Today"
+          value={activity.getToday().length}
+          gradient="linear-gradient(135deg, #10b981, #34d399)"
+        />
+      </div>
+    {/if}
+
+    <!-- Action Bar -->
+    <div class="actions">
+      <Button onClick={handleClearAll} disabled={$activity.length === 0} variant="danger">
+        <Icon name="trash-fill" size={14} />
+        <span>Clear All</span>
+      </Button>
     </div>
 
-    <input
-      type="text"
-      class="search-input"
-      placeholder="Search activities..."
-      bind:value={searchQuery}
-    />
-  </div>
+    <!-- Filters -->
+    <div class="filters">
+      <div class="chips">
+        <Chip label="All" selected={selectedFilter === "all"} onClick={() => (selectedFilter = "all")} variant="filter" />
+        <Chip label="Uploads" icon="bi-upload" selected={selectedFilter === "upload"} onClick={() => (selectedFilter = "upload")} variant="filter" />
+        <Chip label="Downloads" icon="bi-download" selected={selectedFilter === "download"} onClick={() => (selectedFilter = "download")} variant="filter" />
+        <Chip label="Deletes" icon="bi-trash" selected={selectedFilter === "delete"} onClick={() => (selectedFilter = "delete")} variant="filter" />
+        <Chip label="Moves" icon="bi-box-arrow-right" selected={selectedFilter === "move"} onClick={() => (selectedFilter = "move")} variant="filter" />
+      </div>
 
-  <!-- Stats Summary -->
-  {#if $activity.length > 0}
-    <div class="stats-summary">
-      <div class="stat-item">
-        <span class="stat-label">Total</span>
-        <span class="stat-value">{$activity.length}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Today</span>
-        <span class="stat-value">{activity.getToday().length}</span>
-      </div>
+      <input
+        type="text"
+        class="glass-input search"
+        placeholder="Search activities..."
+        bind:value={searchQuery}
+      />
     </div>
-  {/if}
 
-  <!-- Timeline Content -->
-  <div class="timeline-content">
+    <!-- Timeline -->
     {#if Object.keys(groupedActivities).length === 0}
-      <div class="empty-state">
+      <div class="empty">
         <Icon name="clock-history" size={64} />
         <h3>No Activity Yet</h3>
         <p>File operations will appear here</p>
       </div>
     {:else}
       {#each Object.entries(groupedActivities) as [dateLabel, activities]}
-        <div class="date-group">
+        <div class="group">
           <div class="date-label">{dateLabel}</div>
-          <div class="timeline-items">
+          <div class="timeline">
             {#each activities as act}
-              <div
-                class="timeline-item"
-                style="--accent-color: {getTypeColor(act.type)}"
-              >
-                <div class="timeline-marker">
-                  <span class="activity-icon">{act.icon}</span>
+              <div class="activity-item" style="--color: {getTypeColor(act.type)}">
+                <div class="marker">
+                  <span class="icon">{act.icon}</span>
                 </div>
-                <div class="timeline-content-item">
-                  <div class="activity-header">
-                    <span class="activity-type">{getTypeLabel(act.type)}</span>
-                    <span class="activity-time"
-                      >{formatTime(act.timestamp)}</span
-                    >
+                <div class="glass-card activity-card">
+                  <div class="top">
+                    <span class="type">{getTypeLabel(act.type)}</span>
+                    <span class="time">{formatTime(act.timestamp)}</span>
                   </div>
-                  <div class="activity-filename">{act.filename}</div>
+                  <div class="name">{act.filename}</div>
                   {#if act.path}
-                    <div class="activity-path">{act.path}</div>
+                    <div class="path">{act.path}</div>
                   {/if}
                   {#if act.details}
-                    <div class="activity-details">{act.details}</div>
+                    <div class="details">{act.details}</div>
                   {/if}
-                  <div class="activity-relative">
-                    {getRelativeTime(act.timestamp)}
-                  </div>
+                  <div class="rel">{getRelativeTime(act.timestamp)}</div>
                 </div>
               </div>
             {/each}
@@ -298,188 +273,98 @@
 </div>
 
 <style>
-  .activity-timeline {
-    padding: 32px;
-    max-width: 1200px;
-    margin: 0 auto;
+  .activity-view {
+    min-height: 100vh;
+    background: var(--md-sys-color-surface);
   }
 
-  .timeline-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
     margin-bottom: 32px;
   }
 
-  .timeline-header h2 {
+  /* Actions */
+  .actions {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 28px;
-    font-weight: 500;
-    color: var(--md-sys-color-on-surface);
-    margin: 0;
+    justify-content: flex-end;
+    margin-bottom: 20px;
   }
 
-  .btn-clear {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border-radius: 20px;
-    border: 1px solid var(--md-sys-color-outline);
-    background: transparent;
-    color: var(--md-sys-color-error);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-clear:hover:not(:disabled) {
-    background: var(--md-sys-color-error-container);
-    border-color: var(--md-sys-color-error);
-  }
-
-  .btn-clear:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .filter-bar {
+  /* Filters */
+  .filters {
     display: flex;
     gap: 16px;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
     flex-wrap: wrap;
   }
 
-  .filter-chips {
+  .chips {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
     flex: 1;
   }
 
-  .filter-chip {
-    padding: 8px 16px;
-    border-radius: 16px;
-    border: 1px solid var(--md-sys-color-outline);
-    background: transparent;
-    color: var(--md-sys-color-on-surface);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .filter-chip:hover {
-    background: var(--md-sys-color-surface-variant);
-  }
-
-  .filter-chip.active {
-    background: var(--md-sys-color-primary-container);
-    border-color: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary-container);
-  }
-
-  .search-input {
-    padding: 10px 16px;
-    border-radius: 20px;
-    border: 1px solid var(--md-sys-color-outline);
-    background: var(--md-sys-color-surface);
-    color: var(--md-sys-color-on-surface);
-    font-size: 14px;
+  .search {
     min-width: 200px;
-    transition: all 0.2s;
   }
 
-  .search-input:focus {
-    outline: none;
-    border-color: var(--md-sys-color-primary);
-    box-shadow: 0 0 0 3px var(--md-sys-color-primary-container);
-  }
-
-  .stats-summary {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 16px 24px;
-    background: var(--md-sys-color-surface);
-    border-radius: 16px;
-    box-shadow: var(--md-elevation-1);
-  }
-
-  .stat-label {
-    font-size: 12px;
-    color: var(--md-sys-color-on-surface-variant);
-    font-weight: 500;
-  }
-
-  .stat-value {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--md-sys-color-on-surface);
-  }
-
-  .timeline-content {
-    position: relative;
-  }
-
-  .empty-state {
+  /* Empty State */
+  .empty {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     padding: 64px 32px;
     color: var(--md-sys-color-on-surface-variant);
     text-align: center;
   }
 
-  .empty-state h3 {
+  .empty h3 {
     font-size: 20px;
-    font-weight: 500;
+    font-weight: 600;
     margin: 16px 0 8px 0;
     color: var(--md-sys-color-on-surface);
   }
 
-  .date-group {
-    margin-bottom: 32px;
+  .empty p {
+    font-size: 14px;
+    margin: 0;
+  }
+
+  /* Timeline Groups */
+  .group {
+    margin-bottom: 40px;
   }
 
   .date-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--md-sys-color-primary);
+    font-size: 13px;
+    font-weight: 700;
+    color: #6366f1;
     margin-bottom: 16px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    padding-left: 4px;
   }
 
-  .timeline-items {
+  .timeline {
     position: relative;
     padding-left: 32px;
-    border-left: 2px solid var(--md-sys-color-outline-variant);
+    border-left: 2px solid rgba(99, 102, 241, 0.15);
   }
 
-  .timeline-item {
+  .activity-item {
     position: relative;
-    margin-bottom: 24px;
-    animation: slideIn 0.3s ease-out;
+    margin-bottom: 20px;
+    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   @keyframes slideIn {
     from {
       opacity: 0;
-      transform: translateX(-20px);
+      transform: translateX(-24px);
     }
     to {
       opacity: 1;
@@ -487,81 +372,145 @@
     }
   }
 
-  .timeline-marker {
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .marker {
     position: absolute;
-    left: -44px;
+    left: -43px;
     top: 0;
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: var(--accent-color, var(--md-sys-color-primary));
+    background: var(--color, #6366f1);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 0 4px var(--md-sys-color-surface);
+    box-shadow:
+      0 0 0 4px var(--md-sys-color-surface),
+      0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
-  .activity-icon {
+  .icon {
     font-size: 16px;
   }
 
-  .timeline-content-item {
-    background: var(--md-sys-color-surface);
-    border-radius: 12px;
+  .activity-card {
     padding: 16px;
-    box-shadow: var(--md-elevation-1);
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .timeline-item:hover .timeline-content-item {
-    box-shadow: var(--md-elevation-2);
-    transform: translateX(4px);
+  .activity-item:hover .activity-card {
+    transform: translateX(6px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   }
 
-  .activity-header {
+  .top {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
   }
 
-  .activity-type {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--accent-color, var(--md-sys-color-primary));
+  .type {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color, #6366f1);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
   }
 
-  .activity-time {
+  .time {
     font-size: 12px;
     color: var(--md-sys-color-on-surface-variant);
-  }
-
-  .activity-filename {
-    font-size: 16px;
     font-weight: 500;
+  }
+
+  .name {
+    font-size: 15px;
+    font-weight: 600;
     color: var(--md-sys-color-on-surface);
-    margin-bottom: 4px;
+    margin-bottom: 6px;
+    letter-spacing: -0.2px;
   }
 
-  .activity-path {
-    font-size: 13px;
+  .path {
+    font-size: 12px;
     color: var(--md-sys-color-on-surface-variant);
-    font-family: "Courier New", monospace;
-    margin-bottom: 4px;
+    font-family: "JetBrains Mono", "Courier New", monospace;
+    margin-bottom: 6px;
+    opacity: 0.8;
   }
 
-  .activity-details {
+  .details {
     font-size: 13px;
     color: var(--md-sys-color-on-surface-variant);
     margin-top: 8px;
+    line-height: 1.5;
   }
 
-  .activity-relative {
-    font-size: 12px;
+  .rel {
+    font-size: 11px;
     color: var(--md-sys-color-on-surface-variant);
     margin-top: 8px;
     font-style: italic;
+    opacity: 0.7;
+  }
+
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .timeline {
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    .date-label {
+      color: #818cf8;
+    }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .filters {
+      flex-direction: column;
+    }
+
+    .chips {
+      width: 100%;
+    }
+
+    .search {
+      width: 100%;
+      min-width: unset;
+    }
+
+    .timeline {
+      padding-left: 28px;
+    }
+
+    .marker {
+      left: -40px;
+      width: 28px;
+      height: 28px;
+    }
+
+    .icon {
+      font-size: 14px;
+    }
+
+    .activity-card {
+      padding: 14px;
+    }
   }
 </style>

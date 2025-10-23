@@ -9,6 +9,9 @@
   import api from "../lib/api";
   import Icon from "../components/ui/Icon.svelte";
   import Button from "../components/ui/Button.svelte";
+  import Badge from "../components/ui/Badge.svelte";
+  import ProgressBar from "../components/ui/ProgressBar.svelte";
+  import PageHeader from "../components/ui/PageHeader.svelte";
 
   let scanning = false;
   let scanProgress = { phase: "", current: 0, total: 0 };
@@ -133,15 +136,17 @@
 </script>
 
 <div class="duplicates-view">
-  <div class="page-header">
-    <div class="header-left">
-      <h2>🔍 Duplicate Files</h2>
-      <p class="subtitle">Find and remove duplicate files to save space</p>
-    </div>
-    <div class="header-actions">
+  <!-- Crystal Glass Header -->
+  <PageHeader 
+    title="Duplicate Files"
+    subtitle="Find and remove duplicate files to save space"
+    icon="files"
+    gradient="purple"
+  >
+    <div slot="actions" class="header-actions">
       <Button
         variant="primary"
-        on:click={scanCurrentFolder}
+        onClick={scanCurrentFolder}
         disabled={scanning}
       >
         {#if scanning}
@@ -154,13 +159,13 @@
       </Button>
 
       {#if selectedDuplicates.size > 0}
-        <Button variant="danger" on:click={deleteDuplicates}>
+        <Button variant="danger" onClick={deleteDuplicates}>
           <Icon name="trash" size={16} />
           Delete {selectedDuplicates.size} Selected
         </Button>
       {/if}
     </div>
-  </div>
+  </PageHeader>
 
   {#if scanning}
     <div class="scan-progress">
@@ -180,9 +185,11 @@
           >{scanProgress.current} / {scanProgress.total}</span
         >
       </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: {getProgressPercent()}%"></div>
-      </div>
+      <ProgressBar 
+        value={getProgressPercent()} 
+        variant="primary"
+        showLabel={true}
+      />
     </div>
   {/if}
 
@@ -235,18 +242,20 @@
               </span>
             </div>
             <div class="group-actions">
-              <button
-                class="btn-group-action"
-                on:click={() => selectAllInGroup(group)}
+              <Button
+                variant="outlined"
+                size="small"
+                onclick={() => selectAllInGroup(group)}
               >
                 Select Duplicates
-              </button>
-              <button
-                class="btn-group-action"
-                on:click={() => deselectGroup(group)}
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onclick={() => deselectGroup(group)}
               >
                 Deselect All
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -261,7 +270,7 @@
                   <input
                     type="checkbox"
                     checked={selectedDuplicates.has(file.name)}
-                    on:change={() => toggleDuplicateSelection(file.name)}
+                    onchange={() => toggleDuplicateSelection(file.name)}
                     disabled={fileIndex === 0}
                   />
                 </label>
@@ -269,7 +278,9 @@
                   <div class="file-name">
                     {file.name}
                     {#if fileIndex === 0}
-                      <span class="badge-original">KEEP</span>
+                      <Badge variant="success" size="small">KEEP</Badge>
+                    {:else}
+                      <Badge variant="warning" size="small">DUPLICATE</Badge>
                     {/if}
                   </div>
                   <div class="file-meta">
@@ -289,35 +300,9 @@
 
 <style>
   .duplicates-view {
-    padding: 32px;
+    padding: 0;
     max-width: 1400px;
     margin: 0 auto;
-  }
-
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 32px;
-    gap: 24px;
-  }
-
-  .header-left h2 {
-    margin: 0 0 8px 0;
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--md-sys-color-on-surface);
-  }
-
-  .subtitle {
-    margin: 0;
-    font-size: 14px;
-    color: var(--md-sys-color-on-surface-variant);
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 12px;
   }
 
   /* Scan Progress */
@@ -325,7 +310,7 @@
     background: var(--md-sys-color-surface-container-low);
     padding: 24px;
     border-radius: 16px;
-    margin-bottom: 24px;
+    margin: 0 32px 24px 32px;
   }
 
   .progress-header {
@@ -346,29 +331,11 @@
     color: var(--md-sys-color-on-surface-variant);
   }
 
-  .progress-bar {
-    width: 100%;
-    height: 8px;
-    background: var(--md-sys-color-surface-container-high);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      var(--md-sys-color-primary),
-      var(--md-sys-color-secondary)
-    );
-    border-radius: 4px;
-    transition: width 0.3s ease;
-  }
-
   /* Empty State */
   .empty-state {
     text-align: center;
     padding: 80px 20px;
+    margin: 0 32px;
   }
 
   .empty-icon {
@@ -393,7 +360,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
-    margin-bottom: 32px;
+    margin: 0 32px 24px 32px;
   }
 
   .summary-card {
@@ -437,6 +404,7 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    margin: 0 32px;
   }
 
   .duplicate-group {
@@ -470,23 +438,6 @@
   .group-actions {
     display: flex;
     gap: 8px;
-  }
-
-  .btn-group-action {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 12px;
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .btn-group-action:hover {
-    background: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
   }
 
   .group-files {
@@ -540,16 +491,6 @@
     gap: 8px;
   }
 
-  .badge-original {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 8px;
-    background: #4caf50;
-    color: white;
-    font-size: 11px;
-    font-weight: 600;
-  }
-
   .file-meta {
     font-size: 12px;
     color: var(--md-sys-color-on-surface-variant);
@@ -570,10 +511,6 @@
       padding: 16px;
     }
 
-    .page-header {
-      flex-direction: column;
-    }
-
     .header-actions {
       width: 100%;
       flex-direction: column;
@@ -592,11 +529,6 @@
     .group-actions {
       width: 100%;
       flex-direction: column;
-    }
-
-    .btn-group-action {
-      width: 100%;
-      justify-content: center;
     }
   }
 </style>

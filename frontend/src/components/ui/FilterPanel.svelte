@@ -92,11 +92,11 @@
 </script>
 
 {#if visible}
-  <div class="filter-overlay" on:click={handleBackdropClick}>
+  <div class="filter-overlay" onclick={handleBackdropClick}>
     <div class="filter-panel">
       <div class="filter-header">
         <h3>Advanced Filters</h3>
-        <button class="btn-close" on:click={() => (visible = false)}>
+        <button class="btn-close" onclick={() => (visible = false)}>
           <Icon name="x" size={20} />
         </button>
       </div>
@@ -187,8 +187,8 @@
       </div>
 
       <div class="filter-actions">
-        <button class="btn-secondary" on:click={resetFilters}> Reset </button>
-        <button class="btn-primary" on:click={applyFilters}>
+        <button class="btn-secondary" onclick={resetFilters}> Reset </button>
+        <button class="btn-primary" onclick={applyFilters}>
           Apply Filters
         </button>
       </div>

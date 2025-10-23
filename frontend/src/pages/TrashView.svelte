@@ -1,6 +1,10 @@
 ﻿<script>
   import { onMount } from "svelte";
   import api from "../lib/api.js";
+  import PageHeader from "../components/ui/PageHeader.svelte";
+  import Button from "../components/ui/Button.svelte";
+  import Icon from "../components/ui/Icon.svelte";
+  import Spinner from "../components/ui/Spinner.svelte";
 
   let trashItems = $state([]);
   let loading = $state(false);
@@ -54,7 +58,7 @@
     if (!autoDeleteAt) return "Never";
     const now = new Date();
     const deleteDate = new Date(autoDeleteAt);
-    const diffMs = deleteDate - now;
+    const diffMs = deleteDate.getTime() - now.getTime();
     if (diffMs <= 0) return "Expired";
     const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     return `${days} day${days !== 1 ? "s" : ""}`;
@@ -228,9 +232,13 @@
 </script>
 
 <div class="trash-view">
-  <div class="header">
-    <h1>🗑️ Trash</h1>
-    <div class="stats-bar">
+  <PageHeader 
+    title="Trash"
+    subtitle=""
+    icon="trash"
+    gradient="red"
+  >
+    <div slot="stats" class="stats-bar">
       <div class="stat">
         <i class="bi bi-files"></i>
         <span>{stats.totalItems} item{stats.totalItems !== 1 ? "s" : ""}</span>
@@ -240,7 +248,7 @@
         <span>{formatSize(stats.totalSize)}</span>
       </div>
     </div>
-  </div>
+  </PageHeader>
 
   <div class="toolbar">
     <div class="search-box">
@@ -255,29 +263,29 @@
 
     <div class="actions">
       {#if selectedItems.size > 0}
-        <button class="btn btn-success" onclick={restoreSelected}>
-          <i class="bi bi-arrow-counterclockwise"></i>
+        <Button onClick={restoreSelected} variant="success">
+          <Icon name="arrow-counterclockwise" size={16} />
           Restore ({selectedItems.size})
-        </button>
-        <button class="btn btn-danger" onclick={deleteSelected}>
-          <i class="bi bi-trash3"></i>
+        </Button>
+        <Button onClick={deleteSelected} variant="danger">
+          <Icon name="trash3" size={16} />
           Delete ({selectedItems.size})
-        </button>
+        </Button>
       {/if}
-      <button class="btn btn-outline" onclick={cleanupExpired}>
-        <i class="bi bi-clock-history"></i>
+      <Button onClick={cleanupExpired} variant="outlined">
+        <Icon name="clock-history" size={16} />
         Cleanup Expired
-      </button>
-      <button class="btn btn-danger-outline" onclick={emptyTrash}>
-        <i class="bi bi-trash3-fill"></i>
+      </Button>
+      <Button onClick={emptyTrash} variant="danger-outline">
+        <Icon name="trash3-fill" size={16} />
         Empty Trash
-      </button>
+      </Button>
     </div>
   </div>
 
   {#if loading}
     <div class="loading">
-      <div class="spinner"></div>
+      <Spinner size="large" />
       <p>Loading trash...</p>
     </div>
   {:else if trashItems.length === 0}
@@ -397,44 +405,9 @@
 
 <style>
   .trash-view {
-    padding: 24px;
+    padding: 0;
     max-width: 1400px;
     margin: 0 auto;
-  }
-
-  /* Header */
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-  }
-
-  h1 {
-    font-size: 32px;
-    font-weight: 600;
-    margin: 0;
-    color: var(--text-primary, #1a1a1a);
-  }
-
-  .stats-bar {
-    display: flex;
-    gap: 24px;
-  }
-
-  .stat {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background: var(--surface-variant, #f5f5f5);
-    border-radius: 12px;
-    font-size: 14px;
-    color: var(--text-secondary, #666);
-  }
-
-  .stat i {
-    font-size: 18px;
   }
 
   /* Toolbar */
@@ -443,7 +416,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-    margin-bottom: 24px;
+    margin: 0 32px 24px 32px;
     flex-wrap: wrap;
   }
 
@@ -483,58 +456,7 @@
     flex-wrap: wrap;
   }
 
-  /* Buttons */
-  .btn {
-    padding: 10px 16px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-  }
-
-  .btn-success {
-    background: var(--success-color, #4caf50);
-    color: white;
-  }
-
-  .btn-success:hover {
-    background: #43a047;
-  }
-
-  .btn-danger {
-    background: var(--error-color, #f44336);
-    color: white;
-  }
-
-  .btn-danger:hover {
-    background: #e53935;
-  }
-
-  .btn-outline {
-    background: transparent;
-    border: 1px solid var(--border-color, #e0e0e0);
-    color: var(--text-primary, #1a1a1a);
-  }
-
-  .btn-outline:hover {
-    background: var(--surface-variant, #f5f5f5);
-  }
-
-  .btn-danger-outline {
-    background: transparent;
-    border: 1px solid var(--error-color, #f44336);
-    color: var(--error-color, #f44336);
-  }
-
-  .btn-danger-outline:hover {
-    background: rgba(244, 67, 54, 0.1);
-  }
-
+  /* Icon Buttons */
   .btn-icon {
     width: 36px;
     height: 36px;
@@ -575,20 +497,8 @@
     color: var(--text-secondary, #666);
   }
 
-  .spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid var(--surface-variant, #f5f5f5);
-    border-top-color: var(--primary-color, #6750a4);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 16px;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
+  .loading p {
+    margin-top: 16px;
   }
 
   /* Empty State */
@@ -622,6 +532,7 @@
     border: 1px solid var(--border-color, #e0e0e0);
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin: 0 32px;
   }
 
   .trash-table {
@@ -778,12 +689,6 @@
       padding: 16px;
     }
 
-    .header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 16px;
-    }
-
     .toolbar {
       flex-direction: column;
       align-items: stretch;
@@ -795,11 +700,7 @@
 
     .actions {
       justify-content: stretch;
-    }
-
-    .btn {
-      flex: 1;
-      justify-content: center;
+      flex-direction: column;
     }
 
     .size-col,

@@ -7,9 +7,13 @@
   export let error = "";
   export let required = false;
   export let icon = "";
+  export let id = ""; // Added for compatibility
 
   let focused = false;
   let filled = value.length > 0;
+  
+  // Generate unique ID if not provided
+  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
 
   $: filled = value.length > 0 || focused;
 </script>
@@ -32,15 +36,13 @@
       {disabled}
       {required}
       bind:value
-      on:focus={() => (focused = true)}
-      on:blur={() => (focused = false)}
-      on:input
-      on:change
-      id="input-{Math.random()}"
+      onfocus={() => (focused = true)}
+      onblur={() => (focused = false)}
+      id={inputId}
     />
 
     {#if label}
-      <label class="input-label" for="input-{Math.random()}">
+      <label class="input-label" for={inputId}>
         {label}{#if required}<span class="required">*</span>{/if}
       </label>
     {/if}

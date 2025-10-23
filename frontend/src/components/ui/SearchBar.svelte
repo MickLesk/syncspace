@@ -4,6 +4,9 @@
   export let value = "";
   export let placeholder = "Suchen...";
   export let fullWidth = false;
+  // Svelte 5: allow passing callback props like `oninput` / `onclear`
+  export let oninput = null;
+  export let onclear = null;
 
   const dispatch = createEventDispatcher();
   let focused = false;
@@ -11,11 +14,13 @@
   function handleInput(e) {
     value = e.target.value;
     dispatch("input", value);
+    if (typeof oninput === "function") oninput(value);
   }
 
   function handleClear() {
     value = "";
     dispatch("clear");
+    if (typeof onclear === "function") onclear();
   }
 </script>
 
@@ -26,12 +31,12 @@
     class="search-input"
     {placeholder}
     bind:value
-    on:input={handleInput}
-    on:focus={() => (focused = true)}
-    on:blur={() => (focused = false)}
+    oninput={handleInput}
+    onfocus={() => (focused = true)}
+    onblur={() => (focused = false)}
   />
   {#if value}
-    <button class="clear-button" on:click={handleClear} type="button">
+    <button class="clear-button" onclick={handleClear} type="button">
       ✕
     </button>
   {/if}

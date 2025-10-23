@@ -32,8 +32,8 @@
 {#if open}
   <div
     class="dialog-backdrop"
-    on:click={handleBackdropClick}
-    on:keydown={(e) => e.key === "Escape" && handleCancel()}
+    onclick={handleBackdropClick}
+    onkeydown={(e) => e.key === "Escape" && handleCancel()}
     role="button"
     tabindex="-1"
   >
@@ -64,8 +64,8 @@
   .dialog-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -83,20 +83,22 @@
   }
 
   .dialog {
-    background: var(--md-sys-color-surface);
-    border-radius: 28px;
-    padding: 24px;
-    min-width: 280px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border-radius: 24px;
+    padding: 28px;
+    min-width: 320px;
     max-width: 560px;
     max-height: 90vh;
     overflow: auto;
-    box-shadow: var(--md-elevation-3);
     animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   @keyframes slideUp {
     from {
-      transform: translateY(20px);
+      transform: translateY(32px) scale(0.95);
       opacity: 0;
     }
     to {
@@ -106,27 +108,37 @@
   }
 
   .dialog.danger {
-    border: 2px solid var(--md-sys-color-error);
+    border: 2px solid rgba(239, 68, 68, 0.5);
+    box-shadow: 0 20px 60px rgba(239, 68, 68, 0.2);
   }
 
   .dialog-title {
     font-size: 24px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--md-sys-color-on-surface);
-    margin: 0 0 16px 0;
+    margin: 0 0 20px 0;
+    letter-spacing: -0.5px;
   }
 
   .dialog-content {
     color: var(--md-sys-color-on-surface-variant);
     font-size: 14px;
-    line-height: 1.5;
-    margin-bottom: 24px;
+    line-height: 1.6;
+    margin-bottom: 28px;
     min-height: 40px;
   }
 
   .dialog-actions {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     justify-content: flex-end;
+  }
+
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .dialog {
+      background: rgba(30, 41, 59, 0.95);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
   }
 </style>

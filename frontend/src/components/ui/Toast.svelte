@@ -21,8 +21,8 @@
   {#each $toasts as toast (toast.id)}
     <div
       class="toast toast-{toast.type}"
-      on:click={() => removeToast(toast.id)}
-      on:keydown={(e) => e.key === "Enter" && removeToast(toast.id)}
+      onclick={() => removeToast(toast.id)}
+      onkeydown={(e) => e.key === "Enter" && removeToast(toast.id)}
       role="button"
       aria-live="polite"
       tabindex="0"
@@ -31,7 +31,7 @@
       <span class="toast-message">{toast.message}</span>
       <button
         class="toast-close"
-        on:click|stopPropagation={() => removeToast(toast.id)}
+        onclick={(e) => { e.stopPropagation(); removeToast(toast.id); }}
         aria-label="Schließen"
       >
         ✕

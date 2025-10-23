@@ -1,12 +1,14 @@
 <script>
   export let variant = "filled"; // filled, outlined, text
+  /** @type {"button" | "submit" | "reset"} */
   export let type = "button";
   export let disabled = false;
   export let loading = false;
   export let icon = "";
+  export let onclick = undefined;
 </script>
 
-<button class="md-button {variant}" {type} {disabled} on:click>
+<button class="md-button {variant}" type={type} {disabled} {onclick}>
   {#if loading}
     <span class="spinner"></span>
   {:else if icon}
