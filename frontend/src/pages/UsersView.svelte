@@ -4,10 +4,15 @@
   import { auth } from "../stores/auth.js";
   import { t } from "../i18n.js";
   import { success, error as errorToast, info } from "../stores/toast";
-  import Button from "../components/ui/Button.svelte";
+  import Icon from "../components/ui/Icon.svelte";
+  import PageHeader from "../components/ui/PageHeader.svelte";
   import Dialog from "../components/ui/Dialog.svelte";
   import InputDialog from "../components/ui/InputDialog.svelte";
   import Avatar from "../components/ui/Avatar.svelte";
+  import StatCard from "../components/ui/StatCard.svelte";
+  import Button from "../components/ui/Button.svelte";
+  import Spinner from "../components/ui/Spinner.svelte";
+  import Badge from "../components/ui/Badge.svelte";
 
   let users = [];
   let loading = true;
@@ -117,74 +122,91 @@
   }
 </script>
 
-<div class="view-container">
-  <div class="page-header">
-    <h2>👥 {t($currentLang, "users")}</h2>
-    <Button icon="➕" onClick={handleAddUser}>
-      {t($currentLang, "addUser")}
-    </Button>
-  </div>
+<div class="users-view">
+  <PageHeader 
+    title={t($currentLang, "users")}
+    subtitle=""
+    icon="people-fill"
+    gradient="purple"
+  />
 
-  {#if loading}
-    <div class="loading">Loading...</div>
-  {:else}
-    <div class="users-table">
-      <div class="table-header">
-        <div class="col-username">{t($currentLang, "username")}</div>
-        <div class="col-created">{t($currentLang, "created")}</div>
-        <div class="col-2fa">{t($currentLang, "twoFactorAuth")}</div>
-        <div class="col-actions">{t($currentLang, "actions")}</div>
-      </div>
-
-      {#each users as user}
-        <div class="table-row">
-          <div class="col-username">
-            <Avatar name={user.username} size="small" />
-            <span>{user.username}</span>
-            {#if user.username === "admin"}
-              <span class="admin-badge">Admin</span>
-            {/if}
-          </div>
-          <div class="col-created">{user.created}</div>
-          <div class="col-2fa">
-            <span
-              class="badge"
-              class:enabled={user.twoFactor}
-              class:disabled={!user.twoFactor}
-            >
-              {user.twoFactor
-                ? t($currentLang, "enabled")
-                : t($currentLang, "disabled")}
-            </span>
-          </div>
-          <div class="col-actions">
-            <button
-              class="btn-icon"
-              on:click={() => handleChangePassword(user)}
-              title="Passwort ändern"
-            >
-              🔑
-            </button>
-            <button
-              class="btn-icon"
-              on:click={() => handleEditUser(user)}
-              title="Bearbeiten"
-            >
-              ✏️
-            </button>
-            <button
-              class="btn-icon delete-btn"
-              on:click={() => handleDeleteUser(user)}
-              title="Löschen"
-              disabled={user.username === "admin"}
-            >
-              🗑️
-            </button>
-          </div>
-        </div>
-      {/each}
+  <div class="page-content">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <StatCard
+        icon="bi-people-fill"
+        label="Total Users"
+        value={users.length}
+        gradient="linear-gradient(135deg, #6366f1, #8b5cf6)"
+      />
+      
+      <StatCard
+        icon="bi-shield-check"
+        label="2FA Enabled"
+        value={users.filter(u => u.twoFactor).length}
+        gradient="linear-gradient(135deg, #10b981, #34d399)"
+      />
     </div>
-  {/if}
+
+    <!-- Action Bar -->
+    <div class="actions">
+      <Button onClick={handleAddUser} variant="primary">
+        <Icon name="person-plus-fill" size={16} />
+        <span>{t($currentLang, "addUser")}</span>
+      </Button>
+    </div>
+
+    {#if loading}
+      <div class="loading">
+        <Spinner size="large" />
+        <p>Loading users...</p>
+      </div>
+    {:else}
+      <!-- Users Table -->
+      <div class="glass-card table-container">
+        <div class="table-head">
+          <div class="col-user">{t($currentLang, "username")}</div>
+          <div class="col-date">{t($currentLang, "created")}</div>
+          <div class="col-2fa">{t($currentLang, "twoFactorAuth")}</div>
+          <div class="col-actions">{t($currentLang, "actions")}</div>
+        </div>
+
+        {#each users as user}
+          <div class="row">
+            <div class="col-user">
+              <Avatar name={user.username} size="small" />
+              <span class="name">{user.username}</span>
+              {#if user.username === "admin"}
+                <Badge variant="success">Admin</Badge>
+              {/if}
+            </div>
+            <div class="col-date">{user.created}</div>
+            <div class="col-2fa">
+              <Badge variant={user.twoFactor ? "success" : "error"}>
+                {user.twoFactor ? t($currentLang, "enabled") : t($currentLang, "disabled")}
+              </Badge>
+            </div>
+            <div class="col-actions">
+              <Button onClick={() => handleChangePassword(user)} variant="ghost" size="small">
+                <Icon name="key-fill" size={14} />
+              </Button>
+              <Button onClick={() => handleEditUser(user)} variant="ghost" size="small">
+                <Icon name="pencil-fill" size={14} />
+              </Button>
+              <Button
+                onClick={() => handleDeleteUser(user)}
+                variant="danger-ghost"
+                size="small"
+                disabled={user.username === "admin"}
+              >
+                <Icon name="trash-fill" size={14} />
+              </Button>
+            </div>
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </div>
 </div>
 
 <!-- Dialogs -->
@@ -296,127 +318,160 @@
 </Dialog>
 
 <style>
-  .view-container {
-    padding: 24px;
-    max-width: 1400px;
-    margin: 0 auto;
+  .users-view {
+    min-height: 100vh;
+    background: var(--md-sys-color-surface);
   }
 
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
     margin-bottom: 32px;
   }
 
-  h2 {
-    font-size: 28px;
-    font-weight: 500;
-    color: var(--md-sys-color-on-surface);
-    margin: 0;
+  /* Actions Bar */
+  .actions {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: flex-end;
   }
 
-  .users-table {
-    background: var(--md-sys-color-surface);
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: var(--md-elevation-1);
-  }
-
-  .table-header,
-  .table-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 16px;
-    padding: 16px;
+  /* Loading */
+  .loading {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-  }
-
-  .table-header {
-    background: var(--md-sys-color-surface-variant);
-    font-weight: 600;
-    font-size: 13px;
+    gap: 16px;
+    padding: 64px 32px;
     color: var(--md-sys-color-on-surface-variant);
   }
 
-  .table-row {
-    border-bottom: 1px solid var(--md-sys-color-outline);
+  .loading p {
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 16px;
   }
 
-  .table-row:last-child {
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  /* Table Container */
+  .table-container {
+    overflow: hidden;
+  }
+
+  .table-head,
+  .row {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 1.2fr 140px;
+    gap: 16px;
+    padding: 16px 20px;
+    align-items: center;
+  }
+
+  .table-head {
+    background: rgba(99, 102, 241, 0.06);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--md-sys-color-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .row {
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .row:last-child {
     border-bottom: none;
   }
 
-  .col-username {
+  .row:hover {
+    background: rgba(99, 102, 241, 0.04);
+  }
+
+  /* Columns */
+  .col-user {
     display: flex;
     align-items: center;
     gap: 12px;
   }
 
-  .admin-badge {
-    padding: 2px 8px;
-    background: var(--md-sys-color-tertiary-container);
-    color: var(--md-sys-color-on-tertiary-container);
-    border-radius: 8px;
-    font-size: 11px;
+  .name {
     font-weight: 600;
+    font-size: 14px;
+    color: var(--md-sys-color-on-surface);
+    letter-spacing: -0.2px;
   }
 
-  .badge {
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 12px;
+  .col-date {
+    font-size: 13px;
+    color: var(--md-sys-color-on-surface-variant);
     font-weight: 500;
   }
 
-  .badge.disabled {
-    background: var(--md-sys-color-surface-variant);
-    color: var(--md-sys-color-on-surface-variant);
-  }
-
-  .badge.enabled {
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-  }
-
+  /* Action Buttons */
   .col-actions {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
   }
 
-  .btn-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: none;
-    background: var(--md-sys-color-surface-variant);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .table-head {
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .row:hover {
+      background: rgba(99, 102, 241, 0.08);
+    }
+
+    .row {
+      border-color: rgba(255, 255, 255, 0.06);
+    }
+
+    .glass-badge.disabled {
+      background: rgba(255, 255, 255, 0.08);
+    }
   }
 
-  .btn-icon:hover:not(:disabled) {
-    background: var(--md-sys-color-secondary-container);
-    transform: scale(1.1);
-  }
+  /* Responsive */
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
 
-  .btn-icon:disabled {
-    opacity: 0.38;
-    cursor: not-allowed;
-  }
+    .table-head,
+    .row {
+      grid-template-columns: 1.5fr 1fr 1fr 100px;
+      gap: 8px;
+      padding: 12px 14px;
+      font-size: 12px;
+    }
 
-  .btn-icon.delete-btn:hover:not(:disabled) {
-    background: var(--md-sys-color-error);
-    color: var(--md-sys-color-on-error);
-  }
+    .name {
+      font-size: 13px;
+    }
 
-  .loading {
-    text-align: center;
-    padding: 60px;
-    color: var(--md-sys-color-on-surface-variant);
+    .col-date,
+    .col-2fa {
+      font-size: 12px;
+    }
+
+    .col-actions {
+      gap: 4px;
+    }
   }
 </style>

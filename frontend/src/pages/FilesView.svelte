@@ -18,6 +18,7 @@
   import { TouchGestureHandler } from "../utils/touchGestures";
   import { RequestQueue, retryWithBackoff } from "../utils/debounce";
   import Button from "../components/ui/Button.svelte";
+  import PageHeader from "../components/ui/PageHeader.svelte";
   import SearchBar from "../components/ui/SearchBar.svelte";
   import FilterPanel from "../components/ui/FilterPanel.svelte";
   import Dialog from "../components/ui/Dialog.svelte";
@@ -27,6 +28,7 @@
   import SkeletonLoader from "../components/ui/SkeletonLoader.svelte";
   import ContextMenu from "../components/ui/ContextMenu.svelte";
   import CommentsPanel from "../components/CommentsPanel.svelte";
+  import Spinner from "../components/ui/Spinner.svelte";
   import api from "../lib/api";
   let loading = true;
 
@@ -332,27 +334,30 @@
     return "other";
   }
 
-  onMount(async () => {
-    console.log(
-      `[FilesView] onMount - currentPath: "${$currentPath}", currentView: "${$currentView}"`
-    );
-    mounted = true;
+  onMount(() => {
+    // run initialization asynchronously to satisfy onMount typing
+    (async () => {
+      console.log(
+        `[FilesView] onMount - currentPath: "${$currentPath}", currentView: "${$currentView}"`
+      );
+      mounted = true;
 
-    // Load favorites from API on mount
-    await favorites.load();
-    
-    // Load activities from backend
-    await activity.load({ limit: 50 });
+      // Load favorites from API on mount
+      await favorites.load();
+      
+      // Load activities from backend
+      await activity.load({ limit: 50 });
 
-    // loadFiles() will be called by reactive statement
+      // loadFiles() will be called by reactive statement
 
-    // Cleanup old thumbnails
-    cleanupCache().catch((err) =>
-      console.error("Thumbnail cleanup failed:", err)
-    );
+      // Cleanup old thumbnails
+      cleanupCache().catch((err) =>
+        console.error("Thumbnail cleanup failed:", err)
+      );
 
-    // Setup keyboard shortcuts
-    shortcuts.init();
+      // Setup keyboard shortcuts
+      shortcuts.init();
+    })();
 
     // Ctrl+A - Select all files
     shortcuts.register(
@@ -1190,11 +1195,11 @@
    * Handle double-tap on file card
    */
   function handleFileDoubleTap(file) {
-    if (file.is_directory) {
+    if (file.is_dir) {
       navigateTo(file.name);
     } else {
       // Open preview modal
-      selectedFile = file;
+      fileToPreview = file;
       showPreviewModal = true;
     }
   }
@@ -1229,7 +1234,7 @@
     if (!isPulling) return;
 
     const touch = e.touches[0];
-    const startY = touchGesture.startY;
+    const startY = touchGesture.touchStartY;
     pullDistance = Math.max(
       0,
       Math.min(touch.clientY - startY, pullToRefreshThreshold * 1.5)
@@ -1383,73 +1388,76 @@
   type="file"
   multiple
   bind:this={uploadInput}
-  on:change={handleFileInputChange}
+  onchange={handleFileInputChange}
   style="display: none;"
 />
 
 <div class="files-view">
-  <div class="page-header">
-    <h2><Icon name="folder-fill" size={24} /> {t($currentLang, "files")}</h2>
-    <div class="header-actions">
+  <PageHeader 
+    title={t($currentLang, "files")}
+    subtitle=""
+    icon="folder-fill"
+    gradient="blue"
+  >
+    <div slot="actions" class="header-actions">
       <SearchBar
         bind:value={searchQuery}
         placeholder="{t($currentLang, 'search')}..."
-        on:input={handleSearchInput}
+        oninput={handleSearchInput}
         on:clear={() => {
           searchQuery = "";
           searchResults = [];
           loadFiles();
         }}
       />
-      <button
-        class="btn-filter"
-        on:click={() => (showFilterPanel = true)}
-        title="Advanced Filters"
-        class:active={activeFilters.fileTypes.length > 0 ||
+      <Button
+        variant={activeFilters.fileTypes.length > 0 ||
           activeFilters.sizeRange.min > 0 ||
           activeFilters.sizeRange.max < Infinity ||
           activeFilters.dateRange.from ||
-          activeFilters.dateRange.to}
+          activeFilters.dateRange.to ? "primary" : "ghost"}
+        size="small"
+        onclick={() => (showFilterPanel = true)}
       >
         <Icon name="funnel" size={18} />
         {#if activeFilters.fileTypes.length > 0}
           <span class="filter-badge">{activeFilters.fileTypes.length}</span>
         {/if}
-      </button>
-      <button
-        class="btn-view-toggle"
-        on:click={toggleViewMode}
-        title={viewMode === "grid" ? "Listen-Ansicht" : "Karten-Ansicht"}
+      </Button>
+      <Button
+        variant="ghost"
+        size="small"
+        onclick={toggleViewMode}
       >
         <Icon
           name={viewMode === "grid" ? "list-ul" : "grid-3x3-gap"}
           size={18}
         />
-      </button>
+      </Button>
       <Button onClick={createFolder} variant="outlined">
         <Icon name="folder-plus" size={16} />
         {t($currentLang, "newFolder")}
       </Button>
     </div>
-  </div>
+  </PageHeader>
 
   <!-- Multi-select toolbar -->
   {#if selectedFiles.size > 0}
     <div class="multiselect-toolbar">
       <span class="selected-count">{selectedFiles.size} selected</span>
       <div class="multiselect-actions">
-        <button class="btn-multiselect" on:click={selectAll}>
+        <Button variant="outlined" size="small" onclick={selectAll}>
           <Icon name="check-all" size={16} />
           Select All
-        </button>
-        <button class="btn-multiselect" on:click={deselectAll}>
+        </Button>
+        <Button variant="outlined" size="small" onclick={deselectAll}>
           <Icon name="x-square" size={16} />
           Deselect All
-        </button>
-        <button class="btn-multiselect btn-danger" on:click={bulkDelete}>
+        </Button>
+        <Button variant="danger" size="small" onclick={bulkDelete}>
           <Icon name="trash" size={16} />
           Delete Selected
-        </button>
+        </Button>
       </div>
     </div>
   {/if}
@@ -1458,7 +1466,7 @@
   <button
     class="fab-upload"
     class:uploading
-    on:click={handleUploadClick}
+    onclick={handleUploadClick}
     disabled={uploading}
     title="Dateien hochladen"
   >
@@ -1479,7 +1487,7 @@
       <button
         class="breadcrumb-item"
         class:active={i === breadcrumbs.length - 1}
-        on:click={() => navigateToPath(crumb.path)}
+        onclick={() => navigateToPath(crumb.path)}
         disabled={i === breadcrumbs.length - 1}
       >
         {#if i === 0}
@@ -1495,9 +1503,9 @@
     <div
       class="drop-zone-compact"
       class:drag-over={dragOver}
-      on:dragover={handleDragOver}
-      on:dragleave={handleDragLeave}
-      on:drop={handleDrop}
+      ondragover={handleDragOver}
+      ondragleave={handleDragLeave}
+      ondrop={handleDrop}
       role="region"
     >
       <Icon name="cloud-arrow-up" size={16} />
@@ -1561,7 +1569,7 @@
       </span>
       <button
         class="btn-clear-search"
-        on:click={() => {
+        onclick={() => {
           searchQuery = "";
           searchResults = [];
           loadFiles();
@@ -1576,7 +1584,8 @@
     <SkeletonLoader count={12} type={viewMode} />
   {:else if isSearching}
     <div class="loading">
-      <div class="spinner"></div>
+      <Spinner variant="circular" size="large" />
+
       <p>ðŸ” Searching...</p>
     </div>
   {:else if displayedFiles.length === 0}
@@ -1595,189 +1604,104 @@
     <div class="file-grid">
       {#each displayedFiles as file}
         <div
-          class="file-card"
+          class="file-card modern-card"
           class:folder={file.is_dir}
           class:selected={multiSelectMode && selectedFiles.has(file.name)}
           class:drag-over={file.is_dir && dropTargetFolder === file.name}
           draggable="true"
-          on:dragstart={(e) => handleFileDragStart(e, file)}
-          on:dragend={handleFileDragEnd}
-          on:dragover={(e) => file.is_dir && handleFolderDragOver(e, file)}
-          on:dragleave={(e) => file.is_dir && handleFolderDragLeave(e, file)}
-          on:drop={(e) => file.is_dir && handleFolderDrop(e, file)}
-          on:click={() => handleFileClick(file)}
-          on:contextmenu={(e) => handleContextMenu(e, file)}
-          on:keydown={(e) => e.key === "Enter" && handleFileClick(file)}
+          ondragstart={(e) => handleFileDragStart(e, file)}
+          ondragend={handleFileDragEnd}
+          ondragover={(e) => file.is_dir && handleFolderDragOver(e, file)}
+          ondragleave={(e) => file.is_dir && handleFolderDragLeave(e, file)}
+          ondrop={(e) => file.is_dir && handleFolderDrop(e, file)}
+          onclick={() => handleFileClick(file)}
+          oncontextmenu={(e) => handleContextMenu(e, file)}
+          onkeydown={(e) => e.key === "Enter" && handleFileClick(file)}
           role="button"
           tabindex="0"
         >
-          {#if multiSelectMode && !file.is_dir}
-            <div class="file-checkbox">
-              <Icon
-                name={selectedFiles.has(file.name)
-                  ? "check-square-fill"
-                  : "square"}
-                size={20}
-              />
-            </div>
-          {/if}
-          <div class="file-icon">
+          <div class="card-media">
             {#if !file.is_dir && thumbnails.has($currentPath ? `${$currentPath}${file.name}` : file.name)}
-              <div class="file-thumbnail">
-                <img
-                  src={thumbnails.get(
-                    $currentPath ? `${$currentPath}${file.name}` : file.name
-                  )}
-                  alt={file.name}
-                  loading="lazy"
-                />
+              <img
+                class="thumb-img"
+                src={thumbnails.get($currentPath ? `${$currentPath}${file.name}` : file.name)}
+                alt={file.name}
+                loading="lazy"
+              />
+            {:else}
+              <div class="icon-wrap">
+                <Icon name={getFileIcon(file.name, file.is_dir)} size={40} />
               </div>
-            {:else}
-              <Icon name={getFileIcon(file.name, file.is_dir)} size={48} />
             {/if}
-          </div>
-          <div class="file-name" title={displayName(file.name)}>
-            {displayName(file.name)}
-          </div>
-          <div class="file-meta">
-            {#if file.is_dir}
-              <Icon name="folder" size={14} /> Ordner
-            {:else}
-              {formatSize(file.size)}
-            {/if}
+            <div class="card-overlay">
+              <Button variant="ghost" size="small" onclick={(e) => { e.stopPropagation(); toggleFavorite(file); }}>
+                <Icon name={isFavorite(file) ? "star-fill" : "star"} size={14} />
+              </Button>
+              <Button variant="ghost" size="small" onclick={(e) => { e.stopPropagation(); downloadFile(file); }} disabled={file.is_dir}>
+                <Icon name="download" size={14} />
+              </Button>
+            </div>
           </div>
 
-          <!-- Comments & Tags badges -->
-          {#if comments.getCount($currentPath + file.name, $comments) > 0 || tags.getTags($currentPath + file.name, $tags).length > 0}
-            <div class="file-badges">
-              {#if comments.getCount($currentPath + file.name, $comments) > 0}
-                <span
-                  class="badge badge-comments"
-                  title="{comments.getCount(
-                    $currentPath + file.name,
-                    $comments
-                  )} comments"
-                >
-                  <Icon name="chat-dots" size={12} />
-                  {comments.getCount($currentPath + file.name, $comments)}
-                </span>
-              {/if}
-              {#if tags.getTags($currentPath + file.name, $tags).length > 0}
-                <span
-                  class="badge badge-tags"
-                  title="{tags.getTags($currentPath + file.name, $tags)
-                    .length} tags"
-                >
-                  <Icon name="tag" size={12} />
-                  {tags.getTags($currentPath + file.name, $tags).length}
-                </span>
+          <div class="card-body">
+            <div class="file-name" title={displayName(file.name)}>{displayName(file.name)}</div>
+            <div class="file-meta">
+              {#if file.is_dir}
+                <Icon name="folder" size={12} /> <span>Ordner</span>
+              {:else}
+                <span>{formatSize(file.size)}</span>
               {/if}
             </div>
-          {/if}
+          </div>
 
-          <div class="file-actions">
-            <button
-              class="btn-icon btn-favorite"
-              on:click|stopPropagation={() => toggleFavorite(file)}
-              title={isFavorite(file)
-                ? "Aus Favoriten entfernen"
-                : "Zu Favoriten hinzufügen"}
-            >
-              <Icon name={isFavorite(file) ? "star-fill" : "star"} size={16} />
-            </button>
-            {#if !file.is_dir}
-              <button
-                class="btn-icon"
-                on:click|stopPropagation={() => downloadFile(file)}
-                title={t($currentLang, "download")}
-              >
-                <Icon name="download" size={16} />
-              </button>
+          <div class="card-footer">
+            {#if comments.getCount($currentPath + file.name, $comments) > 0}
+              <span class="badge small badge-comments">{comments.getCount($currentPath + file.name, $comments)}</span>
             {/if}
-            <button
-              class="btn-icon"
-              on:click|stopPropagation={() => renameFile(file)}
-              title={t($currentLang, "rename")}
-            >
-              <Icon name="pencil" size={16} />
-            </button>
-            <button
-              class="btn-icon btn-delete"
-              on:click|stopPropagation={() => deleteFile(file)}
-              title={t($currentLang, "delete")}
-            >
-              <Icon name="trash" size={16} />
-            </button>
+            {#if tags.getTags($currentPath + file.name, $tags).length > 0}
+              <span class="badge small badge-tags">{tags.getTags($currentPath + file.name, $tags).length}</span>
+            {/if}
+
+            <div class="card-actions">
+              <Button variant="ghost" size="small" onclick={(e) => { e.stopPropagation(); renameFile(file); }}><Icon name="pencil" size={14} /></Button>
+              <Button variant="danger-ghost" size="small" onclick={(e) => { e.stopPropagation(); deleteFile(file); }}><Icon name="trash" size={14} /></Button>
+            </div>
           </div>
         </div>
       {/each}
     </div>
   {:else}
     <!-- List View -->
-    <div class="file-list">
+    <div class="file-list modern-list">
       {#each displayedFiles as file}
         <div
-          class="file-row"
+          class="file-row modern-row"
           class:folder={file.is_dir}
           class:drag-over={file.is_dir && dropTargetFolder === file.name}
           draggable="true"
-          on:dragstart={(e) => handleFileDragStart(e, file)}
-          on:dragend={handleFileDragEnd}
-          on:dragover={(e) => file.is_dir && handleFolderDragOver(e, file)}
-          on:dragleave={(e) => file.is_dir && handleFolderDragLeave(e, file)}
-          on:drop={(e) => file.is_dir && handleFolderDrop(e, file)}
-          on:click={() => handleFileClick(file)}
-          on:contextmenu={(e) => handleContextMenu(e, file)}
-          on:keydown={(e) => e.key === "Enter" && handleFileClick(file)}
+          ondragstart={(e) => handleFileDragStart(e, file)}
+          ondragend={handleFileDragEnd}
+          ondragover={(e) => file.is_dir && handleFolderDragOver(e, file)}
+          ondragleave={(e) => file.is_dir && handleFolderDragLeave(e, file)}
+          ondrop={(e) => file.is_dir && handleFolderDrop(e, file)}
+          onclick={() => handleFileClick(file)}
+          oncontextmenu={(e) => handleContextMenu(e, file)}
+          onkeydown={(e) => e.key === "Enter" && handleFileClick(file)}
           role="button"
           tabindex="0"
         >
           <div class="file-icon-small">
-            <Icon name={getFileIcon(file.name, file.is_dir)} size={24} />
+            <Icon name={getFileIcon(file.name, file.is_dir)} size={22} />
           </div>
-          <div class="file-name-list" title={displayName(file.name)}>
-            {displayName(file.name)}
-          </div>
-          <div class="file-size-list">
-            {#if file.is_dir}
-              <Icon name="folder" size={14} /> Ordner
-            {:else}
-              {formatSize(file.size)}
-            {/if}
-          </div>
-          <div class="file-actions-list">
-            <button
-              class="btn-icon-small btn-favorite"
-              on:click|stopPropagation={() => toggleFavorite(file)}
-              title={isFavorite(file)
-                ? "Aus Favoriten entfernen"
-                : "Zu Favoriten hinzufügen"}
-            >
-              <Icon name={isFavorite(file) ? "star-fill" : "star"} size={14} />
-            </button>
+          <div class="file-name-list" title={displayName(file.name)}>{displayName(file.name)}</div>
+          <div class="file-size-list">{#if file.is_dir}<Icon name="folder" size={12}/> Ordner{:else}{formatSize(file.size)}{/if}</div>
+          <div class="file-actions-list modern-actions">
+            <Button variant="ghost" size="small" onclick={(e) => { e.stopPropagation(); toggleFavorite(file); }}><Icon name={isFavorite(file) ? "star-fill" : "star"} size={14} /></Button>
             {#if !file.is_dir}
-              <button
-                class="btn-icon-small"
-                on:click|stopPropagation={() => downloadFile(file)}
-                title={t($currentLang, "download")}
-              >
-                <Icon name="download" size={14} />
-              </button>
+              <Button variant="ghost" size="small" onclick={(e) => { e.stopPropagation(); downloadFile(file); }}><Icon name="download" size={14} /></Button>
             {/if}
-            <button
-              class="btn-icon-small"
-              on:click|stopPropagation={() => renameFile(file)}
-              title={t($currentLang, "rename")}
-            >
-              <Icon name="pencil" size={14} />
-            </button>
-            <button
-              class="btn-icon-small btn-delete"
-              on:click|stopPropagation={() => deleteFile(file)}
-              title={t($currentLang, "delete")}
-            >
-              <Icon name="trash" size={14} />
-            </button>
+            <Button variant="ghost" size="small" onclick={(e) => { e.stopPropagation(); renameFile(file); }}><Icon name="pencil" size={14} /></Button>
+            <Button variant="danger-ghost" size="small" onclick={(e) => { e.stopPropagation(); deleteFile(file); }}><Icon name="trash" size={14} /></Button>
           </div>
         </div>
       {/each}
@@ -1926,13 +1850,20 @@
 
 <!-- Move File Dialog -->
 {#if showMoveDialog && fileToMove}
-  <div class="custom-dialog-backdrop" on:click={() => { showMoveDialog = false; fileToMove = null; }}>
-    <div class="custom-dialog" on:click|stopPropagation>
+  <div
+    class="custom-dialog-backdrop"
+    role="button"
+    tabindex="0"
+    aria-label="Close dialog"
+    onkeydown={(e) => { if (e.key === 'Escape' || e.key === 'Enter') { showMoveDialog = false; fileToMove = null; } }}
+    onclick={() => { showMoveDialog = false; fileToMove = null; }}
+  >
+    <div class="custom-dialog" role="presentation" tabindex="-1" onkeydown={(e) => { /* prevent propagation */ }} onclick={(e) => e.stopPropagation()}>
       <div class="dialog-header">
         <h2>Move '{fileToMove.name}' to...</h2>
-        <button class="close-btn" onclick={() => { showMoveDialog = false; fileToMove = null; }}>
+        <Button variant="ghost" size="small" onclick={() => { showMoveDialog = false; fileToMove = null; }}>
           <Icon name="x" />
-        </button>
+        </Button>
       </div>
       
       <div class="folder-list">
@@ -1958,13 +1889,20 @@
 
 <!-- File Properties Dialog -->
 {#if showPropertiesDialog && fileForProperties}
-  <div class="custom-dialog-backdrop" on:click={() => { showPropertiesDialog = false; fileForProperties = null; }}>
-    <div class="custom-dialog" on:click|stopPropagation>
+  <div
+    class="custom-dialog-backdrop"
+    role="button"
+    tabindex="0"
+    aria-label="Close dialog"
+    onkeydown={(e) => { if (e.key === 'Escape' || e.key === 'Enter') { showPropertiesDialog = false; fileForProperties = null; } }}
+    onclick={() => { showPropertiesDialog = false; fileForProperties = null; }}
+  >
+    <div class="custom-dialog" role="presentation" tabindex="-1" onkeydown={(e) => { /* prevent propagation */ }} onclick={(e) => e.stopPropagation()}>
       <div class="dialog-header">
         <h2>Properties</h2>
-        <button class="close-btn" onclick={() => { showPropertiesDialog = false; fileForProperties = null; }}>
+        <Button variant="ghost" size="small" onclick={() => { showPropertiesDialog = false; fileForProperties = null; }}>
           <Icon name="x" />
-        </button>
+        </Button>
       </div>
       
       <div class="properties-grid">
@@ -1999,18 +1937,9 @@
 
 <style>
   .files-view {
-    padding: 32px;
+    padding: 0;
     max-width: 1400px;
     margin: 0 auto;
-  }
-
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    gap: 16px;
   }
 
   .header-actions {
@@ -2018,33 +1947,6 @@
     gap: 12px;
     align-items: center;
     flex-wrap: wrap;
-  }
-
-  .btn-view-toggle,
-  .btn-filter {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    border: 1px solid var(--md-sys-color-outline);
-    background: var(--md-sys-color-surface);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-
-  .btn-view-toggle:hover,
-  .btn-filter:hover {
-    background: var(--md-sys-color-secondary-container);
-    border-color: var(--md-sys-color-secondary);
-  }
-
-  .btn-filter.active {
-    background: var(--md-sys-color-primary-container);
-    border-color: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary-container);
   }
 
   .filter-badge {
@@ -2307,28 +2209,6 @@
   }
 
   /* Multi-select UI */
-  .btn-multiselect-toggle {
-    background: transparent;
-    border: none;
-    color: var(--md-sys-color-on-surface);
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 8px;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .btn-multiselect-toggle:hover {
-    background: var(--md-sys-color-surface-container-highest);
-  }
-
-  .btn-multiselect-toggle.active {
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-  }
-
   .multiselect-toolbar {
     background: var(--md-sys-color-primary-container);
     border-radius: 16px;
@@ -2350,96 +2230,15 @@
     gap: 8px;
   }
 
-  .btn-multiselect {
-    background: var(--md-sys-color-surface);
-    border: none;
-    color: var(--md-sys-color-on-surface);
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 8px;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 500;
-  }
-
-  .btn-multiselect:hover {
-    background: var(--md-sys-color-surface-container-high);
-    transform: translateY(-1px);
-  }
-
-  .btn-multiselect.btn-danger {
-    background: var(--md-sys-color-error);
-    color: var(--md-sys-color-on-error);
-  }
-
-  .btn-multiselect.btn-danger:hover {
-    background: var(--md-sys-color-error-container);
-    color: var(--md-sys-color-on-error-container);
-  }
-
-  .file-checkbox {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    background: var(--md-sys-color-surface);
-    border-radius: 4px;
-    padding: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    z-index: 10;
-  }
-
   .file-card.selected {
     border: 2px solid var(--md-sys-color-primary);
     background: var(--md-sys-color-primary-container);
-  }
-
-  .drop-zone:hover,
-  .drop-zone.drag-over {
-    background: rgba(103, 80, 164, 0.15);
-    border-color: var(--md-sys-color-secondary);
-    transform: scale(1.01);
-  }
-
-  .drop-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-  }
-
-  .drop-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--md-sys-color-on-surface);
-    margin-bottom: 8px;
-  }
-
-  .drop-subtitle {
-    font-size: 14px;
-    color: var(--md-sys-color-on-surface-variant);
   }
 
   .loading {
     text-align: center;
     padding: 80px 20px;
     color: var(--md-sys-color-on-surface-variant);
-  }
-
-  .spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid var(--md-sys-color-outline);
-    border-top-color: var(--md-sys-color-primary);
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
   }
 
   .empty-state {
@@ -2558,39 +2357,6 @@
     border-color: var(--md-sys-color-secondary);
   }
 
-  .file-icon {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 12px;
-    color: var(--md-sys-color-primary);
-  }
-
-  .file-card.folder .file-icon {
-    color: var(--md-sys-color-tertiary);
-  }
-
-  .file-thumbnail {
-    width: 100%;
-    height: 120px;
-    border-radius: 12px;
-    overflow: hidden;
-    background: var(--md-sys-color-surface-variant);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .file-thumbnail img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-
-  .file-card:hover .file-thumbnail img {
-    transform: scale(1.05);
-  }
-
   .file-name {
     font-weight: 500;
     font-size: 14px;
@@ -2605,14 +2371,6 @@
     font-size: 12px;
     color: var(--md-sys-color-on-surface-variant);
     margin-bottom: 8px;
-  }
-
-  .file-badges {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
   }
 
   .badge {
@@ -2634,40 +2392,6 @@
   .badge-tags {
     background: #fff3e0;
     color: #f57c00;
-  }
-
-  .file-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-  }
-
-  .btn-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: none;
-    background: var(--md-sys-color-surface-variant);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-  }
-
-  .btn-icon:hover {
-    background: var(--md-sys-color-secondary-container);
-    transform: scale(1.1);
-  }
-
-  .btn-icon.btn-favorite {
-    color: var(--md-sys-color-tertiary);
-  }
-
-  .btn-icon.btn-favorite:hover {
-    background: var(--md-sys-color-tertiary-container);
-    color: var(--md-sys-color-on-tertiary-container);
   }
 
   /* List View Styles */
@@ -2745,25 +2469,6 @@
     gap: 8px;
   }
 
-  .btn-icon-small {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: none;
-    background: var(--md-sys-color-surface-variant);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-  }
-
-  .btn-icon-small:hover {
-    background: var(--md-sys-color-secondary-container);
-    transform: scale(1.1);
-  }
-
   /* Search Mode Indicator */
   .search-mode-indicator {
     display: flex;
@@ -2839,12 +2544,6 @@
       gap: 16px;
     }
 
-    .page-header {
-      flex-direction: column;
-      gap: 16px;
-      align-items: stretch;
-    }
-
     .header-actions {
       justify-content: space-between;
     }
@@ -2858,11 +2557,7 @@
   /* Mobile breakpoint (< 768px) */
   @media (max-width: 768px) {
     .files-view {
-      padding: 16px 12px;
-    }
-
-    .page-header h2 {
-      font-size: 20px;
+      padding: 0;
     }
 
     .file-grid {
@@ -2881,22 +2576,6 @@
 
     .file-meta {
       font-size: 11px;
-    }
-
-    .file-actions {
-      gap: 8px;
-    }
-
-    .btn-icon {
-      width: 32px;
-      height: 32px;
-    }
-
-    /* Hide some buttons on mobile */
-    .btn-view-toggle,
-    .btn-filter {
-      width: 36px;
-      height: 36px;
     }
 
     /* Simplify breadcrumbs on mobile */
@@ -2938,12 +2617,6 @@
       font-size: 13px;
     }
 
-    /* Multi-select toolbar mobile */
-    .multi-select-toolbar {
-      padding: 12px;
-      gap: 8px;
-    }
-
     /* Touch-friendly tap targets */
     .file-card,
     .file-row {
@@ -2966,23 +2639,9 @@
       padding: 12px;
     }
 
-    .page-header h2 {
-      font-size: 18px;
-    }
-
     /* Stack header actions vertically on very small screens */
     .header-actions {
       flex-wrap: wrap;
-    }
-
-    /* Simplify file list */
-    .file-icon {
-      font-size: 32px;
-    }
-
-    /* Compact stats */
-    .stats-summary {
-      flex-direction: column;
     }
 
     /* Hide less important UI on tiny screens */
@@ -3134,6 +2793,79 @@
     color: var(--md-sys-color-on-surface);
     font-size: 14px;
     word-break: break-word;
+  }
+
+  /* Modern card/list additions */
+  .modern-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.6));
+    backdrop-filter: blur(12px) saturate(120%);
+    border-radius: 20px;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 180px;
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .card-media {
+    position: relative;
+    height: 120px;
+    background: linear-gradient(135deg, rgba(99,102,241,0.06), rgba(217,70,239,0.04));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .icon-wrap { color: var(--md-sys-color-primary); }
+
+  .card-overlay {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 8px;
+    z-index: 20;
+  }
+
+  .card-body {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-top: 1px solid rgba(0,0,0,0.04);
+    background: rgba(255,255,255,0.02);
+  }
+
+  .card-actions { display: flex; gap: 8px; }
+
+  .badge.small { padding: 4px 6px; border-radius: 10px; font-size: 12px; }
+
+  /* Modern list */
+  .modern-list { display: flex; flex-direction: column; gap: 8px; }
+  .modern-row { padding: 12px 14px; border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.6)); backdrop-filter: blur(8px); box-shadow: 0 6px 18px rgba(16,24,40,0.04); }
+  .modern-actions { display:flex; gap:8px; }
+
+  /* Dark mode tweaks */
+  @media (prefers-color-scheme: dark) {
+    .modern-card { background: linear-gradient(180deg, rgba(18,18,23,0.6), rgba(18,18,23,0.5)); border: 1px solid rgba(255,255,255,0.04); }
+    .modern-row { background: linear-gradient(180deg, rgba(14,14,18,0.6), rgba(14,14,18,0.5)); border: 1px solid rgba(255,255,255,0.03); }
   }
 </style>
 

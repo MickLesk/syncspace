@@ -35,12 +35,12 @@
   </div>
 
   <div class="header-right">
-    <button class="lang-selector" on:click={toggleLang}>
+    <button class="lang-selector" onclick={toggleLang}>
       <span class="lang-flag">{langFlag}</span>
       <span>{langText}</span>
     </button>
 
-    <button class="theme-toggle" on:click={toggleTheme}>
+    <button class="theme-toggle" onclick={toggleTheme}>
       <span>{themeIcon}</span>
       <span>{themeText}</span>
     </button>
@@ -52,7 +52,7 @@
       <span>{$auth.username || "User"}</span>
     </div>
 
-    <button class="logout-btn" on:click={handleLogout}> 🚪 Logout </button>
+    <button class="logout-btn" onclick={handleLogout}> 🚪 Logout </button>
   </div>
 </header>
 

@@ -1,6 +1,10 @@
 <script>
   import { onMount } from "svelte";
   import Icon from "../components/ui/Icon.svelte";
+  import PageHeader from "../components/ui/PageHeader.svelte";
+  import StatCard from "../components/ui/StatCard.svelte";
+  import ChartCard from "../components/ui/ChartCard.svelte";
+  import Spinner from "../components/ui/Spinner.svelte";
   import api from "../lib/api";
   import { error as errorToast } from "../stores/toast";
 
@@ -138,6 +142,7 @@
    * Render pie chart using Chart.js (loaded from CDN)
    */
   function renderChart() {
+    // @ts-ignore - Chart.js loaded from CDN
     if (!chartCanvas || !window.Chart) return;
 
     const ctx = chartCanvas.getContext("2d");
@@ -162,6 +167,7 @@
 
     if (chart) chart.destroy();
 
+    // @ts-ignore - Chart.js loaded from CDN
     chart = new window.Chart(ctx, {
       type: "doughnut",
       data: {
@@ -183,8 +189,9 @@
             labels: {
               padding: 20,
               font: {
-                family: "Roboto",
+                family: "Inter",
                 size: 14,
+                weight: 500,
               },
             },
           },
@@ -227,79 +234,72 @@
   ></script>
 </svelte:head>
 
-<div class="storage-dashboard">
-  <div class="dashboard-header">
-    <h2><Icon name="pie-chart" size={24} /> Storage Usage</h2>
-  </div>
+<div class="storage-view">
+  <PageHeader 
+    title="Storage Analytics"
+    subtitle=""
+    icon="pie-chart-fill"
+    gradient="green"
+  />
 
-  {#if loading}
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading statistics...</p>
-    </div>
-  {:else}
-    <div class="dashboard-content">
-      <!-- Overview Cards -->
+  <div class="page-content">
+    {#if loading}
+      <div class="loading">
+        <Spinner size="large" />
+        <p>Loading storage data...</p>
+      </div>
+    {:else}
+      <!-- Stats Grid with StatCard -->
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: #4CAF50;">
-            <Icon name="files" size={32} color="#fff" />
-          </div>
-          <div class="stat-content">
-            <div class="stat-value">{stats.totalFiles}</div>
-            <div class="stat-label">Total Files</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon" style="background: #2196F3;">
-            <Icon name="hdd" size={32} color="#fff" />
-          </div>
-          <div class="stat-content">
-            <div class="stat-value">{formatSize(stats.totalSize)}</div>
-            <div class="stat-label">Total Size</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon" style="background: #FF9800;">
-            <Icon name="file-earmark" size={32} color="#fff" />
-          </div>
-          <div class="stat-content">
-            <div class="stat-value">
-              {Object.values(stats.byType).reduce((sum, t) => sum + t.count, 0)}
-            </div>
-            <div class="stat-label">File Types</div>
-          </div>
-        </div>
+        <StatCard
+          icon="bi-files"
+          label="Total Files"
+          value={stats.totalFiles}
+          gradient="linear-gradient(135deg, #10b981, #34d399)"
+        />
+        
+        <StatCard
+          icon="bi-hdd-fill"
+          label="Storage Used"
+          value={formatSize(stats.totalSize)}
+          gradient="linear-gradient(135deg, #3b82f6, #60a5fa)"
+        />
+        
+        <StatCard
+          icon="bi-file-earmark"
+          label="File Types"
+          value={Object.keys(stats.byType).filter(k => stats.byType[k].size > 0).length}
+          gradient="linear-gradient(135deg, #f59e0b, #fbbf24)"
+        />
       </div>
 
       <!-- Chart & Breakdown -->
-      <div class="chart-section">
-        <div class="chart-container">
-          <h3>Storage by Type</h3>
+      <div class="content-grid">
+        <!-- Chart Card -->
+        <ChartCard title="Usage by Type" icon="bi-pie-chart-fill">
           <canvas bind:this={chartCanvas}></canvas>
-        </div>
+        </ChartCard>
 
-        <div class="type-breakdown">
-          <h3>Type Breakdown</h3>
-          <div class="breakdown-list">
+        <!-- Breakdown Card -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="head-icon" style="background: rgba(99, 102, 241, 0.12);">
+              <Icon name="list-ul" size={20} color="#6366f1" />
+            </div>
+            <h3>Type Breakdown</h3>
+          </div>
+          <div class="breakdown">
             {#each Object.entries(stats.byType) as [type, data]}
               {#if data.size > 0}
-                <div class="breakdown-item">
-                  <div class="breakdown-info">
-                    <span class="breakdown-type"
-                      >{type.charAt(0).toUpperCase() + type.slice(1)}</span
-                    >
-                    <span class="breakdown-count">{data.count} files</span>
+                <div class="item">
+                  <div class="info">
+                    <span class="type">{type.charAt(0).toUpperCase() + type.slice(1)}</span>
+                    <span class="count">{data.count} files</span>
                   </div>
-                  <div class="breakdown-bar">
-                    <div
-                      class="breakdown-fill"
-                      style="width: {formatPercent(data.size, stats.totalSize)}"
-                    ></div>
+                  <div class="bar">
+                    <div class="fill" style="width: {formatPercent(data.size, stats.totalSize)}"></div>
                   </div>
-                  <span class="breakdown-size">{formatSize(data.size)}</span>
+                  <span class="size">{formatSize(data.size)}</span>
                 </div>
               {/if}
             {/each}
@@ -309,243 +309,245 @@
 
       <!-- Largest Files -->
       {#if stats.largestFiles.length > 0}
-        <div class="largest-files">
-          <h3><Icon name="sort-down-alt" size={20} /> Largest Files</h3>
-          <div class="file-list">
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="head-icon" style="background: rgba(239, 68, 68, 0.12);">
+              <Icon name="sort-down-alt" size={20} color="#ef4444" />
+            </div>
+            <h3>Largest Files</h3>
+          </div>
+          <div class="files">
             {#each stats.largestFiles as file}
-              <div class="file-item">
-                <Icon name="file-earmark" size={20} />
-                <span class="file-name">{file.name}</span>
-                <span class="file-size">{formatSize(file.size)}</span>
+              <div class="file">
+                <Icon name="file-earmark-fill" size={16} />
+                <span class="name">{file.name}</span>
+                <span class="size">{formatSize(file.size)}</span>
               </div>
             {/each}
           </div>
         </div>
       {/if}
-    </div>
-  {/if}
+    {/if}
+  </div>
 </div>
 
 <style>
-  .storage-dashboard {
-    padding: 32px;
-    max-width: 1400px;
-    margin: 0 auto;
+  .storage-view {
+    min-height: 100vh;
+    background: var(--md-sys-color-surface);
   }
 
-  .dashboard-header {
-    margin-bottom: 32px;
-  }
-
-  .dashboard-header h2 {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 28px;
-    font-weight: 500;
-    color: var(--md-sys-color-on-surface);
-    margin: 0;
-  }
-
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 64px;
-    color: var(--md-sys-color-on-surface-variant);
-  }
-
-  .spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid var(--md-sys-color-surface-variant);
-    border-top-color: var(--md-sys-color-primary);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
+  /* Stats Grid */
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
     margin-bottom: 32px;
   }
 
-  .stat-card {
-    background: var(--md-sys-color-surface);
-    border-radius: 20px;
-    padding: 24px;
-    box-shadow: var(--md-elevation-1);
+  /* Content Grid */
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  /* Card Header */
+  .card-header {
     display: flex;
     align-items: center;
-    gap: 20px;
-    transition: all 0.3s ease;
+    gap: 14px;
+    margin-bottom: 24px;
   }
 
-  .stat-card:hover {
-    box-shadow: var(--md-elevation-3);
-    transform: translateY(-4px);
-  }
-
-  .stat-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
+  .head-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
   }
 
-  .stat-content {
-    flex: 1;
-  }
-
-  .stat-value {
-    font-size: 32px;
+  .card-header h3 {
+    font-size: 18px;
     font-weight: 600;
     color: var(--md-sys-color-on-surface);
-    line-height: 1;
-    margin-bottom: 8px;
+    margin: 0;
+    letter-spacing: -0.3px;
   }
 
-  .stat-label {
-    font-size: 14px;
-    color: var(--md-sys-color-on-surface-variant);
-    font-weight: 500;
+  /* Canvas */
+  canvas {
+    max-height: 320px;
+    margin: 0 auto;
+    display: block;
   }
 
-  .chart-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    margin-bottom: 32px;
-  }
-
-  @media (max-width: 768px) {
-    .chart-section {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .chart-container,
-  .type-breakdown {
-    background: var(--md-sys-color-surface);
-    border-radius: 20px;
-    padding: 24px;
-    box-shadow: var(--md-elevation-1);
-  }
-
-  .chart-container h3,
-  .type-breakdown h3,
-  .largest-files h3 {
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--md-sys-color-on-surface);
-    margin: 0 0 24px 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .chart-container canvas {
-    max-height: 300px;
-  }
-
-  .breakdown-list {
+  /* Breakdown */
+  .breakdown {
     display: flex;
     flex-direction: column;
     gap: 16px;
   }
 
-  .breakdown-item {
+  .breakdown .item {
     display: flex;
     flex-direction: column;
     gap: 8px;
   }
 
-  .breakdown-info {
+  .info {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  .breakdown-type {
-    font-weight: 500;
+  .type {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
     color: var(--md-sys-color-on-surface);
   }
 
-  .breakdown-count {
+  .count {
     font-size: 12px;
     color: var(--md-sys-color-on-surface-variant);
+    font-weight: 500;
   }
 
-  .breakdown-bar {
+  .bar {
     height: 8px;
-    background: var(--md-sys-color-surface-variant);
+    background: rgba(15, 23, 42, 0.06);
     border-radius: 4px;
     overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
   }
 
-  .breakdown-fill {
+  .fill {
     height: 100%;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    transition: width 0.5s ease;
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
   }
 
-  .breakdown-size {
+  .breakdown .size {
     font-size: 14px;
-    font-weight: 600;
-    color: var(--md-sys-color-primary);
+    font-weight: 700;
+    color: #6366f1;
     text-align: right;
   }
 
-  .largest-files {
-    background: var(--md-sys-color-surface);
-    border-radius: 20px;
-    padding: 24px;
-    box-shadow: var(--md-elevation-1);
-  }
-
-  .file-list {
+  /* Files List */
+  .files {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
 
-  .file-item {
+  .file {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px;
+    padding: 14px;
     border-radius: 12px;
-    background: var(--md-sys-color-surface-variant);
-    transition: all 0.2s;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .file-item:hover {
-    background: var(--md-sys-color-secondary-container);
+  .file:hover {
+    background: rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.15);
+    transform: translateX(4px);
   }
 
-  .file-name {
+  .file .name {
     flex: 1;
     font-size: 14px;
+    font-weight: 500;
     color: var(--md-sys-color-on-surface);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .file-size {
+  .file .size {
+    font-size: 13px;
+    font-weight: 700;
+    color: #6366f1;
+  }
+
+  /* Loading State */
+  .loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 64px 32px;
+    color: var(--md-sys-color-on-surface-variant);
+  }
+
+  .loading p {
     font-size: 14px;
-    font-weight: 600;
-    color: var(--md-sys-color-primary);
+    font-weight: 500;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .file {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.06);
+    }
+
+    .file:hover {
+      background: rgba(99, 102, 241, 0.12);
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    .bar {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .content-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .head-icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    .card-header h3 {
+      font-size: 16px;
+    }
+
+    canvas {
+      max-height: 260px;
+    }
   }
 </style>

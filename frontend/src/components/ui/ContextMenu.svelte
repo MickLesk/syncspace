@@ -37,15 +37,18 @@
 </script>
 
 <svelte:window
-  on:click={handleClickOutside}
-  on:contextmenu={handleClickOutside}
+  onclick={handleClickOutside}
+  oncontextmenu={handleClickOutside}
 />
 
 {#if visible}
   <div
     class="context-menu"
     style="left: {x}px; top: {y}px;"
-    on:click|stopPropagation
+    onclick={(e) => e.stopPropagation()}
+    onkeydown={(e) => e.key === 'Escape' && (visible = false)}
+    role="menu"
+    tabindex="-1"
   >
     {#each items as item}
       {#if item.divider}
@@ -54,7 +57,7 @@
         <button
           class="context-menu-item"
           class:disabled={item.disabled}
-          on:click={() => handleItemClick(item)}
+          onclick={() => handleItemClick(item)}
           disabled={item.disabled}
         >
           {#if item.icon}

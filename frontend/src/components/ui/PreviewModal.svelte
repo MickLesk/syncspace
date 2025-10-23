@@ -144,11 +144,11 @@
   }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 {#if file}
-  <div class="preview-overlay" on:click={close}>
-    <div class="preview-modal" on:click|stopPropagation>
+  <div class="preview-overlay" onclick={close}>
+    <div class="preview-modal" onclick={(e) => e.stopPropagation()}>
       <div class="preview-header">
         <div class="preview-title">
           <Icon name="file-earmark" size={20} />
@@ -157,15 +157,15 @@
         <div class="preview-actions">
           <button
             class="btn-nav"
-            on:click={() => navigate(-1)}
+            onclick={() => navigate(-1)}
             title="Previous"
           >
             <Icon name="chevron-left" size={20} />
           </button>
-          <button class="btn-nav" on:click={() => navigate(1)} title="Next">
+          <button class="btn-nav" onclick={() => navigate(1)} title="Next">
             <Icon name="chevron-right" size={20} />
           </button>
-          <button class="btn-close" on:click={close}>
+          <button class="btn-close" onclick={close}>
             <Icon name="x" size={24} />
           </button>
         </div>

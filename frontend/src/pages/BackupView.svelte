@@ -4,6 +4,9 @@
   import api from "../lib/api";
   import Icon from "../components/ui/Icon.svelte";
   import Button from "../components/ui/Button.svelte";
+  import ProgressBar from "../components/ui/ProgressBar.svelte";
+  import InfoCard from "../components/ui/InfoCard.svelte";
+  import PageHeader from "../components/ui/PageHeader.svelte";
 
   // Note: Using dynamic import for JSZip since it's external library
   let JSZip = null;
@@ -30,10 +33,9 @@
 
     loadingZipLib = true;
     try {
-      // Import JSZip from CDN
-      const module = await import(
-        "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"
-      );
+      // @ts-ignore - Dynamic import of external CDN library without type definitions
+      const module = await import("https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js");
+      // @ts-ignore - window.JSZip available after script load
       JSZip = module.default || window.JSZip;
       loadingZipLib = false;
       return true;
@@ -291,7 +293,7 @@
     if (!lastBackupDate) return null;
 
     const now = new Date();
-    const diffMs = now - lastBackupDate;
+    const diffMs = now.getTime() - lastBackupDate.getTime();
     const diffDays = Math.floor(diffMs / 86400000);
     const diffHours = Math.floor(diffMs / 3600000);
 
@@ -303,33 +305,29 @@
 </script>
 
 <div class="backup-view">
-  <div class="page-header">
-    <div class="header-left">
-      <h2>💾 Backup & Export</h2>
-      <p class="subtitle">Create backups or export your files</p>
-    </div>
-  </div>
+  <!-- Crystal Glass Header -->
+  <PageHeader 
+    title="Backup & Export"
+    subtitle="Create backups or export your files"
+    icon="cloud-download"
+    gradient="purple"
+  />
 
   <div class="backup-cards">
     <!-- Last Backup Info -->
-    <div class="info-card" class:warning={!lastBackupDate}>
-      <div class="info-icon">
-        {#if lastBackupDate}
-          ✅
-        {:else}
-          ⚠️
-        {/if}
-      </div>
-      <div class="info-content">
-        <h4 class="info-title">Last Backup</h4>
-        <p class="info-value">{formatDate(lastBackupDate)}</p>
+    <InfoCard 
+      variant={lastBackupDate ? "glass" : "bordered"}
+      title="Last Backup"
+      description={formatDate(lastBackupDate)}
+    >
+      <div slot="content">
         {#if lastBackupDate}
           <p class="info-hint">{getTimeSinceBackup()}</p>
         {:else}
           <p class="info-hint">No backup created yet</p>
         {/if}
       </div>
-    </div>
+    </InfoCard>
 
     <!-- Export All -->
     <div class="action-card">
@@ -341,7 +339,7 @@
       <Button
         variant="primary"
         fullWidth
-        on:click={exportAllFiles}
+        onClick={exportAllFiles}
         disabled={exporting || importing}
       >
         {#if exporting && exportProgress.total > 0}
@@ -355,6 +353,13 @@
           Export All
         {/if}
       </Button>
+      {#if exporting && exportProgress.total > 0}
+        <ProgressBar 
+          value={(exportProgress.current / exportProgress.total) * 100} 
+          variant="primary"
+          showLabel={true}
+        />
+      {/if}
     </div>
 
     <!-- Export Current Folder -->
@@ -367,7 +372,7 @@
       <Button
         variant="secondary"
         fullWidth
-        on:click={exportCurrentFolder}
+        onClick={exportCurrentFolder}
         disabled={exporting || importing}
       >
         <Icon name="folder-open" size={16} />
@@ -384,7 +389,7 @@
         <input
           type="file"
           accept=".zip"
-          on:change={handleImportZip}
+          onchange={handleImportZip}
           disabled={exporting || importing}
           style="display: none;"
         />
@@ -398,6 +403,13 @@
           {/if}
         </Button>
       </label>
+      {#if importing && importProgress.total > 0}
+        <ProgressBar 
+          value={(importProgress.current / importProgress.total) * 100} 
+          variant="success"
+          showLabel={true}
+        />
+      {/if}
     </div>
   </div>
 
@@ -444,65 +456,9 @@
 
 <style>
   .backup-view {
-    padding: 32px;
+    padding: 0;
     max-width: 1200px;
     margin: 0 auto;
-  }
-
-  .page-header {
-    margin-bottom: 32px;
-  }
-
-  .header-left h2 {
-    margin: 0 0 8px 0;
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--md-sys-color-on-surface);
-  }
-
-  .subtitle {
-    margin: 0;
-    font-size: 14px;
-    color: var(--md-sys-color-on-surface-variant);
-  }
-
-  .backup-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
-    margin-bottom: 32px;
-  }
-
-  .info-card {
-    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-    padding: 24px;
-    border-radius: 20px;
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  }
-
-  .info-card.warning {
-    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-  }
-
-  .info-icon {
-    font-size: 48px;
-  }
-
-  .info-title {
-    margin: 0 0 4px 0;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--md-sys-color-on-surface-variant);
-  }
-
-  .info-value {
-    margin: 0 0 4px 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--md-sys-color-on-surface);
   }
 
   .info-hint {
@@ -597,6 +553,7 @@
     padding: 24px;
     border-radius: 16px;
     border-left: 4px solid var(--md-sys-color-primary);
+    margin: 0 32px;
   }
 
   .section-title {
@@ -626,11 +583,6 @@
 
     .backup-cards {
       grid-template-columns: 1fr;
-    }
-
-    .info-card {
-      flex-direction: column;
-      text-align: center;
     }
   }
 </style>

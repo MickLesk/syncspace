@@ -5,6 +5,8 @@
   import { t } from "../i18n.js";
   import { success, error as errorToast } from "../stores/toast";
   import Icon from "../components/ui/Icon.svelte";
+  import PageHeader from "../components/ui/PageHeader.svelte";
+  import Spinner from "../components/ui/Spinner.svelte";
   import { getFileIcon } from "../utils/fileIcons";
 
   let favoriteFiles = [];
@@ -65,19 +67,16 @@
 </script>
 
 <div class="view-container">
-  <div class="page-header">
-    <h2>⭐ {t($currentLang, "favorites")}</h2>
-    {#if favoriteFiles.length > 0}
-      <p class="subtitle">
-        {favoriteFiles.length}
-        {favoriteFiles.length === 1 ? "Datei" : "Dateien"}
-      </p>
-    {/if}
-  </div>
+  <PageHeader 
+    title={t($currentLang, "favorites")}
+    subtitle={favoriteFiles.length > 0 ? `${favoriteFiles.length} ${favoriteFiles.length === 1 ? "Datei" : "Dateien"}` : ""}
+    icon="star-fill"
+    gradient="purple"
+  />
 
   {#if loading}
     <div class="loading-state">
-      <Icon name="arrow-clockwise" size={32} />
+      <Spinner size="large" />
       <p>Lade Favoriten...</p>
     </div>
   {:else if favoriteFiles.length === 0}
@@ -90,7 +89,11 @@
     <div class="favorites-list">
       {#each favoriteFiles as file}
         <div class="favorite-item">
-          <div class="file-info" on:click={() => navigateToFile(file.fullPath)}>
+          <button
+            class="file-info"
+            onclick={() => navigateToFile(file.fullPath)}
+            type="button"
+          >
             <div class="file-icon">
               <Icon
                 name={getFileIcon(file.name, file.itemType === "folder")}
@@ -101,10 +104,10 @@
               <div class="file-name">{file.name}</div>
               <div class="file-path">{formatPath(file.fullPath)}</div>
             </div>
-          </div>
+          </button>
           <button
             class="btn-remove"
-            on:click|stopPropagation={() => removeFavorite(file)}
+            onclick={(e) => { e.stopPropagation(); removeFavorite(file); }}
             title="Aus Favoriten entfernen"
           >
             <Icon name="x-lg" size={20} />
@@ -117,50 +120,26 @@
 
 <style>
   .view-container {
-    padding: 24px;
+    padding: 0;
     max-width: 1400px;
     margin: 0 auto;
-  }
-
-  .page-header {
-    margin-bottom: 32px;
-  }
-
-  h2 {
-    font-size: 28px;
-    font-weight: 500;
-    color: var(--md-sys-color-on-surface);
-    margin: 0 0 8px 0;
-  }
-
-  .subtitle {
-    font-size: 14px;
-    color: var(--md-sys-color-on-surface-variant);
-    margin: 0;
   }
 
   .loading-state {
     text-align: center;
     padding: 80px 20px;
     color: var(--md-sys-color-on-surface-variant);
-  }
-
-  .loading-state :global(svg) {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
+    margin: 0 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
   }
 
   .empty-state {
     text-align: center;
     padding: 80px 20px;
+    margin: 0 32px;
   }
 
   .empty-icon {
@@ -185,6 +164,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    margin: 0 32px;
   }
 
   .favorite-item {
@@ -208,6 +188,12 @@
     align-items: center;
     gap: 16px;
     flex: 1;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    padding: 0;
   }
 
   .file-icon {

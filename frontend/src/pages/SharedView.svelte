@@ -1,12 +1,16 @@
 <script>
   import { currentLang } from "../stores/ui.js";
   import { t } from "../i18n.js";
+  import PageHeader from "../components/ui/PageHeader.svelte";
 </script>
 
 <div class="view-container">
-  <div class="page-header">
-    <h2>🔗 {t($currentLang, "shared")}</h2>
-  </div>
+  <PageHeader 
+    title={t($currentLang, "shared")}
+    subtitle=""
+    icon="share"
+    gradient="blue"
+  />
 
   <div class="empty-state">
     <div class="empty-icon">🔗</div>
@@ -17,25 +21,15 @@
 
 <style>
   .view-container {
-    padding: 24px;
+    padding: 0;
     max-width: 1400px;
     margin: 0 auto;
-  }
-
-  .page-header {
-    margin-bottom: 32px;
-  }
-
-  h2 {
-    font-size: 28px;
-    font-weight: 500;
-    color: var(--md-sys-color-on-surface);
-    margin: 0;
   }
 
   .empty-state {
     text-align: center;
     padding: 80px 20px;
+    margin: 0 32px;
   }
 
   .empty-icon {
