@@ -1,690 +1,344 @@
-# 🗺️ Backend Features Implementation Roadmap
+# SyncSpace Roadmap & TODO
 
-## Phase 1: Core Advanced Features (Week 1)
+## 🎯 Phase 1: Core Stability & Bug Fixes ✅ (Completed)
 
-### 1. File Compression & Extraction ⏱️ 8h
+### ✅ Activity Logging
 
-**Priority**: HIGH
-**Dependencies**: `zip`, `tar`, `flate2` crates
+- [x] Upload/Delete/Rename logging to file_history
+- [x] User tracking with user_id
 
-#### Implementation Plan:
+### ✅ Comments & Tags System
 
-```rust
-// POST /api/compress
-// Request: { paths: ["file1.txt", "file2.txt"], archive_name: "backup.zip", format: "zip" }
-// Response: { archive_path: "backup.zip", size: 12345, files_count: 2 }
+- [x] Backend API with SQLite storage
+- [x] Frontend integration with async stores
+- [x] CommentsPanel with loading/error states
 
-async fn compress_files(req: CompressRequest) -> Result<CompressResponse> {
-    // 1. Validate all paths exist
-    // 2. Create temp ZIP file
-    // 3. Add files to archive with relative paths
-    // 4. Move to DATA_DIR
-    // 5. Broadcast file change event
-    // 6. Log activity
-}
+### ✅ Internationalization (i18n)
 
-// POST /api/extract/{archive_path}
-// Request: { destination: "extracted/" }
-// Response: { files_extracted: 42, destination: "extracted/" }
+- [x] Error message translation keys
+- [x] German/English support
+- [x] t() wrapper in key components
 
-async fn extract_archive(archive_path: String, req: ExtractRequest) -> Result<ExtractResponse> {
-    // 1. Validate archive exists and is valid
-    // 2. Create destination folder
-    // 3. Extract all files
-    // 4. Preserve directory structure
-    // 5. Broadcast events for each file
-    // 6. Log activity
-}
-```
+### ✅ Security & Performance
 
-**Testing**:
-
-- [ ] Create ZIP with single file
-- [ ] Create ZIP with multiple files
-- [ ] Create ZIP with directory structure
-- [ ] Extract ZIP to existing folder
-- [ ] Extract ZIP to new folder
-- [ ] Handle corrupted archives
-- [ ] Large file support (1GB+)
+- [x] Request debouncing (300ms for favorites)
+- [x] Upload queue (max 2 concurrent)
+- [x] Retry logic with exponential backoff
+- [x] Thumbnail caching with file.id
+- [x] 50MB cache limit with LRU cleanup
 
 ---
 
-### 2. Share Links with Expiry ⏱️ 6h
+## 🚀 Phase 2: Critical Fixes & Polish (Priority: HIGH)
 
-**Priority**: HIGH
-**Dependencies**: None (using existing Warp + Serde)
+### 🔧 Bug Fixes
 
-#### Implementation Plan:
+- [ ] **Fix missing utility functions in FilesView.svelte**
 
-```rust
-// POST /api/share
-// Request: { path: "document.pdf", duration_hours: 24, password: "secret", max_downloads: 10 }
-// Response: { link_id: "abc123", url: "/share/abc123", expires_at: "2025-10-21T..." }
+  - [ ] Implement `formatFileSize()` helper
+  - [ ] Implement `formatDate()` helper
+  - [ ] Fix `openPreview()` reference or remove
+  - [ ] Fix `touchGesture.startY` property access
 
-async fn create_share_link(
-    req: CreateShareLinkRequest,
-    db: Arc<Mutex<HashMap<String, ShareLink>>>,
-) -> Result<ShareLinkResponse> {
-    // 1. Validate path exists
-    // 2. Create ShareLink with expiry
-    // 3. Optional password hashing
-    // 4. Save to share_links.json
-    // 5. Return link URL
-}
+- [ ] **Fix TypeScript errors**
 
-// GET /share/{link_id}?password=secret
-// Response: File download or error
+  - [ ] Add proper types for IndexedDB events in thumbnailGenerator.js
+  - [ ] Fix date arithmetic in CommentsPanel (Date - Date)
+  - [ ] Add type definitions for window.Chart, window.JSZip
 
-async fn download_share_link(
-    link_id: String,
-    password: Option<String>,
-    db: Arc<Mutex<HashMap<String, ShareLink>>>,
-) -> Result<Response> {
-    // 1. Load link from DB
-    // 2. Validate not expired
-    // 3. Validate not exhausted (max_downloads)
-    // 4. Validate password if set
-    // 5. Increment download_count
-    // 6. Serve file
-    // 7. Log download
-}
+- [ ] **Fix accessibility issues (a11y)**
+  - [ ] Add ARIA roles to clickable divs
+  - [ ] Add keyboard handlers (onKeyDown) to click events
+  - [ ] Add proper labels to form inputs
+  - [ ] Fix self-closing tags (textarea, video, option)
+  - [ ] Add captions to video elements
 
-// GET /api/shares (list all active share links)
-// DELETE /api/share/{link_id} (revoke share link)
-```
+### 🎨 UI/UX Improvements
 
-**Testing**:
+- [ ] **Lazy Loading with IntersectionObserver**
 
-- [ ] Create share link with default expiry (24h)
-- [ ] Create share link with custom expiry
-- [ ] Create password-protected link
-- [ ] Download with valid link
-- [ ] Download with expired link (should fail)
-- [ ] Download with wrong password (should fail)
-- [ ] Max downloads limit enforcement
-- [ ] List all active links
-- [ ] Revoke share link
+  - [ ] Implement virtual scrolling for large file lists
+  - [ ] Load thumbnails only when visible in viewport
+  - [ ] Progressive loading for search results
+
+- [ ] **Improved Upload Experience**
+
+  - [ ] Upload progress visualization per file
+  - [ ] Drag-and-drop zone highlighting
+  - [ ] Cancel upload functionality
+  - [ ] Pause/resume uploads
+
+- [ ] **Mobile Responsiveness**
+  - [ ] Touch gesture improvements
+  - [ ] Mobile-optimized file grid
+  - [ ] Bottom sheet for actions (instead of context menu)
+  - [ ] Swipe-to-delete for files
 
 ---
 
-### 3. Trash/Recycle Bin ⏱️ 6h
+## 🌟 Phase 3: Feature Enhancements (Priority: MEDIUM)
 
-**Priority**: HIGH
-**Dependencies**: None
+### 📁 File Management
 
-#### Implementation Plan:
+- [ ] **Advanced File Operations**
 
-```rust
-// POST /api/trash/{path}
-// Move file to .trash/ folder instead of permanent delete
+  - [ ] Bulk move/copy operations
+  - [ ] File versioning system
+  - [ ] Conflict resolution UI
+  - [ ] Duplicate file detection (by hash)
 
-async fn move_to_trash(path: String, user: String) -> Result<TrashItem> {
-    // 1. Get file metadata (size, is_dir)
-    // 2. Generate unique trash filename (timestamp + original)
-    // 3. Move file to ./data/.trash/
-    // 4. Create TrashItem record
-    // 5. Save to trash_items.json
-    // 6. Log activity
-}
+- [ ] **Search & Filter**
 
-// GET /api/trash (list trash contents)
-async fn list_trash() -> Result<Vec<TrashItem>> {
-    // Load from trash_items.json
-}
+  - [ ] Full-text search in file contents
+  - [ ] Advanced filter persistence
+  - [ ] Saved searches
+  - [ ] Search history
 
-// POST /api/restore/{trash_id}
-// Restore file from trash to original location
+- [ ] **File Sharing**
+  - [ ] Generate shareable links with expiry
+  - [ ] Permission management (view/edit/download)
+  - [ ] Share via email
+  - [ ] Public folder links
 
-async fn restore_from_trash(trash_id: String) -> Result<()> {
-    // 1. Find trash item by ID
-    // 2. Check if original path available
-    // 3. Move file back to original location
-    // 4. Remove from trash_items.json
-    // 5. Broadcast file change event
-    // 6. Log activity
-}
+### 🔄 Sync & Backup
 
-// DELETE /api/trash/empty
-// Permanently delete all trash items
+- [ ] **Real-time Sync**
 
-async fn empty_trash() -> Result<u32> {
-    // 1. Load all trash items
-    // 2. Delete all files in .trash/
-    // 3. Clear trash_items.json
-    // 4. Log activity
-    // 5. Return count of deleted items
-}
+  - [ ] Peer-to-peer file synchronization
+  - [ ] Conflict detection and resolution
+  - [ ] Sync status indicators
+  - [ ] Selective sync (ignore patterns)
 
-// Background task: Auto-cleanup trash older than 30 days
-tokio::spawn(async move {
-    loop {
-        tokio::time::sleep(Duration::hours(24)).await;
-        cleanup_old_trash_items(30).await;
-    }
-});
-```
+- [ ] **Backup & Restore**
+  - [ ] Scheduled automatic backups
+  - [ ] Incremental backup support
+  - [ ] Point-in-time restore
+  - [ ] Backup verification
 
-**Testing**:
+### 👥 Collaboration
 
-- [ ] Move single file to trash
-- [ ] Move directory to trash (recursive)
-- [ ] List trash contents
-- [ ] Restore file to original path
-- [ ] Restore when original path occupied
-- [ ] Empty entire trash
-- [ ] Auto-cleanup old items (simulate 30+ days)
+- [ ] **Multi-user Features**
+
+  - [ ] Real-time collaboration indicators
+  - [ ] File locking mechanism
+  - [ ] User presence (who's viewing what)
+  - [ ] Activity feed per file/folder
+
+- [ ] **Comments & Tags Enhancements**
+  - [ ] Edit comment functionality (backend + frontend)
+  - [ ] Tag autocomplete with suggestions
+  - [ ] Tag filtering in file list
+  - [ ] Comment threading (replies)
+  - [ ] Mention users in comments (@username)
 
 ---
 
-## Phase 2: Performance & Search (Week 2)
+## 🔐 Phase 4: Security & Authentication (Priority: MEDIUM)
 
-### 4. Thumbnail Generation ⏱️ 10h
+### 🔒 Enhanced Security
 
-**Priority**: MEDIUM
-**Dependencies**: `image`, `tempfile` crates
+- [ ] **Authentication**
 
-#### Implementation Plan:
+  - [ ] 2FA (Two-Factor Authentication) implementation
+  - [ ] OAuth2 integration (Google, GitHub)
+  - [ ] SSO (Single Sign-On) support
+  - [ ] Session management improvements
 
-```rust
-// GET /api/thumbnail/{path}?size=150
-// Generate or serve cached thumbnail
+- [ ] **Encryption**
 
-async fn get_thumbnail(
-    path: String,
-    size: u32, // 150, 300, 600
-) -> Result<Response> {
-    // 1. Check cache: .thumbnails/{size}/{hash}.jpg
-    // 2. If cached, serve immediately
-    // 3. If not cached:
-    //    a. Load original image
-    //    b. Resize to requested size
-    //    c. Save to cache
-    //    d. Serve thumbnail
-    // 4. For videos: extract frame at 10% duration
-}
+  - [ ] End-to-end encryption for files
+  - [ ] Encrypted file storage at rest
+  - [ ] Secure key management
+  - [ ] Client-side encryption option
 
-// Background task: Pre-generate thumbnails on upload
-async fn pregenerate_thumbnails(file_path: String) {
-    if can_generate_thumbnail(&file_path) {
-        for size in [150, 300] {
-            generate_thumbnail(&file_path, size).await;
-        }
-    }
-}
-```
+- [ ] **Audit & Compliance**
+  - [ ] Detailed audit logs
+  - [ ] User action tracking
+  - [ ] GDPR compliance tools
+  - [ ] Data export functionality
 
-**Supported Formats**:
+### 🛡️ Rate Limiting & Protection
 
-- Images: JPG, PNG, GIF, WebP
-- Videos: MP4, WebM (first frame extraction)
-
-**Cache Strategy**:
-
-- Store in `./data/.thumbnails/{size}/`
-- Filename: SHA256(path) + ".jpg"
-- Max cache size: 1GB (LRU eviction)
-
-**Testing**:
-
-- [ ] Generate 150x150 thumbnail
-- [ ] Generate 300x300 thumbnail
-- [ ] Serve cached thumbnail (faster)
-- [ ] Regenerate if original modified
-- [ ] Video frame extraction
-- [ ] Cache eviction when full
+- [ ] **API Protection**
+  - [ ] Rate limiting per user/IP
+  - [ ] DDoS protection
+  - [ ] Request signing
+  - [ ] API key management
 
 ---
 
-### 5. Full-Text Search & Indexing ⏱️ 12h
+## 📊 Phase 5: Analytics & Monitoring (Priority: LOW)
 
-**Priority**: MEDIUM
-**Dependencies**: `tantivy` or custom indexer
+### 📈 Insights
 
-#### Implementation Plan:
+- [ ] **Usage Analytics**
 
-```rust
-// POST /api/search/index
-// Rebuild full search index (admin only)
+  - [ ] Storage usage by user
+  - [ ] Most accessed files
+  - [ ] Upload/download statistics
+  - [ ] User activity heatmap
 
-async fn rebuild_search_index() -> Result<SearchIndexStats> {
-    // 1. Scan all files in DATA_DIR
-    // 2. For text-searchable files:
-    //    a. Read content
-    //    b. Tokenize and index
-    //    c. Store in search index
-    // 3. Return stats (files indexed, time taken)
-}
+- [ ] **Performance Monitoring**
+  - [ ] Frontend performance metrics
+  - [ ] Backend response times
+  - [ ] Error tracking (Sentry integration)
+  - [ ] Custom dashboards
 
-// GET /api/search?q=query&content=true
-// Search filenames AND file contents
+### 📧 Notifications
 
-async fn search_with_content(query: String, content_search: bool) -> Result<Vec<SearchIndexResult>> {
-    if content_search {
-        // 1. Search in indexed content
-        // 2. Return matches with context (3 lines before/after)
-        // 3. Highlight matched terms
-    } else {
-        // Existing filename-only search
-    }
-}
-```
-
-**Indexing Strategy**:
-
-- Index files: TXT, MD, JSON, Code files
-- Update index on file modification (WebSocket event)
-- Incremental indexing (only changed files)
-- Store index in `./search_index/`
-
-**Testing**:
-
-- [ ] Index all text files
-- [ ] Search in file contents
-- [ ] Match highlighting
-- [ ] Context preview
-- [ ] Incremental update on file change
-- [ ] Performance with 10,000+ files
+- [ ] **Alert System**
+  - [ ] Email notifications for shares
+  - [ ] Push notifications for mobile
+  - [ ] In-app notification center
+  - [ ] Customizable notification preferences
 
 ---
 
-### 6. File Versioning ⏱️ 12h
+## 🧪 Phase 6: Developer Experience (Priority: LOW)
 
-**Priority**: LOW
-**Dependencies**: None
+### 🛠️ Tooling
 
-#### Implementation Plan:
+- [ ] **Testing**
 
-```rust
-// Automatic versioning on file upload
+  - [ ] Unit tests for critical functions
+  - [ ] Integration tests for API
+  - [ ] E2E tests with Playwright
+  - [ ] Visual regression testing
 
-async fn upload_with_versioning(path: String, content: Vec<u8>) -> Result<FileVersion> {
-    // 1. Calculate SHA256 checksum
-    // 2. Check if file changed (compare checksum)
-    // 3. If changed:
-    //    a. Copy current file to .versions/{path}/v{n}
-    //    b. Increment version number
-    //    c. Create FileVersion record
-    //    d. Save new content
-    // 4. Return version info
-}
+- [ ] **Documentation**
 
-// GET /api/versions/{path}
-// List all versions of a file
+  - [ ] API documentation (OpenAPI/Swagger)
+  - [ ] Component storybook
+  - [ ] Developer setup guide
+  - [ ] Architecture decision records (ADRs)
 
-async fn list_file_versions(path: String) -> Result<Vec<FileVersion>> {
-    // Load from .versions/{path}/versions.json
-}
+- [ ] **CI/CD**
+  - [ ] GitHub Actions workflow
+  - [ ] Automated testing
+  - [ ] Docker deployment
+  - [ ] Automated releases
 
-// GET /api/version/{path}/{version_id}
-// Download specific version
+### 🔌 Extensibility
 
-async fn download_version(path: String, version_id: String) -> Result<Response> {
-    // Serve file from .versions/{path}/v{n}
-}
-
-// POST /api/restore-version/{path}/{version_id}
-// Restore old version as current
-
-async fn restore_version(path: String, version_id: String) -> Result<FileVersion> {
-    // 1. Load version file
-    // 2. Create new version of current file
-    // 3. Replace current with old version
-    // 4. Update version records
-}
-```
-
-**Storage**:
-
-- `.versions/{file_path}/`
-  - `v1` - First version
-  - `v2` - Second version
-  - `versions.json` - Metadata
-- Max versions per file: 10 (configurable)
-- Auto-cleanup: Delete old versions when limit reached
-
-**Testing**:
-
-- [ ] Upload file (creates v1)
-- [ ] Upload again (creates v2)
-- [ ] List versions
-- [ ] Download specific version
-- [ ] Restore old version
-- [ ] Version limit enforcement
-- [ ] Large file versioning (1GB+)
+- [ ] **Plugin System**
+  - [ ] Plugin API design
+  - [ ] Example plugins
+  - [ ] Plugin marketplace
+  - [ ] Custom file processors
 
 ---
 
-## Phase 3: Advanced Features (Week 3)
+## 🌈 Phase 7: Advanced Features (Priority: FUTURE)
 
-### 7. Activity Log & Audit Trail ⏱️ 4h
+### 🤖 AI Integration
 
-**Priority**: MEDIUM
-**Dependencies**: None
+- [ ] **Smart Features**
+  - [ ] AI-powered file organization
+  - [ ] Automatic tagging based on content
+  - [ ] Smart search with NLP
+  - [ ] Duplicate detection with ML
 
-#### Implementation Plan:
+### 🎯 Platform Expansion
 
-Already implemented in `features.rs`:
+- [ ] **Mobile Apps**
 
-- `ActivityLogEntry` struct
-- `append_activity_log()` function
-- `read_activity_log()` function
+  - [ ] iOS native app (Swift/SwiftUI)
+  - [ ] Android native app (Kotlin/Jetpack Compose)
+  - [ ] React Native cross-platform app
+  - [ ] Mobile-specific features
 
-**Integration**:
-Add logging to all file operations:
+- [ ] **Desktop Apps**
+  - [ ] Tauri desktop app improvements
+  - [ ] System tray integration
+  - [ ] Native OS notifications
+  - [ ] Auto-start on login
 
-```rust
-// In upload handler:
-append_activity_log(&ActivityLogEntry::new(
-    user.username.clone(),
-    "upload".to_string(),
-    path.clone(),
-)).await;
+### 🔗 Integrations
 
-// In delete handler:
-append_activity_log(&ActivityLogEntry::new(
-    user.username.clone(),
-    "delete".to_string(),
-    path.clone(),
-)).await;
-
-// Similar for: rename, download, share, trash, restore
-```
-
-**API Endpoints**:
-
-```rust
-// GET /api/activity?limit=100&user=admin&action=delete
-async fn get_activity_log(
-    limit: usize,
-    user_filter: Option<String>,
-    action_filter: Option<String>,
-) -> Result<Vec<ActivityLogEntry>>
-```
-
-**Testing**:
-
-- [ ] Log upload action
-- [ ] Log delete action
-- [ ] Log rename action
-- [ ] Filter by user
-- [ ] Filter by action type
-- [ ] Limit results
-- [ ] Pagination
+- [ ] **Third-party Services**
+  - [ ] Cloud storage integration (S3, Google Drive, Dropbox)
+  - [ ] Webhook support
+  - [ ] Zapier integration
+  - [ ] Slack/Discord notifications
 
 ---
 
-### 8. Duplicate File Detection ⏱️ 8h
+## 📋 Immediate Next Steps (This Week)
 
-**Priority**: LOW
-**Dependencies**: SHA256 from `sha2` crate
-
-#### Implementation Plan:
-
-```rust
-// POST /api/scan-duplicates
-// Background job to find duplicate files
-
-async fn scan_duplicates() -> Result<Vec<DuplicateGroup>> {
-    // 1. Scan all files in DATA_DIR
-    // 2. Calculate SHA256 for each file
-    // 3. Group by checksum
-    // 4. Return groups with 2+ files
-}
-
-// GET /api/duplicates
-// Get cached duplicate scan results
-
-// DELETE /api/duplicates/resolve
-// Request: { keep: "path/to/keep.txt", delete: ["path/to/dup1.txt", "path/to/dup2.txt"] }
-// Delete duplicate files, keep one
-```
-
-**Optimization**:
-
-- Skip files < 1KB (too small to matter)
-- Compare file sizes first (fast pre-filter)
-- Progressive hashing (first 8KB, then full file)
-- Cache checksums in `./checksums.json`
-- Background scanning (don't block API)
-
-**Testing**:
-
-- [ ] Detect exact duplicates
-- [ ] Group by checksum
-- [ ] Delete duplicates (keep one)
-- [ ] Performance with 10,000+ files
-- [ ] Large file support (1GB+)
-- [ ] Incremental scanning
+1. **Fix critical bugs** (formatFileSize, formatDate, a11y issues)
+2. **Implement lazy loading** for thumbnails with IntersectionObserver
+3. **Add edit comment** functionality (backend + frontend)
+4. **Improve mobile responsiveness** (touch gestures, responsive grid)
+5. **Add file versioning** basics (track old versions in file_history)
+6. **Create unit tests** for debounce utilities
+7. **Add E2E test** for upload flow
+8. **Documentation**: API endpoints in README
 
 ---
 
-### 9. Bandwidth Control & Rate Limiting ⏱️ 6h
+## 🎨 UI/UX Wishlist
 
-**Priority**: LOW
-**Dependencies**: Token bucket algorithm
-
-#### Implementation Plan:
-
-```rust
-struct BandwidthLimiter {
-    tokens: f64,
-    max_tokens: f64,
-    refill_rate: f64, // tokens per second
-    last_refill: Instant,
-}
-
-impl BandwidthLimiter {
-    fn try_consume(&mut self, bytes: usize) -> bool {
-        self.refill();
-        let tokens_needed = bytes as f64 / 1024.0; // KB
-        if self.tokens >= tokens_needed {
-            self.tokens -= tokens_needed;
-            true
-        } else {
-            false
-        }
-    }
-}
-
-// Apply to upload/download routes
-async fn upload_with_rate_limit(
-    content: Vec<u8>,
-    limiter: Arc<Mutex<BandwidthLimiter>>,
-) -> Result<()> {
-    let mut limiter = limiter.lock().unwrap();
-    if !limiter.try_consume(content.len()) {
-        return Err(StatusCode::TOO_MANY_REQUESTS);
-    }
-    // Proceed with upload
-}
-```
-
-**Configuration**:
-
-```json
-{
-  "bandwidth_limits": {
-    "upload_mbps": 10,
-    "download_mbps": 50,
-    "per_user": true
-  }
-}
-```
-
-**Testing**:
-
-- [ ] Upload with limit (10 MB/s)
-- [ ] Download with limit (50 MB/s)
-- [ ] Rate limit enforcement
-- [ ] Per-user limits
-- [ ] Burst allowance
-- [ ] Refill rate
+- [ ] Dark mode improvements (better contrast)
+- [ ] Customizable themes
+- [ ] File preview improvements (PDF viewer, code syntax highlighting)
+- [ ] Keyboard shortcuts panel (show available shortcuts)
+- [ ] Drag-and-drop file reorganization
+- [ ] Folder tree navigation (sidebar)
+- [ ] Breadcrumb navigation improvements
+- [ ] Quick actions toolbar (sticky on scroll)
+- [ ] File comparison view
+- [ ] Gallery view for images
 
 ---
 
-### 10. WebDAV Support ⏱️ 16h
+## 📚 Technical Debt
 
-**Priority**: LOW
-**Dependencies**: `warp` WebDAV middleware or custom implementation
-
-#### Implementation Plan:
-
-```rust
-// WebDAV endpoints at /webdav/*
-
-// PROPFIND - List directory
-// GET - Download file
-// PUT - Upload file
-// DELETE - Delete file
-// MKCOL - Create directory
-// COPY - Copy file
-// MOVE - Move/rename file
-// LOCK - Lock file
-// UNLOCK - Unlock file
-
-// Example PROPFIND handler:
-async fn webdav_propfind(path: String, depth: u8) -> Result<Response> {
-    // 1. List directory entries
-    // 2. Build XML response with file properties
-    // 3. Return with proper WebDAV headers
-}
-```
-
-**Benefits**:
-
-- Mount as network drive on Windows/Mac/Linux
-- Standard protocol support
-- Native OS integration
-- No custom client needed
-
-**Testing**:
-
-- [ ] Mount on Windows (net use)
-- [ ] Mount on macOS (Finder)
-- [ ] Mount on Linux (davfs2)
-- [ ] Create files via WebDAV
-- [ ] Read files via WebDAV
-- [ ] Delete files via WebDAV
-- [ ] Folder operations
+- [ ] Refactor FilesView.svelte (split into smaller components)
+- [ ] Extract reusable logic into composables/utilities
+- [ ] Standardize error handling across components
+- [ ] Migrate to TypeScript for better type safety
+- [ ] Add JSDoc comments to all functions
+- [ ] Clean up unused CSS (remove warnings)
+- [ ] Optimize bundle size (code splitting)
+- [ ] Add service worker for offline support
 
 ---
 
-## Phase 4: Polish & Optimization (Week 4)
+## 🏆 Performance Goals
 
-### Additional Enhancements
-
-#### 11. Smart File Locking
-
-- Prevent concurrent edits
-- Lock timeout (30 minutes)
-- Force unlock (admin)
-- Lock status indicator
-
-#### 12. Advanced Metadata
-
-- EXIF data for images
-- ID3 tags for audio
-- Video metadata
-- Custom file tags
-
-#### 13. Real-time Collaboration
-
-- WebSocket-based sync
-- Operational Transformation
-- Presence indicators
-- Collaborative text editing
+- [ ] First Contentful Paint (FCP) < 1.5s
+- [ ] Time to Interactive (TTI) < 3s
+- [ ] Lighthouse score > 90
+- [ ] API response time < 200ms (p95)
+- [ ] Upload speed optimization (chunked uploads)
+- [ ] Download speed optimization (range requests)
 
 ---
 
-## Testing Strategy
+## 📝 Notes
 
-### Unit Tests
+**Current Tech Stack:**
 
-```bash
-cargo test
-```
+- Backend: Rust, Axum 0.7, SQLite, Tokio
+- Frontend: Svelte 5, Vite, Material 3 Design
+- Desktop: Tauri
+- Mobile: Flutter (placeholder)
 
-### Integration Tests
+**Architecture Decisions:**
 
-```rust
-#[tokio::test]
-async fn test_compress_and_extract() {
-    // Create test files
-    // Compress to ZIP
-    // Extract to new location
-    // Verify all files match
-}
-```
+- Local-first approach (offline support planned)
+- REST API with WebSocket for real-time updates
+- File-based storage (no external dependencies)
+- Single-binary deployment for ease of use
 
-### Load Tests
+**Community Contributions Welcome:**
 
-```bash
-# Apache Bench
-ab -n 1000 -c 10 http://localhost:8080/api/files/
-
-# Custom load test
-for i in {1..1000}; do
-    curl -X POST http://localhost:8080/api/upload/test_$i.txt \
-         -H "Authorization: Bearer $TOKEN" \
-         -d "test content"
-done
-```
+- Translations for other languages
+- Custom themes
+- Plugin development
+- Bug reports and feature requests
 
 ---
 
-## Deployment Checklist
-
-### Pre-production
-
-- [ ] All tests passing
-- [ ] Documentation complete
-- [ ] Security audit
-- [ ] Performance benchmarks
-- [ ] Backup strategy
-- [ ] Monitoring setup
-
-### Production
-
-- [ ] HTTPS enabled
-- [ ] Rate limiting configured
-- [ ] Logging enabled
-- [ ] Metrics collection
-- [ ] Error tracking
-- [ ] Auto-restart on crash
-
----
-
-## Success Metrics
-
-### Performance Targets
-
-- Upload: 100 MB/s
-- Download: 200 MB/s
-- Search: < 100ms for 10,000 files
-- Thumbnail generation: < 200ms
-- API response: < 50ms (95th percentile)
-
-### Capacity Targets
-
-- Files: 1,000,000+
-- Total size: 10 TB+
-- Concurrent users: 100+
-- WebSocket connections: 1000+
-
----
-
-## Timeline Summary
-
-| Phase | Features                            | Duration | Priority |
-| ----- | ----------------------------------- | -------- | -------- |
-| 1     | Compression, Share Links, Trash     | 1 week   | HIGH     |
-| 2     | Thumbnails, Search, Versioning      | 1 week   | MEDIUM   |
-| 3     | Activity Log, Duplicates, Bandwidth | 1 week   | LOW      |
-| 4     | WebDAV, Advanced Features           | 1 week   | LOW      |
-
-**Total**: 4 weeks for complete implementation
-
----
-
-**Last Updated**: 2025-10-20
-**Version**: 0.2.0
+Last Updated: 2025-10-23
+Version: 0.3.0
