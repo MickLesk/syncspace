@@ -7,7 +7,7 @@ use axum::{
     http::StatusCode,
     response::Json,
 };
-use chrono::{DateTime, Utc, Duration};
+use chrono::{Utc, Duration};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
@@ -20,7 +20,7 @@ use crate::AppState;
 #[derive(Debug, Clone, Serialize, FromRow)]
 pub struct Share {
     pub id: String,
-    pub file_id: String,
+    pub file_id: Option<String>,
     pub folder_id: Option<String>,
     pub shared_by: String,
     pub shared_with: Option<String>, // NULL = public link
@@ -106,7 +106,7 @@ pub async fn create_share(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-        if owner.map(|o| o.0) != Some(user.id.clone()) {
+        if owner.map(|o| o.0) != Some(user.id.to_string()) {
             return Err(StatusCode::FORBIDDEN);
         }
     }
@@ -120,7 +120,7 @@ pub async fn create_share(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-        if owner.map(|o| o.0) != Some(user.id.clone()) {
+        if owner.map(|o| o.0) != Some(user.id.to_string()) {
             return Err(StatusCode::FORBIDDEN);
         }
     }
@@ -136,7 +136,7 @@ pub async fn create_share(
     .bind(&share_id)
     .bind(&req.file_id)
     .bind(&req.folder_id)
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .bind(&req.shared_with)
     .bind(&share_link)
     .bind(&expires_at)
@@ -172,7 +172,7 @@ pub async fn create_share(
         "#
     )
     .bind(Uuid::new_v4().to_string())
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .bind(if req.file_id.is_some() { "file" } else { "folder" })
     .bind(req.file_id.as_ref().or(req.folder_id.as_ref()).unwrap())
     .bind(now.to_rfc3339())
@@ -215,7 +215,7 @@ pub async fn list_shares(
         ORDER BY created_at DESC
         "#
     )
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .fetch_all(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -230,9 +230,9 @@ pub async fn list_shares(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-        let file_name: Option<(String,)> = if let Some(file_id) = &share.file_id {
+        let file_name: Option<(String,)> = if share.file_id.is_some() {
             sqlx::query_as("SELECT name FROM files WHERE id = ?")
-                .bind(file_id)
+                .bind(share.file_id.as_ref().unwrap())
                 .fetch_optional(&state.db_pool)
                 .await
                 .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
@@ -240,9 +240,9 @@ pub async fn list_shares(
             None
         };
 
-        let folder_name: Option<(String,)> = if let Some(folder_id) = &share.folder_id {
+        let folder_name: Option<(String,)> = if share.folder_id.is_some() {
             sqlx::query_as("SELECT name FROM folders WHERE id = ?")
-                .bind(folder_id)
+                .bind(share.folder_id.as_ref().unwrap())
                 .fetch_optional(&state.db_pool)
                 .await
                 .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
@@ -275,7 +275,7 @@ pub async fn list_shared_with_me(
         ORDER BY created_at DESC
         "#
     )
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .bind(Utc::now().to_rfc3339())
     .fetch_all(&state.db_pool)
     .await
@@ -291,9 +291,9 @@ pub async fn list_shared_with_me(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-        let file_name: Option<(String,)> = if let Some(file_id) = &share.file_id {
+        let file_name: Option<(String,)> = if share.file_id.is_some() {
             sqlx::query_as("SELECT name FROM files WHERE id = ?")
-                .bind(file_id)
+                .bind(share.file_id.as_ref().unwrap())
                 .fetch_optional(&state.db_pool)
                 .await
                 .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
@@ -301,9 +301,9 @@ pub async fn list_shared_with_me(
             None
         };
 
-        let folder_name: Option<(String,)> = if let Some(folder_id) = &share.folder_id {
+        let folder_name: Option<(String,)> = if share.folder_id.is_some() {
             sqlx::query_as("SELECT name FROM folders WHERE id = ?")
-                .bind(folder_id)
+                .bind(share.folder_id.as_ref().unwrap())
                 .fetch_optional(&state.db_pool)
                 .await
                 .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
@@ -334,7 +334,7 @@ pub async fn delete_share(
         "SELECT * FROM shares WHERE id = ? AND shared_by = ?"
     )
     .bind(&share_id)
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .fetch_optional(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -358,7 +358,7 @@ pub async fn delete_share(
         "#
     )
     .bind(Uuid::new_v4().to_string())
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .bind(&share_id)
     .bind(Utc::now().to_rfc3339())
     .execute(&state.db_pool)
@@ -380,7 +380,7 @@ pub async fn update_permissions(
         "SELECT * FROM shares WHERE id = ? AND shared_by = ?"
     )
     .bind(&share_id)
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .fetch_optional(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;

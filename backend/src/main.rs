@@ -4,6 +4,31 @@
 mod auth;
 mod database;
 mod search;
+mod handlers;
+mod thumbnails;
+mod notifications;
+mod webhooks;
+mod analytics;
+mod encryption;
+mod locking;
+mod permissions;
+mod preview;
+mod audit;
+mod virus_scan;
+mod smart_folders;
+mod rate_limit;
+mod external_storage;
+mod search_indexing;
+mod system_settings;
+mod email_integration;
+mod s3_storage;
+mod webdav;
+mod ftp_sync;
+mod ldap_integration;
+mod prometheus_metrics;
+mod redis_cache;
+mod archive_management;
+mod compression;
 
 use std::collections::HashMap;
 use std::net::SocketAddr;
@@ -90,8 +115,34 @@ struct Peer {
 #[derive(Debug, Clone, Serialize)]
 struct FileChangeEvent {
     path: String,
-    kind: String,
+    kind: String,  // "create", "modify", "delete", "rename", "share", "comment"
     timestamp: DateTime<Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    user_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    metadata: Option<serde_json::Value>,
+}
+
+impl FileChangeEvent {
+    fn new(path: String, kind: String) -> Self {
+        Self {
+            path,
+            kind,
+            timestamp: Utc::now(),
+            user_id: None,
+            metadata: None,
+        }
+    }
+    
+    fn with_user(mut self, user_id: String) -> Self {
+        self.user_id = Some(user_id);
+        self
+    }
+    
+    fn with_metadata(mut self, metadata: serde_json::Value) -> Self {
+        self.metadata = Some(metadata);
+        self
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -284,11 +335,81 @@ fn build_router(state: AppState) -> Router {
         .route("/api/tags/{id}", delete(delete_tag_handler))
         .route("/api/file-tags/{id}", post(tag_file_handler).delete(untag_file_handler));  // Changed from /api/files/{id}/tags
     
+    // Sharing routes (protected)
+    let sharing_routes = Router::new()
+        .route("/api/shares", post(handlers::sharing::create_share).get(handlers::sharing::list_shares))
+        .route("/api/shares/{id}", delete(handlers::sharing::delete_share))
+        .route("/api/shares/{id}/permissions", put(handlers::sharing::update_permissions))
+        .route("/api/shared-with-me", get(handlers::sharing::list_shared_with_me));
+    
+    // Storage routes (protected)
+    let storage_routes = Router::new()
+        .route("/api/storage/stats", get(handlers::storage::get_storage_stats))
+        .route("/api/storage/usage/{user_id}", get(handlers::storage::get_user_storage_usage))
+        .route("/api/storage/quota/{user_id}", put(handlers::storage::update_user_quota))
+        .route("/api/storage/cleanup", post(handlers::storage::cleanup_storage))
+        .route("/api/storage/recalculate", post(handlers::storage::recalculate_storage));
+    
+    // Duplicates routes (protected)
+    let duplicates_routes = Router::new()
+        .route("/api/duplicates", get(handlers::duplicates::find_duplicates))
+        .route("/api/duplicates/resolve", post(handlers::duplicates::resolve_duplicates))
+        .route("/api/duplicates/stats", get(handlers::duplicates::duplicate_stats));
+    
+    // Versioning routes (protected) - separate path to avoid /api/files/{*path} conflict
+    let versioning_routes = Router::new()
+        .route("/api/versions/{file_id}", get(handlers::versioning::list_versions))
+        .route("/api/versions/{file_id}/count", get(handlers::versioning::version_count))
+        .route("/api/versions/{file_id}/{version_id}/restore", post(handlers::versioning::restore_version))
+        .route("/api/versions/{file_id}/{version_id}", delete(handlers::versioning::delete_version));
+    
+    // Backup routes (protected)
+    let backup_routes = Router::new()
+        .route("/api/backups/create", post(handlers::backup::create_backup))
+        .route("/api/backups", get(handlers::backup::list_backups))
+        .route("/api/backups/{id}", get(handlers::backup::get_backup).delete(handlers::backup::delete_backup))
+        .route("/api/backups/{id}/restore", post(handlers::backup::restore_backup));
+    
+    // Notifications routes (protected)
+    let notification_routes = Router::new()
+        .route("/api/notifications", get(get_notifications_handler))
+        .route("/api/notifications/unread", get(get_unread_notifications_handler))
+        .route("/api/notifications/{id}/read", put(mark_notification_read_handler))
+        .route("/api/notifications/read-all", put(mark_all_notifications_read_handler))
+        .route("/api/notifications/{id}", delete(delete_notification_handler));
+    
+    // Webhooks routes (protected)
+    let webhook_routes = Router::new()
+        .route("/api/webhooks", get(list_webhooks_handler).post(create_webhook_handler))
+        .route("/api/webhooks/{id}", get(get_webhook_handler).put(update_webhook_handler).delete(delete_webhook_handler))
+        .route("/api/webhooks/{id}/test", post(test_webhook_handler));
+    
+    // Analytics routes (protected)
+    let analytics_routes = Router::new()
+        .route("/api/analytics/dashboard", get(analytics_dashboard_handler))
+        .route("/api/analytics/storage", get(analytics_storage_handler))
+        .route("/api/analytics/activity", get(analytics_activity_handler))
+        .route("/api/analytics/files", get(analytics_files_handler))
+        .route("/api/analytics/users", get(analytics_users_handler));
+    
+    // Batch operations routes (protected)
+    let batch_routes = Router::new()
+        .route("/api/batch/delete", post(batch_delete_handler))
+        .route("/api/batch/move", post(batch_move_handler))
+        .route("/api/batch/tag", post(batch_tag_handler));
+    
+    // Advanced search routes (protected)
+    let search_routes = Router::new()
+        .route("/api/search/advanced", get(advanced_search_handler))
+        .route("/api/search/suggestions", get(search_suggestions_handler))
+        .route("/api/search/recent", get(recent_searches_handler));
+    
     // Utility routes (protected)
     let utility_routes = Router::new()
         .route("/api/status", get(status_handler))  // Status endpoint (public)
         .route("/api/search", get(search_handler))
         .route("/api/stats", get(stats_handler))
+        .route("/api/thumbnails/{file_id}", get(get_thumbnail_handler))  // Thumbnail serving
         .route("/api/config", get(get_config_handler).put(put_config_handler))
         .route("/api/peers", get(list_peers_handler).post(add_peer_handler));
     
@@ -309,6 +430,16 @@ fn build_router(state: AppState) -> Router {
         .merge(favorites_routes)
         .merge(activity_routes)
         .merge(comments_tags_routes)
+        .merge(sharing_routes)
+        .merge(storage_routes)
+        .merge(duplicates_routes)
+        .merge(versioning_routes)  // Now uses /api/versions/{file_id}
+        .merge(backup_routes)
+        .merge(notification_routes)
+        .merge(webhook_routes)
+        .merge(analytics_routes)
+        .merge(batch_routes)
+        .merge(search_routes)
         .merge(utility_routes)
         .merge(ws_route)
     ;
@@ -740,6 +871,12 @@ async fn upload_file_handler(
     body: Bytes,
 ) -> Result<(StatusCode, &'static str), StatusCode> {
     let file_path = PathBuf::from(&path);
+    let file_size = body.len() as i64;
+    
+    // 🔒 QUOTA CHECK - Prevent upload if user exceeds quota
+    if let Err(_) = handlers::storage::check_quota(&state.db_pool, &user.id.to_string(), file_size).await {
+        return Err(StatusCode::INSUFFICIENT_STORAGE);
+    }
     
     if let Some(parent) = Path::new(DATA_DIR).join(&path).parent() {
         fs::create_dir_all(parent).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -780,11 +917,19 @@ async fn upload_file_handler(
     .await;
     
     // Broadcast event
-    let _ = state.fs_tx.send(FileChangeEvent {
-        path: path.clone(),
-        kind: "create".to_string(),
-        timestamp: Utc::now(),
-    });
+    let _ = state.fs_tx.send(
+        FileChangeEvent::new(path.clone(), "create".to_string())
+            .with_user(user_id.clone())
+    );
+    
+    // 💾 UPDATE STORAGE USAGE
+    let _ = handlers::storage::update_storage_usage(&state.db_pool, &user_id, file_size).await;
+    
+    // 🖼️ THUMBNAIL GENERATION for images
+    if thumbnails::is_image(&target) {
+        let file_id = Uuid::new_v4().to_string();
+        thumbnails::generate_thumbnail_async(target.clone(), file_id);
+    }
     
     // Background indexing
     let index = state.search_index.clone();
@@ -811,14 +956,21 @@ async fn upload_file_handler(
 
 async fn upload_multipart_handler(
     State(state): State<AppState>,
-    _user: auth::User,
+    user: auth::User,
     mut multipart: Multipart,
 ) -> Result<(StatusCode, String), (StatusCode, String)> {
     let mut uploaded_count = 0;
+    let mut total_size: i64 = 0;
     
     while let Some(field) = multipart.next_field().await.map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))? {
         if let Some(filename) = field.file_name().map(|s| s.to_string()) {
             let data = field.bytes().await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+            let file_size = data.len() as i64;
+            
+            // 🔒 QUOTA CHECK for each file
+            if let Err(_) = handlers::storage::check_quota(&state.db_pool, &user.id.to_string(), file_size).await {
+                return Err((StatusCode::INSUFFICIENT_STORAGE, format!("Quota exceeded for file: {}", filename)));
+            }
             
             let target = Path::new(DATA_DIR).join(&filename);
             if let Some(parent) = target.parent() {
@@ -833,14 +985,19 @@ async fn upload_multipart_handler(
             fs::rename(&tmp_path, &target).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
             
             // Broadcast event
-            let _ = state.fs_tx.send(FileChangeEvent {
-                path: filename.clone(),
-                kind: "create".to_string(),
-                timestamp: Utc::now(),
-            });
+            let _ = state.fs_tx.send(
+                FileChangeEvent::new(filename.clone(), "create".to_string())
+                    .with_user(user.id.to_string())
+            );
             
             uploaded_count += 1;
+            total_size += file_size;
         }
+    }
+    
+    // 💾 UPDATE STORAGE USAGE for all uploaded files
+    if total_size > 0 {
+        let _ = handlers::storage::update_storage_usage(&state.db_pool, &user.id.to_string(), total_size).await;
     }
     
     Ok((StatusCode::CREATED, format!("Uploaded {} files", uploaded_count)))
@@ -1002,11 +1159,10 @@ async fn delete_file_handler(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
         
         // Broadcast delete event
-        let _ = state.fs_tx.send(FileChangeEvent {
-            path: path.clone(),
-            kind: "delete".to_string(),
-            timestamp: Utc::now(),
-        });
+        let _ = state.fs_tx.send(
+            FileChangeEvent::new(path.clone(), "delete".to_string())
+                .with_user(user.id.to_string())
+        );
         
         // Log activity
         let log_id = Uuid::new_v4().to_string();
@@ -1023,6 +1179,9 @@ async fn delete_file_handler(
         .execute(pool)
         .await;
         
+        // 💾 UPDATE STORAGE USAGE - decrease by file size (soft delete doesn't free space yet)
+        // Storage is freed when trash is permanently deleted
+        
         Ok((StatusCode::OK, "moved to trash"))
     } else {
         Err(StatusCode::NOT_FOUND)
@@ -1031,17 +1190,16 @@ async fn delete_file_handler(
 
 async fn create_dir_handler(
     State(state): State<AppState>,
-    _user: auth::User,
+    user: auth::User,
     AxumPath(path): AxumPath<String>,
 ) -> Result<(StatusCode, &'static str), StatusCode> {
     let full_path = Path::new(DATA_DIR).join(&path);
     fs::create_dir_all(&full_path).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
-    let _ = state.fs_tx.send(FileChangeEvent {
-        path,
-        kind: "mkdir".to_string(),
-        timestamp: Utc::now(),
-    });
+    let _ = state.fs_tx.send(
+        FileChangeEvent::new(path, "mkdir".to_string())
+            .with_user(user.id.to_string())
+    );
     
     Ok((StatusCode::CREATED, "created"))
 }
@@ -1078,11 +1236,10 @@ async fn rename_file_handler(
     .execute(pool)
     .await;
     
-    let _ = state.fs_tx.send(FileChangeEvent {
-        path: req.new_path,
-        kind: "rename".to_string(),
-        timestamp: Utc::now(),
-    });
+    let _ = state.fs_tx.send(
+        FileChangeEvent::new(req.new_path, "rename".to_string())
+            .with_user(user.id.to_string())
+    );
     
     Ok((StatusCode::OK, "renamed"))
 }
@@ -1187,11 +1344,10 @@ async fn restore_trash_handler(
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
         
         // Broadcast restore event
-        let _ = state.fs_tx.send(FileChangeEvent {
-            path: path.clone(),
-            kind: "restore".to_string(),
-            timestamp: Utc::now(),
-        });
+        let _ = state.fs_tx.send(
+            FileChangeEvent::new(path.clone(), "restore".to_string())
+                .with_user(user.id.to_string())
+        );
         
         Ok((StatusCode::OK, "restored"))
     } else {
@@ -1459,6 +1615,26 @@ async fn stats_handler(
     }))
 }
 
+async fn get_thumbnail_handler(
+    _user: auth::User,
+    AxumPath(file_id): AxumPath<String>,
+) -> Result<Response, StatusCode> {
+    let thumb_path = thumbnails::get_thumbnail_path(&file_id);
+    
+    if !thumb_path.exists() {
+        return Err(StatusCode::NOT_FOUND);
+    }
+    
+    let data = fs::read(&thumb_path).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    Ok(Response::builder()
+        .status(StatusCode::OK)
+        .header("Content-Type", "image/webp")
+        .header("Cache-Control", "public, max-age=31536000") // Cache for 1 year
+        .body(Body::from(data))
+        .unwrap())
+}
+
 async fn get_config_handler(
     State(state): State<AppState>,
     _user: auth::User,
@@ -1581,11 +1757,9 @@ async fn watch_data_dir(tx: Sender<FileChangeEvent>) -> Result<(), NotifyError> 
                 .to_string_lossy()
                 .to_string();
             
-            let _ = tx.send(FileChangeEvent {
-                path: relative,
-                kind,
-                timestamp: Utc::now(),
-            });
+            let _ = tx.send(
+                FileChangeEvent::new(relative, kind)
+            );
         }
     }
     
@@ -2352,4 +2526,272 @@ async fn activity_stats_handler(
         renames_count: renames.0,
         failed_actions: failed.0,
     }))
+}
+
+// ==================== NOTIFICATIONS HANDLERS ====================
+
+async fn get_notifications_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Query(params): Query<HashMap<String, String>>,
+) -> Result<Json<Vec<notifications::Notification>>, StatusCode> {
+    let limit = params.get("limit").and_then(|l| l.parse().ok()).unwrap_or(50);
+    let offset = params.get("offset").and_then(|o| o.parse().ok()).unwrap_or(0);
+    notifications::get_user_notifications(&state.db_pool, &user.id.to_string(), limit, offset)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn get_unread_notifications_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<Json<Vec<notifications::Notification>>, StatusCode> {
+    let all_notifs = notifications::get_user_notifications(&state.db_pool, &user.id.to_string(), 100, 0)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let unread: Vec<_> = all_notifs.into_iter().filter(|n| !n.is_read).collect();
+    Ok(Json(unread))
+}
+
+async fn mark_notification_read_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    AxumPath(id): AxumPath<String>,
+) -> Result<StatusCode, StatusCode> {
+    notifications::mark_as_read(&state.db_pool, &id, &user.id.to_string())
+        .await
+        .map(|_| StatusCode::OK)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn mark_all_notifications_read_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<StatusCode, StatusCode> {
+    notifications::mark_all_as_read(&state.db_pool, &user.id.to_string())
+        .await
+        .map(|_| StatusCode::OK)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn delete_notification_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    AxumPath(id): AxumPath<String>,
+) -> Result<StatusCode, StatusCode> {
+    notifications::delete_notification(&state.db_pool, &id, &user.id.to_string())
+        .await
+        .map(|_| StatusCode::NO_CONTENT)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+// ==================== WEBHOOKS HANDLERS ====================
+
+async fn list_webhooks_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<Json<Vec<webhooks::Webhook>>, StatusCode> {
+    webhooks::list_webhooks(&state.db_pool, &user.id.to_string())
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn create_webhook_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Json(req): Json<webhooks::CreateWebhookRequest>,
+) -> Result<Json<webhooks::Webhook>, StatusCode> {
+    webhooks::create_webhook(&state.db_pool, &user.id.to_string(), req)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn get_webhook_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    AxumPath(id): AxumPath<String>,
+) -> Result<Json<webhooks::Webhook>, StatusCode> {
+    webhooks::get_webhook(&state.db_pool, &id, &user.id.to_string())
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::NOT_FOUND)
+}
+
+async fn update_webhook_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    AxumPath(id): AxumPath<String>,
+    Json(req): Json<webhooks::UpdateWebhookRequest>,
+) -> Result<Json<webhooks::Webhook>, StatusCode> {
+    webhooks::update_webhook(&state.db_pool, &id, &user.id.to_string(), req)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn delete_webhook_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    AxumPath(id): AxumPath<String>,
+) -> Result<StatusCode, StatusCode> {
+    webhooks::delete_webhook(&state.db_pool, &id, &user.id.to_string())
+        .await
+        .map(|_| StatusCode::NO_CONTENT)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn test_webhook_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    AxumPath(id): AxumPath<String>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let webhook = webhooks::get_webhook(&state.db_pool, &id, &user.id.to_string())
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+    
+    let test_event = webhooks::WebhookEvent {
+        event_type: "test".to_string(),
+        user_id: user.id.to_string(),
+        file_path: Some("/test/file.txt".to_string()),
+        metadata: serde_json::json!({"test": true}),
+        timestamp: Utc::now(),
+    };
+    
+    webhooks::send_webhook(&webhook, &test_event)
+        .await
+        .map(|_| Json(serde_json::json!({"status": "success", "message": "Test webhook sent"})))
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+// ==================== ANALYTICS HANDLERS ====================
+
+async fn analytics_dashboard_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<Json<analytics::DashboardStats>, StatusCode> {
+    analytics::get_dashboard_stats(&state.db_pool, Some(&user.id.to_string()))
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn analytics_storage_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<Json<analytics::StorageMetrics>, StatusCode> {
+    analytics::get_storage_metrics(&state.db_pool, Some(&user.id.to_string()))
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn analytics_activity_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Query(_params): Query<HashMap<String, String>>,
+) -> Result<Json<analytics::ActivityMetrics>, StatusCode> {
+    analytics::get_activity_metrics(&state.db_pool, Some(&user.id.to_string()))
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn analytics_files_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+) -> Result<Json<analytics::FileMetrics>, StatusCode> {
+    analytics::get_file_metrics(&state.db_pool, Some(&user.id.to_string()))
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn analytics_users_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+) -> Result<Json<analytics::UserMetrics>, StatusCode> {
+    // Only admin users should access this
+    analytics::get_user_metrics(&state.db_pool)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+// ==================== BATCH OPERATIONS HANDLERS ====================
+
+async fn batch_delete_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Json(req): Json<handlers::batch::BatchDeleteRequest>,
+) -> Result<Json<handlers::batch::BatchOperationResult>, StatusCode> {
+    handlers::batch::batch_delete(&state.db_pool, &user.id.to_string(), req.items)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn batch_move_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Json(req): Json<handlers::batch::BatchMoveRequest>,
+) -> Result<Json<handlers::batch::BatchOperationResult>, StatusCode> {
+    handlers::batch::batch_move(&state.db_pool, &user.id.to_string(), req.items, &req.target_folder)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn batch_tag_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Json(req): Json<handlers::batch::BatchTagRequest>,
+) -> Result<Json<handlers::batch::BatchOperationResult>, StatusCode> {
+    handlers::batch::batch_tag(&state.db_pool, &user.id.to_string(), req.items, req.tags, &req.action)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+// ==================== ADVANCED SEARCH HANDLERS ====================
+
+async fn advanced_search_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Query(query): Query<handlers::advanced_search::AdvancedSearchQuery>,
+) -> Result<Json<handlers::advanced_search::SearchResponse>, StatusCode> {
+    handlers::advanced_search::advanced_search(&state.db_pool, &user.id.to_string(), query)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn search_suggestions_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Query(params): Query<HashMap<String, String>>,
+) -> Result<Json<Vec<String>>, StatusCode> {
+    let query = params.get("q").cloned().unwrap_or_default();
+    let limit = params.get("limit").and_then(|l| l.parse().ok()).unwrap_or(10);
+    
+    handlers::advanced_search::get_search_suggestions(&state.db_pool, &user.id.to_string(), &query, limit)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn recent_searches_handler(
+    State(state): State<AppState>,
+    user: auth::User,
+    Query(params): Query<HashMap<String, String>>,
+) -> Result<Json<Vec<String>>, StatusCode> {
+    let limit = params.get("limit").and_then(|l| l.parse().ok()).unwrap_or(10);
+    
+    handlers::advanced_search::get_recent_searches(&state.db_pool, &user.id.to_string(), limit)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
