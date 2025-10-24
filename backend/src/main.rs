@@ -9,7 +9,7 @@ mod thumbnails;
 mod notifications;
 mod webhooks;
 mod analytics;
-mod encryption;
+// mod encryption;  // Disabled temporarily - needs aes_gcm crate
 mod locking;
 mod permissions;
 mod preview;
@@ -29,6 +29,7 @@ mod prometheus_metrics;
 mod redis_cache;
 mod archive_management;
 mod compression;
+mod oauth;
 
 use std::collections::HashMap;
 use std::net::SocketAddr;
@@ -290,6 +291,9 @@ fn build_router(state: AppState) -> Router {
     let auth_routes = Router::new()
         .route("/api/auth/register", post(register_handler))
         .route("/api/auth/login", post(login_handler))
+        .route("/api/auth/refresh", post(refresh_token_handler))
+        .route("/api/auth/oauth/:provider", get(oauth_login_handler))
+        .route("/api/auth/oauth/callback", get(oauth_callback_handler))
         .route("/api/auth/2fa/setup", post(setup_2fa_handler))
         .route("/api/auth/2fa/enable", post(enable_2fa_handler))
         .route("/api/auth/2fa/disable", post(disable_2fa_handler))
@@ -404,6 +408,39 @@ fn build_router(state: AppState) -> Router {
         .route("/api/search/suggestions", get(search_suggestions_handler))
         .route("/api/search/recent", get(recent_searches_handler));
     
+    // Integration routes (protected)
+    let integration_routes = Router::new()
+        // System Settings
+        .route("/api/settings", get(get_system_settings_handler).put(update_system_settings_handler))
+        // Email Integration
+        .route("/api/email/accounts", get(list_email_accounts_handler).post(create_email_account_handler))
+        .route("/api/email/accounts/:id", delete(delete_email_account_handler))
+        // S3 Storage
+        .route("/api/s3/configs", get(list_s3_configs_handler).post(create_s3_config_handler))
+        .route("/api/s3/configs/:id", delete(delete_s3_config_handler))
+        .route("/api/s3/test", post(test_s3_connection_handler))
+        // WebDAV - supports standard WebDAV methods (PROPFIND, MKCOL, etc.)
+        // .route("/*path", any(webdav_handler))  // Uncomment for full WebDAV support
+        // FTP Sync
+        .route("/api/ftp/connections", get(list_ftp_connections_handler).post(create_ftp_connection_handler))
+        .route("/api/ftp/connections/:id", delete(delete_ftp_connection_handler))
+        .route("/api/ftp/sync", post(trigger_ftp_sync_handler))
+        // LDAP Integration
+        .route("/api/ldap/configs", get(list_ldap_configs_handler).post(create_ldap_config_handler))
+        .route("/api/ldap/configs/:id", put(update_ldap_config_handler).delete(delete_ldap_config_handler))
+        .route("/api/ldap/test", post(test_ldap_connection_handler))
+        // Prometheus Metrics
+        .route("/metrics", get(prometheus_metrics_handler))
+        // Redis Cache
+        .route("/api/cache/:key", get(get_cache_handler).delete(delete_cache_handler))
+        // Archive Management
+        .route("/api/archives/create", post(create_archive_handler))
+        .route("/api/archives/extract", post(extract_archive_handler))
+        // Compression Rules
+        .route("/api/compression/rules", get(list_compression_rules_handler).post(create_compression_rule_handler))
+        .route("/api/compression/rules/:id", delete(delete_compression_rule_handler))
+        .route("/api/compression/run", post(run_compression_handler));
+    
     // Utility routes (protected)
     let utility_routes = Router::new()
         .route("/api/status", get(status_handler))  // Status endpoint (public)
@@ -440,6 +477,7 @@ fn build_router(state: AppState) -> Router {
         .merge(analytics_routes)
         .merge(batch_routes)
         .merge(search_routes)
+        .merge(integration_routes)
         .merge(utility_routes)
         .merge(ws_route)
     ;
@@ -467,10 +505,11 @@ async fn register_handler(
 ) -> Result<Json<AuthResponse>, (StatusCode, Json<serde_json::Value>)> {
     match state.user_db.create_user(req.username.clone(), req.password) {
         Ok(user) => {
-            match auth::generate_token(&user) {
-                Ok(token) => {
+            match (auth::generate_token(&user), auth::generate_refresh_token(&user)) {
+                (Ok(token), Ok(refresh_token)) => {
                     let response = AuthResponse {
                         token,
+                        refresh_token,
                         user: UserInfo {
                             id: user.id.to_string(),
                             username: user.username,
@@ -480,7 +519,7 @@ async fn register_handler(
                     };
                     Ok(Json(response))
                 }
-                Err(e) => Err((
+                (Err(e), _) | (_, Err(e)) => Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(serde_json::json!({"error": e})),
                 )),
@@ -529,9 +568,10 @@ async fn login_handler(
             user.last_login = Some(Utc::now());
             state.user_db.update_user(user.clone());
 
-            match auth::generate_token(&user) {
-                Ok(token) => Ok(Json(AuthResponse {
+            match (auth::generate_token(&user), auth::generate_refresh_token(&user)) {
+                (Ok(token), Ok(refresh_token)) => Ok(Json(AuthResponse {
                     token,
+                    refresh_token,
                     user: UserInfo {
                         id: user.id.to_string(),
                         username: user.username,
@@ -539,7 +579,7 @@ async fn login_handler(
                     },
                     requires_2fa: false,
                 })),
-                Err(e) => Err((
+                (Err(e), _) | (_, Err(e)) => Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(serde_json::json!({"error": e})),
                 )),
@@ -614,6 +654,95 @@ async fn me_handler(user: auth::User) -> Json<UserInfo> {
         username: user.username,
         totp_enabled: user.totp_enabled,
     })
+}
+
+async fn refresh_token_handler(
+    State(state): State<AppState>,
+    Json(req): Json<auth::RefreshTokenRequest>,
+) -> Result<Json<AuthResponse>, (StatusCode, Json<serde_json::Value>)> {
+    // Verify refresh token
+    match auth::verify_refresh_token(&req.refresh_token) {
+        Ok(claims) => {
+            let user_id = Uuid::parse_str(&claims.sub)
+                .map_err(|_| (StatusCode::UNAUTHORIZED, Json(serde_json::json!({"error": "Invalid user ID"}))))?;
+
+            // Get user from database
+            match state.user_db.get_by_id(&user_id) {
+                Some(user) => {
+                    // Generate new tokens
+                    match (auth::generate_token(&user), auth::generate_refresh_token(&user)) {
+                        (Ok(token), Ok(refresh_token)) => Ok(Json(AuthResponse {
+                            token,
+                            refresh_token,
+                            user: UserInfo {
+                                id: user.id.to_string(),
+                                username: user.username.clone(),
+                                totp_enabled: user.totp_enabled,
+                            },
+                            requires_2fa: false,
+                        })),
+                        (Err(e), _) | (_, Err(e)) => Err((
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            Json(serde_json::json!({"error": e})),
+                        )),
+                    }
+                }
+                None => Err((
+                    StatusCode::UNAUTHORIZED,
+                    Json(serde_json::json!({"error": "User not found"})),
+                )),
+            }
+        }
+        Err(e) => Err((
+            StatusCode::UNAUTHORIZED,
+            Json(serde_json::json!({"error": e})),
+        )),
+    }
+}
+
+async fn oauth_login_handler(
+    AxumPath(provider): AxumPath<String>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    // TODO: Implement OAuth2 login redirect
+    // 1. Get provider config from database
+    // 2. Generate OAuth2 authorization URL with state
+    // 3. Redirect to provider's authorization endpoint
+    
+    // Placeholder response
+    Err((
+        StatusCode::NOT_IMPLEMENTED,
+        Json(serde_json::json!({
+            "error": "OAuth2 login not yet implemented",
+            "provider": provider,
+            "message": "Configure OAuth providers in database and implement oauth2 crate integration"
+        })),
+    ))
+}
+
+async fn oauth_callback_handler(
+    Query(params): Query<std::collections::HashMap<String, String>>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    // TODO: Implement OAuth2 callback handler
+    // 1. Verify state parameter
+    // 2. Exchange authorization code for access token
+    // 3. Fetch user info from provider
+    // 4. Create or link user account
+    // 5. Generate JWT tokens
+    // 6. Redirect to frontend with tokens
+    
+    // Placeholder response
+    let code = params.get("code").cloned();
+    let state = params.get("state").cloned();
+    
+    Err((
+        StatusCode::NOT_IMPLEMENTED,
+        Json(serde_json::json!({
+            "error": "OAuth2 callback not yet implemented",
+            "code": code,
+            "state": state,
+            "message": "Implement oauth2 crate integration for token exchange"
+        })),
+    ))
 }
 
 // ==================== USER PROFILE HANDLERS ====================
@@ -1670,6 +1799,260 @@ async fn add_peer_handler(
     config.peers.push(peer.clone());
     let _ = save_config(&*config).await;
     Json(peer)
+}
+
+// ==================== INTEGRATION HANDLERS ====================
+
+// System Settings Handlers
+async fn get_system_settings_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    // Placeholder - system_settings needs a get_all_settings function
+    Err((StatusCode::NOT_IMPLEMENTED, "System settings not yet implemented".to_string()))
+}
+
+async fn update_system_settings_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    Json(settings): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    Err((StatusCode::NOT_IMPLEMENTED, "Settings update not implemented".to_string()))
+}
+
+// Email Integration Handlers
+async fn list_email_accounts_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+) -> Result<Json<Vec<serde_json::Value>>, (StatusCode, String)> {
+    // Placeholder - email_integration needs list_accounts function
+    Ok(Json(vec![]))
+}
+
+async fn create_email_account_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    Json(account): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "Email account creation not implemented".to_string()))
+}
+
+async fn delete_email_account_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    AxumPath(id): AxumPath<String>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "Email account deletion not implemented".to_string()))
+}
+
+// S3 Storage Handlers
+async fn list_s3_configs_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+) -> Result<Json<Vec<s3_storage::S3Config>>, (StatusCode, String)> {
+    match s3_storage::list_s3_configs(&state.db_pool).await {
+        Ok(configs) => Ok(Json(configs)),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+    }
+}
+
+async fn create_s3_config_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    Json(config): Json<s3_storage::S3Config>,
+) -> Result<Json<s3_storage::S3Config>, (StatusCode, String)> {
+    match s3_storage::create_s3_config(&state.db_pool, config).await {
+        Ok(created) => Ok(Json(created)),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+    }
+}
+
+async fn delete_s3_config_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    AxumPath(id): AxumPath<String>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    match s3_storage::delete_s3_config(&state.db_pool, &id).await {
+        Ok(_) => Ok(StatusCode::NO_CONTENT),
+        Err(e) => Err((StatusCode::INTERNAL_SERVER_ERROR, e.to_string())),
+    }
+}
+
+async fn test_s3_connection_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    Json(config): Json<s3_storage::S3Config>,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    match s3_storage::test_s3_connection(&config).await {
+        Ok(_) => Ok(Json(serde_json::json!({"status": "ok"}))),
+        Err(e) => Err((StatusCode::BAD_REQUEST, e.to_string())),
+    }
+}
+
+// FTP Sync Handlers
+async fn list_ftp_connections_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+) -> Result<Json<Vec<serde_json::Value>>, (StatusCode, String)> {
+    // Placeholder
+    Ok(Json(vec![]))
+}
+
+async fn create_ftp_connection_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    Json(connection): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "FTP connection creation not implemented".to_string()))
+}
+
+async fn delete_ftp_connection_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    AxumPath(id): AxumPath<String>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "FTP connection deletion not implemented".to_string()))
+}
+
+async fn trigger_ftp_sync_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    Json(params): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "FTP sync not implemented".to_string()))
+}
+
+// LDAP Integration Handlers
+async fn list_ldap_configs_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+) -> Result<Json<Vec<serde_json::Value>>, (StatusCode, String)> {
+    // Placeholder
+    Ok(Json(vec![]))
+}
+
+async fn create_ldap_config_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    Json(config): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "LDAP config creation not implemented".to_string()))
+}
+
+async fn update_ldap_config_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    AxumPath(id): AxumPath<String>,
+    Json(config): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "LDAP config update not implemented".to_string()))
+}
+
+async fn delete_ldap_config_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    AxumPath(id): AxumPath<String>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "LDAP config deletion not implemented".to_string()))
+}
+
+async fn test_ldap_connection_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    Json(config): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "LDAP connection test not implemented".to_string()))
+}
+
+// Prometheus Metrics Handler
+async fn prometheus_metrics_handler(
+    State(state): State<AppState>,
+) -> Result<String, (StatusCode, String)> {
+    // Placeholder - return empty metrics
+    Ok("# No metrics available yet\n".to_string())
+}
+
+// Redis Cache Handlers
+async fn get_cache_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    AxumPath(key): AxumPath<String>,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_FOUND, "Cache not implemented".to_string()))
+}
+
+async fn delete_cache_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    AxumPath(key): AxumPath<String>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "Cache deletion not implemented".to_string()))
+}
+
+// Archive Management Handlers
+async fn create_archive_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    Json(params): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "Archive creation not implemented".to_string()))
+}
+
+async fn extract_archive_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    Json(params): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "Archive extraction not implemented".to_string()))
+}
+
+// Compression Handlers
+async fn list_compression_rules_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+) -> Result<Json<Vec<serde_json::Value>>, (StatusCode, String)> {
+    // Placeholder
+    Ok(Json(vec![]))
+}
+
+async fn create_compression_rule_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    Json(rule): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "Compression rule creation not implemented".to_string()))
+}
+
+async fn delete_compression_rule_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    AxumPath(id): AxumPath<String>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "Compression rule deletion not implemented".to_string()))
+}
+
+async fn run_compression_handler(
+    State(state): State<AppState>,
+    _user: auth::User,
+    Json(params): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    // Placeholder
+    Err((StatusCode::NOT_IMPLEMENTED, "Compression not implemented".to_string()))
 }
 
 // ==================== WEBSOCKET HANDLER ====================

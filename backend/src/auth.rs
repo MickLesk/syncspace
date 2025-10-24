@@ -20,8 +20,10 @@ use totp_lite::{totp_custom, Sha1};
 use uuid::Uuid;
 
 const USERS_FILE: &str = "./users.json";
-const JWT_SECRET: &str = "your-secret-key-change-this-in-production"; // TODO: Move to env var
+// TODO: Move to environment variable
+const JWT_SECRET: &str = "your-secret-key-change-in-production";
 const TOKEN_EXPIRATION_HOURS: i64 = 24;
+const REFRESH_TOKEN_EXPIRATION_DAYS: i64 = 7;
 
 /// User account structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -170,10 +172,20 @@ impl UserDB {
 /// JWT Claims structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
-    pub sub: String, // user_id
-    pub username: String,
-    pub exp: usize,
-    pub iat: usize,
+    pub sub: String,      // Subject (user ID)
+    pub username: String, // Username for convenience
+    pub exp: usize,       // Expiration time
+    pub iat: usize,       // Issued at
+}
+
+/// Refresh Token Claims (longer expiration)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RefreshTokenClaims {
+    pub sub: String,       // Subject (user ID)
+    pub username: String,  // Username for convenience
+    pub exp: usize,        // Expiration time (7 days)
+    pub iat: usize,        // Issued at
+    pub token_version: u32, // For token rotation/invalidation
 }
 
 /// Generate JWT token for authenticated user
@@ -198,6 +210,29 @@ pub fn generate_token(user: &User) -> Result<String, String> {
     .map_err(|e| format!("Token generation failed: {}", e))
 }
 
+/// Generate refresh token (7 day expiration)
+pub fn generate_refresh_token(user: &User) -> Result<String, String> {
+    let expiration = Utc::now()
+        .checked_add_signed(Duration::days(REFRESH_TOKEN_EXPIRATION_DAYS))
+        .ok_or("Invalid timestamp")?
+        .timestamp();
+
+    let claims = RefreshTokenClaims {
+        sub: user.id.to_string(),
+        username: user.username.clone(),
+        exp: expiration as usize,
+        iat: Utc::now().timestamp() as usize,
+        token_version: 1, // TODO: Store version in User struct for rotation
+    };
+
+    encode(
+        &Header::default(),
+        &claims,
+        &EncodingKey::from_secret(JWT_SECRET.as_ref()),
+    )
+    .map_err(|e| format!("Token generation failed: {}", e))
+}
+
 /// Verify JWT token and extract claims
 pub fn verify_token(token: &str) -> Result<Claims, String> {
     decode::<Claims>(
@@ -207,6 +242,17 @@ pub fn verify_token(token: &str) -> Result<Claims, String> {
     )
     .map(|data| data.claims)
     .map_err(|e| format!("Token verification failed: {}", e))
+}
+
+/// Verify refresh token and extract claims
+pub fn verify_refresh_token(token: &str) -> Result<RefreshTokenClaims, String> {
+    decode::<RefreshTokenClaims>(
+        token,
+        &DecodingKey::from_secret(JWT_SECRET.as_ref()),
+        &Validation::default(),
+    )
+    .map(|data| data.claims)
+    .map_err(|e| format!("Refresh token verification failed: {}", e))
 }
 
 /// TOTP 2FA Functions
@@ -302,8 +348,14 @@ pub struct LoginRequest {
 #[derive(Debug, Serialize)]
 pub struct AuthResponse {
     pub token: String,
+    pub refresh_token: String,
     pub user: UserInfo,
     pub requires_2fa: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RefreshTokenRequest {
+    pub refresh_token: String,
 }
 
 #[derive(Debug, Serialize)]
