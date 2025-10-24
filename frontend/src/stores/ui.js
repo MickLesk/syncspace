@@ -86,9 +86,24 @@ function createViewStore() {
   };
 }
 
+// Persist favorites feature toggle
+function createFavoritesEnabledStore() {
+  const stored = localStorage.getItem('favoritesEnabled') !== 'false'; // Default: true
+  const { subscribe, set } = writable(stored);
+  
+  return {
+    subscribe,
+    set: (value) => {
+      localStorage.setItem('favoritesEnabled', value.toString());
+      set(value);
+    }
+  };
+}
+
 export const currentView = createViewStore();
 export const currentTheme = createThemeStore();
 export const currentLang = createLangStore();
 export const sidebarCollapsed = createSidebarStore();
+export const favoritesEnabled = createFavoritesEnabledStore();
 export const files = writable([]);
 export const currentPath = createPathStore();

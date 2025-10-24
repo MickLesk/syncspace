@@ -1,9 +1,9 @@
 <script>
-  import { currentView, sidebarCollapsed, currentLang } from "../stores/ui";
+  import { currentView, sidebarCollapsed, currentLang, favoritesEnabled } from "../stores/ui";
   import { auth } from "../stores/auth";
   import { t } from "../i18n";
 
-  // Navigation items - OHNE users (wird Settings-Tab)
+  // Navigation items - Storage & Backup sind jetzt in Settings-Tabs
   $: navItems = [
     {
       id: "files",
@@ -17,18 +17,13 @@
       label: t($currentLang, "shared"),
       category: "main",
     },
-    {
+    // Favorites nur anzeigen wenn enabled
+    ...($favoritesEnabled ? [{
       id: "favorites",
       icon: "star-fill",
       label: t($currentLang, "favorites"),
       category: "main",
-    },
-    {
-      id: "storage",
-      icon: "pie-chart-fill",
-      label: "Storage",
-      category: "tools",
-    },
+    }] : []),
     {
       id: "activity",
       icon: "clock-history",
@@ -36,12 +31,6 @@
       category: "tools",
     },
     { id: "duplicates", icon: "files", label: "Duplicates", category: "tools" },
-    {
-      id: "backup",
-      icon: "cloud-arrow-up-fill",
-      label: "Backup",
-      category: "tools",
-    },
     {
       id: "trash",
       icon: "trash-fill",
@@ -60,17 +49,6 @@
   $: mainItems = navItems.filter((item) => item.category === "main");
   $: toolsItems = navItems.filter((item) => item.category === "tools");
   $: systemItems = navItems.filter((item) => item.category === "system");
-
-  // Mock storage data
-  let storageUsed = 42.5; // GB
-  let storageTotal = 50; // GB
-  $: storagePercent = (storageUsed / storageTotal) * 100;
-  $: storageColor =
-    storagePercent >= 90
-      ? "error"
-      : storagePercent >= 75
-        ? "warning"
-        : "primary";
 
   function selectView(viewId) {
     currentView.set(viewId);
@@ -211,48 +189,6 @@
       {/each}
     </ul>
   </nav>
-
-  <!-- Sidebar Footer: Nur Storage + User -->
-  <div class="sidebar-footer">
-    <!-- Kompakte Storage Line -->
-    {#if !$sidebarCollapsed}
-      <div class="storage-indicator">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-xs font-medium opacity-70">Storage</span>
-          <span class="text-xs font-semibold"
-            >{storageUsed}/{storageTotal} GB</span
-          >
-        </div>
-        <progress
-          class="progress progress-{storageColor} w-full h-1.5"
-          value={storagePercent}
-          max="100"
-        ></progress>
-      </div>
-
-      <div class="divider my-2"></div>
-    {/if}
-
-    <!-- User nur als Avatar + Username (kein Dropdown) -->
-    <div class="user-section">
-      <div class="flex items-center gap-2 px-2">
-        <div class="avatar placeholder">
-          <div class="bg-primary text-primary-content rounded-full w-8">
-            <span class="text-sm font-semibold"
-              >{$auth.username?.charAt(0).toUpperCase() || "U"}</span
-            >
-          </div>
-        </div>
-        {#if !$sidebarCollapsed}
-          <div class="flex-1 min-w-0">
-            <div class="text-sm font-semibold truncate">
-              {$auth.username || "User"}
-            </div>
-          </div>
-        {/if}
-      </div>
-    </div>
-  </div>
 </aside>
 
 <style>
@@ -372,22 +308,6 @@
   .collapsed .menu-item {
     justify-content: center;
     padding: 0.625rem;
-  }
-
-  /* Footer */
-  .sidebar-footer {
-    padding: 0.75rem;
-    border-top: 1px solid var(--md-sys-color-outline-variant);
-  }
-
-  .storage-indicator {
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.5rem;
-    background: var(--md-sys-color-surface-variant);
-  }
-
-  .user-section {
-    padding: 0.5rem 0;
   }
 
   /* Scrollbar */
