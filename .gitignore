@@ -1,6 +1,9 @@
 # Documentation files (private)
 docs/
 
+# Scripts (private)
+scripts/
+
 # Rust / Backend
 backend/target/
 backend/Cargo.lock
