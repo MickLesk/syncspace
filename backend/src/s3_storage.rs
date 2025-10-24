@@ -17,6 +17,7 @@ pub struct S3Config {
     pub use_path_style: bool, // For MinIO
     pub is_default: bool,
     pub created_at: String,
+    pub updated_at: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -122,6 +123,45 @@ pub async fn list_s3_configs(pool: &SqlitePool) -> Result<Vec<S3Config>, sqlx::E
     )
     .fetch_all(pool)
     .await
+}
+
+/// Create new S3 configuration
+pub async fn create_s3_config(
+    pool: &SqlitePool,
+    mut config: S3Config,
+) -> Result<S3Config, sqlx::Error> {
+    use uuid::Uuid;
+    use chrono::Utc;
+    
+    // Generate ID if not provided
+    if config.id.is_empty() {
+        config.id = Uuid::new_v4().to_string();
+    }
+    
+    // Set timestamps
+    let now = Utc::now().to_rfc3339();
+    config.created_at = now.clone();
+    config.updated_at = now;
+    
+    // Insert into database
+    sqlx::query(
+        "INSERT INTO s3_configs (id, name, endpoint, region, bucket, access_key, secret_key_encrypted, is_default, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    )
+    .bind(&config.id)
+    .bind(&config.name)
+    .bind(&config.endpoint)
+    .bind(&config.region)
+    .bind(&config.bucket)
+    .bind(&config.access_key)
+    .bind(&config.secret_key_encrypted)
+    .bind(config.is_default)
+    .bind(&config.created_at)
+    .bind(&config.updated_at)
+    .execute(pool)
+    .await?;
+    
+    Ok(config)
 }
 
 /// Get default S3 config
