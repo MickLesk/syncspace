@@ -1,18 +1,10 @@
 <script>
   import { currentLang } from "../stores/ui.js";
   import { t } from "../i18n.js";
-  import PageHeader from "../components/ui/PageHeader.svelte";
   import EmptyState from "../components/ui/EmptyState.svelte";
 </script>
 
 <div class="view-container">
-  <PageHeader
-    title={t($currentLang, "shared")}
-    subtitle=""
-    icon="share"
-    gradient="blue"
-  />
-
   <div class="page-content">
     <EmptyState
       icon="🔗"

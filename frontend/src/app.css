@@ -1,6 +1,14 @@
 /* Material 3 Expressive + Crystal Glass Design System 2025/2026 */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+/* Design Tokens */
+@import './styles/design-tokens.css';
+
+/* Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Global Reset */
 * {
   margin: 0;

@@ -2,7 +2,7 @@
   /**
    * EmptyState Component
    * Wiederverwendbarer Component für leere Views
-   * 
+   *
    * @component
    * @example
    * <EmptyState
@@ -13,51 +13,58 @@
    *   onAction={() => navigateToFiles()}
    * />
    */
-  
+
   import Icon from "./Icon.svelte";
   import Button from "./Button.svelte";
 
   /** @type {string} - Bootstrap Icon name oder Emoji */
   export let icon = "";
-  
+
   /** @type {boolean} - Ob Icon ein Bootstrap-Icon ist (true) oder Emoji (false) */
   export let isBootstrapIcon = false;
-  
+
   /** @type {string} - Hauptüberschrift */
   export let title = "No items found";
-  
+
   /** @type {string} - Beschreibungstext */
   export let description = "";
-  
+
   /** @type {string} - Text für Action-Button (optional) */
   export let actionText = "";
-  
+
   /** @type {Function} - Callback für Action-Button */
   export let onAction = null;
-  
+
   /** @type {"small" | "medium" | "large"} - Größe des EmptyState */
   export let size = "medium";
 </script>
 
-<div class="empty-state" class:size-small={size === "small"} class:size-large={size === "large"}>
+<div
+  class="empty-state"
+  class:size-small={size === "small"}
+  class:size-large={size === "large"}
+>
   {#if icon}
     <div class="empty-icon">
       {#if isBootstrapIcon}
-        <Icon name={icon} size={size === "small" ? 48 : size === "large" ? 96 : 72} />
+        <Icon
+          name={icon}
+          size={size === "small" ? 48 : size === "large" ? 96 : 72}
+        />
       {:else}
         <span class="emoji-icon">{icon}</span>
       {/if}
     </div>
   {/if}
-  
+
   <h3 class="empty-title">{title}</h3>
-  
+
   {#if description}
     <p class="empty-description">{description}</p>
   {/if}
-  
+
   <slot name="content" />
-  
+
   {#if actionText && onAction}
     <div class="empty-action">
       <Button onClick={onAction} variant="outlined" size="medium">
@@ -65,7 +72,7 @@
       </Button>
     </div>
   {/if}
-  
+
   <slot name="actions" />
 </div>
 
@@ -119,7 +126,12 @@
     font-weight: 600;
     color: var(--md-sys-color-on-surface);
     margin: 0;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family:
+      "Inter",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
   }
 
   .size-small .empty-title {

@@ -1,0 +1,324 @@
+/**
+ * SyncSpace Design Tokens
+ * Based on Material Design 3 + Crystal Glass Aesthetic
+ * Created: October 24, 2025
+ */
+
+/* ======================
+   Color System
+   ====================== */
+
+:root {
+  /* Brand Colors */
+  --color-brand-primary: #667eea;
+  --color-brand-secondary: #764ba2;
+  --color-brand-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
+  /* Semantic Colors (Light Mode) */
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-primary-light: rgba(99, 102, 241, 0.12);
+  
+  --color-secondary: #8b5cf6;
+  --color-secondary-hover: #7c3aed;
+  --color-secondary-light: rgba(139, 92, 246, 0.12);
+  
+  --color-accent: #f59e0b;
+  --color-accent-hover: #d97706;
+  --color-accent-light: rgba(245, 158, 11, 0.12);
+  
+  --color-success: #10b981;
+  --color-success-hover: #059669;
+  --color-success-light: rgba(16, 185, 129, 0.12);
+  
+  --color-warning: #f59e0b;
+  --color-warning-hover: #d97706;
+  --color-warning-light: rgba(245, 158, 11, 0.12);
+  
+  --color-error: #ef4444;
+  --color-error-hover: #dc2626;
+  --color-error-light: rgba(239, 68, 68, 0.12);
+  
+  --color-info: #3b82f6;
+  --color-info-hover: #2563eb;
+  --color-info-light: rgba(59, 130, 246, 0.12);
+  
+  /* Neutral Colors */
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-500: #737373;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
+  
+  /* Surface Colors */
+  --color-surface: #ffffff;
+  --color-surface-container: #f9fafb;
+  --color-surface-container-low: #f3f4f6;
+  --color-surface-container-high: #e5e7eb;
+  
+  --color-on-surface: #111827;
+  --color-on-surface-variant: #6b7280;
+  --color-outline: #d1d5db;
+}
+
+/* Dark Mode */
+[data-theme="dark"],
+[data-theme="syncspace-dark"] {
+  --color-primary: #818cf8;
+  --color-primary-hover: #6366f1;
+  --color-primary-light: rgba(129, 140, 248, 0.12);
+  
+  --color-secondary: #a78bfa;
+  --color-secondary-hover: #8b5cf6;
+  --color-secondary-light: rgba(167, 139, 250, 0.12);
+  
+  --color-success: #34d399;
+  --color-success-hover: #10b981;
+  
+  --color-error: #f87171;
+  --color-error-hover: #ef4444;
+  
+  --color-surface: #111827;
+  --color-surface-container: #1f2937;
+  --color-surface-container-low: #374151;
+  --color-surface-container-high: #4b5563;
+  
+  --color-on-surface: #f9fafb;
+  --color-on-surface-variant: #d1d5db;
+  --color-outline: #4b5563;
+}
+
+/* ======================
+   Spacing Scale (4px grid)
+   ====================== */
+
+:root {
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;   /* 4px */
+  --spacing-2: 0.5rem;    /* 8px */
+  --spacing-3: 0.75rem;   /* 12px */
+  --spacing-4: 1rem;      /* 16px */
+  --spacing-5: 1.25rem;   /* 20px */
+  --spacing-6: 1.5rem;    /* 24px */
+  --spacing-8: 2rem;      /* 32px */
+  --spacing-10: 2.5rem;   /* 40px */
+  --spacing-12: 3rem;     /* 48px */
+  --spacing-16: 4rem;     /* 64px */
+  --spacing-20: 5rem;     /* 80px */
+  --spacing-24: 6rem;     /* 96px */
+}
+
+/* ======================
+   Typography Scale
+   ====================== */
+
+:root {
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;      /* 12px */
+  --font-size-sm: 0.875rem;     /* 14px */
+  --font-size-base: 1rem;       /* 16px */
+  --font-size-lg: 1.125rem;     /* 18px */
+  --font-size-xl: 1.25rem;      /* 20px */
+  --font-size-2xl: 1.5rem;      /* 24px */
+  --font-size-3xl: 1.875rem;    /* 30px */
+  --font-size-4xl: 2.25rem;     /* 36px */
+  --font-size-5xl: 3rem;        /* 48px */
+  
+  /* Font Weights */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  --line-height-loose: 2;
+  
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+}
+
+/* ======================
+   Border Radius
+   ====================== */
+
+:root {
+  --radius-none: 0;
+  --radius-sm: 0.375rem;    /* 6px */
+  --radius-md: 0.5rem;      /* 8px */
+  --radius-lg: 0.75rem;     /* 12px */
+  --radius-xl: 1rem;        /* 16px */
+  --radius-2xl: 1.5rem;     /* 24px */
+  --radius-3xl: 2rem;       /* 32px */
+  --radius-full: 9999px;
+}
+
+/* ======================
+   Shadow Elevation
+   ====================== */
+
+:root {
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 8px 0 rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 16px 0 rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 12px 24px 0 rgba(0, 0, 0, 0.12);
+  --shadow-2xl: 0 20px 40px 0 rgba(0, 0, 0, 0.15);
+  --shadow-3xl: 0 32px 64px 0 rgba(0, 0, 0, 0.18);
+  
+  /* Colored Shadows for Brand */
+  --shadow-primary: 0 8px 24px rgba(103, 80, 164, 0.3);
+  --shadow-secondary: 0 8px 24px rgba(118, 75, 162, 0.3);
+}
+
+[data-theme="dark"],
+[data-theme="syncspace-dark"] {
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 16px 0 rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 12px 24px 0 rgba(0, 0, 0, 0.7);
+  --shadow-2xl: 0 20px 40px 0 rgba(0, 0, 0, 0.8);
+  --shadow-3xl: 0 32px 64px 0 rgba(0, 0, 0, 0.9);
+}
+
+/* ======================
+   Animation Timing
+   ====================== */
+
+:root {
+  /* Durations */
+  --duration-75: 75ms;
+  --duration-100: 100ms;
+  --duration-150: 150ms;
+  --duration-200: 200ms;
+  --duration-300: 300ms;
+  --duration-500: 500ms;
+  --duration-700: 700ms;
+  --duration-1000: 1000ms;
+  
+  /* Easing Functions */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  
+  /* Material Design Standard */
+  --ease-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --ease-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
+}
+
+/* ======================
+   Z-Index Layers
+   ====================== */
+
+:root {
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-header: 1150;
+  --z-fixed: 1200;
+  --z-modal-backdrop: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-tooltip: 1600;
+  --z-toast: 1700;
+  --z-max: 9999;
+}
+
+/* ======================
+   Glassmorphism
+   ====================== */
+
+:root {
+  --glass-background: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-blur: 12px;
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"],
+[data-theme="syncspace-dark"] {
+  --glass-background: rgba(31, 41, 55, 0.7);
+  --glass-border: rgba(75, 85, 99, 0.3);
+  --glass-blur: 16px;
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* ======================
+   Utility Classes
+   ====================== */
+
+/* Glass Effect */
+.glass {
+  background: var(--glass-background);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Brand Gradient */
+.brand-gradient {
+  background: var(--color-brand-gradient);
+}
+
+/* Smooth Transitions */
+.transition-smooth {
+  transition: all var(--duration-200) var(--ease-standard);
+}
+
+.transition-slow {
+  transition: all var(--duration-300) var(--ease-standard);
+}
+
+.transition-fast {
+  transition: all var(--duration-150) var(--ease-standard);
+}
+
+/* ======================
+   Usage Examples & Guidelines
+   ====================== */
+
+/* 
+SPACING: Use 4px baseline grid
+  padding: var(--spacing-4);  // 16px
+  margin: var(--spacing-6);   // 24px
+
+COLORS: Semantic naming
+  background: var(--color-primary);
+  color: var(--color-on-surface);
+
+TYPOGRAPHY: Responsive scale
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+
+SHADOWS: Match elevation
+  box-shadow: var(--shadow-lg);
+
+RADIUS: Consistent corners
+  border-radius: var(--radius-xl);
+
+ANIMATION: Smooth transitions
+  transition: all var(--duration-200) var(--ease-standard);
+
+GLASSMORPHISM: Modern aesthetic
+  <div class="glass"></div>
+
+GRADIENTS: Brand identity
+  <div class="brand-gradient"></div>
+*/

@@ -2,7 +2,7 @@
   /**
    * ConfirmDialog Component
    * Styled confirmation dialog als Ersatz für native confirm()
-   * 
+   *
    * @component
    * @example
    * <ConfirmDialog
@@ -16,7 +16,7 @@
    *   on:cancel={handleCancel}
    * />
    */
-  
+
   import { createEventDispatcher } from "svelte";
   import Icon from "./Icon.svelte";
   import Button from "./Button.svelte";
@@ -25,34 +25,38 @@
 
   /** @type {boolean} - Ob Dialog geöffnet ist */
   export let open = false;
-  
+
   /** @type {string} - Titel des Dialogs */
   export let title = "Confirm Action";
-  
+
   /** @type {string} - Nachricht/Beschreibung */
   export let message = "Are you sure you want to proceed?";
-  
+
   /** @type {string} - Text für Bestätigungs-Button */
   export let confirmText = "Confirm";
-  
+
   /** @type {string} - Text für Abbrechen-Button */
   export let cancelText = "Cancel";
-  
+
   /** @type {"default" | "danger" | "warning" | "success"} - Dialog-Variante */
   export let variant = "default";
-  
+
   /** @type {string} - Optional: Icon-Name (Bootstrap) */
   export let icon = "";
-  
+
   /** @type {boolean} - Zeigt Loading-State auf Confirm-Button */
   export let loading = false;
 
   // Auto-Icons basierend auf Variant
-  $: defaultIcon = variant === "danger" ? "exclamation-triangle-fill" 
-                 : variant === "warning" ? "exclamation-circle-fill"
-                 : variant === "success" ? "check-circle-fill"
-                 : "question-circle-fill";
-  
+  $: defaultIcon =
+    variant === "danger"
+      ? "exclamation-triangle-fill"
+      : variant === "warning"
+        ? "exclamation-circle-fill"
+        : variant === "success"
+          ? "check-circle-fill"
+          : "question-circle-fill";
+
   $: displayIcon = icon || defaultIcon;
 
   function handleConfirm() {
@@ -84,14 +88,14 @@
 {#if open}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div 
-    class="confirm-dialog-backdrop" 
+  <div
+    class="confirm-dialog-backdrop"
     onclick={handleBackdropClick}
     onkeydown={handleKeydown}
     role="presentation"
   >
-    <div 
-      class="confirm-dialog" 
+    <div
+      class="confirm-dialog"
       class:variant-danger={variant === "danger"}
       class:variant-warning={variant === "warning"}
       class:variant-success={variant === "success"}
@@ -110,23 +114,27 @@
       <div class="dialog-content">
         <h2 id="confirm-dialog-title" class="dialog-title">{title}</h2>
         <p id="confirm-dialog-message" class="dialog-message">{message}</p>
-        
+
         <slot name="content" />
       </div>
 
       <!-- Actions -->
       <div class="dialog-actions">
-        <Button 
-          onClick={handleCancel} 
-          variant="outlined" 
+        <Button
+          onClick={handleCancel}
+          variant="outlined"
           size="medium"
           disabled={loading}
         >
           {cancelText}
         </Button>
-        <Button 
+        <Button
           onClick={handleConfirm}
-          variant={variant === "danger" ? "danger" : variant === "success" ? "success" : "filled"}
+          variant={variant === "danger"
+            ? "danger"
+            : variant === "success"
+              ? "success"
+              : "filled"}
           size="medium"
           disabled={loading}
         >
@@ -227,7 +235,12 @@
     font-weight: 600;
     color: var(--md-sys-color-on-surface);
     margin: 0 0 12px 0;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family:
+      "Inter",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
   }
 
   .dialog-message {

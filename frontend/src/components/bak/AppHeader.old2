@@ -1,0 +1,254 @@
+<!--
+  AppHeaderV3.svelte - Clean DaisyUI Header
+  Komplett neu gebaut mit DaisyUI-Komponenten
+-->
+
+<script>
+  import { createEventDispatcher } from "svelte";
+  import { currentTheme, sidebarCollapsed } from "../stores/ui";
+  import { auth } from "../stores/auth";
+
+  const dispatch = createEventDispatcher();
+
+  let searchQuery = "";
+  let showSearchModal = false;
+
+  $: isDark = $currentTheme === "dark";
+  $: unreadCount = 3; // Mock notification count
+
+  function toggleTheme() {
+    const newTheme = isDark ? "light" : "dark";
+    currentTheme.set(newTheme);
+    document.documentElement.setAttribute(
+      "data-theme",
+      newTheme === "dark" ? "syncspace-dark" : "syncspace"
+    );
+  }
+
+  function toggleSidebar() {
+    sidebarCollapsed.toggle();
+  }
+
+  function handleSearch(e) {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      dispatch("search", { query: searchQuery });
+      showSearchModal = false;
+    }
+  }
+
+  function handleLogout() {
+    auth.logout();
+  }
+
+  // Keyboard shortcut for search (Ctrl+K)
+  function handleKeydown(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+      e.preventDefault();
+      showSearchModal = true;
+    }
+  }
+</script>
+
+<svelte:window on:keydown={handleKeydown} />
+
+<!-- Compact Header -->
+<header
+  class="navbar bg-base-100 border-b border-base-300 px-4 sticky top-0 z-50 h-14 min-h-14"
+>
+  <!-- Left: Sidebar Toggle (mobile) -->
+  <div class="navbar-start">
+    <button
+      class="btn btn-ghost btn-sm btn-circle lg:hidden"
+      on:click={toggleSidebar}
+      aria-label="Toggle menu"
+    >
+      <i class="bi bi-list text-xl"></i>
+    </button>
+  </div>
+
+  <!-- Center: Quick Search Icon -->
+  <div class="navbar-center flex-1">
+    <button
+      class="btn btn-ghost btn-sm gap-2"
+      on:click={() => (showSearchModal = true)}
+    >
+      <i class="bi bi-search"></i>
+      <span class="hidden md:inline text-sm opacity-60">Quick Search (Ctrl+K)</span>
+    </button>
+  </div>
+
+  <!-- Right: Actions (nur Theme Toggle) -->
+  <div class="navbar-end gap-1">
+    <!-- Theme Toggle -->
+    <button
+      class="btn btn-ghost btn-sm btn-circle"
+      on:click={toggleTheme}
+      aria-label="Toggle theme"
+    >
+      {#if isDark}
+        <i class="bi bi-sun-fill"></i>
+      {:else}
+        <i class="bi bi-moon-fill"></i>
+      {/if}
+    </button>
+
+    <!-- Notifications -->
+    <div class="dropdown dropdown-end">
+      <button class="btn btn-ghost btn-sm btn-circle indicator" tabindex="0">
+        <i class="bi bi-bell"></i>
+        {#if unreadCount > 0}
+          <span class="badge badge-xs badge-primary indicator-item"></span>
+        {/if}
+      </button>
+      <div
+        class="dropdown-content mt-3 z-[1] menu bg-base-100 border border-base-300 rounded-box w-80 shadow-xl p-0"
+      >
+        <div class="p-3 border-b border-base-300">
+          <h3 class="font-semibold">Notifications</h3>
+        </div>
+        <ul class="p-2 max-h-96 overflow-y-auto">
+          <li>
+            <a class="flex items-start gap-3 p-3 hover:bg-base-200 rounded-lg">
+              <div class="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0">
+                <i class="bi bi-check-circle text-success"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium">File uploaded successfully</p>
+                <p class="text-xs opacity-60">2 minutes ago</p>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="flex items-start gap-3 p-3 hover:bg-base-200 rounded-lg">
+              <div class="w-8 h-8 rounded-full bg-info/20 flex items-center justify-center flex-shrink-0">
+                <i class="bi bi-share text-info"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium">New share request</p>
+                <p class="text-xs opacity-60">1 hour ago</p>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="flex items-start gap-3 p-3 hover:bg-base-200 rounded-lg">
+              <div class="w-8 h-8 rounded-full bg-warning/20 flex items-center justify-center flex-shrink-0">
+                <i class="bi bi-exclamation-triangle text-warning"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium">Storage almost full</p>
+                <p class="text-xs opacity-60">85% used • 3 hours ago</p>
+              </div>
+            </a>
+          </li>
+        </ul>
+        <div class="p-2 border-t border-base-300">
+          <button class="btn btn-sm btn-ghost w-full">View All</button>
+        </div>
+      </div>
+    </div>
+      <ul
+        class="dropdown-content mt-3 z-[1] menu menu-sm bg-base-100 rounded-box w-52 p-2 shadow-xl border border-base-300"
+      >
+        <li class="menu-title">
+          <span>{$auth.username || "User"}</span>
+        </li>
+        <li>
+          <a on:click={() => dispatch("navigate", { view: "profile" })}>
+            <i class="bi bi-person"></i> Profile
+          </a>
+        </li>
+        <li>
+          <a on:click={() => dispatch("navigate", { view: "settings" })}>
+            <i class="bi bi-gear"></i> Settings
+          </a>
+        </li>
+        <div class="divider my-0"></div>
+        <li>
+          <a on:click={handleLogout} class="text-error">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<!-- Search Modal -->
+{#if showSearchModal}
+  <dialog class="modal modal-open">
+    <div class="modal-box">
+      <form method="dialog" on:submit={handleSearch}>
+        <button
+          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+          on:click={() => (showSearchModal = false)}>✕</button
+        >
+        <h3 class="font-bold text-lg mb-4">Search Files</h3>
+        <div class="form-control">
+          <div class="input-group">
+            <span class="bg-base-200">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              placeholder="Type to search..."
+              class="input input-bordered w-full"
+              bind:value={searchQuery}
+              autofocus
+            />
+          </div>
+        </div>
+        <div class="modal-action">
+          <button
+            type="button"
+            class="btn"
+            on:click={() => (showSearchModal = false)}>Cancel</button
+          >
+          <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+      </form>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button on:click={() => (showSearchModal = false)}>close</button>
+    </form>
+  </dialog>
+{/if}
+
+<style>
+  .navbar {
+    transition: all 0.3s ease;
+  }
+
+  .input-group {
+    display: flex;
+    width: 100%;
+  }
+
+  .input-group .btn-square {
+    border-right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .input-group input {
+    border-left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  /* Smooth dropdown animations */
+  .dropdown-content {
+    animation: slideDown 0.2s ease;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

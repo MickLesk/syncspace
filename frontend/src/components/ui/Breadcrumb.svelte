@@ -2,7 +2,7 @@
   /**
    * Breadcrumb Component
    * Wiederverwendbare Navigation für hierarchische Strukturen
-   * 
+   *
    * @component
    * @example
    * <Breadcrumb
@@ -14,34 +14,39 @@
    *   onNavigate={(path) => currentPath.set(path)}
    * />
    */
-  
+
   import Icon from "./Icon.svelte";
 
   /** @type {Array<{name: string, path: string}>} - Breadcrumb items */
   export let items = [];
-  
+
   /** @type {Function} - Callback wenn auf Breadcrumb geklickt wird */
   export let onNavigate = null;
-  
+
   /** @type {string} - Separator zwischen Items */
   export let separator = "/";
-  
+
   /** @type {boolean} - Zeigt Home-Icon für erstes Element */
   export let showHomeIcon = true;
-  
+
   /** @type {"small" | "medium" | "large"} - Größe der Breadcrumbs */
   export let size = "medium";
 
   function handleClick(item, index) {
     if (index === items.length - 1) return; // Aktives Element nicht klickbar
-    
+
     if (onNavigate) {
       onNavigate(item.path);
     }
   }
 </script>
 
-<nav class="breadcrumb-nav" class:size-small={size === "small"} class:size-large={size === "large"} aria-label="Breadcrumb">
+<nav
+  class="breadcrumb-nav"
+  class:size-small={size === "small"}
+  class:size-large={size === "large"}
+  aria-label="Breadcrumb"
+>
   {#each items as item, i}
     {#if i > 0}
       <span class="breadcrumb-separator" aria-hidden="true">{separator}</span>
@@ -55,7 +60,10 @@
       type="button"
     >
       {#if i === 0 && showHomeIcon}
-        <Icon name="house-fill" size={size === "small" ? 12 : size === "large" ? 16 : 14} />
+        <Icon
+          name="house-fill"
+          size={size === "small" ? 12 : size === "large" ? 16 : 14}
+        />
       {/if}
       <span class="breadcrumb-text">{item.name}</span>
     </button>
@@ -74,7 +82,12 @@
     border-radius: 12px;
     border: 1px solid rgba(0, 0, 0, 0.06);
     margin-bottom: 20px;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family:
+      "Inter",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
   }
 
   :global([data-theme="dark"]) .breadcrumb-nav {
@@ -187,11 +200,11 @@
     }
 
     /* Show only last 2 breadcrumbs on mobile */
-    .breadcrumb-item:not(:nth-last-child(-n+4)) {
+    .breadcrumb-item:not(:nth-last-child(-n + 4)) {
       display: none;
     }
 
-    .breadcrumb-separator:not(:nth-last-child(-n+3)) {
+    .breadcrumb-separator:not(:nth-last-child(-n + 3)) {
       display: none;
     }
 

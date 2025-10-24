@@ -3,6 +3,7 @@
   import { currentTheme, currentView } from "./stores/ui";
   import Login from "./pages/Login.svelte";
   import Sidebar from "./components/Sidebar.svelte";
+  import AppHeader from "./components/AppHeader.svelte";
   import FilesView from "./pages/FilesView.svelte";
   import SharedView from "./pages/SharedView.svelte";
   import FavoritesView from "./pages/FavoritesView.svelte";
@@ -14,6 +15,7 @@
   import ActivityView from "./pages/ActivityView.svelte";
   import DuplicatesView from "./pages/DuplicatesView.svelte";
   import BackupView from "./pages/BackupView.svelte";
+  import ComponentGallery from "./pages/ComponentGallery.svelte";
   import Toast from "./components/ui/Toast.svelte";
 
   // Apply theme to document
@@ -22,6 +24,10 @@
       document.documentElement.setAttribute("data-theme", $currentTheme);
     }
   }
+
+  function handleNavigate(event) {
+    currentView.set(event.detail.view);
+  }
 </script>
 
 {#if !$auth.isLoggedIn}
@@ -29,35 +35,38 @@
 {:else}
   <div class="app-container">
     <Sidebar />
-    <main class="main-content">
-      {#if $currentView === "files"}
-        <FilesView />
-      {:else if $currentView === "shared"}
-        <SharedView />
-      {:else if $currentView === "favorites"}
-        <FavoritesView />
-      {:else if $currentView === "trash"}
-        <TrashView />
-      {:else if $currentView === "users"}
-        <UsersView />
-      {:else if $currentView === "settings"}
-        <SettingsView />
-      {:else if $currentView === "profile"}
-        <ProfileView />
-      {:else if $currentView === "storage"}
-        <StorageView />
-      {:else if $currentView === "activity"}
-        <ActivityView />
-      {:else if $currentView === "duplicates"}
-        <DuplicatesView />
-      {:else if $currentView === "backup"}
-        <BackupView />
-      {/if}
-    </main>
+    <div class="main-wrapper">
+      <AppHeader on:navigate={handleNavigate} />
+      <main class="main-content">
+        {#if $currentView === "files"}
+          <FilesView />
+        {:else if $currentView === "shared"}
+          <SharedView />
+        {:else if $currentView === "favorites"}
+          <FavoritesView />
+        {:else if $currentView === "trash"}
+          <TrashView />
+        {:else if $currentView === "users"}
+          <UsersView />
+        {:else if $currentView === "settings"}
+          <SettingsView />
+        {:else if $currentView === "profile"}
+          <ProfileView />
+        {:else if $currentView === "storage"}
+          <StorageView />
+        {:else if $currentView === "activity"}
+          <ActivityView />
+        {:else if $currentView === "duplicates"}
+          <DuplicatesView />
+        {:else if $currentView === "backup"}
+          <BackupView />
+        {:else if $currentView === "gallery"}
+          <ComponentGallery />
+        {/if}
+      </main>
+    </div>
   </div>
-{/if}
-
-<Toast />
+{/if}<Toast />
 
 <style>
   @import "bootstrap-icons/font/bootstrap-icons.css";
@@ -68,6 +77,13 @@
     display: flex;
     overflow: hidden;
     background: var(--md-sys-color-background);
+  }
+
+  .main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
   .main-content {

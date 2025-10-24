@@ -1,11 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { activity } from "../stores/activity";
-  import Icon from "../components/ui/Icon.svelte";
-  import PageHeader from "../components/ui/PageHeader.svelte";
-  import StatCard from "../components/ui/StatCard.svelte";
-  import Chip from "../components/ui/Chip.svelte";
-  import Button from "../components/ui/Button.svelte";
+  import { error as errorToast } from "../stores/toast";
 
   let groupedActivities = {};
   let selectedFilter = "all";
@@ -17,47 +13,57 @@
     searchQuery
   );
   $: groupedActivities = groupByDate(filteredActivities);
+  $: todayCount = activity.getToday().length;
+
+  const activityTypes = [
+    { value: "all", label: "All", icon: "list-ul" },
+    { value: "upload", label: "Uploads", icon: "upload" },
+    { value: "download", label: "Downloads", icon: "download" },
+    { value: "delete", label: "Deletes", icon: "trash" },
+    { value: "rename", label: "Renames", icon: "pencil" },
+    { value: "move", label: "Moves", icon: "arrow-right" },
+  ];
+
+  const typeConfig = {
+    upload: { label: "Uploaded", color: "success", icon: "upload" },
+    download: { label: "Downloaded", color: "info", icon: "download" },
+    delete: { label: "Deleted", color: "error", icon: "trash" },
+    rename: { label: "Renamed", color: "warning", icon: "pencil" },
+    create: { label: "Created", color: "primary", icon: "plus-circle" },
+    move: { label: "Moved", color: "secondary", icon: "arrow-right" },
+    share: { label: "Shared", color: "accent", icon: "share" },
+    favorite: { label: "Favorited", color: "warning", icon: "star-fill" },
+    unfavorite: { label: "Unfavorited", color: "neutral", icon: "star" },
+  };
 
   onMount(async () => {
-    // Load activities from backend
     await activity.load({ limit: 100 });
-
-    // Cleanup old localStorage data if exists
     const oldKey = "syncspace_activity";
     if (localStorage.getItem(oldKey)) {
       localStorage.removeItem(oldKey);
-      console.log("Cleaned up old localStorage activities");
     }
   });
 
-  /**
-   * Filter activities by type and search
-   */
   function filterActivities(activities, filter, search) {
     let filtered = activities;
 
-    // Filter by type
     if (filter !== "all") {
       filtered = filtered.filter((a) => a.type === filter);
     }
 
-    // Filter by search query
     if (search.trim()) {
       const query = search.toLowerCase();
       filtered = filtered.filter(
         (a) =>
           a.filename.toLowerCase().includes(query) ||
           a.path.toLowerCase().includes(query) ||
-          a.details.toLowerCase().includes(query)
+          (a.details && a.details.toLowerCase().includes(query))
       );
     }
 
     return filtered;
   }
 
-  /**
-   * Group activities by date
-   */
   function groupByDate(activities) {
     const groups = {};
     const now = new Date();
@@ -91,9 +97,6 @@
     return groups;
   }
 
-  /**
-   * Format date
-   */
   function formatDate(date) {
     return date.toLocaleDateString("en-US", {
       weekday: "short",
@@ -104,9 +107,6 @@
     });
   }
 
-  /**
-   * Format time
-   */
   function formatTime(timestamp) {
     return new Date(timestamp).toLocaleTimeString("en-US", {
       hour: "2-digit",
@@ -114,9 +114,6 @@
     });
   }
 
-  /**
-   * Get relative time
-   */
   function getRelativeTime(timestamp) {
     const now = Date.now();
     const diff = now - timestamp;
@@ -132,421 +129,288 @@
     return formatDate(new Date(timestamp));
   }
 
-  /**
-   * Get activity type label
-   */
-  function getTypeLabel(type) {
-    const labels = {
-      upload: "Uploaded",
-      download: "Downloaded",
-      delete: "Deleted",
-      rename: "Renamed",
-      create: "Created",
-      move: "Moved",
-      share: "Shared",
-      favorite: "Favorited",
-      unfavorite: "Unfavorited",
-    };
-    return labels[type] || type;
-  }
-
-  /**
-   * Clear all activities
-   */
   function handleClearAll() {
     if (confirm("Clear all activity history?")) {
       activity.clear();
     }
   }
-
-  /**
-   * Get activity type color
-   */
-  function getTypeColor(type) {
-    const colors = {
-      upload: "#4CAF50",
-      download: "#2196F3",
-      delete: "#F44336",
-      rename: "#FF9800",
-      create: "#9C27B0",
-      move: "#00BCD4",
-      share: "#FF5722",
-      favorite: "#FFC107",
-      unfavorite: "#9E9E9E",
-    };
-    return colors[type] || "#607D8B";
-  }
 </script>
 
 <div class="activity-view">
-  <PageHeader
-    title="Activity Feed"
-    subtitle=""
-    icon="clock-history"
-    gradient="blue"
-  >
-    <div slot="actions" class="header-actions">
-      <Button
-        onClick={handleClearAll}
-        disabled={$activity.length === 0}
-        variant="outlined"
-        size="medium"
-      >
-        <Icon name="trash-fill" size={16} />
-        Clear All
-      </Button>
+  <!-- Stats -->
+  {#if $activity.length > 0}
+    <div class="stats stats-vertical lg:stats-horizontal shadow mb-6 w-full">
+      <div class="stat">
+        <div class="stat-figure text-primary">
+          <i class="bi bi-activity text-4xl"></i>
+        </div>
+        <div class="stat-title">Total Events</div>
+        <div class="stat-value text-primary">{$activity.length}</div>
+        <div class="stat-desc">All time</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-figure text-success">
+          <i class="bi bi-calendar-check text-4xl"></i>
+        </div>
+        <div class="stat-title">Today</div>
+        <div class="stat-value text-success">{todayCount}</div>
+        <div class="stat-desc">Recent activity</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-actions">
+          <button
+            class="btn btn-sm btn-error gap-2"
+            on:click={handleClearAll}
+            disabled={$activity.length === 0}
+          >
+            <i class="bi bi-trash-fill"></i>
+            Clear All
+          </button>
+        </div>
+      </div>
     </div>
-  </PageHeader>
+  {/if}
 
-  <div class="page-content">
-    <!-- Stats -->
-    {#if $activity.length > 0}
-      <div class="stats-grid">
-        <StatCard
-          icon="bi-activity"
-          label="Total Events"
-          value={$activity.length}
-          gradient="linear-gradient(135deg, #6366f1, #8b5cf6)"
-        />
+  <!-- Filters & Search -->
+  <div class="card bg-base-100 border border-base-300 shadow-sm mb-6">
+    <div class="card-body p-4">
+      <div class="flex flex-col md:flex-row gap-4">
+        <!-- Filter Tabs -->
+        <div role="tablist" class="tabs tabs-boxed flex-1">
+          {#each activityTypes as type}
+            <button
+              role="tab"
+              class="tab gap-2 {selectedFilter === type.value
+                ? 'tab-active'
+                : ''}"
+              on:click={() => (selectedFilter = type.value)}
+            >
+              <i class="bi bi-{type.icon}"></i>
+              {type.label}
+            </button>
+          {/each}
+        </div>
 
-        <StatCard
-          icon="bi-calendar-check"
-          label="Today"
-          value={activity.getToday().length}
-          gradient="linear-gradient(135deg, #10b981, #34d399)"
-        />
-      </div>
-    {/if}
-
-    <!-- Filters -->
-    <div class="filters">
-      <div class="chips">
-        <Chip
-          label="All"
-          selected={selectedFilter === "all"}
-          onClick={() => (selectedFilter = "all")}
-          variant="filter"
-        />
-        <Chip
-          label="Uploads"
-          icon="bi-upload"
-          selected={selectedFilter === "upload"}
-          onClick={() => (selectedFilter = "upload")}
-          variant="filter"
-        />
-        <Chip
-          label="Downloads"
-          icon="bi-download"
-          selected={selectedFilter === "download"}
-          onClick={() => (selectedFilter = "download")}
-          variant="filter"
-        />
-        <Chip
-          label="Deletes"
-          icon="bi-trash"
-          selected={selectedFilter === "delete"}
-          onClick={() => (selectedFilter = "delete")}
-          variant="filter"
-        />
-        <Chip
-          label="Moves"
-          icon="bi-box-arrow-right"
-          selected={selectedFilter === "move"}
-          onClick={() => (selectedFilter = "move")}
-          variant="filter"
-        />
-      </div>
-
-      <input
-        type="text"
-        class="glass-input search"
-        placeholder="Search activities..."
-        bind:value={searchQuery}
-      />
-    </div>
-
-    <!-- Timeline -->
-    {#if Object.keys(groupedActivities).length === 0}
-      <div class="empty">
-        <Icon name="clock-history" size={64} />
-        <h3>No Activity Yet</h3>
-        <p>File operations will appear here</p>
-      </div>
-    {:else}
-      {#each Object.entries(groupedActivities) as [dateLabel, activities]}
-        <div class="group">
-          <div class="date-label">{dateLabel}</div>
-          <div class="timeline">
-            {#each activities as act}
-              <div
-                class="activity-item"
-                style="--color: {getTypeColor(act.type)}"
-              >
-                <div class="marker">
-                  <span class="icon">{act.icon}</span>
-                </div>
-                <div class="glass-card activity-card">
-                  <div class="top">
-                    <span class="type">{getTypeLabel(act.type)}</span>
-                    <span class="time">{formatTime(act.timestamp)}</span>
-                  </div>
-                  <div class="name">{act.filename}</div>
-                  {#if act.path}
-                    <div class="path">{act.path}</div>
-                  {/if}
-                  {#if act.details}
-                    <div class="details">{act.details}</div>
-                  {/if}
-                  <div class="rel">{getRelativeTime(act.timestamp)}</div>
-                </div>
-              </div>
-            {/each}
+        <!-- Search -->
+        <div class="form-control">
+          <div class="input-group">
+            <input
+              type="text"
+              placeholder="Search activities..."
+              class="input input-bordered"
+              bind:value={searchQuery}
+            />
+            <button class="btn btn-square">
+              <i class="bi bi-search"></i>
+            </button>
           </div>
         </div>
-      {/each}
-    {/if}
+      </div>
+    </div>
   </div>
+
+  <!-- Timeline -->
+  {#if Object.keys(groupedActivities).length === 0}
+    <div class="hero min-h-[400px]">
+      <div class="hero-content text-center">
+        <div class="max-w-md">
+          <i class="bi bi-clock-history text-7xl text-base-300 mb-4"></i>
+          <h1 class="text-3xl font-bold">No Activity Yet</h1>
+          <p class="py-6">File operations will appear here</p>
+        </div>
+      </div>
+    </div>
+  {:else}
+    {#each Object.entries(groupedActivities) as [dateLabel, activities]}
+      <div class="mb-8">
+        <!-- Date Badge -->
+        <div class="flex items-center gap-3 mb-4">
+          <div class="badge badge-primary badge-lg font-bold">{dateLabel}</div>
+          <div class="flex-1 h-px bg-base-300"></div>
+        </div>
+
+        <!-- Timeline -->
+        <ul class="timeline timeline-vertical">
+          {#each activities as act, i}
+            {@const config = typeConfig[act.type] || typeConfig.create}
+            <li>
+              {#if i > 0}
+                <hr class="bg-{config.color}" />
+              {/if}
+              <div class="timeline-start timeline-box">
+                <div class="text-xs opacity-70">
+                  {formatTime(act.timestamp)}
+                </div>
+              </div>
+              <div class="timeline-middle">
+                <div class="avatar placeholder">
+                  <div
+                    class="bg-{config.color} text-{config.color}-content rounded-full w-10"
+                  >
+                    <i class="bi bi-{config.icon} text-xl"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="timeline-end">
+                <div
+                  class="card bg-base-100 border border-base-300 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div class="card-body p-4">
+                    <div class="flex items-start justify-between gap-2">
+                      <div class="flex-1">
+                        <div
+                          class="badge badge-{config.color} badge-sm mb-2 gap-1"
+                        >
+                          <i class="bi bi-{config.icon}"></i>
+                          {config.label}
+                        </div>
+                        <h3 class="font-bold text-base">{act.filename}</h3>
+                        {#if act.path}
+                          <p class="text-xs font-mono opacity-70 mt-1">
+                            {act.path}
+                          </p>
+                        {/if}
+                        {#if act.details}
+                          <p class="text-sm opacity-80 mt-2">{act.details}</p>
+                        {/if}
+                        <div class="text-xs opacity-60 mt-2 italic">
+                          {getRelativeTime(act.timestamp)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {#if i < activities.length - 1}
+                <hr class="bg-{config.color}" />
+              {/if}
+            </li>
+          {/each}
+        </ul>
+      </div>
+    {/each}
+  {/if}
 </div>
 
 <style>
   .activity-view {
-    min-height: 100vh;
-    background: var(--md-sys-color-surface);
+    padding: 1.5rem;
+    min-height: calc(100vh - 200px);
   }
 
-  /* Stats Grid */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-bottom: 32px;
+  /* Timeline customization */
+  :global(.timeline-vertical li) {
+    margin-bottom: 2rem;
   }
 
-  /* Actions */
-  .actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 20px;
+  :global(.timeline-box) {
+    min-width: 80px;
   }
 
-  /* Filters */
-  .filters {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 32px;
-    flex-wrap: wrap;
+  /* Badge colors */
+  :global(.badge-success) {
+    background-color: oklch(var(--su));
+    color: oklch(var(--suc));
   }
 
-  .chips {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    flex: 1;
+  :global(.badge-info) {
+    background-color: oklch(var(--in));
+    color: oklch(var(--inc));
   }
 
-  .search {
-    min-width: 200px;
+  :global(.badge-error) {
+    background-color: oklch(var(--er));
+    color: oklch(var(--erc));
   }
 
-  /* Empty State */
-  .empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 64px 32px;
-    color: var(--md-sys-color-on-surface-variant);
-    text-align: center;
+  :global(.badge-warning) {
+    background-color: oklch(var(--wa));
+    color: oklch(var(--wac));
   }
 
-  .empty h3 {
-    font-size: 20px;
-    font-weight: 600;
-    margin: 16px 0 8px 0;
-    color: var(--md-sys-color-on-surface);
+  :global(.badge-secondary) {
+    background-color: oklch(var(--s));
+    color: oklch(var(--sc));
   }
 
-  .empty p {
-    font-size: 14px;
-    margin: 0;
+  :global(.badge-accent) {
+    background-color: oklch(var(--a));
+    color: oklch(var(--ac));
   }
 
-  /* Timeline Groups */
-  .group {
-    margin-bottom: 40px;
+  /* Avatar colors */
+  :global(.bg-success) {
+    background-color: oklch(var(--su));
   }
 
-  .date-label {
-    font-size: 13px;
-    font-weight: 700;
-    color: #6366f1;
-    margin-bottom: 16px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding-left: 4px;
+  :global(.bg-info) {
+    background-color: oklch(var(--in));
   }
 
-  .timeline {
-    position: relative;
-    padding-left: 32px;
-    border-left: 2px solid rgba(99, 102, 241, 0.15);
+  :global(.bg-error) {
+    background-color: oklch(var(--er));
   }
 
-  .activity-item {
-    position: relative;
-    margin-bottom: 20px;
-    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  :global(.bg-warning) {
+    background-color: oklch(var(--wa));
   }
 
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateX(-24px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
+  :global(.bg-secondary) {
+    background-color: oklch(var(--s));
   }
 
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
+  :global(.bg-accent) {
+    background-color: oklch(var(--a));
   }
 
-  .marker {
-    position: absolute;
-    left: -43px;
-    top: 0;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--color, #6366f1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow:
-      0 0 0 4px var(--md-sys-color-surface),
-      0 4px 12px rgba(0, 0, 0, 0.15);
+  :global(.text-success-content) {
+    color: oklch(var(--suc));
   }
 
-  .icon {
-    font-size: 16px;
+  :global(.text-info-content) {
+    color: oklch(var(--inc));
   }
 
-  .activity-card {
-    padding: 16px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  :global(.text-error-content) {
+    color: oklch(var(--erc));
   }
 
-  .activity-item:hover .activity-card {
-    transform: translateX(6px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  :global(.text-warning-content) {
+    color: oklch(var(--wac));
   }
 
-  .top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
+  :global(.text-secondary-content) {
+    color: oklch(var(--sc));
   }
 
-  .type {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--color, #6366f1);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
+  :global(.text-accent-content) {
+    color: oklch(var(--ac));
   }
 
-  .time {
-    font-size: 12px;
-    color: var(--md-sys-color-on-surface-variant);
-    font-weight: 500;
+  /* Timeline lines */
+  :global(.timeline hr.bg-success) {
+    background-color: oklch(var(--su));
   }
 
-  .name {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--md-sys-color-on-surface);
-    margin-bottom: 6px;
-    letter-spacing: -0.2px;
+  :global(.timeline hr.bg-info) {
+    background-color: oklch(var(--in));
   }
 
-  .path {
-    font-size: 12px;
-    color: var(--md-sys-color-on-surface-variant);
-    font-family: "JetBrains Mono", "Courier New", monospace;
-    margin-bottom: 6px;
-    opacity: 0.8;
+  :global(.timeline hr.bg-error) {
+    background-color: oklch(var(--er));
   }
 
-  .details {
-    font-size: 13px;
-    color: var(--md-sys-color-on-surface-variant);
-    margin-top: 8px;
-    line-height: 1.5;
+  :global(.timeline hr.bg-warning) {
+    background-color: oklch(var(--wa));
   }
 
-  .rel {
-    font-size: 11px;
-    color: var(--md-sys-color-on-surface-variant);
-    margin-top: 8px;
-    font-style: italic;
-    opacity: 0.7;
+  :global(.timeline hr.bg-secondary) {
+    background-color: oklch(var(--s));
   }
 
-  /* Dark Mode */
-  @media (prefers-color-scheme: dark) {
-    .timeline {
-      border-color: rgba(99, 102, 241, 0.2);
-    }
-
-    .date-label {
-      color: #818cf8;
-    }
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .stats-grid {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-
-    .filters {
-      flex-direction: column;
-    }
-
-    .chips {
-      width: 100%;
-    }
-
-    .search {
-      width: 100%;
-      min-width: unset;
-    }
-
-    .timeline {
-      padding-left: 28px;
-    }
-
-    .marker {
-      left: -40px;
-      width: 28px;
-      height: 28px;
-    }
-
-    .icon {
-      font-size: 14px;
-    }
-
-    .activity-card {
-      padding: 14px;
-    }
+  :global(.timeline hr.bg-accent) {
+    background-color: oklch(var(--a));
   }
 </style>

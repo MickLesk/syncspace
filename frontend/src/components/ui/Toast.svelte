@@ -4,73 +4,62 @@
   function getIcon(type) {
     switch (type) {
       case "success":
-        return "✅";
+        return "check-circle-fill";
       case "error":
-        return "❌";
+        return "x-circle-fill";
       case "warning":
-        return "⚠️";
+        return "exclamation-triangle-fill";
       case "info":
-        return "ℹ️";
+        return "info-circle-fill";
       default:
-        return "ℹ️";
+        return "info-circle-fill";
+    }
+  }
+
+  function getAlertClass(type) {
+    switch (type) {
+      case "success":
+        return "alert-success";
+      case "error":
+        return "alert-error";
+      case "warning":
+        return "alert-warning";
+      case "info":
+        return "alert-info";
+      default:
+        return "alert-info";
     }
   }
 </script>
 
-<div class="toast-container">
+<div class="toast toast-end toast-bottom z-[9999]">
   {#each $toasts as toast (toast.id)}
-    <div
-      class="toast toast-{toast.type}"
-      onclick={() => removeToast(toast.id)}
-      onkeydown={(e) => e.key === "Enter" && removeToast(toast.id)}
-      role="button"
-      aria-live="polite"
-      tabindex="0"
-    >
-      <span class="toast-icon">{getIcon(toast.type)}</span>
-      <span class="toast-message">{toast.message}</span>
+    <div class="alert {getAlertClass(toast.type)} shadow-lg">
+      <div class="flex items-center gap-3">
+        <i class="bi bi-{getIcon(toast.type)} text-xl"></i>
+        <span class="font-medium">{toast.message}</span>
+      </div>
       <button
-        class="toast-close"
-        onclick={(e) => { e.stopPropagation(); removeToast(toast.id); }}
-        aria-label="Schließen"
+        class="btn btn-ghost btn-sm btn-square"
+        on:click={() => removeToast(toast.id)}
+        aria-label="Close"
       >
-        ✕
+        <i class="bi bi-x-lg"></i>
       </button>
     </div>
   {/each}
 </div>
 
 <style>
-  .toast-container {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    z-index: 10000;
-    pointer-events: none;
-  }
-
-  .toast {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 20px;
-    border-radius: 12px;
-    background: var(--md-sys-color-surface);
-    box-shadow: var(--md-elevation-3);
+  .alert {
     min-width: 320px;
     max-width: 500px;
-    pointer-events: auto;
     animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    border-left: 4px solid;
   }
 
   @keyframes slideIn {
     from {
-      transform: translateX(400px);
+      transform: translateX(100%);
       opacity: 0;
     }
     to {
@@ -79,75 +68,10 @@
     }
   }
 
-  .toast-success {
-    border-left-color: var(--md-sys-color-tertiary);
-    background: var(--md-sys-color-tertiary-container);
-    color: var(--md-sys-color-on-tertiary-container);
-  }
-
-  .toast-error {
-    border-left-color: var(--md-sys-color-error);
-    background: var(--md-sys-color-error-container);
-    color: var(--md-sys-color-on-error-container);
-  }
-
-  .toast-warning {
-    border-left-color: #f57c00;
-    background: rgba(255, 152, 0, 0.15);
-    color: var(--md-sys-color-on-surface);
-  }
-
-  .toast-info {
-    border-left-color: var(--md-sys-color-primary);
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-  }
-
-  .toast-icon {
-    font-size: 20px;
-    flex-shrink: 0;
-  }
-
-  .toast-message {
-    flex: 1;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.4;
-    color: var(--md-sys-color-on-surface);
-  }
-
-  .toast-close {
-    width: 24px;
-    height: 24px;
-    border: none;
-    background: transparent;
-    color: currentColor;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    opacity: 0.6;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-
-  .toast-close:hover {
-    opacity: 1;
-    background: rgba(0, 0, 0, 0.1);
-  }
-
   @media (max-width: 640px) {
-    .toast-container {
-      left: 16px;
-      right: 16px;
-      bottom: 16px;
-    }
-
-    .toast {
+    .alert {
       min-width: unset;
-      width: 100%;
+      max-width: calc(100vw - 2rem);
     }
   }
 </style>
