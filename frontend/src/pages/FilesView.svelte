@@ -29,6 +29,8 @@
   import ContextMenu from "../components/ui/ContextMenu.svelte";
   import CommentsPanel from "../components/CommentsPanel.svelte";
   import Spinner from "../components/ui/Spinner.svelte";
+  import Breadcrumb from "../components/ui/Breadcrumb.svelte";
+  import ConfirmDialog from "../components/ui/ConfirmDialog.svelte";
   import api from "../lib/api";
   let loading = true;
 
@@ -136,6 +138,7 @@
   let showCommentsPanel = false;
   let showMoveDialog = false;
   let showPropertiesDialog = false;
+  let showBulkDeleteConfirm = false;
   let fileToDelete = null;
   let fileToRename = null;
   let fileToPreview = null;
@@ -143,6 +146,7 @@
   let fileToMove = null;
   let fileForProperties = null;
   let availableFolders = [];
+  let deletingBulk = false;
 
   function toggleViewMode() {
     viewMode = viewMode === "grid" ? "list" : "grid";
@@ -344,7 +348,7 @@
 
       // Load favorites from API on mount
       await favorites.load();
-      
+
       // Load activities from backend
       await activity.load({ limit: 50 });
 
@@ -1100,10 +1104,11 @@
     try {
       const backendPath = toBackendPath(path);
       const response = await api.files.list(backendPath);
-      const folders = response.files.filter(f => f.is_dir);
-      
+      const folders = response.files.filter((f) => f.is_dir);
+
       for (const folder of folders) {
-        const folderPath = path === "/" ? `/${folder.name}/` : `${path}${folder.name}/`;
+        const folderPath =
+          path === "/" ? `/${folder.name}/` : `${path}${folder.name}/`;
         foldersList.push({ name: folderPath, path: folderPath });
         // Recursively load subfolders (limit depth to avoid infinite loops)
         if (foldersList.length < 100) {
@@ -1123,16 +1128,17 @@
 
     try {
       const oldPath = buildFilePath($currentPath, fileToMove.name);
-      const newPath = targetPath === "/" 
-        ? fileToMove.name 
-        : `${toBackendPath(targetPath)}/${fileToMove.name}`;
+      const newPath =
+        targetPath === "/"
+          ? fileToMove.name
+          : `${toBackendPath(targetPath)}/${fileToMove.name}`;
 
       await api.files.rename(oldPath, newPath);
       success(`📁 "${fileToMove.name}" → "${targetPath}"`);
-      
+
       showMoveDialog = false;
       fileToMove = null;
-      
+
       await loadFiles();
     } catch (err) {
       console.error("Failed to move file:", err);
@@ -1328,6 +1334,38 @@
     await loadFiles();
   }
 
+  async function executeBulkDelete() {
+    if (selectedFiles.size === 0) return;
+
+    deletingBulk = true;
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const filename of selectedFiles) {
+      try {
+        const path = buildFilePath($currentPath, filename);
+        await api.files.delete(path);
+        successCount++;
+      } catch (err) {
+        console.error(`Failed to delete ${filename}:`, err);
+        failCount++;
+      }
+    }
+
+    if (successCount > 0) {
+      success(`Deleted ${successCount} file(s)`);
+    }
+    if (failCount > 0) {
+      errorToast(`Failed to delete ${failCount} file(s)`);
+    }
+
+    selectedFiles.clear();
+    selectedFiles = selectedFiles;
+    deletingBulk = false;
+    showBulkDeleteConfirm = false;
+    await loadFiles();
+  }
+
   async function bulkDownload() {
     if (selectedFiles.size === 0) return;
 
@@ -1393,7 +1431,7 @@
 />
 
 <div class="files-view">
-  <PageHeader 
+  <PageHeader
     title={t($currentLang, "files")}
     subtitle=""
     icon="folder-fill"
@@ -1412,11 +1450,13 @@
       />
       <Button
         variant={activeFilters.fileTypes.length > 0 ||
-          activeFilters.sizeRange.min > 0 ||
-          activeFilters.sizeRange.max < Infinity ||
-          activeFilters.dateRange.from ||
-          activeFilters.dateRange.to ? "primary" : "ghost"}
-        size="small"
+        activeFilters.sizeRange.min > 0 ||
+        activeFilters.sizeRange.max < Infinity ||
+        activeFilters.dateRange.from ||
+        activeFilters.dateRange.to
+          ? "primary"
+          : "ghost"}
+        size="medium"
         onclick={() => (showFilterPanel = true)}
       >
         <Icon name="funnel" size={18} />
@@ -1424,17 +1464,13 @@
           <span class="filter-badge">{activeFilters.fileTypes.length}</span>
         {/if}
       </Button>
-      <Button
-        variant="ghost"
-        size="small"
-        onclick={toggleViewMode}
-      >
+      <Button variant="ghost" size="medium" onclick={toggleViewMode}>
         <Icon
           name={viewMode === "grid" ? "list-ul" : "grid-3x3-gap"}
           size={18}
         />
       </Button>
-      <Button onClick={createFolder} variant="outlined">
+      <Button onClick={createFolder} variant="outlined" size="medium">
         <Icon name="folder-plus" size={16} />
         {t($currentLang, "newFolder")}
       </Button>
@@ -1479,24 +1515,7 @@
   </button>
 
   <!-- Breadcrumb Navigation -->
-  <div class="breadcrumb-nav">
-    {#each breadcrumbs as crumb, i}
-      {#if i > 0}
-        <span class="breadcrumb-separator">/</span>
-      {/if}
-      <button
-        class="breadcrumb-item"
-        class:active={i === breadcrumbs.length - 1}
-        onclick={() => navigateToPath(crumb.path)}
-        disabled={i === breadcrumbs.length - 1}
-      >
-        {#if i === 0}
-          <Icon name="house-fill" size={14} />
-        {/if}
-        {crumb.name}
-      </button>
-    {/each}
-  </div>
+  <Breadcrumb items={breadcrumbs} onNavigate={navigateToPath} />
 
   <!-- Compact Drop Zone -->
   {#if showUploadPanel}
@@ -1624,7 +1643,9 @@
             {#if !file.is_dir && thumbnails.has($currentPath ? `${$currentPath}${file.name}` : file.name)}
               <img
                 class="thumb-img"
-                src={thumbnails.get($currentPath ? `${$currentPath}${file.name}` : file.name)}
+                src={thumbnails.get(
+                  $currentPath ? `${$currentPath}${file.name}` : file.name
+                )}
                 alt={file.name}
                 loading="lazy"
               />
@@ -1634,17 +1655,37 @@
               </div>
             {/if}
             <div class="card-overlay">
-              <Button variant="ghost" size="small" onclick={(e) => { e.stopPropagation(); toggleFavorite(file); }}>
-                <Icon name={isFavorite(file) ? "star-fill" : "star"} size={14} />
+              <Button
+                variant="ghost"
+                size="small"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(file);
+                }}
+              >
+                <Icon
+                  name={isFavorite(file) ? "star-fill" : "star"}
+                  size={14}
+                />
               </Button>
-              <Button variant="ghost" size="small" onclick={(e) => { e.stopPropagation(); downloadFile(file); }} disabled={file.is_dir}>
+              <Button
+                variant="ghost"
+                size="small"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  downloadFile(file);
+                }}
+                disabled={file.is_dir}
+              >
                 <Icon name="download" size={14} />
               </Button>
             </div>
           </div>
 
           <div class="card-body">
-            <div class="file-name" title={displayName(file.name)}>{displayName(file.name)}</div>
+            <div class="file-name" title={displayName(file.name)}>
+              {displayName(file.name)}
+            </div>
             <div class="file-meta">
               {#if file.is_dir}
                 <Icon name="folder" size={12} /> <span>Ordner</span>
@@ -1656,15 +1697,33 @@
 
           <div class="card-footer">
             {#if comments.getCount($currentPath + file.name, $comments) > 0}
-              <span class="badge small badge-comments">{comments.getCount($currentPath + file.name, $comments)}</span>
+              <span class="badge small badge-comments"
+                >{comments.getCount($currentPath + file.name, $comments)}</span
+              >
             {/if}
             {#if tags.getTags($currentPath + file.name, $tags).length > 0}
-              <span class="badge small badge-tags">{tags.getTags($currentPath + file.name, $tags).length}</span>
+              <span class="badge small badge-tags"
+                >{tags.getTags($currentPath + file.name, $tags).length}</span
+              >
             {/if}
 
             <div class="card-actions">
-              <Button variant="ghost" size="small" onclick={(e) => { e.stopPropagation(); renameFile(file); }}><Icon name="pencil" size={14} /></Button>
-              <Button variant="danger-ghost" size="small" onclick={(e) => { e.stopPropagation(); deleteFile(file); }}><Icon name="trash" size={14} /></Button>
+              <Button
+                variant="ghost"
+                size="small"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  renameFile(file);
+                }}><Icon name="pencil" size={14} /></Button
+              >
+              <Button
+                variant="danger-ghost"
+                size="small"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  deleteFile(file);
+                }}><Icon name="trash" size={14} /></Button
+              >
             </div>
           </div>
         </div>
@@ -1693,15 +1752,53 @@
           <div class="file-icon-small">
             <Icon name={getFileIcon(file.name, file.is_dir)} size={22} />
           </div>
-          <div class="file-name-list" title={displayName(file.name)}>{displayName(file.name)}</div>
-          <div class="file-size-list">{#if file.is_dir}<Icon name="folder" size={12}/> Ordner{:else}{formatSize(file.size)}{/if}</div>
+          <div class="file-name-list" title={displayName(file.name)}>
+            {displayName(file.name)}
+          </div>
+          <div class="file-size-list">
+            {#if file.is_dir}<Icon name="folder" size={12} /> Ordner{:else}{formatSize(
+                file.size
+              )}{/if}
+          </div>
           <div class="file-actions-list modern-actions">
-            <Button variant="ghost" size="small" onclick={(e) => { e.stopPropagation(); toggleFavorite(file); }}><Icon name={isFavorite(file) ? "star-fill" : "star"} size={14} /></Button>
+            <Button
+              variant="ghost"
+              size="small"
+              onclick={(e) => {
+                e.stopPropagation();
+                toggleFavorite(file);
+              }}
+              ><Icon
+                name={isFavorite(file) ? "star-fill" : "star"}
+                size={14}
+              /></Button
+            >
             {#if !file.is_dir}
-              <Button variant="ghost" size="small" onclick={(e) => { e.stopPropagation(); downloadFile(file); }}><Icon name="download" size={14} /></Button>
+              <Button
+                variant="ghost"
+                size="small"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  downloadFile(file);
+                }}><Icon name="download" size={14} /></Button
+              >
             {/if}
-            <Button variant="ghost" size="small" onclick={(e) => { e.stopPropagation(); renameFile(file); }}><Icon name="pencil" size={14} /></Button>
-            <Button variant="danger-ghost" size="small" onclick={(e) => { e.stopPropagation(); deleteFile(file); }}><Icon name="trash" size={14} /></Button>
+            <Button
+              variant="ghost"
+              size="small"
+              onclick={(e) => {
+                e.stopPropagation();
+                renameFile(file);
+              }}><Icon name="pencil" size={14} /></Button
+            >
+            <Button
+              variant="danger-ghost"
+              size="small"
+              onclick={(e) => {
+                e.stopPropagation();
+                deleteFile(file);
+              }}><Icon name="trash" size={14} /></Button
+            >
           </div>
         </div>
       {/each}
@@ -1855,17 +1952,40 @@
     role="button"
     tabindex="0"
     aria-label="Close dialog"
-    onkeydown={(e) => { if (e.key === 'Escape' || e.key === 'Enter') { showMoveDialog = false; fileToMove = null; } }}
-    onclick={() => { showMoveDialog = false; fileToMove = null; }}
+    onkeydown={(e) => {
+      if (e.key === "Escape" || e.key === "Enter") {
+        showMoveDialog = false;
+        fileToMove = null;
+      }
+    }}
+    onclick={() => {
+      showMoveDialog = false;
+      fileToMove = null;
+    }}
   >
-    <div class="custom-dialog" role="presentation" tabindex="-1" onkeydown={(e) => { /* prevent propagation */ }} onclick={(e) => e.stopPropagation()}>
+    <div
+      class="custom-dialog"
+      role="presentation"
+      tabindex="-1"
+      onkeydown={(e) => {
+        /* prevent propagation */
+      }}
+      onclick={(e) => e.stopPropagation()}
+    >
       <div class="dialog-header">
         <h2>Move '{fileToMove.name}' to...</h2>
-        <Button variant="ghost" size="small" onclick={() => { showMoveDialog = false; fileToMove = null; }}>
+        <Button
+          variant="ghost"
+          size="small"
+          onclick={() => {
+            showMoveDialog = false;
+            fileToMove = null;
+          }}
+        >
           <Icon name="x" />
         </Button>
       </div>
-      
+
       <div class="folder-list">
         {#if availableFolders.length === 0}
           <div class="empty-state">
@@ -1894,17 +2014,40 @@
     role="button"
     tabindex="0"
     aria-label="Close dialog"
-    onkeydown={(e) => { if (e.key === 'Escape' || e.key === 'Enter') { showPropertiesDialog = false; fileForProperties = null; } }}
-    onclick={() => { showPropertiesDialog = false; fileForProperties = null; }}
+    onkeydown={(e) => {
+      if (e.key === "Escape" || e.key === "Enter") {
+        showPropertiesDialog = false;
+        fileForProperties = null;
+      }
+    }}
+    onclick={() => {
+      showPropertiesDialog = false;
+      fileForProperties = null;
+    }}
   >
-    <div class="custom-dialog" role="presentation" tabindex="-1" onkeydown={(e) => { /* prevent propagation */ }} onclick={(e) => e.stopPropagation()}>
+    <div
+      class="custom-dialog"
+      role="presentation"
+      tabindex="-1"
+      onkeydown={(e) => {
+        /* prevent propagation */
+      }}
+      onclick={(e) => e.stopPropagation()}
+    >
       <div class="dialog-header">
         <h2>Properties</h2>
-        <Button variant="ghost" size="small" onclick={() => { showPropertiesDialog = false; fileForProperties = null; }}>
+        <Button
+          variant="ghost"
+          size="small"
+          onclick={() => {
+            showPropertiesDialog = false;
+            fileForProperties = null;
+          }}
+        >
           <Icon name="x" />
         </Button>
       </div>
-      
+
       <div class="properties-grid">
         <div class="prop-row">
           <span class="prop-label">Name:</span>
@@ -1917,7 +2060,9 @@
         <div class="prop-row">
           <span class="prop-label">Type:</span>
           <span class="prop-value">
-            {fileForProperties.is_dir ? "Folder" : getFileType(fileForProperties.name)}
+            {fileForProperties.is_dir
+              ? "Folder"
+              : getFileType(fileForProperties.name)}
           </span>
         </div>
         <div class="prop-row">
@@ -1934,6 +2079,17 @@
     </div>
   </div>
 {/if}
+
+<ConfirmDialog
+  bind:open={showBulkDeleteConfirm}
+  title="Delete Files?"
+  message="Delete {selectedFiles.size} selected files? This will move them to trash."
+  confirmText="Delete"
+  cancelText="Cancel"
+  variant="danger"
+  loading={deletingBulk}
+  on:confirm={executeBulkDelete}
+/>
 
 <style>
   .files-view {
@@ -1965,49 +2121,6 @@
     font-weight: 600;
     padding: 0 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Breadcrumb Navigation */
-  .breadcrumb-nav {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 16px;
-    background: var(--md-sys-color-surface-container-low);
-    border-radius: 12px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-
-  .breadcrumb-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: none;
-    background: transparent;
-    color: var(--md-sys-color-primary);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .breadcrumb-item:hover:not(:disabled) {
-    background: var(--md-sys-color-primary-container);
-  }
-
-  .breadcrumb-item:disabled,
-  .breadcrumb-item.active {
-    color: var(--md-sys-color-on-surface);
-    cursor: default;
-    font-weight: 600;
-  }
-
-  .breadcrumb-separator {
-    color: var(--md-sys-color-outline);
-    user-select: none;
   }
 
   h2 {
@@ -2578,17 +2691,6 @@
       font-size: 11px;
     }
 
-    /* Simplify breadcrumbs on mobile */
-    .breadcrumb-nav {
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-
-    .breadcrumb-item {
-      padding: 6px 12px;
-      font-size: 12px;
-    }
-
     /* Floating action button positioning */
     .fab-upload {
       bottom: 20px;
@@ -2797,7 +2899,11 @@
 
   /* Modern card/list additions */
   .modern-card {
-    background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.6));
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.7),
+      rgba(255, 255, 255, 0.6)
+    );
     backdrop-filter: blur(12px) saturate(120%);
     border-radius: 20px;
     padding: 0;
@@ -2806,13 +2912,17 @@
     flex-direction: column;
     min-height: 180px;
     position: relative;
-    border: 1px solid rgba(0,0,0,0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
   }
 
   .card-media {
     position: relative;
     height: 120px;
-    background: linear-gradient(135deg, rgba(99,102,241,0.06), rgba(217,70,239,0.04));
+    background: linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.06),
+      rgba(217, 70, 239, 0.04)
+    );
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2825,7 +2935,9 @@
     display: block;
   }
 
-  .icon-wrap { color: var(--md-sys-color-primary); }
+  .icon-wrap {
+    color: var(--md-sys-color-primary);
+  }
 
   .card-overlay {
     position: absolute;
@@ -2849,23 +2961,60 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px 12px;
-    border-top: 1px solid rgba(0,0,0,0.04);
-    background: rgba(255,255,255,0.02);
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+    background: rgba(255, 255, 255, 0.02);
   }
 
-  .card-actions { display: flex; gap: 8px; }
+  .card-actions {
+    display: flex;
+    gap: 8px;
+  }
 
-  .badge.small { padding: 4px 6px; border-radius: 10px; font-size: 12px; }
+  .badge.small {
+    padding: 4px 6px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
 
   /* Modern list */
-  .modern-list { display: flex; flex-direction: column; gap: 8px; }
-  .modern-row { padding: 12px 14px; border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.6)); backdrop-filter: blur(8px); box-shadow: 0 6px 18px rgba(16,24,40,0.04); }
-  .modern-actions { display:flex; gap:8px; }
+  .modern-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .modern-row {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.72),
+      rgba(255, 255, 255, 0.6)
+    );
+    backdrop-filter: blur(8px);
+    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.04);
+  }
+  .modern-actions {
+    display: flex;
+    gap: 8px;
+  }
 
   /* Dark mode tweaks */
   @media (prefers-color-scheme: dark) {
-    .modern-card { background: linear-gradient(180deg, rgba(18,18,23,0.6), rgba(18,18,23,0.5)); border: 1px solid rgba(255,255,255,0.04); }
-    .modern-row { background: linear-gradient(180deg, rgba(14,14,18,0.6), rgba(14,14,18,0.5)); border: 1px solid rgba(255,255,255,0.03); }
+    .modern-card {
+      background: linear-gradient(
+        180deg,
+        rgba(18, 18, 23, 0.6),
+        rgba(18, 18, 23, 0.5)
+      );
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .modern-row {
+      background: linear-gradient(
+        180deg,
+        rgba(14, 14, 18, 0.6),
+        rgba(14, 14, 18, 0.5)
+      );
+      border: 1px solid rgba(255, 255, 255, 0.03);
+    }
   }
 </style>
-

@@ -137,15 +137,16 @@
 
 <div class="duplicates-view">
   <!-- Crystal Glass Header -->
-  <PageHeader 
+  <PageHeader
     title="Duplicate Files"
     subtitle="Find and remove duplicate files to save space"
-    icon="files"
-    gradient="purple"
+    icon="copy"
+    gradient="orange"
   >
     <div slot="actions" class="header-actions">
       <Button
-        variant="primary"
+        variant="outlined"
+        size="medium"
         onClick={scanCurrentFolder}
         disabled={scanning}
       >
@@ -159,7 +160,7 @@
       </Button>
 
       {#if selectedDuplicates.size > 0}
-        <Button variant="danger" onClick={deleteDuplicates}>
+        <Button variant="danger" size="medium" onClick={deleteDuplicates}>
           <Icon name="trash" size={16} />
           Delete {selectedDuplicates.size} Selected
         </Button>
@@ -185,8 +186,8 @@
           >{scanProgress.current} / {scanProgress.total}</span
         >
       </div>
-      <ProgressBar 
-        value={getProgressPercent()} 
+      <ProgressBar
+        value={getProgressPercent()}
         variant="primary"
         showLabel={true}
       />

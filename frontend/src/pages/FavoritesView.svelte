@@ -7,6 +7,7 @@
   import Icon from "../components/ui/Icon.svelte";
   import PageHeader from "../components/ui/PageHeader.svelte";
   import Spinner from "../components/ui/Spinner.svelte";
+  import EmptyState from "../components/ui/EmptyState.svelte";
   import { getFileIcon } from "../utils/fileIcons";
 
   let favoriteFiles = [];
@@ -67,12 +68,26 @@
 </script>
 
 <div class="view-container">
-  <PageHeader 
+  <PageHeader
     title={t($currentLang, "favorites")}
-    subtitle={favoriteFiles.length > 0 ? `${favoriteFiles.length} ${favoriteFiles.length === 1 ? "Datei" : "Dateien"}` : ""}
+    subtitle=""
     icon="star-fill"
-    gradient="purple"
-  />
+    gradient="orange"
+  >
+    <div
+      slot="stats"
+      class="stats-bar"
+      style:display={favoriteFiles.length > 0 ? "flex" : "none"}
+    >
+      <div class="stat">
+        <i class="bi bi-star-fill"></i>
+        <span
+          >{favoriteFiles.length}
+          {favoriteFiles.length === 1 ? "Datei" : "Dateien"}</span
+        >
+      </div>
+    </div>
+  </PageHeader>
 
   {#if loading}
     <div class="loading-state">
@@ -80,11 +95,11 @@
       <p>Lade Favoriten...</p>
     </div>
   {:else if favoriteFiles.length === 0}
-    <div class="empty-state">
-      <div class="empty-icon">⭐</div>
-      <h3>{t($currentLang, "noFavorites")}</h3>
-      <p>{t($currentLang, "markFilesAsFavorite")}</p>
-    </div>
+    <EmptyState
+      icon="⭐"
+      title={t($currentLang, "noFavorites")}
+      description={t($currentLang, "markFilesAsFavorite")}
+    />
   {:else}
     <div class="favorites-list">
       {#each favoriteFiles as file}
@@ -107,7 +122,10 @@
           </button>
           <button
             class="btn-remove"
-            onclick={(e) => { e.stopPropagation(); removeFavorite(file); }}
+            onclick={(e) => {
+              e.stopPropagation();
+              removeFavorite(file);
+            }}
             title="Aus Favoriten entfernen"
           >
             <Icon name="x-lg" size={20} />
@@ -134,30 +152,6 @@
     flex-direction: column;
     align-items: center;
     gap: 16px;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 80px 20px;
-    margin: 0 32px;
-  }
-
-  .empty-icon {
-    font-size: 80px;
-    margin-bottom: 24px;
-    opacity: 0.5;
-  }
-
-  h3 {
-    font-size: 24px;
-    font-weight: 500;
-    color: var(--md-sys-color-on-surface);
-    margin-bottom: 8px;
-  }
-
-  p {
-    font-size: 16px;
-    color: var(--md-sys-color-on-surface-variant);
   }
 
   .favorites-list {

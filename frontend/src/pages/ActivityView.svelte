@@ -21,12 +21,12 @@
   onMount(async () => {
     // Load activities from backend
     await activity.load({ limit: 100 });
-    
+
     // Cleanup old localStorage data if exists
-    const oldKey = 'syncspace_activity';
+    const oldKey = "syncspace_activity";
     if (localStorage.getItem(oldKey)) {
       localStorage.removeItem(oldKey);
-      console.log('Cleaned up old localStorage activities');
+      console.log("Cleaned up old localStorage activities");
     }
   });
 
@@ -179,12 +179,24 @@
 </script>
 
 <div class="activity-view">
-  <PageHeader 
+  <PageHeader
     title="Activity Feed"
     subtitle=""
     icon="clock-history"
     gradient="blue"
-  />
+  >
+    <div slot="actions" class="header-actions">
+      <Button
+        onClick={handleClearAll}
+        disabled={$activity.length === 0}
+        variant="outlined"
+        size="medium"
+      >
+        <Icon name="trash-fill" size={16} />
+        Clear All
+      </Button>
+    </div>
+  </PageHeader>
 
   <div class="page-content">
     <!-- Stats -->
@@ -196,7 +208,7 @@
           value={$activity.length}
           gradient="linear-gradient(135deg, #6366f1, #8b5cf6)"
         />
-        
+
         <StatCard
           icon="bi-calendar-check"
           label="Today"
@@ -206,22 +218,43 @@
       </div>
     {/if}
 
-    <!-- Action Bar -->
-    <div class="actions">
-      <Button onClick={handleClearAll} disabled={$activity.length === 0} variant="danger">
-        <Icon name="trash-fill" size={14} />
-        <span>Clear All</span>
-      </Button>
-    </div>
-
     <!-- Filters -->
     <div class="filters">
       <div class="chips">
-        <Chip label="All" selected={selectedFilter === "all"} onClick={() => (selectedFilter = "all")} variant="filter" />
-        <Chip label="Uploads" icon="bi-upload" selected={selectedFilter === "upload"} onClick={() => (selectedFilter = "upload")} variant="filter" />
-        <Chip label="Downloads" icon="bi-download" selected={selectedFilter === "download"} onClick={() => (selectedFilter = "download")} variant="filter" />
-        <Chip label="Deletes" icon="bi-trash" selected={selectedFilter === "delete"} onClick={() => (selectedFilter = "delete")} variant="filter" />
-        <Chip label="Moves" icon="bi-box-arrow-right" selected={selectedFilter === "move"} onClick={() => (selectedFilter = "move")} variant="filter" />
+        <Chip
+          label="All"
+          selected={selectedFilter === "all"}
+          onClick={() => (selectedFilter = "all")}
+          variant="filter"
+        />
+        <Chip
+          label="Uploads"
+          icon="bi-upload"
+          selected={selectedFilter === "upload"}
+          onClick={() => (selectedFilter = "upload")}
+          variant="filter"
+        />
+        <Chip
+          label="Downloads"
+          icon="bi-download"
+          selected={selectedFilter === "download"}
+          onClick={() => (selectedFilter = "download")}
+          variant="filter"
+        />
+        <Chip
+          label="Deletes"
+          icon="bi-trash"
+          selected={selectedFilter === "delete"}
+          onClick={() => (selectedFilter = "delete")}
+          variant="filter"
+        />
+        <Chip
+          label="Moves"
+          icon="bi-box-arrow-right"
+          selected={selectedFilter === "move"}
+          onClick={() => (selectedFilter = "move")}
+          variant="filter"
+        />
       </div>
 
       <input
@@ -245,7 +278,10 @@
           <div class="date-label">{dateLabel}</div>
           <div class="timeline">
             {#each activities as act}
-              <div class="activity-item" style="--color: {getTypeColor(act.type)}">
+              <div
+                class="activity-item"
+                style="--color: {getTypeColor(act.type)}"
+              >
                 <div class="marker">
                   <span class="icon">{act.icon}</span>
                 </div>

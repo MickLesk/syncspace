@@ -232,12 +232,7 @@
 </script>
 
 <div class="trash-view">
-  <PageHeader 
-    title="Trash"
-    subtitle=""
-    icon="trash"
-    gradient="red"
-  >
+  <PageHeader title="Trash" subtitle="" icon="trash" gradient="red">
     <div slot="stats" class="stats-bar">
       <div class="stat">
         <i class="bi bi-files"></i>
@@ -247,6 +242,16 @@
         <i class="bi bi-hdd"></i>
         <span>{formatSize(stats.totalSize)}</span>
       </div>
+    </div>
+    <div slot="actions" class="header-actions">
+      <Button onClick={cleanupExpired} variant="outlined" size="medium">
+        <Icon name="clock-history" size={16} />
+        Cleanup Expired
+      </Button>
+      <Button onClick={emptyTrash} variant="danger" size="medium">
+        <Icon name="trash3-fill" size={16} />
+        Empty Trash
+      </Button>
     </div>
   </PageHeader>
 
@@ -263,23 +268,15 @@
 
     <div class="actions">
       {#if selectedItems.size > 0}
-        <Button onClick={restoreSelected} variant="success">
+        <Button onClick={restoreSelected} variant="outlined" size="medium">
           <Icon name="arrow-counterclockwise" size={16} />
           Restore ({selectedItems.size})
         </Button>
-        <Button onClick={deleteSelected} variant="danger">
+        <Button onClick={deleteSelected} variant="danger" size="medium">
           <Icon name="trash3" size={16} />
           Delete ({selectedItems.size})
         </Button>
       {/if}
-      <Button onClick={cleanupExpired} variant="outlined">
-        <Icon name="clock-history" size={16} />
-        Cleanup Expired
-      </Button>
-      <Button onClick={emptyTrash} variant="danger-outline">
-        <Icon name="trash3-fill" size={16} />
-        Empty Trash
-      </Button>
     </div>
   </div>
 

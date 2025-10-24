@@ -18,7 +18,7 @@ Moderne, wiederverwendbare Svelte-Komponenten für SyncSpace mit Crystal Glass D
 Vielseitiger Button mit verschiedenen Stilen.
 
 **Props:**
-- `variant`: `"filled"` | `"outlined"` | `"text"` | `"glass"` | `"glass-primary"` (default: `"filled"`)
+- `variant`: `"filled"` | `"outlined"` | `"text"` | `"glass"` | `"glass-primary"` | `"danger"` | `"success"` (default: `"filled"`)
 - `size`: `"small"` | `"medium"` | `"large"` (default: `"medium"`)
 - `disabled`: boolean (default: `false`)
 - `icon`: string - Bootstrap Icon class
@@ -30,6 +30,132 @@ Vielseitiger Button mit verschiedenen Stilen.
 <Button variant="glass-primary" size="large" icon="bi-plus-lg">
   New File
 </Button>
+```
+
+---
+
+### 📍 EmptyState **[NEU]**
+Wiederverwendbarer Component für leere Views.
+
+**Props:**
+- `icon`: string - Bootstrap Icon name oder Emoji (default: `""`)
+- `isBootstrapIcon`: boolean - Ob Icon ein Bootstrap-Icon ist (default: `false`)
+- `title`: string - Hauptüberschrift (default: `"No items found"`)
+- `description`: string - Beschreibungstext (default: `""`)
+- `actionText`: string - Text für Action-Button (optional)
+- `onAction`: function - Callback für Action-Button
+- `size`: `"small"` | `"medium"` | `"large"` (default: `"medium"`)
+
+**Slots:**
+- `content` - Custom content unterhalb der Beschreibung
+- `actions` - Custom action buttons
+
+**Beispiel:**
+```svelte
+<EmptyState
+  icon="⭐"
+  title="No Favorites"
+  description="Mark files as favorite to see them here"
+  actionText="Browse Files"
+  onAction={() => navigateTo('/files')}
+/>
+
+<!-- Mit Bootstrap Icon -->
+<EmptyState
+  icon="star-fill"
+  isBootstrapIcon={true}
+  title="No Favorites"
+  description="Mark files as favorite to see them here"
+/>
+```
+
+---
+
+### 🗂️ Breadcrumb **[NEU]**
+Navigation für hierarchische Strukturen.
+
+**Props:**
+- `items`: Array<{name: string, path: string}> - Breadcrumb items (required)
+- `onNavigate`: function - Callback wenn auf Breadcrumb geklickt wird
+- `separator`: string - Separator zwischen Items (default: `"/"`)
+- `showHomeIcon`: boolean - Zeigt Home-Icon für erstes Element (default: `true`)
+- `size`: `"small"` | `"medium"` | `"large"` (default: `"medium"`)
+
+**Beispiel:**
+```svelte
+<script>
+  let breadcrumbs = [
+    { name: "Home", path: "/" },
+    { name: "Documents", path: "/documents/" },
+    { name: "Projects", path: "/documents/projects/" }
+  ];
+</script>
+
+<Breadcrumb
+  items={breadcrumbs}
+  onNavigate={(path) => navigateTo(path)}
+  showHomeIcon={true}
+/>
+```
+
+---
+
+### ✅ ConfirmDialog **[NEU]**
+Styled confirmation dialog als Ersatz für native confirm().
+
+**Props:**
+- `open`: boolean - Ob Dialog geöffnet ist (bind-able)
+- `title`: string - Titel des Dialogs (default: `"Confirm Action"`)
+- `message`: string - Nachricht/Beschreibung (default: `"Are you sure you want to proceed?"`)
+- `confirmText`: string - Text für Bestätigungs-Button (default: `"Confirm"`)
+- `cancelText`: string - Text für Abbrechen-Button (default: `"Cancel"`)
+- `variant`: `"default"` | `"danger"` | `"warning"` | `"success"` (default: `"default"`)
+- `icon`: string - Optional: Icon-Name (Bootstrap)
+- `loading`: boolean - Zeigt Loading-State auf Confirm-Button (default: `false`)
+
+**Events:**
+- `on:confirm` - Wird ausgelöst bei Bestätigung
+- `on:cancel` - Wird ausgelöst bei Abbruch
+
+**Slots:**
+- `content` - Custom content zwischen Message und Actions
+
+**Beispiel:**
+```svelte
+<script>
+  let showConfirm = false;
+
+  function handleDelete() {
+    showConfirm = true;
+  }
+
+  async function confirmDelete() {
+    await deleteFile();
+    showConfirm = false;
+  }
+</script>
+
+<ConfirmDialog
+  bind:open={showConfirm}
+  title="Delete File?"
+  message="Are you sure you want to delete this file? This action cannot be undone."
+  confirmText="Delete"
+  cancelText="Cancel"
+  variant="danger"
+  on:confirm={confirmDelete}
+  on:cancel={() => showConfirm = false}
+/>
+
+<!-- Mit Loading State -->
+<ConfirmDialog
+  bind:open={showConfirm}
+  title="Delete 50 Files?"
+  message="This will permanently delete 50 files."
+  confirmText="Delete All"
+  variant="danger"
+  loading={deleting}
+  on:confirm={handleBulkDelete}
+/>
 ```
 
 ---
