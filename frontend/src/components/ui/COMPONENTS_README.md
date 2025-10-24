@@ -15,9 +15,11 @@ Moderne, wiederverwendbare Svelte-Komponenten für SyncSpace mit Crystal Glass D
 ## 📦 Verfügbare Komponenten
 
 ### 🔘 Button
+
 Vielseitiger Button mit verschiedenen Stilen.
 
 **Props:**
+
 - `variant`: `"filled"` | `"outlined"` | `"text"` | `"glass"` | `"glass-primary"` | `"danger"` | `"success"` (default: `"filled"`)
 - `size`: `"small"` | `"medium"` | `"large"` (default: `"medium"`)
 - `disabled`: boolean (default: `false`)
@@ -26,6 +28,7 @@ Vielseitiger Button mit verschiedenen Stilen.
 - `onClick`: function
 
 **Beispiel:**
+
 ```svelte
 <Button variant="glass-primary" size="large" icon="bi-plus-lg">
   New File
@@ -35,9 +38,11 @@ Vielseitiger Button mit verschiedenen Stilen.
 ---
 
 ### 📍 EmptyState **[NEU]**
+
 Wiederverwendbarer Component für leere Views.
 
 **Props:**
+
 - `icon`: string - Bootstrap Icon name oder Emoji (default: `""`)
 - `isBootstrapIcon`: boolean - Ob Icon ein Bootstrap-Icon ist (default: `false`)
 - `title`: string - Hauptüberschrift (default: `"No items found"`)
@@ -47,10 +52,12 @@ Wiederverwendbarer Component für leere Views.
 - `size`: `"small"` | `"medium"` | `"large"` (default: `"medium"`)
 
 **Slots:**
+
 - `content` - Custom content unterhalb der Beschreibung
 - `actions` - Custom action buttons
 
 **Beispiel:**
+
 ```svelte
 <EmptyState
   icon="⭐"
@@ -72,9 +79,11 @@ Wiederverwendbarer Component für leere Views.
 ---
 
 ### 🗂️ Breadcrumb **[NEU]**
+
 Navigation für hierarchische Strukturen.
 
 **Props:**
+
 - `items`: Array<{name: string, path: string}> - Breadcrumb items (required)
 - `onNavigate`: function - Callback wenn auf Breadcrumb geklickt wird
 - `separator`: string - Separator zwischen Items (default: `"/"`)
@@ -82,6 +91,7 @@ Navigation für hierarchische Strukturen.
 - `size`: `"small"` | `"medium"` | `"large"` (default: `"medium"`)
 
 **Beispiel:**
+
 ```svelte
 <script>
   let breadcrumbs = [
@@ -101,9 +111,11 @@ Navigation für hierarchische Strukturen.
 ---
 
 ### ✅ ConfirmDialog **[NEU]**
+
 Styled confirmation dialog als Ersatz für native confirm().
 
 **Props:**
+
 - `open`: boolean - Ob Dialog geöffnet ist (bind-able)
 - `title`: string - Titel des Dialogs (default: `"Confirm Action"`)
 - `message`: string - Nachricht/Beschreibung (default: `"Are you sure you want to proceed?"`)
@@ -114,13 +126,16 @@ Styled confirmation dialog als Ersatz für native confirm().
 - `loading`: boolean - Zeigt Loading-State auf Confirm-Button (default: `false`)
 
 **Events:**
+
 - `on:confirm` - Wird ausgelöst bei Bestätigung
 - `on:cancel` - Wird ausgelöst bei Abbruch
 
 **Slots:**
+
 - `content` - Custom content zwischen Message und Actions
 
 **Beispiel:**
+
 ```svelte
 <script>
   let showConfirm = false;
@@ -161,9 +176,11 @@ Styled confirmation dialog als Ersatz für native confirm().
 ---
 
 ### 📊 StatCard
+
 Statistik-Karte mit Gradient-Icon.
 
 **Props:**
+
 - `icon`: string - Bootstrap Icon (z.B. `"bi-files"`)
 - `label`: string - Beschreibung
 - `value`: string | number - Hauptwert
@@ -171,6 +188,7 @@ Statistik-Karte mit Gradient-Icon.
 - `iconSize`: number (default: `28`)
 
 **Beispiel:**
+
 ```svelte
 <StatCard
   icon="bi-files"
@@ -183,13 +201,16 @@ Statistik-Karte mit Gradient-Icon.
 ---
 
 ### 📈 ChartCard
+
 Container für Charts und Diagramme.
 
 **Props:**
+
 - `title`: string (optional)
 - `icon`: string - Bootstrap Icon (optional)
 
 **Beispiel:**
+
 ```svelte
 <ChartCard title="Usage Statistics" icon="bi-pie-chart-fill">
   <canvas bind:this={chartCanvas}></canvas>
@@ -199,14 +220,17 @@ Container für Charts und Diagramme.
 ---
 
 ### 🏷️ Badge
+
 Kleine Labels für Status, Tags, etc.
 
 **Props:**
+
 - `variant`: `"default"` | `"success"` | `"warning"` | `"error"` | `"info"` | `"glass"`
 - `size`: `"small"` | `"medium"` | `"large"` (default: `"medium"`)
 - `icon`: string - Bootstrap Icon (optional)
 
 **Beispiel:**
+
 ```svelte
 <Badge variant="success" icon="bi-check-circle">
   Active
@@ -216,9 +240,11 @@ Kleine Labels für Status, Tags, etc.
 ---
 
 ### 📊 ProgressBar
+
 Fortschrittsbalken mit Animation.
 
 **Props:**
+
 - `value`: number - Aktueller Wert
 - `max`: number - Maximum (default: `100`)
 - `variant`: `"primary"` | `"success"` | `"warning"` | `"error"` | `"glass"`
@@ -227,6 +253,7 @@ Fortschrittsbalken mit Animation.
 - `animated`: boolean - Shimmer-Effekt (default: `true`)
 
 **Beispiel:**
+
 ```svelte
 <ProgressBar
   value={750}
@@ -239,15 +266,18 @@ Fortschrittsbalken mit Animation.
 ---
 
 ### 🗂️ TabBar
+
 Tab-Navigation mit verschiedenen Stilen.
 
 **Props:**
+
 - `tabs`: Array von `{ id, label, icon? }`
 - `activeTab`: string - ID des aktiven Tabs
 - `onChange`: function(id) - Callback bei Tab-Wechsel
 - `variant`: `"pills"` | `"underline"` | `"glass"` (default: `"pills"`)
 
 **Beispiel:**
+
 ```svelte
 <TabBar
   tabs={[
@@ -264,13 +294,16 @@ Tab-Navigation mit verschiedenen Stilen.
 ---
 
 ### ⏳ Spinner
+
 Loading-Indikatoren.
 
 **Props:**
+
 - `size`: `"small"` | `"medium"` | `"large"` (default: `"medium"`)
 - `variant`: `"circular"` | `"dots"` | `"bars"` (default: `"circular"`)
 
 **Beispiel:**
+
 ```svelte
 <Spinner variant="dots" size="large" />
 ```
@@ -278,9 +311,11 @@ Loading-Indikatoren.
 ---
 
 ### 🎫 Chip
+
 Filter-Chips und Tags.
 
 **Props:**
+
 - `label`: string
 - `icon`: string - Bootstrap Icon (optional)
 - `selected`: boolean (default: `false`)
@@ -290,6 +325,7 @@ Filter-Chips und Tags.
 - `onClick`: function
 
 **Beispiel:**
+
 ```svelte
 <Chip
   label="Images"
@@ -308,9 +344,11 @@ Filter-Chips und Tags.
 ---
 
 ### 🎴 InfoCard
+
 Flexible Informations-Karte.
 
 **Props:**
+
 - `title`: string (optional)
 - `description`: string (optional)
 - `variant`: `"default"` | `"bordered"` | `"glass"` | `"gradient"`
@@ -320,6 +358,7 @@ Flexible Informations-Karte.
 - `onClick`: function (nur wenn `clickable`)
 
 **Beispiel:**
+
 ```svelte
 <InfoCard
   title="Storage Usage"
@@ -334,9 +373,11 @@ Flexible Informations-Karte.
 ---
 
 ### 💬 Dialog
+
 Modale Dialoge (bereits vorhanden, refactored).
 
 **Props:**
+
 - `open`: boolean - Öffnet/schließt Dialog
 - `title`: string
 - `confirmText`: string (default: `"OK"`)
@@ -346,10 +387,12 @@ Modale Dialoge (bereits vorhanden, refactored).
 - `danger`: boolean - Danger-Styling (default: `false`)
 
 **Events:**
+
 - `on:confirm` - Bei Bestätigung
 - `on:cancel` - Bei Abbruch
 
 **Beispiel:**
+
 ```svelte
 <Dialog
   bind:open={showDialog}
@@ -365,9 +408,11 @@ Modale Dialoge (bereits vorhanden, refactored).
 ---
 
 ### ✏️ Input
+
 Text-Eingabefeld mit Label (bereits vorhanden, refactored).
 
 **Props:**
+
 - `value`: string
 - `label`: string
 - `type`: string (default: `"text"`)
@@ -378,6 +423,7 @@ Text-Eingabefeld mit Label (bereits vorhanden, refactored).
 - `icon`: string - Leading icon
 
 **Beispiel:**
+
 ```svelte
 <Input
   bind:value={username}
@@ -391,14 +437,17 @@ Text-Eingabefeld mit Label (bereits vorhanden, refactored).
 ---
 
 ### 🔍 Icon
+
 Icon-Wrapper (bereits vorhanden).
 
 **Props:**
+
 - `name`: string - Bootstrap Icon name
 - `size`: number (default: `24`)
 - `color`: string (optional)
 
 **Beispiel:**
+
 ```svelte
 <Icon name="files" size={32} color="#6366f1" />
 ```
@@ -410,6 +459,7 @@ Icon-Wrapper (bereits vorhanden).
 Diese Utility-Classes sind in `app.css` verfügbar:
 
 ### Glass Effects
+
 ```svelte
 <div class="glass-card">...</div>
 <div class="glass-frosted">...</div>
@@ -420,12 +470,14 @@ Diese Utility-Classes sind in `app.css` verfügbar:
 ```
 
 ### Layouts
+
 ```svelte
 <div class="page-header gradient-bg">...</div>
 <div class="page-content">...</div>
 ```
 
 ### Animations
+
 ```svelte
 <div class="gradient-bg">Animated Gradient Background</div>
 ```
@@ -509,17 +561,20 @@ Diese Utility-Classes sind in `app.css` verfügbar:
 ## 🎨 Color Reference
 
 **Primary Colors:**
+
 - Primary: `#6366f1` (Indigo)
 - Secondary: `#8b5cf6` (Purple)
 - Accent: `#d946ef` (Pink)
 
 **Semantic Colors:**
+
 - Success: `#10b981` (Green)
 - Warning: `#f59e0b` (Orange)
 - Error: `#ef4444` (Red)
 - Info: `#3b82f6` (Blue)
 
 **Gradients:**
+
 ```css
 linear-gradient(135deg, #6366f1, #8b5cf6) /* Primary */
 linear-gradient(135deg, #10b981, #34d399) /* Success */
@@ -532,6 +587,7 @@ linear-gradient(135deg, #ef4444, #dc2626) /* Error */
 ## 📱 Responsive Design
 
 Alle Komponenten sind responsive und passen sich automatisch an:
+
 - Mobile: < 768px
 - Tablet: 768px - 1024px
 - Desktop: > 1024px
@@ -541,6 +597,7 @@ Alle Komponenten sind responsive und passen sich automatisch an:
 ## 🌙 Dark Mode
 
 Alle Komponenten unterstützen automatisch Dark Mode via:
+
 ```css
 @media (prefers-color-scheme: dark) {
   /* Dark mode styles */

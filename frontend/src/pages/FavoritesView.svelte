@@ -68,27 +68,6 @@
 </script>
 
 <div class="view-container">
-  <PageHeader
-    title={t($currentLang, "favorites")}
-    subtitle=""
-    icon="star-fill"
-    gradient="orange"
-  >
-    <div
-      slot="stats"
-      class="stats-bar"
-      style:display={favoriteFiles.length > 0 ? "flex" : "none"}
-    >
-      <div class="stat">
-        <i class="bi bi-star-fill"></i>
-        <span
-          >{favoriteFiles.length}
-          {favoriteFiles.length === 1 ? "Datei" : "Dateien"}</span
-        >
-      </div>
-    </div>
-  </PageHeader>
-
   {#if loading}
     <div class="loading-state">
       <Spinner size="large" />

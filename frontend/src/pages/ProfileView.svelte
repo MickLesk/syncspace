@@ -1024,16 +1024,6 @@
   }
 
   @media (max-width: 768px) {
-    .banner-content {
-      flex-direction: column;
-      text-align: center;
-      padding: 24px 16px;
-    }
-
-    .profile-name {
-      font-size: 28px;
-    }
-
     .tab-content {
       padding: 16px;
     }

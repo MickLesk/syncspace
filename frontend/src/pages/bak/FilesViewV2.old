@@ -1,0 +1,1063 @@
+<script>
+  import { onMount } from "svelte";
+  import { files, currentPath } from "../stores/ui";
+  import { favorites } from "../stores/favorites";
+  import { success, error as errorToast } from "../stores/toast";
+  import { getFileIcon } from "../utils/fileIcons";
+  import PageHeader from "../components/ui/PageHeader.svelte";
+  import ButtonV2 from "../components/ui/ButtonV2.svelte";
+  import InputV2 from "../components/ui/InputV2.svelte";
+  import CardV2 from "../components/ui/CardV2.svelte";
+  import ModalV2 from "../components/ui/ModalV2.svelte";
+  import Breadcrumb from "../components/ui/Breadcrumb.svelte";
+  import api from "../lib/api";
+
+  let loading = true;
+  let uploading = false;
+  let searchQuery = "";
+  let viewMode = "grid"; // 'grid' or 'list'
+  let selectedFiles = new Set();
+  let dragOver = false;
+
+  // Modals
+  let showUploadModal = false;
+  let showNewFolderModal = false;
+  let showRenameModal = false;
+  let showDeleteModal = false;
+  let showMoveModal = false;
+
+  // Current action targets
+  let fileToRename = null;
+  let fileToDelete = null;
+  let newFolderName = "";
+  let newFileName = "";
+
+  // File upload
+  let uploadInput;
+  let uploadFiles = [];
+
+  // Helper functions
+  function openRenameModal(file) {
+    fileToRename = file;
+    newFileName = file.name;
+    showRenameModal = true;
+  }
+
+  function openDeleteModal(file) {
+    fileToDelete = file;
+    showDeleteModal = true;
+  }
+
+  function handleFilesSelected(e) {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length > 0) {
+      uploadFiles = selectedFiles;
+      showUploadModal = true;
+    }
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    dragOver = true;
+  }
+
+  function handleDragLeave(e) {
+    e.preventDefault();
+    dragOver = false;
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    dragOver = false;
+    const droppedFiles = Array.from(e.dataTransfer.files || []);
+    if (droppedFiles.length > 0) {
+      uploadFiles = droppedFiles;
+      showUploadModal = true;
+    }
+  }
+
+  function toggleFavorite(file) {
+    // Implement favorite toggle
+    console.log("Toggle favorite:", file.name);
+  }
+
+  $: filteredFiles = searchQuery
+    ? $files.filter((f) =>
+        f.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : $files;
+
+  $: breadcrumbPath = $currentPath.split("/").filter(Boolean);
+
+  onMount(async () => {
+    await loadFiles();
+    loading = false;
+  });
+
+  async function loadFiles(path = $currentPath) {
+    loading = true;
+    try {
+      // Remove leading slash for backend API
+      const backendPath = path.replace(/^\/+|\/+$/g, "");
+      const data = await api.files.list(backendPath);
+      files.set(data);
+    } catch (err) {
+      errorToast(err.message || "Failed to load files");
+    } finally {
+      loading = false;
+    }
+  }
+
+  function navigateToFolder(folder) {
+    currentPath.set($currentPath + folder.name + "/");
+    loadFiles($currentPath);
+  }
+
+  function navigateToBreadcrumb(index) {
+    const newPath = "/" + breadcrumbPath.slice(0, index + 1).join("/") + "/";
+    currentPath.set(newPath);
+    loadFiles(newPath);
+  }
+
+  async function handleFileUpload() {
+    if (!uploadFiles.length) return;
+
+    uploading = true;
+    try {
+      for (const file of uploadFiles) {
+        // Remove leading slash and build proper path
+        const backendPath = $currentPath.replace(/^\/+|\/+$/g, "");
+        const fullPath = backendPath
+          ? `${backendPath}/${file.name}`
+          : file.name;
+        await api.files.upload(fullPath, file);
+      }
+      success(`Uploaded ${uploadFiles.length} file(s)`);
+      await loadFiles();
+      showUploadModal = false;
+      uploadFiles = [];
+    } catch (err) {
+      errorToast(err.message || "Upload failed");
+    } finally {
+      uploading = false;
+    }
+  }
+
+  async function handleCreateFolder() {
+    if (!newFolderName.trim()) return;
+
+    try {
+      const backendPath = $currentPath.replace(/^\/+|\/+$/g, "");
+      const fullPath = backendPath
+        ? `${backendPath}/${newFolderName}`
+        : newFolderName;
+      await api.files.createDir(fullPath);
+      success("Folder created");
+      await loadFiles();
+      showNewFolderModal = false;
+      newFolderName = "";
+    } catch (err) {
+      errorToast(err.message || "Failed to create folder");
+    }
+  }
+
+  async function handleRename() {
+    if (!fileToRename || !newFileName.trim()) return;
+
+    try {
+      const backendPath = $currentPath.replace(/^\/+|\/+$/g, "");
+      const oldPath = backendPath
+        ? `${backendPath}/${fileToRename.name}`
+        : fileToRename.name;
+      const newPath = backendPath
+        ? `${backendPath}/${newFileName}`
+        : newFileName;
+      await api.files.rename(oldPath, newPath);
+      success("Renamed successfully");
+      await loadFiles();
+      showRenameModal = false;
+      fileToRename = null;
+      newFileName = "";
+    } catch (err) {
+      errorToast(err.message || "Rename failed");
+    }
+  }
+
+  async function handleDelete() {
+    if (!fileToDelete) return;
+
+    try {
+      const backendPath = $currentPath.replace(/^\/+|\/+$/g, "");
+      const fullPath = backendPath
+        ? `${backendPath}/${fileToDelete.name}`
+        : fileToDelete.name;
+      await api.files.delete(fullPath);
+      success("Deleted successfully");
+      await loadFiles();
+      showDeleteModal = false;
+      fileToDelete = null;
+    } catch (err) {
+      errorToast(err.message || "Delete failed");
+    }
+  }
+
+  async function handleDownload(file) {
+    try {
+      const backendPath = $currentPath.replace(/^\/+|\/+$/g, "");
+      const fullPath = backendPath ? `${backendPath}/${file.name}` : file.name;
+      const blob = await api.files.download(fullPath);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.name;
+      a.click();
+      URL.revokeObjectURL(url);
+      success("Download started");
+    } catch (err) {
+      errorToast(err.message || "Download failed");
+    }
+  }
+
+  function toggleFavorite(file) {
+    favorites.toggle(file.name);
+  }
+
+  function openRenameModal(file) {
+    fileToRename = file;
+    newFileName = file.name;
+    showRenameModal = true;
+  }
+
+  function openDeleteModal(file) {
+    fileToDelete = file;
+    showDeleteModal = true;
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    dragOver = true;
+  }
+
+  function handleDragLeave() {
+    dragOver = false;
+  }
+
+  async function handleDrop(e) {
+    e.preventDefault();
+    dragOver = false;
+
+    uploadFiles = Array.from(e.dataTransfer.files);
+    if (uploadFiles.length) {
+      showUploadModal = true;
+    }
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  }
+
+  function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString();
+  }
+</script>
+
+<div
+  class="files-view"
+  on:dragover={handleDragOver}
+  on:dragleave={handleDragLeave}
+  on:drop={handleDrop}
+>
+  <PageHeader
+    title="Files"
+    description="Manage your files and folders"
+    icon="folder-fill"
+    gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+  />
+
+  <!-- Toolbar -->
+  <div class="toolbar card bg-base-100 border border-base-300 mb-6 shadow-sm">
+    <div class="card-body p-4">
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Left: Actions -->
+        <div class="flex gap-2 flex-1">
+          <button
+            class="btn btn-primary gap-2"
+            on:click={() => uploadInput?.click()}
+          >
+            <i class="bi bi-upload"></i>
+            Upload
+          </button>
+          <button
+            class="btn btn-secondary gap-2"
+            on:click={() => (showNewFolderModal = true)}
+          >
+            <i class="bi bi-folder-plus"></i>
+            New Folder
+          </button>
+          <button
+            class="btn btn-ghost gap-2"
+            on:click={() => loadFiles()}
+          >
+            <i class="bi bi-arrow-clockwise"></i>
+            Refresh
+          </button>
+        </div>
+
+        <!-- Right: View Mode & Filter -->
+        <div class="flex items-center gap-2">
+          <div class="join">
+            <button
+              class="btn btn-sm join-item"
+              class:btn-active={viewMode === "grid"}
+              on:click={() => (viewMode = "grid")}
+              aria-label="Grid view"
+            >
+              <i class="bi bi-grid-3x3"></i>
+            </button>
+            <button
+              class="btn btn-sm join-item"
+              class:btn-active={viewMode === "list"}
+              on:click={() => (viewMode = "list")}
+              aria-label="List view"
+            >
+              <i class="bi bi-list-ul"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  {#if breadcrumbPath.length > 0}
+    <div class="mb-4">
+      <div class="breadcrumbs text-sm">
+        <ul>
+          <li>
+            <button
+              on:click={() => {
+                currentPath.set("/");
+                loadFiles("/");
+              }}
+            >
+              <i class="bi bi-house-fill mr-1"></i>
+              Home
+            </button>
+          </li>
+          {#each breadcrumbPath as segment, i}
+            <li>
+              <button on:click={() => navigateToBreadcrumb(i)}>
+                {segment}
+              </button>
+            </li>
+          {/each}
+        </ul>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Drag & Drop Overlay -->
+  {#if dragOver}
+    <div class="drop-overlay">
+      <div class="drop-content">
+        <i class="bi bi-cloud-upload text-6xl mb-4"></i>
+        <h3 class="text-2xl font-bold">Drop files here</h3>
+        <p class="opacity-70">Release to upload</p>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Files Grid/List -->
+  {#if loading}
+    <div class="flex justify-center items-center h-64">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+  {:else if filteredFiles.length === 0}
+    <div class="hero min-h-[400px]">
+      <div class="hero-content text-center">
+        <div class="max-w-md">
+          <i class="bi bi-folder2-open text-7xl text-base-300 mb-4"></i>
+          <h1 class="text-3xl font-bold">No files found</h1>
+          <p class="py-6">
+            Upload files or create a folder to get started
+          </p>
+          <button
+            class="btn btn-primary gap-2"
+            on:click={() => uploadInput?.click()}
+          >
+            <i class="bi bi-upload"></i>
+            Upload Files
+          </button>
+        </div>
+      </div>
+    </div>
+  {:else if viewMode === "grid"}
+    <!-- Grid View -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      {#each filteredFiles as file}
+        <div 
+          class="card bg-base-100 border border-base-300 hover:shadow-lg transition-all cursor-pointer group"
+          on:click={() => file.is_dir && navigateToFolder(file)}
+          on:keydown={(e) => e.key === 'Enter' && file.is_dir && navigateToFolder(file)}
+          role="button"
+          tabindex="0"
+        >
+          <div class="card-body p-4 items-center text-center">
+            <!-- File Icon -->
+            <div class="text-5xl mb-2 {file.is_dir ? 'text-warning' : 'text-primary'}">
+              <i class="bi bi-{file.is_dir ? 'folder-fill' : getFileIcon(file.name)}"></i>
+            </div>
+            
+            <!-- File Name -->
+            <h3 class="card-title text-sm font-semibold truncate w-full" title={file.name}>
+              {file.name}
+            </h3>
+            
+            <!-- File Meta -->
+            <div class="text-xs opacity-70">
+              {#if !file.is_dir}
+                {formatFileSize(file.size)}
+              {:else}
+                Folder
+              {/if}
+            </div>
+            
+            <!-- Actions (show on hover) -->
+            <div class="card-actions justify-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              {#if !file.is_dir}
+                <button
+                  class="btn btn-ghost btn-xs btn-circle"
+                  on:click|stopPropagation={() => handleDownload(file)}
+                  aria-label="Download"
+                >
+                  <i class="bi bi-download"></i>
+                </button>
+              {/if}
+              <button
+                class="btn btn-ghost btn-xs btn-circle"
+                on:click|stopPropagation={() => openRenameModal(file)}
+                aria-label="Rename"
+              >
+                <i class="bi bi-pencil"></i>
+              </button>
+              <div class="dropdown dropdown-end">
+                <button 
+                  class="btn btn-ghost btn-xs btn-circle"
+                  tabindex="0"
+                  on:click|stopPropagation
+                  aria-label="More options"
+                >
+                  <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-10">
+                  <li>
+                    <button on:click|stopPropagation={() => openRenameModal(file)}>
+                      <i class="bi bi-pencil"></i> Rename
+                    </button>
+                  </li>
+                  {#if !file.is_dir}
+                    <li>
+                      <button on:click|stopPropagation={() => handleDownload(file)}>
+                        <i class="bi bi-download"></i> Download
+                      </button>
+                    </li>
+                  {/if}
+                  <li>
+                    <button 
+                      class="text-error"
+                      on:click|stopPropagation={() => openDeleteModal(file)}
+                    >
+                      <i class="bi bi-trash"></i> Delete
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      {/each}
+    </div>
+  {:else}
+    <!-- List View -->
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th>Modified</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {#each filteredFiles as file}
+            <tr 
+              class="hover cursor-pointer"
+              on:click={() => file.is_dir && navigateToFolder(file)}
+            >
+              <td>
+                <div class="flex items-center gap-3">
+                  <div class="text-2xl {file.is_dir ? 'text-warning' : 'text-primary'}">
+                    <i class="bi bi-{file.is_dir ? 'folder-fill' : getFileIcon(file.name)}"></i>
+                  </div>
+                  <div class="font-semibold">{file.name}</div>
+                </div>
+              </td>
+              <td>
+                <span class="badge badge-ghost">
+                  {file.is_dir ? 'Folder' : file.name.split('.').pop().toUpperCase()}
+                </span>
+              </td>
+              <td>{file.is_dir ? '—' : formatFileSize(file.size)}</td>
+              <td>{file.modified_at ? formatDate(file.modified_at) : '—'}</td>
+              <td>
+                <div class="flex gap-1 justify-end">
+                  {#if !file.is_dir}
+                    <button
+                      class="btn btn-ghost btn-sm btn-circle"
+                      on:click|stopPropagation={() => handleDownload(file)}
+                      aria-label="Download"
+                    >
+                      <i class="bi bi-download"></i>
+                    </button>
+                  {/if}
+                  <button
+                    class="btn btn-ghost btn-sm btn-circle"
+                    on:click|stopPropagation={() => openRenameModal(file)}
+                    aria-label="Rename"
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button
+                    class="btn btn-ghost btn-sm btn-circle text-error"
+                    on:click|stopPropagation={() => openDeleteModal(file)}
+                    aria-label="Delete"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+  {/if}
+</div>
+
+<!-- Hidden File Input -->
+<input
+  type="file"
+  multiple
+  bind:this={uploadInput}
+  on:change={handleFilesSelected}
+  class="hidden"
+/>
+
+<!-- Modals -->
+<!-- Upload Modal -->
+{#if showUploadModal}
+<dialog class="modal modal-open">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">
+      <i class="bi bi-upload mr-2"></i>
+      Upload Files
+    </h3>
+    <div class="space-y-4">
+      <p class="text-base-content/70">Ready to upload {uploadFiles.length} file(s)</p>
+      {#if uploadFiles.length > 0}
+        <div class="max-h-60 overflow-y-auto space-y-2">
+          {#each uploadFiles as file}
+            <div class="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+              <div class="flex items-center gap-2 flex-1 min-w-0">
+                <i class="bi bi-file-earmark text-lg"></i>
+                <span class="truncate font-medium">{file.name}</span>
+              </div>
+              <span class="text-sm opacity-70 ml-2">{formatFileSize(file.size)}</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
+    </div>
+    <div class="modal-action">
+      <button class="btn" on:click={() => (showUploadModal = false)}>Cancel</button>
+      <button
+        class="btn btn-primary"
+        class:loading={uploading}
+        on:click={handleFileUpload}
+        disabled={uploading}
+      >
+        {#if uploading}
+          <span class="loading loading-spinner"></span>
+        {:else}
+          <i class="bi bi-upload"></i>
+        {/if}
+        Upload
+      </button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button on:click={() => (showUploadModal = false)}>close</button>
+  </form>
+</dialog>
+{/if}
+
+<!-- New Folder Modal -->
+{#if showNewFolderModal}
+<dialog class="modal modal-open">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">
+      <i class="bi bi-folder-plus mr-2"></i>
+      Create New Folder
+    </h3>
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text">Folder Name</span>
+      </label>
+      <input
+        type="text"
+        bind:value={newFolderName}
+        placeholder="Enter folder name..."
+        class="input input-bordered"
+        autofocus
+      />
+    </div>
+    <div class="modal-action">
+      <button class="btn" on:click={() => (showNewFolderModal = false)}>Cancel</button>
+      <button class="btn btn-primary" on:click={handleCreateFolder}>
+        <i class="bi bi-check-lg"></i>
+        Create
+      </button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button on:click={() => (showNewFolderModal = false)}>close</button>
+  </form>
+</dialog>
+{/if}
+
+<!-- Rename Modal -->
+{#if showRenameModal}
+<dialog class="modal modal-open">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">
+      <i class="bi bi-pencil mr-2"></i>
+      Rename
+    </h3>
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text">New Name</span>
+      </label>
+      <input
+        type="text"
+        bind:value={newFileName}
+        placeholder="Enter new name..."
+        class="input input-bordered"
+        autofocus
+      />
+    </div>
+    <div class="modal-action">
+      <button class="btn" on:click={() => (showRenameModal = false)}>Cancel</button>
+      <button class="btn btn-primary" on:click={handleRename}>
+        <i class="bi bi-check-lg"></i>
+        Rename
+      </button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button on:click={() => (showRenameModal = false)}>close</button>
+  </form>
+</dialog>
+{/if}
+
+<!-- Delete Confirmation -->
+{#if showDeleteModal}
+<dialog class="modal modal-open">
+  <div class="modal-box text-center">
+    <div class="text-6xl mb-4">
+      <i class="bi bi-trash3 text-error"></i>
+    </div>
+    <h3 class="font-bold text-lg mb-2">Delete "{fileToDelete?.name}"?</h3>
+    <p class="text-base-content/70 mb-4">
+      This action cannot be undone.
+    </p>
+    <div class="modal-action justify-center">
+      <button class="btn" on:click={() => (showDeleteModal = false)}>Cancel</button>
+      <button class="btn btn-error" on:click={handleDelete}>
+        <i class="bi bi-trash"></i>
+        Delete
+      </button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button on:click={() => (showDeleteModal = false)}>close</button>
+  </form>
+</dialog>
+{/if}
+
+<style>
+  .files-view {
+    padding: 1.5rem;
+    min-height: calc(100vh - 200px);
+  }
+
+  .drop-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(99, 102, 241, 0.95);
+    display: flex;
+    align-items: center;
+    justify-center;
+    z-index: 50;
+    backdrop-filter: blur(8px);
+  }
+
+  .drop-content {
+    text-align: center;
+    color: white;
+  }
+
+  .card {
+    transition: all 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+  }
+</style>
+
+                    on:click|stopPropagation={() => handleDownload(file)}
+                  >
+                    <i class="bi bi-download"></i>
+                  </button>
+                {/if}
+                <div class="dropdown dropdown-end">
+                  <button class="btn btn-ghost btn-xs btn-circle">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul
+                    class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+                  >
+                    <li>
+                      <button on:click={() => openRenameModal(file)}>
+                        <i class="bi bi-pencil"></i> Rename
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        on:click={() => openDeleteModal(file)}
+                        class="text-error"
+                      >
+                        <i class="bi bi-trash"></i> Delete
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </CardV2>
+        {:else}
+          <!-- List View -->
+          <div class="list-item card bg-base-100 mb-2">
+            <div class="card-body p-3 flex-row items-center gap-3">
+              <i
+                class="bi bi-{file.is_dir
+                  ? 'folder-fill'
+                  : getFileIcon(file.name)} text-2xl"
+              ></i>
+              <div class="flex-1 min-w-0">
+                <button
+                  class="font-semibold truncate text-left hover:text-primary"
+                  on:click={() => file.is_dir && navigateToFolder(file)}
+                >
+                  {file.name}
+                </button>
+              </div>
+              {#if !file.is_dir}
+                <div class="text-sm opacity-70">
+                  {formatFileSize(file.size)}
+                </div>
+              {/if}
+              <div class="flex gap-1">
+                {#if !file.is_dir}
+                  <button
+                    class="btn btn-ghost btn-sm btn-circle"
+                    on:click={() => toggleFavorite(file)}
+                  >
+                    <i
+                      class="bi bi-{$favorites.has(file.name)
+                        ? 'star-fill text-warning'
+                        : 'star'}"
+                    ></i>
+                  </button>
+                  <button
+                    class="btn btn-ghost btn-sm btn-circle"
+                    on:click={() => handleDownload(file)}
+                  >
+                    <i class="bi bi-download"></i>
+                  </button>
+                {/if}
+                <button
+                  class="btn btn-ghost btn-sm btn-circle"
+                  on:click={() => openRenameModal(file)}
+                >
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button
+                  class="btn btn-ghost btn-sm btn-circle text-error"
+                  on:click={() => openDeleteModal(file)}
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        {/if}
+      {/each}
+    </div>
+  {/if}
+</div>
+
+<!-- Hidden file input -->
+<input
+  bind:this={uploadInput}
+  type="file"
+  multiple
+  class="hidden"
+  on:change={(e) => {
+    uploadFiles = Array.from(e.target.files);
+    if (uploadFiles.length) showUploadModal = true;
+  }}
+/>
+
+<!-- Upload Modal -->
+{#if showUploadModal}
+<dialog class="modal modal-open">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">
+      <i class="bi bi-upload mr-2"></i>
+      Upload Files
+    </h3>
+    <div class="space-y-4">
+      <p class="text-base-content/70">Ready to upload {uploadFiles.length} file(s)</p>
+      {#if uploadFiles.length > 0}
+        <div class="max-h-60 overflow-y-auto space-y-2">
+          {#each uploadFiles as file}
+            <div class="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+              <div class="flex items-center gap-2 flex-1 min-w-0">
+                <i class="bi bi-file-earmark text-lg"></i>
+                <span class="truncate font-medium">{file.name}</span>
+              </div>
+              <span class="text-sm opacity-70 ml-2">{formatFileSize(file.size)}</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
+    </div>
+    <div class="modal-action">
+      <button class="btn" on:click={() => (showUploadModal = false)}>Cancel</button>
+      <button
+        class="btn btn-primary"
+        class:loading={uploading}
+        on:click={handleFileUpload}
+        disabled={uploading}
+      >
+        {#if uploading}
+          <span class="loading loading-spinner"></span>
+        {:else}
+          <i class="bi bi-upload"></i>
+        {/if}
+        Upload
+      </button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button on:click={() => (showUploadModal = false)}>close</button>
+  </form>
+</dialog>
+{/if}
+
+<!-- New Folder Modal -->
+{#if showNewFolderModal}
+<dialog class="modal modal-open">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">
+      <i class="bi bi-folder-plus mr-2"></i>
+      Create New Folder
+    </h3>
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text">Folder Name</span>
+      </label>
+      <input
+        type="text"
+        bind:value={newFolderName}
+        placeholder="Enter folder name..."
+        class="input input-bordered"
+        autofocus
+      />
+    </div>
+    <div class="modal-action">
+      <button class="btn" on:click={() => (showNewFolderModal = false)}>Cancel</button>
+      <button class="btn btn-primary" on:click={handleCreateFolder}>
+        <i class="bi bi-check-lg"></i>
+        Create
+      </button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button on:click={() => (showNewFolderModal = false)}>close</button>
+  </form>
+</dialog>
+{/if}
+
+<!-- Rename Modal -->
+{#if showRenameModal}
+<dialog class="modal modal-open">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">
+      <i class="bi bi-pencil mr-2"></i>
+      Rename
+    </h3>
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text">New Name</span>
+      </label>
+      <input
+        type="text"
+        bind:value={newFileName}
+        placeholder="Enter new name..."
+        class="input input-bordered"
+        autofocus
+      />
+    </div>
+    <div class="modal-action">
+      <button class="btn" on:click={() => (showRenameModal = false)}>Cancel</button>
+      <button class="btn btn-primary" on:click={handleRename}>
+        <i class="bi bi-check-lg"></i>
+        Rename
+      </button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button on:click={() => (showRenameModal = false)}>close</button>
+  </form>
+</dialog>
+{/if}
+
+<!-- Delete Confirmation -->
+{#if showDeleteModal}
+<dialog class="modal modal-open">
+  <div class="modal-box text-center">
+    <div class="text-6xl mb-4">
+      <i class="bi bi-trash3 text-error"></i>
+    </div>
+    <h3 class="font-bold text-lg mb-2">Delete "{fileToDelete?.name}"?</h3>
+      This action cannot be undone.
+    </p>
+    <div class="modal-action justify-center">
+      <button class="btn" on:click={() => (showDeleteModal = false)}>Cancel</button>
+      <button class="btn btn-error" on:click={handleDelete}>
+        <i class="bi bi-trash"></i>
+        Delete
+      </button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button on:click={() => (showDeleteModal = false)}>close</button>
+  </form>
+</dialog>
+{/if}
+
+<style>
+  .files-view {
+    padding: var(--spacing-6);
+    max-width: 1600px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .files-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--spacing-4);
+  }
+
+  .files-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .file-card {
+    text-align: center;
+    padding: var(--spacing-4);
+  }
+
+  .file-icon {
+    margin-bottom: var(--spacing-3);
+    color: var(--color-primary);
+  }
+
+  .file-name {
+    margin-bottom: var(--spacing-1);
+  }
+
+  .file-meta {
+    margin-bottom: var(--spacing-2);
+  }
+
+  .file-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-1);
+    margin-top: var(--spacing-2);
+  }
+
+  .drop-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(103, 80, 164, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: var(--z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .drop-content {
+    text-align: center;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  .space-y-4 > * + * {
+    margin-top: var(--spacing-4);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .files-grid {
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+
+    .toolbar .flex {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+</style>

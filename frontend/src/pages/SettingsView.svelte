@@ -1,470 +1,826 @@
 <script>
+  import { onMount } from "svelte";
   import { currentTheme, currentLang } from "../stores/ui.js";
+  import { auth } from "../stores/auth.js";
   import { t } from "../i18n.js";
-  import Icon from "../components/ui/Icon.svelte";
+  import { success, error as errorToast, info } from "../stores/toast";
   import PageHeader from "../components/ui/PageHeader.svelte";
-  import TabBar from "../components/ui/TabBar.svelte";
-  import Button from "../components/ui/Button.svelte";
+  import ButtonV2 from "../components/ui/ButtonV2.svelte";
+  import CardV2 from "../components/ui/CardV2.svelte";
+  import InputV2 from "../components/ui/InputV2.svelte";
+  import SelectV2 from "../components/ui/SelectV2.svelte";
+  import CheckboxV2 from "../components/ui/CheckboxV2.svelte";
+  import Avatar from "../components/ui/Avatar.svelte";
+  import Badge from "../components/ui/Badge.svelte";
 
-  let activeTab = "general"; // general, advanced, about
-  
-  const tabs = [
-    { id: "general", label: "General", icon: "bi-sliders" },
-    { id: "advanced", label: "Advanced", icon: "bi-tools" },
-    { id: "about", label: "About", icon: "bi-info-circle" }
+  let activeTab = "general"; // general, users, storage, security, advanced, about
+
+  // Users tab data
+  let users = [];
+  let loadingUsers = false;
+  let showAddUserModal = false;
+  let showEditUserModal = false;
+  let showDeleteUserModal = false;
+  let newUsername = "";
+  let newUserPassword = "";
+  let userToEdit = null;
+  let userToDelete = null;
+
+  onMount(() => {
+    if (activeTab === "users") {
+      loadUsers();
+    }
+  });
+
+  async function loadUsers() {
+    loadingUsers = true;
+    try {
+      // Mock data - replace with actual API call
+      users = [
+        {
+          id: 1,
+          username: "admin",
+          email: "admin@syncspace.local",
+          role: "admin",
+          created: new Date().toLocaleDateString($currentLang),
+          lastLogin: new Date().toLocaleDateString($currentLang),
+          twoFactor: true,
+        },
+        {
+          id: 2,
+          username: "demo",
+          email: "demo@syncspace.local",
+          role: "user",
+          created: new Date(
+            Date.now() - 7 * 24 * 60 * 60 * 1000
+          ).toLocaleDateString($currentLang),
+          lastLogin: new Date().toLocaleDateString($currentLang),
+          twoFactor: false,
+        },
+      ];
+    } catch (err) {
+      errorToast(err.message || "Failed to load users");
+    } finally {
+      loadingUsers = false;
+    }
+  }
+
+  function handleAddUser() {
+    if (!newUsername || !newUserPassword) {
+      errorToast("Please fill all fields");
+      return;
+    }
+
+    users = [
+      ...users,
+      {
+        id: users.length + 1,
+        username: newUsername,
+        email: `${newUsername}@syncspace.local`,
+        role: "user",
+        created: new Date().toLocaleDateString($currentLang),
+        lastLogin: "—",
+        twoFactor: false,
+      },
+    ];
+
+    success(`User "${newUsername}" created`);
+    newUsername = "";
+    newUserPassword = "";
+    showAddUserModal = false;
+  }
+
+  function handleDeleteUser() {
+    if (!userToDelete) return;
+
+    users = users.filter((u) => u.id !== userToDelete.id);
+    success(`User "${userToDelete.username}" deleted`);
+    userToDelete = null;
+    showDeleteUserModal = false;
+  }
+
+  function openEditUserModal(user) {
+    userToEdit = user;
+    showEditUserModal = true;
+  }
+
+  function openDeleteUserModal(user) {
+    userToDelete = user;
+    showDeleteUserModal = true;
+  }
+
+  function handleTabChange(tab) {
+    activeTab = tab;
+    if (tab === "users" && users.length === 0) {
+      loadUsers();
+    }
+  }
+
+  // Language options
+  const languageOptions = [
+    { value: "de", label: "🇩🇪 Deutsch" },
+    { value: "en", label: "🇬🇧 English" },
+    { value: "fr", label: "🇫🇷 Français" },
+    { value: "es", label: "🇪🇸 Español" },
   ];
+
+  // Settings form
+  let storageLocation = "./data";
+  let autoBackup = true;
+  let enableNotifications = true;
+  let twoFactorAuth = false;
+  let maxFileSize = "100";
+
+  function handleClearCache() {
+    alert("Cache cleared successfully!");
+  }
+
+  function handleExportSettings() {
+    alert("Settings exported!");
+  }
+
+  function handleSaveSettings() {
+    alert("Settings saved successfully!");
+  }
 </script>
 
 <div class="settings-view">
-  <PageHeader 
-    title="Settings"
-    subtitle=""
-    icon="gear-fill"
-    gradient="purple"
-  />
-
-  <!-- TabBar -->
-  <div class="tabs-wrapper">
-    <TabBar 
-      {tabs} 
-      bind:activeTab 
-      onChange={(id) => activeTab = id}
-      variant="pills"
-    />
+  <!-- Tabs -->
+  <div class="tabs tabs-boxed mb-6 bg-base-200">
+    <button
+      class="tab"
+      class:tab-active={activeTab === "general"}
+      on:click={() => handleTabChange("general")}
+    >
+      <i class="bi bi-sliders mr-2"></i>
+      General
+    </button>
+    <button
+      class="tab"
+      class:tab-active={activeTab === "users"}
+      on:click={() => handleTabChange("users")}
+    >
+      <i class="bi bi-people-fill mr-2"></i>
+      Users
+    </button>
+    <button
+      class="tab"
+      class:tab-active={activeTab === "storage"}
+      on:click={() => handleTabChange("storage")}
+    >
+      <i class="bi bi-hdd-fill mr-2"></i>
+      Storage
+    </button>
+    <button
+      class="tab"
+      class:tab-active={activeTab === "security"}
+      on:click={() => handleTabChange("security")}
+    >
+      <i class="bi bi-shield-fill-check mr-2"></i>
+      Security
+    </button>
+    <button
+      class="tab"
+      class:tab-active={activeTab === "advanced"}
+      on:click={() => handleTabChange("advanced")}
+    >
+      <i class="bi bi-tools mr-2"></i>
+      Advanced
+    </button>
+    <button
+      class="tab"
+      class:tab-active={activeTab === "about"}
+      on:click={() => handleTabChange("about")}
+    >
+      <i class="bi bi-info-circle mr-2"></i>
+      About
+    </button>
   </div>
 
-  <!-- Tab Content -->
-  <div class="content">
+  <!-- Content -->
+  <div class="settings-content">
     {#if activeTab === "general"}
       <div class="settings-grid fade-in">
-        <!-- Theme Card -->
-        <div class="glass-card card">
-          <div class="card-head">
-            <div class="head-icon">
-              <Icon name="palette" size={20} />
-            </div>
-            <h3>{t($currentLang, "theme")}</h3>
+        <!-- Theme Settings -->
+        <CardV2 hoverable>
+          <svelte:fragment slot="title">
+            <i class="bi bi-palette-fill text-primary"></i>
+            Theme
+          </svelte:fragment>
+          <p class="text-sm opacity-70 mb-4">
+            Choose your preferred color scheme
+          </p>
+          <div class="flex gap-3">
+            <ButtonV2
+              variant={$currentTheme === "light" ? "primary" : "outline"}
+              size="md"
+              iconLeft="sun-fill"
+              on:click={() => {
+                currentTheme.set("light");
+                document.documentElement.setAttribute(
+                  "data-theme",
+                  "syncspace"
+                );
+              }}
+              class="flex-1"
+            >
+              Light
+            </ButtonV2>
+            <ButtonV2
+              variant={$currentTheme === "dark" ? "primary" : "outline"}
+              size="md"
+              iconLeft="moon-fill"
+              on:click={() => {
+                currentTheme.set("dark");
+                document.documentElement.setAttribute(
+                  "data-theme",
+                  "syncspace-dark"
+                );
+              }}
+              class="flex-1"
+            >
+              Dark
+            </ButtonV2>
           </div>
-          <div class="options">
-            <button class="option glass-button" class:active={$currentTheme === "light"} onclick={() => currentTheme.set("light")}>
-              <Icon name="sun-fill" size={22} />
-              <span>{t($currentLang, "light")}</span>
-            </button>
-            <button class="option glass-button" class:active={$currentTheme === "dark"} onclick={() => currentTheme.set("dark")}>
-              <Icon name="moon-fill" size={22} />
-              <span>Dark</span>
-            </button>
-          </div>
-        </div>
+        </CardV2>
 
-        <!-- Language Card -->
-        <div class="glass-card card">
-          <div class="card-head">
-            <div class="head-icon">
-              <Icon name="translate" size={20} />
+        <!-- Language Settings -->
+        <CardV2 hoverable>
+          <svelte:fragment slot="title">
+            <i class="bi bi-translate text-secondary"></i>
+            Language
+          </svelte:fragment>
+          <p class="text-sm opacity-70 mb-4">Select your preferred language</p>
+          <SelectV2
+            bind:value={$currentLang}
+            options={languageOptions}
+            label="Interface Language"
+            size="md"
+          />
+        </CardV2>
+
+        <!-- Notification Settings -->
+        <CardV2 hoverable>
+          <svelte:fragment slot="title">
+            <i class="bi bi-bell-fill text-accent"></i>
+            Notifications
+          </svelte:fragment>
+          <div class="space-y-4">
+            <CheckboxV2
+              bind:checked={enableNotifications}
+              label="Enable Notifications"
+              description="Receive desktop notifications for important events"
+              color="primary"
+            />
+            <CheckboxV2
+              bind:checked={autoBackup}
+              label="Auto Backup Notifications"
+              description="Get notified when automatic backups complete"
+              color="secondary"
+            />
+          </div>
+        </CardV2>
+
+        <!-- Security Settings -->
+        <CardV2 hoverable>
+          <svelte:fragment slot="title">
+            <i class="bi bi-shield-fill-check text-success"></i>
+            Security
+          </svelte:fragment>
+          <div class="space-y-4">
+            <CheckboxV2
+              bind:checked={twoFactorAuth}
+              label="Two-Factor Authentication"
+              description="Add an extra layer of security to your account"
+              color="success"
+            />
+            <InputV2
+              type="password"
+              label="Change Password"
+              placeholder="Enter new password"
+              iconLeft="lock-fill"
+              helpText="Password must be at least 8 characters"
+            />
+          </div>
+          <svelte:fragment slot="actions">
+            <ButtonV2 variant="ghost" size="sm">Cancel</ButtonV2>
+            <ButtonV2 variant="success" size="sm" iconLeft="check-lg">
+              Update Password
+            </ButtonV2>
+          </svelte:fragment>
+        </CardV2>
+      </div>
+    {:else if activeTab === "users"}
+      <div class="fade-in">
+        <!-- Users Table -->
+        <CardV2>
+          <svelte:fragment slot="title">
+            <i class="bi bi-people-fill text-primary"></i>
+            User Management
+          </svelte:fragment>
+          <svelte:fragment slot="actions">
+            <ButtonV2
+              variant="primary"
+              size="sm"
+              iconLeft="person-plus-fill"
+              on:click={() => (showAddUserModal = true)}
+            >
+              Add User
+            </ButtonV2>
+          </svelte:fragment>
+
+          {#if loadingUsers}
+            <div class="flex justify-center items-center h-64">
+              <span class="loading loading-spinner loading-lg text-primary"
+              ></span>
             </div>
-            <h3>Language</h3>
+          {:else if users.length === 0}
+            <div class="text-center py-12">
+              <i class="bi bi-people text-7xl text-base-300 mb-4"></i>
+              <h3 class="text-2xl font-bold mb-2">No users yet</h3>
+              <p class="opacity-70 mb-4">Create your first user account</p>
+              <ButtonV2
+                variant="primary"
+                iconLeft="person-plus-fill"
+                on:click={() => (showAddUserModal = true)}
+              >
+                Add User
+              </ButtonV2>
+            </div>
+          {:else}
+            <div class="overflow-x-auto">
+              <table class="table table-zebra">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Created</th>
+                    <th>Last Login</th>
+                    <th>2FA</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {#each users as user}
+                    <tr>
+                      <td>
+                        <div class="flex items-center gap-3">
+                          <Avatar name={user.username} size="sm" />
+                          <div class="font-semibold">{user.username}</div>
+                        </div>
+                      </td>
+                      <td>{user.email}</td>
+                      <td>
+                        <Badge
+                          variant={user.role === "admin" ? "error" : "ghost"}
+                        >
+                          {user.role}
+                        </Badge>
+                      </td>
+                      <td class="text-sm opacity-70">{user.created}</td>
+                      <td class="text-sm opacity-70">{user.lastLogin}</td>
+                      <td>
+                        {#if user.twoFactor}
+                          <Badge variant="success">Enabled</Badge>
+                        {:else}
+                          <Badge variant="ghost">Disabled</Badge>
+                        {/if}
+                      </td>
+                      <td>
+                        <div class="flex gap-1 justify-end">
+                          <button
+                            class="btn btn-ghost btn-sm btn-circle"
+                            on:click={() => openEditUserModal(user)}
+                            aria-label="Edit user"
+                          >
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                          <button
+                            class="btn btn-ghost btn-sm btn-circle text-error"
+                            on:click={() => openDeleteUserModal(user)}
+                            aria-label="Delete user"
+                            disabled={user.username === $auth.username}
+                          >
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  {/each}
+                </tbody>
+              </table>
+            </div>
+          {/if}
+        </CardV2>
+      </div>
+    {:else if activeTab === "storage"}
+      <div class="settings-grid fade-in">
+        <!-- Storage Settings Card -->
+        <CardV2 hoverable>
+          <svelte:fragment slot="title">
+            <i class="bi bi-hdd-fill text-primary"></i>
+            Storage Configuration
+          </svelte:fragment>
+          <div class="space-y-4">
+            <InputV2
+              bind:value={storageLocation}
+              label="Storage Location"
+              iconLeft="folder-fill"
+              helpText="Path where files are stored"
+              disabled
+            />
+            <InputV2
+              bind:value={maxFileSize}
+              label="Max File Size (MB)"
+              type="number"
+              iconLeft="file-earmark-arrow-up"
+              helpText="Maximum size for uploaded files"
+            />
+            <div
+              class="flex justify-between items-center p-3 bg-base-200 rounded-lg"
+            >
+              <div>
+                <div class="font-semibold">Cache Size</div>
+                <div class="text-sm opacity-70">Currently using 245 MB</div>
+              </div>
+              <ButtonV2
+                variant="error"
+                size="sm"
+                iconLeft="trash-fill"
+                on:click={handleClearCache}
+              >
+                Clear Cache
+              </ButtonV2>
+            </div>
           </div>
-          <div class="options">
-            <button class="option glass-button" class:active={$currentLang === "de"} onclick={() => currentLang.set("de")}>
-              <span class="flag">🇩🇪</span>
-              <span>Deutsch</span>
-            </button>
-            <button class="option glass-button" class:active={$currentLang === "en"} onclick={() => currentLang.set("en")}>
-              <span class="flag">🇬🇧</span>
-              <span>English</span>
-            </button>
+        </CardV2>
+      </div>
+    {:else if activeTab === "security"}
+      <div class="settings-grid fade-in">
+        <!-- Security Settings Card -->
+        <CardV2 hoverable>
+          <svelte:fragment slot="title">
+            <i class="bi bi-shield-fill-check text-success"></i>
+            Security Settings
+          </svelte:fragment>
+          <div class="space-y-4">
+            <CheckboxV2
+              bind:checked={twoFactorAuth}
+              label="Two-Factor Authentication"
+              description="Add an extra layer of security to your account"
+              color="success"
+            />
+            <InputV2
+              type="password"
+              label="Change Password"
+              placeholder="Enter new password"
+              iconLeft="lock-fill"
+              helpText="Password must be at least 8 characters"
+            />
           </div>
-        </div>
+          <svelte:fragment slot="actions">
+            <ButtonV2 variant="ghost" size="sm">Cancel</ButtonV2>
+            <ButtonV2 variant="success" size="sm" iconLeft="check-lg">
+              Update Password
+            </ButtonV2>
+          </svelte:fragment>
+        </CardV2>
       </div>
     {:else if activeTab === "advanced"}
       <div class="settings-grid fade-in">
-        <!-- Storage Card -->
-        <div class="glass-card card">
-          <div class="card-head">
-            <div class="head-icon">
-              <Icon name="hdd-fill" size={20} />
+        <!-- Backup Settings -->
+        <CardV2 hoverable>
+          <svelte:fragment slot="title">
+            <i class="bi bi-cloud-arrow-up-fill text-info"></i>
+            Backup
+          </svelte:fragment>
+          <div class="space-y-4">
+            <CheckboxV2
+              bind:checked={autoBackup}
+              label="Automatic Backups"
+              description="Automatically backup your data daily at 2:00 AM"
+              color="info"
+            />
+            <SelectV2
+              value="daily"
+              options={[
+                { value: "hourly", label: "Every Hour" },
+                { value: "daily", label: "Daily" },
+                { value: "weekly", label: "Weekly" },
+                { value: "monthly", label: "Monthly" },
+              ]}
+              label="Backup Frequency"
+            />
+            <div class="stats shadow w-full">
+              <div class="stat">
+                <div class="stat-figure text-primary">
+                  <i class="bi bi-clock-history text-3xl"></i>
+                </div>
+                <div class="stat-title">Last Backup</div>
+                <div class="stat-value text-primary text-lg">2 hours ago</div>
+                <div class="stat-desc">Next backup in 22 hours</div>
+              </div>
             </div>
-            <h3>Storage</h3>
           </div>
-          <div class="row">
-            <span class="label"><Icon name="folder-fill" size={16} /> Location</span>
-            <code class="glass-badge">./data</code>
-          </div>
-          <div class="row">
-            <span class="label"><Icon name="trash" size={16} /> Cache</span>
-            <Button variant="primary" size="small">
-              <Icon name="x-circle" size={14} /> Clear
-            </Button>
-          </div>
-        </div>
+          <svelte:fragment slot="actions">
+            <ButtonV2 variant="primary" size="sm" iconLeft="cloud-arrow-up">
+              Backup Now
+            </ButtonV2>
+          </svelte:fragment>
+        </CardV2>
 
-        <!-- Performance Card -->
-        <div class="glass-card card">
-          <div class="card-head">
-            <div class="head-icon">
-              <Icon name="speedometer" size={20} />
+        <!-- Developer Settings -->
+        <CardV2 hoverable>
+          <svelte:fragment slot="title">
+            <i class="bi bi-code-slash text-secondary"></i>
+            Developer
+          </svelte:fragment>
+          <div class="space-y-4">
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle-fill"></i>
+              <span>These settings are for advanced users only</span>
             </div>
-            <h3>Performance</h3>
+            <CheckboxV2
+              checked={false}
+              label="Debug Mode"
+              description="Enable verbose logging"
+              color="warning"
+            />
+            <CheckboxV2
+              checked={false}
+              label="API Access"
+              description="Enable REST API endpoints"
+              color="secondary"
+            />
           </div>
-          <div class="row">
-            <span class="label"><Icon name="lightning-fill" size={16} /> Hardware Acceleration</span>
-            <label class="toggle">
-              <input type="checkbox" checked />
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div class="row">
-            <span class="label"><Icon name="file-earmark-image" size={16} /> Thumbnails</span>
-            <label class="toggle">
-              <input type="checkbox" checked />
-              <span class="slider"></span>
-            </label>
-          </div>
-        </div>
+          <svelte:fragment slot="actions">
+            <ButtonV2
+              variant="outline"
+              size="sm"
+              iconLeft="download"
+              on:click={handleExportSettings}
+            >
+              Export Settings
+            </ButtonV2>
+          </svelte:fragment>
+        </CardV2>
       </div>
     {:else if activeTab === "about"}
-      <div class="about fade-in">
-        <!-- App Info -->
-        <div class="glass-card app-card">
-          <div class="logo-container">
-            <div class="logo gradient-bg">
-              <Icon name="cloud-arrow-up-fill" size={56} />
+      <div class="max-w-2xl mx-auto fade-in">
+        <CardV2 hoverable>
+          <svelte:fragment slot="title">
+            <i class="bi bi-app-indicator text-primary"></i>
+            SyncSpace
+          </svelte:fragment>
+          <div class="text-center space-y-6 py-4">
+            <div class="logo-large">
+              <svg
+                class="w-24 h-24 mx-auto"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"
+                  fill="url(#logo-gradient-about)"
+                />
+                <defs>
+                  <linearGradient
+                    id="logo-gradient-about"
+                    x1="3"
+                    y1="2"
+                    x2="21"
+                    y2="22"
+                  >
+                    <stop offset="0%" stop-color="#667eea" />
+                    <stop offset="100%" stop-color="#764ba2" />
+                  </linearGradient>
+                </defs>
+              </svg>
             </div>
-          </div>
-          <h2 class="gradient-text">SyncSpace</h2>
-          <p class="version glass-badge">v1.0.0-alpha</p>
-          <p class="desc">Modern self-hosted file synchronization</p>
-        </div>
 
-        <!-- Tech Stack -->
-        <div class="glass-card card">
-          <div class="card-head">
-            <div class="head-icon">
-              <Icon name="stack" size={20} />
+            <div>
+              <h2 class="text-3xl font-bold mb-2">SyncSpace</h2>
+              <p class="text-lg opacity-70">Cloud Storage Solution</p>
             </div>
-            <h3>Technology Stack</h3>
-          </div>
-          <div class="tech">
-            <div class="item glass-badge">
-              <Icon name="gear-fill" size={18} />
-              <span>Rust + Axum</span>
-            </div>
-            <div class="item glass-badge">
-              <Icon name="palette-fill" size={18} />
-              <span>Svelte 5</span>
-            </div>
-            <div class="item glass-badge">
-              <Icon name="database-fill" size={18} />
-              <span>SQLite</span>
-            </div>
-            <div class="item glass-badge">
-              <Icon name="search" size={18} />
-              <span>Tantivy Search</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Links -->
-        <div class="glass-card card">
-          <div class="card-head">
-            <div class="head-icon">
-              <Icon name="link-45deg" size={20} />
+            <div class="divider"></div>
+
+            <div class="stats stats-vertical lg:stats-horizontal shadow w-full">
+              <div class="stat">
+                <div class="stat-title">Version</div>
+                <div class="stat-value text-primary text-2xl">1.0.0</div>
+                <div class="stat-desc">Latest Release</div>
+              </div>
+
+              <div class="stat">
+                <div class="stat-title">License</div>
+                <div class="stat-value text-secondary text-2xl">MIT</div>
+                <div class="stat-desc">Open Source</div>
+              </div>
+
+              <div class="stat">
+                <div class="stat-title">Build</div>
+                <div class="stat-value text-accent text-2xl">2025.10</div>
+                <div class="stat-desc">October 2025</div>
+              </div>
             </div>
-            <h3>Resources</h3>
+
+            <div class="text-sm opacity-70 space-y-2">
+              <p>Built with Rust, Svelte, and DaisyUI</p>
+              <p>© 2025 SyncSpace. All rights reserved.</p>
+            </div>
           </div>
-          <div class="links">
-            <a href="https://github.com/MickLesk/syncspace" target="_blank" class="glass-button">
-              <Icon name="github" size={18} />
-              <span>GitHub</span>
-            </a>
-            <a href="https://github.com/MickLesk/syncspace/blob/main/docs" target="_blank" class="glass-button">
-              <Icon name="book" size={18} />
-              <span>Documentation</span>
-            </a>
-            <a href="https://github.com/MickLesk/syncspace/issues" target="_blank" class="glass-button">
-              <Icon name="bug" size={18} />
-              <span>Report Issue</span>
-            </a>
-          </div>
-        </div>
+          <svelte:fragment slot="actions">
+            <ButtonV2 variant="ghost" size="sm" iconLeft="github" fullWidth>
+              View on GitHub
+            </ButtonV2>
+            <ButtonV2
+              variant="primary"
+              size="sm"
+              iconLeft="info-circle"
+              fullWidth
+            >
+              Documentation
+            </ButtonV2>
+          </svelte:fragment>
+        </CardV2>
       </div>
     {/if}
   </div>
+
+  <!-- Save Button (Fixed Bottom) -->
+  <div class="settings-actions">
+    <ButtonV2 variant="ghost" size="lg" iconLeft="arrow-clockwise">
+      Reset to Defaults
+    </ButtonV2>
+    <ButtonV2
+      variant="primary"
+      size="lg"
+      iconLeft="check-lg"
+      on:click={handleSaveSettings}
+    >
+      Save All Changes
+    </ButtonV2>
+  </div>
 </div>
+
+<!-- Add User Modal -->
+{#if showAddUserModal}
+  <dialog class="modal modal-open">
+    <div class="modal-box">
+      <button
+        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+        on:click={() => (showAddUserModal = false)}
+      >
+        ✕
+      </button>
+      <h3 class="font-bold text-lg mb-4">
+        <i class="bi bi-person-plus-fill text-primary mr-2"></i>
+        Add New User
+      </h3>
+
+      <div class="space-y-4">
+        <InputV2
+          bind:value={newUsername}
+          label="Username"
+          placeholder="Enter username..."
+          iconLeft="person-fill"
+        />
+        <InputV2
+          bind:value={newUserPassword}
+          type="password"
+          label="Password"
+          placeholder="Enter password..."
+          iconLeft="lock-fill"
+          helpText="Password must be at least 8 characters"
+        />
+      </div>
+
+      <div class="flex gap-2 justify-end mt-6">
+        <ButtonV2 variant="ghost" on:click={() => (showAddUserModal = false)}>
+          Cancel
+        </ButtonV2>
+        <ButtonV2
+          variant="primary"
+          iconLeft="check-lg"
+          on:click={handleAddUser}
+        >
+          Create User
+        </ButtonV2>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button on:click={() => (showAddUserModal = false)}>close</button>
+    </form>
+  </dialog>
+{/if}
+
+<!-- Delete User Modal -->
+{#if showDeleteUserModal}
+  <dialog class="modal modal-open">
+    <div class="modal-box text-center">
+      <div class="text-6xl text-error mb-4">
+        <i class="bi bi-person-x-fill"></i>
+      </div>
+      <h3 class="font-bold text-lg mb-2">
+        Delete User "{userToDelete?.username}"?
+      </h3>
+      <p class="text-base-content/70 mb-4">
+        This action cannot be undone. All user data will be permanently removed.
+      </p>
+      <div class="modal-action justify-center">
+        <ButtonV2
+          variant="ghost"
+          on:click={() => (showDeleteUserModal = false)}
+        >
+          Cancel
+        </ButtonV2>
+        <ButtonV2 variant="error" iconLeft="trash" on:click={handleDeleteUser}>
+          Delete User
+        </ButtonV2>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button on:click={() => (showDeleteUserModal = false)}>close</button>
+    </form>
+  </dialog>
+{/if}
 
 <style>
   .settings-view {
-    min-height: 100vh;
-    background: var(--md-sys-color-surface);
-  }
-
-  /* Segment Control Tabs (iOS/macOS Style) */
-  .tabs-wrapper {
-    position: relative;
-    max-width: 800px;
-    margin: -30px auto 0;
-    padding: 0 24px;
-    z-index: 20;
-    display: flex;
-    justify-content: center;
-  }
-
-  /* Content */
-  .content {
-    max-width: 800px;
+    padding: var(--spacing-6);
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 32px 24px;
+  }
+
+  .settings-content {
+    margin-bottom: var(--spacing-20);
   }
 
   .settings-grid {
     display: grid;
-    gap: 20px;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--spacing-6);
   }
 
-  /* Glass Cards */
-  .card {
-    padding: 24px;
+  .space-y-4 > * + * {
+    margin-top: var(--spacing-4);
   }
 
-  .card-head {
+  .space-y-6 > * + * {
+    margin-top: var(--spacing-6);
+  }
+
+  .fade-in {
+    animation: fadeIn var(--duration-300) var(--ease-standard);
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .settings-actions {
+    position: fixed;
+    bottom: 0;
+    left: 280px;
+    right: 0;
+    padding: var(--spacing-4) var(--spacing-6);
+    background: var(--glass-background);
+    backdrop-filter: blur(var(--glass-blur));
+    border-top: 1px solid var(--color-outline);
     display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .head-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
-  }
-
-  .card-head h3 {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--md-sys-color-on-surface);
-    margin: 0;
-  }
-
-  /* Options Grid */
-  .options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 12px;
-  }
-
-  .option {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 20px;
-    border-radius: 16px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--md-sys-color-on-surface);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .option:hover {
-    transform: translateY(-4px);
-  }
-
-  .option.active {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    color: white;
-    border-color: transparent;
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
-  }
-
-  .flag {
-    font-size: 32px;
-  }
-
-  /* Setting Rows */
-  .row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--md-sys-color-outline-variant);
-  }
-
-  .row:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-
-  .label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--md-sys-color-on-surface);
-  }
-
-  code {
-    padding: 6px 12px;
-    border-radius: 10px;
-    font-family: "SF Mono", "Courier New", monospace;
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  /* Modern Toggle Switch */
-  .toggle {
-    position: relative;
-    width: 52px;
-    height: 30px;
-    cursor: pointer;
-  }
-
-  .toggle input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .slider {
-    position: absolute;
-    inset: 0;
-    background: var(--md-sys-color-outline);
-    border-radius: 30px;
-    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .slider::before {
-    content: "";
-    position: absolute;
-    height: 24px;
-    width: 24px;
-    left: 3px;
-    bottom: 3px;
-    background: white;
-    border-radius: 50%;
-    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  }
-
-  .toggle input:checked + .slider {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
-  }
-
-  .toggle input:checked + .slider::before {
-    transform: translateX(22px);
-  }
-
-  /* About Section */
-  .about {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .app-card {
-    text-align: center;
-    padding: 40px 24px;
-  }
-
-  .logo-container {
-    margin-bottom: 24px;
-  }
-
-  .logo {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto;
-    border-radius: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    box-shadow: 
-      0 12px 40px rgba(99, 102, 241, 0.3),
-      inset 0 1px 1px rgba(255, 255, 255, 0.2);
-    animation: float 3s ease-in-out infinite;
-  }
-
-  .app-card h2 {
-    font-size: 32px;
-    font-weight: 800;
-    margin: 0 0 12px 0;
-    letter-spacing: -0.03em;
-  }
-
-  .version {
-    margin: 0 0 16px 0;
-  }
-
-  .desc {
-    font-size: 15px;
-    color: var(--md-sys-color-on-surface-variant);
-    margin: 0;
-  }
-
-  /* Tech Stack */
-  .tech {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .tech .item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  /* Links */
-  .links {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .links a {
-    padding: 14px 18px;
-    justify-content: flex-start;
-    font-weight: 600;
-    text-decoration: none;
-    color: var(--md-sys-color-on-surface);
-  }
-
-  .links a:hover {
-    color: var(--md-sys-color-primary);
+    justify-content: flex-end;
+    gap: var(--spacing-3);
+    z-index: var(--z-sticky);
   }
 
   /* Responsive */
-  @media (max-width: 768px) {
-    .tabs-wrapper {
-      margin-top: -20px;
-      padding: 0 16px;
-    }
-
-    .content {
-      padding: 24px 16px;
-    }
-
+  @media (max-width: 1024px) {
     .settings-grid {
       grid-template-columns: 1fr;
     }
 
-    .options {
-      grid-template-columns: 1fr 1fr;
+    .settings-actions {
+      left: 0;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .settings-view {
+      padding: var(--spacing-4);
+    }
+
+    .settings-actions {
+      flex-direction: column;
     }
   }
 </style>
