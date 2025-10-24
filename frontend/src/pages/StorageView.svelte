@@ -235,10 +235,10 @@
 </svelte:head>
 
 <div class="storage-view">
-  <PageHeader 
+  <PageHeader
     title="Storage Analytics"
     subtitle=""
-    icon="pie-chart-fill"
+    icon="hdd-fill"
     gradient="green"
   />
 
@@ -257,18 +257,20 @@
           value={stats.totalFiles}
           gradient="linear-gradient(135deg, #10b981, #34d399)"
         />
-        
+
         <StatCard
           icon="bi-hdd-fill"
           label="Storage Used"
           value={formatSize(stats.totalSize)}
           gradient="linear-gradient(135deg, #3b82f6, #60a5fa)"
         />
-        
+
         <StatCard
           icon="bi-file-earmark"
           label="File Types"
-          value={Object.keys(stats.byType).filter(k => stats.byType[k].size > 0).length}
+          value={Object.keys(stats.byType).filter(
+            (k) => stats.byType[k].size > 0
+          ).length}
           gradient="linear-gradient(135deg, #f59e0b, #fbbf24)"
         />
       </div>
@@ -283,7 +285,10 @@
         <!-- Breakdown Card -->
         <div class="glass-card">
           <div class="card-header">
-            <div class="head-icon" style="background: rgba(99, 102, 241, 0.12);">
+            <div
+              class="head-icon"
+              style="background: rgba(99, 102, 241, 0.12);"
+            >
               <Icon name="list-ul" size={20} color="#6366f1" />
             </div>
             <h3>Type Breakdown</h3>
@@ -293,11 +298,16 @@
               {#if data.size > 0}
                 <div class="item">
                   <div class="info">
-                    <span class="type">{type.charAt(0).toUpperCase() + type.slice(1)}</span>
+                    <span class="type"
+                      >{type.charAt(0).toUpperCase() + type.slice(1)}</span
+                    >
                     <span class="count">{data.count} files</span>
                   </div>
                   <div class="bar">
-                    <div class="fill" style="width: {formatPercent(data.size, stats.totalSize)}"></div>
+                    <div
+                      class="fill"
+                      style="width: {formatPercent(data.size, stats.totalSize)}"
+                    ></div>
                   </div>
                   <span class="size">{formatSize(data.size)}</span>
                 </div>

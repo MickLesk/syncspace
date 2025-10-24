@@ -310,7 +310,7 @@
     title="Backup & Export"
     subtitle="Create backups or export your files"
     icon="cloud-download"
-    gradient="purple"
+    gradient="green"
   />
 
   <div class="backup-cards">

@@ -123,12 +123,19 @@
 </script>
 
 <div class="users-view">
-  <PageHeader 
+  <PageHeader
     title={t($currentLang, "users")}
     subtitle=""
     icon="people-fill"
     gradient="purple"
-  />
+  >
+    <div slot="actions" class="header-actions">
+      <Button onClick={handleAddUser} variant="outlined" size="medium">
+        <Icon name="person-plus-fill" size={16} />
+        {t($currentLang, "addUser")}
+      </Button>
+    </div>
+  </PageHeader>
 
   <div class="page-content">
     <!-- Stats -->
@@ -139,21 +146,13 @@
         value={users.length}
         gradient="linear-gradient(135deg, #6366f1, #8b5cf6)"
       />
-      
+
       <StatCard
         icon="bi-shield-check"
         label="2FA Enabled"
-        value={users.filter(u => u.twoFactor).length}
+        value={users.filter((u) => u.twoFactor).length}
         gradient="linear-gradient(135deg, #10b981, #34d399)"
       />
-    </div>
-
-    <!-- Action Bar -->
-    <div class="actions">
-      <Button onClick={handleAddUser} variant="primary">
-        <Icon name="person-plus-fill" size={16} />
-        <span>{t($currentLang, "addUser")}</span>
-      </Button>
     </div>
 
     {#if loading}
@@ -183,14 +182,24 @@
             <div class="col-date">{user.created}</div>
             <div class="col-2fa">
               <Badge variant={user.twoFactor ? "success" : "error"}>
-                {user.twoFactor ? t($currentLang, "enabled") : t($currentLang, "disabled")}
+                {user.twoFactor
+                  ? t($currentLang, "enabled")
+                  : t($currentLang, "disabled")}
               </Badge>
             </div>
             <div class="col-actions">
-              <Button onClick={() => handleChangePassword(user)} variant="ghost" size="small">
+              <Button
+                onClick={() => handleChangePassword(user)}
+                variant="ghost"
+                size="small"
+              >
                 <Icon name="key-fill" size={14} />
               </Button>
-              <Button onClick={() => handleEditUser(user)} variant="ghost" size="small">
+              <Button
+                onClick={() => handleEditUser(user)}
+                variant="ghost"
+                size="small"
+              >
                 <Icon name="pencil-fill" size={14} />
               </Button>
               <Button

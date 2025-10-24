@@ -4,6 +4,7 @@
   import { t } from "../i18n";
   import { success, error as errorToast } from "../stores/toast";
   import api from "../lib/api";
+  import PageHeader from "../components/ui/PageHeader.svelte";
   import Avatar from "../components/ui/Avatar.svelte";
   import Button from "../components/ui/Button.svelte";
   import Dialog from "../components/ui/Dialog.svelte";
@@ -187,38 +188,45 @@
 </script>
 
 <div class="modern-profile-view">
-  <!-- Modern Header with Gradient -->
-  <div class="profile-banner">
-    <div class="banner-gradient"></div>
-    <div class="banner-content">
-      <div class="profile-avatar-large">
-        <Avatar
-          name={user.username}
-          imageUrl={user.avatar_base64}
-          size="xlarge"
-        />
-        <button 
-          class="avatar-edit-btn"
-          onclick={() => (showImageUploadDialog = true)}
-          title="Change profile picture"
+  <!-- Modern PageHeader -->
+  <PageHeader
+    title={user.display_name || user.username}
+    subtitle="@{user.username}"
+    icon="person-circle"
+    gradient="purple"
+  >
+    <div slot="stats" class="profile-stats">
+      <div class="stat">
+        <Icon name="calendar-check" size={16} />
+        <span
+          >Joined {new Date(user.created_at).toLocaleDateString("en-US", {
+            month: "short",
+            year: "numeric",
+          })}</span
         >
-          <Icon name="camera-fill" size={20} />
-        </button>
       </div>
-      <div class="profile-info">
-        <h1 class="profile-name">{user.display_name || user.username}</h1>
-        <p class="profile-username">@{user.username}</p>
-        <div class="profile-meta">
-          <div class="meta-item">
-            <Icon name="calendar-check" size={16} />
-            <span>Joined {new Date(user.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
-          </div>
-          <div class="meta-item">
-            <Icon name="envelope" size={16} />
-            <span>{user.email || "No email set"}</span>
-          </div>
-        </div>
+      <div class="stat">
+        <Icon name="envelope" size={16} />
+        <span>{user.email || "No email set"}</span>
       </div>
+    </div>
+  </PageHeader>
+
+  <!-- Avatar Section (below header) -->
+  <div class="profile-avatar-section">
+    <div class="avatar-container">
+      <Avatar
+        name={user.username}
+        imageUrl={user.avatar_base64}
+        size="xlarge"
+      />
+      <button
+        class="avatar-edit-btn glass-button"
+        onclick={() => (showImageUploadDialog = true)}
+        title="Change profile picture"
+      >
+        <Icon name="camera-fill" size={20} />
+      </button>
     </div>
   </div>
 
@@ -227,10 +235,10 @@
     tabs={[
       { id: "profile", label: "Profile", icon: "person" },
       { id: "settings", label: "Settings", icon: "gear" },
-      { id: "security", label: "Security", icon: "shield-check" }
+      { id: "security", label: "Security", icon: "shield-check" },
     ]}
-    activeTab={activeTab}
-    onChange={(tabId) => activeTab = tabId}
+    {activeTab}
+    onChange={(tabId) => (activeTab = tabId)}
   />
 
   {#if loading}
@@ -323,10 +331,10 @@
                   <span>Account Created</span>
                 </div>
                 <div class="detail-value">
-                  {new Date(user.created_at).toLocaleDateString("en-US", { 
-                    year: "numeric", 
-                    month: "long", 
-                    day: "numeric" 
+                  {new Date(user.created_at).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
                   })}
                 </div>
               </div>
@@ -354,20 +362,37 @@
               <div class="setting-row">
                 <div class="setting-info">
                   <div class="setting-label">
-                    <Icon name={settings.theme === "dark" ? "moon-stars-fill" : "sun-fill"} size={20} />
+                    <Icon
+                      name={settings.theme === "dark"
+                        ? "moon-stars-fill"
+                        : "sun-fill"}
+                      size={20}
+                    />
                     <span>Theme</span>
                   </div>
-                  <p class="setting-description">Choose your preferred color scheme</p>
+                  <p class="setting-description">
+                    Choose your preferred color scheme
+                  </p>
                 </div>
                 <div class="theme-selector">
                   {#each ["light", "dark", "system"] as themeOption}
                     <button
                       class="theme-option"
                       class:active={settings.theme === themeOption}
-                      onclick={() => settings.theme = themeOption}
+                      onclick={() => (settings.theme = themeOption)}
                     >
-                      <Icon name={themeOption === "light" ? "sun-fill" : themeOption === "dark" ? "moon-stars-fill" : "laptop"} size={18} />
-                      <span>{themeOption.charAt(0).toUpperCase() + themeOption.slice(1)}</span>
+                      <Icon
+                        name={themeOption === "light"
+                          ? "sun-fill"
+                          : themeOption === "dark"
+                            ? "moon-stars-fill"
+                            : "laptop"}
+                        size={18}
+                      />
+                      <span
+                        >{themeOption.charAt(0).toUpperCase() +
+                          themeOption.slice(1)}</span
+                      >
                     </button>
                   {/each}
                 </div>
@@ -379,7 +404,9 @@
                     <Icon name="globe" size={20} />
                     <span>Language</span>
                   </div>
-                  <p class="setting-description">Select your preferred language</p>
+                  <p class="setting-description">
+                    Select your preferred language
+                  </p>
                 </div>
                 <select bind:value={settings.language} class="modern-select">
                   <option value="de">🇩🇪 Deutsch</option>
@@ -393,9 +420,14 @@
                     <Icon name="grid-3x3" size={20} />
                     <span>Default View</span>
                   </div>
-                  <p class="setting-description">Choose how files are displayed by default</p>
+                  <p class="setting-description">
+                    Choose how files are displayed by default
+                  </p>
                 </div>
-                <select bind:value={settings.default_view} class="modern-select">
+                <select
+                  bind:value={settings.default_view}
+                  class="modern-select"
+                >
                   <option value="grid">Grid View</option>
                   <option value="list">List View</option>
                 </select>
@@ -565,40 +597,43 @@
 <style>
   .modern-profile-view {
     min-height: 100vh;
-    background: linear-gradient(180deg, 
-      rgba(99, 102, 241, 0.03) 0%, 
-      rgba(139, 92, 246, 0.03) 50%, 
-      transparent 100%);
-    padding-bottom: 40px;
+    background: var(--md-sys-color-background);
+    padding: 0;
   }
 
-  /* Profile Banner */
-  .profile-banner {
-    position: relative;
-    height: 280px;
-    overflow: hidden;
+  /* Profile Stats in Header */
+  .profile-stats {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
   }
 
-  .banner-gradient {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
-    opacity: 0.9;
-  }
-
-  .banner-content {
-    position: relative;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 40px 32px;
+  .profile-stats .stat {
     display: flex;
     align-items: center;
-    gap: 32px;
-    height: 100%;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    font-size: 13px;
+    color: white;
   }
 
-  .profile-avatar-large {
+  /* Avatar Section (below header) */
+  .profile-avatar-section {
+    max-width: 1200px;
+    margin: -60px auto 32px auto;
+    padding: 0 32px;
     position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+  }
+
+  .avatar-container {
+    position: relative;
+    display: inline-block;
   }
 
   .avatar-edit-btn {
@@ -619,41 +654,13 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
+  :global([data-theme="dark"]) .avatar-edit-btn {
+    border-color: #1e1e26;
+  }
+
   .avatar-edit-btn:hover {
     transform: scale(1.1);
     box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
-  }
-
-  .profile-info {
-    flex: 1;
-    color: white;
-  }
-
-  .profile-name {
-    font-size: 36px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  }
-
-  .profile-username {
-    font-size: 18px;
-    opacity: 0.9;
-    margin-bottom: 16px;
-  }
-
-  .profile-meta {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    opacity: 0.95;
   }
 
   /* Tab Content */
@@ -1040,4 +1047,3 @@
     }
   }
 </style>
-
