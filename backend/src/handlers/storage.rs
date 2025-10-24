@@ -120,7 +120,7 @@ pub async fn get_storage_stats(
     let total_files: (i64,) = sqlx::query_as(
         "SELECT COUNT(*) FROM files WHERE owner_id = ? AND is_deleted = 0"
     )
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .fetch_one(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -129,7 +129,7 @@ pub async fn get_storage_stats(
     let total_folders: (i64,) = sqlx::query_as(
         "SELECT COUNT(*) FROM folders WHERE owner_id = ? AND is_deleted = 0"
     )
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .fetch_one(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -138,7 +138,7 @@ pub async fn get_storage_stats(
     let total_size: Option<(i64,)> = sqlx::query_as(
         "SELECT COALESCE(SUM(size_bytes), 0) FROM files WHERE owner_id = ? AND is_deleted = 0"
     )
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .fetch_optional(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -147,7 +147,7 @@ pub async fn get_storage_stats(
     let trash_size: Option<(i64,)> = sqlx::query_as(
         "SELECT COALESCE(SUM(size_bytes), 0) FROM files WHERE owner_id = ? AND is_deleted = 1"
     )
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .fetch_optional(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -159,7 +159,7 @@ pub async fn get_storage_stats(
         WHERE file_id IN (SELECT id FROM files WHERE owner_id = ?)
         "#
     )
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .fetch_optional(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -168,7 +168,7 @@ pub async fn get_storage_stats(
     let (used_quota, quota_limit): (i64, i64) = sqlx::query_as(
         "SELECT storage_used_bytes, storage_quota_bytes FROM users WHERE id = ?"
     )
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .fetch_one(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -276,7 +276,7 @@ pub async fn cleanup_storage(
     sqlx::query(
         "DELETE FROM files WHERE owner_id = ? AND is_deleted = 1 AND deleted_at < ?"
     )
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .bind(&thirty_days_ago)
     .execute(&state.db_pool)
     .await
@@ -294,13 +294,13 @@ pub async fn cleanup_storage(
         )
         "#
     )
-    .bind(&user.id)
+    .bind(&user.id.to_string())
     .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     // Recalculate storage usage
-    let new_usage = recalculate_storage_usage(&state.db_pool, &user.id)
+    let new_usage = recalculate_storage_usage(&state.db_pool, &user.id.to_string())
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -312,8 +312,8 @@ pub async fn cleanup_storage(
         "#
     )
     .bind(Uuid::new_v4().to_string())
-    .bind(&user.id)
-    .bind(&user.id)
+    .bind(&user.id.to_string())
+    .bind(&user.id.to_string())
     .bind(Utc::now().to_rfc3339())
     .bind(format!("{{\"new_usage\": {}}}", new_usage))
     .execute(&state.db_pool)
@@ -329,7 +329,7 @@ pub async fn recalculate_storage(
     user: User,
     State(state): State<AppState>,
 ) -> Result<Json<StorageStats>, StatusCode> {
-    recalculate_storage_usage(&state.db_pool, &user.id)
+    recalculate_storage_usage(&state.db_pool, &user.id.to_string())
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
