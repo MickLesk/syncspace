@@ -3,13 +3,13 @@
    * Component Gallery - Showcase for all DaisyUI components
    * Created: October 24, 2025
    */
-  import ButtonV2 from "../components/ui/ButtonV2.svelte";
-  import InputV2 from "../components/ui/InputV2.svelte";
-  import CardV2 from "../components/ui/CardV2.svelte";
-  import ModalV2 from "../components/ui/ModalV2.svelte";
-  import SelectV2 from "../components/ui/SelectV2.svelte";
-  import TextareaV2 from "../components/ui/TextareaV2.svelte";
-  import CheckboxV2 from "../components/ui/CheckboxV2.svelte";
+  import Button from "../components/ui/Button.svelte";
+  import Input from "../components/ui/Input.svelte";
+  import Modal from "../components/ui/Modal.svelte";
+  import Badge from "../components/ui/Badge.svelte";
+  import Avatar from "../components/ui/Avatar.svelte";
+  import ProgressBar from "../components/ui/ProgressBar.svelte";
+  import Chip from "../components/ui/Chip.svelte";
   import PageHeader from "../components/ui/PageHeader.svelte";
 
   let testValue = "";
@@ -17,6 +17,8 @@
   let passwordValue = "";
   let searchValue = "";
   let errorValue = "";
+
+  
   let successValue = "john@example.com";
 
   // Modal states
@@ -74,52 +76,50 @@
     <div class="subsection">
       <h3>Variants</h3>
       <div class="component-row">
-        <ButtonV2>Default</ButtonV2>
-        <ButtonV2 variant="primary">Primary</ButtonV2>
-        <ButtonV2 variant="secondary">Secondary</ButtonV2>
-        <ButtonV2 variant="accent">Accent</ButtonV2>
-        <ButtonV2 variant="ghost">Ghost</ButtonV2>
-        <ButtonV2 variant="outline">Outline</ButtonV2>
-        <ButtonV2 variant="error">Error</ButtonV2>
-        <ButtonV2 variant="success">Success</ButtonV2>
-        <ButtonV2 variant="link">Link</ButtonV2>
+        <Button>Default</Button>
+        <Button variant="primary">Primary</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Button variant="accent">Accent</Button>
+        <Button variant="ghost">Ghost</Button>
+        <Button variant="outline">Outline</Button>
+        <Button variant="error">Error</Button>
+        <Button variant="success">Success</Button>
+        <Button variant="link">Link</Button>
       </div>
     </div>
 
     <div class="subsection">
       <h3>Sizes</h3>
       <div class="component-row">
-        <ButtonV2 size="xs">Extra Small</ButtonV2>
-        <ButtonV2 size="sm">Small</ButtonV2>
-        <ButtonV2 size="md">Medium</ButtonV2>
-        <ButtonV2 size="lg">Large</ButtonV2>
+        <Button size="xs">Extra Small</Button>
+        <Button size="sm">Small</Button>
+        <Button size="md">Medium</Button>
+        <Button size="lg">Large</Button>
       </div>
     </div>
 
     <div class="subsection">
       <h3>With Icons</h3>
       <div class="component-row">
-        <ButtonV2 variant="primary" iconLeft="upload">Upload</ButtonV2>
-        <ButtonV2 variant="secondary" iconRight="download">Download</ButtonV2>
-        <ButtonV2 variant="error" iconLeft="trash">Delete</ButtonV2>
-        <ButtonV2 variant="success" iconLeft="plus-lg">Create</ButtonV2>
+        <Button variant="primary" iconLeft="upload">Upload</Button>
+        <Button variant="secondary" iconRight="download">Download</Button>
+        <Button variant="error" iconLeft="trash">Delete</Button>
+        <Button variant="success" iconLeft="plus-lg">Create</Button>
       </div>
     </div>
 
     <div class="subsection">
       <h3>States</h3>
       <div class="component-row">
-        <ButtonV2 variant="primary" loading>Loading...</ButtonV2>
-        <ButtonV2 variant="secondary" disabled>Disabled</ButtonV2>
-        <ButtonV2 variant="accent" glass>Glass Effect</ButtonV2>
+        <Button variant="primary" loading>Loading...</Button>
+        <Button variant="secondary" disabled>Disabled</Button>
+        <Button variant="accent" glass>Glass Effect</Button>
       </div>
     </div>
 
     <div class="subsection">
       <h3>Full Width</h3>
-      <ButtonV2 variant="primary" fullWidth iconLeft="save"
-        >Save Changes</ButtonV2
-      >
+      <Button variant="primary" fullWidth iconLeft="save">Save Changes</Button>
     </div>
   </section>
 
@@ -264,7 +264,7 @@
     <div class="subsection">
       <h3>Textarea Variants</h3>
       <div class="input-grid">
-        <TextareaV2
+        <textarea
           bind:value={messageValue}
           label="Message"
           placeholder="Type your message..."
@@ -273,7 +273,7 @@
           showCharCount
         />
 
-        <TextareaV2
+        <textarea
           bind:value={bioValue}
           label="Bio (Auto-resize)"
           placeholder="Tell us about yourself..."
@@ -281,7 +281,7 @@
           rows={2}
         />
 
-        <TextareaV2
+        <textarea
           label="Large Textarea"
           placeholder="Larger textarea..."
           size="lg"
@@ -297,20 +297,20 @@
     <div class="subsection">
       <h3>Checkbox Variants</h3>
       <div class="space-y-4">
-        <CheckboxV2
+        <input
           bind:checked={agreeTerms}
           label="I agree to the terms and conditions"
           description="Please read our privacy policy and terms of service"
         />
 
-        <CheckboxV2
+        <input
           bind:checked={receiveNewsletter}
           label="Receive newsletter"
           description="Get weekly updates about new features"
           color="secondary"
         />
 
-        <CheckboxV2
+        <input
           bind:checked={indeterminateState}
           indeterminate={true}
           label="Indeterminate state"
@@ -319,18 +319,18 @@
         />
 
         <div class="flex gap-4">
-          <CheckboxV2 checked={true} label="Extra Small" size="xs" />
-          <CheckboxV2 checked={true} label="Small" size="sm" />
-          <CheckboxV2 checked={true} label="Medium" size="md" />
-          <CheckboxV2 checked={true} label="Large" size="lg" />
+          <input checked={true} label="Extra Small" size="xs" />
+          <input checked={true} label="Small" size="sm" />
+          <input checked={true} label="Medium" size="md" />
+          <input checked={true} label="Large" size="lg" />
         </div>
 
         <div class="flex gap-4">
-          <CheckboxV2 checked={true} label="Primary" color="primary" />
-          <CheckboxV2 checked={true} label="Secondary" color="secondary" />
-          <CheckboxV2 checked={true} label="Accent" color="accent" />
-          <CheckboxV2 checked={true} label="Success" color="success" />
-          <CheckboxV2 checked={true} label="Error" color="error" />
+          <input checked={true} label="Primary" color="primary" />
+          <input checked={true} label="Secondary" color="secondary" />
+          <input checked={true} label="Accent" color="accent" />
+          <input checked={true} label="Success" color="success" />
+          <input checked={true} label="Error" color="error" />
         </div>
       </div>
     </div>
@@ -347,8 +347,8 @@
           <svelte:fragment slot="title">Default Card</svelte:fragment>
           <p>This is a basic card with title and content.</p>
           <svelte:fragment slot="actions">
-            <ButtonV2 variant="ghost" size="sm">Cancel</ButtonV2>
-            <ButtonV2 variant="primary" size="sm">Action</ButtonV2>
+            <Button variant="ghost" size="sm">Cancel</Button>
+            <Button variant="primary" size="sm">Action</Button>
           </svelte:fragment>
         </CardV2>
 
@@ -356,9 +356,7 @@
           <svelte:fragment slot="title">Bordered Card</svelte:fragment>
           <p>This card has a border for better separation.</p>
           <svelte:fragment slot="actions">
-            <ButtonV2 variant="outline" size="sm" iconLeft="heart">
-              Like
-            </ButtonV2>
+            <Button variant="outline" size="sm" iconLeft="heart">Like</Button>
           </svelte:fragment>
         </CardV2>
 
@@ -405,7 +403,7 @@
           <svelte:fragment slot="title">Image Top</svelte:fragment>
           <p>Card with image at the top.</p>
           <svelte:fragment slot="actions">
-            <ButtonV2 variant="primary" size="sm" iconLeft="eye">View</ButtonV2>
+            <Button variant="primary" size="sm" iconLeft="eye">View</Button>
           </svelte:fragment>
         </CardV2>
 
@@ -416,7 +414,7 @@
           <svelte:fragment slot="title">Side Image</svelte:fragment>
           <p>Card with image on the side - great for list items.</p>
           <svelte:fragment slot="actions">
-            <ButtonV2 variant="ghost" size="sm">Details</ButtonV2>
+            <Button variant="ghost" size="sm">Details</Button>
           </svelte:fragment>
         </CardV2>
       </div>
@@ -430,15 +428,15 @@
     <div class="subsection">
       <h3>Modal Variants</h3>
       <div class="component-row">
-        <ButtonV2 variant="primary" on:click={() => (showBasicModal = true)}>
+        <Button variant="primary" on:click={() => (showBasicModal = true)}>
           Open Basic Modal
-        </ButtonV2>
-        <ButtonV2 variant="secondary" on:click={() => (showLargeModal = true)}>
+        </Button>
+        <Button variant="secondary" on:click={() => (showLargeModal = true)}>
           Open Large Modal
-        </ButtonV2>
-        <ButtonV2 variant="accent" on:click={() => (showConfirmModal = true)}>
+        </Button>
+        <Button variant="accent" on:click={() => (showConfirmModal = true)}>
           Open Confirm Dialog
-        </ButtonV2>
+        </Button>
       </div>
     </div>
   </section>
@@ -449,14 +447,14 @@
     <div class="subsection">
       <p class="mb-4">Click buttons to switch themes:</p>
       <div class="component-row">
-        <ButtonV2
+        <Button
           variant="primary"
           on:click={() =>
             document.documentElement.setAttribute("data-theme", "syncspace")}
         >
           Light Theme
-        </ButtonV2>
-        <ButtonV2
+        </Button>
+        <Button
           variant="secondary"
           on:click={() =>
             document.documentElement.setAttribute(
@@ -465,7 +463,7 @@
             )}
         >
           Dark Theme
-        </ButtonV2>
+        </Button>
       </div>
     </div>
   </section>
@@ -477,9 +475,9 @@
     <div class="subsection">
       <h3>Button Example</h3>
       <pre><code
-          >{`<ButtonV2 variant="primary" iconLeft="upload">
+          >{`<Button variant="primary" iconLeft="upload">
   Upload File
-</ButtonV2>`}</code
+</Button>`}</code
         ></pre>
     </div>
 
@@ -504,7 +502,7 @@
   <svelte:fragment slot="title">Card Title</svelte:fragment>
   <p>Card content goes here</p>
   <svelte:fragment slot="actions">
-    <ButtonV2 variant="primary">Action</ButtonV2>
+    <Button variant="primary">Action</Button>
   </svelte:fragment>
 </CardV2>`}</code
         ></pre>
@@ -516,8 +514,8 @@
           >{`<ModalV2 bind:open={showModal} title="Confirm">
   <p>Are you sure?</p>
   <svelte:fragment slot="actions">
-    <ButtonV2 variant="ghost">Cancel</ButtonV2>
-    <ButtonV2 variant="primary">Confirm</ButtonV2>
+    <Button variant="ghost">Cancel</Button>
+    <Button variant="primary">Confirm</Button>
   </svelte:fragment>
 </ModalV2>`}</code
         ></pre>
@@ -540,7 +538,7 @@
     <div class="subsection">
       <h3>Textarea Example</h3>
       <pre><code
-          >{`<TextareaV2 
+          >{`<textarea 
   bind:value={message}
   label="Message"
   maxlength={500}
@@ -553,7 +551,7 @@
     <div class="subsection">
       <h3>Checkbox Example</h3>
       <pre><code
-          >{`<CheckboxV2 
+          >{`<input 
   bind:checked={agreed}
   label="I agree to terms"
   description="Read our policy"
@@ -574,12 +572,12 @@
     prevent body scrolling while open.
   </p>
   <svelte:fragment slot="actions">
-    <ButtonV2 variant="ghost" on:click={() => (showBasicModal = false)}>
+    <Button variant="ghost" on:click={() => (showBasicModal = false)}>
       Close
-    </ButtonV2>
-    <ButtonV2 variant="primary" on:click={() => (showBasicModal = false)}>
+    </Button>
+    <Button variant="primary" on:click={() => (showBasicModal = false)}>
       Got it!
-    </ButtonV2>
+    </Button>
   </svelte:fragment>
 </ModalV2>
 
@@ -610,10 +608,10 @@
   </div>
 
   <svelte:fragment slot="actions">
-    <ButtonV2 variant="ghost" on:click={() => (showLargeModal = false)}>
+    <Button variant="ghost" on:click={() => (showLargeModal = false)}>
       Cancel
-    </ButtonV2>
-    <ButtonV2
+    </Button>
+    <Button
       variant="primary"
       iconLeft="send"
       on:click={() => {
@@ -622,7 +620,7 @@
       }}
     >
       Submit
-    </ButtonV2>
+    </Button>
   </svelte:fragment>
 </ModalV2>
 
@@ -636,14 +634,14 @@
   </div>
 
   <svelte:fragment slot="actions">
-    <ButtonV2
+    <Button
       variant="ghost"
       fullWidth
       on:click={() => (showConfirmModal = false)}
     >
       Cancel
-    </ButtonV2>
-    <ButtonV2
+    </Button>
+    <Button
       variant="error"
       fullWidth
       iconLeft="trash"
@@ -653,7 +651,7 @@
       }}
     >
       Delete
-    </ButtonV2>
+    </Button>
   </svelte:fragment>
 </ModalV2>
 

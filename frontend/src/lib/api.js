@@ -186,6 +186,28 @@ export const users = {
     });
     return handleResponse(response);
   },
+
+  /**
+   * Get user preferences (client-specific settings)
+   */
+  async getPreferences() {
+    const response = await fetch(`${API_BASE}/users/preferences`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update user preferences
+   */
+  async updatePreferences(data) {
+    const response = await fetch(`${API_BASE}/users/preferences`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
 };
 
 // ============================================
@@ -348,13 +370,52 @@ export const files = {
   },
 
   /**
-   * Get file stats
+   * Move a file to a new location
    */
-  async stats() {
-    const response = await fetch(`${API_BASE}/stats`, {
-      headers: getHeaders(false),
+  async move(oldPath, newPath) {
+    const cleanOld = oldPath.replace(/^\/+|\/+$/g, '');
+    const response = await fetch(`${API_BASE}/move/${cleanOld}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify({ new_path: newPath }),
     });
     return handleResponse(response);
+  },
+
+  /**
+   * Copy a file to a new location
+   */
+  async copy(sourcePath, destPath) {
+    const cleanSource = sourcePath.replace(/^\/+|\/+$/g, '');
+    const response = await fetch(`${API_BASE}/copy/${cleanSource}`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ new_path: destPath }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get thumbnail for a file
+   */
+  async getThumbnail(filePath) {
+    // Generate a file ID from the path (simple hash)
+    const fileId = btoa(filePath).replace(/[^a-zA-Z0-9]/g, '');
+    const response = await fetch(`${API_BASE}/thumbnails/${fileId}`, {
+      headers: getHeaders(false),
+    });
+    if (!response.ok) {
+      throw new Error(`Thumbnail not available: ${response.status}`);
+    }
+    return response.blob();
+  },
+
+  /**
+   * Get thumbnail URL for a file
+   */
+  getThumbnailUrl(filePath) {
+    const fileId = btoa(filePath).replace(/[^a-zA-Z0-9]/g, '');
+    return `${API_BASE}/thumbnails/${fileId}`;
   },
 };
 
@@ -526,6 +587,72 @@ export const peers = {
 };
 
 // ============================================
+// BATCH OPERATIONS
+// ============================================
+
+export const batch = {
+  /**
+   * Batch copy files to target folder with progress tracking
+   */
+  async copy(items, targetFolder) {
+    const response = await fetch(`${API_BASE}/batch/copy`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ 
+        items: items.map(item => ({
+          path: item.path,
+          name: item.name,
+          size: item.size
+        })), 
+        target_folder: targetFolder 
+      }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Batch compress files into archive
+   */
+  async compress(items, archiveName, compressionLevel = 6) {
+    const response = await fetch(`${API_BASE}/batch/compress`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ 
+        items: items.map(item => ({
+          path: item.path,
+          name: item.name,
+          size: item.size
+        })), 
+        archive_name: archiveName,
+        compression_level: compressionLevel
+      }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get status of batch operation
+   */
+  async getOperationStatus(jobId) {
+    const response = await fetch(`${API_BASE}/batch/operations/${jobId}`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Cancel running batch operation
+   */
+  async cancelOperation(jobId) {
+    const response = await fetch(`${API_BASE}/batch/operations/${jobId}/cancel`, {
+      method: "POST",
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================
 // WEBSOCKET
 // ============================================
 
@@ -533,6 +660,75 @@ export function createWebSocket() {
   const ws = new WebSocket("ws://localhost:8080/api/ws");
   return ws;
 }
+
+const performance = {
+  // Get current performance metrics
+  getMetrics: async () => {
+    const response = await fetch(`${API_BASE}/performance/metrics`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  // Get performance history
+  getHistory: async (limit = 50) => {
+    const response = await fetch(`${API_BASE}/performance/metrics/history?limit=${limit}`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  // Get cache statistics
+  getCacheStats: async () => {
+    const response = await fetch(`${API_BASE}/performance/cache/stats`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  // Clear cache
+  clearCache: async () => {
+    const response = await fetch(`${API_BASE}/performance/cache/clear`, {
+      method: 'POST',
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  // Get background jobs
+  getBackgroundJobs: async () => {
+    const response = await fetch(`${API_BASE}/performance/jobs`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  // Queue background job
+  queueJob: async (jobData) => {
+    const response = await fetch(`${API_BASE}/performance/jobs`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(jobData)
+    });
+    return handleResponse(response);
+  },
+
+  // Get job status
+  getJobStatus: async (jobId) => {
+    const response = await fetch(`${API_BASE}/performance/jobs/${jobId}/status`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  // Get system info
+  getSystemInfo: async () => {
+    const response = await fetch(`${API_BASE}/performance/system/info`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  }
+};
 
 export default {
   auth,
@@ -542,6 +738,255 @@ export default {
   peers,
   comments,
   tags,
+  batch,
+  performance,
+  sharing: {
+    // Create a share for a file or folder
+    async create(fileId = null, folderId = null, options = {}) {
+      const response = await fetch(`${API_BASE}/shares`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          file_id: fileId,
+          folder_id: folderId,
+          shared_with: options.sharedWith || null, // null = public link
+          expires_in_days: options.expiresInDays || null,
+          can_read: options.canRead !== false,
+          can_write: options.canWrite || false,
+          can_delete: options.canDelete || false,
+          can_share: options.canShare || false
+        })
+      });
+      return handleResponse(response);
+    },
+
+    // List shares created by current user
+    async list() {
+      const response = await fetch(`${API_BASE}/shares`, {
+        headers: getHeaders()
+      });
+      return handleResponse(response);
+    },
+
+    // List shares shared with current user
+    async listSharedWithMe() {
+      const response = await fetch(`${API_BASE}/shared-with-me`, {
+        headers: getHeaders()
+      });
+      return handleResponse(response);
+    },
+
+    // Delete a share
+    async delete(shareId) {
+      const response = await fetch(`${API_BASE}/shares/${shareId}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return handleResponse(response);
+    },
+
+    // Update share permissions
+    async updatePermissions(shareId, permissions) {
+      const response = await fetch(`${API_BASE}/shares/${shareId}/permissions`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(permissions)
+      });
+      return handleResponse(response);
+    }
+  },
+  
+  // File versioning endpoints
+  versions: {
+    // List all versions for a file
+    async list(fileId) {
+      const response = await fetch(`${API_BASE}/versions/${fileId}`, {
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+
+    // Create a new version of a file
+    async create(fileId, versionData) {
+      const response = await fetch(`${API_BASE}/versions/${fileId}/create`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(versionData)
+      });
+      return { data: await handleResponse(response) };
+    },
+
+    // Get specific version details
+    async get(versionId) {
+      const response = await fetch(`${API_BASE}/versions/${versionId}`, {
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+
+    // Delete a version (not current)
+    async delete(versionId) {
+      const response = await fetch(`${API_BASE}/versions/${versionId}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+
+    // Restore a version (creates new current version)
+    async restore(versionId, options = {}) {
+      const response = await fetch(`${API_BASE}/versions/${versionId}/restore`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(options)
+      });
+      return { data: await handleResponse(response) };
+    },
+
+    // Get diff between two versions
+    async getDiff(fromVersionId, toVersionId) {
+      const response = await fetch(`${API_BASE}/versions/${fromVersionId}/diff/${toVersionId}`, {
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+
+    // Download a specific version
+    async download(versionId) {
+      const response = await fetch(`${API_BASE}/versions/${versionId}/download`, {
+        headers: getHeaders(false)
+      });
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.statusText}`);
+      }
+      return { data: await response.blob() };
+    },
+
+    // Get version metadata
+    async getMetadata(versionId) {
+      const response = await fetch(`${API_BASE}/versions/${versionId}/metadata`, {
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+
+    // Update version metadata
+    async updateMetadata(versionId, metadata) {
+      const response = await fetch(`${API_BASE}/versions/${versionId}/metadata`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ metadata })
+      });
+      return { data: await handleResponse(response) };
+    }
+  },
+  
+  // Collaboration endpoints
+  collaboration: {
+    // File Locks
+    async listLocks(filePath = null) {
+      const params = filePath ? `?file_path=${encodeURIComponent(filePath)}` : '';
+      const response = await fetch(`${API_BASE}/collaboration/locks${params}`, {
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+    
+    async acquireLock(filePath, lockType = 'exclusive', durationSeconds = 300) {
+      const response = await fetch(`${API_BASE}/collaboration/locks`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          file_path: filePath,
+          lock_type: lockType,
+          duration_seconds: durationSeconds
+        })
+      });
+      return { data: await handleResponse(response) };
+    },
+    
+    async releaseLock(lockId) {
+      const response = await fetch(`${API_BASE}/collaboration/locks/${lockId}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+    
+    async renewLock(lockId) {
+      const response = await fetch(`${API_BASE}/collaboration/locks/${lockId}/heartbeat`, {
+        method: 'POST',
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+    
+    // User Presence
+    async getPresence(filePath = null) {
+      const params = filePath ? `?file_path=${encodeURIComponent(filePath)}` : '';
+      const response = await fetch(`${API_BASE}/collaboration/presence${params}`, {
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+    
+    async updatePresence(filePath, activityType, metadata = null) {
+      const response = await fetch(`${API_BASE}/collaboration/presence`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          file_path: filePath,
+          activity_type: activityType,
+          metadata
+        })
+      });
+      return { data: await handleResponse(response) };
+    },
+    
+    async removePresence(userId) {
+      const response = await fetch(`${API_BASE}/collaboration/presence/${userId}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+    
+    // Activity
+    async getActivity(limit = 50) {
+      const response = await fetch(`${API_BASE}/collaboration/activity?limit=${limit}`, {
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+    
+    async getFileActivity(filePath) {
+      const response = await fetch(`${API_BASE}/collaboration/activity/${encodeURIComponent(filePath)}`, {
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+    
+    // Conflicts
+    async listConflicts(status = 'pending') {
+      const response = await fetch(`${API_BASE}/collaboration/conflicts?status=${status}`, {
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+    
+    async resolveConflict(conflictId, resolutionStrategy, details = null) {
+      const response = await fetch(`${API_BASE}/collaboration/conflicts/${conflictId}/resolve`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          resolution_strategy: resolutionStrategy,
+          details
+        })
+      });
+      return { data: await handleResponse(response) };
+    }
+  },
+  
   createWebSocket,
   // Trash endpoints
   listTrash: () => fetch(`${API_BASE}/trash`, { headers: getHeaders() }),

@@ -15,7 +15,8 @@
   import ActivityView from "./pages/ActivityView.svelte";
   import DuplicatesView from "./pages/DuplicatesView.svelte";
   import BackupView from "./pages/BackupView.svelte";
-  import ComponentGallery from "./pages/ComponentGallery.svelte";
+  import PerformanceView from "./pages/PerformanceView.svelte";
+  import PerformanceDemo from "./pages/PerformanceDemo.svelte";
   import Toast from "./components/ui/Toast.svelte";
 
   // Apply theme to document
@@ -60,8 +61,10 @@
           <DuplicatesView />
         {:else if $currentView === "backup"}
           <BackupView />
+        {:else if $currentView === "performance"}
+          <PerformanceView />
         {:else if $currentView === "gallery"}
-          <ComponentGallery />
+          <PerformanceDemo />
         {/if}
       </main>
     </div>

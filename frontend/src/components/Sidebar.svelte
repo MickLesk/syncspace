@@ -1,5 +1,10 @@
 <script>
-  import { currentView, sidebarCollapsed, currentLang, favoritesEnabled } from "../stores/ui";
+  import {
+    currentView,
+    sidebarCollapsed,
+    currentLang,
+    favoritesEnabled,
+  } from "../stores/ui";
   import { auth } from "../stores/auth";
   import { t } from "../i18n";
 
@@ -18,12 +23,16 @@
       category: "main",
     },
     // Favorites nur anzeigen wenn enabled
-    ...($favoritesEnabled ? [{
-      id: "favorites",
-      icon: "star-fill",
-      label: t($currentLang, "favorites"),
-      category: "main",
-    }] : []),
+    ...($favoritesEnabled
+      ? [
+          {
+            id: "favorites",
+            icon: "star-fill",
+            label: t($currentLang, "favorites"),
+            category: "main",
+          },
+        ]
+      : []),
     {
       id: "activity",
       icon: "clock-history",
@@ -31,6 +40,18 @@
       category: "tools",
     },
     { id: "duplicates", icon: "files", label: "Duplicates", category: "tools" },
+    {
+      id: "performance",
+      icon: "speedometer2",
+      label: "Performance",
+      category: "tools",
+    },
+    {
+      id: "gallery",
+      icon: "bug-fill",
+      label: "Performance Demo",
+      category: "tools",
+    },
     {
       id: "trash",
       icon: "trash-fill",
@@ -119,8 +140,7 @@
       on:click={toggleSidebar}
       aria-label="Toggle sidebar"
     >
-      <i
-        class="bi bi-chevron-{$sidebarCollapsed ? 'right' : 'left'} text-lg"
+      <i class="bi bi-chevron-{$sidebarCollapsed ? 'right' : 'left'} text-lg"
       ></i>
     </button>
   </div>
