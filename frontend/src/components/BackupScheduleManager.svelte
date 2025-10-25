@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { api } from "../lib/api.js";
+  import { backupSchedules } from "../lib/api.js";
 
   let schedules = $state([]);
   let loading = $state(true);

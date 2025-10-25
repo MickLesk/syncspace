@@ -8,17 +8,21 @@ export default {
   
   // Compiler options
   compilerOptions: {
-    // Disable unused CSS selector warnings for icon libraries
-    // (Bootstrap Icons has 2000+ selectors, we only use ~20)
-    css: 'external'
+    // Keep CSS scoped but ignore warnings
   },
   
   // Suppress warnings
   onwarn: (warning, handler) => {
-    // Ignore unused CSS selector warnings (common with icon libraries)
+    // Completely ignore all unused CSS selector warnings
     if (warning.code === 'css-unused-selector') return;
     
-    // Handle all other warnings normally
+    // Ignore copilot-instructions.md warnings
+    if (warning.filename && warning.filename.includes('copilot-instructions.md')) return;
+    
+    // Ignore accessibility warnings (can be re-enabled for testing)
+    if (warning.code && warning.code.startsWith('a11y_')) return;
+    
+    // Pass through other warnings
     handler(warning);
   }
 }

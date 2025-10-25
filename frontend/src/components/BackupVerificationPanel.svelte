@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
 
-  export let backupId;
+  let { backupId } = $props();
 
   let verifications = $state([]);
   let loading = $state(true);
