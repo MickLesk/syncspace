@@ -292,7 +292,7 @@ fn build_router(state: AppState) -> Router {
         .route("/api/auth/register", post(register_handler))
         .route("/api/auth/login", post(login_handler))
         .route("/api/auth/refresh", post(refresh_token_handler))
-        .route("/api/auth/oauth/:provider", get(oauth_login_handler))
+        .route("/api/auth/oauth/{provider}", get(oauth_login_handler))
         .route("/api/auth/oauth/callback", get(oauth_callback_handler))
         .route("/api/auth/2fa/setup", post(setup_2fa_handler))
         .route("/api/auth/2fa/enable", post(enable_2fa_handler))
@@ -414,31 +414,31 @@ fn build_router(state: AppState) -> Router {
         .route("/api/settings", get(get_system_settings_handler).put(update_system_settings_handler))
         // Email Integration
         .route("/api/email/accounts", get(list_email_accounts_handler).post(create_email_account_handler))
-        .route("/api/email/accounts/:id", delete(delete_email_account_handler))
+        .route("/api/email/accounts/{id}", delete(delete_email_account_handler))
         // S3 Storage
         .route("/api/s3/configs", get(list_s3_configs_handler).post(create_s3_config_handler))
-        .route("/api/s3/configs/:id", delete(delete_s3_config_handler))
+        .route("/api/s3/configs/{id}", delete(delete_s3_config_handler))
         .route("/api/s3/test", post(test_s3_connection_handler))
         // WebDAV - supports standard WebDAV methods (PROPFIND, MKCOL, etc.)
         // .route("/*path", any(webdav_handler))  // Uncomment for full WebDAV support
         // FTP Sync
         .route("/api/ftp/connections", get(list_ftp_connections_handler).post(create_ftp_connection_handler))
-        .route("/api/ftp/connections/:id", delete(delete_ftp_connection_handler))
+        .route("/api/ftp/connections/{id}", delete(delete_ftp_connection_handler))
         .route("/api/ftp/sync", post(trigger_ftp_sync_handler))
         // LDAP Integration
         .route("/api/ldap/configs", get(list_ldap_configs_handler).post(create_ldap_config_handler))
-        .route("/api/ldap/configs/:id", put(update_ldap_config_handler).delete(delete_ldap_config_handler))
+        .route("/api/ldap/configs/{id}", put(update_ldap_config_handler).delete(delete_ldap_config_handler))
         .route("/api/ldap/test", post(test_ldap_connection_handler))
         // Prometheus Metrics
         .route("/metrics", get(prometheus_metrics_handler))
         // Redis Cache
-        .route("/api/cache/:key", get(get_cache_handler).delete(delete_cache_handler))
+        .route("/api/cache/{key}", get(get_cache_handler).delete(delete_cache_handler))
         // Archive Management
         .route("/api/archives/create", post(create_archive_handler))
         .route("/api/archives/extract", post(extract_archive_handler))
         // Compression Rules
         .route("/api/compression/rules", get(list_compression_rules_handler).post(create_compression_rule_handler))
-        .route("/api/compression/rules/:id", delete(delete_compression_rule_handler))
+        .route("/api/compression/rules/{id}", delete(delete_compression_rule_handler))
         .route("/api/compression/run", post(run_compression_handler));
     
     // Utility routes (protected)
