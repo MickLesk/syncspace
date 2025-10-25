@@ -1008,3 +1008,174 @@ export default {
   }),
 };
 
+// ============================================
+// BACKUP ENDPOINTS
+// ============================================
+
+export const backup = {
+  /**
+   * List all backups
+   */
+  async list() {
+    const response = await fetch(`${API_BASE}/backups`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a new backup
+   * @param {string} backupType - Type of backup: 'full', 'database', 'files'
+   * @param {boolean} includeVersions - Include version history
+   */
+  async create(backupType = 'full', includeVersions = true) {
+    const response = await fetch(`${API_BASE}/backups/create`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ 
+        backup_type: backupType,
+        include_versions: includeVersions 
+      }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get backup details
+   * @param {string} backupId - Backup ID
+   */
+  async get(backupId) {
+    const response = await fetch(`${API_BASE}/backups/${backupId}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a backup
+   * @param {string} backupId - Backup ID
+   */
+  async delete(backupId) {
+    const response = await fetch(`${API_BASE}/backups/${backupId}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Verify a backup
+   * @param {string} backupId - Backup ID
+   * @param {string} verificationType - 'checksum', 'file_count', 'restore_test'
+   */
+  async verify(backupId, verificationType = 'checksum') {
+    const response = await fetch(`${API_BASE}/backups/${backupId}/verify`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ verification_type: verificationType }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List verifications for a backup
+   * @param {string} backupId - Backup ID
+   */
+  async listVerifications(backupId) {
+    const response = await fetch(`${API_BASE}/backups/${backupId}/verifications`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Clean up old backups based on retention policies
+   */
+  async cleanup() {
+    const response = await fetch(`${API_BASE}/backups/cleanup`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================
+// BACKUP SCHEDULE ENDPOINTS
+// ============================================
+
+export const backupSchedules = {
+  /**
+   * List all backup schedules
+   */
+  async list() {
+    const response = await fetch(`${API_BASE}/backups/schedules`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a new backup schedule
+   * @param {Object} schedule - Schedule configuration
+   */
+  async create(schedule) {
+    const response = await fetch(`${API_BASE}/backups/schedules`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(schedule),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get schedule details
+   * @param {string} scheduleId - Schedule ID
+   */
+  async get(scheduleId) {
+    const response = await fetch(`${API_BASE}/backups/schedules/${scheduleId}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update a backup schedule
+   * @param {string} scheduleId - Schedule ID
+   * @param {Object} updates - Schedule updates
+   */
+  async update(scheduleId, updates) {
+    const response = await fetch(`${API_BASE}/backups/schedules/${scheduleId}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(updates),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a backup schedule
+   * @param {string} scheduleId - Schedule ID
+   */
+  async delete(scheduleId) {
+    const response = await fetch(`${API_BASE}/backups/schedules/${scheduleId}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Trigger a schedule manually
+   * @param {string} scheduleId - Schedule ID
+   */
+  async trigger(scheduleId) {
+    const response = await fetch(`${API_BASE}/backups/schedules/${scheduleId}/trigger`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
+
