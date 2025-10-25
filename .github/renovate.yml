@@ -1,0 +1,25 @@
+name: Renovate Bot
+
+on:
+  schedule:
+    # Alle 6 Stunden
+    - cron: '0 */6 * * *'
+  workflow_dispatch:  # manuelles Triggern
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Run Renovate
+        uses: renovatebot/github-action@v43.0.18
+        with:
+          configurationFile: .github/renovate.json5
+          token: ${{ secrets.RENOVATE_TOKEN }}
+        env:
+          LOG_LEVEL: info
+          # optional für Debug:
+          # LOG_LEVEL: debug
