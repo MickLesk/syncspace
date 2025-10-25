@@ -2,8 +2,7 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { currentLang } from "../stores/ui.js";
   import { t } from "../i18n.js";
-  import SelectV2 from "./ui/SelectV2.svelte";
-  import InputV2 from "./ui/InputV2.svelte";
+  import Input from "./ui/Input.svelte";
   import FilterBar from "./FilterBar.svelte";
   import Modal from "./ui/Modal.svelte";
 
@@ -209,11 +208,15 @@
               {t($currentLang, "fileType")}
             </span>
           </label>
-          <SelectV2
+          <select
+            class="select select-bordered w-full"
             bind:value={activeFilters.fileType}
-            options={fileTypeOptions}
-            placeholder={t($currentLang, "selectFileType")}
-          />
+          >
+            <option value="">{t($currentLang, "selectFileType")}</option>
+            {#each fileTypeOptions as option}
+              <option value={option.value}>{option.label}</option>
+            {/each}
+          </select>
         </div>
 
         <!-- Date Range Filter -->
@@ -225,17 +228,17 @@
             </span>
           </label>
           <div class="flex gap-2">
-            <InputV2
+            <input
               type="date"
+              class="input input-bordered input-sm flex-1"
               bind:value={activeFilters.dateFrom}
               placeholder={t($currentLang, "from")}
-              size="sm"
             />
-            <InputV2
+            <input
               type="date"
+              class="input input-bordered input-sm flex-1"
               bind:value={activeFilters.dateTo}
               placeholder={t($currentLang, "to")}
-              size="sm"
             />
           </div>
         </div>
@@ -249,18 +252,18 @@
             </span>
           </label>
           <div class="flex gap-2">
-            <InputV2
+            <input
               type="number"
+              class="input input-bordered input-sm flex-1"
               bind:value={activeFilters.sizeMin}
               placeholder={t($currentLang, "minSizeMB")}
-              size="sm"
               min="0"
             />
-            <InputV2
+            <input
               type="number"
+              class="input input-bordered input-sm flex-1"
               bind:value={activeFilters.sizeMax}
               placeholder={t($currentLang, "maxSizeMB")}
-              size="sm"
               min="0"
             />
           </div>
@@ -274,11 +277,11 @@
               {t($currentLang, "modifiedBy")}
             </span>
           </label>
-          <InputV2
+          <input
             type="text"
+            class="input input-bordered input-sm w-full"
             bind:value={activeFilters.modifiedBy}
             placeholder={t($currentLang, "username")}
-            size="sm"
           />
         </div>
       </div>
@@ -297,7 +300,11 @@
               {t($currentLang, "sortBy")}
             </span>
           </label>
-          <SelectV2 bind:value={sortBy} options={sortOptions} />
+          <select class="select select-bordered w-full" bind:value={sortBy}>
+            {#each sortOptions as option}
+              <option value={option.value}>{option.label}</option>
+            {/each}
+          </select>
         </div>
 
         <!-- Sort Order -->

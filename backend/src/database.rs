@@ -315,6 +315,52 @@ pub struct SharedLink {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct FileVersion {
+    pub id: String,
+    pub file_id: String,
+    pub version_number: i32,
+    pub content_hash: String,
+    pub size_bytes: i64,
+    pub created_at: String,
+    pub created_by: String,
+    pub comment: Option<String>,
+    pub is_current: bool,
+    pub storage_path: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct VersionMetadata {
+    pub id: String,
+    pub version_id: String,
+    pub metadata_key: String,
+    pub metadata_value: Option<String>,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct VersionDiff {
+    pub id: String,
+    pub from_version_id: String,
+    pub to_version_id: String,
+    pub diff_type: String,
+    pub diff_content: Option<String>,
+    pub added_lines: i32,
+    pub removed_lines: i32,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct VersionRestoration {
+    pub id: String,
+    pub file_id: String,
+    pub restored_from_version_id: String,
+    pub restored_to_version_id: String,
+    pub restored_by: String,
+    pub restored_at: String,
+    pub reason: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct Setting {
     pub key: String,
     pub value: String,
@@ -378,6 +424,70 @@ impl User {
             .execute(pool)
             .await?;
         Ok(())
+    }
+}
+
+// ============================================================================
+// Collaboration Models
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct FileLock {
+    pub id: String,
+    pub file_id: String,
+    pub file_path: String,
+    pub locked_by: String,
+    pub locked_at: String,
+    pub expires_at: String,
+    pub lock_type: String,
+    pub last_heartbeat: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct UserPresence {
+    pub id: String,
+    pub user_id: String,
+    pub username: String,
+    pub file_path: Option<String>,
+    pub activity_type: String,
+    pub last_seen: String,
+    pub metadata: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct CollaborationActivity {
+    pub id: String,
+    pub user_id: String,
+    pub username: String,
+    pub file_path: String,
+    pub activity_type: String,
+    pub details: Option<String>,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct EditConflict {
+    pub id: String,
+    pub file_id: String,
+    pub file_path: String,
+    pub conflict_type: String,
+    pub user1_id: String,
+    pub user2_id: Option<String>,
+    pub detected_at: String,
+    pub resolved_at: Option<String>,
+    pub resolution_strategy: Option<String>,
+    pub status: String,
+    pub details: Option<String>,
+}
+
+impl FileLock {
+    /// Check if lock is still valid
+    pub fn is_valid(&self) -> bool {
+        if let Ok(expires) = chrono::DateTime::parse_from_rfc3339(&self.expires_at) {
+            expires > chrono::Utc::now()
+        } else {
+            false
+        }
     }
 }
 

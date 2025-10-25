@@ -14,6 +14,7 @@
   let editText = "";
   let loading = false;
   let errorMessage = "";
+  let lastFilePath = null;
 
   // Get current language (default to 'de' for now)
   const lang = localStorage.getItem("language") || "de";
@@ -24,9 +25,15 @@
   $: allTagNames = tags.getAllTagNames($tags);
   $: currentUser = $auth.user?.username || "Anonymous";
 
-  // Load data when file changes
-  $: if (file && visible) {
+  // Load data only when file path changes and is visible
+  $: if (filePath && filePath !== lastFilePath && visible) {
+    lastFilePath = filePath;
     loadData();
+  }
+
+  // Reset when visibility changes
+  $: if (!visible) {
+    lastFilePath = null;
   }
 
   async function loadData() {

@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { files, currentPath } from "../stores/ui";
   import { favorites } from "../stores/favorites";
   import { success, error as errorToast } from "../stores/toast";
@@ -7,23 +7,35 @@
   import ContextMenu from "../components/ui/ContextMenu.svelte";
   import Breadcrumb from "../components/Breadcrumb.svelte";
   import Modal from "../components/ui/Modal.svelte";
+  import FileThumbnail from "../components/ui/FileThumbnail.svelte";
+  import AdvancedSearchModal from "../components/AdvancedSearchModal.svelte";
+  import ShareModal from "../components/ui/ShareModal.svelte";
+  import VersionHistoryModal from "../components/ui/VersionHistoryModal.svelte";
   import api from "../lib/api";
+  import { wsConnected, onFileEvent } from "../stores/websocket.js";
 
   let loading = true;
   let uploading = false;
   let searchQuery = "";
   let viewMode = "grid"; // 'grid' or 'list'
   let dragOver = false;
+  let searchResults = [];
+  let isSearchActive = false;
 
   // Modals
   let showUploadModal = false;
   let showNewFolderModal = false;
   let showRenameModal = false;
   let showDeleteModal = false;
+  let showAdvancedSearchModal = false;
+  let showShareModal = false;
+  let showVersionHistoryModal = false;
 
   // Current action targets
   let fileToRename = null;
   let fileToDelete = null;
+  let fileToShare = null;
+  let fileToViewVersions = null;
   let newFolderName = "";
   let newFileName = "";
 
@@ -33,20 +45,66 @@
   let contextMenuY = 0;
   let contextMenuFile = null;
 
-  // File upload
+  // File upload with progress tracking
   let uploadInput;
   let uploadFiles = [];
+  let uploadProgress = new Map(); // Map<fileIndex, {percent, loaded, total}>
+  let overallProgress = 0;
 
-  $: filteredFiles = searchQuery
-    ? $files.filter((f) =>
-        f.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : $files;
+  $: filteredFiles = isSearchActive
+    ? searchResults
+    : searchQuery
+      ? $files.filter((f) =>
+          f.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : $files;
 
   $: breadcrumbPath = $currentPath.split("/").filter(Boolean);
 
+  // WebSocket subscription for real-time file updates
+  let unsubscribeWebSocket;
+
   onMount(async () => {
     await loadFiles();
+
+    // Subscribe to WebSocket file events
+    unsubscribeWebSocket = onFileEvent((event) => {
+      console.log("📁 FilesView received file event:", event);
+
+      // Check if the event affects the current directory
+      const eventDir = event.path.substring(0, event.path.lastIndexOf("/") + 1);
+      const currentDir = $currentPath;
+
+      console.log("Event dir:", eventDir, "Current dir:", currentDir);
+
+      // If the event is in the current directory, reload files
+      if (eventDir === currentDir || eventDir.startsWith(currentDir)) {
+        console.log("🔄 Reloading files due to file system change");
+        loadFiles();
+
+        // Show notification
+        switch (event.kind) {
+          case "created":
+            success(`File created: ${event.path.split("/").pop()}`);
+            break;
+          case "modified":
+            success(`File modified: ${event.path.split("/").pop()}`);
+            break;
+          case "deleted":
+            success(`File deleted: ${event.path.split("/").pop()}`);
+            break;
+          case "renamed":
+            success(`File renamed: ${event.path.split("/").pop()}`);
+            break;
+        }
+      }
+    });
+  });
+
+  onDestroy(() => {
+    if (unsubscribeWebSocket) {
+      unsubscribeWebSocket();
+    }
   });
 
   async function loadFiles() {
@@ -90,18 +148,71 @@
     if (!uploadFiles.length) return;
 
     uploading = true;
+    uploadProgress.clear();
+    overallProgress = 0;
+
     try {
-      for (const file of uploadFiles) {
+      const totalFiles = uploadFiles.length;
+      let completedFiles = 0;
+
+      // Upload files with progress tracking
+      for (let i = 0; i < uploadFiles.length; i++) {
+        const file = uploadFiles[i];
         const backendPath = $currentPath.replace(/^\/+|\/+$/g, "");
         const fullPath = backendPath
           ? `${backendPath}/${file.name}`
           : file.name;
-        await api.files.upload(fullPath, file);
+
+        console.log(`📤 Starting upload ${i + 1}/${totalFiles}: ${file.name}`);
+
+        // Track progress for this specific file
+        await api.files.uploadWithProgress(
+          fullPath,
+          file,
+          (percent, loaded, total) => {
+            // Update individual file progress
+            uploadProgress.set(i, { percent, loaded, total });
+
+            // Calculate overall progress
+            let totalLoaded = 0;
+            let totalSize = 0;
+
+            for (let j = 0; j < uploadFiles.length; j++) {
+              if (j < completedFiles) {
+                // Completed files count as 100%
+                totalLoaded += uploadFiles[j].size;
+                totalSize += uploadFiles[j].size;
+              } else if (j === i) {
+                // Current file uses actual progress
+                totalLoaded += loaded;
+                totalSize += total;
+              } else {
+                // Future files count as 0%
+                totalSize += uploadFiles[j].size;
+              }
+            }
+
+            overallProgress =
+              totalSize > 0 ? (totalLoaded / totalSize) * 100 : 0;
+            console.log(
+              `📊 File ${i + 1} progress: ${percent.toFixed(1)}%, Overall: ${overallProgress.toFixed(1)}%`
+            );
+
+            // Force reactive update
+            uploadProgress = new Map(uploadProgress);
+          }
+        );
+
+        completedFiles++;
+        console.log(`✅ Completed upload ${i + 1}/${totalFiles}: ${file.name}`);
       }
-      success(`Uploaded ${uploadFiles.length} file(s)`);
+
+      success(`Uploaded ${uploadFiles.length} file(s) successfully`);
       await loadFiles();
       showUploadModal = false;
       uploadFiles = [];
+      uploadProgress.clear();
+      overallProgress = 0;
     } catch (err) {
       errorToast(err.message || "Upload failed");
     } finally {
@@ -195,6 +306,16 @@
     showDeleteModal = true;
   }
 
+  function openShareModal(file) {
+    fileToShare = file;
+    showShareModal = true;
+  }
+
+  function openVersionHistoryModal(file) {
+    fileToViewVersions = file;
+    showVersionHistoryModal = true;
+  }
+
   function handleDragOver(e) {
     e.preventDefault();
     dragOver = true;
@@ -260,6 +381,7 @@
     items.push({ divider: true });
     items.push({ label: "Copy", icon: "copy", shortcut: "Ctrl+C" });
     items.push({ label: "Move", icon: "arrows-move" });
+    items.push({ label: "Share", icon: "share", shortcut: "Ctrl+S" });
 
     items.push({ divider: true });
     items.push({ label: "Details", icon: "info-circle" });
@@ -311,9 +433,11 @@
         // TODO: Implement details panel (Item #8)
         success("Details panel coming soon");
         break;
+      case "Share":
+        openShareModal(contextMenuFile);
+        break;
       case "Version History":
-        // TODO: Implement versioning UI (Item #19)
-        success("Version history coming soon");
+        openVersionHistoryModal(contextMenuFile);
         break;
       case "Delete":
         openDeleteModal(contextMenuFile);
@@ -326,6 +450,139 @@
   function handleClickOutside() {
     contextMenuVisible = false;
   }
+
+  // Advanced Search Functions
+  async function handleAdvancedSearch(event) {
+    const { query, filters, sortBy, sortOrder } = event.detail;
+    console.log("🔍 Advanced search:", { query, filters, sortBy, sortOrder });
+
+    loading = true;
+    isSearchActive = true;
+
+    try {
+      // Use the search API with advanced parameters
+      const results = await api.search.query(query, 100, true);
+
+      // Apply client-side filters (backend could be enhanced to support these)
+      let filteredResults = results;
+
+      // File type filter
+      if (filters.fileType !== "all") {
+        filteredResults = filteredResults.filter((file) => {
+          const ext = file.name.split(".").pop()?.toLowerCase() || "";
+          switch (filters.fileType) {
+            case "image":
+              return [
+                "jpg",
+                "jpeg",
+                "png",
+                "gif",
+                "webp",
+                "bmp",
+                "svg",
+              ].includes(ext);
+            case "video":
+              return ["mp4", "avi", "mkv", "mov", "webm", "flv"].includes(ext);
+            case "audio":
+              return ["mp3", "wav", "flac", "aac", "ogg"].includes(ext);
+            case "document":
+              return ["doc", "docx", "odt", "rtf"].includes(ext);
+            case "pdf":
+              return ext === "pdf";
+            case "archive":
+              return ["zip", "rar", "7z", "tar", "gz"].includes(ext);
+            case "code":
+              return [
+                "js",
+                "ts",
+                "py",
+                "java",
+                "cpp",
+                "c",
+                "html",
+                "css",
+                "rs",
+              ].includes(ext);
+            case "text":
+              return ["txt", "md", "log"].includes(ext);
+            default:
+              return true;
+          }
+        });
+      }
+
+      // Size filters (assuming size is in bytes)
+      if (filters.sizeMin) {
+        const minBytes = parseFloat(filters.sizeMin) * 1024 * 1024; // Convert MB to bytes
+        filteredResults = filteredResults.filter(
+          (file) => !file.is_dir && file.size >= minBytes
+        );
+      }
+
+      if (filters.sizeMax) {
+        const maxBytes = parseFloat(filters.sizeMax) * 1024 * 1024; // Convert MB to bytes
+        filteredResults = filteredResults.filter(
+          (file) => !file.is_dir && file.size <= maxBytes
+        );
+      }
+
+      // Date filters (would need backend support for proper implementation)
+      if (filters.dateFrom || filters.dateTo) {
+        console.log("Date filters not yet implemented in backend");
+      }
+
+      // Sort results
+      filteredResults.sort((a, b) => {
+        let aVal, bVal;
+
+        switch (sortBy) {
+          case "name":
+            aVal = a.name.toLowerCase();
+            bVal = b.name.toLowerCase();
+            break;
+          case "size":
+            aVal = a.size || 0;
+            bVal = b.size || 0;
+            break;
+          case "type":
+            aVal = a.is_dir ? "folder" : a.name.split(".").pop() || "";
+            bVal = b.is_dir ? "folder" : b.name.split(".").pop() || "";
+            break;
+          case "date":
+            // Would need modification_date from backend
+            aVal = a.modification_date || "";
+            bVal = b.modification_date || "";
+            break;
+          default:
+            aVal = a.name;
+            bVal = b.name;
+        }
+
+        if (sortOrder === "desc") {
+          return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
+        } else {
+          return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+        }
+      });
+
+      searchResults = filteredResults;
+      showAdvancedSearchModal = false;
+
+      success(`Found ${filteredResults.length} files matching "${query}"`);
+    } catch (err) {
+      errorToast(err.message || "Search failed");
+      isSearchActive = false;
+      searchResults = [];
+    } finally {
+      loading = false;
+    }
+  }
+
+  function clearSearch() {
+    isSearchActive = false;
+    searchResults = [];
+    searchQuery = "";
+  }
 </script>
 
 <svelte:window on:click={handleClickOutside} />
@@ -337,6 +594,29 @@
   on:drop={handleDrop}
   role="main"
 >
+  <!-- WebSocket Status Banner -->
+  <div class="mb-4">
+    {#if $wsConnected}
+      <div
+        class="alert alert-success rounded-xl bg-success/10 border-success/30 shadow-sm"
+      >
+        <i class="bi bi-wifi text-success text-lg"></i>
+        <span class="text-sm">
+          <strong>Live sync active</strong> - Files update in real-time
+        </span>
+      </div>
+    {:else}
+      <div
+        class="alert alert-warning rounded-xl bg-warning/10 border-warning/30 shadow-sm"
+      >
+        <i class="bi bi-wifi-off text-warning text-lg"></i>
+        <span class="text-sm">
+          <strong>Reconnecting...</strong> - Live sync temporarily unavailable
+        </span>
+      </div>
+    {/if}
+  </div>
+
   <!-- Toolbar -->
   <div class="toolbar card bg-base-100 border border-base-300 mb-6 shadow-sm">
     <div class="card-body p-4">
@@ -363,8 +643,52 @@
           </button>
         </div>
 
-        <!-- Right: View Mode -->
-        <div class="flex items-center gap-2">
+        <!-- Right: Search and View Mode -->
+        <div class="flex items-center gap-3">
+          <!-- Search Section -->
+          <div class="flex items-center gap-2">
+            <!-- Quick Search -->
+            <div class="form-control">
+              <div class="input-group">
+                <input
+                  type="text"
+                  placeholder="Quick search..."
+                  class="input input-sm input-bordered w-48"
+                  bind:value={searchQuery}
+                />
+                {#if searchQuery}
+                  <button
+                    class="btn btn-sm btn-ghost"
+                    on:click={() => (searchQuery = "")}
+                  >
+                    <i class="bi bi-x"></i>
+                  </button>
+                {/if}
+              </div>
+            </div>
+
+            <!-- Advanced Search Button -->
+            <button
+              class="btn btn-sm btn-outline gap-2"
+              on:click={() => (showAdvancedSearchModal = true)}
+            >
+              <i class="bi bi-funnel"></i>
+              Advanced
+            </button>
+
+            <!-- Clear Search Results -->
+            {#if isSearchActive}
+              <button
+                class="btn btn-sm btn-warning gap-2"
+                on:click={clearSearch}
+              >
+                <i class="bi bi-x-circle"></i>
+                Clear Search
+              </button>
+            {/if}
+          </div>
+
+          <!-- View Mode -->
           <div class="join">
             <button
               class="btn btn-sm join-item {viewMode === 'grid'
@@ -391,11 +715,30 @@
   </div>
 
   <!-- Breadcrumb Navigation -->
-  <Breadcrumb
-    path={$currentPath}
-    maxVisibleSegments={4}
-    on:navigate={handleBreadcrumbNavigate}
-  />
+  {#if !isSearchActive}
+    <Breadcrumb
+      path={$currentPath}
+      maxVisibleSegments={4}
+      on:navigate={handleBreadcrumbNavigate}
+    />
+  {/if}
+
+  <!-- Search Results Header -->
+  {#if isSearchActive}
+    <div class="mb-4 p-4 bg-info/10 border border-info/30 rounded-xl">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="bi bi-search text-info text-lg"></i>
+          <span class="font-medium">Search Results</span>
+          <div class="badge badge-info">{filteredFiles.length} files</div>
+        </div>
+        <button class="btn btn-sm btn-ghost" on:click={clearSearch}>
+          <i class="bi bi-x"></i>
+          Close
+        </button>
+      </div>
+    </div>
+  {/if}
 
   <!-- Drag & Drop Overlay -->
   {#if dragOver}
@@ -446,17 +789,16 @@
           tabindex="0"
         >
           <div class="card-body p-4 items-center text-center">
-            <div
-              class="text-5xl mb-2 {file.is_dir
-                ? 'text-warning'
-                : 'text-primary'}"
-            >
-              <i
-                class="bi bi-{file.is_dir
-                  ? 'folder-fill'
-                  : getFileIcon(file.name)}"
-              ></i>
-            </div>
+            <!-- File Thumbnail or Icon -->
+            {#if file.is_dir}
+              <div class="text-5xl mb-2 text-warning">
+                <i class="bi bi-folder-fill"></i>
+              </div>
+            {:else}
+              <div class="mb-2">
+                <FileThumbnail {file} size="lg" />
+              </div>
+            {/if}
             <h3
               class="card-title text-sm font-semibold truncate w-full"
               title={file.name}
@@ -519,17 +861,14 @@
             >
               <td>
                 <div class="flex items-center gap-3">
-                  <div
-                    class="text-2xl {file.is_dir
-                      ? 'text-warning'
-                      : 'text-primary'}"
-                  >
-                    <i
-                      class="bi bi-{file.is_dir
-                        ? 'folder-fill'
-                        : getFileIcon(file.name)}"
-                    ></i>
-                  </div>
+                  <!-- Thumbnail or Icon -->
+                  {#if file.is_dir}
+                    <div class="text-2xl text-warning">
+                      <i class="bi bi-folder-fill"></i>
+                    </div>
+                  {:else}
+                    <FileThumbnail {file} size="md" />
+                  {/if}
                   <div class="font-semibold">{file.name}</div>
                 </div>
               </td>
@@ -642,28 +981,86 @@
                   <span>•</span>
                   <span>{file.type || "Unknown"}</span>
                 </div>
+
+                <!-- Individual File Progress Bar -->
+                {#if uploading && uploadProgress.has(index)}
+                  {@const progress = uploadProgress.get(index)}
+                  <div class="mt-2">
+                    <div class="flex justify-between text-xs mb-1">
+                      <span>Uploading...</span>
+                      <span>{Math.round(progress.percent)}%</span>
+                    </div>
+                    <progress
+                      class="progress progress-success w-full h-2"
+                      value={progress.percent}
+                      max="100"
+                    ></progress>
+                  </div>
+                {/if}
               </div>
             </div>
-            <div class="badge badge-success badge-outline">
-              <i class="bi bi-check-circle mr-1"></i>
-              Ready
-            </div>
+
+            <!-- Status Badge -->
+            {#if uploading && uploadProgress.has(index)}
+              {@const progress = uploadProgress.get(index)}
+              {#if progress.percent >= 100}
+                <div class="badge badge-success">
+                  <i class="bi bi-check-circle mr-1"></i>
+                  Complete
+                </div>
+              {:else}
+                <div class="badge badge-warning">
+                  <i class="bi bi-upload mr-1"></i>
+                  {Math.round(progress.percent)}%
+                </div>
+              {/if}
+            {:else if uploading}
+              <div class="badge badge-ghost">
+                <i class="bi bi-clock mr-1"></i>
+                Waiting
+              </div>
+            {:else}
+              <div class="badge badge-success badge-outline">
+                <i class="bi bi-check-circle mr-1"></i>
+                Ready
+              </div>
+            {/if}
           </div>
         {/each}
       </div>
 
-      <!-- Upload Progress (shown when uploading) -->
+      <!-- Overall Upload Progress (shown when uploading) -->
       {#if uploading}
-        <div class="space-y-2">
-          <div class="flex justify-between text-sm">
-            <span class="font-medium">Uploading files...</span>
-            <span class="opacity-60">Please wait</span>
+        <div
+          class="space-y-3 bg-success/5 border border-success/20 rounded-xl p-4"
+        >
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <i class="bi bi-cloud-upload text-success text-lg"></i>
+              <span class="font-medium text-success">Uploading files...</span>
+            </div>
+            <span class="text-sm opacity-60"
+              >{Math.round(overallProgress)}%</span
+            >
           </div>
+
+          <!-- Overall Progress Bar -->
           <progress
-            class="progress progress-success w-full"
-            value="70"
+            class="progress progress-success w-full h-3"
+            value={overallProgress}
             max="100"
           ></progress>
+
+          <!-- Upload Stats -->
+          <div class="flex justify-between text-xs opacity-70">
+            <span>
+              {Object.keys(uploadProgress).filter(
+                (i) => uploadProgress.get(parseInt(i))?.percent >= 100
+              ).length}
+              of {uploadFiles.length} files completed
+            </span>
+            <span>Please don't close this window</span>
+          </div>
         </div>
       {/if}
     {:else}
@@ -909,6 +1306,33 @@
   y={contextMenuY}
   items={getContextMenuItems()}
   on:select={handleContextAction}
+/>
+
+<!-- Share Modal -->
+<ShareModal
+  file={fileToShare}
+  isOpen={showShareModal}
+  onClose={() => {
+    showShareModal = false;
+    fileToShare = null;
+  }}
+/>
+
+<!-- Version History Modal -->
+<VersionHistoryModal
+  file={fileToViewVersions}
+  isOpen={showVersionHistoryModal}
+  onClose={() => {
+    showVersionHistoryModal = false;
+    fileToViewVersions = null;
+  }}
+/>
+
+<!-- Advanced Search Modal -->
+<AdvancedSearchModal
+  visible={showAdvancedSearchModal}
+  on:search={handleAdvancedSearch}
+  on:close={() => (showAdvancedSearchModal = false)}
 />
 
 <style>
