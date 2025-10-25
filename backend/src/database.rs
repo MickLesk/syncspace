@@ -573,3 +573,60 @@ impl Setting {
         Ok(())
     }
 }
+
+// ==================== BACKUP SCHEDULING MODELS ====================
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct BackupSchedule {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub cron_expression: String,
+    pub backup_type: String,
+    pub enabled: i64,
+    pub destination_type: String,
+    pub destination_config: Option<String>,
+    pub retention_days: Option<i64>,
+    pub created_by: String,
+    pub created_at: String,
+    pub last_run_at: Option<String>,
+    pub next_run_at: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct BackupVerification {
+    pub id: String,
+    pub backup_id: String,
+    pub verification_type: String,
+    pub status: String,
+    pub details: Option<String>,
+    pub verified_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct BackupFile {
+    pub id: String,
+    pub backup_id: String,
+    pub file_path: String,
+    pub file_size: i64,
+    pub checksum: String,
+    pub compressed_size: Option<i64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct EnhancedBackup {
+    pub id: String,
+    pub backup_type: String,
+    pub size_bytes: i64,
+    pub file_count: Option<i64>,
+    pub storage_path: String,
+    pub created_by: String,
+    pub created_at: String,
+    pub status: String,
+    pub error_message: Option<String>,
+    pub checksum: Option<String>,
+    pub compression_type: Option<String>,
+    pub schedule_id: Option<String>,
+    pub destination_type: Option<String>,
+    pub metadata: Option<String>,
+}

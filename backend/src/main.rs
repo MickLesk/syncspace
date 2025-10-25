@@ -465,16 +465,6 @@ fn build_router(state: AppState) -> Router {
         .route("/api/shares/{id}", delete(handlers::sharing::delete_share))
         .route("/api/shares/{id}/permissions", put(handlers::sharing::update_permissions));
     
-    // Version control routes (protected)
-    let version_routes = Router::new()
-        .route("/api/versions/{file_id}", get(list_file_versions_handler))
-        .route("/api/versions/{file_id}/create", post(create_file_version_handler))
-        .route("/api/versions/{version_id}", get(get_file_version_handler).delete(delete_file_version_handler))
-        .route("/api/versions/{version_id}/restore", post(restore_file_version_handler))
-        .route("/api/versions/{from_id}/diff/{to_id}", get(get_version_diff_handler))
-        .route("/api/versions/{version_id}/download", get(download_file_version_handler))
-        .route("/api/versions/{version_id}/metadata", get(get_version_metadata_handler).put(update_version_metadata_handler));
-    
     // Fixed sharing routes (protected)
     let sharing_routes = Router::new()
         .route("/api/shares", post(handlers::sharing::create_share).get(handlers::sharing::list_shares))
@@ -508,7 +498,15 @@ fn build_router(state: AppState) -> Router {
         .route("/api/backups/create", post(handlers::backup::create_backup))
         .route("/api/backups", get(handlers::backup::list_backups))
         .route("/api/backups/{id}", get(handlers::backup::get_backup).delete(handlers::backup::delete_backup))
-        .route("/api/backups/{id}/restore", post(handlers::backup::restore_backup));
+        .route("/api/backups/{id}/restore", post(handlers::backup::restore_backup))
+        .route("/api/backups/{id}/verify", post(handlers::backup::verify_backup))
+        .route("/api/backups/{id}/verifications", get(handlers::backup::list_verifications))
+        .route("/api/backups/cleanup", post(handlers::backup::cleanup_old_backups))
+        // Scheduling routes
+        .route("/api/backups/schedules", post(handlers::backup::create_schedule).get(handlers::backup::list_schedules))
+        .route("/api/backups/schedules/{id}", get(handlers::backup::get_schedule).put(handlers::backup::update_schedule).delete(handlers::backup::delete_schedule))
+        .route("/api/backups/schedules/{id}/trigger", post(handlers::backup::trigger_schedule));
+    
     
     // Collaboration routes (protected)
     let collaboration_routes = Router::new()
@@ -630,7 +628,6 @@ fn build_router(state: AppState) -> Router {
         .merge(activity_routes)
         .merge(comments_tags_routes)
         .merge(sharing_routes)
-        .merge(version_routes)  // New versioning routes
         .merge(storage_routes)
         .merge(duplicates_routes)
         .merge(versioning_routes)  // Now uses /api/versions/{file_id}
