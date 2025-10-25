@@ -1,0 +1,30 @@
+{
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":automergeDisabled",
+    ":label(dependencies)"
+  ],
+  "timezone": "Europe/Berlin",
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 5,
+  "rangeStrategy": "bump",
+  "branchPrefix": "renovate/",
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "schedule": ["after 8am and before 10am on monday"]
+    },
+    {
+      "matchManagers": ["npm", "pnpm"],
+      "groupName": "Frontend Packages"
+    },
+    {
+      "matchManagers": ["cargo"],
+      "groupName": "Rust Dependencies"
+    }
+  ],
+  "onboarding": false,
+  "requireConfig": "optional"
+}
