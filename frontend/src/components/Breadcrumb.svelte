@@ -19,7 +19,7 @@
     showDropdown ? segments.slice(1, -(maxVisibleSegments - 1)) : []
   );
 
-  let dropdownOpen = false;
+  let dropdownOpen = $state(false);
   let activeActionMenu = $state(null); // Track which breadcrumb has action menu open
 
   function navigateToHome() {
