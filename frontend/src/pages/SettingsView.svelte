@@ -117,7 +117,7 @@
       <button
         class="tab-btn"
         class:active={activeTab === tab.id}
-        on:click={() => handleTabChange(tab.id)}
+        onclick={() => handleTabChange(tab.id)}
       >
         <i class="bi bi-{tab.icon}"></i>
         <span>{tab.label}</span>

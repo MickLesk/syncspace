@@ -3,7 +3,7 @@
   import { currentPath } from "../stores/ui";
   import { onFileEvent } from "../stores/websocket";
   import api from "../lib/api";
-  import { error as errorToast } from "../stores/toast";
+  import { success, error as errorToast } from "../stores/toast";
 
   let folders = $state([]);
   let expandedFolders = $state(new Set());
@@ -84,11 +84,11 @@
     if (newName && newName !== folder.name) {
       try {
         await api.files.rename(folder.path, newName);
-        errorToast.success("Folder renamed successfully");
+        success("Folder renamed successfully");
         // Reload folders
         folders = await loadFolders("/");
       } catch (err) {
-        errorToast.error("Failed to rename folder: " + err.message);
+        errorToast("Failed to rename folder: " + err.message);
       }
     }
   }
@@ -98,22 +98,22 @@
     if (confirm(`Delete folder "${folder.name}" and all its contents?`)) {
       try {
         await api.files.delete(folder.path);
-        errorToast.success("Folder deleted successfully");
+        success("Folder deleted successfully");
         folders = await loadFolders("/");
       } catch (err) {
-        errorToast.error("Failed to delete folder: " + err.message);
+        errorToast("Failed to delete folder: " + err.message);
       }
     }
   }
 
   async function handleShare(folder) {
     hideContextMenu();
-    errorToast.info(`Share functionality for "${folder.name}" coming soon!`);
+    success(`Share functionality for "${folder.name}" coming soon!`);
   }
 
   async function handleFavorite(folder) {
     hideContextMenu();
-    errorToast.info(`Favorite functionality for "${folder.name}" coming soon!`);
+    success(`Favorite functionality for "${folder.name}" coming soon!`);
   }
 
   async function handleNewSubfolder(folder) {
@@ -123,7 +123,7 @@
       try {
         const newPath = `${folder.path}/${name}`;
         await api.files.createDir(newPath);
-        errorToast.success("Subfolder created successfully");
+        success("Subfolder created successfully");
         // Expand parent and reload
         if (!expandedFolders.has(folder.path)) {
           folder.children = await loadFolders(folder.path);
@@ -133,7 +133,7 @@
           folder.children = await loadFolders(folder.path);
         }
       } catch (err) {
-        errorToast.error("Failed to create subfolder: " + err.message);
+        errorToast("Failed to create subfolder: " + err.message);
       }
     }
   }
@@ -277,7 +277,7 @@
     return result;
   }
 
-  $: flatFolders = flattenFolders(folders);
+  let flatFolders = $derived(flattenFolders(folders));
 </script>
 
 <div class="folder-tree">

@@ -18,7 +18,6 @@
   let searchValue = "";
   let errorValue = "";
 
-  
   let successValue = "john@example.com";
 
   // Modal states
@@ -130,14 +129,14 @@
     <div class="subsection">
       <h3>Basic Inputs</h3>
       <div class="input-grid">
-        <InputV2
+        <Input
           label="Name"
           placeholder="Enter your name"
           bind:value={testValue}
           helpText="This is a help text"
         />
 
-        <InputV2
+        <Input
           label="Email"
           type="email"
           placeholder="you@example.com"
@@ -146,7 +145,7 @@
           required
         />
 
-        <InputV2
+        <Input
           label="Password"
           type="password"
           placeholder="••••••••"
@@ -155,7 +154,7 @@
           required
         />
 
-        <InputV2
+        <Input
           label="Search"
           placeholder="Search files..."
           bind:value={searchValue}

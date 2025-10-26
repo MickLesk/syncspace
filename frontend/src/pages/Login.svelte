@@ -1,6 +1,5 @@
 <script>
-  import { goto } from "../stores/router.js";
-  import { showToast } from "../stores/ui.js";
+  import { success, error } from "../stores/toast.js";
 
   let username = $state("");
   let password = $state("");
@@ -181,6 +180,7 @@
     font-weight: 800;
     margin: 0;
     background: linear-gradient(135deg, hsl(var(--p)), hsl(var(--s)));
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
