@@ -33,24 +33,27 @@
     {
       label: "Used",
       value: diskStats.used_bytes,
-      color: "hsl(var(--er))"
+      color: "hsl(var(--er))",
     },
     {
       label: "Available",
       value: diskStats.available_bytes,
-      color: "hsl(var(--su))"
-    }
+      color: "hsl(var(--su))",
+    },
   ];
 
   // Chart data for file types
-  $: fileTypeChartData = Object.entries(stats.byType || {}).map(([type, data]) => {
-    const category = typeCategories[type] || typeCategories.other;
-    return {
-      label: category.label,
-      value: data.totalSize || 0,
-      color: getCategoryColor(category.color)
-    };
-  }).filter(item => item.value > 0).sort((a, b) => b.value - a.value);
+  $: fileTypeChartData = Object.entries(stats.byType || {})
+    .map(([type, data]) => {
+      const category = typeCategories[type] || typeCategories.other;
+      return {
+        label: category.label,
+        value: data.totalSize || 0,
+        color: getCategoryColor(category.color),
+      };
+    })
+    .filter((item) => item.value > 0)
+    .sort((a, b) => b.value - a.value);
 
   // File type categories
   const typeCategories = {
@@ -196,7 +199,7 @@
       success: "hsl(var(--su))",
       warning: "hsl(var(--wa))",
       error: "hsl(var(--er))",
-      neutral: "hsl(var(--n))"
+      neutral: "hsl(var(--n))",
     };
     return colorMap[colorName] || "hsl(var(--p))";
   }
@@ -264,7 +267,12 @@
               <i class="bi bi-pie-chart-fill text-primary"></i>
               Disk Usage Distribution
             </h3>
-            <Chart data={diskChartData} type="doughnut" size="md" title="Total" />
+            <Chart
+              data={diskChartData}
+              type="doughnut"
+              size="md"
+              title="Total"
+            />
           </div>
 
           <!-- Disk Usage Progress Bar (Moved here) -->
@@ -289,15 +297,19 @@
                 value={diskStats.usage_percent}
                 max="100"
               ></progress>
-              
+
               <div class="grid grid-cols-2 gap-4 mt-6">
                 <div class="stat-compact">
                   <div class="stat-label">Used</div>
-                  <div class="stat-value-sm text-error">{diskUsedFormatted}</div>
+                  <div class="stat-value-sm text-error">
+                    {diskUsedFormatted}
+                  </div>
                 </div>
                 <div class="stat-compact">
                   <div class="stat-label">Free</div>
-                  <div class="stat-value-sm text-success">{diskAvailableFormatted}</div>
+                  <div class="stat-value-sm text-success">
+                    {diskAvailableFormatted}
+                  </div>
                 </div>
               </div>
             </div>
@@ -351,7 +363,12 @@
           </h2>
           <div class="mt-4">
             {#if fileTypeChartData.length > 0}
-              <Chart data={fileTypeChartData} type="doughnut" size="md" title="Files" />
+              <Chart
+                data={fileTypeChartData}
+                type="doughnut"
+                size="md"
+                title="Files"
+              />
             {:else}
               <div class="text-center py-8 text-base-content/50">
                 <i class="bi bi-inbox text-4xl"></i>

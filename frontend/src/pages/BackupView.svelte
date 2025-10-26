@@ -99,7 +99,8 @@
         fileCount: backup.file_count || 0,
         size: backup.size_bytes || 0,
         type: backup.backup_type,
-        estimatedDuration: Math.ceil((backup.file_count || 0) / 100) + " minutes"
+        estimatedDuration:
+          Math.ceil((backup.file_count || 0) / 100) + " minutes",
       };
       showRestoreModal = true;
     } catch (err) {
@@ -109,7 +110,7 @@
 
   async function confirmRestore() {
     if (!restorePreview) return;
-    
+
     try {
       success("Restore started! This may take a while.");
       showRestoreModal = false;
@@ -130,10 +131,10 @@
     const days = Math.floor(hours / 24);
 
     if (days > 30) return formatDate(dateString);
-    if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
-    if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-    return 'Just now';
+    if (days > 0) return `${days} day${days > 1 ? "s" : ""} ago`;
+    if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+    if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+    return "Just now";
   }
 
   $effect(() => {
@@ -223,14 +224,18 @@
           <!-- View Mode Toggle -->
           <div class="join">
             <button
-              class="btn btn-sm join-item {viewMode === 'timeline' ? 'btn-active' : ''}"
+              class="btn btn-sm join-item {viewMode === 'timeline'
+                ? 'btn-active'
+                : ''}"
               onclick={() => (viewMode = "timeline")}
               title="Timeline View"
             >
               <i class="bi bi-clock-history"></i>
             </button>
             <button
-              class="btn btn-sm join-item {viewMode === 'grid' ? 'btn-active' : ''}"
+              class="btn btn-sm join-item {viewMode === 'grid'
+                ? 'btn-active'
+                : ''}"
               onclick={() => (viewMode = "grid")}
               title="Grid View"
             >
@@ -279,7 +284,11 @@
           {#each backups as backup, index}
             <div class="timeline-item">
               <div class="timeline-marker">
-                <div class="timeline-icon timeline-icon-{getStatusColor(backup.status)}">
+                <div
+                  class="timeline-icon timeline-icon-{getStatusColor(
+                    backup.status
+                  )}"
+                >
                   <i class="bi bi-{getStatusIcon(backup.status)}"></i>
                 </div>
                 {#if index < backups.length - 1}
@@ -288,12 +297,18 @@
               </div>
 
               <div class="timeline-content">
-                <div class="card bg-base-100 shadow-md hover:shadow-lg transition-all">
+                <div
+                  class="card bg-base-100 shadow-md hover:shadow-lg transition-all"
+                >
                   <div class="card-body p-4">
                     <div class="flex justify-between items-start mb-3">
                       <div class="flex-1">
                         <div class="flex items-center gap-2 mb-2">
-                          <span class="badge badge-outline badge-{getStatusColor(backup.status)} badge-lg">
+                          <span
+                            class="badge badge-outline badge-{getStatusColor(
+                              backup.status
+                            )} badge-lg"
+                          >
                             {backup.backup_type}
                           </span>
                           <span class="badge {getStatusBadge(backup.status)}">
@@ -319,18 +334,24 @@
                       <div class="stat-mini">
                         <i class="bi bi-hdd text-primary"></i>
                         <div class="stat-mini-label">Size</div>
-                        <div class="stat-mini-value">{formatBytes(backup.size_bytes)}</div>
+                        <div class="stat-mini-value">
+                          {formatBytes(backup.size_bytes)}
+                        </div>
                       </div>
                       <div class="stat-mini">
                         <i class="bi bi-files text-secondary"></i>
                         <div class="stat-mini-label">Files</div>
-                        <div class="stat-mini-value">{backup.file_count || 0}</div>
+                        <div class="stat-mini-value">
+                          {backup.file_count || 0}
+                        </div>
                       </div>
                       <div class="stat-mini">
                         <i class="bi bi-speedometer2 text-accent"></i>
                         <div class="stat-mini-label">Duration</div>
                         <div class="stat-mini-value">
-                          {backup.duration_seconds ? `${backup.duration_seconds}s` : 'N/A'}
+                          {backup.duration_seconds
+                            ? `${backup.duration_seconds}s`
+                            : "N/A"}
                         </div>
                       </div>
                     </div>
@@ -529,7 +550,10 @@
 <!-- Restore Preview Modal -->
 {#if showRestoreModal && restorePreview}
   <div class="modal modal-open">
-    <div class="modal-backdrop-enhanced" onclick={() => (showRestoreModal = false)}></div>
+    <div
+      class="modal-backdrop-enhanced"
+      onclick={() => (showRestoreModal = false)}
+    ></div>
     <div class="modal-box max-w-2xl">
       <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
         <i class="bi bi-arrow-counterclockwise text-primary"></i>
@@ -541,7 +565,8 @@
         <div>
           <div class="font-bold">Warning</div>
           <div class="text-sm">
-            Restoring will replace current data. Make sure you have a recent backup before proceeding.
+            Restoring will replace current data. Make sure you have a recent
+            backup before proceeding.
           </div>
         </div>
       </div>
@@ -553,7 +578,9 @@
           <div class="grid grid-cols-2 gap-3 text-sm">
             <div>
               <span class="text-base-content/70">Backup ID:</span>
-              <div class="font-mono text-xs mt-1">{restorePreview.backupId}</div>
+              <div class="font-mono text-xs mt-1">
+                {restorePreview.backupId}
+              </div>
             </div>
             <div>
               <span class="text-base-content/70">Created:</span>
@@ -571,7 +598,9 @@
             </div>
             <div>
               <span class="text-base-content/70">Files:</span>
-              <div class="mt-1">{restorePreview.fileCount.toLocaleString()}</div>
+              <div class="mt-1">
+                {restorePreview.fileCount.toLocaleString()}
+              </div>
             </div>
             <div>
               <span class="text-base-content/70">Estimated Duration:</span>
@@ -586,7 +615,9 @@
             <i class="bi bi-exclamation-octagon-fill"></i>
             Restore Impact
           </h4>
-          <ul class="list-disc list-inside text-sm space-y-1 text-base-content/70">
+          <ul
+            class="list-disc list-inside text-sm space-y-1 text-base-content/70"
+          >
             <li>All current files will be replaced with backup versions</li>
             <li>Database will be restored to backup state</li>
             <li>Recent changes since backup will be lost</li>
@@ -596,7 +627,10 @@
       </div>
 
       <div class="modal-action">
-        <button class="btn btn-ghost" onclick={() => (showRestoreModal = false)}>
+        <button
+          class="btn btn-ghost"
+          onclick={() => (showRestoreModal = false)}
+        >
           Cancel
         </button>
         <button class="btn btn-error" onclick={confirmRestore}>
