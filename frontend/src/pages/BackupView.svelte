@@ -124,7 +124,7 @@
   function getRelativeTime(dateString) {
     const date = new Date(dateString);
     const now = new Date();
-    const diff = now - date;
+    const diff = now.getTime() - date.getTime();
     const seconds = Math.floor(diff / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);

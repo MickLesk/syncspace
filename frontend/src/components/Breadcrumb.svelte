@@ -4,19 +4,20 @@
   import { t } from "../i18n.js";
   import { success } from "../stores/toast";
 
-  export let path = "/";
-  export let maxVisibleSegments = 3;
+  let { path = "/", maxVisibleSegments = 3 } = $props();
 
   const dispatch = createEventDispatcher();
 
-  $: segments = path.split("/").filter(Boolean);
-  $: showDropdown = segments.length > maxVisibleSegments;
-  $: visibleSegments = showDropdown
-    ? [segments[0], ...segments.slice(-(maxVisibleSegments - 1))]
-    : segments;
-  $: hiddenSegments = showDropdown
-    ? segments.slice(1, -(maxVisibleSegments - 1))
-    : [];
+  let segments = $derived(path.split("/").filter(Boolean));
+  let showDropdown = $derived(segments.length > maxVisibleSegments);
+  let visibleSegments = $derived(
+    showDropdown
+      ? [segments[0], ...segments.slice(-(maxVisibleSegments - 1))]
+      : segments
+  );
+  let hiddenSegments = $derived(
+    showDropdown ? segments.slice(1, -(maxVisibleSegments - 1)) : []
+  );
 
   let dropdownOpen = false;
   let activeActionMenu = $state(null); // Track which breadcrumb has action menu open

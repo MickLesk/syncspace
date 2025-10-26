@@ -35,7 +35,7 @@
   });
 
   // Navigation items - Storage & Backup sind jetzt in Settings-Tabs
-  $: navItems = [
+  let navItems = $derived([
     {
       id: "files",
       icon: "folder-fill",
@@ -90,12 +90,16 @@
       label: t($currentLang, "settings"),
       category: "system",
     },
-  ];
+  ]);
 
   // Group by category
-  $: mainItems = navItems.filter((item) => item.category === "main");
-  $: toolsItems = navItems.filter((item) => item.category === "tools");
-  $: systemItems = navItems.filter((item) => item.category === "system");
+  let mainItems = $derived(navItems.filter((item) => item.category === "main"));
+  let toolsItems = $derived(
+    navItems.filter((item) => item.category === "tools")
+  );
+  let systemItems = $derived(
+    navItems.filter((item) => item.category === "system")
+  );
 
   function selectView(viewId) {
     currentView.set(viewId);

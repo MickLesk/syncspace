@@ -36,17 +36,26 @@ export default {
           "error": "#ef4444",             // Red
         },
         "syncspace-dark": {
-          "primary": "#667eea",           // Brand Purple
-          "secondary": "#764ba2",         // Deep Purple
-          "accent": "#f59e0b",            // Amber
+          "primary": "#818cf8",           // Lighter Purple for better contrast
+          "primary-content": "#0f172a",   // Dark text on primary
+          "secondary": "#9333ea",         // Brighter Purple
+          "secondary-content": "#ffffff", // White text on secondary
+          "accent": "#fbbf24",            // Brighter Amber
+          "accent-content": "#0f172a",    // Dark text on accent
           "neutral": "#374151",           // Gray
-          "base-100": "#111827",          // Dark background
-          "base-200": "#1f2937",          // Dark surface
-          "base-300": "#374151",          // Lighter dark
-          "info": "#3b82f6",              // Blue
-          "success": "#10b981",           // Emerald
-          "warning": "#f59e0b",           // Orange
-          "error": "#ef4444",             // Red
+          "neutral-content": "#f3f4f6",   // Light text on neutral
+          "base-100": "#0f172a",          // Darker background (slate-900)
+          "base-200": "#1e293b",          // Dark surface (slate-800)
+          "base-300": "#334155",          // Lighter dark (slate-700)
+          "base-content": "#f1f5f9",      // Light text (slate-100)
+          "info": "#60a5fa",              // Brighter Blue
+          "info-content": "#0f172a",      // Dark text on info
+          "success": "#34d399",           // Brighter Emerald
+          "success-content": "#0f172a",   // Dark text on success
+          "warning": "#fbbf24",           // Brighter Orange
+          "warning-content": "#0f172a",   // Dark text on warning
+          "error": "#f87171",             // Brighter Red
+          "error-content": "#ffffff",     // White text on error
         },
       },
       "light",
