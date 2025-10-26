@@ -9,26 +9,58 @@
   let searchQuery = $state("");
 
   const tabs = [
-    { id: "general", label: "General", icon: "sliders", keywords: ["language", "theme", "notifications", "general"] },
-    { id: "users", label: "Users", icon: "people-fill", keywords: ["users", "accounts", "permissions", "roles"] },
-    { id: "storage", label: "Storage", icon: "hdd-fill", keywords: ["storage", "quota", "disk", "space"] },
-    { id: "backup", label: "Backup", icon: "cloud-arrow-up-fill", keywords: ["backup", "restore", "schedule", "retention"] },
-    { id: "about", label: "About", icon: "info-circle", keywords: ["about", "version", "info", "credits"] },
+    {
+      id: "general",
+      label: "General",
+      icon: "sliders",
+      keywords: ["language", "theme", "notifications", "general"],
+    },
+    {
+      id: "users",
+      label: "Users",
+      icon: "people-fill",
+      keywords: ["users", "accounts", "permissions", "roles"],
+    },
+    {
+      id: "storage",
+      label: "Storage",
+      icon: "hdd-fill",
+      keywords: ["storage", "quota", "disk", "space"],
+    },
+    {
+      id: "backup",
+      label: "Backup",
+      icon: "cloud-arrow-up-fill",
+      keywords: ["backup", "restore", "schedule", "retention"],
+    },
+    {
+      id: "about",
+      label: "About",
+      icon: "info-circle",
+      keywords: ["about", "version", "info", "credits"],
+    },
   ];
 
   // Filter tabs based on search query
   let filteredTabs = $derived(
-    searchQuery.length === 0 
-      ? tabs 
-      : tabs.filter(tab => 
-          tab.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          tab.keywords.some(keyword => keyword.toLowerCase().includes(searchQuery.toLowerCase()))
+    searchQuery.length === 0
+      ? tabs
+      : tabs.filter(
+          (tab) =>
+            tab.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            tab.keywords.some((keyword) =>
+              keyword.toLowerCase().includes(searchQuery.toLowerCase())
+            )
         )
   );
 
   // Auto-switch to first filtered tab if current tab is filtered out
   $effect(() => {
-    if (searchQuery.length > 0 && filteredTabs.length > 0 && !filteredTabs.some(t => t.id === activeTab)) {
+    if (
+      searchQuery.length > 0 &&
+      filteredTabs.length > 0 &&
+      !filteredTabs.some((t) => t.id === activeTab)
+    ) {
       activeTab = filteredTabs[0].id;
     }
   });
@@ -67,7 +99,11 @@
           class:input-with-icon-right={searchQuery.length > 0}
         />
         {#if searchQuery.length > 0}
-          <button class="search-clear-btn" onclick={clearSearch} aria-label="Clear search">
+          <button
+            class="search-clear-btn"
+            onclick={clearSearch}
+            aria-label="Clear search"
+          >
             <i class="bi bi-x-lg"></i>
           </button>
         {/if}

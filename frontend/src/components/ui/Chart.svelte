@@ -1,10 +1,10 @@
 <script>
   // Props
-  let { 
+  let {
     data = [],
     title = "Chart",
     type = "doughnut", // doughnut, bar
-    size = "md" // sm, md, lg
+    size = "md", // sm, md, lg
   } = $props();
 
   // Calculate total for percentages
@@ -17,11 +17,11 @@
       const cumulativePercentage = data
         .slice(0, index)
         .reduce((sum, d) => sum + (d.value / total) * 100, 0);
-      
+
       return {
         ...item,
         percentage,
-        cumulativePercentage
+        cumulativePercentage,
       };
     })
   );
@@ -30,7 +30,7 @@
   const sizeMap = {
     sm: { chart: 120, stroke: 20, bar: 120 },
     md: { chart: 200, stroke: 30, bar: 200 },
-    lg: { chart: 280, stroke: 40, bar: 300 }
+    lg: { chart: 280, stroke: 40, bar: 300 },
   };
 
   let dimensions = $derived(sizeMap[size]);
@@ -47,14 +47,23 @@
 
 <div class="chart-container">
   {#if type === "doughnut"}
-    <div class="doughnut-chart" style="width: {dimensions.chart}px; height: {dimensions.chart}px;">
+    <div
+      class="doughnut-chart"
+      style="width: {dimensions.chart}px; height: {dimensions.chart}px;"
+    >
       <svg viewBox="0 0 100 100" class="doughnut-svg">
         {#each chartData as item, i}
           {@const radius = 40}
           {@const circumference = 2 * Math.PI * radius}
-          {@const offset = getStrokeOffset(item.cumulativePercentage, circumference)}
-          {@const dasharray = getStrokeDasharray(item.percentage, circumference)}
-          
+          {@const offset = getStrokeOffset(
+            item.cumulativePercentage,
+            circumference
+          )}
+          {@const dasharray = getStrokeDasharray(
+            item.percentage,
+            circumference
+          )}
+
           <circle
             class="doughnut-segment"
             cx="50"
@@ -70,13 +79,15 @@
           />
         {/each}
       </svg>
-      
+
       <!-- Center Label -->
       <div class="doughnut-center">
         <div class="doughnut-total">
           {#if data.length > 0}
             <div class="total-label">{title}</div>
-            <div class="total-value">{data.reduce((sum, d) => sum + d.value, 0).toLocaleString()}</div>
+            <div class="total-value">
+              {data.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
+            </div>
           {/if}
         </div>
       </div>
@@ -86,7 +97,10 @@
     <div class="chart-legend">
       {#each chartData as item}
         <div class="legend-item">
-          <div class="legend-color" style="background: {item.color || 'hsl(var(--p))'}"></div>
+          <div
+            class="legend-color"
+            style="background: {item.color || 'hsl(var(--p))'}"
+          ></div>
           <div class="legend-content">
             <div class="legend-label">{item.label}</div>
             <div class="legend-value">
@@ -96,16 +110,16 @@
         </div>
       {/each}
     </div>
-
   {:else if type === "bar"}
     <div class="bar-chart" style="height: {dimensions.bar}px;">
       {#each chartData as item}
         <div class="bar-item">
           <div class="bar-label">{item.label}</div>
           <div class="bar-wrapper">
-            <div 
-              class="bar-fill" 
-              style="width: {item.percentage}%; background: {item.color || 'hsl(var(--p))'}"
+            <div
+              class="bar-fill"
+              style="width: {item.percentage}%; background: {item.color ||
+                'hsl(var(--p))'}"
             >
               <span class="bar-percentage">{item.percentage.toFixed(1)}%</span>
             </div>
@@ -270,7 +284,7 @@
   }
 
   .bar-fill::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2));
