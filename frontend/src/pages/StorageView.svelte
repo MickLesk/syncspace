@@ -4,6 +4,7 @@
   import api from "../lib/api";
 
   let loading = true;
+  let loadingDisk = true;
   let stats = {
     totalFiles: 0,
     totalSize: 0,
@@ -11,7 +12,20 @@
     largestFiles: [],
   };
 
+  // System disk usage stats
+  let diskStats = {
+    total_bytes: 0,
+    available_bytes: 0,
+    used_bytes: 0,
+    usage_percent: 0,
+    mount_point: "",
+    filesystem: "",
+  };
+
   $: totalSizeFormatted = formatSize(stats.totalSize);
+  $: diskTotalFormatted = formatSize(diskStats.total_bytes);
+  $: diskUsedFormatted = formatSize(diskStats.used_bytes);
+  $: diskAvailableFormatted = formatSize(diskStats.available_bytes);
 
   // File type categories
   const typeCategories = {
@@ -65,13 +79,25 @@
   };
 
   onMount(async () => {
-    await loadStats();
+    await Promise.all([loadStats(), loadDiskStats()]);
   });
+
+  async function loadDiskStats() {
+    loadingDisk = true;
+    try {
+      diskStats = await api.system.getStorageInfo();
+    } catch (err) {
+      errorToast(err.message || "Failed to load disk statistics");
+    } finally {
+      loadingDisk = false;
+    }
+  }
 
   async function loadStats() {
     loading = true;
     try {
-      const basicStats = await api.files.stats();
+      // Use backend stats endpoint
+      const basicStats = await api.system.getStats();
       const files = await api.files.list("");
 
       stats = {
@@ -81,6 +107,7 @@
         largestFiles: getLargestFiles(files, 10),
       };
     } catch (err) {
+      console.error("Failed to load storage statistics:", err);
       errorToast(err.message || "Failed to load storage statistics");
     } finally {
       loading = false;
@@ -137,11 +164,80 @@
 </script>
 
 <div class="storage-view">
-  {#if loading}
+  {#if loading || loadingDisk}
     <div class="flex justify-center items-center h-64">
       <span class="loading loading-spinner loading-lg text-primary"></span>
     </div>
   {:else}
+    <!-- System Disk Usage - NEW! -->
+    <div
+      class="card bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20 shadow-lg mb-6"
+    >
+      <div class="card-body">
+        <h2 class="card-title text-2xl mb-4">
+          <i class="bi bi-device-hdd-fill mr-2"></i>
+          System Disk Usage
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="stat bg-base-100/50 rounded-box p-4">
+            <div class="stat-figure text-primary">
+              <i class="bi bi-pie-chart-fill text-3xl"></i>
+            </div>
+            <div class="stat-title">Disk Capacity</div>
+            <div class="stat-value text-primary text-2xl">
+              {diskTotalFormatted}
+            </div>
+            <div class="stat-desc">
+              {diskStats.filesystem} @ {diskStats.mount_point}
+            </div>
+          </div>
+
+          <div class="stat bg-base-100/50 rounded-box p-4">
+            <div class="stat-figure text-error">
+              <i class="bi bi-exclamation-triangle-fill text-3xl"></i>
+            </div>
+            <div class="stat-title">Used Space</div>
+            <div class="stat-value text-error text-2xl">
+              {diskUsedFormatted}
+            </div>
+            <div class="stat-desc">
+              {diskStats.usage_percent.toFixed(1)}% of total capacity
+            </div>
+          </div>
+
+          <div class="stat bg-base-100/50 rounded-box p-4">
+            <div class="stat-figure text-success">
+              <i class="bi bi-check-circle-fill text-3xl"></i>
+            </div>
+            <div class="stat-title">Available Space</div>
+            <div class="stat-value text-success text-2xl">
+              {diskAvailableFormatted}
+            </div>
+            <div class="stat-desc">Free for new files</div>
+          </div>
+        </div>
+
+        <!-- Disk Usage Progress Bar -->
+        <div class="mt-6">
+          <div class="flex justify-between mb-2">
+            <span class="text-sm font-semibold">Disk Usage</span>
+            <span class="text-sm font-semibold"
+              >{diskStats.usage_percent.toFixed(1)}%</span
+            >
+          </div>
+          <progress
+            class="progress {diskStats.usage_percent > 90
+              ? 'progress-error'
+              : diskStats.usage_percent > 70
+                ? 'progress-warning'
+                : 'progress-success'} h-4"
+            value={diskStats.usage_percent}
+            max="100"
+          ></progress>
+        </div>
+      </div>
+    </div>
+
     <!-- Top Stats -->
     <div class="stats stats-vertical lg:stats-horizontal shadow mb-6 w-full">
       <div class="stat">

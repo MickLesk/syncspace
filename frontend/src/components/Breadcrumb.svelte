@@ -19,22 +19,26 @@
     : [];
 
   let dropdownOpen = false;
+  let activeActionMenu = $state(null); // Track which breadcrumb has action menu open
 
   function navigateToHome() {
     dispatch("navigate", { path: "/" });
     dropdownOpen = false;
+    activeActionMenu = null;
   }
 
   function navigateToSegment(index) {
     const newPath = "/" + segments.slice(0, index + 1).join("/") + "/";
     dispatch("navigate", { path: newPath });
     dropdownOpen = false;
+    activeActionMenu = null;
   }
 
   function navigateUp() {
     if (segments.length === 0) return;
     const newPath = "/" + segments.slice(0, -1).join("/") + "/";
     dispatch("navigate", { path: newPath });
+    activeActionMenu = null;
   }
 
   function copyPath() {
@@ -53,11 +57,50 @@
         document.body.removeChild(input);
         success(t($currentLang, "pathCopied"));
       });
+    activeActionMenu = null;
+  }
+
+  function copySegmentPath(index) {
+    const segmentPath = "/" + segments.slice(0, index + 1).join("/") + "/";
+    navigator.clipboard
+      .writeText(segmentPath)
+      .then(() => {
+        success(t($currentLang, "pathCopied"));
+      })
+      .catch(() => {
+        const input = document.createElement("input");
+        input.value = segmentPath;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        document.body.removeChild(input);
+        success(t($currentLang, "pathCopied"));
+      });
+    activeActionMenu = null;
+  }
+
+  function openInNewTab(index) {
+    const segmentPath = "/" + segments.slice(0, index + 1).join("/") + "/";
+    // Emit event for parent to handle
+    dispatch("openInNewTab", { path: segmentPath });
+    activeActionMenu = null;
+  }
+
+  function addToFavorites(index) {
+    const segmentPath = "/" + segments.slice(0, index + 1).join("/") + "/";
+    dispatch("addToFavorites", { path: segmentPath });
+    success("Added to favorites");
+    activeActionMenu = null;
+  }
+
+  function toggleActionMenu(index) {
+    activeActionMenu = activeActionMenu === index ? null : index;
   }
 
   function handleClickOutside(event) {
-    if (!event.target.closest(".dropdown")) {
+    if (!event.target.closest(".dropdown") && !event.target.closest(".breadcrumb-action-menu")) {
       dropdownOpen = false;
+      activeActionMenu = null;
     }
   }
 </script>
@@ -82,10 +125,35 @@
     <ul>
       <!-- Home -->
       <li>
-        <button class="breadcrumb-item" on:click={navigateToHome}>
-          <i class="bi bi-house-fill"></i>
-          <span class="ml-1">{t($currentLang, "home")}</span>
-        </button>
+        <div class="breadcrumb-item-wrapper">
+          <button class="breadcrumb-item" on:click={navigateToHome}>
+            <i class="bi bi-house-fill"></i>
+            <span class="ml-1">{t($currentLang, "home")}</span>
+          </button>
+          <div class="breadcrumb-actions">
+            <button 
+              class="breadcrumb-action-btn"
+              on:click|stopPropagation={() => toggleActionMenu('home')}
+              title="Quick actions"
+            >
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            {#if activeActionMenu === 'home'}
+              <div class="breadcrumb-action-menu">
+                <button on:click={() => copySegmentPath(-1)}>
+                  <i class="bi bi-clipboard"></i>
+                  <span>Copy Path</span>
+                  <kbd class="kbd kbd-xs">Ctrl+C</kbd>
+                </button>
+                <button on:click={() => addToFavorites(-1)}>
+                  <i class="bi bi-star"></i>
+                  <span>Add to Favorites</span>
+                  <kbd class="kbd kbd-xs">F</kbd>
+                </button>
+              </div>
+            {/if}
+          </div>
+        </div>
       </li>
 
       {#if segments.length > 0}
@@ -136,29 +204,89 @@
         {#if !showDropdown}
           {#each segments as segment, i}
             <li>
-              <button
-                class="breadcrumb-item"
-                class:breadcrumb-active={i === segments.length - 1}
-                on:click={() => navigateToSegment(i)}
-              >
-                {segment}
-              </button>
+              <div class="breadcrumb-item-wrapper">
+                <button
+                  class="breadcrumb-item"
+                  class:breadcrumb-active={i === segments.length - 1}
+                  on:click={() => navigateToSegment(i)}
+                >
+                  {segment}
+                </button>
+                <div class="breadcrumb-actions">
+                  <button 
+                    class="breadcrumb-action-btn"
+                    on:click|stopPropagation={() => toggleActionMenu(i)}
+                    title="Quick actions"
+                  >
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  {#if activeActionMenu === i}
+                    <div class="breadcrumb-action-menu">
+                      <button on:click={() => copySegmentPath(i)}>
+                        <i class="bi bi-clipboard"></i>
+                        <span>Copy Path</span>
+                        <kbd class="kbd kbd-xs">Ctrl+C</kbd>
+                      </button>
+                      <button on:click={() => openInNewTab(i)}>
+                        <i class="bi bi-box-arrow-up-right"></i>
+                        <span>Open in New Tab</span>
+                        <kbd class="kbd kbd-xs">Ctrl+T</kbd>
+                      </button>
+                      <button on:click={() => addToFavorites(i)}>
+                        <i class="bi bi-star"></i>
+                        <span>Add to Favorites</span>
+                        <kbd class="kbd kbd-xs">F</kbd>
+                      </button>
+                    </div>
+                  {/if}
+                </div>
+              </div>
             </li>
           {/each}
         {:else}
           <!-- Last segments when using dropdown -->
           {#each segments.slice(-(maxVisibleSegments - 1)) as segment, i}
             <li>
-              <button
-                class="breadcrumb-item"
-                class:breadcrumb-active={i === maxVisibleSegments - 2}
-                on:click={() =>
-                  navigateToSegment(
-                    segments.length - (maxVisibleSegments - 1) + i
-                  )}
-              >
-                {segment}
-              </button>
+              <div class="breadcrumb-item-wrapper">
+                <button
+                  class="breadcrumb-item"
+                  class:breadcrumb-active={i === maxVisibleSegments - 2}
+                  on:click={() =>
+                    navigateToSegment(
+                      segments.length - (maxVisibleSegments - 1) + i
+                    )}
+                >
+                  {segment}
+                </button>
+                <div class="breadcrumb-actions">
+                  <button 
+                    class="breadcrumb-action-btn"
+                    on:click|stopPropagation={() => toggleActionMenu(`last-${i}`)}
+                    title="Quick actions"
+                  >
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  {#if activeActionMenu === `last-${i}`}
+                    <div class="breadcrumb-action-menu">
+                      <button on:click={() => copySegmentPath(segments.length - (maxVisibleSegments - 1) + i)}>
+                        <i class="bi bi-clipboard"></i>
+                        <span>Copy Path</span>
+                        <kbd class="kbd kbd-xs">Ctrl+C</kbd>
+                      </button>
+                      <button on:click={() => openInNewTab(segments.length - (maxVisibleSegments - 1) + i)}>
+                        <i class="bi bi-box-arrow-up-right"></i>
+                        <span>Open in New Tab</span>
+                        <kbd class="kbd kbd-xs">Ctrl+T</kbd>
+                      </button>
+                      <button on:click={() => addToFavorites(segments.length - (maxVisibleSegments - 1) + i)}>
+                        <i class="bi bi-star"></i>
+                        <span>Add to Favorites</span>
+                        <kbd class="kbd kbd-xs">F</kbd>
+                      </button>
+                    </div>
+                  {/if}
+                </div>
+              </div>
             </li>
           {/each}
         {/if}
@@ -228,5 +356,94 @@
       flex-wrap: wrap;
       gap: 0.25rem;
     }
+  }
+
+  /* Breadcrumb item wrapper for actions */
+  .breadcrumb-item-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .breadcrumb-item-wrapper:hover .breadcrumb-actions {
+    opacity: 1;
+  }
+
+  .breadcrumb-actions {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .breadcrumb-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: hsl(var(--bc) / 0.4);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .breadcrumb-action-btn:hover {
+    background: hsl(var(--bc) / 0.1);
+    color: hsl(var(--bc) / 0.8);
+  }
+
+  .breadcrumb-action-btn i {
+    font-size: 0.875rem;
+  }
+
+  .breadcrumb-action-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    min-width: 16rem;
+    background: hsl(var(--b1));
+    border: 2px solid hsl(var(--bc) / 0.1);
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+    z-index: 1000;
+    animation: slideDown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .breadcrumb-action-menu button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: none;
+    background: transparent;
+    color: hsl(var(--bc));
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    text-align: left;
+  }
+
+  .breadcrumb-action-menu button:hover {
+    background: hsl(var(--p) / 0.1);
+    color: hsl(var(--p));
+  }
+
+  .breadcrumb-action-menu button i {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .breadcrumb-action-menu button span {
+    flex: 1;
+  }
+
+  .breadcrumb-action-menu button .kbd {
+    margin-left: auto;
   }
 </style>

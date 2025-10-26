@@ -34,24 +34,11 @@
 
   async function createBackup(type = "full") {
     try {
-      const response = await fetch("/api/backups/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-        body: JSON.stringify({
-          backup_type: type,
-          include_versions: true,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to create backup");
-
+      await api.backup.create(type, true);
       success("Backup started! Check back in a few moments.");
       setTimeout(() => loadBackups(), 2000);
     } catch (err) {
-      errorToast("Failed to create backup");
+      errorToast("Failed to create backup: " + (err.message || err));
       console.error(err);
     }
   }
@@ -60,20 +47,12 @@
     if (!confirm("Are you sure you want to delete this backup?")) return;
 
     try {
-      const response = await fetch(`/api/backups/${backupId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Failed to delete backup");
-
+      await api.backup.delete(backupId);
       success("Backup deleted successfully");
       selectedBackup = null;
       await loadBackups();
     } catch (err) {
-      errorToast("Failed to delete backup");
+      errorToast("Failed to delete backup: " + (err.message || err));
       console.error(err);
     }
   }
@@ -81,17 +60,9 @@
   async function loadBackups() {
     loadingBackups = true;
     try {
-      const response = await fetch("/api/backups", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Failed to load backups");
-
-      backups = await response.json();
+      backups = await api.backup.list();
     } catch (err) {
-      errorToast("Failed to load backups");
+      errorToast("Failed to load backups: " + (err.message || err));
       console.error(err);
     } finally {
       loadingBackups = false;

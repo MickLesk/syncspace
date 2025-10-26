@@ -14,8 +14,10 @@ class WebSocketManager {
     this.reconnectDelay = 1000; // Start with 1 second
     this.maxReconnectDelay = 30000; // Max 30 seconds
     this.eventHandlers = new Map();
+    this.isConnecting = false;
     
-    this.connect();
+    // Don't auto-connect! Let components decide when to connect.
+    // Call websocketManager.connect() explicitly when needed.
   }
 
   connect() {

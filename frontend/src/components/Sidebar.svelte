@@ -7,6 +7,32 @@
   } from "../stores/ui";
   import { auth } from "../stores/auth";
   import { t } from "../i18n";
+  import FolderTree from "./FolderTree.svelte";
+  import { onMount } from "svelte";
+  import api from "../lib/api.js";
+
+  // Badge counts (reactive)
+  let sharedCount = $state(0);
+  let trashCount = $state(0);
+  let notificationCount = $state(0);
+
+  // Fetch badge counts
+  onMount(async () => {
+    try {
+      // Shared files count
+      const sharedResponse = await api.shares.list();
+      sharedCount = sharedResponse?.data?.length || 0;
+
+      // Trash count (simulated - would need backend endpoint)
+      // trashCount = await api.trash.count();
+      trashCount = 5; // Placeholder
+
+      // Notifications (simulated)
+      notificationCount = 3; // Placeholder
+    } catch (error) {
+      console.error("Failed to load badge counts:", error);
+    }
+  });
 
   // Navigation items - Storage & Backup sind jetzt in Settings-Tabs
   $: navItems = [
@@ -21,6 +47,8 @@
       icon: "share-fill",
       label: t($currentLang, "shared"),
       category: "main",
+      badge: sharedCount,
+      badgeClass: "badge-primary",
     },
     // Favorites nur anzeigen wenn enabled
     ...($favoritesEnabled
@@ -35,9 +63,11 @@
       : []),
     {
       id: "activity",
-      icon: "clock-history",
       label: "Activity",
       category: "tools",
+      icon: "clock-history",
+      badge: notificationCount,
+      badgeClass: "badge-accent",
     },
     { id: "duplicates", icon: "files", label: "Duplicates", category: "tools" },
     {
@@ -47,16 +77,12 @@
       category: "tools",
     },
     {
-      id: "gallery",
-      icon: "bug-fill",
-      label: "Performance Demo",
-      category: "tools",
-    },
-    {
       id: "trash",
       icon: "trash-fill",
       label: t($currentLang, "trash"),
       category: "system",
+      badge: trashCount,
+      badgeClass: "badge-warning",
     },
     {
       id: "settings",
@@ -156,16 +182,29 @@
         <li>
           <button
             class="menu-item {$currentView === item.id ? 'active' : ''}"
+            class:tooltip={$sidebarCollapsed}
+            class:tooltip-right={$sidebarCollapsed}
+            data-tip={$sidebarCollapsed ? item.label : ""}
             on:click={() => selectView(item.id)}
           >
             <i class="bi bi-{item.icon} text-lg"></i>
             {#if !$sidebarCollapsed}
-              <span>{item.label}</span>
+              <span class="menu-label">{item.label}</span>
+              {#if item.badge && item.badge > 0}
+                <span class="badge {item.badgeClass} badge-sm ml-auto"
+                  >{item.badge}</span
+                >
+              {/if}
             {/if}
           </button>
         </li>
       {/each}
     </ul>
+
+    <!-- Folder Tree (only show when Files view is active and sidebar is not collapsed) -->
+    {#if $currentView === "files" && !$sidebarCollapsed}
+      <FolderTree />
+    {/if}
 
     <!-- Tools Section -->
     <div class="divider my-2"></div>
@@ -177,11 +216,19 @@
         <li>
           <button
             class="menu-item {$currentView === item.id ? 'active' : ''}"
+            class:tooltip={$sidebarCollapsed}
+            class:tooltip-right={$sidebarCollapsed}
+            data-tip={$sidebarCollapsed ? item.label : ""}
             on:click={() => selectView(item.id)}
           >
             <i class="bi bi-{item.icon} text-lg"></i>
             {#if !$sidebarCollapsed}
-              <span>{item.label}</span>
+              <span class="menu-label">{item.label}</span>
+              {#if item.badge && item.badge > 0}
+                <span class="badge {item.badgeClass} badge-sm ml-auto"
+                  >{item.badge}</span
+                >
+              {/if}
             {/if}
           </button>
         </li>
@@ -198,11 +245,19 @@
         <li>
           <button
             class="menu-item {$currentView === item.id ? 'active' : ''}"
+            class:tooltip={$sidebarCollapsed}
+            class:tooltip-right={$sidebarCollapsed}
+            data-tip={$sidebarCollapsed ? item.label : ""}
             on:click={() => selectView(item.id)}
           >
             <i class="bi bi-{item.icon} text-lg"></i>
             {#if !$sidebarCollapsed}
-              <span>{item.label}</span>
+              <span class="menu-label">{item.label}</span>
+              {#if item.badge && item.badge > 0}
+                <span class="badge {item.badgeClass} badge-sm ml-auto"
+                  >{item.badge}</span
+                >
+              {/if}
             {/if}
           </button>
         </li>
@@ -310,19 +365,69 @@
     width: 100%;
     padding: 0.625rem 0.75rem;
     border-radius: 0.5rem;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 0.875rem;
     font-weight: 500;
+    position: relative;
+    white-space: nowrap;
+  }
+
+  .sidebar-container.collapsed .menu-item {
+    justify-content: center;
+    padding: 0.75rem;
+  }
+
+  .menu-item i {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+  }
+
+  .menu-item .menu-label {
+    opacity: 1;
+    transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar-container.collapsed .menu-label {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
   }
 
   .menu-item:hover {
     background: var(--md-sys-color-surface-variant);
   }
 
+  .menu-item:hover i {
+    transform: scale(1.15);
+  }
+
   .menu-item.active {
     background: var(--md-sys-color-primary-container);
     color: var(--md-sys-color-on-primary-container);
     font-weight: 600;
+  }
+
+  /* Badge styling */
+  .menu-item .badge {
+    font-size: 0.625rem;
+    padding: 0.125rem 0.375rem;
+    line-height: 1;
+    font-weight: 700;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar-container.collapsed .menu-item .badge {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    min-width: 1rem;
+    height: 1rem;
+    padding: 0 0.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.5rem;
   }
 
   .collapsed .menu-item {

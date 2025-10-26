@@ -17,15 +17,30 @@
         <i class="bi bi-cloud-arrow-up-fill text-info"></i>
         Backup Configuration
       </h2>
-      
+
       <div class="space-y-4">
         <div class="form-control">
           <label class="label cursor-pointer">
             <div>
               <span class="label-text font-medium">Automatic Backups</span>
-              <p class="text-sm opacity-70">Automatically backup your data at scheduled intervals</p>
+              <p class="text-sm opacity-70">
+                Automatically backup your data at scheduled intervals
+              </p>
             </div>
-            <input type="checkbox" class="toggle toggle-info" bind:checked={autoBackup} />
+            <div class="flex items-center gap-2">
+              <span
+                class="text-xs font-medium {autoBackup
+                  ? 'text-info'
+                  : 'text-base-content/40'}"
+              >
+                {autoBackup ? "ON" : "OFF"}
+              </span>
+              <input
+                type="checkbox"
+                class="toggle toggle-info"
+                bind:checked={autoBackup}
+              />
+            </div>
           </label>
         </div>
 
@@ -74,14 +89,12 @@
         <i class="bi bi-archive-fill text-secondary"></i>
         Backup History
       </h2>
-      
+
       <div class="space-y-3">
-        {#each [
-          { date: "24.10.2025 02:00", size: "1.2 GB", status: "success" },
-          { date: "23.10.2025 02:00", size: "1.1 GB", status: "success" },
-          { date: "22.10.2025 02:00", size: "1.0 GB", status: "success" },
-        ] as backup}
-          <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+        {#each [{ date: "24.10.2025 02:00", size: "1.2 GB", status: "success" }, { date: "23.10.2025 02:00", size: "1.1 GB", status: "success" }, { date: "22.10.2025 02:00", size: "1.0 GB", status: "success" }] as backup}
+          <div
+            class="flex items-center justify-between p-3 bg-base-200 rounded-lg"
+          >
             <div class="flex items-center gap-3">
               <i class="bi bi-check-circle-fill text-success text-xl"></i>
               <div>

@@ -355,13 +355,24 @@ class CollaborationManager {
 // Create global collaboration manager instance
 export const collaborationManager = new CollaborationManager();
 
-// Auto-initialize when module loads
+// NOTE: Auto-initialization disabled to prevent WebSocket connection loops
+// Components that need collaboration features must explicitly call:
+// collaborationManager.initialize()
+//
+// Auto-initialize was causing issues:
+// - Multiple WebSocket connections competing
+// - Reconnection loops causing page flicker
+// - Unnecessary connections when collaboration features aren't used
+//
+// If you need collaboration features, call initialize() in your component's onMount:
+// onMount(() => { collaborationManager.initialize(); })
+
+// Cleanup on page unload (only if initialized)
 if (typeof window !== 'undefined') {
-  collaborationManager.initialize();
-  
-  // Cleanup on page unload
   window.addEventListener('beforeunload', () => {
-    collaborationManager.cleanup();
+    if (collaborationManager.websocket) {
+      collaborationManager.cleanup();
+    }
   });
 }
 
