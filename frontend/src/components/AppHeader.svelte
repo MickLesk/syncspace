@@ -25,9 +25,10 @@
     gallery: { name: "Gallery", icon: "bi-images" },
   };
 
-  $: currentViewName = viewNames[$currentView]?.name || "SyncSpace";
-  $: currentViewIcon =
-    viewNames[$currentView]?.icon || "bi-cloud-arrow-up-fill";
+  let currentViewName = $derived(viewNames[$currentView]?.name || "SyncSpace");
+  let currentViewIcon = $derived(
+    viewNames[$currentView]?.icon || "bi-cloud-arrow-up-fill"
+  );
 
   let searchQuery = "";
   let showSearchModal = false;
@@ -38,11 +39,10 @@
   let searchDebounce = null;
   let searchInputRef = null;
 
-  $: isDark = $currentTheme === "dark";
-  $: unreadCount = 3;
-  $: userInitials = $auth.user?.username
-    ? $auth.user.username.substring(0, 2).toUpperCase()
-    : "AD";
+  let isDark = $derived($currentTheme === "dark");
+  let userInitials = $derived(
+    $auth.username ? $auth.username.substring(0, 2).toUpperCase() : "AD"
+  );
 
   // Mock notifications data
   let notifications = $state([
@@ -92,8 +92,8 @@
     notifications = [];
   }
 
-  $: unreadNotifications = notifications.filter((n) => !n.read);
-  $: unreadCount = unreadNotifications.length;
+  let unreadNotifications = $derived(notifications.filter((n) => !n.read));
+  let unreadCount = $derived(unreadNotifications.length);
 
   // Load recent searches from localStorage
   function loadRecentSearches() {
@@ -474,13 +474,11 @@
               <div class="user-status-indicator-large"></div>
             </div>
             <div class="user-info-new">
-              <p class="user-name-new">{$auth.user?.username || "Admin"}</p>
+              <p class="user-name-new">{$auth.username || "Admin"}</p>
               <p class="user-role-new">
                 <span class="badge badge-primary badge-sm">Administrator</span>
               </p>
-              <p class="user-email-new">
-                {$auth.user?.email || "admin@syncspace.local"}
-              </p>
+              <p class="user-email-new">admin@syncspace.local</p>
             </div>
           </div>
 
