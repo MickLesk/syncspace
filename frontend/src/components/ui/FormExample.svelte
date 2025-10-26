@@ -1,53 +1,65 @@
 <script>
   // Example form with validation states
   let formData = $state({
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
     agreeTerms: false,
-    userRole: 'user',
-    bio: '',
-    notifications: true
+    userRole: "user",
+    bio: "",
+    notifications: true,
   });
 
   let validation = $state({
-    username: { valid: null, message: '' },
-    email: { valid: null, message: '' },
-    password: { valid: null, message: '' },
-    confirmPassword: { valid: null, message: '' }
+    username: { valid: null, message: "" },
+    email: { valid: null, message: "" },
+    password: { valid: null, message: "" },
+    confirmPassword: { valid: null, message: "" },
   });
 
   let passwordStrength = $state(0); // 0: weak, 1: medium, 2: strong
 
   function validateUsername() {
     if (formData.username.length === 0) {
-      validation.username = { valid: null, message: '' };
+      validation.username = { valid: null, message: "" };
     } else if (formData.username.length < 3) {
-      validation.username = { valid: false, message: 'Username must be at least 3 characters' };
+      validation.username = {
+        valid: false,
+        message: "Username must be at least 3 characters",
+      };
     } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
-      validation.username = { valid: false, message: 'Only letters, numbers, and underscores allowed' };
+      validation.username = {
+        valid: false,
+        message: "Only letters, numbers, and underscores allowed",
+      };
     } else {
-      validation.username = { valid: true, message: 'Username is available' };
+      validation.username = { valid: true, message: "Username is available" };
     }
   }
 
   function validateEmail() {
     if (formData.email.length === 0) {
-      validation.email = { valid: null, message: '' };
+      validation.email = { valid: null, message: "" };
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      validation.email = { valid: false, message: 'Please enter a valid email address' };
+      validation.email = {
+        valid: false,
+        message: "Please enter a valid email address",
+      };
     } else {
-      validation.email = { valid: true, message: 'Email is valid' };
+      validation.email = { valid: true, message: "Email is valid" };
     }
   }
 
   function validatePassword() {
     if (formData.password.length === 0) {
-      validation.password = { valid: null, message: '' };
+      validation.password = { valid: null, message: "" };
       passwordStrength = 0;
     } else if (formData.password.length < 8) {
-      validation.password = { valid: false, message: 'Password must be at least 8 characters' };
+      validation.password = {
+        valid: false,
+        message: "Password must be at least 8 characters",
+      };
       passwordStrength = 0;
     } else {
       // Calculate password strength
@@ -56,12 +68,13 @@
       if (/[A-Z]/.test(formData.password)) strength++;
       if (/[0-9]/.test(formData.password)) strength++;
       if (/[^A-Za-z0-9]/.test(formData.password)) strength++;
-      
+
       passwordStrength = strength <= 1 ? 0 : strength <= 2 ? 1 : 2;
-      
-      validation.password = { 
-        valid: strength >= 2, 
-        message: strength >= 2 ? 'Strong password' : 'Password should be stronger' 
+
+      validation.password = {
+        valid: strength >= 2,
+        message:
+          strength >= 2 ? "Strong password" : "Password should be stronger",
       };
     }
     validateConfirmPassword();
@@ -69,17 +82,20 @@
 
   function validateConfirmPassword() {
     if (formData.confirmPassword.length === 0) {
-      validation.confirmPassword = { valid: null, message: '' };
+      validation.confirmPassword = { valid: null, message: "" };
     } else if (formData.password !== formData.confirmPassword) {
-      validation.confirmPassword = { valid: false, message: 'Passwords do not match' };
+      validation.confirmPassword = {
+        valid: false,
+        message: "Passwords do not match",
+      };
     } else {
-      validation.confirmPassword = { valid: true, message: 'Passwords match' };
+      validation.confirmPassword = { valid: true, message: "Passwords match" };
     }
   }
 
   function handleSubmit(e) {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    console.log("Form submitted:", formData);
   }
 </script>
 
@@ -120,14 +136,27 @@
                   class:input-error={validation.username.valid === false}
                 />
                 {#if validation.username.valid !== null}
-                  <i class="input-icon-right bi bi-{validation.username.valid ? 'check-circle-fill' : 'x-circle-fill'}"
-                     class:field-icon-success={validation.username.valid}
-                     class:field-icon-error={!validation.username.valid}></i>
+                  <i
+                    class="input-icon-right bi bi-{validation.username.valid
+                      ? 'check-circle-fill'
+                      : 'x-circle-fill'}"
+                    class:field-icon-success={validation.username.valid}
+                    class:field-icon-error={!validation.username.valid}
+                  ></i>
                 {/if}
               </div>
               {#if validation.username.message}
-                <div class="validation-message validation-message-{validation.username.valid ? 'success' : 'error'}">
-                  <i class="bi bi-{validation.username.valid ? 'check-circle-fill' : 'exclamation-circle-fill'}"></i>
+                <div
+                  class="validation-message validation-message-{validation
+                    .username.valid
+                    ? 'success'
+                    : 'error'}"
+                >
+                  <i
+                    class="bi bi-{validation.username.valid
+                      ? 'check-circle-fill'
+                      : 'exclamation-circle-fill'}"
+                  ></i>
                   <span>{validation.username.message}</span>
                 </div>
               {/if}
@@ -153,14 +182,27 @@
                   class:input-error={validation.email.valid === false}
                 />
                 {#if validation.email.valid !== null}
-                  <i class="input-icon-right bi bi-{validation.email.valid ? 'check-circle-fill' : 'x-circle-fill'}"
-                     class:field-icon-success={validation.email.valid}
-                     class:field-icon-error={!validation.email.valid}></i>
+                  <i
+                    class="input-icon-right bi bi-{validation.email.valid
+                      ? 'check-circle-fill'
+                      : 'x-circle-fill'}"
+                    class:field-icon-success={validation.email.valid}
+                    class:field-icon-error={!validation.email.valid}
+                  ></i>
                 {/if}
               </div>
               {#if validation.email.message}
-                <div class="validation-message validation-message-{validation.email.valid ? 'success' : 'error'}">
-                  <i class="bi bi-{validation.email.valid ? 'check-circle-fill' : 'exclamation-circle-fill'}"></i>
+                <div
+                  class="validation-message validation-message-{validation.email
+                    .valid
+                    ? 'success'
+                    : 'error'}"
+                >
+                  <i
+                    class="bi bi-{validation.email.valid
+                      ? 'check-circle-fill'
+                      : 'exclamation-circle-fill'}"
+                  ></i>
                   <span>{validation.email.message}</span>
                 </div>
               {/if}
@@ -187,23 +229,49 @@
                 class:input-error={validation.password.valid === false}
               />
               {#if validation.password.valid !== null}
-                <i class="input-icon-right bi bi-{validation.password.valid ? 'shield-check' : 'shield-exclamation'}"
-                   class:field-icon-success={validation.password.valid}
-                   class:field-icon-error={!validation.password.valid}></i>
+                <i
+                  class="input-icon-right bi bi-{validation.password.valid
+                    ? 'shield-check'
+                    : 'shield-exclamation'}"
+                  class:field-icon-success={validation.password.valid}
+                  class:field-icon-error={!validation.password.valid}
+                ></i>
               {/if}
             </div>
             {#if formData.password.length > 0}
               <div class="password-strength">
-                <div class="password-strength-bar password-strength-{passwordStrength === 0 ? 'weak' : passwordStrength === 1 ? 'medium' : 'strong'}"></div>
+                <div
+                  class="password-strength-bar password-strength-{passwordStrength ===
+                  0
+                    ? 'weak'
+                    : passwordStrength === 1
+                      ? 'medium'
+                      : 'strong'}"
+                ></div>
               </div>
               <div class="input-help">
                 <i class="bi bi-info-circle"></i>
-                <span>{passwordStrength === 0 ? 'Weak' : passwordStrength === 1 ? 'Medium' : 'Strong'} password</span>
+                <span
+                  >{passwordStrength === 0
+                    ? "Weak"
+                    : passwordStrength === 1
+                      ? "Medium"
+                      : "Strong"} password</span
+                >
               </div>
             {/if}
             {#if validation.password.message}
-              <div class="validation-message validation-message-{validation.password.valid ? 'success' : 'warning'}">
-                <i class="bi bi-{validation.password.valid ? 'check-circle-fill' : 'exclamation-triangle-fill'}"></i>
+              <div
+                class="validation-message validation-message-{validation
+                  .password.valid
+                  ? 'success'
+                  : 'warning'}"
+              >
+                <i
+                  class="bi bi-{validation.password.valid
+                    ? 'check-circle-fill'
+                    : 'exclamation-triangle-fill'}"
+                ></i>
                 <span>{validation.password.message}</span>
               </div>
             {/if}
@@ -229,14 +297,28 @@
                 class:input-error={validation.confirmPassword.valid === false}
               />
               {#if validation.confirmPassword.valid !== null}
-                <i class="input-icon-right bi bi-{validation.confirmPassword.valid ? 'check-circle-fill' : 'x-circle-fill'}"
-                   class:field-icon-success={validation.confirmPassword.valid}
-                   class:field-icon-error={!validation.confirmPassword.valid}></i>
+                <i
+                  class="input-icon-right bi bi-{validation.confirmPassword
+                    .valid
+                    ? 'check-circle-fill'
+                    : 'x-circle-fill'}"
+                  class:field-icon-success={validation.confirmPassword.valid}
+                  class:field-icon-error={!validation.confirmPassword.valid}
+                ></i>
               {/if}
             </div>
             {#if validation.confirmPassword.message}
-              <div class="validation-message validation-message-{validation.confirmPassword.valid ? 'success' : 'error'}">
-                <i class="bi bi-{validation.confirmPassword.valid ? 'check-circle-fill' : 'exclamation-circle-fill'}"></i>
+              <div
+                class="validation-message validation-message-{validation
+                  .confirmPassword.valid
+                  ? 'success'
+                  : 'error'}"
+              >
+                <i
+                  class="bi bi-{validation.confirmPassword.valid
+                    ? 'check-circle-fill'
+                    : 'exclamation-circle-fill'}"
+                ></i>
                 <span>{validation.confirmPassword.message}</span>
               </div>
             {/if}
@@ -254,7 +336,10 @@
             <label class="label">
               <span class="label-text">User Role</span>
             </label>
-            <select bind:value={formData.userRole} class="select select-bordered select-primary w-full">
+            <select
+              bind:value={formData.userRole}
+              class="select select-bordered select-primary w-full"
+            >
               <option value="user">User</option>
               <option value="moderator">Moderator</option>
               <option value="admin">Administrator</option>
@@ -287,17 +372,28 @@
 
           <div class="form-control">
             <label class="label cursor-pointer justify-start gap-3">
-              <input type="checkbox" bind:checked={formData.notifications} class="toggle toggle-primary" />
+              <input
+                type="checkbox"
+                bind:checked={formData.notifications}
+                class="toggle toggle-primary"
+              />
               <div>
-                <span class="label-text font-semibold">Email Notifications</span>
-                <div class="label-text-alt">Receive email updates about your account activity</div>
+                <span class="label-text font-semibold">Email Notifications</span
+                >
+                <div class="label-text-alt">
+                  Receive email updates about your account activity
+                </div>
               </div>
             </label>
           </div>
 
           <div class="form-control">
             <label class="label cursor-pointer justify-start gap-3">
-              <input type="checkbox" bind:checked={formData.agreeTerms} class="checkbox checkbox-primary" />
+              <input
+                type="checkbox"
+                bind:checked={formData.agreeTerms}
+                class="checkbox checkbox-primary"
+              />
               <div>
                 <span class="label-text">
                   I agree to the Terms and Conditions
@@ -314,10 +410,14 @@
             <i class="bi bi-x-lg"></i>
             Cancel
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             class="btn btn-primary"
-            disabled={!formData.agreeTerms || !validation.username.valid || !validation.email.valid || !validation.password.valid || !validation.confirmPassword.valid}
+            disabled={!formData.agreeTerms ||
+              !validation.username.valid ||
+              !validation.email.valid ||
+              !validation.password.valid ||
+              !validation.confirmPassword.valid}
           >
             <i class="bi bi-check-lg"></i>
             Create Account

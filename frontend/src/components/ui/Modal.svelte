@@ -19,7 +19,7 @@
     md: "max-w-2xl",
     lg: "max-w-4xl",
     xl: "max-w-6xl",
-    full: "w-11/12 max-w-7xl"
+    full: "w-11/12 max-w-7xl",
   };
 
   const variantGradients = {
@@ -41,7 +41,7 @@
   }
 
   function handleEscape(e) {
-    if (closeOnEscape && e.key === 'Escape' && visible) {
+    if (closeOnEscape && e.key === "Escape" && visible) {
       handleClose();
     }
   }
@@ -55,7 +55,7 @@
     const lastFocusable = focusableElements[focusableElements.length - 1];
 
     function handleTab(e) {
-      if (e.key === 'Tab') {
+      if (e.key === "Tab") {
         if (e.shiftKey) {
           if (document.activeElement === firstFocusable) {
             lastFocusable?.focus();
@@ -70,35 +70,47 @@
       }
     }
 
-    element.addEventListener('keydown', handleTab);
+    element.addEventListener("keydown", handleTab);
     firstFocusable?.focus();
 
     return () => {
-      element.removeEventListener('keydown', handleTab);
+      element.removeEventListener("keydown", handleTab);
     };
   }
 
   onMount(() => {
-    window.addEventListener('keydown', handleEscape);
+    window.addEventListener("keydown", handleEscape);
   });
 
   onDestroy(() => {
-    window.removeEventListener('keydown', handleEscape);
-    document.body.style.overflow = '';
+    window.removeEventListener("keydown", handleEscape);
+    document.body.style.overflow = "";
   });
 
   $: if (visible && modalElement) {
     const cleanup = trapFocus(modalElement);
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
   } else if (!visible) {
-    document.body.style.overflow = '';
+    document.body.style.overflow = "";
   }
 </script>
 
 {#if visible}
-  <dialog class="modal modal-open" role="dialog" aria-modal="true" aria-labelledby={title ? 'modal-title' : undefined}>
+  <dialog
+    class="modal modal-open"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby={title ? "modal-title" : undefined}
+  >
     <!-- Enhanced backdrop with blur -->
-    <div class="modal-backdrop-enhanced" on:click={handleBackdropClick} on:keydown={(e) => e.key === 'Enter' && handleBackdropClick()} role="button" tabindex="-1" aria-label="Close"></div>
+    <div
+      class="modal-backdrop-enhanced"
+      on:click={handleBackdropClick}
+      on:keydown={(e) => e.key === "Enter" && handleBackdropClick()}
+      role="button"
+      tabindex="-1"
+      aria-label="Close"
+    ></div>
 
     <div
       bind:this={modalElement}
@@ -125,7 +137,8 @@
           </button>
         {/if}
 
-        <h3 id="modal-title" class="font-bold text-xl flex items-center gap-3">{#if icon}
+        <h3 id="modal-title" class="font-bold text-xl flex items-center gap-3">
+          {#if icon}
             <div class="modal-icon">
               <i class="bi bi-{icon} text-2xl"></i>
             </div>

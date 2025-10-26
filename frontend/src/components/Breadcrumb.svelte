@@ -98,7 +98,10 @@
   }
 
   function handleClickOutside(event) {
-    if (!event.target.closest(".dropdown") && !event.target.closest(".breadcrumb-action-menu")) {
+    if (
+      !event.target.closest(".dropdown") &&
+      !event.target.closest(".breadcrumb-action-menu")
+    ) {
       dropdownOpen = false;
       activeActionMenu = null;
     }
@@ -131,14 +134,14 @@
             <span class="ml-1">{t($currentLang, "home")}</span>
           </button>
           <div class="breadcrumb-actions">
-            <button 
+            <button
               class="breadcrumb-action-btn"
-              on:click|stopPropagation={() => toggleActionMenu('home')}
+              on:click|stopPropagation={() => toggleActionMenu("home")}
               title="Quick actions"
             >
               <i class="bi bi-three-dots-vertical"></i>
             </button>
-            {#if activeActionMenu === 'home'}
+            {#if activeActionMenu === "home"}
               <div class="breadcrumb-action-menu">
                 <button on:click={() => copySegmentPath(-1)}>
                   <i class="bi bi-clipboard"></i>
@@ -213,7 +216,7 @@
                   {segment}
                 </button>
                 <div class="breadcrumb-actions">
-                  <button 
+                  <button
                     class="breadcrumb-action-btn"
                     on:click|stopPropagation={() => toggleActionMenu(i)}
                     title="Quick actions"
@@ -259,26 +262,42 @@
                   {segment}
                 </button>
                 <div class="breadcrumb-actions">
-                  <button 
+                  <button
                     class="breadcrumb-action-btn"
-                    on:click|stopPropagation={() => toggleActionMenu(`last-${i}`)}
+                    on:click|stopPropagation={() =>
+                      toggleActionMenu(`last-${i}`)}
                     title="Quick actions"
                   >
                     <i class="bi bi-three-dots-vertical"></i>
                   </button>
                   {#if activeActionMenu === `last-${i}`}
                     <div class="breadcrumb-action-menu">
-                      <button on:click={() => copySegmentPath(segments.length - (maxVisibleSegments - 1) + i)}>
+                      <button
+                        on:click={() =>
+                          copySegmentPath(
+                            segments.length - (maxVisibleSegments - 1) + i
+                          )}
+                      >
                         <i class="bi bi-clipboard"></i>
                         <span>Copy Path</span>
                         <kbd class="kbd kbd-xs">Ctrl+C</kbd>
                       </button>
-                      <button on:click={() => openInNewTab(segments.length - (maxVisibleSegments - 1) + i)}>
+                      <button
+                        on:click={() =>
+                          openInNewTab(
+                            segments.length - (maxVisibleSegments - 1) + i
+                          )}
+                      >
                         <i class="bi bi-box-arrow-up-right"></i>
                         <span>Open in New Tab</span>
                         <kbd class="kbd kbd-xs">Ctrl+T</kbd>
                       </button>
-                      <button on:click={() => addToFavorites(segments.length - (maxVisibleSegments - 1) + i)}>
+                      <button
+                        on:click={() =>
+                          addToFavorites(
+                            segments.length - (maxVisibleSegments - 1) + i
+                          )}
+                      >
                         <i class="bi bi-star"></i>
                         <span>Add to Favorites</span>
                         <kbd class="kbd kbd-xs">F</kbd>
@@ -407,7 +426,9 @@
     background: hsl(var(--b1));
     border: 2px solid hsl(var(--bc) / 0.1);
     border-radius: 0.75rem;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.1),
+      0 8px 10px -6px rgba(0, 0, 0, 0.1);
     padding: 0.5rem;
     z-index: 1000;
     animation: slideDown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
