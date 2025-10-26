@@ -175,7 +175,7 @@
     return iconMap[ext] || 'bi-file-earmark-fill text-base-content/60';
   }
 
-  $: totalSize = trashedFiles.reduce((sum, f) => sum + (f.size || 0), 0);
+  let totalSize = $derived(trashedFiles.reduce((sum, f) => sum + (f.size || 0), 0));
 </script>
 
 <div class="trash-view">
