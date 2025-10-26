@@ -39,8 +39,8 @@
     const interval = setInterval(() => {
       const progressEl = document.getElementById(`toast-progress-${toastId}`);
       if (progressEl) {
-        const currentWidth = parseFloat(progressEl.style.width || '100');
-        const newWidth = currentWidth - (100 / (duration / 50));
+        const currentWidth = parseFloat(progressEl.style.width || "100");
+        const newWidth = currentWidth - 100 / (duration / 50);
         if (newWidth <= 0) {
           clearInterval(interval);
           progressIntervals.delete(toastId);
@@ -54,11 +54,11 @@
 
   // Auto-dismiss toasts
   $: {
-    $toasts.forEach(toast => {
+    $toasts.forEach((toast) => {
       if (!toast.dismissed && !progressIntervals.has(toast.id)) {
         const duration = toast.duration || 5000;
         startProgress(toast.id, duration);
-        
+
         setTimeout(() => {
           removeToast(toast.id);
         }, duration);
@@ -69,7 +69,7 @@
   onMount(() => {
     return () => {
       // Cleanup intervals
-      progressIntervals.forEach(interval => clearInterval(interval));
+      progressIntervals.forEach((interval) => clearInterval(interval));
       progressIntervals.clear();
     };
   });
@@ -77,22 +77,19 @@
 
 <div class="toast toast-end toast-bottom z-[9999]">
   {#each $toasts as toast (toast.id)}
-    <div
-      class="toast-item {getAlertClass(toast.type)}"
-      role="alert"
-    >
+    <div class="toast-item {getAlertClass(toast.type)}" role="alert">
       <div class="toast-content">
         <div class="toast-icon-wrapper">
           <i class="bi bi-{getIcon(toast.type)} toast-icon"></i>
         </div>
-        
+
         <div class="toast-text-wrapper">
           {#if toast.title}
             <p class="toast-title">{toast.title}</p>
           {/if}
           <p class="toast-message">{toast.message}</p>
         </div>
-        
+
         <button
           class="toast-close-btn"
           on:click={() => removeToast(toast.id)}
@@ -101,10 +98,10 @@
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
-      
+
       <!-- Progress bar -->
       <div class="toast-progress-bg">
-        <div 
+        <div
           id="toast-progress-{toast.id}"
           class="toast-progress-bar {toast.type}"
           style="width: 100%"
@@ -255,4 +252,3 @@
     }
   }
 </style>
-

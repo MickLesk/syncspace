@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { error as errorToast } from "../stores/toast";
   import api from "../lib/api";
+  import Chart from "../components/ui/Chart.svelte";
 
   let loading = true;
   let loadingDisk = true;
@@ -26,6 +27,30 @@
   $: diskTotalFormatted = formatSize(diskStats.total_bytes);
   $: diskUsedFormatted = formatSize(diskStats.used_bytes);
   $: diskAvailableFormatted = formatSize(diskStats.available_bytes);
+
+  // Chart data for disk usage
+  $: diskChartData = [
+    {
+      label: "Used",
+      value: diskStats.used_bytes,
+      color: "hsl(var(--er))"
+    },
+    {
+      label: "Available",
+      value: diskStats.available_bytes,
+      color: "hsl(var(--su))"
+    }
+  ];
+
+  // Chart data for file types
+  $: fileTypeChartData = Object.entries(stats.byType || {}).map(([type, data]) => {
+    const category = typeCategories[type] || typeCategories.other;
+    return {
+      label: category.label,
+      value: data.totalSize || 0,
+      color: getCategoryColor(category.color)
+    };
+  }).filter(item => item.value > 0).sort((a, b) => b.value - a.value);
 
   // File type categories
   const typeCategories = {
@@ -161,6 +186,20 @@
     if (total === 0) return 0;
     return Math.round((value / total) * 100);
   }
+
+  function getCategoryColor(colorName) {
+    const colorMap = {
+      primary: "hsl(var(--p))",
+      secondary: "hsl(var(--s))",
+      accent: "hsl(var(--a))",
+      info: "hsl(var(--in))",
+      success: "hsl(var(--su))",
+      warning: "hsl(var(--wa))",
+      error: "hsl(var(--er))",
+      neutral: "hsl(var(--n))"
+    };
+    return colorMap[colorName] || "hsl(var(--p))";
+  }
 </script>
 
 <div class="storage-view">
@@ -217,23 +256,52 @@
           </div>
         </div>
 
-        <!-- Disk Usage Progress Bar -->
-        <div class="mt-6">
-          <div class="flex justify-between mb-2">
-            <span class="text-sm font-semibold">Disk Usage</span>
-            <span class="text-sm font-semibold"
-              >{diskStats.usage_percent.toFixed(1)}%</span
-            >
+        <!-- Visual Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <!-- Disk Usage Doughnut Chart -->
+          <div class="bg-base-100/50 rounded-box p-6">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+              <i class="bi bi-pie-chart-fill text-primary"></i>
+              Disk Usage Distribution
+            </h3>
+            <Chart data={diskChartData} type="doughnut" size="md" title="Total" />
           </div>
-          <progress
-            class="progress {diskStats.usage_percent > 90
-              ? 'progress-error'
-              : diskStats.usage_percent > 70
-                ? 'progress-warning'
-                : 'progress-success'} h-4"
-            value={diskStats.usage_percent}
-            max="100"
-          ></progress>
+
+          <!-- Disk Usage Progress Bar (Moved here) -->
+          <div class="bg-base-100/50 rounded-box p-6">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+              <i class="bi bi-speedometer2 text-primary"></i>
+              Capacity Overview
+            </h3>
+            <div class="space-y-4">
+              <div class="flex justify-between">
+                <span class="text-sm font-semibold">Disk Usage</span>
+                <span class="text-sm font-semibold"
+                  >{diskStats.usage_percent.toFixed(1)}%</span
+                >
+              </div>
+              <progress
+                class="progress {diskStats.usage_percent > 90
+                  ? 'progress-error'
+                  : diskStats.usage_percent > 70
+                    ? 'progress-warning'
+                    : 'progress-success'} h-4"
+                value={diskStats.usage_percent}
+                max="100"
+              ></progress>
+              
+              <div class="grid grid-cols-2 gap-4 mt-6">
+                <div class="stat-compact">
+                  <div class="stat-label">Used</div>
+                  <div class="stat-value-sm text-error">{diskUsedFormatted}</div>
+                </div>
+                <div class="stat-compact">
+                  <div class="stat-label">Free</div>
+                  <div class="stat-value-sm text-success">{diskAvailableFormatted}</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -274,12 +342,55 @@
 
     <!-- Storage Breakdown -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <!-- Type Distribution Cards -->
+      <!-- Visual File Type Chart -->
       <div class="card bg-base-100 border border-base-300 shadow-sm">
         <div class="card-body">
           <h2 class="card-title">
             <i class="bi bi-pie-chart-fill mr-2"></i>
-            Storage by Type
+            File Type Distribution
+          </h2>
+          <div class="mt-4">
+            {#if fileTypeChartData.length > 0}
+              <Chart data={fileTypeChartData} type="doughnut" size="md" title="Files" />
+            {:else}
+              <div class="text-center py-8 text-base-content/50">
+                <i class="bi bi-inbox text-4xl"></i>
+                <p class="mt-2">No files yet</p>
+              </div>
+            {/if}
+          </div>
+        </div>
+      </div>
+
+      <!-- Bar Chart for File Types -->
+      <div class="card bg-base-100 border border-base-300 shadow-sm">
+        <div class="card-body">
+          <h2 class="card-title">
+            <i class="bi bi-bar-chart-fill mr-2"></i>
+            Storage by Category
+          </h2>
+          <div class="mt-4">
+            {#if fileTypeChartData.length > 0}
+              <Chart data={fileTypeChartData} type="bar" size="md" />
+            {:else}
+              <div class="text-center py-8 text-base-content/50">
+                <i class="bi bi-inbox text-4xl"></i>
+                <p class="mt-2">No files yet</p>
+              </div>
+            {/if}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Storage Breakdown -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <!-- Type Distribution Cards -->
+      <div class="card bg-base-100 border border-base-300 shadow-sm">
+        <div class="card-body">
+          <h2 class="card-title">
+            <i class="bi bi-list-ul mr-2"></i>
+            Detailed Breakdown
           </h2>
           <div class="space-y-4 mt-4">
             {#each Object.entries(stats.byType) as [type, data]}
@@ -409,6 +520,28 @@
   .storage-view {
     padding: 1.5rem;
     min-height: calc(100vh - 200px);
+  }
+
+  /* Compact stat styles */
+  .stat-compact {
+    text-align: center;
+    padding: 0.75rem;
+    background: hsl(var(--b2) / 0.5);
+    border-radius: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: hsl(var(--bc) / 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-value-sm {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
   }
 
   /* Radial progress color overrides */

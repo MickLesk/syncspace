@@ -47,56 +47,56 @@
   let notifications = $state([
     {
       id: 1,
-      type: 'success',
-      icon: 'check-circle-fill',
-      title: 'File uploaded successfully',
-      message: 'Document.pdf has been uploaded',
-      time: '2 minutes ago',
+      type: "success",
+      icon: "check-circle-fill",
+      title: "File uploaded successfully",
+      message: "Document.pdf has been uploaded",
+      time: "2 minutes ago",
       read: false,
-      avatar: null
+      avatar: null,
     },
     {
       id: 2,
-      type: 'info',
-      icon: 'share-fill',
-      title: 'New share request',
+      type: "info",
+      icon: "share-fill",
+      title: "New share request",
       message: 'John Doe shared "Project Files" with you',
-      time: '1 hour ago',
+      time: "1 hour ago",
       read: false,
-      avatar: 'JD'
+      avatar: "JD",
     },
     {
       id: 3,
-      type: 'warning',
-      icon: 'exclamation-triangle-fill',
-      title: 'Storage almost full',
-      message: '85% of storage capacity used',
-      time: '3 hours ago',
+      type: "warning",
+      icon: "exclamation-triangle-fill",
+      title: "Storage almost full",
+      message: "85% of storage capacity used",
+      time: "3 hours ago",
       read: true,
-      avatar: null
-    }
+      avatar: null,
+    },
   ]);
 
   function markAsRead(id) {
-    notifications = notifications.map(n => 
+    notifications = notifications.map((n) =>
       n.id === id ? { ...n, read: true } : n
     );
   }
 
   function markAllAsRead() {
-    notifications = notifications.map(n => ({ ...n, read: true }));
+    notifications = notifications.map((n) => ({ ...n, read: true }));
   }
 
   function clearAllNotifications() {
     notifications = [];
   }
 
-  $: unreadNotifications = notifications.filter(n => !n.read);
+  $: unreadNotifications = notifications.filter((n) => !n.read);
   $: unreadCount = unreadNotifications.length;
 
   // Load recent searches from localStorage
   function loadRecentSearches() {
-    const stored = localStorage.getItem('recentSearches');
+    const stored = localStorage.getItem("recentSearches");
     if (stored) {
       try {
         recentSearches = JSON.parse(stored).slice(0, 5);
@@ -109,39 +109,56 @@
   // Save search to recent searches
   function saveRecentSearch(query) {
     if (!query.trim()) return;
-    
+
     // Remove if already exists
-    recentSearches = recentSearches.filter(s => s !== query);
+    recentSearches = recentSearches.filter((s) => s !== query);
     // Add to front
     recentSearches = [query, ...recentSearches].slice(0, 5);
     // Save to localStorage
-    localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+    localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
   }
 
   // Clear recent searches
   function clearRecentSearches() {
     recentSearches = [];
-    localStorage.removeItem('recentSearches');
+    localStorage.removeItem("recentSearches");
   }
 
   // Handle search input change with debounce
   function handleSearchInput(e) {
     searchQuery = e.target.value;
     showSearchDropdown = true;
-    
+
     if (searchDebounce) {
       clearTimeout(searchDebounce);
     }
-    
+
     if (searchQuery.trim()) {
       searchDebounce = setTimeout(async () => {
         // TODO: Call actual search API
         // For now, mock results
         searchResults = [
-          { name: 'Document.pdf', path: '/documents/Document.pdf', type: 'file', icon: 'file-earmark-pdf' },
-          { name: 'Images', path: '/images', type: 'folder', icon: 'folder-fill' },
-          { name: 'Project Report.docx', path: '/work/Project Report.docx', type: 'file', icon: 'file-earmark-word' }
-        ].filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+          {
+            name: "Document.pdf",
+            path: "/documents/Document.pdf",
+            type: "file",
+            icon: "file-earmark-pdf",
+          },
+          {
+            name: "Images",
+            path: "/images",
+            type: "folder",
+            icon: "folder-fill",
+          },
+          {
+            name: "Project Report.docx",
+            path: "/work/Project Report.docx",
+            type: "file",
+            icon: "file-earmark-word",
+          },
+        ].filter((item) =>
+          item.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
       }, 300);
     } else {
       searchResults = [];
@@ -174,7 +191,7 @@
 
   function handleLogout() {
     // Show confirmation modal
-    if (confirm('Are you sure you want to log out?')) {
+    if (confirm("Are you sure you want to log out?")) {
       auth.logout();
       window.location.href = "/";
     }
@@ -241,13 +258,19 @@
             bind:value={searchQuery}
             bind:this={searchInputRef}
             on:input={handleSearchInput}
-            on:focus={() => { showSearchDropdown = true; loadRecentSearches(); }}
-            on:keydown={(e) => e.key === 'Enter' && handleSearch(e)}
+            on:focus={() => {
+              showSearchDropdown = true;
+              loadRecentSearches();
+            }}
+            on:keydown={(e) => e.key === "Enter" && handleSearch(e)}
           />
           {#if searchQuery}
-            <button 
+            <button
               class="search-clear-btn"
-              on:click={() => { searchQuery = ''; searchResults = []; }}
+              on:click={() => {
+                searchQuery = "";
+                searchResults = [];
+              }}
               aria-label="Clear search"
             >
               <i class="bi bi-x"></i>
@@ -255,7 +278,7 @@
           {/if}
           <kbd class="search-kbd-new">Ctrl K</kbd>
         </div>
-        
+
         <button
           class="advanced-button-new"
           on:click={() => (showAdvancedSearch = true)}
@@ -275,7 +298,11 @@
                     class="search-result-item"
                     on:click={() => selectSearchResult(result)}
                   >
-                    <i class="bi bi-{result.icon} text-{result.type === 'folder' ? 'warning' : 'info'}"></i>
+                    <i
+                      class="bi bi-{result.icon} text-{result.type === 'folder'
+                        ? 'warning'
+                        : 'info'}"
+                    ></i>
                     <div class="search-result-content">
                       <div class="search-result-name">{result.name}</div>
                       <div class="search-result-path">{result.path}</div>
@@ -288,7 +315,7 @@
               <div class="search-section">
                 <div class="search-section-header">
                   <div class="search-section-title">Recent Searches</div>
-                  <button 
+                  <button
                     class="search-clear-all"
                     on:click={clearRecentSearches}
                   >
@@ -372,23 +399,29 @@
             <h3 class="notification-title-new">Notifications</h3>
             <div class="notification-header-actions">
               {#if unreadCount > 0}
-                <button class="notification-action-btn" on:click={markAllAsRead}>
+                <button
+                  class="notification-action-btn"
+                  on:click={markAllAsRead}
+                >
                   <i class="bi bi-check-all"></i>
                   Mark all read
                 </button>
               {/if}
-              <button class="notification-action-btn text-error" on:click={clearAllNotifications}>
+              <button
+                class="notification-action-btn text-error"
+                on:click={clearAllNotifications}
+              >
                 <i class="bi bi-trash"></i>
                 Clear all
               </button>
             </div>
           </div>
-          
+
           {#if notifications.length > 0}
             <ul class="notification-list-new">
               {#each notifications as notification}
                 <li>
-                  <button 
+                  <button
                     class="notification-item-new"
                     class:unread={!notification.read}
                     on:click={() => markAsRead(notification.id)}
@@ -402,16 +435,18 @@
                         <i class="bi bi-{notification.icon}"></i>
                       </div>
                     {/if}
-                    
+
                     <div class="notification-content-new">
-                      <p class="notification-title-text">{notification.title}</p>
+                      <p class="notification-title-text">
+                        {notification.title}
+                      </p>
                       <p class="notification-message">{notification.message}</p>
                       <p class="notification-time-new">
                         <i class="bi bi-clock"></i>
                         {notification.time}
                       </p>
                     </div>
-                    
+
                     {#if !notification.read}
                       <div class="notification-unread-indicator"></div>
                     {/if}
@@ -419,7 +454,7 @@
                 </li>
               {/each}
             </ul>
-            
+
             <div class="notification-footer-new">
               <button class="btn btn-sm btn-ghost w-full">
                 <i class="bi bi-eye"></i>
@@ -459,9 +494,9 @@
               </p>
             </div>
           </div>
-          
+
           <div class="divider-new"></div>
-          
+
           <ul class="user-menu-new">
             <li>
               <button
@@ -503,9 +538,9 @@
               </button>
             </li>
           </ul>
-          
+
           <div class="divider-new"></div>
-          
+
           <ul class="user-menu-new">
             <li>
               <button class="user-menu-item-new">
@@ -516,9 +551,9 @@
               </button>
             </li>
           </ul>
-          
+
           <div class="divider-new"></div>
-          
+
           <div class="user-dropdown-footer-new">
             <button class="logout-button-new" on:click={handleLogout}>
               <i class="bi bi-box-arrow-right"></i>
@@ -1554,7 +1589,11 @@
 
   .user-dropdown-header-new {
     padding: 1.5rem;
-    background: linear-gradient(135deg, hsl(var(--p) / 0.1), hsl(var(--s) / 0.1));
+    background: linear-gradient(
+      135deg,
+      hsl(var(--p) / 0.1),
+      hsl(var(--s) / 0.1)
+    );
     display: flex;
     align-items: center;
     gap: 1rem;
