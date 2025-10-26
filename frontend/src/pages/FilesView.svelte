@@ -12,12 +12,19 @@
   import ShareModal from "../components/ui/ShareModal.svelte";
   import VersionHistoryModal from "../components/ui/VersionHistoryModal.svelte";
   import api from "../lib/api";
-  import { wsConnected, onFileEvent } from "../stores/websocket.js";
+  import {
+    wsConnected,
+    onFileEvent,
+    websocketManager,
+  } from "../stores/websocket.js";
 
   let loading = true;
   let uploading = false;
   let searchQuery = "";
   let viewMode = "grid"; // 'grid' or 'list'
+  let sortBy = "name"; // 'name', 'modified', 'size', 'type'
+  let sortOrder = "asc"; // 'asc' or 'desc'
+  let showFoldersOnly = false;
   let dragOver = false;
   let searchResults = [];
   let isSearchActive = false;
@@ -59,16 +66,81 @@
         )
       : $files;
 
+  // Sort and filter files
+  $: sortedFiles = (() => {
+    let result = showFoldersOnly
+      ? filteredFiles.filter((f) => f.is_dir)
+      : filteredFiles;
+
+    // Sort the files
+    result = [...result].sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortBy) {
+        case "name":
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case "modified":
+          const aTime = new Date(a.modified_at || 0).getTime();
+          const bTime = new Date(b.modified_at || 0).getTime();
+          comparison = aTime - bTime;
+          break;
+        case "size":
+          comparison = (a.size || 0) - (b.size || 0);
+          break;
+        case "type":
+          const aExt = a.name.split(".").pop() || "";
+          const bExt = b.name.split(".").pop() || "";
+          comparison = aExt.localeCompare(bExt);
+          break;
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+
+    // Always show folders first
+    const folders = result.filter((f) => f.is_dir);
+    const files = result.filter((f) => !f.is_dir);
+    return [...folders, ...files];
+  })();
+
   $: breadcrumbPath = $currentPath.split("/").filter(Boolean);
 
   // WebSocket subscription for real-time file updates
   let unsubscribeWebSocket;
+  let reloadTimeout = null;
 
   onMount(async () => {
     await loadFiles();
 
+    // Initialize WebSocket connection for real-time file updates
+    // Only connect if not already connected
+    if (
+      !websocketManager.ws ||
+      websocketManager.ws.readyState !== WebSocket.OPEN
+    ) {
+      websocketManager.connect();
+    }
+
     // Subscribe to WebSocket file events
     unsubscribeWebSocket = onFileEvent((event) => {
+      // Filter out system files and temp files
+      const ignoredPatterns = [
+        "syncspace.db",
+        ".db-shm",
+        ".db-wal",
+        "search_index",
+        ".tmp",
+        ".lock",
+        "hallo", // Ignore test folder
+      ];
+
+      if (ignoredPatterns.some((pattern) => event.path.includes(pattern))) {
+        console.log("🚫 Ignored system file event:", event.path);
+        return; // Ignore system files
+      }
+
+      // Only log non-ignored events
       console.log("📁 FilesView received file event:", event);
 
       // Check if the event affects the current directory
@@ -77,26 +149,19 @@
 
       console.log("Event dir:", eventDir, "Current dir:", currentDir);
 
-      // If the event is in the current directory, reload files
+      // If the event is in the current directory, reload files (debounced)
       if (eventDir === currentDir || eventDir.startsWith(currentDir)) {
-        console.log("🔄 Reloading files due to file system change");
-        loadFiles();
-
-        // Show notification
-        switch (event.kind) {
-          case "created":
-            success(`File created: ${event.path.split("/").pop()}`);
-            break;
-          case "modified":
-            success(`File modified: ${event.path.split("/").pop()}`);
-            break;
-          case "deleted":
-            success(`File deleted: ${event.path.split("/").pop()}`);
-            break;
-          case "renamed":
-            success(`File renamed: ${event.path.split("/").pop()}`);
-            break;
+        // Clear existing timeout
+        if (reloadTimeout) {
+          clearTimeout(reloadTimeout);
         }
+
+        // Debounce: Only reload after 1 second of no more events
+        reloadTimeout = setTimeout(() => {
+          console.log("🔄 Reloading files due to file system change");
+          loadFiles();
+          // Don't show notifications for every file change - too spammy
+        }, 1000);
       }
     });
   });
@@ -104,6 +169,9 @@
   onDestroy(() => {
     if (unsubscribeWebSocket) {
       unsubscribeWebSocket();
+    }
+    if (reloadTimeout) {
+      clearTimeout(reloadTimeout);
     }
   });
 
@@ -688,6 +756,107 @@
             {/if}
           </div>
 
+          <!-- Sort Dropdown -->
+          <div class="dropdown dropdown-end">
+            <button
+              tabindex="0"
+              class="btn btn-sm gap-2"
+              aria-label="Sort files"
+            >
+              <i class="bi bi-sort-down"></i>
+              <span class="hidden sm:inline">Sort</span>
+            </button>
+            <ul
+              tabindex="0"
+              class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-1"
+            >
+              <li class="menu-title"><span>Sort By</span></li>
+              <li>
+                <button
+                  on:click={() => {
+                    sortBy = "name";
+                    sortOrder =
+                      sortOrder === "asc" && sortBy === "name" ? "desc" : "asc";
+                  }}
+                >
+                  <i
+                    class="bi bi-sort-alpha-{sortBy === 'name' &&
+                    sortOrder === 'asc'
+                      ? 'down'
+                      : 'up'}"
+                  ></i>
+                  Name {sortBy === "name"
+                    ? sortOrder === "asc"
+                      ? "(A-Z)"
+                      : "(Z-A)"
+                    : ""}
+                </button>
+              </li>
+              <li>
+                <button
+                  on:click={() => {
+                    sortBy = "modified";
+                    sortOrder =
+                      sortOrder === "asc" && sortBy === "modified"
+                        ? "desc"
+                        : "asc";
+                  }}
+                >
+                  <i class="bi bi-clock-history"></i>
+                  Modified {sortBy === "modified"
+                    ? sortOrder === "desc"
+                      ? "(Newest)"
+                      : "(Oldest)"
+                    : ""}
+                </button>
+              </li>
+              <li>
+                <button
+                  on:click={() => {
+                    sortBy = "size";
+                    sortOrder =
+                      sortOrder === "asc" && sortBy === "size" ? "desc" : "asc";
+                  }}
+                >
+                  <i class="bi bi-file-earmark-bar-graph"></i>
+                  Size {sortBy === "size"
+                    ? sortOrder === "desc"
+                      ? "(Largest)"
+                      : "(Smallest)"
+                    : ""}
+                </button>
+              </li>
+              <li>
+                <button
+                  on:click={() => {
+                    sortBy = "type";
+                    sortOrder =
+                      sortOrder === "asc" && sortBy === "type" ? "desc" : "asc";
+                  }}
+                >
+                  <i class="bi bi-file-earmark-code"></i>
+                  Type
+                </button>
+              </li>
+              <div class="divider my-1"></div>
+              <li class="menu-title"><span>Filter</span></li>
+              <li>
+                <label class="label cursor-pointer justify-start gap-2">
+                  <input
+                    type="checkbox"
+                    class="toggle toggle-sm toggle-success"
+                    bind:checked={showFoldersOnly}
+                  />
+                  <span
+                    class={showFoldersOnly ? "font-semibold text-success" : ""}
+                  >
+                    Folders Only {showFoldersOnly ? "(ON)" : ""}
+                  </span>
+                </label>
+              </li>
+            </ul>
+          </div>
+
           <!-- View Mode -->
           <div class="join">
             <button
@@ -743,44 +912,85 @@
   <!-- Drag & Drop Overlay -->
   {#if dragOver}
     <div class="drop-overlay">
+  <!-- Drag & Drop Overlay -->
+  {#if dragOver}
+    <div class="drop-zone-overlay">
       <div class="drop-content">
-        <i class="bi bi-cloud-upload text-6xl mb-4"></i>
-        <h3 class="text-2xl font-bold">Drop files here</h3>
-        <p class="opacity-70">Release to upload</p>
+        <div class="drop-animation mb-6">
+          <i class="bi bi-cloud-upload text-8xl text-primary animate-bounce"></i>
+          <div class="absolute inset-0 rounded-full border-4 border-primary border-dashed animate-ping opacity-50"></div>
+        </div>
+        <h3 class="text-3xl font-bold mb-2">Drop files here</h3>
+        <p class="text-lg opacity-70">Release to upload to current folder</p>
+        <div class="flex gap-4 mt-6 text-sm opacity-60">
+          <div class="flex items-center gap-2">
+            <i class="bi bi-file-earmark"></i>
+            <span>Documents</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <i class="bi bi-image"></i>
+            <span>Images</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <i class="bi bi-file-zip"></i>
+            <span>Archives</span>
+          </div>
+        </div>
       </div>
     </div>
   {/if}
 
   <!-- Files Display -->
   {#if loading}
-    <div class="flex justify-center items-center h-64">
+    <div class="flex flex-col justify-center items-center h-64 gap-4">
       <span class="loading loading-spinner loading-lg text-primary"></span>
+      <p class="text-sm opacity-70">Loading files...</p>
     </div>
-  {:else if filteredFiles.length === 0}
-    <div class="hero min-h-[400px]">
+  {:else if sortedFiles.length === 0}
+    <div class="hero min-h-[500px] bg-base-200 rounded-2xl m-4">
       <div class="hero-content text-center">
-        <div class="max-w-md">
-          <i class="bi bi-folder2-open text-7xl text-base-300 mb-4"></i>
-          <h1 class="text-3xl font-bold">No files found</h1>
-          <p class="py-6">Upload files or create a folder to get started</p>
-          <button
-            class="btn btn-primary gap-2"
-            on:click={() => uploadInput?.click()}
-          >
-            <i class="bi bi-upload"></i>
-            Upload Files
-          </button>
+        <div class="max-w-lg">
+          <div class="mb-8">
+            <div class="relative inline-block">
+              <i class="bi bi-folder2-open text-9xl text-primary/20"></i>
+              <i class="bi bi-inbox absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl text-primary"></i>
+            </div>
+          </div>
+          <h1 class="text-4xl font-bold mb-4">This folder is empty</h1>
+          <p class="text-lg mb-8 opacity-70">
+            Get started by uploading files or creating a new folder
+          </p>
+          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              class="btn btn-primary gap-2"
+              on:click={() => uploadInput?.click()}
+            >
+              <i class="bi bi-upload"></i>
+              Upload Files
+            </button>
+            <button
+              class="btn btn-outline gap-2"
+              on:click={() => (showNewFolderModal = true)}
+            >
+              <i class="bi bi-folder-plus"></i>
+              New Folder
+            </button>
+          </div>
+          <div class="divider mt-8">OR</div>
+          <p class="text-sm opacity-60">
+            Drag and drop files anywhere to upload
+          </p>
         </div>
       </div>
     </div>
   {:else if viewMode === "grid"}
     <!-- Grid View -->
     <div
-      class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+      class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 p-4"
     >
-      {#each filteredFiles as file}
+      {#each sortedFiles as file}
         <div
-          class="card bg-base-100 border border-base-300 hover:shadow-lg transition-all cursor-pointer group"
+          class="card bg-base-100 border border-base-300 hover:border-primary hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer group relative overflow-hidden"
           on:click={() => file.is_dir && navigateToFolder(file)}
           on:contextmenu={(e) => handleContextMenu(e, file)}
           on:keydown={(e) =>
@@ -788,25 +998,57 @@
           role="button"
           tabindex="0"
         >
-          <div class="card-body p-4 items-center text-center">
-            <!-- File Thumbnail or Icon -->
+          <!-- File Type Badge -->
+          <div class="absolute top-2 right-2 z-10">
             {#if file.is_dir}
-              <div class="text-5xl mb-2 text-warning">
+              <span class="badge badge-warning badge-sm gap-1">
                 <i class="bi bi-folder-fill"></i>
-              </div>
+                Folder
+              </span>
             {:else}
-              <div class="mb-2">
-                <FileThumbnail {file} size="lg" />
-              </div>
+              <span class="badge badge-primary badge-sm">
+                {file.name.split('.').pop()?.toUpperCase() || 'FILE'}
+              </span>
             {/if}
+          </div>
+
+          <!-- Favorite Star (visible on hover) -->
+          <div class="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button 
+              class="btn btn-circle btn-xs btn-ghost bg-base-100/80 backdrop-blur-sm"
+              on:click|stopPropagation={() => console.log('Toggle favorite', file.name)}
+              title="Add to favorites"
+            >
+              <i class="bi bi-star text-warning"></i>
+            </button>
+          </div>
+
+          <div class="card-body p-4 items-center text-center">
+            <!-- File Thumbnail or Icon with background -->
+            <div class="relative w-full aspect-square mb-3 rounded-lg bg-base-200 flex items-center justify-center overflow-hidden">
+              {#if file.is_dir}
+                <div class="text-6xl text-warning drop-shadow-lg">
+                  <i class="bi bi-folder-fill"></i>
+                </div>
+              {:else}
+                <FileThumbnail {file} size="lg" />
+              {/if}
+            </div>
+
+            <!-- File Name with better truncation -->
             <h3
-              class="card-title text-sm font-semibold truncate w-full"
+              class="text-sm font-semibold truncate w-full mb-1 group-hover:text-primary transition-colors"
               title={file.name}
             >
               {file.name}
             </h3>
-            <div class="text-xs opacity-70">
-              {file.is_dir ? "Folder" : formatFileSize(file.size)}
+
+            <!-- File Info -->
+            <div class="flex items-center justify-between w-full text-xs opacity-70">
+              <span>{file.is_dir ? "Folder" : formatFileSize(file.size)}</span>
+              {#if !file.is_dir && file.modified_at}
+                <span class="hidden sm:inline">{new Date(file.modified_at).toLocaleDateString()}</span>
+              {/if}
             </div>
             <div
               class="card-actions justify-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -841,21 +1083,61 @@
     </div>
   {:else}
     <!-- List View -->
-    <div class="overflow-x-auto">
-      <table class="table table-zebra">
-        <thead>
+    <div class="overflow-x-auto p-4">
+      <table class="table table-zebra table-pin-rows">
+        <thead class="bg-base-200">
           <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Size</th>
-            <th>Modified</th>
-            <th class="text-right">Actions</th>
+            <th class="bg-base-200">
+              <button 
+                class="flex items-center gap-1 hover:text-primary transition-colors"
+                on:click={() => { sortBy = 'name'; sortOrder = sortOrder === 'asc' && sortBy === 'name' ? 'desc' : 'asc'; }}
+              >
+                Name
+                {#if sortBy === 'name'}
+                  <i class="bi bi-chevron-{sortOrder === 'asc' ? 'up' : 'down'} text-xs"></i>
+                {/if}
+              </button>
+            </th>
+            <th class="bg-base-200">
+              <button 
+                class="flex items-center gap-1 hover:text-primary transition-colors"
+                on:click={() => { sortBy = 'type'; sortOrder = sortOrder === 'asc' && sortBy === 'type' ? 'desc' : 'asc'; }}
+              >
+                Type
+                {#if sortBy === 'type'}
+                  <i class="bi bi-chevron-{sortOrder === 'asc' ? 'up' : 'down'} text-xs"></i>
+                {/if}
+              </button>
+            </th>
+            <th class="bg-base-200">
+              <button 
+                class="flex items-center gap-1 hover:text-primary transition-colors"
+                on:click={() => { sortBy = 'size'; sortOrder = sortOrder === 'asc' && sortBy === 'size' ? 'desc' : 'asc'; }}
+              >
+                Size
+                {#if sortBy === 'size'}
+                  <i class="bi bi-chevron-{sortOrder === 'asc' ? 'up' : 'down'} text-xs"></i>
+                {/if}
+              </button>
+            </th>
+            <th class="bg-base-200">
+              <button 
+                class="flex items-center gap-1 hover:text-primary transition-colors"
+                on:click={() => { sortBy = 'modified'; sortOrder = sortOrder === 'asc' && sortBy === 'modified' ? 'desc' : 'asc'; }}
+              >
+                Modified
+                {#if sortBy === 'modified'}
+                  <i class="bi bi-chevron-{sortOrder === 'asc' ? 'up' : 'down'} text-xs"></i>
+                {/if}
+              </button>
+            </th>
+            <th class="text-right bg-base-200">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {#each filteredFiles as file}
+          {#each sortedFiles as file}
             <tr
-              class="hover cursor-pointer"
+              class="hover:bg-base-200 cursor-pointer transition-colors group"
               on:click={() => file.is_dir && navigateToFolder(file)}
               on:contextmenu={(e) => handleContextMenu(e, file)}
             >
@@ -869,8 +1151,25 @@
                   {:else}
                     <FileThumbnail {file} size="md" />
                   {/if}
-                  <div class="font-semibold">{file.name}</div>
+                  <div>
+                    <div class="font-semibold group-hover:text-primary transition-colors">{file.name}</div>
+                    {#if file.is_dir}
+                      <div class="text-xs opacity-60">Folder</div>
+                    {/if}
+                  </div>
                 </div>
+              </td>
+              <td>
+                {#if file.is_dir}
+                  <span class="badge badge-warning badge-sm gap-1">
+                    <i class="bi bi-folder-fill"></i>
+                    Folder
+                  </span>
+                {:else}
+                  <span class="badge badge-primary badge-sm">
+                    {(file.name.split(".").pop() || "File").toUpperCase()}
+                  </span>
+                {/if}
               </td>
               <td>
                 <span class="badge badge-ghost">
@@ -879,30 +1178,41 @@
                     : (file.name.split(".").pop() || "File").toUpperCase()}
                 </span>
               </td>
-              <td>{file.is_dir ? "—" : formatFileSize(file.size)}</td>
-              <td>{file.modified_at ? formatDate(file.modified_at) : "—"}</td>
               <td>
-                <div class="flex gap-1 justify-end">
+                <span class="font-mono text-sm">
+                  {file.is_dir ? "—" : formatFileSize(file.size)}
+                </span>
+              </td>
+              <td>
+                <span class="text-sm opacity-70">
+                  {file.modified_at ? formatDate(file.modified_at) : "—"}
+                </span>
+              </td>
+              <td>
+                <div class="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                   {#if !file.is_dir}
                     <button
-                      class="btn btn-ghost btn-sm btn-circle"
+                      class="btn btn-ghost btn-sm btn-square hover:btn-primary"
                       on:click|stopPropagation={() => handleDownload(file)}
                       aria-label="Download"
+                      title="Download"
                     >
                       <i class="bi bi-download"></i>
                     </button>
                   {/if}
                   <button
-                    class="btn btn-ghost btn-sm btn-circle"
+                    class="btn btn-ghost btn-sm btn-square hover:btn-info"
                     on:click|stopPropagation={() => openRenameModal(file)}
                     aria-label="Rename"
+                    title="Rename"
                   >
                     <i class="bi bi-pencil"></i>
                   </button>
                   <button
-                    class="btn btn-ghost btn-sm btn-circle text-error"
+                    class="btn btn-ghost btn-sm btn-square hover:btn-error"
                     on:click|stopPropagation={() => openDeleteModal(file)}
                     aria-label="Delete"
+                    title="Delete"
                   >
                     <i class="bi bi-trash"></i>
                   </button>
@@ -1327,6 +1637,60 @@
     fileToViewVersions = null;
   }}
 />
+
+<style>
+  /* Drag & Drop Zone Overlay */
+  .drop-zone-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: hsl(var(--b1) / 0.95);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .drop-content {
+    text-align: center;
+    padding: 3rem;
+    border-radius: 2rem;
+    border: 3px dashed hsl(var(--p));
+    background: hsl(var(--b2) / 0.5);
+    min-width: 400px;
+  }
+
+  .drop-animation {
+    position: relative;
+    display: inline-block;
+    width: 120px;
+    height: 120px;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* File Cards Hover Effects */
+  :global(.card:hover .bi-star) {
+    animation: starPulse 0.6s ease-in-out;
+  }
+
+  @keyframes starPulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+  }
+</style>
 
 <!-- Advanced Search Modal -->
 <AdvancedSearchModal

@@ -1178,4 +1178,40 @@ export const backupSchedules = {
   },
 };
 
+// ============================================
+// SYSTEM ENDPOINTS
+// ============================================
+
+export const system = {
+  /**
+   * Get system storage information (disk usage)
+   */
+  async getStorageInfo() {
+    const response = await fetch(`${API_BASE}/system/storage`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get file statistics (count, size, etc.)
+   */
+  async getStats() {
+    const response = await fetch(`${API_BASE}/stats`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get server status
+   */
+  async getStatus() {
+    const response = await fetch(`${API_BASE}/status`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
 

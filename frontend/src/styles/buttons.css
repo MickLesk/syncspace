@@ -1,0 +1,250 @@
+/* SyncSpace Button System - DaisyUI Enhancement */
+
+/* Base button improvements */
+.btn {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-width: 2px;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Primary button */
+.btn-primary {
+  background: linear-gradient(135deg, hsl(var(--p)), hsl(var(--p) / 0.9));
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, hsl(var(--p) / 0.9), hsl(var(--p) / 0.8));
+}
+
+/* Secondary button */
+.btn-secondary {
+  background: linear-gradient(135deg, hsl(var(--s)), hsl(var(--s) / 0.9));
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, hsl(var(--s) / 0.9), hsl(var(--s) / 0.8));
+}
+
+/* Accent button */
+.btn-accent {
+  background: linear-gradient(135deg, hsl(var(--a)), hsl(var(--a) / 0.9));
+}
+
+.btn-accent:hover {
+  background: linear-gradient(135deg, hsl(var(--a) / 0.9), hsl(var(--a) / 0.8));
+}
+
+/* Ghost button enhancements */
+.btn-ghost:hover {
+  background: hsl(var(--bc) / 0.08);
+}
+
+/* Outline button enhancements */
+.btn-outline {
+  border-width: 2px;
+}
+
+.btn-outline:hover {
+  border-width: 2px;
+}
+
+/* Icon buttons */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-icon i {
+  font-size: 1.125rem;
+}
+
+.btn-icon.btn-sm i {
+  font-size: 1rem;
+}
+
+.btn-icon.btn-lg i {
+  font-size: 1.25rem;
+}
+
+/* Loading state improvements */
+.btn.loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+
+.btn.loading::after {
+  content: "";
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid currentColor;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Size variants */
+.btn-xs {
+  height: 1.75rem;
+  padding: 0 0.625rem;
+  font-size: 0.75rem;
+  min-height: 1.75rem;
+}
+
+.btn-sm {
+  height: 2rem;
+  padding: 0 0.875rem;
+  font-size: 0.8125rem;
+  min-height: 2rem;
+}
+
+.btn-md {
+  height: 2.5rem;
+  padding: 0 1rem;
+  font-size: 0.875rem;
+  min-height: 2.5rem;
+}
+
+.btn-lg {
+  height: 3rem;
+  padding: 0 1.5rem;
+  font-size: 1rem;
+  min-height: 3rem;
+}
+
+/* Button groups */
+.btn-group .btn {
+  margin-right: -2px;
+}
+
+.btn-group .btn:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.btn-group .btn:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-right: 0;
+}
+
+.btn-group .btn:not(:first-child):not(:last-child) {
+  border-radius: 0;
+}
+
+/* Disabled state */
+.btn:disabled,
+.btn.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Success button */
+.btn-success {
+  background: hsl(var(--su));
+  color: hsl(var(--suc));
+  border-color: hsl(var(--su));
+}
+
+.btn-success:hover {
+  background: hsl(var(--su) / 0.9);
+  border-color: hsl(var(--su) / 0.9);
+}
+
+/* Error/Danger button */
+.btn-error {
+  background: hsl(var(--er));
+  color: hsl(var(--erc));
+  border-color: hsl(var(--er));
+}
+
+.btn-error:hover {
+  background: hsl(var(--er) / 0.9);
+  border-color: hsl(var(--er) / 0.9);
+}
+
+/* Warning button */
+.btn-warning {
+  background: hsl(var(--wa));
+  color: hsl(var(--wac));
+  border-color: hsl(var(--wa));
+}
+
+.btn-warning:hover {
+  background: hsl(var(--wa) / 0.9);
+  border-color: hsl(var(--wa) / 0.9);
+}
+
+/* Info button */
+.btn-info {
+  background: hsl(var(--in));
+  color: hsl(var(--inc));
+  border-color: hsl(var(--in));
+}
+
+.btn-info:hover {
+  background: hsl(var(--in) / 0.9);
+  border-color: hsl(var(--in) / 0.9);
+}
+
+/* Floating action button */
+.btn-fab {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn-fab:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.btn-fab i {
+  font-size: 1.5rem;
+}
+
+/* Pill button */
+.btn-pill {
+  border-radius: 9999px;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Wide button */
+.btn-wide {
+  min-width: 12rem;
+}
+
+/* Block button */
+.btn-block {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}

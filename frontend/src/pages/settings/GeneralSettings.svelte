@@ -1,5 +1,9 @@
 <script>
-  import { currentTheme, currentLang, favoritesEnabled } from "../../stores/ui.js";
+  import {
+    currentTheme,
+    currentLang,
+    favoritesEnabled,
+  } from "../../stores/ui.js";
 
   const languageOptions = [
     { value: "de", label: "🇩🇪 Deutsch" },
@@ -20,25 +24,30 @@
         <i class="bi bi-palette-fill text-primary"></i>
         Theme
       </h2>
-      <p class="text-sm opacity-70 mb-4">
-        Choose your preferred color scheme
-      </p>
+      <p class="text-sm opacity-70 mb-4">Choose your preferred color scheme</p>
       <div class="flex gap-3">
         <button
-          class="btn btn-{$currentTheme === 'light' ? 'primary' : 'outline'} flex-1"
+          class="btn btn-{$currentTheme === 'light'
+            ? 'primary'
+            : 'outline'} flex-1"
           on:click={() => {
-            currentTheme.set('light');
-            document.documentElement.setAttribute('data-theme', 'syncspace');
+            currentTheme.set("light");
+            document.documentElement.setAttribute("data-theme", "syncspace");
           }}
         >
           <i class="bi bi-sun-fill"></i>
           Light
         </button>
         <button
-          class="btn btn-{$currentTheme === 'dark' ? 'primary' : 'outline'} flex-1"
+          class="btn btn-{$currentTheme === 'dark'
+            ? 'primary'
+            : 'outline'} flex-1"
           on:click={() => {
-            currentTheme.set('dark');
-            document.documentElement.setAttribute('data-theme', 'syncspace-dark');
+            currentTheme.set("dark");
+            document.documentElement.setAttribute(
+              "data-theme",
+              "syncspace-dark"
+            );
           }}
         >
           <i class="bi bi-moon-fill"></i>
@@ -81,18 +90,50 @@
           <label class="label cursor-pointer">
             <div>
               <span class="label-text font-medium">Enable Notifications</span>
-              <p class="text-sm opacity-70">Receive desktop notifications for important events</p>
+              <p class="text-sm opacity-70">
+                Receive desktop notifications for important events
+              </p>
             </div>
-            <input type="checkbox" class="toggle toggle-primary" bind:checked={enableNotifications} />
+            <div class="flex items-center gap-2">
+              <span
+                class="text-xs font-medium {enableNotifications
+                  ? 'text-primary'
+                  : 'text-base-content/40'}"
+              >
+                {enableNotifications ? "ON" : "OFF"}
+              </span>
+              <input
+                type="checkbox"
+                class="toggle toggle-primary"
+                bind:checked={enableNotifications}
+              />
+            </div>
           </label>
         </div>
         <div class="form-control">
           <label class="label cursor-pointer">
             <div>
-              <span class="label-text font-medium">Auto Backup Notifications</span>
-              <p class="text-sm opacity-70">Get notified when automatic backups complete</p>
+              <span class="label-text font-medium"
+                >Auto Backup Notifications</span
+              >
+              <p class="text-sm opacity-70">
+                Get notified when automatic backups complete
+              </p>
             </div>
-            <input type="checkbox" class="toggle toggle-secondary" bind:checked={autoBackup} />
+            <div class="flex items-center gap-2">
+              <span
+                class="text-xs font-medium {autoBackup
+                  ? 'text-secondary'
+                  : 'text-base-content/40'}"
+              >
+                {autoBackup ? "ON" : "OFF"}
+              </span>
+              <input
+                type="checkbox"
+                class="toggle toggle-secondary"
+                bind:checked={autoBackup}
+              />
+            </div>
           </label>
         </div>
       </div>
@@ -110,10 +151,27 @@
         <div class="form-control">
           <label class="label cursor-pointer">
             <div>
-              <span class="label-text font-medium">Enable Favorites System</span>
-              <p class="text-sm opacity-70">Show favorites in sidebar and enable favorite markers on files/folders</p>
+              <span class="label-text font-medium">Enable Favorites System</span
+              >
+              <p class="text-sm opacity-70">
+                Show favorites in sidebar and enable favorite markers on
+                files/folders
+              </p>
             </div>
-            <input type="checkbox" class="toggle toggle-warning" bind:checked={$favoritesEnabled} />
+            <div class="flex items-center gap-2">
+              <span
+                class="text-xs font-medium {$favoritesEnabled
+                  ? 'text-warning'
+                  : 'text-base-content/40'}"
+              >
+                {$favoritesEnabled ? "ON" : "OFF"}
+              </span>
+              <input
+                type="checkbox"
+                class="toggle toggle-warning"
+                bind:checked={$favoritesEnabled}
+              />
+            </div>
           </label>
         </div>
       </div>

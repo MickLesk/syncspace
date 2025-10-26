@@ -60,6 +60,7 @@ use tower_http::cors::{Any, CorsLayer};
 // ServeDir/ServeFile removed - using Vite dev server on port 5173
 use uuid::Uuid;
 use walkdir::WalkDir;
+use sysinfo::{System, Disks};
 
 use auth::{
     AuthResponse, ChangePasswordRequest, Enable2FARequest, LoginRequest, RateLimiter,
@@ -594,6 +595,7 @@ fn build_router(state: AppState) -> Router {
     // Utility routes (protected)
     let utility_routes = Router::new()
         .route("/api/status", get(status_handler))  // Status endpoint (public)
+        .route("/api/system/storage", get(system_storage_handler))  // System disk usage
         .route("/api/search", get(search_handler))
         .route("/api/stats", get(stats_handler))
         .route("/api/thumbnails/{file_id}", get(get_thumbnail_handler))  // Thumbnail serving
@@ -2327,6 +2329,81 @@ async fn compute_stats_async() -> (u64, u64) {
 }
 
 // ==================== STATUS HANDLERS ====================
+
+#[derive(Serialize)]
+struct SystemStorageInfo {
+    total_bytes: u64,
+    available_bytes: u64,
+    used_bytes: u64,
+    usage_percent: f32,
+    mount_point: String,
+    filesystem: String,
+}
+
+async fn system_storage_handler() -> Json<SystemStorageInfo> {
+    tokio::task::spawn_blocking(|| {
+        let disks = Disks::new_with_refreshed_list();
+        
+        // Find the disk containing our DATA_DIR
+        let data_path = std::path::PathBuf::from(DATA_DIR);
+        let canonical_data = data_path.canonicalize().unwrap_or(data_path);
+        
+        // Find the disk with the longest matching mount point
+        let mut best_match: Option<&sysinfo::Disk> = None;
+        let mut longest_match = 0;
+        
+        for disk in &disks {
+            let mount_point = disk.mount_point();
+            if canonical_data.starts_with(mount_point) {
+                let match_len = mount_point.as_os_str().len();
+                if match_len > longest_match {
+                    longest_match = match_len;
+                    best_match = Some(disk);
+                }
+            }
+        }
+        
+        if let Some(disk) = best_match {
+            let total = disk.total_space();
+            let available = disk.available_space();
+            let used = total.saturating_sub(available);
+            let usage_percent = if total > 0 {
+                (used as f64 / total as f64 * 100.0) as f32
+            } else {
+                0.0
+            };
+            
+            SystemStorageInfo {
+                total_bytes: total,
+                available_bytes: available,
+                used_bytes: used,
+                usage_percent,
+                mount_point: disk.mount_point().display().to_string(),
+                filesystem: disk.file_system().to_string_lossy().to_string(),
+            }
+        } else {
+            // Fallback if no disk found
+            SystemStorageInfo {
+                total_bytes: 0,
+                available_bytes: 0,
+                used_bytes: 0,
+                usage_percent: 0.0,
+                mount_point: String::from("unknown"),
+                filesystem: String::from("unknown"),
+            }
+        }
+    })
+    .await
+    .unwrap_or_else(|_| SystemStorageInfo {
+        total_bytes: 0,
+        available_bytes: 0,
+        used_bytes: 0,
+        usage_percent: 0.0,
+        mount_point: String::from("error"),
+        filesystem: String::from("error"),
+    })
+    .into()
+}
 
 #[derive(Serialize)]
 struct ServerStatus {

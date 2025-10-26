@@ -1,20 +1,25 @@
 <script>
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount, onDestroy } from "svelte";
 
   export let visible = false;
   export let title = "";
   export let icon = "";
-  export let size = "md"; // sm, md, lg, xl
+  export let size = "md"; // sm, md, lg, xl, full
   export let variant = "default"; // default, primary, success, warning, danger
   export let showCloseButton = true;
+  export let closeOnBackdrop = true;
+  export let closeOnEscape = true;
 
   const dispatch = createEventDispatcher();
+
+  let modalElement;
 
   const sizeClasses = {
     sm: "max-w-sm",
     md: "max-w-2xl",
     lg: "max-w-4xl",
     xl: "max-w-6xl",
+    full: "w-11/12 max-w-7xl"
   };
 
   const variantGradients = {
@@ -30,35 +35,97 @@
   }
 
   function handleBackdropClick() {
-    if (showCloseButton) {
+    if (showCloseButton && closeOnBackdrop) {
       handleClose();
     }
+  }
+
+  function handleEscape(e) {
+    if (closeOnEscape && e.key === 'Escape' && visible) {
+      handleClose();
+    }
+  }
+
+  // Focus trap
+  function trapFocus(element) {
+    const focusableElements = element.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    function handleTab(e) {
+      if (e.key === 'Tab') {
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            lastFocusable?.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            firstFocusable?.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    }
+
+    element.addEventListener('keydown', handleTab);
+    firstFocusable?.focus();
+
+    return () => {
+      element.removeEventListener('keydown', handleTab);
+    };
+  }
+
+  onMount(() => {
+    window.addEventListener('keydown', handleEscape);
+  });
+
+  onDestroy(() => {
+    window.removeEventListener('keydown', handleEscape);
+    document.body.style.overflow = '';
+  });
+
+  $: if (visible && modalElement) {
+    const cleanup = trapFocus(modalElement);
+    document.body.style.overflow = 'hidden';
+  } else if (!visible) {
+    document.body.style.overflow = '';
   }
 </script>
 
 {#if visible}
-  <dialog class="modal modal-open">
+  <dialog class="modal modal-open" role="dialog" aria-modal="true" aria-labelledby={title ? 'modal-title' : undefined}>
+    <!-- Enhanced backdrop with blur -->
+    <div class="modal-backdrop-enhanced" on:click={handleBackdropClick} on:keydown={(e) => e.key === 'Enter' && handleBackdropClick()} role="button" tabindex="-1" aria-label="Close"></div>
+
     <div
+      bind:this={modalElement}
       class="modal-box {sizeClasses[size]} material-modal"
       class:modal-primary={variant === "primary"}
       class:modal-success={variant === "success"}
       class:modal-warning={variant === "warning"}
       class:modal-danger={variant === "danger"}
+      on:click={(e) => e.stopPropagation()}
+      on:keydown={() => {}}
+      role="document"
+      tabindex="-1"
     >
       <!-- Header with gradient -->
       <div class="modal-header bg-gradient-to-r {variantGradients[variant]}">
         {#if showCloseButton}
           <button
-            class="btn btn-sm btn-circle btn-ghost absolute right-3 top-3 hover:rotate-90 transition-transform duration-300"
+            class="modal-close-btn-new"
             on:click={handleClose}
             aria-label="Close modal"
+            type="button"
           >
-            <i class="bi bi-x-lg text-lg"></i>
+            <i class="bi bi-x-lg"></i>
           </button>
         {/if}
 
-        <h3 class="font-bold text-xl flex items-center gap-3">
-          {#if icon}
+        <h3 id="modal-title" class="font-bold text-xl flex items-center gap-3">{#if icon}
             <div class="modal-icon">
               <i class="bi bi-{icon} text-2xl"></i>
             </div>
@@ -79,11 +146,6 @@
         </div>
       {/if}
     </div>
-
-    <!-- Backdrop -->
-    <form method="dialog" class="modal-backdrop backdrop-blur-sm">
-      <button on:click={handleBackdropClick} aria-label="Close">close</button>
-    </form>
   </dialog>
 {/if}
 
@@ -91,19 +153,66 @@
   /* Material 3 Expressive Modal */
   .material-modal {
     padding: 0;
-    border-radius: 28px;
-    border: 1px solid hsl(var(--bc) / 0.1);
+    border-radius: 1.5rem;
+    border: 2px solid hsl(var(--bc) / 0.1);
     box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.12),
-      0 2px 8px rgba(0, 0, 0, 0.08);
+      0 25px 50px -12px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
     backdrop-filter: blur(20px);
     overflow: hidden;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modal-backdrop-enhanced {
+    position: fixed;
+    inset: 0;
+    background: hsl(var(--b1) / 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 999;
   }
 
   .modal-header {
-    padding: 2rem 2rem 1.5rem;
-    border-bottom: 1px solid hsl(var(--bc) / 0.08);
+    padding: 1.5rem 2rem;
+    border-bottom: 2px solid hsl(var(--bc) / 0.1);
     position: relative;
+    flex-shrink: 0;
+  }
+
+  .modal-close-btn-new {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: hsl(var(--bc) / 0.5);
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modal-close-btn-new:hover {
+    background: hsl(var(--bc) / 0.1);
+    color: hsl(var(--bc));
+    transform: rotate(90deg) scale(1.05);
+  }
+
+  .modal-close-btn-new:active {
+    transform: rotate(90deg) scale(0.95);
+  }
+
+  .modal-close-btn-new i {
+    font-size: 1.25rem;
   }
 
   .modal-icon {
@@ -119,15 +228,36 @@
 
   .modal-content {
     padding: 2rem;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .modal-content::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .modal-content::-webkit-scrollbar-track {
+    background: hsl(var(--b2));
+    border-radius: 4px;
+  }
+
+  .modal-content::-webkit-scrollbar-thumb {
+    background: hsl(var(--bc) / 0.3);
+    border-radius: 4px;
+  }
+
+  .modal-content::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--bc) / 0.5);
   }
 
   .modal-actions {
     padding: 1.5rem 2rem;
-    border-top: 1px solid hsl(var(--bc) / 0.08);
+    border-top: 2px solid hsl(var(--bc) / 0.1);
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     justify-content: flex-end;
-    background: hsl(var(--b2));
+    background: hsl(var(--b2) / 0.5);
+    flex-shrink: 0;
   }
 
   /* Better text contrast in light mode */
@@ -155,25 +285,11 @@
     color: hsl(var(--er));
   }
 
-  /* Backdrop blur effect */
-  .modal-backdrop {
-    background: rgba(0, 0, 0, 0.5);
-  }
-
-  /* Close button hover effect */
-  .btn-circle:hover {
-    background: hsl(var(--bc) / 0.1);
-  }
-
   /* Smooth animations */
-  .material-modal {
-    animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
   @keyframes modalSlideIn {
     from {
       opacity: 0;
-      transform: translateY(-20px) scale(0.95);
+      transform: translateY(-20px) scale(0.98);
     }
     to {
       opacity: 1;
@@ -183,21 +299,38 @@
 
   /* Responsive */
   @media (max-width: 768px) {
+    .material-modal {
+      max-width: 95% !important;
+      max-height: 95vh;
+      border-radius: 1rem;
+    }
+
     .modal-header {
-      padding: 1.5rem 1.5rem 1rem;
+      padding: 1rem 1.25rem;
     }
 
     .modal-content {
-      padding: 1.5rem;
+      padding: 1.25rem;
     }
 
     .modal-actions {
-      padding: 1rem 1.5rem;
+      padding: 1rem 1.25rem;
       flex-direction: column-reverse;
     }
 
     .modal-actions :global(.btn) {
       width: 100%;
+    }
+
+    .modal-close-btn-new {
+      right: 1rem;
+      top: 1rem;
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .modal-close-btn-new i {
+      font-size: 1rem;
     }
   }
 </style>
