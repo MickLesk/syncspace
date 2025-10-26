@@ -5,6 +5,7 @@
   import { t } from "../i18n.js";
   import AdvancedSearchModal from "./AdvancedSearchModal.svelte";
   import Modal from "./ui/Modal.svelte";
+  import ThemeSwitcher from "./ThemeSwitcher.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -370,19 +371,7 @@
     <!-- Right: Actions -->
     <div class="header-right">
       <!-- Theme Toggle -->
-      <button
-        class="action-button theme-toggle"
-        on:click={toggleTheme}
-        aria-label="Toggle theme"
-      >
-        <div class="theme-icon-wrapper">
-          {#if isDark}
-            <i class="bi bi-sun-fill theme-icon"></i>
-          {:else}
-            <i class="bi bi-moon-fill theme-icon"></i>
-          {/if}
-        </div>
-      </button>
+      <ThemeSwitcher />
 
       <!-- Notifications -->
       <div class="dropdown dropdown-end">

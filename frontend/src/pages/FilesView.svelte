@@ -438,10 +438,13 @@
     items.push({ label: "Rename", icon: "pencil", shortcut: "F2" });
 
     if (!contextMenuFile.is_directory) {
+      const isFavorited = Array.from($favorites.values()).some(
+        (fav) =>
+          fav.item_path === contextMenuFile.name ||
+          fav.item_id === contextMenuFile.id
+      );
       items.push({
-        label: $favorites.includes(contextMenuFile.name)
-          ? "Remove from Favorites"
-          : "Add to Favorites",
+        label: isFavorited ? "Remove from Favorites" : "Add to Favorites",
         icon: "star",
       });
     }
@@ -911,14 +914,14 @@
 
   <!-- Drag & Drop Overlay -->
   {#if dragOver}
-    <div class="drop-overlay">
-  <!-- Drag & Drop Overlay -->
-  {#if dragOver}
     <div class="drop-zone-overlay">
       <div class="drop-content">
         <div class="drop-animation mb-6">
-          <i class="bi bi-cloud-upload text-8xl text-primary animate-bounce"></i>
-          <div class="absolute inset-0 rounded-full border-4 border-primary border-dashed animate-ping opacity-50"></div>
+          <i class="bi bi-cloud-upload text-8xl text-primary animate-bounce"
+          ></i>
+          <div
+            class="absolute inset-0 rounded-full border-4 border-primary border-dashed animate-ping opacity-50"
+          ></div>
         </div>
         <h3 class="text-3xl font-bold mb-2">Drop files here</h3>
         <p class="text-lg opacity-70">Release to upload to current folder</p>
@@ -953,7 +956,9 @@
           <div class="mb-8">
             <div class="relative inline-block">
               <i class="bi bi-folder2-open text-9xl text-primary/20"></i>
-              <i class="bi bi-inbox absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl text-primary"></i>
+              <i
+                class="bi bi-inbox absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl text-primary"
+              ></i>
             </div>
           </div>
           <h1 class="text-4xl font-bold mb-4">This folder is empty</h1>
@@ -1007,16 +1012,19 @@
               </span>
             {:else}
               <span class="badge badge-primary badge-sm">
-                {file.name.split('.').pop()?.toUpperCase() || 'FILE'}
+                {file.name.split(".").pop()?.toUpperCase() || "FILE"}
               </span>
             {/if}
           </div>
 
           <!-- Favorite Star (visible on hover) -->
-          <div class="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button 
+          <div
+            class="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <button
               class="btn btn-circle btn-xs btn-ghost bg-base-100/80 backdrop-blur-sm"
-              on:click|stopPropagation={() => console.log('Toggle favorite', file.name)}
+              on:click|stopPropagation={() =>
+                console.log("Toggle favorite", file.name)}
               title="Add to favorites"
             >
               <i class="bi bi-star text-warning"></i>
@@ -1025,7 +1033,9 @@
 
           <div class="card-body p-4 items-center text-center">
             <!-- File Thumbnail or Icon with background -->
-            <div class="relative w-full aspect-square mb-3 rounded-lg bg-base-200 flex items-center justify-center overflow-hidden">
+            <div
+              class="relative w-full aspect-square mb-3 rounded-lg bg-base-200 flex items-center justify-center overflow-hidden"
+            >
               {#if file.is_dir}
                 <div class="text-6xl text-warning drop-shadow-lg">
                   <i class="bi bi-folder-fill"></i>
@@ -1044,10 +1054,14 @@
             </h3>
 
             <!-- File Info -->
-            <div class="flex items-center justify-between w-full text-xs opacity-70">
+            <div
+              class="flex items-center justify-between w-full text-xs opacity-70"
+            >
               <span>{file.is_dir ? "Folder" : formatFileSize(file.size)}</span>
               {#if !file.is_dir && file.modified_at}
-                <span class="hidden sm:inline">{new Date(file.modified_at).toLocaleDateString()}</span>
+                <span class="hidden sm:inline"
+                  >{new Date(file.modified_at).toLocaleDateString()}</span
+                >
               {/if}
             </div>
             <div
@@ -1088,46 +1102,80 @@
         <thead class="bg-base-200">
           <tr>
             <th class="bg-base-200">
-              <button 
+              <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
-                on:click={() => { sortBy = 'name'; sortOrder = sortOrder === 'asc' && sortBy === 'name' ? 'desc' : 'asc'; }}
+                on:click={() => {
+                  sortBy = "name";
+                  sortOrder =
+                    sortOrder === "asc" && sortBy === "name" ? "desc" : "asc";
+                }}
               >
                 Name
-                {#if sortBy === 'name'}
-                  <i class="bi bi-chevron-{sortOrder === 'asc' ? 'up' : 'down'} text-xs"></i>
+                {#if sortBy === "name"}
+                  <i
+                    class="bi bi-chevron-{sortOrder === 'asc'
+                      ? 'up'
+                      : 'down'} text-xs"
+                  ></i>
                 {/if}
               </button>
             </th>
             <th class="bg-base-200">
-              <button 
+              <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
-                on:click={() => { sortBy = 'type'; sortOrder = sortOrder === 'asc' && sortBy === 'type' ? 'desc' : 'asc'; }}
+                on:click={() => {
+                  sortBy = "type";
+                  sortOrder =
+                    sortOrder === "asc" && sortBy === "type" ? "desc" : "asc";
+                }}
               >
                 Type
-                {#if sortBy === 'type'}
-                  <i class="bi bi-chevron-{sortOrder === 'asc' ? 'up' : 'down'} text-xs"></i>
+                {#if sortBy === "type"}
+                  <i
+                    class="bi bi-chevron-{sortOrder === 'asc'
+                      ? 'up'
+                      : 'down'} text-xs"
+                  ></i>
                 {/if}
               </button>
             </th>
             <th class="bg-base-200">
-              <button 
+              <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
-                on:click={() => { sortBy = 'size'; sortOrder = sortOrder === 'asc' && sortBy === 'size' ? 'desc' : 'asc'; }}
+                on:click={() => {
+                  sortBy = "size";
+                  sortOrder =
+                    sortOrder === "asc" && sortBy === "size" ? "desc" : "asc";
+                }}
               >
                 Size
-                {#if sortBy === 'size'}
-                  <i class="bi bi-chevron-{sortOrder === 'asc' ? 'up' : 'down'} text-xs"></i>
+                {#if sortBy === "size"}
+                  <i
+                    class="bi bi-chevron-{sortOrder === 'asc'
+                      ? 'up'
+                      : 'down'} text-xs"
+                  ></i>
                 {/if}
               </button>
             </th>
             <th class="bg-base-200">
-              <button 
+              <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
-                on:click={() => { sortBy = 'modified'; sortOrder = sortOrder === 'asc' && sortBy === 'modified' ? 'desc' : 'asc'; }}
+                on:click={() => {
+                  sortBy = "modified";
+                  sortOrder =
+                    sortOrder === "asc" && sortBy === "modified"
+                      ? "desc"
+                      : "asc";
+                }}
               >
                 Modified
-                {#if sortBy === 'modified'}
-                  <i class="bi bi-chevron-{sortOrder === 'asc' ? 'up' : 'down'} text-xs"></i>
+                {#if sortBy === "modified"}
+                  <i
+                    class="bi bi-chevron-{sortOrder === 'asc'
+                      ? 'up'
+                      : 'down'} text-xs"
+                  ></i>
                 {/if}
               </button>
             </th>
@@ -1152,7 +1200,11 @@
                     <FileThumbnail {file} size="md" />
                   {/if}
                   <div>
-                    <div class="font-semibold group-hover:text-primary transition-colors">{file.name}</div>
+                    <div
+                      class="font-semibold group-hover:text-primary transition-colors"
+                    >
+                      {file.name}
+                    </div>
                     {#if file.is_dir}
                       <div class="text-xs opacity-60">Folder</div>
                     {/if}
@@ -1189,7 +1241,9 @@
                 </span>
               </td>
               <td>
-                <div class="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                <div
+                  class="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity"
+                >
                   {#if !file.is_dir}
                     <button
                       class="btn btn-ghost btn-sm btn-square hover:btn-primary"
@@ -1638,6 +1692,13 @@
   }}
 />
 
+<!-- Advanced Search Modal -->
+<AdvancedSearchModal
+  visible={showAdvancedSearchModal}
+  on:search={handleAdvancedSearch}
+  on:close={() => (showAdvancedSearchModal = false)}
+/>
+
 <style>
   /* Drag & Drop Zone Overlay */
   .drop-zone-overlay {
@@ -1683,23 +1744,16 @@
   }
 
   @keyframes starPulse {
-    0%, 100% {
+    0%,
+    100% {
       transform: scale(1);
     }
     50% {
       transform: scale(1.2);
     }
   }
-</style>
 
-<!-- Advanced Search Modal -->
-<AdvancedSearchModal
-  visible={showAdvancedSearchModal}
-  on:search={handleAdvancedSearch}
-  on:close={() => (showAdvancedSearchModal = false)}
-/>
-
-<style>
+  /* Additional Styles - Merged from duplicate block */
   .files-view {
     padding: 1.5rem;
     min-height: calc(100vh - 200px);
