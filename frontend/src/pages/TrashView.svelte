@@ -23,18 +23,20 @@
         originalPath: "/Documents/Work",
         size: 2048576,
         deletedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        autoDeleteDays: 28
+        autoDeleteDays: 28,
       },
       {
         id: 2,
         name: "Image.png",
         originalPath: "/Pictures/Vacation",
         size: 5242880,
-        deletedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-        autoDeleteDays: 15
-      }
+        deletedAt: new Date(
+          Date.now() - 15 * 24 * 60 * 60 * 1000
+        ).toISOString(),
+        autoDeleteDays: 15,
+      },
     ];
-    
+
     // Start auto-delete countdown
     startCountdown();
 
@@ -52,7 +54,9 @@
 
   function getDaysUntilAutoDelete(file) {
     const deletedDate = new Date(file.deletedAt);
-    const autoDeleteDate = new Date(deletedDate.getTime() + file.autoDeleteDays * 24 * 60 * 60 * 1000);
+    const autoDeleteDate = new Date(
+      deletedDate.getTime() + file.autoDeleteDays * 24 * 60 * 60 * 1000
+    );
     const now = new Date();
     const daysLeft = Math.ceil((autoDeleteDate - now) / (1000 * 60 * 60 * 24));
     return Math.max(0, daysLeft);
@@ -60,29 +64,32 @@
 
   function getAutoDeleteBadge(file) {
     const daysLeft = getDaysUntilAutoDelete(file);
-    if (daysLeft === 0) return { text: 'Deletes today', class: 'badge-error' };
-    if (daysLeft <= 3) return { text: `${daysLeft} days left`, class: 'badge-warning' };
-    if (daysLeft <= 7) return { text: `${daysLeft} days left`, class: 'badge-info' };
-    return { text: `${daysLeft} days left`, class: 'badge-ghost' };
+    if (daysLeft === 0) return { text: "Deletes today", class: "badge-error" };
+    if (daysLeft <= 3)
+      return { text: `${daysLeft} days left`, class: "badge-warning" };
+    if (daysLeft <= 7)
+      return { text: `${daysLeft} days left`, class: "badge-info" };
+    return { text: `${daysLeft} days left`, class: "badge-ghost" };
   }
 
   function handleRestore(file) {
     success(`Restored: ${file.name}`);
-    trashedFiles = trashedFiles.filter(f => f.id !== file.id);
+    trashedFiles = trashedFiles.filter((f) => f.id !== file.id);
     selectedFiles.delete(file.id);
     selectedFiles = selectedFiles; // Trigger reactivity
   }
 
   function handleRestoreAll() {
     const count = selectedFiles.size || trashedFiles.length;
-    const files = selectedFiles.size > 0 
-      ? trashedFiles.filter(f => selectedFiles.has(f.id))
-      : trashedFiles;
-    
+    const files =
+      selectedFiles.size > 0
+        ? trashedFiles.filter((f) => selectedFiles.has(f.id))
+        : trashedFiles;
+
     success(`Restored ${count} file(s)`);
-    
+
     if (selectedFiles.size > 0) {
-      trashedFiles = trashedFiles.filter(f => !selectedFiles.has(f.id));
+      trashedFiles = trashedFiles.filter((f) => !selectedFiles.has(f.id));
       selectedFiles.clear();
       selectedFiles = selectedFiles; // Trigger reactivity
     } else {
@@ -103,17 +110,17 @@
   }
 
   function confirmDelete() {
-    if (deleteTarget === 'single' && deleteTargetFile) {
+    if (deleteTarget === "single" && deleteTargetFile) {
       success(`Permanently deleted: ${deleteTargetFile.name}`);
-      trashedFiles = trashedFiles.filter(f => f.id !== deleteTargetFile.id);
+      trashedFiles = trashedFiles.filter((f) => f.id !== deleteTargetFile.id);
       selectedFiles.delete(deleteTargetFile.id);
       selectedFiles = selectedFiles;
-    } else if (deleteTarget === 'selected' && selectedFiles.size > 0) {
+    } else if (deleteTarget === "selected" && selectedFiles.size > 0) {
       success(`Permanently deleted ${selectedFiles.size} file(s)`);
-      trashedFiles = trashedFiles.filter(f => !selectedFiles.has(f.id));
+      trashedFiles = trashedFiles.filter((f) => !selectedFiles.has(f.id));
       selectedFiles.clear();
       selectedFiles = selectedFiles;
-    } else if (deleteTarget === 'all') {
+    } else if (deleteTarget === "all") {
       success("Trash emptied - all files permanently deleted");
       trashedFiles = [];
       selectedFiles.clear();
@@ -135,7 +142,7 @@
     if (selectedFiles.size === trashedFiles.length) {
       selectedFiles.clear();
     } else {
-      selectedFiles = new Set(trashedFiles.map(f => f.id));
+      selectedFiles = new Set(trashedFiles.map((f) => f.id));
     }
     selectedFiles = selectedFiles; // Trigger reactivity
   }
@@ -149,33 +156,35 @@
   }
 
   function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   }
 
   function getFileIcon(filename) {
-    const ext = filename.split('.').pop().toLowerCase();
+    const ext = filename.split(".").pop().toLowerCase();
     const iconMap = {
-      pdf: 'bi-file-pdf-fill text-error',
-      doc: 'bi-file-word-fill text-primary',
-      docx: 'bi-file-word-fill text-primary',
-      xls: 'bi-file-excel-fill text-success',
-      xlsx: 'bi-file-excel-fill text-success',
-      jpg: 'bi-file-image-fill text-accent',
-      jpeg: 'bi-file-image-fill text-accent',
-      png: 'bi-file-image-fill text-accent',
-      mp4: 'bi-file-play-fill text-error',
-      txt: 'bi-file-text-fill',
+      pdf: "bi-file-pdf-fill text-error",
+      doc: "bi-file-word-fill text-primary",
+      docx: "bi-file-word-fill text-primary",
+      xls: "bi-file-excel-fill text-success",
+      xlsx: "bi-file-excel-fill text-success",
+      jpg: "bi-file-image-fill text-accent",
+      jpeg: "bi-file-image-fill text-accent",
+      png: "bi-file-image-fill text-accent",
+      mp4: "bi-file-play-fill text-error",
+      txt: "bi-file-text-fill",
     };
-    return iconMap[ext] || 'bi-file-earmark-fill text-base-content/60';
+    return iconMap[ext] || "bi-file-earmark-fill text-base-content/60";
   }
 
-  let totalSize = $derived(trashedFiles.reduce((sum, f) => sum + (f.size || 0), 0));
+  let totalSize = $derived(
+    trashedFiles.reduce((sum, f) => sum + (f.size || 0), 0)
+  );
 </script>
 
 <div class="trash-view">
@@ -197,18 +206,25 @@
 
       {#if trashedFiles.length > 0}
         <div class="header-actions">
-          <button 
+          <button
             class="btn btn-success gap-2"
             onclick={handleRestoreAll}
-            disabled={selectedFiles.size === 0 && trashedFiles.length === 0}>
+            disabled={selectedFiles.size === 0 && trashedFiles.length === 0}
+          >
             <i class="bi bi-arrow-counterclockwise"></i>
-            Restore {selectedFiles.size > 0 ? `Selected (${selectedFiles.size})` : 'All'}
+            Restore {selectedFiles.size > 0
+              ? `Selected (${selectedFiles.size})`
+              : "All"}
           </button>
-          <button 
+          <button
             class="btn btn-error gap-2"
-            onclick={() => openDeleteModal(selectedFiles.size > 0 ? 'selected' : 'all')}>
+            onclick={() =>
+              openDeleteModal(selectedFiles.size > 0 ? "selected" : "all")}
+          >
             <i class="bi bi-x-circle"></i>
-            {selectedFiles.size > 0 ? `Delete Selected (${selectedFiles.size})` : 'Empty Trash'}
+            {selectedFiles.size > 0
+              ? `Delete Selected (${selectedFiles.size})`
+              : "Empty Trash"}
           </button>
         </div>
       {/if}
@@ -218,23 +234,30 @@
     {#if trashedFiles.length > 0}
       <div class="bulk-select-bar">
         <label class="flex items-center gap-2 cursor-pointer">
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             class="checkbox checkbox-sm"
-            checked={selectedFiles.size === trashedFiles.length && trashedFiles.length > 0}
-            indeterminate={selectedFiles.size > 0 && selectedFiles.size < trashedFiles.length}
-            onchange={toggleSelectAll} />
+            checked={selectedFiles.size === trashedFiles.length &&
+              trashedFiles.length > 0}
+            indeterminate={selectedFiles.size > 0 &&
+              selectedFiles.size < trashedFiles.length}
+            onchange={toggleSelectAll}
+          />
           <span class="text-sm">
-            {selectedFiles.size > 0 
-              ? `${selectedFiles.size} selected` 
-              : 'Select all'}
+            {selectedFiles.size > 0
+              ? `${selectedFiles.size} selected`
+              : "Select all"}
           </span>
         </label>
 
         {#if selectedFiles.size > 0}
-          <button 
+          <button
             class="btn btn-ghost btn-sm gap-2"
-            onclick={() => { selectedFiles.clear(); selectedFiles = selectedFiles; }}>
+            onclick={() => {
+              selectedFiles.clear();
+              selectedFiles = selectedFiles;
+            }}
+          >
             <i class="bi bi-x"></i>
             Clear selection
           </button>
@@ -249,13 +272,16 @@
       <i class="bi bi-trash3 empty-icon"></i>
       <h3 class="text-xl font-semibold mt-4">Trash is Empty</h3>
       <p class="text-base-content/60 mt-2">
-        Deleted files will appear here. You can restore them or permanently delete them.
+        Deleted files will appear here. You can restore them or permanently
+        delete them.
       </p>
       <div class="alert alert-info mt-6 max-w-md">
         <i class="bi bi-info-circle-fill"></i>
         <div class="text-sm">
           <p class="font-semibold">Auto-delete in 30 days</p>
-          <p class="opacity-80">Files are automatically deleted after 30 days in trash</p>
+          <p class="opacity-80">
+            Files are automatically deleted after 30 days in trash
+          </p>
         </div>
       </div>
     </div>
@@ -266,11 +292,12 @@
         <thead>
           <tr>
             <th>
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 class="checkbox checkbox-sm"
                 checked={selectedFiles.size === trashedFiles.length}
-                onchange={toggleSelectAll} />
+                onchange={toggleSelectAll}
+              />
             </th>
             <th>Name</th>
             <th>Original Location</th>
@@ -284,11 +311,12 @@
           {#each trashedFiles as file (file.id)}
             <tr class:selected={selectedFiles.has(file.id)}>
               <td>
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   class="checkbox checkbox-sm"
                   checked={selectedFiles.has(file.id)}
-                  onchange={() => toggleSelectFile(file.id)} />
+                  onchange={() => toggleSelectFile(file.id)}
+                />
               </td>
               <td>
                 <div class="flex items-center gap-3">
@@ -322,14 +350,16 @@
                   <button
                     class="btn btn-success btn-sm gap-1"
                     onclick={() => handleRestore(file)}
-                    title="Restore file">
+                    title="Restore file"
+                  >
                     <i class="bi bi-arrow-counterclockwise"></i>
                     Restore
                   </button>
                   <button
                     class="btn btn-error btn-sm gap-1"
-                    onclick={() => openDeleteModal('single', file)}
-                    title="Delete permanently">
+                    onclick={() => openDeleteModal("single", file)}
+                    title="Delete permanently"
+                  >
                     <i class="bi bi-x-circle"></i>
                     Delete
                   </button>
@@ -348,16 +378,18 @@
   <div class="modal modal-open" onclick={closeDeleteModal}>
     <div class="modal-box max-w-2xl" onclick={(e) => e.stopPropagation()}>
       <h3 class="font-bold text-lg mb-4 text-error">
-        <i class="bi bi-exclamation-triangle-fill"></i> 
+        <i class="bi bi-exclamation-triangle-fill"></i>
         Permanent Delete Warning
       </h3>
-      
+
       <!-- Warning Message -->
       <div class="alert alert-error mb-4">
         <i class="bi bi-exclamation-octagon-fill text-2xl"></i>
         <div>
           <p class="font-semibold">This action cannot be undone!</p>
-          <p class="text-sm opacity-90">Files will be permanently deleted and cannot be recovered.</p>
+          <p class="text-sm opacity-90">
+            Files will be permanently deleted and cannot be recovered.
+          </p>
         </div>
       </div>
 
@@ -366,8 +398,8 @@
         <p class="text-base-content/80 mb-3">
           You are about to permanently delete:
         </p>
-        
-        {#if deleteTarget === 'single' && deleteTargetFile}
+
+        {#if deleteTarget === "single" && deleteTargetFile}
           <div class="file-preview">
             <i class="{getFileIcon(deleteTargetFile.name)} text-3xl"></i>
             <div>
@@ -377,17 +409,21 @@
               </p>
             </div>
           </div>
-        {:else if deleteTarget === 'selected'}
+        {:else if deleteTarget === "selected"}
           <div class="stats shadow">
             <div class="stat">
               <div class="stat-title">Selected Files</div>
               <div class="stat-value text-error">{selectedFiles.size}</div>
               <div class="stat-desc">
-                Total: {formatBytes(trashedFiles.filter(f => selectedFiles.has(f.id)).reduce((sum, f) => sum + f.size, 0))}
+                Total: {formatBytes(
+                  trashedFiles
+                    .filter((f) => selectedFiles.has(f.id))
+                    .reduce((sum, f) => sum + f.size, 0)
+                )}
               </div>
             </div>
           </div>
-        {:else if deleteTarget === 'all'}
+        {:else if deleteTarget === "all"}
           <div class="stats shadow">
             <div class="stat">
               <div class="stat-title">All Trashed Files</div>
