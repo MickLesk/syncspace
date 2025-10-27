@@ -277,13 +277,13 @@
 
       <!-- Share Details -->
       <div class="grid grid-cols-2 gap-4">
-        <div class="stat bg-base-200 rounded-xl p-4">
+        <div class="stat bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
           <div class="stat-title">Type</div>
           <div class="stat-value text-lg">
             {shareType === "public" ? "Public" : "Private"}
           </div>
         </div>
-        <div class="stat bg-base-200 rounded-xl p-4">
+        <div class="stat bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
           <div class="stat-title">Expires</div>
           <div class="stat-value text-lg">
             {expiresInDays ? `${expiresInDays} days` : "Never"}

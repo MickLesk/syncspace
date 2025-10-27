@@ -298,7 +298,7 @@
 
               <div class="timeline-content">
                 <div
-                  class="card bg-base-100 shadow-md hover:shadow-lg transition-all"
+                  class="card bg-white dark:bg-slate-900 shadow-md hover:shadow-lg transition-all"
                 >
                   <div class="card-body p-4">
                     <div class="flex justify-between items-start mb-3">
@@ -399,7 +399,7 @@
         <!-- Grid View (Original) -->
         <div class="grid gap-4">
           {#each backups as backup}
-            <div class="card bg-base-200 shadow-md">
+            <div class="card bg-slate-50 dark:bg-slate-800 shadow-md">
               <div class="card-body">
                 <div class="flex justify-between items-start">
                   <div class="flex-1">
@@ -499,7 +499,7 @@
                 </div>
 
                 {#if selectedBackup?.id === backup.id}
-                  <div class="mt-4 pt-4 border-t border-base-300">
+                  <div class="mt-4 pt-4 border-t border-slate-300 dark:border-slate-600">
                     <BackupVerificationPanel backupId={backup.id} />
                   </div>
                 {/if}
@@ -536,7 +536,7 @@
         </div>
       </div>
 
-      <div class="card bg-base-200">
+      <div class="card bg-slate-50 dark:bg-slate-800">
         <div class="card-body">
           <h3 class="card-title">Coming Soon</h3>
           <p>
@@ -579,7 +579,7 @@
 
       <div class="space-y-4">
         <!-- Backup Details -->
-        <div class="bg-base-200 rounded-lg p-4">
+        <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
           <h4 class="font-semibold mb-3">Backup Information</h4>
           <div class="grid grid-cols-2 gap-3 text-sm">
             <div>

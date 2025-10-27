@@ -138,7 +138,7 @@
           <span>{error}</span>
         </div>
       {:else if fileType === "image" && blobUrl}
-        <div class="flex justify-center bg-base-200 rounded-lg p-4">
+        <div class="flex justify-center bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
           <img
             src={blobUrl}
             alt={file?.name || "Image"}
@@ -146,7 +146,7 @@
           />
         </div>
       {:else if fileType === "video" && blobUrl}
-        <div class="bg-base-200 rounded-lg p-4">
+        <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
           <!-- svelte-ignore a11y_media_has_caption -->
           <video controls class="w-full max-h-[70vh] rounded-lg shadow-lg">
             <source
@@ -170,7 +170,7 @@
           </audio>
         </div>
       {:else if fileType === "pdf" && blobUrl}
-        <div class="bg-base-200 rounded-lg p-4">
+        <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
           <iframe
             src={blobUrl}
             title={file?.name || "PDF Document"}
@@ -178,13 +178,13 @@
           ></iframe>
         </div>
       {:else if fileType === "text" && fileContent}
-        <div class="bg-base-200 rounded-lg p-4">
+        <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
           <div class="alert alert-info mb-4">
             <i class="bi bi-info-circle"></i>
             <span>Text file preview - showing first 10,000 characters</span>
           </div>
           <pre
-            class="bg-base-100 p-4 rounded-lg overflow-auto max-h-[60vh] text-sm"><code
+            class="bg-white dark:bg-slate-900 p-4 rounded-lg overflow-auto max-h-[60vh] text-sm"><code
               >{fileContent}</code
             ></pre>
         </div>

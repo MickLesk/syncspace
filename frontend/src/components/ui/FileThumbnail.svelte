@@ -102,7 +102,7 @@
     <!-- Loading Overlay -->
     {#if loading}
       <div
-        class="absolute inset-0 bg-base-200/80 rounded-lg flex items-center justify-center"
+        class="absolute inset-0 bg-slate-50 dark:bg-slate-800/80 rounded-lg flex items-center justify-center"
       >
         <span class="loading loading-spinner loading-xs"></span>
       </div>
@@ -121,7 +121,7 @@
   {:else}
     <!-- No thumbnail placeholder -->
     <div
-      class="w-full h-full rounded-lg bg-base-200 flex items-center justify-center"
+      class="w-full h-full rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center"
     >
       <span class="text-xs opacity-60">No preview</span>
     </div>

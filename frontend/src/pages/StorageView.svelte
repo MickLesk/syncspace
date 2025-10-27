@@ -221,7 +221,7 @@
           System Disk Usage
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="stat bg-base-100/50 rounded-box p-4">
+          <div class="stat bg-white dark:bg-slate-900/50 rounded-box p-4">
             <div class="stat-figure text-primary">
               <i class="bi bi-pie-chart-fill text-3xl"></i>
             </div>
@@ -234,7 +234,7 @@
             </div>
           </div>
 
-          <div class="stat bg-base-100/50 rounded-box p-4">
+          <div class="stat bg-white dark:bg-slate-900/50 rounded-box p-4">
             <div class="stat-figure text-error">
               <i class="bi bi-exclamation-triangle-fill text-3xl"></i>
             </div>
@@ -247,7 +247,7 @@
             </div>
           </div>
 
-          <div class="stat bg-base-100/50 rounded-box p-4">
+          <div class="stat bg-white dark:bg-slate-900/50 rounded-box p-4">
             <div class="stat-figure text-success">
               <i class="bi bi-check-circle-fill text-3xl"></i>
             </div>
@@ -262,7 +262,7 @@
         <!-- Visual Charts Row -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <!-- Disk Usage Doughnut Chart -->
-          <div class="bg-base-100/50 rounded-box p-6">
+          <div class="bg-white dark:bg-slate-900/50 rounded-box p-6">
             <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
               <i class="bi bi-pie-chart-fill text-primary"></i>
               Disk Usage Distribution
@@ -276,7 +276,7 @@
           </div>
 
           <!-- Disk Usage Progress Bar (Moved here) -->
-          <div class="bg-base-100/50 rounded-box p-6">
+          <div class="bg-white dark:bg-slate-900/50 rounded-box p-6">
             <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
               <i class="bi bi-speedometer2 text-primary"></i>
               Capacity Overview
@@ -355,7 +355,7 @@
     <!-- Storage Breakdown -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- Visual File Type Chart -->
-      <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm">
         <div class="card-body">
           <h2 class="card-title">
             <i class="bi bi-pie-chart-fill mr-2"></i>
@@ -380,7 +380,7 @@
       </div>
 
       <!-- Bar Chart for File Types -->
-      <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm">
         <div class="card-body">
           <h2 class="card-title">
             <i class="bi bi-bar-chart-fill mr-2"></i>
@@ -403,7 +403,7 @@
     <!-- Detailed Storage Breakdown -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- Type Distribution Cards -->
-      <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm">
         <div class="card-body">
           <h2 class="card-title">
             <i class="bi bi-list-ul mr-2"></i>
@@ -444,7 +444,7 @@
       </div>
 
       <!-- Radial Progress Visualization -->
-      <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm">
         <div class="card-body">
           <h2 class="card-title">
             <i class="bi bi-graph-up mr-2"></i>
@@ -479,7 +479,7 @@
 
     <!-- Largest Files -->
     {#if stats.largestFiles.length > 0}
-      <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm">
         <div class="card-body">
           <h2 class="card-title">
             <i class="bi bi-sort-down-alt mr-2"></i>

@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   import { onMount, onDestroy } from "svelte";
   import { files, currentPath, currentLang, currentView } from "../stores/ui";
   import { auth } from "../stores/auth";
@@ -52,7 +52,7 @@
 
   /**
    * Build full file path for backend API
-   * Example: buildFilePath("/testfolder/", "file.pdf") → "testfolder/file.pdf"
+   * Example: buildFilePath("/testfolder/", "file.pdf") ? "testfolder/file.pdf"
    * IMPORTANT: If fileName already contains path separators, use it as-is
    */
   function buildFilePath(dirPath, fileName) {
@@ -195,7 +195,7 @@
     try {
       const data = await api.search.query(query, 50, true);
       searchResults = data.results || [];
-      console.log(`ðŸ” Found ${searchResults.length} results for "${query}"`);
+      console.log(`🔍 Found ${searchResults.length} results for "${query}"`);
     } catch (error) {
       console.error("Search failed:", error);
       searchResults = [];
@@ -372,7 +372,7 @@
           selectedFiles = new Set(
             $files.filter((f) => !f.is_dir).map((f) => f.name)
           );
-          success(`${selectedFiles.size} Dateien ausgewählt`);
+          success(`${selectedFiles.size} Dateien ausgew�hlt`);
         }
       },
       { description: "Select all files" }
@@ -443,7 +443,7 @@
           toggleMultiSelect();
           success(
             multiSelectMode
-              ? "Multi-select enabled 📋"
+              ? "Multi-select enabled ??"
               : "Multi-select disabled"
           );
         }
@@ -601,7 +601,7 @@
           // Show progress toast for each file
           if (fileList.length > 1) {
             success(
-              `ðŸ“¤ ${uploadProgress.current}/${uploadProgress.total}: ${file.name}`,
+              `📤 ${uploadProgress.current}/${uploadProgress.total}: ${file.name}`,
               1000
             );
           }
@@ -628,17 +628,17 @@
     // Summary toast
     if (successCount > 0 && failCount === 0) {
       success(
-        `âœ… ${successCount} ${successCount === 1 ? "Datei" : "Dateien"} erfolgreich hochgeladen!`
+        `✅ ${successCount} ${successCount === 1 ? "Datei" : "Dateien"} erfolgreich hochgeladen!`
       );
     } else if (successCount > 0 && failCount > 0) {
       success(
-        `âœ… ${successCount} erfolgreich, âŒ ${failCount} fehlgeschlagen`
+        `✅ ${successCount} erfolgreich, ❌ ${failCount} fehlgeschlagen`
       );
       if (failedFiles.length > 0) {
         errorToast(`Fehlgeschlagen: ${failedFiles.join(", ")}`);
       }
     } else if (failCount > 0) {
-      errorToast(`âŒ Alle ${failCount} Uploads fehlgeschlagen`);
+      errorToast(`❌ Alle ${failCount} Uploads fehlgeschlagen`);
     }
 
     // Clear progress after a delay
@@ -768,11 +768,11 @@
       );
 
       await api.files.rename(oldPath, newPath);
-      success(`ðŸ“ "${draggedFile.name}" â†’ "${folder.name}"`);
+      success(`📁 "${draggedFile.name}" → "${folder.name}"`);
       await loadFiles();
     } catch (err) {
       console.error("Failed to move file:", err);
-      errorToast(`âŒ Fehler beim Verschieben: ${err.message}`);
+      errorToast(`❌ Fehler beim Verschieben: ${err.message}`);
     }
 
     draggedFile = null;
@@ -820,7 +820,7 @@
 
       if (successCount > 0) {
         success(
-          `📁 Moved ${successCount} file${successCount > 1 ? "s" : ""} to "${folder.name}"`
+          `?? Moved ${successCount} file${successCount > 1 ? "s" : ""} to "${folder.name}"`
         );
       }
       if (failCount > 0) {
@@ -984,7 +984,7 @@
       const isFav = favorites.getAll().some((f) => f.item_id === fullPath);
       success(
         isFav
-          ? `⭐ ${file.name} zu Favoriten hinzugefügt`
+          ? `? ${file.name} zu Favoriten hinzugef�gt`
           : `${file.name} aus Favoriten entfernt`
       );
     } catch (err) {
@@ -1067,7 +1067,7 @@
 
     try {
       await navigator.clipboard.writeText(link);
-      success(`🔗 Link copied to clipboard`);
+      success(`?? Link copied to clipboard`);
     } catch (err) {
       errorToast(t(lang, "failedToCopyLink"));
     }
@@ -1134,7 +1134,7 @@
           : `${toBackendPath(targetPath)}/${fileToMove.name}`;
 
       await api.files.rename(oldPath, newPath);
-      success(`📁 "${fileToMove.name}" → "${targetPath}"`);
+      success(`?? "${fileToMove.name}" ? "${targetPath}"`);
 
       showMoveDialog = false;
       fileToMove = null;
@@ -1142,7 +1142,7 @@
       await loadFiles();
     } catch (err) {
       console.error("Failed to move file:", err);
-      errorToast(`❌ Fehler beim Verschieben: ${err.message}`);
+      errorToast(`? Fehler beim Verschieben: ${err.message}`);
     }
   }
 
@@ -1323,10 +1323,10 @@
     }
 
     if (successCount > 0) {
-      success(`âœ… Deleted ${successCount} file(s)`);
+      success(`✅ Deleted ${successCount} file(s)`);
     }
     if (failCount > 0) {
-      errorToast(`âŒ Failed to delete ${failCount} file(s)`);
+      errorToast(`❌ Failed to delete ${failCount} file(s)`);
     }
 
     selectedFiles.clear();
@@ -1369,7 +1369,7 @@
   async function bulkDownload() {
     if (selectedFiles.size === 0) return;
 
-    success(`📥 Downloading ${selectedFiles.size} file(s)...`);
+    success(`?? Downloading ${selectedFiles.size} file(s)...`);
 
     for (const filename of selectedFiles) {
       try {
@@ -1390,7 +1390,7 @@
     if ($files.length === 0) return;
     multiSelectMode = true;
     selectedFiles = new Set($files.filter((f) => !f.is_dir).map((f) => f.name));
-    success(`${selectedFiles.size} Dateien ausgewählt`);
+    success(`${selectedFiles.size} Dateien ausgew�hlt`);
   }
 
   async function handleRenameConfirm(event) {
@@ -1403,7 +1403,7 @@
       const oldPath = buildFilePath($currentPath, oldName);
       const newPath = buildFilePath($currentPath, newName);
       await api.files.rename(oldPath, newPath);
-      success(`"${oldName}" â†’ "${newName}"`);
+      success(`"${oldName}" → "${newName}"`);
       await loadFiles();
     } catch (err) {
       console.error("Failed to rename file:", err);
@@ -1528,7 +1528,7 @@
       role="region"
     >
       <Icon name="cloud-arrow-up" size={16} />
-      <span>{dragOver ? "ðŸ“¦ Drop hier!" : "Drag & Drop Dateien hier"}</span>
+      <span>{dragOver ? "📦 Drop hier!" : "Drag & Drop Dateien hier"}</span>
     </div>
   {/if}
 
@@ -1578,11 +1578,11 @@
   <!-- Search Mode Indicator -->
   {#if searchQuery && searchQuery.length >= 2}
     <div class="search-mode-indicator">
-      <span class="search-icon">ðŸ”</span>
+      <span class="search-icon">🔍</span>
       <span class="search-info">
         Search results for <strong>"{searchQuery}"</strong>
         {#if searchResults.length > 0}
-          â€” {searchResults.length}
+          — {searchResults.length}
           {searchResults.length === 1 ? "file" : "files"} found
         {/if}
       </span>
@@ -1605,11 +1605,11 @@
     <div class="loading">
       <Spinner variant="circular" size="large" />
 
-      <p>ðŸ” Searching...</p>
+      <p>🔍 Searching...</p>
     </div>
   {:else if displayedFiles.length === 0}
     <div class="empty-state">
-      <p class="empty-icon">{searchQuery ? "ï¿½" : "ï¿½ðŸ“‚"}</p>
+      <p class="empty-icon">{searchQuery ? "�" : "�📂"}</p>
       <p class="empty-title">
         {searchQuery ? "No results found" : t($currentLang, "noFiles")}
       </p>
@@ -1828,18 +1828,18 @@
 
 <Dialog
   bind:open={showDeleteDialog}
-  title="Löschen bestätigen"
-  confirmText="Löschen"
+  title="L�schen best�tigen"
+  confirmText="L�schen"
   cancelText="Abbrechen"
   danger={true}
   on:confirm={handleDeleteConfirm}
 >
   <p>
-    Möchten Sie <strong>"{displayName(fileToDelete?.name || "")}"</strong> wirklich
-    löschen?
+    M�chten Sie <strong>"{displayName(fileToDelete?.name || "")}"</strong> wirklich
+    l�schen?
   </p>
   <p style="color: var(--md-sys-color-error); margin-top: 12px;">
-    Diese Aktion kann nicht rückgängig gemacht werden.
+    Diese Aktion kann nicht r�ckg�ngig gemacht werden.
   </p>
 </Dialog>
 

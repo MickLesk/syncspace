@@ -231,7 +231,7 @@
   {:else}
     <div class="grid gap-4">
       {#each schedules as schedule}
-        <div class="card bg-base-200 shadow-md">
+        <div class="card bg-slate-50 dark:bg-slate-800 shadow-md">
           <div class="card-body">
             <div class="flex justify-between items-start">
               <div class="flex-1">

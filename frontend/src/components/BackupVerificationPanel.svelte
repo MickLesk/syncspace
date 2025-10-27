@@ -209,7 +209,7 @@
   {:else}
     <div class="space-y-3">
       {#each verifications as verification}
-        <div class="card bg-base-200 shadow-sm">
+        <div class="card bg-slate-50 dark:bg-slate-800 shadow-sm">
           <div class="card-body p-4">
             <div class="flex items-start justify-between">
               <div class="flex items-start gap-3 flex-1">
@@ -248,7 +248,7 @@
                   {#if verification.details}
                     <div class="mt-2 text-sm">
                       {#if verification.verification_type === "checksum"}
-                        <div class="font-mono text-xs bg-base-300 p-2 rounded">
+                        <div class="font-mono text-xs bg-slate-100 dark:bg-slate-700 p-2 rounded">
                           {JSON.parse(verification.details).checksum ||
                             verification.details}
                         </div>
@@ -260,7 +260,7 @@
                           >
                         </div>
                       {:else}
-                        <div class="bg-base-300 p-2 rounded text-xs">
+                        <div class="bg-slate-100 dark:bg-slate-700 p-2 rounded text-xs">
                           {verification.details}
                         </div>
                       {/if}

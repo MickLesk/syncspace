@@ -166,7 +166,7 @@
       <div class="form-control">
         <div class="input-group flex">
           <span
-            class="px-4 bg-base-200 flex items-center rounded-l-xl border border-r-0 border-base-300 text-base-content"
+            class="px-4 bg-slate-50 dark:bg-slate-800 flex items-center rounded-l-xl border border-r-0 border-slate-300 dark:border-slate-600 text-base-content"
           >
             <i class="bi bi-search text-lg"></i>
           </span>

@@ -18,7 +18,7 @@
 
 <div class="settings-grid">
   <!-- Theme Settings -->
-  <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+  <div class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow">
     <div class="card-body">
       <h2 class="card-title">
         <i class="bi bi-palette-fill text-primary"></i>
@@ -58,7 +58,7 @@
   </div>
 
   <!-- Language Settings -->
-  <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+  <div class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow">
     <div class="card-body">
       <h2 class="card-title">
         <i class="bi bi-translate text-secondary"></i>
@@ -79,7 +79,7 @@
   </div>
 
   <!-- Notification Settings -->
-  <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+  <div class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow">
     <div class="card-body">
       <h2 class="card-title">
         <i class="bi bi-bell-fill text-accent"></i>
@@ -141,7 +141,7 @@
   </div>
 
   <!-- Features Settings -->
-  <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+  <div class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow">
     <div class="card-body">
       <h2 class="card-title">
         <i class="bi bi-toggles text-warning"></i>

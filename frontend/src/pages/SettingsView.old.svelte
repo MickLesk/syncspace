@@ -421,7 +421,7 @@
               helpText="Maximum size for uploaded files"
             />
             <div
-              class="flex justify-between items-center p-3 bg-base-200 rounded-lg"
+              class="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg"
             >
               <div>
                 <div class="font-semibold">Cache Size</div>

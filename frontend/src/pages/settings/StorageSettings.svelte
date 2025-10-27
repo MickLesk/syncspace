@@ -11,7 +11,7 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   <!-- Storage Configuration -->
-  <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+  <div class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow">
     <div class="card-body">
       <h2 class="card-title">
         <i class="bi bi-hdd-fill text-primary"></i>
@@ -56,7 +56,7 @@
           </label>
         </div>
 
-        <div class="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+        <div class="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
           <div>
             <div class="font-semibold">Cache Size</div>
             <div class="text-sm opacity-70">Currently using 245 MB</div>
@@ -74,7 +74,7 @@
   </div>
 
   <!-- Storage Stats -->
-  <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+  <div class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow">
     <div class="card-body">
       <h2 class="card-title">
         <i class="bi bi-pie-chart-fill text-info"></i>

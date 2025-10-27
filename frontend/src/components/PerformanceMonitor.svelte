@@ -126,7 +126,7 @@
         <div class="dropdown dropdown-end">
           <label tabindex="0" class="btn btn-sm btn-ghost">⚙️</label>
           <div
-            class="dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+            class="dropdown-content bg-white dark:bg-slate-900 rounded-box z-[1] w-52 p-2 shadow"
           >
             <button class="btn btn-sm btn-block" on:click={clearCache}>
               Clear Cache
@@ -432,7 +432,7 @@
 
 <style>
   .performance-monitor {
-    @apply bg-base-100 rounded-lg p-4;
+    @apply bg-white dark:bg-slate-900 rounded-lg p-4;
   }
 
   .performance-monitor.compact {
@@ -492,7 +492,7 @@
   }
 
   .metric-card {
-    @apply bg-base-200 rounded-lg p-4;
+    @apply bg-slate-50 dark:bg-slate-800 rounded-lg p-4;
   }
 
   .metric-header {
@@ -508,11 +508,11 @@
   }
 
   .chart-container {
-    @apply bg-base-200 rounded-lg p-4;
+    @apply bg-slate-50 dark:bg-slate-800 rounded-lg p-4;
   }
 
   .simple-chart {
-    @apply relative h-32 bg-base-300 rounded mt-4;
+    @apply relative h-32 bg-slate-100 dark:bg-slate-700 rounded mt-4;
     position: relative;
   }
 
@@ -546,7 +546,7 @@
   }
 
   .job-item {
-    @apply flex justify-between items-center bg-base-200 rounded p-2;
+    @apply flex justify-between items-center bg-slate-50 dark:bg-slate-800 rounded p-2;
   }
 
   .no-jobs {

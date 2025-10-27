@@ -194,7 +194,7 @@
               {#if dropdownOpen}
                 <ul
                   role="menu"
-                  class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50"
+                  class="dropdown-content menu p-2 shadow bg-white dark:bg-slate-900 rounded-box w-52 z-50"
                   onclick={(e) => e.stopPropagation()}
                   onkeydown={(e) => {
                     if (e.key === 'Escape') dropdownOpen = false;
