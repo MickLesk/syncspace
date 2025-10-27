@@ -57,10 +57,10 @@ tar = "0.4"
 flate2 = "1.1"
 image = "0.25"
 tempfile = "3.23"
-sysinfo = "0.33"  # System information (CPU, memory, disk usage)
+sysinfo = "0.37"  # System information (CPU, memory, disk usage)
 
 # Performance & Caching
-redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+redis = { version = "0.32", features = ["tokio-comp", "connection-manager"] }
 deadpool-redis = "0.22"
 moka = { version = "0.12", features = ["future"] }  # In-memory cache
 rayon = "1.10"  # Parallel processing
