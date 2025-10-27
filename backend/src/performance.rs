@@ -127,17 +127,17 @@ impl CacheManager {
     }
 
     // Cache directory listings
-    pub async fn cache_directory_listing(&self, dir_path: &str, files: &[crate::EntryInfo]) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn cache_directory_listing(&self, dir_path: &str, files: &[crate::models::FileInfo]) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let key = format!("dir_list:{}", dir_path);
         let value = serde_json::to_string(files)?;
         self.set(&key, &value, Some(Duration::from_secs(60))).await // 1 minute TTL
     }
 
     // Get cached directory listing
-    pub async fn get_directory_listing(&self, dir_path: &str) -> Result<Option<Vec<crate::EntryInfo>>, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_directory_listing(&self, dir_path: &str) -> Result<Option<Vec<crate::models::FileInfo>>, Box<dyn std::error::Error + Send + Sync>> {
         let key = format!("dir_list:{}", dir_path);
         if let Some(value) = self.get(&key).await? {
-            let files: Vec<crate::EntryInfo> = serde_json::from_str(&value)?;
+            let files: Vec<crate::models::FileInfo> = serde_json::from_str(&value)?;
             Ok(Some(files))
         } else {
             Ok(None)

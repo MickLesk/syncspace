@@ -9,8 +9,31 @@
   import NotificationBell from "./NotificationBell.svelte";
   import { userPreferences } from "../stores/preferences.js";
   import { wsConnected } from "../stores/websocket.js";
+  import api from "../lib/api.js";
 
   const dispatch = createEventDispatcher();
+
+  let serverInfo = $state(null);
+  let showServerInfo = $state(false);
+
+  async function loadServerInfo() {
+    if (showServerInfo) {
+      showServerInfo = false;
+      return;
+    }
+    if (!serverInfo) {
+      try {
+        serverInfo = await api.config.getInfo();
+      } catch (err) {
+        console.error("Failed to load server info:", err);
+      }
+    }
+    showServerInfo = true;
+  }
+
+  function closeServerInfo() {
+    showServerInfo = false;
+  }
 
   // Map view IDs to display names with icons
   const viewNames = {
@@ -359,19 +382,98 @@
 
     <!-- Right: Actions -->
     <div class="header-right">
-      <!-- WebSocket Connection Status -->
-      <div
-        class="tooltip tooltip-bottom"
-        data-tip={$wsConnected ? "Live sync active" : "Reconnecting..."}
-      >
-        <div
-          class={`badge ${$wsConnected ? "badge-success" : "badge-warning"} gap-2`}
+      <!-- WebSocket Connection Status with Dropdown -->
+      <div class="dropdown dropdown-end">
+        <button
+          class={`btn btn-ghost btn-sm gap-2 cursor-pointer transition-all`}
+          tabindex="0"
+          onclick={loadServerInfo}
         >
-          <span
-            class={`w-2 h-2 rounded-full ${$wsConnected ? "bg-success animate-pulse" : "bg-warning"}`}
-          ></span>
-          {$wsConnected ? "Live" : "Offline"}
-        </div>
+          <span class="relative flex h-3 w-3">
+            {#if $wsConnected}
+              <span
+                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"
+              ></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-success"
+              ></span>
+            {:else}
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-warning"
+              ></span>
+            {/if}
+          </span>
+          <span class="text-sm font-medium"
+            >{$wsConnected ? "Live" : "Offline"}</span
+          >
+        </button>
+
+        {#if showServerInfo && serverInfo}
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div class="fixed inset-0 z-[99]" onclick={closeServerInfo}></div>
+          <div
+            class="dropdown-content z-[100] card card-compact w-80 p-2 shadow-2xl bg-base-100 border border-base-300 rounded-2xl mt-2"
+          >
+            <div class="card-body">
+              <div class="flex justify-between items-start">
+                <h3 class="card-title text-sm">
+                  <i class="bi bi-server"></i>
+                  Backend Status
+                </h3>
+                <button
+                  class="btn btn-ghost btn-xs btn-circle"
+                  onclick={closeServerInfo}
+                >
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+              <div class="divider my-1"></div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="stat bg-base-200 rounded-lg p-2">
+                  <div class="stat-title text-xs opacity-60">Status</div>
+                  <div
+                    class="stat-value text-sm {$wsConnected
+                      ? 'text-success'
+                      : 'text-warning'}"
+                  >
+                    {$wsConnected ? "Online" : "Offline"}
+                  </div>
+                </div>
+                <div class="stat bg-base-200 rounded-lg p-2">
+                  <div class="stat-title text-xs opacity-60">Version</div>
+                  <div class="stat-value text-sm">
+                    {serverInfo.rust_version || "N/A"}
+                  </div>
+                </div>
+                <div class="stat bg-base-200 rounded-lg p-2">
+                  <div class="stat-title text-xs opacity-60">CPU Cores</div>
+                  <div class="stat-value text-sm">
+                    {serverInfo.cpu_cores || "N/A"}
+                  </div>
+                </div>
+                <div class="stat bg-base-200 rounded-lg p-2">
+                  <div class="stat-title text-xs opacity-60">Memory</div>
+                  <div class="stat-value text-sm">
+                    {serverInfo.memory_total || "N/A"}
+                  </div>
+                </div>
+              </div>
+              {#if serverInfo.features}
+                <div class="mt-2">
+                  <p class="text-xs opacity-60 mb-1">Features:</p>
+                  <div class="flex flex-wrap gap-1">
+                    {#each Object.entries(serverInfo.features) as [feature, enabled]}
+                      {#if enabled}
+                        <span class="badge badge-primary badge-xs"
+                          >{feature}</span
+                        >
+                      {/if}
+                    {/each}
+                  </div>
+                </div>
+              {/if}
+            </div>
+          </div>
+        {/if}
       </div>
 
       <!-- Theme Toggle -->
