@@ -48,21 +48,37 @@ pub mod sharing {
     use super::*;
     use crate::models::Share;
     
-    pub async fn create_share(state: &AppState, user: &UserInfo, path: &str, is_public: bool) -> Result<Share> {
-        let id = Uuid::new_v4().to_string();
+    pub async fn create_share(state: &AppState, user: &UserInfo, path: &str, _is_public: bool) -> Result<Share> {
+        let id = Uuid::new_v4();
+        let token = format!("{}", Uuid::new_v4());
         let now = Utc::now();
         sqlx::query("INSERT INTO shared_links (id, item_type, item_id, created_by, is_public, allow_download, download_count, created_at) VALUES (?, 'file', ?, ?, ?, 1, 0, ?)")
-            .bind(&id).bind(path).bind(&user.id).bind(if is_public { 1 } else { 0 }).bind(now.to_rfc3339()).execute(&state.db_pool).await?;
-        Ok(Share { id, path: path.to_string(), created_by: Uuid::parse_str(&user.id).unwrap_or_default(), is_public, expires_at: None, created_at: now })
+            .bind(&id).bind(path).bind(&user.id).bind(1).bind(now.to_rfc3339()).execute(&state.db_pool).await?;
+        Ok(Share {
+            id,
+            file_path: path.to_string(),
+            token,
+            permission: "read".to_string(),
+            created_by: Uuid::parse_str(&user.id).unwrap_or_default(),
+            created_at: now,
+            expires_at: None,
+            password_hash: None,
+        })
     }
     
     pub async fn list_shares(state: &AppState, user: &UserInfo) -> Result<Vec<Share>> {
         let rows: Vec<crate::database::SharedLink> = sqlx::query_as("SELECT * FROM shared_links WHERE created_by = ?").bind(&user.id).fetch_all(&state.db_pool).await?;
         Ok(rows.iter().map(|r| Share {
-            id: r.id.clone(), path: r.item_id.clone(), created_by: r.created_by.clone(),
-            is_public: r.is_public, expires_at: r.expires_at.clone().map(|s| chrono::DateTime::parse_from_rfc3339(&s).ok()).flatten(),
+            id: Uuid::parse_str(&r.id).unwrap_or_default(),
+            file_path: r.item_id.clone(),
+            token: r.id.clone(),
+            permission: "read".to_string(),
+            created_by: Uuid::parse_str(&r.created_by).unwrap_or_default(),
             created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
+            expires_at: r.expires_at.clone().and_then(|s| chrono::DateTime::parse_from_rfc3339(&s).ok().map(|dt| dt.with_timezone(&Utc))),
+            password_hash: None,
         }).collect())
+    }
     }
     
     pub async fn delete_share(state: &AppState, user: &UserInfo, share_id: &str) -> Result<()> {
@@ -80,8 +96,13 @@ pub mod activity {
         let rows: Vec<crate::database::FileHistory> = sqlx::query_as("SELECT * FROM file_history WHERE user_id = ? ORDER BY created_at DESC LIMIT ?")
             .bind(&user.id).bind(limit as i64).fetch_all(&state.db_pool).await?;
         Ok(rows.iter().map(|r| ActivityLog {
-            id: r.id.clone(), user_id: r.user_id.clone(), action: r.action.clone(),
-            details: r.file_path.clone(), timestamp: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
+            id: Uuid::parse_str(&r.id).unwrap_or_default(),
+            user_id: Uuid::parse_str(&r.user_id).unwrap_or_default(),
+            action: r.action.clone(),
+            resource_type: "file".to_string(),
+            resource_id: Some(r.file_path.clone()),
+            metadata: None,
+            created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
         }).collect())
     }
 }
@@ -92,19 +113,30 @@ pub mod tag {
     use crate::models::Tag;
     
     pub async fn create_tag(state: &AppState, user: &UserInfo, name: &str, color: Option<String>) -> Result<Tag> {
-        let id = Uuid::new_v4().to_string();
+        let id = Uuid::new_v4();
         let now = Utc::now().to_rfc3339();
         sqlx::query("INSERT INTO tags (id, name, color, owner_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)")
             .bind(&id).bind(name).bind(color.as_deref()).bind(&user.id).bind(&now).bind(&now).execute(&state.db_pool).await?;
-        Ok(Tag { id, name: name.to_string(), color, owner_id: Uuid::parse_str(&user.id).unwrap_or_default(), created_at: Utc::now(), updated_at: Utc::now() })
+        Ok(Tag {
+            id,
+            name: name.to_string(),
+            color,
+            user_id: Uuid::parse_str(&user.id).unwrap_or_default(),
+            created_at: Utc::now(),
+        })
     }
     
     pub async fn list_tags(state: &AppState, user: &UserInfo) -> Result<Vec<Tag>> {
         let rows: Vec<crate::database::Tag> = sqlx::query_as("SELECT * FROM tags WHERE owner_id = ?").bind(&user.id).fetch_all(&state.db_pool).await?;
         Ok(rows.iter().map(|r| Tag {
-            id: r.id.clone(), name: r.name.clone(), color: r.color.clone(), owner_id: r.owner_id.clone(),
+            id: Uuid::parse_str(&r.id).unwrap_or_default(),
+            name: r.name.clone(),
+            color: r.color.clone(),
+            user_id: Uuid::parse_str(&r.owner_id).unwrap_or_default(),
             created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
-            updated_at: chrono::DateTime::parse_from_rfc3339(&r.updated_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
+        }).collect())
+    }
+}
         }).collect())
     }
 }
@@ -125,7 +157,10 @@ pub mod favorites {
     pub async fn list_favorites(state: &AppState, user: &UserInfo) -> Result<Vec<Favorite>> {
         let rows: Vec<crate::database::Favorite> = sqlx::query_as("SELECT * FROM favorites WHERE user_id = ?").bind(&user.id).fetch_all(&state.db_pool).await?;
         Ok(rows.iter().map(|r| Favorite {
-            id: r.id.clone(), user_id: r.user_id.clone(), item_type: r.item_type.clone(), item_id: r.item_id.clone(),
+            id: Uuid::parse_str(&r.id).unwrap_or_default(),
+            user_id: Uuid::parse_str(&r.user_id).unwrap_or_default(),
+            item_type: r.item_type.clone(),
+            item_id: r.item_id.clone(),
             created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
         }).collect())
     }
@@ -142,20 +177,25 @@ pub mod backup {
     use crate::models::Backup;
     
     pub async fn create_backup(state: &AppState, user: &UserInfo, backup_type: &str) -> Result<Backup> {
-        let id = Uuid::new_v4().to_string();
+        let id = Uuid::new_v4();
         let now = Utc::now();
-        sqlx::query("INSERT INTO enhanced_backups (id, backup_type, size_bytes, storage_path, created_by, created_at, status) VALUES (?, ?, 0, '/backups/temp', ?, ?, 'pending')")
-            .bind(&id).bind(backup_type).bind(&user.id).bind(now.to_rfc3339()).execute(&state.db_pool).await?;
-        Ok(Backup { id, backup_type: backup_type.to_string(), size_bytes: 0, created_by: Uuid::parse_str(&user.id).unwrap_or_default(), created_at: now, status: "pending".to_string() })
+        let file_path = format!("/backups/{}.tar.gz", id);
+        sqlx::query("INSERT INTO enhanced_backups (id, backup_type, size_bytes, storage_path, created_by, created_at, status) VALUES (?, ?, 0, ?, ?, ?, 'pending')")
+            .bind(&id).bind(backup_type).bind(&file_path).bind(&user.id).bind(now.to_rfc3339()).execute(&state.db_pool).await?;
+        Ok(Backup { id, backup_type: backup_type.to_string(), size_bytes: 0, created_by: Uuid::parse_str(&user.id).unwrap_or_default(), created_at: now, status: "pending".to_string(), file_path })
     }
     
     pub async fn list_backups(state: &AppState, user: &UserInfo) -> Result<Vec<Backup>> {
         let rows: Vec<crate::database::EnhancedBackup> = sqlx::query_as("SELECT * FROM enhanced_backups WHERE created_by = ? ORDER BY created_at DESC")
             .bind(&user.id).fetch_all(&state.db_pool).await?;
         Ok(rows.iter().map(|r| Backup {
-            id: r.id.clone(), backup_type: r.backup_type.clone(), size_bytes: r.size_bytes, created_by: r.created_by.clone(),
+            id: Uuid::parse_str(&r.id).unwrap_or_default(),
+            backup_type: r.backup_type.clone(),
+            size_bytes: r.size_bytes,
+            created_by: Uuid::parse_str(&r.created_by).unwrap_or_default(),
             created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
             status: r.status.clone(),
+            file_path: r.storage_path.clone(),
         }).collect())
     }
 }
@@ -166,12 +206,19 @@ pub mod collaboration {
     use crate::models::{FileLock, UserPresence};
     
     pub async fn acquire_lock(state: &AppState, user: &UserInfo, file_path: &str) -> Result<FileLock> {
-        let id = Uuid::new_v4().to_string();
+        let id = Uuid::new_v4();
         let now = Utc::now();
         let expires = now + chrono::Duration::minutes(30);
         sqlx::query("INSERT INTO file_locks (id, file_id, file_path, locked_by, locked_at, expires_at, lock_type, last_heartbeat) VALUES (?, ?, ?, ?, ?, ?, 'edit', ?)")
             .bind(&id).bind(file_path).bind(file_path).bind(&user.id).bind(now.to_rfc3339()).bind(expires.to_rfc3339()).bind(now.to_rfc3339()).execute(&state.db_pool).await?;
-        Ok(FileLock { id, file_id: file_path.to_string(), file_path: file_path.to_string(), locked_by: Uuid::parse_str(&user.id).unwrap_or_default(), locked_at: now, expires_at: expires })
+        Ok(FileLock {
+            id,
+            file_path: file_path.to_string(),
+            user_id: Uuid::parse_str(&user.id).unwrap_or_default(),
+            lock_type: "edit".to_string(),
+            acquired_at: now,
+            expires_at: expires,
+        })
     }
     
     pub async fn release_lock(state: &AppState, user: &UserInfo, file_path: &str) -> Result<()> {

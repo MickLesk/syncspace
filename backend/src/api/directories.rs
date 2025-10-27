@@ -9,7 +9,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::auth::User;
+use crate::auth::UserInfo;
 use crate::models::DirectoryInfo;
 use crate::services;
 use crate::AppState;
