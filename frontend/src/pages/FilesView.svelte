@@ -18,6 +18,10 @@
     onFileEvent,
     websocketManager,
   } from "../stores/websocket.js";
+  import PageWrapper from "../components/PageWrapper.svelte";
+  import ModernCard from "../components/ui/ModernCard.svelte";
+  import ModernButton from "../components/ui/ModernButton.svelte";
+  import Loading from "../components/Loading.svelte";
 
   let loading = $state(true);
   let uploading = $state(false);
@@ -975,162 +979,145 @@
 
 <svelte:window onclick={handleClickOutside} />
 
-<div
-  class="files-view"
-  ondragover={handleDragOver}
-  ondragleave={handleDragLeave}
-  ondrop={handleDrop}
-  role="main"
->
-  <!-- Toolbar -->
-  <div class="toolbar card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 mb-6 shadow-sm">
-    <div class="card-body p-4">
-      <div class="flex flex-wrap items-center gap-3">
-        <!-- Left: Actions -->
-        <div class="flex gap-2 flex-1">
-          <button
-            class="btn btn-primary gap-2"
-            onclick={() => uploadInput?.click()}
-          >
-            <i class="bi bi-upload"></i>
-            Upload
-          </button>
-          <button
-            class="btn btn-secondary gap-2"
-            onclick={() => (showNewFolderModal = true)}
-          >
-            <i class="bi bi-folder-plus"></i>
-            New Folder
-          </button>
-          <button class="btn btn-ghost gap-2" onclick={() => loadFiles()}
-            >>
-            <i class="bi bi-arrow-clockwise"></i>
-            Refresh
-          </button>
-        </div>
+<PageWrapper gradient fullHeight={false}>
+  <!-- Animated Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 
-        <!-- Right: Search and View Mode -->
-        <div class="flex items-center gap-3">
-          <!-- Search Section -->
-          <div class="flex items-center gap-2">
+  <div
+    class="relative z-10"
+    ondragover={handleDragOver}
+    ondragleave={handleDragLeave}
+    ondrop={handleDrop}
+    role="main"
+  >
+    <!-- Toolbar -->
+    <ModernCard variant="glass" class="mb-6">
+      {#snippet children()}
+        <div class="flex flex-wrap items-center gap-4">
+          <!-- Left: Actions -->
+          <div class="flex gap-2 flex-1">
+            <ModernButton
+              variant="gradient"
+              icon="upload"
+              onclick={() => uploadInput?.click()}
+            >
+              Upload
+            </ModernButton>
+            <ModernButton
+              variant="primary"
+              icon="folder-plus"
+              onclick={() => (showNewFolderModal = true)}
+            >
+              New Folder
+            </ModernButton>
+            <ModernButton
+              variant="ghost"
+              icon="arrow-clockwise"
+              onclick={() => loadFiles()}
+            >
+              Refresh
+            </ModernButton>
+          </div>
+
+          <!-- Right: Search and View Mode -->
+          <div class="flex items-center gap-3">
             <!-- Quick Search -->
-            <div class="form-control">
-              <div class="input-group">
-                <input
-                  type="text"
-                  placeholder="Quick search..."
-                  class="input input-sm input-bordered w-48"
-                  bind:value={searchQuery}
-                />
-                {#if searchQuery}
-                  <button
-                    class="btn btn-sm btn-ghost"
-                    onclick={() => (searchQuery = "")}
-                    aria-label="Clear search"
-                  >
-                    <i class="bi bi-x"></i>
-                  </button>
-                {/if}
-              </div>
+            <div class="relative">
+              <input
+                type="text"
+                placeholder="Quick search..."
+                class="input input-sm input-bordered glass-input w-48 pr-8"
+                bind:value={searchQuery}
+              />
+              {#if searchQuery}
+                <button
+                  class="btn btn-sm btn-ghost btn-circle absolute right-1 top-1/2 -translate-y-1/2"
+                  onclick={() => (searchQuery = "")}
+                  aria-label="Clear search"
+                >
+                  <i class="bi bi-x"></i>
+                </button>
+              {/if}
             </div>
 
             <!-- Advanced Search Button -->
-            <button
-              class="btn btn-sm btn-outline gap-2"
+            <ModernButton
+              variant="ghost"
+              size="sm"
+              icon="funnel"
               onclick={() => (showAdvancedSearchModal = true)}
             >
-              <i class="bi bi-funnel"></i>
               Advanced
-            </button>
+            </ModernButton>
 
             <!-- Clear Search Results -->
             {#if isSearchActive}
-              <button
-                class="btn btn-sm btn-warning gap-2"
+              <ModernButton
+                variant="secondary"
+                size="sm"
+                icon="x-circle"
                 onclick={clearSearch}
               >
-                <i class="bi bi-x-circle"></i>
                 Clear Search
-              </button>
+              </ModernButton>
             {/if}
           </div>
 
           <!-- Sort Dropdown -->
           <div class="dropdown dropdown-end">
-            <button
+            <ModernButton
+              variant="ghost"
+              size="sm"
+              icon="sort-down"
               tabindex="0"
-              class="btn btn-sm gap-2"
-              aria-label="Sort files"
             >
-              <i class="bi bi-sort-down"></i>
               <span class="hidden sm:inline">Sort</span>
-            </button>
+            </ModernButton>
             <ul
               role="menu"
-              class="dropdown-content z-[1] menu p-2 shadow bg-white dark:bg-slate-900 rounded-box w-52 mt-1"
+              class="dropdown-content z-[1] menu p-2 shadow glass-card rounded-box w-52 mt-1"
             >
               <li class="menu-title"><span>Sort By</span></li>
               <li>
                 <button
                   onclick={() => {
                     sortBy = "name";
-                    sortOrder =
-                      sortOrder === "asc" && sortBy === "name" ? "desc" : "asc";
+                    sortOrder = sortOrder === "asc" && sortBy === "name" ? "desc" : "asc";
                   }}
                 >
-                  <i
-                    class="bi bi-sort-alpha-{sortBy === 'name' &&
-                    sortOrder === 'asc'
-                      ? 'down'
-                      : 'up'}"
-                  ></i>
-                  Name {sortBy === "name"
-                    ? sortOrder === "asc"
-                      ? "(A-Z)"
-                      : "(Z-A)"
-                    : ""}
+                  <i class="bi bi-sort-alpha-{sortBy === 'name' && sortOrder === 'asc' ? 'down' : 'up'}"></i>
+                  Name {sortBy === "name" ? sortOrder === "asc" ? "(A-Z)" : "(Z-A)" : ""}
                 </button>
               </li>
               <li>
                 <button
                   onclick={() => {
                     sortBy = "modified";
-                    sortOrder =
-                      sortOrder === "asc" && sortBy === "modified"
-                        ? "desc"
-                        : "asc";
+                    sortOrder = sortOrder === "asc" && sortBy === "modified" ? "desc" : "asc";
                   }}
                 >
                   <i class="bi bi-clock-history"></i>
-                  Modified {sortBy === "modified"
-                    ? sortOrder === "desc"
-                      ? "(Newest)"
-                      : "(Oldest)"
-                    : ""}
+                  Modified {sortBy === "modified" ? sortOrder === "desc" ? "(Newest)" : "(Oldest)" : ""}
                 </button>
               </li>
               <li>
                 <button
                   onclick={() => {
                     sortBy = "size";
-                    sortOrder =
-                      sortOrder === "asc" && sortBy === "size" ? "desc" : "asc";
+                    sortOrder = sortOrder === "asc" && sortBy === "size" ? "desc" : "asc";
                   }}
                 >
                   <i class="bi bi-file-earmark-bar-graph"></i>
-                  Size {sortBy === "size"
-                    ? sortOrder === "desc"
-                      ? "(Largest)"
-                      : "(Smallest)"
-                    : ""}
+                  Size {sortBy === "size" ? sortOrder === "desc" ? "(Largest)" : "(Smallest)" : ""}
                 </button>
               </li>
               <li>
                 <button
                   onclick={() => {
                     sortBy = "type";
-                    sortOrder =
-                      sortOrder === "asc" && sortBy === "type" ? "desc" : "asc";
+                    sortOrder = sortOrder === "asc" && sortBy === "type" ? "desc" : "asc";
                   }}
                 >
                   <i class="bi bi-file-earmark-code"></i>
@@ -1158,34 +1145,53 @@
 
           <!-- View Mode -->
           <div class="join">
-            <button
-              class="btn btn-sm join-item {viewMode === 'grid'
-                ? 'btn-active'
-                : ''}"
+            <ModernButton
+              variant={viewMode === "grid" ? "primary" : "ghost"}
+              size="sm"
+              icon="grid-3x3"
+              class="join-item"
               onclick={() => (viewMode = "grid")}
-              aria-label="Grid view"
-            >
-              <i class="bi bi-grid-3x3"></i>
-            </button>
-            <button
-              class="btn btn-sm join-item {viewMode === 'list'
-                ? 'btn-active'
-                : ''}"
+            />
+            <ModernButton
+              variant={viewMode === "list" ? "primary" : "ghost"}
+              size="sm"
+              icon="list-ul"
+              class="join-item"
               onclick={() => (viewMode = "list")}
-              aria-label="List view"
-            >
-              <i class="bi bi-list-ul"></i>
-            </button>
+            />
           </div>
         </div>
       </div>
-    </div>
-  </div>
+      {/snippet}
+    </ModernCard>
 
-  <!-- Batch Action Toolbar (appears when files are selected) -->
-  {#if selectionMode && selectedFiles.length > 0}
-    <div
-      class="alert alert-info shadow-lg mb-6 rounded-xl border-2 border-primary/30"
+    <!-- Batch Action Toolbar -->
+    {#if selectionMode && selectedFiles.length > 0}
+      <div class="glass-card-light border-l-4 border-primary p-4 mb-6 animate-slide-up">
+        <div class="flex items-center gap-3">
+          <i class="bi bi-check-square text-2xl text-primary"></i>
+          <div class="flex-1">
+            <h3 class="font-bold text-lg">{selectedFiles.length} file(s) selected</h3>
+            <div class="text-sm opacity-70">Ctrl+Click to select more, Shift+Click for range</div>
+          </div>
+          <div class="flex gap-2">
+            <ModernButton variant="success" size="sm" icon="check-all" onclick={selectAllFiles}>
+              Select All
+            </ModernButton>
+            <ModernButton variant="ghost" size="sm" icon="x-circle" onclick={deselectAllFiles}>
+              Clear
+            </ModernButton>
+            <div class="divider divider-horizontal mx-2"></div>
+            <ModernButton variant="primary" size="sm" icon="download" onclick={handleBatchDownload}>
+              Download
+            </ModernButton>
+            <ModernButton variant="danger" size="sm" icon="trash3" onclick={handleBatchDelete}>
+              Delete
+            </ModernButton>
+          </div>
+        </div>
+      </div>
+    {/if}
     >
       <div class="flex items-center gap-3">
         <i class="bi bi-check-square text-2xl"></i>

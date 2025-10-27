@@ -60,7 +60,9 @@
       deletedDate.getTime() + file.autoDeleteDays * 24 * 60 * 60 * 1000
     );
     const now = new Date();
-    const daysLeft = Math.ceil((autoDeleteDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const daysLeft = Math.ceil(
+      (autoDeleteDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    );
     return Math.max(0, daysLeft);
   }
 
@@ -199,7 +201,9 @@
   <div class="mb-8 relative z-10">
     <div class="flex justify-between items-start mb-4">
       <div>
-        <h1 class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3">
+        <h1
+          class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3"
+        >
           <i class="bi bi-trash3-fill"></i>
           Trash
         </h1>
@@ -225,9 +229,12 @@
           <ModernButton
             variant="danger"
             icon="x-circle"
-            onclick={() => openDeleteModal(selectedFiles.size > 0 ? "selected" : "all")}
+            onclick={() =>
+              openDeleteModal(selectedFiles.size > 0 ? "selected" : "all")}
           >
-            {selectedFiles.size > 0 ? `Delete (${selectedFiles.size})` : "Empty Trash"}
+            {selectedFiles.size > 0
+              ? `Delete (${selectedFiles.size})`
+              : "Empty Trash"}
           </ModernButton>
         </div>
       {/if}
@@ -240,12 +247,16 @@
           <input
             type="checkbox"
             class="checkbox checkbox-sm checkbox-primary"
-            checked={selectedFiles.size === trashedFiles.length && trashedFiles.length > 0}
-            indeterminate={selectedFiles.size > 0 && selectedFiles.size < trashedFiles.length}
+            checked={selectedFiles.size === trashedFiles.length &&
+              trashedFiles.length > 0}
+            indeterminate={selectedFiles.size > 0 &&
+              selectedFiles.size < trashedFiles.length}
             onchange={toggleSelectAll}
           />
           <span class="text-sm font-semibold">
-            {selectedFiles.size > 0 ? `${selectedFiles.size} selected` : "Select all"}
+            {selectedFiles.size > 0
+              ? `${selectedFiles.size} selected`
+              : "Select all"}
           </span>
         </label>
 
@@ -276,11 +287,13 @@
           </div>
           <h3 class="text-2xl font-bold mb-3">Trash is Empty</h3>
           <p class="text-base-content/60 mb-6 max-w-md mx-auto">
-            Deleted files will appear here. You can restore them or permanently delete them.
+            Deleted files will appear here. You can restore them or permanently
+            delete them.
           </p>
           <div class="glass-card-light max-w-md mx-auto p-6 text-left">
             <div class="flex gap-3">
-              <i class="bi bi-info-circle-fill text-info text-2xl flex-shrink-0"></i>
+              <i class="bi bi-info-circle-fill text-info text-2xl flex-shrink-0"
+              ></i>
               <div>
                 <p class="font-semibold text-sm mb-1">Auto-delete in 30 days</p>
                 <p class="text-xs text-base-content/70">
@@ -318,7 +331,11 @@
             </thead>
             <tbody>
               {#each trashedFiles as file, i (file.id)}
-                <tr class:selected={selectedFiles.has(file.id)} class="animate-slide-up" style="animation-delay: {i * 30}ms;">
+                <tr
+                  class:selected={selectedFiles.has(file.id)}
+                  class="animate-slide-up"
+                  style="animation-delay: {i * 30}ms;"
+                >
                   <td>
                     <input
                       type="checkbox"
@@ -349,7 +366,9 @@
                     </span>
                   </td>
                   <td>
-                    <span class="badge {getAutoDeleteBadge(file).class} badge-sm">
+                    <span
+                      class="badge {getAutoDeleteBadge(file).class} badge-sm"
+                    >
                       <i class="bi bi-clock-history mr-1"></i>
                       {getAutoDeleteBadge(file).text}
                     </span>
@@ -386,55 +405,66 @@
 
 <!-- Permanent Delete Warning Modal -->
 {#if showDeleteModal}
-  <div 
-    class="modal modal-open" 
+  <div
+    class="modal modal-open"
     onclick={closeDeleteModal}
-    onkeydown={(e) => e.key === 'Escape' && closeDeleteModal()}
+    onkeydown={(e) => e.key === "Escape" && closeDeleteModal()}
     role="button"
     tabindex="0"
   >
-    <div 
-      class="modal-box max-w-2xl" 
+    <div
+      class="modal-box max-w-2xl glass-card"
       onclick={(e) => e.stopPropagation()}
       onkeydown={(e) => e.stopPropagation()}
       role="dialog"
       tabindex="0"
     >
-      <h3 class="font-bold text-lg mb-4 text-error">
+      <h3 class="font-bold text-2xl mb-6 text-error flex items-center gap-2">
         <i class="bi bi-exclamation-triangle-fill"></i>
         Permanent Delete Warning
       </h3>
 
-      <!-- Warning Message -->
-      <div class="alert alert-error mb-4">
-        <i class="bi bi-exclamation-octagon-fill text-2xl"></i>
-        <div>
-          <p class="font-semibold">This action cannot be undone!</p>
-          <p class="text-sm opacity-90">
-            Files will be permanently deleted and cannot be recovered.
-          </p>
+      <!-- Warning Alert -->
+      <div class="glass-card-light border-l-4 border-error p-4 mb-6">
+        <div class="flex gap-4">
+          <i
+            class="bi bi-exclamation-octagon-fill text-error text-3xl flex-shrink-0"
+          ></i>
+          <div>
+            <p class="font-bold text-error mb-1">
+              This action cannot be undone!
+            </p>
+            <p class="text-sm text-base-content/70">
+              Files will be permanently deleted and cannot be recovered.
+            </p>
+          </div>
         </div>
       </div>
 
       <!-- Delete Details -->
-      <div class="delete-details">
-        <p class="text-base-content/80 mb-3">
+      <div class="glass-card-light p-6 mb-6">
+        <p class="text-base-content/80 mb-4 font-semibold">
           You are about to permanently delete:
         </p>
 
         {#if deleteTarget === "single" && deleteTargetFile}
-          <div class="file-preview">
-            <i class="{getFileIcon(deleteTargetFile.name)} text-3xl"></i>
-            <div>
-              <p class="font-semibold">{deleteTargetFile.name}</p>
+          <div
+            class="flex items-center gap-4 p-4 bg-base-100/50 rounded-lg border border-base-300"
+          >
+            <i class="{getFileIcon(deleteTargetFile.name)} text-4xl"></i>
+            <div class="flex-1">
+              <p class="font-bold">{deleteTargetFile.name}</p>
               <p class="text-sm text-base-content/60">
                 {formatBytes(deleteTargetFile.size)} • {deleteTargetFile.originalPath}
               </p>
             </div>
           </div>
         {:else if deleteTarget === "selected"}
-          <div class="stats shadow">
+          <div class="stats shadow w-full">
             <div class="stat">
+              <div class="stat-figure text-error">
+                <i class="bi bi-files text-4xl"></i>
+              </div>
               <div class="stat-title">Selected Files</div>
               <div class="stat-value text-error">{selectedFiles.size}</div>
               <div class="stat-desc">
@@ -447,31 +477,35 @@
             </div>
           </div>
         {:else if deleteTarget === "all"}
-          <div class="stats shadow">
+          <div class="stats shadow w-full">
             <div class="stat">
+              <div class="stat-figure text-error">
+                <i class="bi bi-trash3-fill text-4xl"></i>
+              </div>
               <div class="stat-title">All Trashed Files</div>
               <div class="stat-value text-error">{trashedFiles.length}</div>
-              <div class="stat-desc">
-                Total: {formatBytes(totalSize)}
-              </div>
+              <div class="stat-desc">Total: {formatBytes(totalSize)}</div>
             </div>
           </div>
         {/if}
       </div>
 
       <!-- Confirmation Checklist -->
-      <div class="confirmation-checklist">
-        <p class="font-semibold mb-2">Before you proceed:</p>
-        <ul class="space-y-1 text-sm text-base-content/70">
-          <li>
+      <div class="glass-card-light border-l-4 border-warning p-4 mb-6">
+        <p class="font-bold mb-3 flex items-center gap-2">
+          <i class="bi bi-check2-all text-warning"></i>
+          Before you proceed:
+        </p>
+        <ul class="space-y-2">
+          <li class="flex items-center gap-2 text-sm">
             <i class="bi bi-check2-circle text-warning"></i>
             I understand these files will be permanently deleted
           </li>
-          <li>
+          <li class="flex items-center gap-2 text-sm">
             <i class="bi bi-check2-circle text-warning"></i>
             I have confirmed I don't need these files anymore
           </li>
-          <li>
+          <li class="flex items-center gap-2 text-sm">
             <i class="bi bi-check2-circle text-warning"></i>
             I understand this action cannot be undone
           </li>
@@ -479,157 +513,31 @@
       </div>
 
       <div class="modal-action">
-        <button class="btn btn-ghost" onclick={closeDeleteModal}>Cancel</button>
-        <button class="btn btn-error gap-2" onclick={confirmDelete}>
-          <i class="bi bi-trash-fill"></i>
+        <ModernButton variant="ghost" onclick={closeDeleteModal}>
+          Cancel
+        </ModernButton>
+        <ModernButton
+          variant="danger"
+          icon="trash-fill"
+          onclick={confirmDelete}
+        >
           Yes, Delete Permanently
-        </button>
+        </ModernButton>
       </div>
     </div>
   </div>
 {/if}
 
 <style>
-  .trash-view {
-    padding: 0;
-    min-height: calc(100vh - 200px);
-  }
-
-  .trash-header {
-    background: hsl(var(--b1));
-    border-bottom: 1px solid hsl(var(--bc) / 0.1);
-    padding: 2rem;
-    margin: -2rem -2rem 2rem -2rem;
-  }
-
-  .header-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 0.75rem;
-  }
-
-  .bulk-select-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background: hsl(var(--b2));
-    border-radius: var(--rounded-btn);
-  }
-
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 400px;
-    text-align: center;
-    padding: 2rem;
-  }
-
-  .empty-icon {
-    font-size: 5rem;
-    color: hsl(var(--bc) / 0.2);
-  }
-
-  .trash-table-container {
-    background: hsl(var(--b1));
-    border-radius: var(--rounded-box);
-    overflow: hidden;
-    border: 1px solid hsl(var(--bc) / 0.1);
-    margin: 0 2rem 2rem 2rem;
-  }
-
-  .table :where(th, td) {
-    padding: 1rem;
-  }
-
   .table tbody tr.selected {
     background: hsl(var(--p) / 0.1);
   }
 
   .table tbody tr:hover {
-    background: hsl(var(--b2));
+    background: hsl(var(--b2) / 0.5);
   }
 
   .table tbody tr.selected:hover {
     background: hsl(var(--p) / 0.15);
-  }
-
-  /* Delete Modal */
-  .delete-details {
-    background: hsl(var(--b2));
-    padding: 1.5rem;
-    border-radius: var(--rounded-box);
-    margin-bottom: 1.5rem;
-  }
-
-  .file-preview {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: hsl(var(--b1));
-    border-radius: var(--rounded-btn);
-    border: 1px solid hsl(var(--bc) / 0.1);
-  }
-
-  .confirmation-checklist {
-    background: hsl(var(--wa) / 0.1);
-    padding: 1rem;
-    border-radius: var(--rounded-box);
-    border-left: 4px solid hsl(var(--wa));
-    margin-bottom: 1.5rem;
-  }
-
-  .confirmation-checklist ul {
-    list-style: none;
-    padding-left: 0;
-  }
-
-  .confirmation-checklist li {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .confirmation-checklist li i {
-    font-size: 1.25rem;
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .trash-header {
-      padding: 1.5rem;
-      margin: -1.5rem -1.5rem 1.5rem -1.5rem;
-    }
-
-    .header-top {
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .header-actions {
-      width: 100%;
-      flex-direction: column;
-    }
-
-    .trash-table-container {
-      margin: 0 1rem 1rem 1rem;
-    }
-
-    .table {
-      font-size: 0.875rem;
-    }
-
-    .table :where(th, td) {
-      padding: 0.75rem 0.5rem;
-    }
   }
 </style>

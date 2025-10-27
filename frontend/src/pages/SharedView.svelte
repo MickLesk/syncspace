@@ -1,6 +1,10 @@
 <script>
   import { onMount } from "svelte";
   import api from "../lib/api.js";
+  import PageWrapper from "../components/PageWrapper.svelte";
+  import ModernCard from "../components/ui/ModernCard.svelte";
+  import ModernButton from "../components/ui/ModernButton.svelte";
+  import Loading from "../components/Loading.svelte";
 
   let shares = $state([]);
   let loading = $state(true);
@@ -9,12 +13,12 @@
   let showEditModal = $state(false);
   let showDeleteModal = $state(false);
   let selectedShare = $state(null);
-  
+
   let newShare = $state({
     file_path: "",
     permissions: "read",
     expires_at: "",
-    password: ""
+    password: "",
   });
 
   onMount(async () => {
@@ -42,9 +46,9 @@
         file_path: newShare.file_path,
         permissions: newShare.permissions,
         expires_at: newShare.expires_at || null,
-        password: newShare.password || null
+        password: newShare.password || null,
       };
-      
+
       await api.shares.create(shareData);
       showCreateModal = false;
       resetForm();
@@ -57,13 +61,13 @@
 
   async function handleUpdateShare() {
     if (!selectedShare) return;
-    
+
     try {
       const updates = {
         permissions: selectedShare.permissions,
-        expires_at: selectedShare.expires_at || null
+        expires_at: selectedShare.expires_at || null,
       };
-      
+
       await api.shares.update(selectedShare.id, updates);
       showEditModal = false;
       selectedShare = null;
@@ -76,7 +80,7 @@
 
   async function handleDeleteShare() {
     if (!selectedShare) return;
-    
+
     try {
       await api.shares.delete(selectedShare.id);
       showDeleteModal = false;
@@ -103,7 +107,7 @@
       file_path: "",
       permissions: "read",
       expires_at: "",
-      password: ""
+      password: "",
     };
   }
 
@@ -123,155 +127,228 @@
   }
 </script>
 
-<div class="shared-view">
-  <div class="page-header">
-    <h1 class="page-title">Shared Files</h1>
-    <button class="btn btn-primary" onclick={() => showCreateModal = true}>
-      <i class="bi bi-plus-circle"></i>
+<PageWrapper gradient>
+  <!-- Animated Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- Page Header -->
+  <div class="flex justify-between items-start mb-8 relative z-10">
+    <div>
+      <h1
+        class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3"
+      >
+        <i class="bi bi-share-fill"></i>
+        Shared Files
+      </h1>
+      <p class="text-base-content/70">Manage file sharing and collaboration</p>
+    </div>
+    <ModernButton
+      variant="gradient"
+      icon="plus-circle"
+      onclick={() => (showCreateModal = true)}
+    >
       Create Share
-    </button>
+    </ModernButton>
   </div>
 
   {#if error}
-    <div class="alert alert-error mb-4">
-      <i class="bi bi-exclamation-triangle"></i>
-      {error}
+    <div class="glass-card-light border-l-4 border-error p-4 mb-6">
+      <div class="flex gap-3">
+        <i class="bi bi-exclamation-triangle text-error text-2xl"></i>
+        <p class="font-semibold">{error}</p>
+      </div>
     </div>
   {/if}
 
   {#if loading}
-    <div class="loading-container">
-      <span class="loading loading-spinner loading-lg"></span>
-      <p>Loading shares...</p>
-    </div>
+    <Loading />
   {:else if shares.length === 0}
-    <div class="empty-state">
-      <i class="bi bi-share"></i>
-      <h2>No shares yet</h2>
-      <p>Create your first share to collaborate with others</p>
-      <button class="btn btn-primary" onclick={() => showCreateModal = true}>
-        Create Share
-      </button>
-    </div>
+    <ModernCard variant="glass" class="text-center py-16">
+      {#snippet children()}
+        <div class="animate-fade-in">
+          <div class="text-primary/30 mb-6">
+            <i class="bi bi-share text-8xl"></i>
+          </div>
+          <h2 class="text-2xl font-bold mb-3">No shares yet</h2>
+          <p class="text-base-content/60 mb-6">
+            Create your first share to collaborate with others
+          </p>
+          <ModernButton
+            variant="gradient"
+            icon="plus-circle"
+            onclick={() => (showCreateModal = true)}
+          >
+            Create Share
+          </ModernButton>
+        </div>
+      {/snippet}
+    </ModernCard>
   {:else}
-    <div class="shares-table-container">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>File Path</th>
-            <th>Permissions</th>
-            <th>Expires</th>
-            <th>Created</th>
-            <th>Protected</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each shares as share (share.id)}
-            <tr class:expired={isExpired(share.expires_at)}>
-              <td class="file-path">{share.file_path}</td>
-              <td>
-                <span class="badge badge-{share.permissions === 'read' ? 'info' : 'warning'}">
-                  {share.permissions}
-                </span>
-              </td>
-              <td>{formatDate(share.expires_at)}</td>
-              <td>{formatDate(share.created_at)}</td>
-              <td>
-                {#if share.password_hash}
-                  <i class="bi bi-lock-fill text-warning"></i>
-                {:else}
-                  <i class="bi bi-unlock text-muted"></i>
-                {/if}
-              </td>
-              <td class="actions">
-                <button 
-                  class="btn btn-sm btn-ghost"
-                  onclick={() => copyShareLink(share.id)}
-                  title="Copy Link"
+    <ModernCard variant="glass">
+      {#snippet children()}
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>File Path</th>
+                <th>Permissions</th>
+                <th>Expires</th>
+                <th>Created</th>
+                <th>Protected</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each shares as share, i (share.id)}
+                <tr
+                  class:expired={isExpired(share.expires_at)}
+                  class="animate-slide-up"
+                  style="animation-delay: {i * 30}ms;"
                 >
-                  <i class="bi bi-clipboard"></i>
-                </button>
-                <button 
-                  class="btn btn-sm btn-ghost"
-                  onclick={() => openEditModal(share)}
-                  title="Edit"
-                >
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button 
-                  class="btn btn-sm btn-ghost btn-error"
-                  onclick={() => openDeleteModal(share)}
-                  title="Delete"
-                >
-                  <i class="bi bi-trash"></i>
-                </button>
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
+                  <td class="font-mono text-sm text-primary"
+                    >{share.file_path}</td
+                  >
+                  <td>
+                    <span
+                      class="badge badge-glass-{share.permissions === 'read'
+                        ? 'info'
+                        : 'warning'}"
+                    >
+                      {share.permissions}
+                    </span>
+                  </td>
+                  <td>{formatDate(share.expires_at)}</td>
+                  <td>{formatDate(share.created_at)}</td>
+                  <td>
+                    {#if share.password_hash}
+                      <i
+                        class="bi bi-lock-fill text-warning text-lg"
+                        title="Password protected"
+                      ></i>
+                    {:else}
+                      <i
+                        class="bi bi-unlock text-base-content/30 text-lg"
+                        title="No password"
+                      ></i>
+                    {/if}
+                  </td>
+                  <td>
+                    <div class="flex gap-2">
+                      <ModernButton
+                        variant="ghost"
+                        size="sm"
+                        icon="clipboard"
+                        onclick={() => copyShareLink(share.id)}
+                      >
+                        Copy
+                      </ModernButton>
+                      <ModernButton
+                        variant="ghost"
+                        size="sm"
+                        icon="pencil"
+                        onclick={() => openEditModal(share)}
+                      >
+                        Edit
+                      </ModernButton>
+                      <ModernButton
+                        variant="danger"
+                        size="sm"
+                        icon="trash"
+                        onclick={() => openDeleteModal(share)}
+                      >
+                        Delete
+                      </ModernButton>
+                    </div>
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {/snippet}
+    </ModernCard>
   {/if}
-</div>
+</PageWrapper>
 
 {#if showCreateModal}
   <div class="modal modal-open">
-    <div class="modal-box">
-      <h3 class="font-bold text-lg mb-4">Create New Share</h3>
-      
-      <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text">File Path</span>
-        </label>
-        <input 
-          type="text" 
-          class="input input-bordered" 
-          bind:value={newShare.file_path}
-          placeholder="/path/to/file"
-        />
+    <div class="modal-box glass-card max-w-2xl">
+      <h3
+        class="font-bold text-2xl mb-6 gradient-text-primary flex items-center gap-2"
+      >
+        <i class="bi bi-plus-circle-fill"></i>
+        Create New Share
+      </h3>
+
+      <div class="space-y-4">
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">File Path</span>
+          </label>
+          <input
+            type="text"
+            class="input input-bordered glass-input"
+            bind:value={newShare.file_path}
+            placeholder="/path/to/file"
+          />
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">Permissions</span>
+          </label>
+          <select
+            class="select select-bordered glass-input"
+            bind:value={newShare.permissions}
+          >
+            <option value="read">Read Only</option>
+            <option value="write">Read & Write</option>
+          </select>
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">Expires At (Optional)</span>
+          </label>
+          <input
+            type="datetime-local"
+            class="input input-bordered glass-input"
+            bind:value={newShare.expires_at}
+          />
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">Password (Optional)</span>
+          </label>
+          <input
+            type="password"
+            class="input input-bordered glass-input"
+            bind:value={newShare.password}
+            placeholder="Leave empty for no password"
+          />
+        </div>
       </div>
 
-      <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text">Permissions</span>
-        </label>
-        <select class="select select-bordered" bind:value={newShare.permissions}>
-          <option value="read">Read Only</option>
-          <option value="write">Read & Write</option>
-        </select>
-      </div>
-
-      <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text">Expires At (Optional)</span>
-        </label>
-        <input 
-          type="datetime-local" 
-          class="input input-bordered" 
-          bind:value={newShare.expires_at}
-        />
-      </div>
-
-      <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text">Password (Optional)</span>
-        </label>
-        <input 
-          type="password" 
-          class="input input-bordered" 
-          bind:value={newShare.password}
-          placeholder="Leave empty for no password"
-        />
-      </div>
-
-      <div class="modal-action">
-        <button class="btn" onclick={() => { showCreateModal = false; resetForm(); }}>
+      <div class="modal-action mt-6">
+        <ModernButton
+          variant="ghost"
+          onclick={() => {
+            showCreateModal = false;
+            resetForm();
+          }}
+        >
           Cancel
-        </button>
-        <button class="btn btn-primary" onclick={handleCreateShare}>
+        </ModernButton>
+        <ModernButton
+          variant="gradient"
+          icon="plus-circle"
+          onclick={handleCreateShare}
+        >
           Create Share
-        </button>
+        </ModernButton>
       </div>
     </div>
   </div>
@@ -279,49 +356,74 @@
 
 {#if showEditModal && selectedShare}
   <div class="modal modal-open">
-    <div class="modal-box">
-      <h3 class="font-bold text-lg mb-4">Edit Share</h3>
-      
-      <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text">File Path</span>
-        </label>
-        <input 
-          type="text" 
-          class="input input-bordered" 
-          value={selectedShare.file_path}
-          disabled
-        />
+    <div class="modal-box glass-card max-w-2xl">
+      <h3
+        class="font-bold text-2xl mb-6 gradient-text-primary flex items-center gap-2"
+      >
+        <i class="bi bi-pencil-fill"></i>
+        Edit Share
+      </h3>
+
+      <div class="space-y-4">
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">File Path</span>
+          </label>
+          <input
+            type="text"
+            class="input input-bordered glass-input"
+            value={selectedShare.file_path}
+            disabled
+          />
+          <label class="label">
+            <span class="label-text-alt opacity-70"
+              >File path cannot be changed</span
+            >
+          </label>
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">Permissions</span>
+          </label>
+          <select
+            class="select select-bordered glass-input"
+            bind:value={selectedShare.permissions}
+          >
+            <option value="read">Read Only</option>
+            <option value="write">Read & Write</option>
+          </select>
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">Expires At</span>
+          </label>
+          <input
+            type="datetime-local"
+            class="input input-bordered glass-input"
+            bind:value={selectedShare.expires_at}
+          />
+        </div>
       </div>
 
-      <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text">Permissions</span>
-        </label>
-        <select class="select select-bordered" bind:value={selectedShare.permissions}>
-          <option value="read">Read Only</option>
-          <option value="write">Read & Write</option>
-        </select>
-      </div>
-
-      <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text">Expires At</span>
-        </label>
-        <input 
-          type="datetime-local" 
-          class="input input-bordered" 
-          bind:value={selectedShare.expires_at}
-        />
-      </div>
-
-      <div class="modal-action">
-        <button class="btn" onclick={() => { showEditModal = false; selectedShare = null; }}>
+      <div class="modal-action mt-6">
+        <ModernButton
+          variant="ghost"
+          onclick={() => {
+            showEditModal = false;
+            selectedShare = null;
+          }}
+        >
           Cancel
-        </button>
-        <button class="btn btn-primary" onclick={handleUpdateShare}>
+        </ModernButton>
+        <ModernButton
+          variant="primary"
+          icon="check-circle"
+          onclick={handleUpdateShare}
+        >
           Save Changes
-        </button>
+        </ModernButton>
       </div>
     </div>
   </div>
@@ -329,147 +431,53 @@
 
 {#if showDeleteModal && selectedShare}
   <div class="modal modal-open">
-    <div class="modal-box">
-      <h3 class="font-bold text-lg mb-4">Delete Share</h3>
-      <p class="mb-4">
-        Are you sure you want to delete the share for <strong>{selectedShare.file_path}</strong>? 
-        This action cannot be undone.
-      </p>
+    <div class="modal-box glass-card">
+      <h3 class="font-bold text-2xl mb-6 text-error flex items-center gap-2">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        Delete Share
+      </h3>
+
+      <div class="glass-card-light border-l-4 border-error p-4 mb-4">
+        <p>
+          Are you sure you want to delete the share for <strong
+            class="font-mono text-primary">{selectedShare.file_path}</strong
+          >?
+        </p>
+        <p class="text-sm text-base-content/70 mt-2">
+          This action cannot be undone.
+        </p>
+      </div>
 
       <div class="modal-action">
-        <button class="btn" onclick={() => { showDeleteModal = false; selectedShare = null; }}>
+        <ModernButton
+          variant="ghost"
+          onclick={() => {
+            showDeleteModal = false;
+            selectedShare = null;
+          }}
+        >
           Cancel
-        </button>
-        <button class="btn btn-error" onclick={handleDeleteShare}>
-          Delete
-        </button>
+        </ModernButton>
+        <ModernButton
+          variant="danger"
+          icon="trash-fill"
+          onclick={handleDeleteShare}
+        >
+          Delete Share
+        </ModernButton>
       </div>
     </div>
   </div>
 {/if}
 
 <style>
-  .shared-view {
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-
-  .page-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--md-sys-color-on-surface);
-  }
-
-  .loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem;
-    gap: 1rem;
-  }
-
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem;
-    text-align: center;
-    gap: 1rem;
-  }
-
-  .empty-state i {
-    font-size: 4rem;
-    opacity: 0.3;
-  }
-
-  .empty-state h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .empty-state p {
-    color: var(--md-sys-color-on-surface-variant);
-    margin: 0;
-  }
-
-  .shares-table-container {
-    background: var(--md-sys-color-surface-container);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: var(--md-sys-elevation-1);
-  }
-
-  .table {
-    width: 100%;
-  }
-
-  .table th {
-    background: var(--md-sys-color-surface-container-high);
-    color: var(--md-sys-color-on-surface-variant);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
-    padding: 1rem;
-  }
-
-  .table td {
-    padding: 1rem;
-    border-bottom: 1px solid var(--md-sys-color-outline-variant);
-  }
-
-  .table tr:last-child td {
-    border-bottom: none;
-  }
-
   .table tr.expired {
     opacity: 0.5;
+    text-decoration: line-through;
   }
 
-  .file-path {
-    font-family: 'Courier New', monospace;
-    color: var(--md-sys-color-primary);
-  }
-
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-
-  .badge-info {
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-  }
-
-  .badge-warning {
-    background: var(--md-sys-color-tertiary-container);
-    color: var(--md-sys-color-on-tertiary-container);
-  }
-
-  .text-warning {
-    color: var(--md-sys-color-tertiary);
-  }
-
-  .text-muted {
-    opacity: 0.5;
+  .glass-input {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
   }
 </style>

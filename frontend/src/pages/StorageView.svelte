@@ -219,23 +219,36 @@
   {:else}
     <!-- Page Header -->
     <div class="mb-8 relative z-10">
-      <h1 class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3">
+      <h1
+        class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3"
+      >
         <i class="bi bi-pie-chart-fill"></i>
         Storage Analytics
       </h1>
-      <p class="text-base-content/70">Complete overview of your disk usage and file distribution</p>
+      <p class="text-base-content/70">
+        Complete overview of your disk usage and file distribution
+      </p>
     </div>
 
     <!-- System Disk Usage -->
-    <ModernCard variant="glass" title="System Disk Usage" icon="device-hdd-fill" class="mb-6">
+    <ModernCard
+      variant="glass"
+      title="System Disk Usage"
+      icon="device-hdd-fill"
+      class="mb-6"
+    >
       {#snippet children()}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div class="glass-card-light p-6 text-center">
             <div class="text-primary mb-2">
               <i class="bi bi-pie-chart-fill text-4xl"></i>
             </div>
-            <div class="text-sm font-semibold text-base-content/60 mb-1">Disk Capacity</div>
-            <div class="text-3xl font-bold text-primary mb-2">{diskTotalFormatted}</div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">
+              Disk Capacity
+            </div>
+            <div class="text-3xl font-bold text-primary mb-2">
+              {diskTotalFormatted}
+            </div>
             <div class="text-xs text-base-content/50">
               {diskStats.filesystem} @ {diskStats.mount_point}
             </div>
@@ -245,8 +258,12 @@
             <div class="text-error mb-2">
               <i class="bi bi-exclamation-triangle-fill text-4xl"></i>
             </div>
-            <div class="text-sm font-semibold text-base-content/60 mb-1">Used Space</div>
-            <div class="text-3xl font-bold text-error mb-2">{diskUsedFormatted}</div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">
+              Used Space
+            </div>
+            <div class="text-3xl font-bold text-error mb-2">
+              {diskUsedFormatted}
+            </div>
             <div class="text-xs text-base-content/50">
               {diskStats.usage_percent.toFixed(1)}% of total
             </div>
@@ -256,8 +273,12 @@
             <div class="text-success mb-2">
               <i class="bi bi-check-circle-fill text-4xl"></i>
             </div>
-            <div class="text-sm font-semibold text-base-content/60 mb-1">Available</div>
-            <div class="text-3xl font-bold text-success mb-2">{diskAvailableFormatted}</div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">
+              Available
+            </div>
+            <div class="text-3xl font-bold text-success mb-2">
+              {diskAvailableFormatted}
+            </div>
             <div class="text-xs text-base-content/50">Free for new files</div>
           </div>
         </div>
@@ -269,7 +290,12 @@
               <i class="bi bi-pie-chart-fill text-primary"></i>
               Disk Distribution
             </h3>
-            <Chart data={diskChartData} type="doughnut" size="md" title="Total" />
+            <Chart
+              data={diskChartData}
+              type="doughnut"
+              size="md"
+              title="Total"
+            />
           </div>
 
           <!-- Capacity Progress -->
@@ -281,7 +307,9 @@
             <div class="space-y-4">
               <div class="flex justify-between">
                 <span class="text-sm font-semibold">Disk Usage</span>
-                <span class="text-sm font-semibold">{diskStats.usage_percent.toFixed(1)}%</span>
+                <span class="text-sm font-semibold"
+                  >{diskStats.usage_percent.toFixed(1)}%</span
+                >
               </div>
               <progress
                 class="progress {diskStats.usage_percent > 90
@@ -296,11 +324,15 @@
               <div class="grid grid-cols-2 gap-4 mt-6">
                 <div class="text-center">
                   <div class="text-xs text-base-content/60 mb-1">Used</div>
-                  <div class="text-xl font-bold text-error">{diskUsedFormatted}</div>
+                  <div class="text-xl font-bold text-error">
+                    {diskUsedFormatted}
+                  </div>
                 </div>
                 <div class="text-center">
                   <div class="text-xs text-base-content/60 mb-1">Free</div>
-                  <div class="text-xl font-bold text-success">{diskAvailableFormatted}</div>
+                  <div class="text-xl font-bold text-success">
+                    {diskAvailableFormatted}
+                  </div>
                 </div>
               </div>
             </div>
@@ -317,8 +349,12 @@
             <div class="text-primary mb-3">
               <i class="bi bi-files text-5xl"></i>
             </div>
-            <div class="text-sm font-semibold text-base-content/60 mb-1">Total Files</div>
-            <div class="text-4xl font-bold mb-2">{stats.totalFiles.toLocaleString()}</div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">
+              Total Files
+            </div>
+            <div class="text-4xl font-bold mb-2">
+              {stats.totalFiles.toLocaleString()}
+            </div>
             <div class="text-xs text-base-content/50">Across all folders</div>
           </div>
         {/snippet}
@@ -330,7 +366,9 @@
             <div class="text-secondary mb-3">
               <i class="bi bi-hdd-fill text-5xl"></i>
             </div>
-            <div class="text-sm font-semibold text-base-content/60 mb-1">Storage Used</div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">
+              Storage Used
+            </div>
             <div class="text-4xl font-bold mb-2">{totalSizeFormatted}</div>
             <div class="text-xs text-base-content/50">Total disk usage</div>
           </div>
@@ -343,7 +381,9 @@
             <div class="text-accent mb-3">
               <i class="bi bi-pie-chart-fill text-5xl"></i>
             </div>
-            <div class="text-sm font-semibold text-base-content/60 mb-1">File Types</div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">
+              File Types
+            </div>
             <div class="text-4xl font-bold mb-2">
               {Object.values(stats.byType).filter((t) => t.count > 0).length}
             </div>
@@ -355,11 +395,20 @@
 
     <!-- File Type Charts -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <ModernCard variant="glass" title="File Type Distribution" icon="pie-chart-fill">
+      <ModernCard
+        variant="glass"
+        title="File Type Distribution"
+        icon="pie-chart-fill"
+      >
         {#snippet children()}
           <div class="mt-4">
             {#if fileTypeChartData.length > 0}
-              <Chart data={fileTypeChartData} type="doughnut" size="md" title="Files" />
+              <Chart
+                data={fileTypeChartData}
+                type="doughnut"
+                size="md"
+                title="Files"
+              />
             {:else}
               <div class="text-center py-12 text-base-content/50">
                 <i class="bi bi-inbox text-5xl mb-3"></i>
@@ -370,7 +419,11 @@
         {/snippet}
       </ModernCard>
 
-      <ModernCard variant="glass" title="Storage by Category" icon="bar-chart-fill">
+      <ModernCard
+        variant="glass"
+        title="Storage by Category"
+        icon="bar-chart-fill"
+      >
         {#snippet children()}
           <div class="mt-4">
             {#if fileTypeChartData.length > 0}
@@ -398,7 +451,8 @@
                 <div class="space-y-2 animate-slide-up">
                   <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                      <i class="bi bi-{config.icon} text-{config.color} text-xl"></i>
+                      <i class="bi bi-{config.icon} text-{config.color} text-xl"
+                      ></i>
                       <span class="font-semibold">{config.label}</span>
                     </div>
                     <div class="text-right">
@@ -412,7 +466,9 @@
                       value={percentage}
                       max="100"
                     ></progress>
-                    <span class="text-sm font-semibold min-w-[3rem] text-right">{percentage}%</span>
+                    <span class="text-sm font-semibold min-w-[3rem] text-right"
+                      >{percentage}%</span
+                    >
                   </div>
                 </div>
               {/if}
@@ -438,7 +494,9 @@
                   </div>
                   <div class="text-center">
                     <div class="text-xs font-semibold">{config.label}</div>
-                    <div class="text-xs opacity-70">{formatSize(data.size)}</div>
+                    <div class="text-xs opacity-70">
+                      {formatSize(data.size)}
+                    </div>
                   </div>
                 </div>
               {/if}
@@ -464,7 +522,10 @@
               </thead>
               <tbody>
                 {#each stats.largestFiles as file, i}
-                  <tr class="animate-slide-up" style="animation-delay: {i * 50}ms;">
+                  <tr
+                    class="animate-slide-up"
+                    style="animation-delay: {i * 50}ms;"
+                  >
                     <td>{i + 1}</td>
                     <td>
                       <div class="flex items-center gap-2">
@@ -473,7 +534,9 @@
                       </div>
                     </td>
                     <td>
-                      <span class="badge badge-glass-info font-semibold">{formatSize(file.size)}</span>
+                      <span class="badge badge-glass-info font-semibold"
+                        >{formatSize(file.size)}</span
+                      >
                     </td>
                     <td>
                       <div class="flex items-center gap-2">
@@ -482,7 +545,9 @@
                           value={formatPercent(file.size, stats.totalSize)}
                           max="100"
                         ></progress>
-                        <span class="text-sm">{formatPercent(file.size, stats.totalSize)}%</span>
+                        <span class="text-sm"
+                          >{formatPercent(file.size, stats.totalSize)}%</span
+                        >
                       </div>
                     </td>
                   </tr>

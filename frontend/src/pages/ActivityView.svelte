@@ -2,6 +2,9 @@
   import { onMount } from "svelte";
   import { activity } from "../stores/activity";
   import { error as errorToast } from "../stores/toast";
+  import PageWrapper from "../components/PageWrapper.svelte";
+  import ModernCard from "../components/ui/ModernCard.svelte";
+  import ModernButton from "../components/ui/ModernButton.svelte";
 
   let groupedActivities = {};
   let selectedFilter = "all";
@@ -136,61 +139,80 @@
   }
 </script>
 
-<div class="activity-view">
+<PageWrapper gradient>
+  <!-- Animated Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- Page Header -->
+  <div class="mb-8 relative z-10">
+    <h1 class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3">
+      <i class="bi bi-activity"></i>
+      Activity Timeline
+    </h1>
+    <p class="text-base-content/70">Track all file operations and changes</p>
+  </div>
+
   <!-- Stats -->
   {#if $activity.length > 0}
-    <div class="stats stats-vertical lg:stats-horizontal shadow mb-6 w-full">
-      <div class="stat">
-        <div class="stat-figure text-primary">
-          <i class="bi bi-activity text-4xl"></i>
-        </div>
-        <div class="stat-title">Total Events</div>
-        <div class="stat-value text-primary">{$activity.length}</div>
-        <div class="stat-desc">All time</div>
-      </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <ModernCard variant="gradient" hoverable>
+        {#snippet children()}
+          <div class="text-center">
+            <div class="text-primary mb-3">
+              <i class="bi bi-activity text-5xl"></i>
+            </div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">Total Events</div>
+            <div class="text-4xl font-bold mb-2">{$activity.length}</div>
+            <div class="text-xs text-base-content/50">All time</div>
+          </div>
+        {/snippet}
+      </ModernCard>
 
-      <div class="stat">
-        <div class="stat-figure text-success">
-          <i class="bi bi-calendar-check text-4xl"></i>
-        </div>
-        <div class="stat-title">Today</div>
-        <div class="stat-value text-success">{todayCount}</div>
-        <div class="stat-desc">Recent activity</div>
-      </div>
+      <ModernCard variant="gradient" hoverable>
+        {#snippet children()}
+          <div class="text-center">
+            <div class="text-success mb-3">
+              <i class="bi bi-calendar-check text-5xl"></i>
+            </div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">Today</div>
+            <div class="text-4xl font-bold mb-2">{todayCount}</div>
+            <div class="text-xs text-base-content/50">Recent activity</div>
+          </div>
+        {/snippet}
+      </ModernCard>
 
-      <div class="stat">
-        <div class="stat-actions">
-          <button
-            class="px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            on:click={handleClearAll}
-            disabled={$activity.length === 0}
-          >
-            <i class="bi bi-trash-fill"></i>
-            Clear All
-          </button>
-        </div>
-      </div>
+      <ModernCard variant="glass" hoverable>
+        {#snippet children()}
+          <div class="text-center flex flex-col items-center justify-center h-full">
+            <ModernButton
+              variant="danger"
+              icon="trash-fill"
+              onclick={handleClearAll}
+              disabled={$activity.length === 0}
+              fullWidth
+            >
+              Clear All History
+            </ModernButton>
+          </div>
+        {/snippet}
+      </ModernCard>
     </div>
   {/if}
 
   <!-- Filters & Search -->
-  <div
-    class="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm mb-6"
-  >
-    <div class="p-4">
+  <ModernCard variant="glass" class="mb-6">
+    {#snippet children()}
       <div class="flex flex-col md:flex-row gap-4">
         <!-- Filter Tabs -->
-        <div
-          role="tablist"
-          class="flex flex-wrap gap-2 flex-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg"
-        >
+        <div role="tablist" class="flex flex-wrap gap-2 flex-1 glass-card-light p-2 rounded-lg">
           {#each activityTypes as type}
             <button
               role="tab"
-              class="px-3 py-1.5 text-sm rounded-md transition-colors flex items-center gap-2 {selectedFilter ===
-              type.value
-                ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-700/50'}"
+              class="px-3 py-2 text-sm rounded-md transition-all flex items-center gap-2 {selectedFilter === type.value
+                ? 'glass-card text-primary font-semibold shadow-md scale-105'
+                : 'hover:glass-card-light'}"
               on:click={() => (selectedFilter = type.value)}
             >
               <i class="bi bi-{type.icon}"></i>
@@ -200,152 +222,101 @@
         </div>
 
         <!-- Search -->
-        <div class="flex items-center">
-          <div
-            class="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden"
-          >
-            <input
-              type="text"
-              placeholder="Search activities..."
-              class="px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[200px]"
-              bind:value={searchQuery}
-            />
-            <button
-              class="px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors"
-              aria-label="Search"
-            >
-              <i class="bi bi-search"></i>
-            </button>
-          </div>
+        <div class="relative">
+          <input
+            type="text"
+            placeholder="Search activities..."
+            class="input input-bordered glass-input w-full md:w-64 pr-10"
+            bind:value={searchQuery}
+          />
+          <button class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50">
+            <i class="bi bi-search"></i>
+          </button>
         </div>
       </div>
-    </div>
-  </div>
+    {/snippet}
+  </ModernCard>
 
   <!-- Timeline -->
   {#if Object.keys(groupedActivities).length === 0}
-    <div class="hero min-h-[400px]">
-      <div class="hero-content text-center">
-        <div class="max-w-md">
-          <i class="bi bi-clock-history text-7xl text-base-300 mb-4"></i>
-          <h1 class="text-3xl font-bold">No Activity Yet</h1>
-          <p class="py-6">File operations will appear here</p>
+    <ModernCard variant="glass" class="text-center py-16">
+      {#snippet children()}
+        <div class="animate-fade-in">
+          <div class="text-primary/30 mb-6">
+            <i class="bi bi-clock-history text-8xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-3">No Activity Yet</h3>
+          <p class="text-base-content/60">File operations will appear here</p>
         </div>
-      </div>
-    </div>
+      {/snippet}
+    </ModernCard>
   {:else}
-    {#each Object.entries(groupedActivities) as [dateLabel, activities]}
-      <div class="mb-8">
+    {#each Object.entries(groupedActivities) as [dateLabel, activities], groupIndex}
+      <div class="mb-8 animate-slide-up" style="animation-delay: {groupIndex * 100}ms;">
         <!-- Date Badge -->
         <div class="flex items-center gap-3 mb-4">
-          <div
-            class="px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded-lg font-bold text-sm"
-          >
+          <div class="badge badge-glass-primary badge-lg font-bold">
             {dateLabel}
           </div>
-          <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+          <div class="flex-1 h-px bg-gradient-to-r from-primary/50 to-transparent"></div>
         </div>
 
-        <!-- Custom Timeline -->
-        <div
-          class="relative pl-8 border-l-2 border-gray-200 dark:border-gray-700 space-y-6"
-        >
+        <!-- Timeline -->
+        <div class="relative pl-8 border-l-2 border-primary/20 space-y-6">
           {#each activities as act, i}
             {@const config = typeConfig[act.type] || typeConfig.create}
             {@const colorMap = {
-              success: "bg-green-500 dark:bg-green-600",
-              info: "bg-blue-500 dark:bg-blue-600",
-              error: "bg-red-500 dark:bg-red-600",
-              warning: "bg-amber-500 dark:bg-amber-600",
-              secondary: "bg-purple-500 dark:bg-purple-600",
-              accent: "bg-pink-500 dark:bg-pink-600",
+              success: "bg-success text-success-content",
+              info: "bg-info text-info-content",
+              error: "bg-error text-error-content",
+              warning: "bg-warning text-warning-content",
+              primary: "bg-primary text-primary-content",
+              secondary: "bg-secondary text-secondary-content",
+              accent: "bg-accent text-accent-content"
             }}
-            {@const badgeColorMap = {
-              success:
-                "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200",
-              info: "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200",
-              error:
-                "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200",
-              warning:
-                "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200",
-              secondary:
-                "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200",
-              accent:
-                "bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-200",
-            }}
-            <div class="relative">
+            <div class="relative animate-fade-in" style="animation-delay: {i * 50}ms;">
               <!-- Timeline Icon -->
-              <div
-                class="absolute -left-[2.25rem] top-2 w-10 h-10 rounded-full {colorMap[
-                  config.color
-                ] ||
-                  'bg-gray-500'} flex items-center justify-center text-white shadow-md"
-              >
+              <div class="absolute -left-[2.25rem] top-2 w-10 h-10 rounded-full {colorMap[config.color] || 'bg-primary'} flex items-center justify-center shadow-lg">
                 <i class="bi bi-{config.icon} text-lg"></i>
               </div>
 
               <!-- Time Stamp -->
-              <div
-                class="absolute -left-[10.5rem] top-2 text-xs text-gray-500 dark:text-gray-400 text-right w-32"
-              >
+              <div class="absolute -left-[10.5rem] top-2 text-xs text-base-content/50 text-right w-32 font-mono">
                 {formatTime(act.timestamp)}
               </div>
 
               <!-- Activity Card -->
-              <div
-                class="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow ml-4"
-              >
-                <div class="p-4">
+              <ModernCard variant="glass" hoverable class="ml-4">
+                {#snippet children()}
                   <div class="flex items-start justify-between gap-2">
                     <div class="flex-1">
-                      <div
-                        class="px-2 py-1 text-xs rounded flex items-center gap-1 w-fit mb-2 {badgeColorMap[
-                          config.color
-                        ] ||
-                          'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'}"
-                      >
-                        <i class="bi bi-{config.icon}"></i>
+                      <div class="badge badge-glass-{config.color} mb-2">
+                        <i class="bi bi-{config.icon} mr-1"></i>
                         {config.label}
                       </div>
-                      <h3
-                        class="font-bold text-base text-gray-900 dark:text-white"
-                      >
-                        {act.filename}
-                      </h3>
+                      <h3 class="font-bold text-base">{act.filename}</h3>
                       {#if act.path}
-                        <p
-                          class="text-xs font-mono text-gray-500 dark:text-gray-400 mt-1"
-                        >
-                          {act.path}
-                        </p>
+                        <p class="text-xs font-mono text-base-content/50 mt-1">{act.path}</p>
                       {/if}
                       {#if act.details}
-                        <p
-                          class="text-sm text-gray-600 dark:text-gray-300 mt-2"
-                        >
-                          {act.details}
-                        </p>
+                        <p class="text-sm text-base-content/70 mt-2">{act.details}</p>
                       {/if}
-                      <div
-                        class="text-xs text-gray-400 dark:text-gray-500 mt-2 italic"
-                      >
+                      <div class="text-xs text-base-content/40 mt-2 italic">
                         {getRelativeTime(act.timestamp)}
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                {/snippet}
+              </ModernCard>
             </div>
           {/each}
         </div>
       </div>
     {/each}
   {/if}
-</div>
+</PageWrapper>
 
-<style>
-  .activity-view {
-    padding: 1.5rem;
-    min-height: calc(100vh - 200px);
+<!-- No additional styles needed - using glassmorphism.css -->
+
   }
 </style>
