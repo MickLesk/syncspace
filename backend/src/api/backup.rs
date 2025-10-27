@@ -17,16 +17,18 @@ pub fn router() -> Router<AppState> {
         .route("/backups", get(list_backups))
         .route("/backups/create", post(create_backup))
         .route("/backups/{backup_id}", get(get_backup).delete(delete_backup))
-        .route("/backups/:backup_id/verify", post(verify_backup))
+        .route("/backups/{backup_id}/verify", post(verify_backup))
         .route("/backups/cleanup", post(cleanup_backups))
 }
 
 async fn list_backups(State(state): State<AppState>, user: UserInfo) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    services::backup::list_backups(&state, &user).await.map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    let backups = services::backup::list_backups(&state, &user).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(backups.into_iter().map(|b| serde_json::to_value(b).unwrap_or_default()).collect()))
 }
 
 async fn create_backup(State(state): State<AppState>, user: UserInfo, Json(req): Json<CreateBackupRequest>) -> Result<Json<serde_json::Value>, StatusCode> {
-    services::backup::create_backup(&state, &user, &req.backup_type).await.map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    let backup = services::backup::create_backup(&state, &user, &req.backup_type).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    serde_json::to_value(backup).map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 async fn get_backup(State(state): State<AppState>, user: UserInfo, Path(backup_id): Path<String>) -> Result<Json<serde_json::Value>, StatusCode> {
