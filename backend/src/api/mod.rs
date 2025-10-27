@@ -15,6 +15,7 @@ pub mod favorites;
 pub mod backup;
 pub mod collaboration;
 pub mod system;
+pub mod performance;
 
 use axum::{
     middleware,
@@ -47,6 +48,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(backup::router())
                 .merge(collaboration::router())
                 .merge(system::router())
+                .merge(performance::router())
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

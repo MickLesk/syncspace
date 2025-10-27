@@ -36,9 +36,9 @@ impl Default for CacheConfig {
 // Multi-layer cache system
 #[derive(Clone, Debug)]
 pub struct CacheManager {
-    memory_cache: Cache<String, String>,
-    redis_pool: Option<RedisPool>,
-    config: CacheConfig,
+    pub memory_cache: Cache<String, String>,
+    pub redis_pool: Option<RedisPool>,
+    pub config: CacheConfig,
 }
 
 impl CacheManager {
