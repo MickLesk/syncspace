@@ -95,8 +95,7 @@
           type="text"
           bind:value={searchQuery}
           placeholder="Search settings..."
-          class="input input-bordered input-primary input-with-icon-left"
-          class:input-with-icon-right={searchQuery.length > 0}
+          class="w-full px-10 py-2 border border-blue-500 dark:border-blue-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
         />
         {#if searchQuery.length > 0}
           <button
@@ -131,7 +130,10 @@
       <i class="bi bi-search"></i>
       <h3>No settings found</h3>
       <p>Try searching for something else</p>
-      <button class="btn btn-primary" onclick={clearSearch}>
+      <button
+        class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
+        onclick={clearSearch}
+      >
         <i class="bi bi-x-lg"></i>
         Clear Search
       </button>

@@ -65,7 +65,10 @@
         {/each}
       </div>
 
-      <button class="btn btn-ghost btn-xs gap-1" on:click={handleClearAll}>
+      <button
+        class="px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg transition-colors flex items-center gap-1"
+        on:click={handleClearAll}
+      >
         <i class="bi bi-x-circle"></i>
         {t($currentLang, "clearAll")}
       </button>

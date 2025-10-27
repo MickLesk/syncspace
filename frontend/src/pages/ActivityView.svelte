@@ -161,7 +161,7 @@
       <div class="stat">
         <div class="stat-actions">
           <button
-            class="btn btn-sm btn-error gap-2"
+            class="px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             on:click={handleClearAll}
             disabled={$activity.length === 0}
           >
@@ -174,17 +174,23 @@
   {/if}
 
   <!-- Filters & Search -->
-  <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm mb-6">
-    <div class="card-body p-4">
+  <div
+    class="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm mb-6"
+  >
+    <div class="p-4">
       <div class="flex flex-col md:flex-row gap-4">
         <!-- Filter Tabs -->
-        <div role="tablist" class="tabs tabs-boxed flex-1">
+        <div
+          role="tablist"
+          class="flex flex-wrap gap-2 flex-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg"
+        >
           {#each activityTypes as type}
             <button
               role="tab"
-              class="tab gap-2 {selectedFilter === type.value
-                ? 'tab-active'
-                : ''}"
+              class="px-3 py-1.5 text-sm rounded-md transition-colors flex items-center gap-2 {selectedFilter ===
+              type.value
+                ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-700/50'}"
               on:click={() => (selectedFilter = type.value)}
             >
               <i class="bi bi-{type.icon}"></i>
@@ -194,15 +200,20 @@
         </div>
 
         <!-- Search -->
-        <div class="form-control">
-          <div class="input-group">
+        <div class="flex items-center">
+          <div
+            class="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden"
+          >
             <input
               type="text"
               placeholder="Search activities..."
-              class="input input-bordered"
+              class="px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[200px]"
               bind:value={searchQuery}
             />
-            <button class="btn btn-square">
+            <button
+              class="px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors"
+              aria-label="Search"
+            >
               <i class="bi bi-search"></i>
             </button>
           </div>
@@ -227,68 +238,106 @@
       <div class="mb-8">
         <!-- Date Badge -->
         <div class="flex items-center gap-3 mb-4">
-          <div class="badge badge-primary badge-lg font-bold">{dateLabel}</div>
-          <div class="flex-1 h-px bg-slate-100 dark:bg-slate-700"></div>
+          <div
+            class="px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded-lg font-bold text-sm"
+          >
+            {dateLabel}
+          </div>
+          <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
         </div>
 
-        <!-- Timeline -->
-        <ul class="timeline timeline-vertical">
+        <!-- Custom Timeline -->
+        <div
+          class="relative pl-8 border-l-2 border-gray-200 dark:border-gray-700 space-y-6"
+        >
           {#each activities as act, i}
             {@const config = typeConfig[act.type] || typeConfig.create}
-            <li>
-              {#if i > 0}
-                <hr class="bg-{config.color}" />
-              {/if}
-              <div class="timeline-start timeline-box">
-                <div class="text-xs opacity-70">
-                  {formatTime(act.timestamp)}
-                </div>
+            {@const colorMap = {
+              success: "bg-green-500 dark:bg-green-600",
+              info: "bg-blue-500 dark:bg-blue-600",
+              error: "bg-red-500 dark:bg-red-600",
+              warning: "bg-amber-500 dark:bg-amber-600",
+              secondary: "bg-purple-500 dark:bg-purple-600",
+              accent: "bg-pink-500 dark:bg-pink-600",
+            }}
+            {@const badgeColorMap = {
+              success:
+                "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200",
+              info: "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200",
+              error:
+                "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200",
+              warning:
+                "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200",
+              secondary:
+                "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200",
+              accent:
+                "bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-200",
+            }}
+            <div class="relative">
+              <!-- Timeline Icon -->
+              <div
+                class="absolute -left-[2.25rem] top-2 w-10 h-10 rounded-full {colorMap[
+                  config.color
+                ] ||
+                  'bg-gray-500'} flex items-center justify-center text-white shadow-md"
+              >
+                <i class="bi bi-{config.icon} text-lg"></i>
               </div>
-              <div class="timeline-middle">
-                <div class="avatar placeholder">
-                  <div
-                    class="bg-{config.color} text-{config.color}-content rounded-full w-10"
-                  >
-                    <i class="bi bi-{config.icon} text-xl"></i>
-                  </div>
-                </div>
+
+              <!-- Time Stamp -->
+              <div
+                class="absolute -left-[10.5rem] top-2 text-xs text-gray-500 dark:text-gray-400 text-right w-32"
+              >
+                {formatTime(act.timestamp)}
               </div>
-              <div class="timeline-end">
-                <div
-                  class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div class="card-body p-4">
-                    <div class="flex items-start justify-between gap-2">
-                      <div class="flex-1">
-                        <div
-                          class="badge badge-{config.color} badge-sm mb-2 gap-1"
+
+              <!-- Activity Card -->
+              <div
+                class="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow ml-4"
+              >
+                <div class="p-4">
+                  <div class="flex items-start justify-between gap-2">
+                    <div class="flex-1">
+                      <div
+                        class="px-2 py-1 text-xs rounded flex items-center gap-1 w-fit mb-2 {badgeColorMap[
+                          config.color
+                        ] ||
+                          'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'}"
+                      >
+                        <i class="bi bi-{config.icon}"></i>
+                        {config.label}
+                      </div>
+                      <h3
+                        class="font-bold text-base text-gray-900 dark:text-white"
+                      >
+                        {act.filename}
+                      </h3>
+                      {#if act.path}
+                        <p
+                          class="text-xs font-mono text-gray-500 dark:text-gray-400 mt-1"
                         >
-                          <i class="bi bi-{config.icon}"></i>
-                          {config.label}
-                        </div>
-                        <h3 class="font-bold text-base">{act.filename}</h3>
-                        {#if act.path}
-                          <p class="text-xs font-mono opacity-70 mt-1">
-                            {act.path}
-                          </p>
-                        {/if}
-                        {#if act.details}
-                          <p class="text-sm opacity-80 mt-2">{act.details}</p>
-                        {/if}
-                        <div class="text-xs opacity-60 mt-2 italic">
-                          {getRelativeTime(act.timestamp)}
-                        </div>
+                          {act.path}
+                        </p>
+                      {/if}
+                      {#if act.details}
+                        <p
+                          class="text-sm text-gray-600 dark:text-gray-300 mt-2"
+                        >
+                          {act.details}
+                        </p>
+                      {/if}
+                      <div
+                        class="text-xs text-gray-400 dark:text-gray-500 mt-2 italic"
+                      >
+                        {getRelativeTime(act.timestamp)}
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              {#if i < activities.length - 1}
-                <hr class="bg-{config.color}" />
-              {/if}
-            </li>
+            </div>
           {/each}
-        </ul>
+        </div>
       </div>
     {/each}
   {/if}
@@ -298,119 +347,5 @@
   .activity-view {
     padding: 1.5rem;
     min-height: calc(100vh - 200px);
-  }
-
-  /* Timeline customization */
-  :global(.timeline-vertical li) {
-    margin-bottom: 2rem;
-  }
-
-  :global(.timeline-box) {
-    min-width: 80px;
-  }
-
-  /* Badge colors */
-  :global(.badge-success) {
-    background-color: oklch(var(--su));
-    color: oklch(var(--suc));
-  }
-
-  :global(.badge-info) {
-    background-color: oklch(var(--in));
-    color: oklch(var(--inc));
-  }
-
-  :global(.badge-error) {
-    background-color: oklch(var(--er));
-    color: oklch(var(--erc));
-  }
-
-  :global(.badge-warning) {
-    background-color: oklch(var(--wa));
-    color: oklch(var(--wac));
-  }
-
-  :global(.badge-secondary) {
-    background-color: oklch(var(--s));
-    color: oklch(var(--sc));
-  }
-
-  :global(.badge-accent) {
-    background-color: oklch(var(--a));
-    color: oklch(var(--ac));
-  }
-
-  /* Avatar colors */
-  :global(.bg-success) {
-    background-color: oklch(var(--su));
-  }
-
-  :global(.bg-info) {
-    background-color: oklch(var(--in));
-  }
-
-  :global(.bg-error) {
-    background-color: oklch(var(--er));
-  }
-
-  :global(.bg-warning) {
-    background-color: oklch(var(--wa));
-  }
-
-  :global(.bg-secondary) {
-    background-color: oklch(var(--s));
-  }
-
-  :global(.bg-accent) {
-    background-color: oklch(var(--a));
-  }
-
-  :global(.text-success-content) {
-    color: oklch(var(--suc));
-  }
-
-  :global(.text-info-content) {
-    color: oklch(var(--inc));
-  }
-
-  :global(.text-error-content) {
-    color: oklch(var(--erc));
-  }
-
-  :global(.text-warning-content) {
-    color: oklch(var(--wac));
-  }
-
-  :global(.text-secondary-content) {
-    color: oklch(var(--sc));
-  }
-
-  :global(.text-accent-content) {
-    color: oklch(var(--ac));
-  }
-
-  /* Timeline lines */
-  :global(.timeline hr.bg-success) {
-    background-color: oklch(var(--su));
-  }
-
-  :global(.timeline hr.bg-info) {
-    background-color: oklch(var(--in));
-  }
-
-  :global(.timeline hr.bg-error) {
-    background-color: oklch(var(--er));
-  }
-
-  :global(.timeline hr.bg-warning) {
-    background-color: oklch(var(--wa));
-  }
-
-  :global(.timeline hr.bg-secondary) {
-    background-color: oklch(var(--s));
-  }
-
-  :global(.timeline hr.bg-accent) {
-    background-color: oklch(var(--a));
   }
 </style>

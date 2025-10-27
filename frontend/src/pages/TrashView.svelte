@@ -1,6 +1,9 @@
 <script>
   import { onMount } from "svelte";
   import { success, error as errorToast } from "../stores/toast";
+  import PageWrapper from "../components/PageWrapper.svelte";
+  import ModernCard from "../components/ui/ModernCard.svelte";
+  import ModernButton from "../components/ui/ModernButton.svelte";
 
   let trashedFiles = $state([]);
   let loading = $state(false);
@@ -186,15 +189,21 @@
   );
 </script>
 
-<div class="trash-view">
+<PageWrapper gradient>
+  <!-- Animated Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
   <!-- Header -->
-  <div class="trash-header">
-    <div class="header-top">
+  <div class="mb-8 relative z-10">
+    <div class="flex justify-between items-start mb-4">
       <div>
-        <h1 class="text-3xl font-bold">
-          <i class="bi bi-trash3-fill"></i> Trash
+        <h1 class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3">
+          <i class="bi bi-trash3-fill"></i>
+          Trash
         </h1>
-        <p class="text-base-content/60 mt-1">
+        <p class="text-base-content/70">
           {#if trashedFiles.length > 0}
             {trashedFiles.length} item(s) • {formatBytes(totalSize)} total
           {:else}
@@ -204,62 +213,54 @@
       </div>
 
       {#if trashedFiles.length > 0}
-        <div class="header-actions">
-          <button
-            class="btn btn-success gap-2"
-            onclick={handleRestoreAll}
+        <div class="flex gap-3">
+          <ModernButton
+            variant="success"
+            icon="arrow-counterclockwise"
             disabled={selectedFiles.size === 0 && trashedFiles.length === 0}
+            onclick={handleRestoreAll}
           >
-            <i class="bi bi-arrow-counterclockwise"></i>
-            Restore {selectedFiles.size > 0
-              ? `Selected (${selectedFiles.size})`
-              : "All"}
-          </button>
-          <button
-            class="btn btn-error gap-2"
-            onclick={() =>
-              openDeleteModal(selectedFiles.size > 0 ? "selected" : "all")}
+            Restore {selectedFiles.size > 0 ? `(${selectedFiles.size})` : "All"}
+          </ModernButton>
+          <ModernButton
+            variant="danger"
+            icon="x-circle"
+            onclick={() => openDeleteModal(selectedFiles.size > 0 ? "selected" : "all")}
           >
-            <i class="bi bi-x-circle"></i>
-            {selectedFiles.size > 0
-              ? `Delete Selected (${selectedFiles.size})`
-              : "Empty Trash"}
-          </button>
+            {selectedFiles.size > 0 ? `Delete (${selectedFiles.size})` : "Empty Trash"}
+          </ModernButton>
         </div>
       {/if}
     </div>
 
     <!-- Bulk Select Bar -->
     {#if trashedFiles.length > 0}
-      <div class="bulk-select-bar">
+      <div class="glass-card-light p-4 flex justify-between items-center">
         <label class="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
-            class="checkbox checkbox-sm"
-            checked={selectedFiles.size === trashedFiles.length &&
-              trashedFiles.length > 0}
-            indeterminate={selectedFiles.size > 0 &&
-              selectedFiles.size < trashedFiles.length}
+            class="checkbox checkbox-sm checkbox-primary"
+            checked={selectedFiles.size === trashedFiles.length && trashedFiles.length > 0}
+            indeterminate={selectedFiles.size > 0 && selectedFiles.size < trashedFiles.length}
             onchange={toggleSelectAll}
           />
-          <span class="text-sm">
-            {selectedFiles.size > 0
-              ? `${selectedFiles.size} selected`
-              : "Select all"}
+          <span class="text-sm font-semibold">
+            {selectedFiles.size > 0 ? `${selectedFiles.size} selected` : "Select all"}
           </span>
         </label>
 
         {#if selectedFiles.size > 0}
-          <button
-            class="btn btn-ghost btn-sm gap-2"
+          <ModernButton
+            variant="ghost"
+            size="sm"
+            icon="x"
             onclick={() => {
               selectedFiles.clear();
               selectedFiles = selectedFiles;
             }}
           >
-            <i class="bi bi-x"></i>
-            Clear selection
-          </button>
+            Clear
+          </ModernButton>
         {/if}
       </div>
     {/if}
@@ -267,110 +268,121 @@
 
   <!-- Empty State -->
   {#if trashedFiles.length === 0}
-    <div class="empty-state">
-      <i class="bi bi-trash3 empty-icon"></i>
-      <h3 class="text-xl font-semibold mt-4">Trash is Empty</h3>
-      <p class="text-base-content/60 mt-2">
-        Deleted files will appear here. You can restore them or permanently
-        delete them.
-      </p>
-      <div class="alert alert-info mt-6 max-w-md">
-        <i class="bi bi-info-circle-fill"></i>
-        <div class="text-sm">
-          <p class="font-semibold">Auto-delete in 30 days</p>
-          <p class="opacity-80">
-            Files are automatically deleted after 30 days in trash
+    <ModernCard variant="glass" class="text-center py-16">
+      {#snippet children()}
+        <div class="animate-fade-in">
+          <div class="text-primary/30 mb-6">
+            <i class="bi bi-trash3 text-8xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-3">Trash is Empty</h3>
+          <p class="text-base-content/60 mb-6 max-w-md mx-auto">
+            Deleted files will appear here. You can restore them or permanently delete them.
           </p>
+          <div class="glass-card-light max-w-md mx-auto p-6 text-left">
+            <div class="flex gap-3">
+              <i class="bi bi-info-circle-fill text-info text-2xl flex-shrink-0"></i>
+              <div>
+                <p class="font-semibold text-sm mb-1">Auto-delete in 30 days</p>
+                <p class="text-xs text-base-content/70">
+                  Files are automatically deleted after 30 days in trash
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      {/snippet}
+    </ModernCard>
   {:else}
     <!-- Trashed Files Table -->
-    <div class="trash-table-container">
-      <table class="table table-zebra">
-        <thead>
-          <tr>
-            <th>
-              <input
-                type="checkbox"
-                class="checkbox checkbox-sm"
-                checked={selectedFiles.size === trashedFiles.length}
-                onchange={toggleSelectAll}
-              />
-            </th>
-            <th>Name</th>
-            <th>Original Location</th>
-            <th>Size</th>
-            <th>Deleted</th>
-            <th>Auto-delete</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each trashedFiles as file (file.id)}
-            <tr class:selected={selectedFiles.has(file.id)}>
-              <td>
-                <input
-                  type="checkbox"
-                  class="checkbox checkbox-sm"
-                  checked={selectedFiles.has(file.id)}
-                  onchange={() => toggleSelectFile(file.id)}
-                />
-              </td>
-              <td>
-                <div class="flex items-center gap-3">
-                  <i class="{getFileIcon(file.name)} text-2xl"></i>
-                  <span class="font-semibold">{file.name}</span>
-                </div>
-              </td>
-              <td>
-                <span class="font-mono text-sm text-base-content/60">
-                  {file.originalPath || "/"}
-                </span>
-              </td>
-              <td>
-                <span class="badge badge-ghost badge-sm">
-                  {formatBytes(file.size || 0)}
-                </span>
-              </td>
-              <td>
-                <span class="text-sm text-base-content/60">
-                  {formatDate(file.deletedAt)}
-                </span>
-              </td>
-              <td>
-                <span class="badge {getAutoDeleteBadge(file).class} badge-sm">
-                  <i class="bi bi-clock-history mr-1"></i>
-                  {getAutoDeleteBadge(file).text}
-                </span>
-              </td>
-              <td>
-                <div class="flex gap-1">
-                  <button
-                    class="btn btn-success btn-sm gap-1"
-                    onclick={() => handleRestore(file)}
-                    title="Restore file"
-                  >
-                    <i class="bi bi-arrow-counterclockwise"></i>
-                    Restore
-                  </button>
-                  <button
-                    class="btn btn-error btn-sm gap-1"
-                    onclick={() => openDeleteModal("single", file)}
-                    title="Delete permanently"
-                  >
-                    <i class="bi bi-x-circle"></i>
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
+    <ModernCard variant="glass">
+      {#snippet children()}
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    class="checkbox checkbox-sm checkbox-primary"
+                    checked={selectedFiles.size === trashedFiles.length}
+                    onchange={toggleSelectAll}
+                  />
+                </th>
+                <th>Name</th>
+                <th>Original Location</th>
+                <th>Size</th>
+                <th>Deleted</th>
+                <th>Auto-delete</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each trashedFiles as file, i (file.id)}
+                <tr class:selected={selectedFiles.has(file.id)} class="animate-slide-up" style="animation-delay: {i * 30}ms;">
+                  <td>
+                    <input
+                      type="checkbox"
+                      class="checkbox checkbox-sm checkbox-primary"
+                      checked={selectedFiles.has(file.id)}
+                      onchange={() => toggleSelectFile(file.id)}
+                    />
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <i class="{getFileIcon(file.name)} text-2xl"></i>
+                      <span class="font-semibold">{file.name}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="font-mono text-sm text-base-content/60">
+                      {file.originalPath || "/"}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge badge-glass-info badge-sm">
+                      {formatBytes(file.size || 0)}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="text-sm text-base-content/60">
+                      {formatDate(file.deletedAt)}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge {getAutoDeleteBadge(file).class} badge-sm">
+                      <i class="bi bi-clock-history mr-1"></i>
+                      {getAutoDeleteBadge(file).text}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="flex gap-2">
+                      <ModernButton
+                        variant="success"
+                        size="sm"
+                        icon="arrow-counterclockwise"
+                        onclick={() => handleRestore(file)}
+                      >
+                        Restore
+                      </ModernButton>
+                      <ModernButton
+                        variant="danger"
+                        size="sm"
+                        icon="x-circle"
+                        onclick={() => openDeleteModal("single", file)}
+                      >
+                        Delete
+                      </ModernButton>
+                    </div>
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {/snippet}
+    </ModernCard>
   {/if}
-</div>
+</PageWrapper>
 
 <!-- Permanent Delete Warning Modal -->
 {#if showDeleteModal}

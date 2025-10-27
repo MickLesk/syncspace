@@ -54,7 +54,8 @@
       label: t($currentLang, "shared"),
       category: "main",
       badge: sharedCount,
-      badgeClass: "badge-primary",
+      badgeClass:
+        "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200",
     },
     // Favorites nur anzeigen wenn enabled
     ...($favoritesEnabled
@@ -73,7 +74,8 @@
       category: "tools",
       icon: "activity",
       badge: notificationCount,
-      badgeClass: "badge-accent",
+      badgeClass:
+        "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200",
     },
     { id: "duplicates", icon: "files", label: "Duplicates", category: "tools" },
     {
@@ -88,7 +90,8 @@
       label: t($currentLang, "trash"),
       category: "system",
       badge: trashCount,
-      badgeClass: "badge-warning",
+      badgeClass:
+        "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200",
     },
     {
       id: "settings",
@@ -172,7 +175,7 @@
     </div>
 
     <button
-      class="btn btn-ghost btn-sm btn-circle collapse-toggle"
+      class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors collapse-toggle"
       on:click={toggleSidebar}
       aria-label="Toggle sidebar"
     >
@@ -191,9 +194,9 @@
       {#each mainItems as item}
         <li>
           <button
-            class="menu-item {$currentView === item.id ? 'active' : ''}"
-            class:tooltip={$sidebarCollapsed}
-            class:tooltip-right={$sidebarCollapsed}
+            class="menu-item {$currentView === item.id
+              ? 'active'
+              : ''} {$sidebarCollapsed ? 'group relative' : ''}"
             data-tip={$sidebarCollapsed ? item.label : ""}
             on:click={() => selectView(item.id)}
           >
@@ -201,10 +204,17 @@
             {#if !$sidebarCollapsed}
               <span class="menu-label">{item.label}</span>
               {#if item.badge && item.badge > 0}
-                <span class="badge {item.badgeClass} badge-sm ml-auto"
+                <span
+                  class="px-1.5 py-0.5 text-xs font-medium rounded-full ml-auto {item.badgeClass}"
                   >{item.badge}</span
                 >
               {/if}
+            {:else if $sidebarCollapsed}
+              <span
+                class="absolute left-full ml-2 px-2 py-1 text-xs font-medium bg-gray-900 dark:bg-gray-700 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity"
+              >
+                {item.label}
+              </span>
             {/if}
           </button>
         </li>
@@ -217,7 +227,7 @@
     {/if}
 
     <!-- Tools Section -->
-    <div class="divider my-2"></div>
+    <div class="h-px bg-gray-200 dark:bg-gray-700 my-2"></div>
     {#if !$sidebarCollapsed}
       <div class="menu-category">TOOLS</div>
     {/if}
@@ -225,9 +235,9 @@
       {#each toolsItems as item}
         <li>
           <button
-            class="menu-item {$currentView === item.id ? 'active' : ''}"
-            class:tooltip={$sidebarCollapsed}
-            class:tooltip-right={$sidebarCollapsed}
+            class="menu-item {$currentView === item.id
+              ? 'active'
+              : ''} {$sidebarCollapsed ? 'group relative' : ''}"
             data-tip={$sidebarCollapsed ? item.label : ""}
             on:click={() => selectView(item.id)}
           >
@@ -235,10 +245,17 @@
             {#if !$sidebarCollapsed}
               <span class="menu-label">{item.label}</span>
               {#if item.badge && item.badge > 0}
-                <span class="badge {item.badgeClass} badge-sm ml-auto"
+                <span
+                  class="px-1.5 py-0.5 text-xs font-medium rounded-full ml-auto {item.badgeClass}"
                   >{item.badge}</span
                 >
               {/if}
+            {:else if $sidebarCollapsed}
+              <span
+                class="absolute left-full ml-2 px-2 py-1 text-xs font-medium bg-gray-900 dark:bg-gray-700 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity"
+              >
+                {item.label}
+              </span>
             {/if}
           </button>
         </li>
@@ -246,7 +263,7 @@
     </ul>
 
     <!-- System Section -->
-    <div class="divider my-2"></div>
+    <div class="h-px bg-gray-200 dark:bg-gray-700 my-2"></div>
     {#if !$sidebarCollapsed}
       <div class="menu-category">SYSTEM</div>
     {/if}
@@ -254,9 +271,9 @@
       {#each systemItems as item}
         <li>
           <button
-            class="menu-item {$currentView === item.id ? 'active' : ''}"
-            class:tooltip={$sidebarCollapsed}
-            class:tooltip-right={$sidebarCollapsed}
+            class="menu-item {$currentView === item.id
+              ? 'active'
+              : ''} {$sidebarCollapsed ? 'group relative' : ''}"
             data-tip={$sidebarCollapsed ? item.label : ""}
             on:click={() => selectView(item.id)}
           >
@@ -264,10 +281,17 @@
             {#if !$sidebarCollapsed}
               <span class="menu-label">{item.label}</span>
               {#if item.badge && item.badge > 0}
-                <span class="badge {item.badgeClass} badge-sm ml-auto"
+                <span
+                  class="px-1.5 py-0.5 text-xs font-medium rounded-full ml-auto {item.badgeClass}"
                   >{item.badge}</span
                 >
               {/if}
+            {:else if $sidebarCollapsed}
+              <span
+                class="absolute left-full ml-2 px-2 py-1 text-xs font-medium bg-gray-900 dark:bg-gray-700 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity"
+              >
+                {item.label}
+              </span>
             {/if}
           </button>
         </li>

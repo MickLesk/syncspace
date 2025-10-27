@@ -144,31 +144,48 @@
 <!-- Shows file version history with diff view and restore capabilities -->
 
 {#if isOpen}
-  <div class="modal modal-open">
-    <div class="modal-box w-11/12 max-w-6xl max-h-[90vh] flex flex-col">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="font-bold text-lg">Version History - {file?.name || ""}</h3>
-        <button class="btn btn-sm btn-circle btn-ghost" on:click={onClose}
-          >✕</button
+  <!-- Modal Overlay -->
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+  >
+    <!-- Modal Content -->
+    <div
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-11/12 max-w-6xl max-h-[90vh] flex flex-col border border-gray-200 dark:border-gray-700"
+    >
+      <div class="flex justify-between items-center mb-4 px-6 pt-6">
+        <h3 class="font-bold text-lg text-gray-900 dark:text-white">
+          Version History - {file?.name || ""}
+        </h3>
+        <button
+          class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
+          on:click={onClose}
         >
+          ✕
+        </button>
       </div>
 
       {#if loading}
-        <div class="flex justify-center items-center py-8">
-          <span class="loading loading-spinner loading-lg"></span>
+        <div class="flex justify-center items-center py-8 px-6">
+          <div
+            class="w-12 h-12 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"
+          ></div>
         </div>
       {:else}
-        <div class="flex gap-4 flex-1 min-h-0">
+        <div class="flex gap-4 flex-1 min-h-0 px-6">
           <!-- Version List -->
           <div class="w-1/2 flex flex-col">
             <div class="flex justify-between items-center mb-2">
-              <h4 class="font-semibold">Versions ({versions.length})</h4>
-              <div class="text-sm text-base-content/70">
+              <h4 class="font-semibold text-gray-900 dark:text-white">
+                Versions ({versions.length})
+              </h4>
+              <div class="text-sm text-gray-500 dark:text-gray-400">
                 Select two versions to compare
               </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto border rounded-lg bg-white dark:bg-slate-900">
+            <div
+              class="flex-1 overflow-y-auto border rounded-lg bg-white dark:bg-slate-900"
+            >
               {#each versions as version (version.id)}
                 <div
                   class="border-b border-slate-200 dark:border-slate-700 p-3 hover:bg-base-50 relative"
@@ -176,58 +193,72 @@
                   <div class="flex justify-between items-start">
                     <div class="flex-1">
                       <div class="flex items-center gap-2 mb-1">
-                        <span class="font-mono text-sm"
+                        <span
+                          class="font-mono text-sm text-gray-900 dark:text-white"
                           >v{version.version_number}</span
                         >
                         {#if version.is_current}
-                          <span class="badge badge-primary badge-sm"
+                          <span
+                            class="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded-full"
                             >Current</span
                           >
                         {/if}
                       </div>
 
-                      <div class="text-sm text-base-content/70 mb-1">
+                      <div
+                        class="text-sm text-gray-500 dark:text-gray-400 mb-1"
+                      >
                         {formatDate(version.created_at)} by {version.created_by}
                       </div>
 
-                      <div class="text-sm text-base-content/70 mb-2">
+                      <div
+                        class="text-sm text-gray-500 dark:text-gray-400 mb-2"
+                      >
                         Size: {formatSize(version.size_bytes)}
                       </div>
 
                       {#if version.comment}
-                        <div class="text-sm bg-slate-50 dark:bg-slate-800 p-2 rounded mb-2">
+                        <div
+                          class="text-sm bg-slate-50 dark:bg-slate-800 p-2 rounded mb-2"
+                        >
                           {version.comment}
                         </div>
                       {/if}
                     </div>
 
-                    <div class="dropdown dropdown-end">
-                      <div
-                        tabindex="0"
-                        role="button"
-                        class="btn btn-ghost btn-xs"
+                    <div class="relative group">
+                      <button
+                        class="px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400 text-lg transition-colors"
                       >
                         ⋮
-                      </div>
+                      </button>
                       <ul
-                        class="dropdown-content z-[1] menu p-2 shadow bg-white dark:bg-slate-900 rounded-box w-52"
+                        class="absolute right-0 top-full mt-1 z-10 hidden group-hover:block bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-52 py-1"
                       >
                         <li>
-                          <button on:click={() => downloadVersion(version)}
-                            >Download</button
+                          <button
+                            on:click={() => downloadVersion(version)}
+                            class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                           >
+                            Download
+                          </button>
                         </li>
                         {#if !version.is_current}
                           <li>
-                            <button on:click={() => openRestoreModal(version)}
-                              >Restore</button
+                            <button
+                              on:click={() => openRestoreModal(version)}
+                              class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                             >
+                              Restore
+                            </button>
                           </li>
                           <li>
                             <button
                               on:click={() => deleteVersion(version)}
-                              class="text-error">Delete</button
+                              class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                             >
+                              Delete
+                            </button>
                           </li>
                         {/if}
                       </ul>
@@ -236,18 +267,19 @@
 
                   <div class="flex gap-2 mt-2">
                     <button
-                      class="btn btn-xs {selectedVersions.from?.id ===
-                      version.id
-                        ? 'btn-primary'
-                        : 'btn-outline'}"
+                      class="px-3 py-1 text-xs rounded-lg border transition-colors {selectedVersions
+                        .from?.id === version.id
+                        ? 'bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500'
+                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}"
                       on:click={() => selectVersionForDiff(version, "from")}
                     >
                       From
                     </button>
                     <button
-                      class="btn btn-xs {selectedVersions.to?.id === version.id
-                        ? 'btn-primary'
-                        : 'btn-outline'}"
+                      class="px-3 py-1 text-xs rounded-lg border transition-colors {selectedVersions
+                        .to?.id === version.id
+                        ? 'bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500'
+                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}"
                       on:click={() => selectVersionForDiff(version, "to")}
                     >
                       To
@@ -257,7 +289,7 @@
               {/each}
 
               {#if versions.length === 0}
-                <div class="p-8 text-center text-base-content/50">
+                <div class="p-8 text-center text-gray-400 dark:text-gray-500">
                   No versions found
                 </div>
               {/if}
@@ -266,30 +298,34 @@
 
           <!-- Diff View -->
           <div class="w-1/2 flex flex-col">
-            <h4 class="font-semibold mb-2">Version Comparison</h4>
+            <h4 class="font-semibold mb-2 text-gray-900 dark:text-white">
+              Version Comparison
+            </h4>
 
             {#if showDiff && diffContent}
               <div
-                class="flex-1 overflow-y-auto border rounded-lg bg-white dark:bg-slate-900 p-4"
+                class="flex-1 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 p-4"
               >
                 <div class="mb-4">
-                  <div class="text-sm text-base-content/70">
+                  <div class="text-sm text-gray-500 dark:text-gray-400">
                     Comparing v{selectedVersions.from?.version_number} → v{selectedVersions
                       .to?.version_number}
                   </div>
-                  <div class="text-sm text-success">
+                  <div class="text-sm text-green-600 dark:text-green-400">
                     +{diffContent.added_lines} additions
                   </div>
-                  <div class="text-sm text-error">
+                  <div class="text-sm text-red-600 dark:text-red-400">
                     -{diffContent.removed_lines} deletions
                   </div>
                 </div>
 
                 {#if diffContent.diff_content}
                   <pre
-                    class="text-xs bg-slate-50 dark:bg-slate-800 p-3 rounded overflow-x-auto whitespace-pre-wrap">{diffContent.diff_content}</pre>
+                    class="text-xs bg-gray-50 dark:bg-gray-800 p-3 rounded overflow-x-auto whitespace-pre-wrap text-gray-900 dark:text-white">{diffContent.diff_content}</pre>
                 {:else}
-                  <div class="text-center text-base-content/50 py-8">
+                  <div
+                    class="text-center text-gray-400 dark:text-gray-500 py-8"
+                  >
                     {#if diffContent.diff_type === "binary"}
                       Binary files cannot be compared
                     {:else}
@@ -300,9 +336,9 @@
               </div>
             {:else}
               <div
-                class="flex-1 border rounded-lg bg-white dark:bg-slate-900 flex items-center justify-center"
+                class="flex-1 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 flex items-center justify-center"
               >
-                <div class="text-center text-base-content/50">
+                <div class="text-center text-gray-400 dark:text-gray-500">
                   <div class="text-4xl mb-2">📊</div>
                   <div>Select two versions to see differences</div>
                 </div>
@@ -312,8 +348,15 @@
         </div>
       {/if}
 
-      <div class="modal-action">
-        <button class="btn" on:click={onClose}>Close</button>
+      <div
+        class="flex justify-end gap-2 px-6 pb-6 pt-4 border-t border-gray-200 dark:border-gray-700"
+      >
+        <button
+          class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          on:click={onClose}
+        >
+          Close
+        </button>
       </div>
     </div>
   </div>
@@ -321,52 +364,57 @@
 
 <!-- Restore Version Modal -->
 {#if showRestoreModal && versionToRestore}
-  <div class="modal modal-open">
-    <div class="modal-box">
-      <h3 class="font-bold text-lg mb-4">Restore Version</h3>
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+  >
+    <div
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-md w-full border border-gray-200 dark:border-gray-700"
+    >
+      <h3
+        class="font-bold text-lg mb-4 px-6 pt-6 text-gray-900 dark:text-white"
+      >
+        Restore Version
+      </h3>
 
-      <div class="mb-4">
-        <p>
+      <div class="mb-4 px-6">
+        <p class="text-gray-700 dark:text-gray-200">
           Are you sure you want to restore to version {versionToRestore.version_number}?
         </p>
-        <p class="text-sm text-base-content/70 mt-1">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
           This will create a new version with the content from v{versionToRestore.version_number}.
         </p>
       </div>
 
-      <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text">Restore Comment *</span>
+      <div class="mb-4 px-6">
+        <label class="block mb-2">
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-200"
+            >Restore Comment *</span
+          >
         </label>
         <textarea
-          class="textarea textarea-bordered"
+          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-shadow"
           placeholder="Reason for restoring this version..."
           bind:value={restoreComment}
           rows="3"
         ></textarea>
       </div>
 
-      <div class="modal-action">
+      <div
+        class="flex justify-end gap-2 px-6 pb-6 pt-4 border-t border-gray-200 dark:border-gray-700"
+      >
         <button
-          class="btn btn-primary"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
           on:click={() => restoreVersion(versionToRestore)}
         >
           Restore Version
         </button>
-        <button class="btn" on:click={() => (showRestoreModal = false)}
-          >Cancel</button
+        <button
+          class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          on:click={() => (showRestoreModal = false)}
         >
+          Cancel
+        </button>
       </div>
     </div>
   </div>
 {/if}
-
-<style>
-  .modal-box {
-    @apply bg-white dark:bg-slate-900;
-  }
-
-  .dropdown-content {
-    @apply shadow-lg border border-slate-200 dark:border-slate-700;
-  }
-</style>

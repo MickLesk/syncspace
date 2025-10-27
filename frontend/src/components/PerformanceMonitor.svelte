@@ -115,26 +115,38 @@
     <div class="header-controls">
       {#if !compact}
         <button
-          class="btn btn-sm"
-          class:btn-success={!isMonitoring}
-          class:btn-error={isMonitoring}
+          class="px-3 py-1.5 text-sm rounded-lg font-medium transition-colors {isMonitoring
+            ? 'bg-red-500 hover:bg-red-600 text-white'
+            : 'bg-green-500 hover:bg-green-600 text-white'}"
           on:click={isMonitoring ? stopMonitoring : startMonitoring}
         >
           {isMonitoring ? "Stop" : "Start"} Monitoring
         </button>
 
-        <div class="dropdown dropdown-end">
-          <label tabindex="0" class="btn btn-sm btn-ghost">⚙️</label>
-          <div
-            class="dropdown-content bg-white dark:bg-slate-900 rounded-box z-[1] w-52 p-2 shadow"
+        <div class="relative group">
+          <button
+            class="px-3 py-1.5 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >⚙️</button
           >
-            <button class="btn btn-sm btn-block" on:click={clearCache}>
+          <div
+            class="absolute right-0 mt-2 bg-white dark:bg-gray-900 rounded-lg z-10 w-52 p-2 shadow-xl border border-gray-200 dark:border-gray-700 hidden group-hover:block"
+          >
+            <button
+              class="w-full px-3 py-2 text-sm text-left rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              on:click={clearCache}
+            >
               Clear Cache
             </button>
-            <button class="btn btn-sm btn-block" on:click={queueTestJob}>
+            <button
+              class="w-full px-3 py-2 text-sm text-left rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              on:click={queueTestJob}
+            >
               Queue Test Job
             </button>
-            <button class="btn btn-sm btn-block" on:click={exportData}>
+            <button
+              class="w-full px-3 py-2 text-sm text-left rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              on:click={exportData}
+            >
               Export Data
             </button>
           </div>
@@ -169,31 +181,39 @@
     </div>
   {:else}
     <!-- Full view -->
-    <div class="tabs tabs-boxed mb-4">
+    <div class="flex gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mb-4">
       <button
-        class="tab"
-        class:tab-active={selectedTab === "overview"}
+        class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors {selectedTab ===
+        'overview'
+          ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow'
+          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
         on:click={() => (selectedTab = "overview")}
       >
         Overview
       </button>
       <button
-        class="tab"
-        class:tab-active={selectedTab === "cache"}
+        class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors {selectedTab ===
+        'cache'
+          ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow'
+          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
         on:click={() => (selectedTab = "cache")}
       >
         Cache
       </button>
       <button
-        class="tab"
-        class:tab-active={selectedTab === "jobs"}
+        class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors {selectedTab ===
+        'jobs'
+          ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow'
+          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
         on:click={() => (selectedTab = "jobs")}
       >
         Jobs
       </button>
       <button
-        class="tab"
-        class:tab-active={selectedTab === "system"}
+        class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors {selectedTab ===
+        'system'
+          ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow'
+          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
         on:click={() => (selectedTab = "system")}
       >
         System
@@ -310,36 +330,59 @@
       {/if}
     {:else if selectedTab === "cache"}
       <div class="cache-stats">
-        <div class="stats shadow">
-          <div class="stat">
-            <div class="stat-title">Memory Cache Entries</div>
-            <div class="stat-value">{$cacheStats.memory_cache_entries}</div>
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 shadow-sm"
+        >
+          <div
+            class="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+          >
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+              Memory Cache Entries
+            </div>
+            <div class="text-2xl font-bold text-gray-900 dark:text-white">
+              {$cacheStats.memory_cache_entries}
+            </div>
           </div>
 
-          <div class="stat">
-            <div class="stat-title">Redis Connected</div>
-            <div class="stat-value">
+          <div
+            class="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+          >
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+              Redis Connected
+            </div>
+            <div class="text-2xl font-bold text-gray-900 dark:text-white">
               {$cacheStats.redis_connected ? "✅" : "❌"}
             </div>
           </div>
 
-          <div class="stat">
-            <div class="stat-title">Cache Hit Ratio</div>
-            <div class="stat-value">
+          <div
+            class="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+          >
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+              Cache Hit Ratio
+            </div>
+            <div class="text-2xl font-bold text-gray-900 dark:text-white">
               {performanceUtils.formatPercentage($cacheStats.cache_hit_ratio)}
             </div>
           </div>
 
-          <div class="stat">
-            <div class="stat-title">Total Requests</div>
-            <div class="stat-value">
+          <div
+            class="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+          >
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+              Total Requests
+            </div>
+            <div class="text-2xl font-bold text-gray-900 dark:text-white">
               {$cacheStats.total_requests.toLocaleString()}
             </div>
           </div>
         </div>
 
         <div class="cache-actions mt-4">
-          <button class="btn btn-warning" on:click={clearCache}>
+          <button
+            class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors"
+            on:click={clearCache}
+          >
             Clear All Caches
           </button>
         </div>
@@ -371,7 +414,10 @@
         {:else}
           <div class="no-jobs">
             <p>No background jobs currently running</p>
-            <button class="btn btn-sm" on:click={queueTestJob}>
+            <button
+              class="px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+              on:click={queueTestJob}
+            >
               Queue Test Job
             </button>
           </div>
@@ -429,155 +475,3 @@
     {/if}
   {/if}
 </div>
-
-<style>
-  .performance-monitor {
-    @apply bg-white dark:bg-slate-900 rounded-lg p-4;
-  }
-
-  .performance-monitor.compact {
-    @apply p-2;
-  }
-
-  .monitor-header {
-    @apply flex justify-between items-center mb-4;
-  }
-
-  .header-left h3 {
-    @apply text-lg font-semibold mb-1;
-  }
-
-  .status-indicator {
-    @apply badge badge-sm;
-  }
-
-  .status-indicator.success {
-    @apply badge-success;
-  }
-
-  .status-indicator.info {
-    @apply badge-info;
-  }
-
-  .status-indicator.warning {
-    @apply badge-warning;
-  }
-
-  .status-indicator.error {
-    @apply badge-error;
-  }
-
-  .header-controls {
-    @apply flex gap-2 items-center;
-  }
-
-  .compact-metrics {
-    @apply flex gap-4;
-  }
-
-  .metric {
-    @apply flex flex-col items-center;
-  }
-
-  .metric-label {
-    @apply text-xs opacity-70;
-  }
-
-  .metric-value {
-    @apply font-semibold;
-  }
-
-  .metrics-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6;
-  }
-
-  .metric-card {
-    @apply bg-slate-50 dark:bg-slate-800 rounded-lg p-4;
-  }
-
-  .metric-header {
-    @apply flex justify-between items-center mb-2;
-  }
-
-  .metric-title {
-    @apply text-sm opacity-70;
-  }
-
-  .metric-value {
-    @apply font-semibold;
-  }
-
-  .chart-container {
-    @apply bg-slate-50 dark:bg-slate-800 rounded-lg p-4;
-  }
-
-  .simple-chart {
-    @apply relative h-32 bg-slate-100 dark:bg-slate-700 rounded mt-4;
-    position: relative;
-  }
-
-  .chart-bar {
-    @apply bg-primary absolute bottom-0 w-1;
-    transition: height 0.3s ease;
-  }
-
-  .cache-stats .stats {
-    @apply w-full;
-  }
-
-  .jobs-stats {
-    @apply flex gap-4 mb-4;
-  }
-
-  .stat-item {
-    @apply flex gap-2;
-  }
-
-  .stat-label {
-    @apply opacity-70;
-  }
-
-  .stat-value {
-    @apply font-semibold;
-  }
-
-  .jobs-list {
-    @apply space-y-2;
-  }
-
-  .job-item {
-    @apply flex justify-between items-center bg-slate-50 dark:bg-slate-800 rounded p-2;
-  }
-
-  .no-jobs {
-    @apply text-center py-8;
-  }
-
-  .system-info {
-    @apply space-y-4;
-  }
-
-  .info-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 gap-2;
-  }
-
-  .info-item {
-    @apply flex justify-between;
-  }
-
-  .features-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 gap-2;
-  }
-
-  .feature-item {
-    @apply flex justify-between items-center;
-  }
-
-  .feature-status.enabled {
-    @apply text-success;
-  }
-
-  .feature-status.disabled {
-    @apply text-error;
-  }
-</style>

@@ -88,15 +88,19 @@
   }
 </script>
 
-<div class="card bg-white dark:bg-slate-900 shadow-xl">
-  <div class="card-body">
+<div
+  class="bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700"
+>
+  <div class="p-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="card-title">
-        <i class="bi bi-people-fill text-primary"></i>
+      <h2
+        class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2"
+      >
+        <i class="bi bi-people-fill text-blue-600 dark:text-blue-400"></i>
         User Management
       </h2>
       <button
-        class="btn btn-primary btn-sm"
+        class="px-3 py-1.5 text-sm bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
         on:click={() => (showAddUserModal = true)}
       >
         <i class="bi bi-person-plus-fill"></i>
@@ -106,54 +110,102 @@
 
     {#if loadingUsers}
       <div class="flex justify-center items-center h-64">
-        <span class="loading loading-spinner loading-lg text-primary"></span>
+        <div
+          class="w-12 h-12 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"
+        ></div>
       </div>
     {:else if users.length > 0}
       <div class="overflow-x-auto">
-        <table class="table table-zebra">
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Created</th>
-              <th>Last Login</th>
-              <th>2FA</th>
-              <th class="text-right">Actions</th>
+        <table class="w-full">
+          <thead class="border-b-2 border-gray-200 dark:border-gray-700">
+            <tr class="text-left">
+              <th
+                class="p-3 text-sm font-semibold text-gray-700 dark:text-gray-200"
+                >User</th
+              >
+              <th
+                class="p-3 text-sm font-semibold text-gray-700 dark:text-gray-200"
+                >Email</th
+              >
+              <th
+                class="p-3 text-sm font-semibold text-gray-700 dark:text-gray-200"
+                >Role</th
+              >
+              <th
+                class="p-3 text-sm font-semibold text-gray-700 dark:text-gray-200"
+                >Created</th
+              >
+              <th
+                class="p-3 text-sm font-semibold text-gray-700 dark:text-gray-200"
+                >Last Login</th
+              >
+              <th
+                class="p-3 text-sm font-semibold text-gray-700 dark:text-gray-200"
+                >2FA</th
+              >
+              <th
+                class="p-3 text-sm font-semibold text-gray-700 dark:text-gray-200 text-right"
+                >Actions</th
+              >
             </tr>
           </thead>
           <tbody>
-            {#each users as user}
-              <tr>
-                <td>
+            {#each users as user, i}
+              <tr
+                class="{i % 2 === 0
+                  ? 'bg-white dark:bg-gray-900'
+                  : 'bg-gray-50 dark:bg-gray-800'} border-b border-gray-100 dark:border-gray-800 last:border-0"
+              >
+                <td class="p-3">
                   <div class="flex items-center gap-3">
-                    <div class="avatar placeholder">
-                      <div class="bg-primary text-primary-content rounded-full w-8">
-                        <span class="text-xs">{user.username.substring(0, 2).toUpperCase()}</span>
-                      </div>
+                    <div
+                      class="w-8 h-8 rounded-full bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center"
+                    >
+                      <span class="text-xs font-semibold"
+                        >{user.username.substring(0, 2).toUpperCase()}</span
+                      >
                     </div>
-                    <div class="font-semibold">{user.username}</div>
+                    <div class="font-semibold text-gray-900 dark:text-white">
+                      {user.username}
+                    </div>
                   </div>
                 </td>
-                <td>{user.email}</td>
-                <td>
-                  <span class="badge {user.role === 'admin' ? 'badge-error' : 'badge-ghost'}">
+                <td class="p-3 text-gray-700 dark:text-gray-300"
+                  >{user.email}</td
+                >
+                <td class="p-3">
+                  <span
+                    class="px-2 py-0.5 text-xs rounded-full {user.role ===
+                    'admin'
+                      ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'}"
+                  >
                     {user.role}
                   </span>
                 </td>
-                <td class="text-sm opacity-70">{user.created}</td>
-                <td class="text-sm opacity-70">{user.lastLogin}</td>
-                <td>
+                <td class="p-3 text-sm text-gray-500 dark:text-gray-400"
+                  >{user.created}</td
+                >
+                <td class="p-3 text-sm text-gray-500 dark:text-gray-400"
+                  >{user.lastLogin}</td
+                >
+                <td class="p-3">
                   {#if user.twoFactor}
-                    <span class="badge badge-success">Enabled</span>
+                    <span
+                      class="px-2 py-0.5 text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded-full"
+                      >Enabled</span
+                    >
                   {:else}
-                    <span class="badge badge-ghost">Disabled</span>
+                    <span
+                      class="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full"
+                      >Disabled</span
+                    >
                   {/if}
                 </td>
-                <td>
+                <td class="p-3">
                   <div class="flex gap-1 justify-end">
                     <button
-                      class="btn btn-ghost btn-sm btn-circle text-error"
+                      class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       on:click={() => openDeleteUserModal(user)}
                       aria-label="Delete user"
                       disabled={user.username === $auth.username}
@@ -186,97 +238,131 @@
 
 <!-- Add User Modal -->
 {#if showAddUserModal}
-  <dialog class="modal modal-open">
-    <div class="modal-box">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    on:click={() => (showAddUserModal = false)}
+  >
+    <div
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-md w-full mx-4 relative"
+      on:click|stopPropagation
+    >
       <button
-        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+        class="absolute right-2 top-2 w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 flex items-center justify-center transition-colors"
         on:click={() => (showAddUserModal = false)}
+        aria-label="Close modal"
       >
         ✕
       </button>
-      <h3 class="font-bold text-lg mb-4">
-        <i class="bi bi-person-plus-fill text-primary mr-2"></i>
-        Add New User
-      </h3>
+      <div class="p-6">
+        <h3
+          class="font-bold text-lg mb-4 text-gray-900 dark:text-white flex items-center gap-2"
+        >
+          <i class="bi bi-person-plus-fill text-blue-600 dark:text-blue-400"
+          ></i>
+          Add New User
+        </h3>
 
-      <div class="space-y-4">
-        <div class="form-control">
-          <label class="label" for="username">
-            <span class="label-text">Username</span>
-          </label>
-          <label class="input input-bordered flex items-center gap-2">
-            <i class="bi bi-person-fill opacity-70"></i>
-            <input
-              type="text"
-              id="username"
-              class="grow"
-              placeholder="Enter username..."
-              bind:value={newUsername}
-            />
-          </label>
+        <div class="space-y-4">
+          <div class="mb-4">
+            <label
+              class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200"
+              for="username"
+            >
+              Username
+            </label>
+            <div
+              class="flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus-within:ring-2 focus-within:ring-blue-500"
+            >
+              <i class="bi bi-person-fill text-gray-400 dark:text-gray-500"></i>
+              <input
+                type="text"
+                id="username"
+                class="flex-1 bg-transparent border-none focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                placeholder="Enter username..."
+                bind:value={newUsername}
+              />
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label
+              class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200"
+              for="password"
+            >
+              Password
+            </label>
+            <div
+              class="flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus-within:ring-2 focus-within:ring-blue-500"
+            >
+              <i class="bi bi-lock-fill text-gray-400 dark:text-gray-500"></i>
+              <input
+                type="password"
+                id="password"
+                class="flex-1 bg-transparent border-none focus:outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                placeholder="Enter password..."
+                bind:value={newUserPassword}
+              />
+            </div>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Password must be at least 8 characters
+            </p>
+          </div>
         </div>
 
-        <div class="form-control">
-          <label class="label" for="password">
-            <span class="label-text">Password</span>
-          </label>
-          <label class="input input-bordered flex items-center gap-2">
-            <i class="bi bi-lock-fill opacity-70"></i>
-            <input
-              type="password"
-              id="password"
-              class="grow"
-              placeholder="Enter password..."
-              bind:value={newUserPassword}
-            />
-          </label>
-          <label class="label">
-            <span class="label-text-alt">Password must be at least 8 characters</span>
-          </label>
+        <div class="flex justify-end gap-2 mt-6">
+          <button
+            class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg transition-colors"
+            on:click={() => (showAddUserModal = false)}
+          >
+            Cancel
+          </button>
+          <button
+            class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
+            on:click={handleAddUser}
+          >
+            <i class="bi bi-check-lg"></i>
+            Create User
+          </button>
         </div>
-      </div>
-
-      <div class="modal-action">
-        <button class="btn btn-ghost" on:click={() => (showAddUserModal = false)}>
-          Cancel
-        </button>
-        <button class="btn btn-primary" on:click={handleAddUser}>
-          <i class="bi bi-check-lg"></i>
-          Create User
-        </button>
       </div>
     </div>
-    <form method="dialog" class="modal-backdrop">
-      <button on:click={() => (showAddUserModal = false)}>close</button>
-    </form>
-  </dialog>
+  </div>
 {/if}
 
 <!-- Delete User Modal -->
 {#if showDeleteUserModal}
-  <dialog class="modal modal-open">
-    <div class="modal-box text-center">
-      <div class="text-6xl text-error mb-4">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    on:click={() => (showDeleteUserModal = false)}
+  >
+    <div
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-md w-full mx-4 text-center p-6"
+      on:click|stopPropagation
+    >
+      <div class="text-6xl text-red-600 dark:text-red-400 mb-4">
         <i class="bi bi-person-x-fill"></i>
       </div>
-      <h3 class="font-bold text-lg mb-2">
+      <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">
         Delete User "{userToDelete?.username}"?
       </h3>
-      <p class="text-base-content/70 mb-4">
+      <p class="text-gray-600 dark:text-gray-400 mb-4">
         This action cannot be undone. All user data will be permanently removed.
       </p>
-      <div class="modal-action justify-center">
-        <button class="btn btn-ghost" on:click={() => (showDeleteUserModal = false)}>
+      <div class="flex justify-center gap-2">
+        <button
+          class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg transition-colors"
+          on:click={() => (showDeleteUserModal = false)}
+        >
           Cancel
         </button>
-        <button class="btn btn-error" on:click={handleDeleteUser}>
+        <button
+          class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-2"
+          on:click={handleDeleteUser}
+        >
           <i class="bi bi-trash"></i>
           Delete User
         </button>
       </div>
     </div>
-    <form method="dialog" class="modal-backdrop">
-      <button on:click={() => (showDeleteUserModal = false)}>close</button>
-    </form>
-  </dialog>
+  </div>
 {/if}

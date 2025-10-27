@@ -4,6 +4,7 @@
   import { currentTheme, currentView, currentLang } from "./stores/ui";
   import { userPreferences } from "./stores/preferences";
   import Login from "./pages/Login.svelte";
+  import Signup from "./pages/Signup.svelte";
   import Sidebar from "./components/Sidebar.svelte";
   import AppHeader from "./components/AppHeader.svelte";
   import FilesView from "./pages/FilesView.svelte";
@@ -20,6 +21,7 @@
   import PerformanceView from "./pages/PerformanceView.svelte";
   import NotificationsView from "./pages/NotificationsView.svelte";
   import RecentFilesView from "./pages/RecentFilesView.svelte";
+  import DesignShowcase from "./pages/DesignShowcase.svelte";
   import Toast from "./components/ui/Toast.svelte";
 
   // Load user preferences on mount if logged in
@@ -38,37 +40,57 @@
   });
 
   // Reload preferences when user logs in
-  $: if ($auth.isLoggedIn) {
-    Promise.all([
-      userPreferences.load(),
-      currentTheme.loadFromBackend?.(),
-      currentLang.loadFromBackend?.(),
-    ]).catch((err) => {
-      console.error("Failed to load user data:", err);
-    });
-  }
+  $effect(() => {
+    if ($auth.isLoggedIn) {
+      Promise.all([
+        userPreferences.load(),
+        currentTheme.loadFromBackend?.(),
+        currentLang.loadFromBackend?.(),
+      ]).catch((err) => {
+        console.error("Failed to load user data:", err);
+      });
+    }
+  });
 
   // Apply theme to document
-  $: {
+  $effect(() => {
     if (typeof document !== "undefined") {
       document.documentElement.setAttribute("data-theme", $currentTheme);
     }
-  }
+  });
 
   function handleNavigate(event) {
     currentView.set(event.detail.view);
   }
+
+  // Check for hash-based routing (login vs signup)
+  let showSignup = $state(false);
+
+  onMount(() => {
+    const checkRoute = () => {
+      showSignup = window.location.hash === "#/signup";
+    };
+    checkRoute();
+    window.addEventListener("hashchange", checkRoute);
+    return () => window.removeEventListener("hashchange", checkRoute);
+  });
 </script>
 
 {#if !$auth.isLoggedIn}
-  <Login />
+  {#if showSignup}
+    <Signup />
+  {:else}
+    <Login />
+  {/if}
 {:else}
   <div class="app-container">
     <Sidebar />
     <div class="main-wrapper">
       <AppHeader on:navigate={handleNavigate} />
       <main class="main-content">
-        {#if $currentView === "files"}
+        {#if $currentView === "design"}
+          <DesignShowcase />
+        {:else if $currentView === "files"}
           <FilesView />
         {:else if $currentView === "shared"}
           <SharedView />

@@ -3,6 +3,9 @@
   import { error as errorToast } from "../stores/toast";
   import api from "../lib/api";
   import Chart from "../components/ui/Chart.svelte";
+  import PageWrapper from "../components/PageWrapper.svelte";
+  import ModernCard from "../components/ui/ModernCard.svelte";
+  import Loading from "../components/Loading.svelte";
 
   let loading = true;
   let loadingDisk = true;
@@ -205,78 +208,72 @@
   }
 </script>
 
-<div class="storage-view">
+<PageWrapper gradient>
+  <!-- Animated Background Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
   {#if loading || loadingDisk}
-    <div class="flex justify-center items-center h-64">
-      <span class="loading loading-spinner loading-lg text-primary"></span>
-    </div>
+    <Loading />
   {:else}
-    <!-- System Disk Usage - NEW! -->
-    <div
-      class="card bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20 shadow-lg mb-6"
-    >
-      <div class="card-body">
-        <h2 class="card-title text-2xl mb-4">
-          <i class="bi bi-device-hdd-fill mr-2"></i>
-          System Disk Usage
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="stat bg-white dark:bg-slate-900/50 rounded-box p-4">
-            <div class="stat-figure text-primary">
-              <i class="bi bi-pie-chart-fill text-3xl"></i>
+    <!-- Page Header -->
+    <div class="mb-8 relative z-10">
+      <h1 class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3">
+        <i class="bi bi-pie-chart-fill"></i>
+        Storage Analytics
+      </h1>
+      <p class="text-base-content/70">Complete overview of your disk usage and file distribution</p>
+    </div>
+
+    <!-- System Disk Usage -->
+    <ModernCard variant="glass" title="System Disk Usage" icon="device-hdd-fill" class="mb-6">
+      {#snippet children()}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="glass-card-light p-6 text-center">
+            <div class="text-primary mb-2">
+              <i class="bi bi-pie-chart-fill text-4xl"></i>
             </div>
-            <div class="stat-title">Disk Capacity</div>
-            <div class="stat-value text-primary text-2xl">
-              {diskTotalFormatted}
-            </div>
-            <div class="stat-desc">
+            <div class="text-sm font-semibold text-base-content/60 mb-1">Disk Capacity</div>
+            <div class="text-3xl font-bold text-primary mb-2">{diskTotalFormatted}</div>
+            <div class="text-xs text-base-content/50">
               {diskStats.filesystem} @ {diskStats.mount_point}
             </div>
           </div>
 
-          <div class="stat bg-white dark:bg-slate-900/50 rounded-box p-4">
-            <div class="stat-figure text-error">
-              <i class="bi bi-exclamation-triangle-fill text-3xl"></i>
+          <div class="glass-card-light p-6 text-center">
+            <div class="text-error mb-2">
+              <i class="bi bi-exclamation-triangle-fill text-4xl"></i>
             </div>
-            <div class="stat-title">Used Space</div>
-            <div class="stat-value text-error text-2xl">
-              {diskUsedFormatted}
-            </div>
-            <div class="stat-desc">
-              {diskStats.usage_percent.toFixed(1)}% of total capacity
+            <div class="text-sm font-semibold text-base-content/60 mb-1">Used Space</div>
+            <div class="text-3xl font-bold text-error mb-2">{diskUsedFormatted}</div>
+            <div class="text-xs text-base-content/50">
+              {diskStats.usage_percent.toFixed(1)}% of total
             </div>
           </div>
 
-          <div class="stat bg-white dark:bg-slate-900/50 rounded-box p-4">
-            <div class="stat-figure text-success">
-              <i class="bi bi-check-circle-fill text-3xl"></i>
+          <div class="glass-card-light p-6 text-center">
+            <div class="text-success mb-2">
+              <i class="bi bi-check-circle-fill text-4xl"></i>
             </div>
-            <div class="stat-title">Available Space</div>
-            <div class="stat-value text-success text-2xl">
-              {diskAvailableFormatted}
-            </div>
-            <div class="stat-desc">Free for new files</div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">Available</div>
+            <div class="text-3xl font-bold text-success mb-2">{diskAvailableFormatted}</div>
+            <div class="text-xs text-base-content/50">Free for new files</div>
           </div>
         </div>
 
-        <!-- Visual Charts Row -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <!-- Disk Usage Doughnut Chart -->
-          <div class="bg-white dark:bg-slate-900/50 rounded-box p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Disk Usage Chart -->
+          <div class="glass-card-light p-6">
             <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
               <i class="bi bi-pie-chart-fill text-primary"></i>
-              Disk Usage Distribution
+              Disk Distribution
             </h3>
-            <Chart
-              data={diskChartData}
-              type="doughnut"
-              size="md"
-              title="Total"
-            />
+            <Chart data={diskChartData} type="doughnut" size="md" title="Total" />
           </div>
 
-          <!-- Disk Usage Progress Bar (Moved here) -->
-          <div class="bg-white dark:bg-slate-900/50 rounded-box p-6">
+          <!-- Capacity Progress -->
+          <div class="glass-card-light p-6">
             <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
               <i class="bi bi-speedometer2 text-primary"></i>
               Capacity Overview
@@ -284,9 +281,7 @@
             <div class="space-y-4">
               <div class="flex justify-between">
                 <span class="text-sm font-semibold">Disk Usage</span>
-                <span class="text-sm font-semibold"
-                  >{diskStats.usage_percent.toFixed(1)}%</span
-                >
+                <span class="text-sm font-semibold">{diskStats.usage_percent.toFixed(1)}%</span>
               </div>
               <progress
                 class="progress {diskStats.usage_percent > 90
@@ -299,126 +294,111 @@
               ></progress>
 
               <div class="grid grid-cols-2 gap-4 mt-6">
-                <div class="stat-compact">
-                  <div class="stat-label">Used</div>
-                  <div class="stat-value-sm text-error">
-                    {diskUsedFormatted}
-                  </div>
+                <div class="text-center">
+                  <div class="text-xs text-base-content/60 mb-1">Used</div>
+                  <div class="text-xl font-bold text-error">{diskUsedFormatted}</div>
                 </div>
-                <div class="stat-compact">
-                  <div class="stat-label">Free</div>
-                  <div class="stat-value-sm text-success">
-                    {diskAvailableFormatted}
-                  </div>
+                <div class="text-center">
+                  <div class="text-xs text-base-content/60 mb-1">Free</div>
+                  <div class="text-xl font-bold text-success">{diskAvailableFormatted}</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      {/snippet}
+    </ModernCard>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <ModernCard variant="gradient" hoverable>
+        {#snippet children()}
+          <div class="text-center">
+            <div class="text-primary mb-3">
+              <i class="bi bi-files text-5xl"></i>
+            </div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">Total Files</div>
+            <div class="text-4xl font-bold mb-2">{stats.totalFiles.toLocaleString()}</div>
+            <div class="text-xs text-base-content/50">Across all folders</div>
+          </div>
+        {/snippet}
+      </ModernCard>
+
+      <ModernCard variant="gradient" hoverable>
+        {#snippet children()}
+          <div class="text-center">
+            <div class="text-secondary mb-3">
+              <i class="bi bi-hdd-fill text-5xl"></i>
+            </div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">Storage Used</div>
+            <div class="text-4xl font-bold mb-2">{totalSizeFormatted}</div>
+            <div class="text-xs text-base-content/50">Total disk usage</div>
+          </div>
+        {/snippet}
+      </ModernCard>
+
+      <ModernCard variant="gradient" hoverable>
+        {#snippet children()}
+          <div class="text-center">
+            <div class="text-accent mb-3">
+              <i class="bi bi-pie-chart-fill text-5xl"></i>
+            </div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">File Types</div>
+            <div class="text-4xl font-bold mb-2">
+              {Object.values(stats.byType).filter((t) => t.count > 0).length}
+            </div>
+            <div class="text-xs text-base-content/50">Different categories</div>
+          </div>
+        {/snippet}
+      </ModernCard>
     </div>
 
-    <!-- Top Stats -->
-    <div class="stats stats-vertical lg:stats-horizontal shadow mb-6 w-full">
-      <div class="stat">
-        <div class="stat-figure text-primary">
-          <i class="bi bi-files text-4xl"></i>
-        </div>
-        <div class="stat-title">Total Files</div>
-        <div class="stat-value text-primary">
-          {stats.totalFiles.toLocaleString()}
-        </div>
-        <div class="stat-desc">Across all folders</div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-figure text-secondary">
-          <i class="bi bi-hdd-fill text-4xl"></i>
-        </div>
-        <div class="stat-title">Storage Used</div>
-        <div class="stat-value text-secondary">{totalSizeFormatted}</div>
-        <div class="stat-desc">Total disk usage</div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-figure text-accent">
-          <i class="bi bi-pie-chart-fill text-4xl"></i>
-        </div>
-        <div class="stat-title">File Types</div>
-        <div class="stat-value text-accent">
-          {Object.values(stats.byType).filter((t) => t.count > 0).length}
-        </div>
-        <div class="stat-desc">Different categories</div>
-      </div>
-    </div>
-
-    <!-- Storage Breakdown -->
+    <!-- File Type Charts -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <!-- Visual File Type Chart -->
-      <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm">
-        <div class="card-body">
-          <h2 class="card-title">
-            <i class="bi bi-pie-chart-fill mr-2"></i>
-            File Type Distribution
-          </h2>
+      <ModernCard variant="glass" title="File Type Distribution" icon="pie-chart-fill">
+        {#snippet children()}
           <div class="mt-4">
             {#if fileTypeChartData.length > 0}
-              <Chart
-                data={fileTypeChartData}
-                type="doughnut"
-                size="md"
-                title="Files"
-              />
+              <Chart data={fileTypeChartData} type="doughnut" size="md" title="Files" />
             {:else}
-              <div class="text-center py-8 text-base-content/50">
-                <i class="bi bi-inbox text-4xl"></i>
-                <p class="mt-2">No files yet</p>
+              <div class="text-center py-12 text-base-content/50">
+                <i class="bi bi-inbox text-5xl mb-3"></i>
+                <p>No files yet</p>
               </div>
             {/if}
           </div>
-        </div>
-      </div>
+        {/snippet}
+      </ModernCard>
 
-      <!-- Bar Chart for File Types -->
-      <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm">
-        <div class="card-body">
-          <h2 class="card-title">
-            <i class="bi bi-bar-chart-fill mr-2"></i>
-            Storage by Category
-          </h2>
+      <ModernCard variant="glass" title="Storage by Category" icon="bar-chart-fill">
+        {#snippet children()}
           <div class="mt-4">
             {#if fileTypeChartData.length > 0}
               <Chart data={fileTypeChartData} type="bar" size="md" />
             {:else}
-              <div class="text-center py-8 text-base-content/50">
-                <i class="bi bi-inbox text-4xl"></i>
-                <p class="mt-2">No files yet</p>
+              <div class="text-center py-12 text-base-content/50">
+                <i class="bi bi-inbox text-5xl mb-3"></i>
+                <p>No files yet</p>
               </div>
             {/if}
           </div>
-        </div>
-      </div>
+        {/snippet}
+      </ModernCard>
     </div>
 
-    <!-- Detailed Storage Breakdown -->
+    <!-- Detailed Breakdown -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <!-- Type Distribution Cards -->
-      <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm">
-        <div class="card-body">
-          <h2 class="card-title">
-            <i class="bi bi-list-ul mr-2"></i>
-            Detailed Breakdown
-          </h2>
+      <ModernCard variant="glass" title="Detailed Breakdown" icon="list-ul">
+        {#snippet children()}
           <div class="space-y-4 mt-4">
             {#each Object.entries(stats.byType) as [type, data]}
               {@const config = typeCategories[type]}
               {@const percentage = formatPercent(data.size, stats.totalSize)}
               {#if data.count > 0}
-                <div class="space-y-2">
+                <div class="space-y-2 animate-slide-up">
                   <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                      <i class="bi bi-{config.icon} text-{config.color} text-xl"
-                      ></i>
+                      <i class="bi bi-{config.icon} text-{config.color} text-xl"></i>
                       <span class="font-semibold">{config.label}</span>
                     </div>
                     <div class="text-right">
@@ -432,30 +412,23 @@
                       value={percentage}
                       max="100"
                     ></progress>
-                    <span class="text-sm font-semibold min-w-[3rem] text-right"
-                      >{percentage}%</span
-                    >
+                    <span class="text-sm font-semibold min-w-[3rem] text-right">{percentage}%</span>
                   </div>
                 </div>
               {/if}
             {/each}
           </div>
-        </div>
-      </div>
+        {/snippet}
+      </ModernCard>
 
-      <!-- Radial Progress Visualization -->
-      <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm">
-        <div class="card-body">
-          <h2 class="card-title">
-            <i class="bi bi-graph-up mr-2"></i>
-            Storage Distribution
-          </h2>
+      <ModernCard variant="glass" title="Storage Distribution" icon="graph-up">
+        {#snippet children()}
           <div class="grid grid-cols-3 gap-4 mt-4">
             {#each Object.entries(stats.byType).slice(0, 6) as [type, data]}
               {@const config = typeCategories[type]}
               {@const percentage = formatPercent(data.size, stats.totalSize)}
               {#if data.count > 0}
-                <div class="flex flex-col items-center gap-2">
+                <div class="flex flex-col items-center gap-2 animate-fade-in">
                   <div
                     class="radial-progress text-{config.color}"
                     style="--value:{percentage}; --size:5rem; --thickness: 0.4rem;"
@@ -465,26 +438,20 @@
                   </div>
                   <div class="text-center">
                     <div class="text-xs font-semibold">{config.label}</div>
-                    <div class="text-xs opacity-70">
-                      {formatSize(data.size)}
-                    </div>
+                    <div class="text-xs opacity-70">{formatSize(data.size)}</div>
                   </div>
                 </div>
               {/if}
             {/each}
           </div>
-        </div>
-      </div>
+        {/snippet}
+      </ModernCard>
     </div>
 
     <!-- Largest Files -->
     {#if stats.largestFiles.length > 0}
-      <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm">
-        <div class="card-body">
-          <h2 class="card-title">
-            <i class="bi bi-sort-down-alt mr-2"></i>
-            Largest Files
-          </h2>
+      <ModernCard variant="glass" title="Largest Files" icon="sort-down-alt">
+        {#snippet children()}
           <div class="overflow-x-auto mt-4">
             <table class="table table-zebra">
               <thead>
@@ -497,7 +464,7 @@
               </thead>
               <tbody>
                 {#each stats.largestFiles as file, i}
-                  <tr>
+                  <tr class="animate-slide-up" style="animation-delay: {i * 50}ms;">
                     <td>{i + 1}</td>
                     <td>
                       <div class="flex items-center gap-2">
@@ -506,9 +473,7 @@
                       </div>
                     </td>
                     <td>
-                      <span class="badge badge-ghost font-semibold"
-                        >{formatSize(file.size)}</span
-                      >
+                      <span class="badge badge-glass-info font-semibold">{formatSize(file.size)}</span>
                     </td>
                     <td>
                       <div class="flex items-center gap-2">
@@ -517,9 +482,7 @@
                           value={formatPercent(file.size, stats.totalSize)}
                           max="100"
                         ></progress>
-                        <span class="text-sm"
-                          >{formatPercent(file.size, stats.totalSize)}%</span
-                        >
+                        <span class="text-sm">{formatPercent(file.size, stats.totalSize)}%</span>
                       </div>
                     </td>
                   </tr>
@@ -527,40 +490,13 @@
               </tbody>
             </table>
           </div>
-        </div>
-      </div>
+        {/snippet}
+      </ModernCard>
     {/if}
   {/if}
-</div>
+</PageWrapper>
 
 <style>
-  .storage-view {
-    padding: 1.5rem;
-    min-height: calc(100vh - 200px);
-  }
-
-  /* Compact stat styles */
-  .stat-compact {
-    text-align: center;
-    padding: 0.75rem;
-    background: hsl(var(--b2) / 0.5);
-    border-radius: 0.5rem;
-  }
-
-  .stat-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: hsl(var(--bc) / 0.6);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .stat-value-sm {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-top: 0.25rem;
-  }
-
   /* Radial progress color overrides */
   :global(.radial-progress.text-primary) {
     --value: 0;
