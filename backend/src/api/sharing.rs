@@ -1,9 +1,10 @@
-use crate::auth::UserInfo;
 //! File sharing API endpoints
+
+use crate::auth::UserInfo;
 
 use axum::{extract::{Path, State}, http::StatusCode, routing::{delete, get, post, put}, Json, Router};
 use serde::{Deserialize, Serialize};
-use crate::{auth::User, services::sharing, AppState};
+use crate::{services, AppState};
 
 #[derive(Debug, Deserialize)]
 pub struct CreateShareRequest {

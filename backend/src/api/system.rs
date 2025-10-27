@@ -1,8 +1,9 @@
-use crate::auth::UserInfo;
 //! System API endpoints (stats, storage, health)
 
+use crate::auth::UserInfo;
+
 use axum::{extract::State, http::StatusCode, routing::get, Json, Router};
-use crate::{auth::User, services::system, AppState};
+use crate::{services, AppState};
 
 pub fn router() -> Router<AppState> {
     Router::new()

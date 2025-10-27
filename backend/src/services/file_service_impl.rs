@@ -14,9 +14,15 @@ const DATA_DIR: &str = "./data";
 pub async fn list_files(state: &AppState, user: &UserInfo, path: &str) -> Result<Vec<FileInfo>> {
     if let Ok(Some(cached)) = state.cache_manager.get_directory_listing(path).await {
         return Ok(cached.into_iter().map(|e| FileInfo {
-            id: Uuid::new_v4().to_string(), name: e.name, path: path.to_string(),
-            size: e.size as i64, is_directory: e.is_dir, owner_id: user.id.clone(),
-            created_at: Utc::now(), modified_at: Utc::now(),
+            id: Uuid::new_v4(), 
+            name: e.name, 
+            path: path.to_string(),
+            size: e.size as i64, 
+            is_directory: e.is_directory, 
+            owner_id: Uuid::parse_str(&user.id).unwrap_or_default(),
+            created_at: Utc::now(), 
+            modified_at: Utc::now(),
+            parent_id: None,
         }).collect());
     }
     
@@ -28,9 +34,15 @@ pub async fn list_files(state: &AppState, user: &UserInfo, path: &str) -> Result
         if let Ok(meta) = e.metadata().await {
             let name = e.file_name().to_string_lossy().to_string();
             entries.push(FileInfo {
-                id: Uuid::new_v4().to_string(), name, path: path.to_string(),
-                size: meta.len() as i64, is_directory: meta.is_dir(), owner_id: user.id.clone(),
-                created_at: Utc::now(), modified_at: Utc::now(),
+                id: Uuid::new_v4(), 
+                name, 
+                path: path.to_string(),
+                size: meta.len() as i64, 
+                is_directory: meta.is_dir(), 
+                owner_id: Uuid::parse_str(&user.id).unwrap_or_default(),
+                created_at: Utc::now(), 
+                modified_at: Utc::now(),
+                parent_id: None,
             });
         }
     }
@@ -64,12 +76,18 @@ pub async fn upload_file(state: &AppState, user: &UserInfo, path: &str, data: Ve
     let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'created', ?, 'success', datetime('now'))")
         .bind(&log_id).bind(&user.id).bind(path).execute(&state.db_pool).await;
     
-    let _ = state.fs_tx.send(FileChangeEvent::new(path.to_string(), "create".to_string()).with_user(user.id.clone()));
+    let _ = state.fs_tx.send(FileChangeEvent::new(path.to_string(), "create".to_string()));
     
     Ok(FileInfo {
-        id: Uuid::new_v4().to_string(), name: target.file_name().unwrap().to_string_lossy().to_string(),
-        path: path.to_string(), size: data.len() as i64, is_directory: false,
-        owner_id: user.id.clone(), created_at: Utc::now(), modified_at: Utc::now(),
+        id: Uuid::new_v4(), 
+        name: target.file_name().unwrap().to_string_lossy().to_string(),
+        path: path.to_string(), 
+        size: data.len() as i64, 
+        is_directory: false,
+        owner_id: Uuid::parse_str(&user.id).unwrap_or_default(), 
+        created_at: Utc::now(), 
+        modified_at: Utc::now(),
+        parent_id: None,
     })
 }
 
@@ -83,7 +101,7 @@ pub async fn delete_file(state: &AppState, user: &UserInfo, path: &str) -> Resul
     let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'deleted', ?, 'success', datetime('now'))")
         .bind(&log_id).bind(&user.id).bind(path).execute(&state.db_pool).await;
     
-    let _ = state.fs_tx.send(FileChangeEvent::new(path.to_string(), "delete".to_string()).with_user(user.id.clone()));
+    let _ = state.fs_tx.send(FileChangeEvent::new(path.to_string(), "delete".to_string()));
     Ok(())
 }
 
@@ -98,7 +116,7 @@ pub async fn rename_file(state: &AppState, user: &UserInfo, old_path: &str, new_
     let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'renamed', ?, 'success', datetime('now'))")
         .bind(&log_id).bind(&user.id).bind(new_path).execute(&state.db_pool).await;
     
-    let _ = state.fs_tx.send(FileChangeEvent::new(new_path.to_string(), "rename".to_string()).with_user(user.id.clone()));
+    let _ = state.fs_tx.send(FileChangeEvent::new(new_path.to_string(), "rename".to_string()));
     Ok(())
 }
 
@@ -117,6 +135,6 @@ pub async fn copy_file(state: &AppState, user: &UserInfo, source_path: &str, des
     let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'copied', ?, 'success', datetime('now'))")
         .bind(&log_id).bind(&user.id).bind(dest_path).execute(&state.db_pool).await;
     
-    let _ = state.fs_tx.send(FileChangeEvent::new(dest_path.to_string(), "copy".to_string()).with_user(user.id.clone()));
+    let _ = state.fs_tx.send(FileChangeEvent::new(dest_path.to_string(), "copy".to_string()));
     Ok(())
 }

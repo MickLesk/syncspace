@@ -1,9 +1,10 @@
-use crate::auth::UserInfo;
 //! Tags API endpoints
+
+use crate::auth::UserInfo;
 
 use axum::{extract::{Path, State}, http::StatusCode, routing::{delete, get, post}, Json, Router};
 use serde::Deserialize;
-use crate::{auth::User, services::tag, AppState};
+use crate::{services, AppState};
 
 #[derive(Debug, Deserialize)]
 pub struct CreateTagRequest {

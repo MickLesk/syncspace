@@ -1,9 +1,10 @@
-use crate::auth::UserInfo;
 //! Favorites API endpoints
+
+use crate::auth::UserInfo;
 
 use axum::{extract::{Path, State}, http::StatusCode, routing::{delete, get, post}, Json, Router};
 use serde::Deserialize;
-use crate::{auth::User, services::favorites, AppState};
+use crate::{services, AppState};
 
 #[derive(Debug, Deserialize)]
 pub struct AddFavoriteRequest {

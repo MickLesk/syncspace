@@ -35,3 +35,8 @@ pub use all_services_impl::{
     directory, sharing, activity, tag, favorites,
     backup, collaboration, system
 };
+
+// Stub functions for missing features
+pub async fn get_thumbnail(_state: &crate::AppState, _user: &crate::auth::UserInfo, _file_id: &str) -> anyhow::Result<Vec<u8>> {
+    Ok(vec![])
+}

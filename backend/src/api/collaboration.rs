@@ -1,9 +1,10 @@
-use crate::auth::UserInfo;
 //! Collaboration API endpoints (locks, presence, conflicts)
+
+use crate::auth::UserInfo;
 
 use axum::{extract::{Path, Query, State}, http::StatusCode, routing::{delete, get, post}, Json, Router};
 use serde::Deserialize;
-use crate::{auth::User, services::collaboration, AppState};
+use crate::{services, AppState};
 
 #[derive(Debug, Deserialize)]
 pub struct AcquireLockRequest {
