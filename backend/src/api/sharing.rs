@@ -17,19 +17,22 @@ pub struct CreateShareRequest {
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/shares", get(list_shares).post(create_share))
-        .route("/shares/:share_id", get(get_share).put(update_share).delete(delete_share))
+        .route("/shares/{share_id}", get(get_share).put(update_share).delete(delete_share))
 }
 
 async fn list_shares(State(state): State<AppState>, user: UserInfo) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    services::sharing::list_shares(&state, &user).await.map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    let shares = services::sharing::list_shares(&state, &user).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(shares.into_iter().map(|s| serde_json::to_value(s).unwrap_or_default()).collect()))
 }
 
 async fn create_share(State(state): State<AppState>, user: UserInfo, Json(req): Json<CreateShareRequest>) -> Result<Json<serde_json::Value>, StatusCode> {
-    services::sharing::create_share(&state, &user, req).await.map(Json).map_err(|_| StatusCode::BAD_REQUEST)
+    let share = services::sharing::create_share(&state, &user, &req.file_path, false).await.map_err(|_| StatusCode::BAD_REQUEST)?;
+    serde_json::to_value(share).map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 async fn get_share(State(state): State<AppState>, Path(share_id): Path<String>) -> Result<Json<serde_json::Value>, StatusCode> {
-    services::sharing::get_share(&state, &share_id).await.map(Json).map_err(|_| StatusCode::NOT_FOUND)
+    let share = services::sharing::get_share(&state, &share_id).await.map_err(|_| StatusCode::NOT_FOUND)?;
+    serde_json::to_value(share).map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 async fn update_share(State(state): State<AppState>, user: UserInfo, Path(share_id): Path<String>, Json(req): Json<serde_json::Value>) -> Result<StatusCode, StatusCode> {

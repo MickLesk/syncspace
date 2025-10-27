@@ -24,7 +24,8 @@ pub fn router() -> Router<AppState> {
 }
 
 async fn list_activity(State(state): State<AppState>, user: UserInfo, Query(query): Query<ActivityQuery>) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    services::activity::list(&state, &user, query.limit, query.offset, query.action).await.map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    let activities = services::activity::list(&state, &user, query.limit).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(activities.into_iter().map(|a| serde_json::to_value(a).unwrap_or_default()).collect()))
 }
 
 async fn get_stats(State(state): State<AppState>, user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {

@@ -63,7 +63,7 @@ pub fn router() -> Router<AppState> {
         // Copy file
         .route("/copy/*path", post(copy_file_handler))
         // Get thumbnail
-        .route("/thumbnails/:file_id", get(get_thumbnail_handler))
+        .route("/thumbnails/{file_id}", get(get_thumbnail_handler))
 }
 
 // ==================== HANDLERS ====================

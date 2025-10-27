@@ -20,11 +20,12 @@ pub fn router() -> Router<AppState> {
 }
 
 async fn list_favorites(State(state): State<AppState>, user: UserInfo) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    services::favorites::list(&state, &user).await.map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    let favorites = services::favorites::list(&state, &user).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(favorites.into_iter().map(|f| serde_json::to_value(f).unwrap_or_default()).collect()))
 }
 
 async fn add_favorite(State(state): State<AppState>, user: UserInfo, Json(req): Json<AddFavoriteRequest>) -> Result<StatusCode, StatusCode> {
-    services::favorites::add(&state, &user, req.item_id, req.item_type).await.map(|_| StatusCode::CREATED).map_err(|_| StatusCode::BAD_REQUEST)
+    services::favorites::add(&state, &user, &req.item_type, &req.item_id).await.map(|_| StatusCode::CREATED).map_err(|_| StatusCode::BAD_REQUEST)
 }
 
 async fn remove_favorite(State(state): State<AppState>, user: UserInfo, Path(favorite_id): Path<String>) -> Result<StatusCode, StatusCode> {

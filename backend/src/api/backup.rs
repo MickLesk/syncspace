@@ -16,7 +16,7 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/backups", get(list_backups))
         .route("/backups/create", post(create_backup))
-        .route("/backups/:backup_id", get(get_backup).delete(delete_backup))
+        .route("/backups/{backup_id}", get(get_backup).delete(delete_backup))
         .route("/backups/:backup_id/verify", post(verify_backup))
         .route("/backups/cleanup", post(cleanup_backups))
 }

@@ -23,7 +23,7 @@ pub struct UpdatePresenceRequest {
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/collaboration/locks", get(list_locks).post(acquire_lock))
-        .route("/collaboration/locks/:lock_id", delete(release_lock))
+        .route("/collaboration/locks/{lock_id}", delete(release_lock))
         .route("/collaboration/locks/:lock_id/heartbeat", post(renew_lock))
         .route("/collaboration/presence", get(get_presence).post(update_presence))
         .route("/collaboration/activity", get(get_activity))
@@ -32,11 +32,13 @@ pub fn router() -> Router<AppState> {
 }
 
 async fn list_locks(State(state): State<AppState>, user: UserInfo, Query(query): Query<std::collections::HashMap<String, String>>) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    services::collaboration::list_locks(&state, &user, query.get("file_path").map(|s| s.as_str())).await.map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    let locks = services::collaboration::list_locks(&state, &user).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(locks.into_iter().map(|l| serde_json::to_value(l).unwrap_or_default()).collect()))
 }
 
 async fn acquire_lock(State(state): State<AppState>, user: UserInfo, Json(req): Json<AcquireLockRequest>) -> Result<Json<serde_json::Value>, StatusCode> {
-    services::collaboration::acquire_lock(&state, &user, req).await.map(Json).map_err(|_| StatusCode::CONFLICT)
+    let lock = services::collaboration::acquire_lock(&state, &user, &req.file_path, &req.lock_type, req.duration_seconds).await.map_err(|_| StatusCode::CONFLICT)?;
+    serde_json::to_value(lock).map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 async fn release_lock(State(state): State<AppState>, user: UserInfo, Path(lock_id): Path<String>) -> Result<StatusCode, StatusCode> {
@@ -48,19 +50,22 @@ async fn renew_lock(State(state): State<AppState>, user: UserInfo, Path(lock_id)
 }
 
 async fn get_presence(State(state): State<AppState>, user: UserInfo) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    services::collaboration::get_presence(&state, &user).await.map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    let presence = services::collaboration::get_presence(&state).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(presence.into_iter().map(|p| serde_json::to_value(p).unwrap_or_default()).collect()))
 }
 
 async fn update_presence(State(state): State<AppState>, user: UserInfo, Json(req): Json<UpdatePresenceRequest>) -> Result<StatusCode, StatusCode> {
-    services::collaboration::update_presence(&state, &user, req).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
+    services::collaboration::update_presence(&state, &user, &req.file_path, &req.activity_type, req.metadata).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
 }
 
 async fn get_activity(State(state): State<AppState>, user: UserInfo) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    services::collaboration::get_activity(&state, &user).await.map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    let activities = services::collaboration::get_activity(&state, &user).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(activities.into_iter().map(|a| serde_json::to_value(a).unwrap_or_default()).collect()))
 }
 
 async fn list_conflicts(State(state): State<AppState>, user: UserInfo) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    services::collaboration::list_conflicts(&state, &user).await.map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    let conflicts = services::collaboration::list_conflicts(&state, &user).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(conflicts.into_iter().map(|c| serde_json::to_value(c).unwrap_or_default()).collect()))
 }
 
 async fn resolve_conflict(State(state): State<AppState>, user: UserInfo, Path(conflict_id): Path<String>, Json(req): Json<serde_json::Value>) -> Result<StatusCode, StatusCode> {
