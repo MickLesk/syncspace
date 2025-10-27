@@ -100,7 +100,7 @@
 </script>
 
 <div class="form-example-container">
-  <div class="card bg-base-100 shadow-xl max-w-2xl mx-auto">
+  <div class="card bg-white dark:bg-slate-900 shadow-xl max-w-2xl mx-auto">
     <div class="card-body">
       <h2 class="card-title text-2xl mb-4">
         <i class="bi bi-person-plus"></i>

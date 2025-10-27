@@ -411,7 +411,7 @@
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div class="fixed inset-0 z-[99]" onclick={closeServerInfo}></div>
           <div
-            class="dropdown-content z-[100] card card-compact w-80 p-2 shadow-2xl bg-base-100 border border-base-300 rounded-2xl mt-2"
+            class="dropdown-content z-[100] card card-compact w-80 p-2 shadow-2xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-2xl mt-2"
           >
             <div class="card-body">
               <div class="flex justify-between items-start">
@@ -428,7 +428,7 @@
               </div>
               <div class="divider my-1"></div>
               <div class="grid grid-cols-2 gap-2 text-xs">
-                <div class="stat bg-base-200 rounded-lg p-2">
+                <div class="stat bg-slate-50 dark:bg-slate-800 rounded-lg p-2">
                   <div class="stat-title text-xs opacity-60">Status</div>
                   <div
                     class="stat-value text-sm {$wsConnected
@@ -438,19 +438,19 @@
                     {$wsConnected ? "Online" : "Offline"}
                   </div>
                 </div>
-                <div class="stat bg-base-200 rounded-lg p-2">
+                <div class="stat bg-slate-50 dark:bg-slate-800 rounded-lg p-2">
                   <div class="stat-title text-xs opacity-60">Version</div>
                   <div class="stat-value text-sm">
                     {serverInfo.rust_version || "N/A"}
                   </div>
                 </div>
-                <div class="stat bg-base-200 rounded-lg p-2">
+                <div class="stat bg-slate-50 dark:bg-slate-800 rounded-lg p-2">
                   <div class="stat-title text-xs opacity-60">CPU Cores</div>
                   <div class="stat-value text-sm">
                     {serverInfo.cpu_cores || "N/A"}
                   </div>
                 </div>
-                <div class="stat bg-base-200 rounded-lg p-2">
+                <div class="stat bg-slate-50 dark:bg-slate-800 rounded-lg p-2">
                   <div class="stat-title text-xs opacity-60">Memory</div>
                   <div class="stat-value text-sm">
                     {serverInfo.memory_total || "N/A"}
@@ -595,7 +595,7 @@
       </label>
       <div class="input-group flex">
         <span
-          class="px-4 bg-base-200 flex items-center rounded-l-xl border border-r-0 border-base-300"
+          class="px-4 bg-slate-50 dark:bg-slate-800 flex items-center rounded-l-xl border border-r-0 border-slate-300 dark:border-slate-600"
         >
           <i class="bi bi-search text-lg"></i>
         </span>

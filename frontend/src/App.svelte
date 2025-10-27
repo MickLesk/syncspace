@@ -103,7 +103,7 @@
 {/if}<Toast />
 
 <style>
-  @import "bootstrap-icons/font/bootstrap-icons.css";
+  /* Bootstrap Icons loaded from CDN in index.html */
 
   .app-container {
     height: 100vh;

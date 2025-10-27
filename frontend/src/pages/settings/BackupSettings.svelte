@@ -11,7 +11,7 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   <!-- Backup Configuration -->
-  <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+  <div class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow">
     <div class="card-body">
       <h2 class="card-title mb-4">
         <i class="bi bi-cloud-arrow-up-fill text-info"></i>
@@ -83,7 +83,7 @@
   </div>
 
   <!-- Backup History -->
-  <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+  <div class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow">
     <div class="card-body">
       <h2 class="card-title">
         <i class="bi bi-archive-fill text-secondary"></i>
@@ -93,7 +93,7 @@
       <div class="space-y-3">
         {#each [{ date: "24.10.2025 02:00", size: "1.2 GB", status: "success" }, { date: "23.10.2025 02:00", size: "1.1 GB", status: "success" }, { date: "22.10.2025 02:00", size: "1.0 GB", status: "success" }] as backup}
           <div
-            class="flex items-center justify-between p-3 bg-base-200 rounded-lg"
+            class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg"
           >
             <div class="flex items-center gap-3">
               <i class="bi bi-check-circle-fill text-success text-xl"></i>

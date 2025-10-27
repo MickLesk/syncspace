@@ -168,7 +168,7 @@
 
   <!-- Active Users -->
   {#if filePresence.length > 0}
-    <div class="card bg-base-200 shadow-sm mb-3">
+    <div class="card bg-slate-50 dark:bg-slate-800 shadow-sm mb-3">
       <div class="card-body p-3">
         <h4 class="card-title text-sm mb-2">
           <i class="bi bi-people-fill"></i>
@@ -225,7 +225,7 @@
     </button>
 
     {#if showActivity}
-      <div class="card bg-base-200 shadow-sm mt-3 max-h-64 overflow-y-auto">
+      <div class="card bg-slate-50 dark:bg-slate-800 shadow-sm mt-3 max-h-64 overflow-y-auto">
         <div class="card-body p-3">
           <h4 class="card-title text-sm mb-2">Recent Activity</h4>
 

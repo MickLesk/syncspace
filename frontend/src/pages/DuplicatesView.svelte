@@ -113,7 +113,7 @@
 
 <div class="duplicates-view">
   <!-- Controls -->
-  <div class="card bg-base-100 border border-base-300 shadow-sm mb-6">
+  <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm mb-6">
     <div class="card-body p-4">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <button
@@ -142,7 +142,7 @@
 
   <!-- Scan Progress -->
   {#if scanning}
-    <div class="card bg-base-100 border border-base-300 shadow-sm mb-6">
+    <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm mb-6">
       <div class="card-body">
         <div class="flex justify-between items-center mb-2">
           <span class="font-semibold">
@@ -224,7 +224,7 @@
   {#if !scanning && duplicateGroups.length > 0}
     <div class="space-y-6">
       {#each duplicateGroups as group, groupIndex}
-        <div class="card bg-base-100 border border-base-300 shadow-sm">
+        <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm">
           <div class="card-body">
             <!-- Group Header -->
             <div class="flex items-center justify-between mb-4">
@@ -280,7 +280,7 @@
                 </thead>
                 <tbody>
                   {#each group.files as file, fileIndex}
-                    <tr class:bg-base-200={fileIndex === 0}>
+                    <tr class:bg-slate-50 dark:bg-slate-800={fileIndex === 0}>
                       <td>
                         <label>
                           <input

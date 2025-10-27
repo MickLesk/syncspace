@@ -983,7 +983,7 @@
   role="main"
 >
   <!-- Toolbar -->
-  <div class="toolbar card bg-base-100 border border-base-300 mb-6 shadow-sm">
+  <div class="toolbar card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 mb-6 shadow-sm">
     <div class="card-body p-4">
       <div class="flex flex-wrap items-center gap-3">
         <!-- Left: Actions -->
@@ -1067,7 +1067,7 @@
             </button>
             <ul
               role="menu"
-              class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-1"
+              class="dropdown-content z-[1] menu p-2 shadow bg-white dark:bg-slate-900 rounded-box w-52 mt-1"
             >
               <li class="menu-title"><span>Sort By</span></li>
               <li>
@@ -1290,7 +1290,7 @@
       <p class="text-sm opacity-70">Loading files...</p>
     </div>
   {:else if sortedFiles.length === 0}
-    <div class="hero min-h-[500px] bg-base-200 rounded-2xl m-4">
+    <div class="hero min-h-[500px] bg-slate-50 dark:bg-slate-800 rounded-2xl m-4">
       <div class="hero-content text-center">
         <div class="max-w-lg">
           <div class="mb-8">
@@ -1335,8 +1335,8 @@
     >
       {#each sortedFiles as file, index}
         <div
-          class="card bg-base-100 border-2 transition-all duration-300 cursor-pointer group relative overflow-hidden"
-          class:border-base-300={!isFileSelected(file)}
+          class="card bg-white dark:bg-slate-900 border-2 transition-all duration-300 cursor-pointer group relative overflow-hidden"
+          class:border-slate-300 dark:border-slate-600={!isFileSelected(file)}
           class:border-primary={isFileSelected(file)}
           class:bg-primary={isFileSelected(file)}
           style={isFileSelected(file)
@@ -1439,7 +1439,7 @@
             class="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
           >
             <button
-              class="btn btn-circle btn-xs btn-ghost bg-base-100/80 backdrop-blur-sm"
+              class="btn btn-circle btn-xs btn-ghost bg-white dark:bg-slate-900/80 backdrop-blur-sm"
               onclick={async (e) => {
                 e.stopPropagation();
                 const itemId = file.path || file.name;
@@ -1474,7 +1474,7 @@
           <div class="card-body p-4 items-center text-center">
             <!-- File Thumbnail or Icon with background -->
             <div
-              class="relative w-full aspect-square mb-3 rounded-lg bg-base-200 flex items-center justify-center overflow-hidden"
+              class="relative w-full aspect-square mb-3 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center overflow-hidden"
             >
               {#if file.is_dir}
                 <div class="text-6xl text-warning drop-shadow-lg">
@@ -1553,9 +1553,9 @@
     <!-- List View -->
     <div class="overflow-x-auto p-4">
       <table class="table table-zebra table-pin-rows">
-        <thead class="bg-base-200">
+        <thead class="bg-slate-50 dark:bg-slate-800">
           <tr>
-            <th class="bg-base-200">
+            <th class="bg-slate-50 dark:bg-slate-800">
               <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
                 onclick={() => {
@@ -1574,7 +1574,7 @@
                 {/if}
               </button>
             </th>
-            <th class="bg-base-200">
+            <th class="bg-slate-50 dark:bg-slate-800">
               <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
                 onclick={() => {
@@ -1593,7 +1593,7 @@
                 {/if}
               </button>
             </th>
-            <th class="bg-base-200">
+            <th class="bg-slate-50 dark:bg-slate-800">
               <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
                 onclick={() => {
@@ -1612,7 +1612,7 @@
                 {/if}
               </button>
             </th>
-            <th class="bg-base-200">
+            <th class="bg-slate-50 dark:bg-slate-800">
               <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
                 onclick={() => {
@@ -1633,13 +1633,13 @@
                 {/if}
               </button>
             </th>
-            <th class="text-right bg-base-200">Actions</th>
+            <th class="text-right bg-slate-50 dark:bg-slate-800">Actions</th>
           </tr>
         </thead>
         <tbody>
           {#each sortedFiles as file}
             <tr
-              class="hover:bg-base-200 cursor-pointer transition-colors group"
+              class="hover:bg-slate-50 dark:bg-slate-800 cursor-pointer transition-colors group"
               draggable="true"
               ondragstart={(e) => {
                 e.dataTransfer.effectAllowed = "move";
@@ -1827,11 +1827,11 @@
     <!-- File List -->
     {#if uploadFiles.length > 0}
       <div
-        class="max-h-96 overflow-y-auto space-y-2 rounded-xl bg-base-200/50 p-3"
+        class="max-h-96 overflow-y-auto space-y-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 p-3"
       >
         {#each uploadFiles as file, index}
           <div
-            class="flex justify-between items-center p-3 bg-base-100 rounded-xl hover:shadow-md transition-all duration-200"
+            class="flex justify-between items-center p-3 bg-white dark:bg-slate-900 rounded-xl hover:shadow-md transition-all duration-200"
           >
             <div class="flex items-center gap-3 flex-1 min-w-0">
               <div class="badge badge-lg badge-primary font-mono">
@@ -2014,7 +2014,7 @@
       <i class="bi bi-info-circle text-xl text-info"></i>
       <div class="text-sm text-base-content">
         <strong>Location:</strong>
-        <code class="px-2 py-1 bg-base-200 rounded ml-2 text-base-content">
+        <code class="px-2 py-1 bg-slate-50 dark:bg-slate-800 rounded ml-2 text-base-content">
           {$currentPath || "/"}{newFolderName || "new-folder"}
         </code>
       </div>
@@ -2051,7 +2051,7 @@
 >
   <div class="space-y-4">
     <!-- File Preview -->
-    <div class="flex items-center gap-3 p-4 bg-base-200 rounded-xl">
+    <div class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
       <div class="text-4xl text-primary">
         <i class="bi {getFileIcon(fileToRename?.name)}"></i>
       </div>
@@ -2123,7 +2123,7 @@
     </div>
 
     <!-- File Preview -->
-    <div class="flex items-center gap-3 p-4 bg-base-200 rounded-xl">
+    <div class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
       <div class="text-4xl text-error/50">
         <i class="bi {getFileIcon(fileToDelete?.name)}"></i>
       </div>
@@ -2177,7 +2177,7 @@
   on:close={() => (showMoveModal = false)}
 >
   <div class="space-y-4">
-    <div class="flex items-center gap-3 p-4 bg-base-200 rounded-xl">
+    <div class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
       <div class="text-4xl text-primary">
         <i class="bi {getFileIcon(fileToMove?.name)}"></i>
       </div>
@@ -2233,7 +2233,7 @@
   on:close={() => (showCopyModal = false)}
 >
   <div class="space-y-4">
-    <div class="flex items-center gap-3 p-4 bg-base-200 rounded-xl">
+    <div class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
       <div class="text-4xl text-primary">
         <i class="bi {getFileIcon(fileToCopy?.name)}"></i>
       </div>

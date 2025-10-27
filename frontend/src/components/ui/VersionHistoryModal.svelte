@@ -168,10 +168,10 @@
               </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto border rounded-lg bg-base-100">
+            <div class="flex-1 overflow-y-auto border rounded-lg bg-white dark:bg-slate-900">
               {#each versions as version (version.id)}
                 <div
-                  class="border-b border-base-200 p-3 hover:bg-base-50 relative"
+                  class="border-b border-slate-200 dark:border-slate-700 p-3 hover:bg-base-50 relative"
                 >
                   <div class="flex justify-between items-start">
                     <div class="flex-1">
@@ -195,7 +195,7 @@
                       </div>
 
                       {#if version.comment}
-                        <div class="text-sm bg-base-200 p-2 rounded mb-2">
+                        <div class="text-sm bg-slate-50 dark:bg-slate-800 p-2 rounded mb-2">
                           {version.comment}
                         </div>
                       {/if}
@@ -210,7 +210,7 @@
                         ⋮
                       </div>
                       <ul
-                        class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                        class="dropdown-content z-[1] menu p-2 shadow bg-white dark:bg-slate-900 rounded-box w-52"
                       >
                         <li>
                           <button on:click={() => downloadVersion(version)}
@@ -270,7 +270,7 @@
 
             {#if showDiff && diffContent}
               <div
-                class="flex-1 overflow-y-auto border rounded-lg bg-base-100 p-4"
+                class="flex-1 overflow-y-auto border rounded-lg bg-white dark:bg-slate-900 p-4"
               >
                 <div class="mb-4">
                   <div class="text-sm text-base-content/70">
@@ -287,7 +287,7 @@
 
                 {#if diffContent.diff_content}
                   <pre
-                    class="text-xs bg-base-200 p-3 rounded overflow-x-auto whitespace-pre-wrap">{diffContent.diff_content}</pre>
+                    class="text-xs bg-slate-50 dark:bg-slate-800 p-3 rounded overflow-x-auto whitespace-pre-wrap">{diffContent.diff_content}</pre>
                 {:else}
                   <div class="text-center text-base-content/50 py-8">
                     {#if diffContent.diff_type === "binary"}
@@ -300,7 +300,7 @@
               </div>
             {:else}
               <div
-                class="flex-1 border rounded-lg bg-base-100 flex items-center justify-center"
+                class="flex-1 border rounded-lg bg-white dark:bg-slate-900 flex items-center justify-center"
               >
                 <div class="text-center text-base-content/50">
                   <div class="text-4xl mb-2">📊</div>
@@ -363,10 +363,10 @@
 
 <style>
   .modal-box {
-    @apply bg-base-100;
+    @apply bg-white dark:bg-slate-900;
   }
 
   .dropdown-content {
-    @apply shadow-lg border border-base-200;
+    @apply shadow-lg border border-slate-200 dark:border-slate-700;
   }
 </style>

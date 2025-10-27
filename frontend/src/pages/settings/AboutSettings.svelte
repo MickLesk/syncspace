@@ -1,5 +1,5 @@
 <div class="max-w-2xl mx-auto">
-  <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+  <div class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow">
     <div class="card-body">
       <h2 class="card-title">
         <i class="bi bi-app-indicator text-primary"></i>

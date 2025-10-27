@@ -26,7 +26,7 @@
   }
 
   function getStatusIndicator(status) {
-    return status === 'online' ? { color: 'bg-success', text: 'Online' } : { color: 'bg-base-300', text: 'Offline' };
+    return status === 'online' ? { color: 'bg-success', text: 'Online' } : { color: 'bg-slate-100 dark:bg-slate-700', text: 'Offline' };
   }
 
   function getUserInitials(username) {

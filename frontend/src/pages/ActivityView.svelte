@@ -174,7 +174,7 @@
   {/if}
 
   <!-- Filters & Search -->
-  <div class="card bg-base-100 border border-base-300 shadow-sm mb-6">
+  <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm mb-6">
     <div class="card-body p-4">
       <div class="flex flex-col md:flex-row gap-4">
         <!-- Filter Tabs -->
@@ -228,7 +228,7 @@
         <!-- Date Badge -->
         <div class="flex items-center gap-3 mb-4">
           <div class="badge badge-primary badge-lg font-bold">{dateLabel}</div>
-          <div class="flex-1 h-px bg-base-300"></div>
+          <div class="flex-1 h-px bg-slate-100 dark:bg-slate-700"></div>
         </div>
 
         <!-- Timeline -->
@@ -255,7 +255,7 @@
               </div>
               <div class="timeline-end">
                 <div
-                  class="card bg-base-100 border border-base-300 shadow-sm hover:shadow-md transition-shadow"
+                  class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div class="card-body p-4">
                     <div class="flex items-start justify-between gap-2">
