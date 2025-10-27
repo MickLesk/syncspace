@@ -4,12 +4,12 @@
   import { currentPath, currentLang } from "../stores/ui.js";
   import { t } from "../i18n.js";
   import { success, error as errorToast } from "../stores/toast";
-  import Icon from "../components/ui/Icon.svelte";
-  import PageHeader from "../components/ui/PageHeader.svelte";
-  import Spinner from "../components/ui/Spinner.svelte";
-  import EmptyState from "../components/ui/EmptyState.svelte";
   import { getFileIcon } from "../utils/fileIcons";
   import api from "../lib/api.js";
+  import PageWrapper from "../components/PageWrapper.svelte";
+  import ModernCard from "../components/ui/ModernCard.svelte";
+  import ModernButton from "../components/ui/ModernButton.svelte";
+  import Loading from "../components/Loading.svelte";
 
   let favoriteFiles = $state([]);
   let loading = $state(false);
@@ -116,263 +116,130 @@
   }
 </script>
 
-<div class="view-container">
-  <div class="view-header">
-    <div class="header-content">
-      <div class="title-section">
-        <h1 class="view-title">
-          <span class="icon">⭐</span>
-          {t($currentLang, "favorites")}
-        </h1>
-        <p class="view-subtitle">
-          {favoriteFiles.length}
-          {favoriteFiles.length === 1 ? "item" : "items"}
-        </p>
-      </div>
+<PageWrapper gradient>
+  <!-- Animated Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 
-      <div class="header-actions">
-        <button
-          class="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          onclick={loadFavorites}
-          disabled={loading}
-        >
-          <i class="bi bi-arrow-clockwise"></i>
-          Refresh
-        </button>
-      </div>
+  <!-- Page Header -->
+  <div class="flex justify-between items-start mb-8 relative z-10">
+    <div>
+      <h1
+        class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3"
+      >
+        <i class="bi bi-star-fill text-amber-500"></i>
+        {t($currentLang, "favorites")}
+      </h1>
+      <p class="text-base-content/70">
+        {favoriteFiles.length}
+        {favoriteFiles.length === 1 ? "item" : "items"}
+      </p>
     </div>
+    <ModernButton
+      variant="ghost"
+      icon="arrow-clockwise"
+      disabled={loading}
+      onclick={loadFavorites}
+    >
+      Refresh
+    </ModernButton>
   </div>
 
   {#if loading}
-    <div class="loading-state">
-      <Spinner size="large" />
-      <p>Loading favorites...</p>
-    </div>
+    <Loading />
   {:else if error}
-    <div class="error-state">
-      <i
-        class="bi bi-exclamation-triangle text-6xl text-red-600 dark:text-red-400"
-      ></i>
-      <p class="text-red-600 dark:text-red-400">{error}</p>
-      <button
-        class="px-3 py-1.5 text-sm bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-        onclick={loadFavorites}
-      >
-        Try Again
-      </button>
-    </div>
+    <ModernCard variant="glass" class="text-center py-16">
+      {#snippet children()}
+        <div class="text-error/30 mb-6">
+          <i class="bi bi-exclamation-triangle text-8xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-error mb-3">{error}</h3>
+        <ModernButton
+          variant="primary"
+          icon="arrow-clockwise"
+          onclick={loadFavorites}
+        >
+          Try Again
+        </ModernButton>
+      {/snippet}
+    </ModernCard>
   {:else if favoriteFiles.length === 0}
-    <EmptyState
-      icon="⭐"
-      title={t($currentLang, "noFavorites")}
-      description={t($currentLang, "markFilesAsFavorite")}
-    />
+    <ModernCard variant="glass" class="text-center py-16">
+      {#snippet children()}
+        <div class="animate-fade-in">
+          <div class="text-amber-500/30 mb-6">
+            <i class="bi bi-star text-8xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-3">
+            {t($currentLang, "noFavorites")}
+          </h3>
+          <p class="text-base-content/60">
+            {t($currentLang, "markFilesAsFavorite")}
+          </p>
+        </div>
+      {/snippet}
+    </ModernCard>
   {:else}
-    <div class="favorites-grid">
-      {#each favoriteFiles as file}
-        <div class="favorite-card">
-          <button
-            class="card-content"
-            onclick={() => navigateToFile(file.fullPath)}
-            type="button"
-          >
-            <div class="file-icon-large">
-              {getFileIconEmoji(file.mimeType)}
-            </div>
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+    >
+      {#each favoriteFiles as file, i}
+        <ModernCard
+          variant="glass"
+          hoverable
+          clickable
+          onclick={() => navigateToFile(file.fullPath)}
+          class="animate-slide-up"
+          style="animation-delay: {i * 30}ms;"
+        >
+          {#snippet children()}
+            <div class="text-center">
+              <div class="text-6xl mb-4">
+                {getFileIconEmoji(file.mimeType)}
+              </div>
 
-            <div class="file-info">
-              <div class="file-name" title={file.name}>{file.name}</div>
-              <div class="file-meta">
+              <h3 class="font-bold text-lg mb-2 truncate" title={file.name}>
+                {file.name}
+              </h3>
+
+              <div
+                class="flex gap-3 justify-center text-xs text-base-content/60 mb-3"
+              >
                 {#if file.size}
-                  <span class="meta-item">
+                  <span class="flex items-center gap-1">
                     <i class="bi bi-file-earmark"></i>
                     {formatFileSize(file.size)}
                   </span>
                 {/if}
                 {#if file.createdAt}
-                  <span class="meta-item">
+                  <span class="flex items-center gap-1">
                     <i class="bi bi-clock"></i>
                     {formatDate(file.createdAt)}
                   </span>
                 {/if}
               </div>
-              <div class="file-path">{formatPath(file.fullPath)}</div>
-            </div>
-          </button>
 
-          <div
-            class="flex items-center justify-center p-2 border-t border-gray-200 dark:border-gray-700"
-          >
-            <button
-              class="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded transition-colors"
-              onclick={(e) => {
-                e.stopPropagation();
-                removeFavorite(file);
-              }}
-              title="Remove from favorites"
-            >
-              <i class="bi bi-star-fill text-amber-500 dark:text-amber-400"></i>
-            </button>
-          </div>
-        </div>
+              <div class="text-xs font-mono text-base-content/50 mb-4 truncate">
+                {formatPath(file.fullPath)}
+              </div>
+
+              <ModernButton
+                variant="ghost"
+                size="sm"
+                icon="star-fill"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  removeFavorite(file);
+                }}
+                fullWidth
+              >
+                <span class="text-amber-500">Remove Favorite</span>
+              </ModernButton>
+            </div>
+          {/snippet}
+        </ModernCard>
       {/each}
     </div>
   {/if}
-</div>
-
-<style>
-  .view-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background: hsl(var(--b1));
-  }
-
-  .view-header {
-    padding: 2rem;
-    background: hsl(var(--b1));
-    border-bottom: 1px solid hsl(var(--bc) / 0.1);
-  }
-
-  .header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .title-section {
-    flex: 1;
-  }
-
-  .view-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0 0 0.5rem 0;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .view-title .icon {
-    font-size: 2.5rem;
-  }
-
-  .view-subtitle {
-    color: hsl(var(--bc) / 0.6);
-    margin: 0;
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-  }
-
-  .loading-state,
-  .error-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 400px;
-    gap: 1rem;
-    padding: 2rem;
-  }
-
-  .favorites-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  .favorite-card {
-    display: flex;
-    flex-direction: column;
-    background: hsl(var(--b2));
-    border: 1px solid hsl(var(--bc) / 0.1);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.2s;
-    height: 100%;
-  }
-
-  .favorite-card:hover {
-    background: hsl(var(--b3));
-    border-color: hsl(var(--p) / 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px hsl(var(--bc) / 0.1);
-  }
-
-  .card-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.5rem;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    text-align: center;
-    width: 100%;
-  }
-
-  .file-icon-large {
-    font-size: 4rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .file-info {
-    width: 100%;
-  }
-
-  .file-name {
-    font-weight: 600;
-    font-size: 0.95rem;
-    margin-bottom: 0.5rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: hsl(var(--bc));
-  }
-
-  .file-meta {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 0.5rem;
-  }
-
-  .meta-item {
-    font-size: 0.75rem;
-    color: hsl(var(--bc) / 0.6);
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
-
-  .file-path {
-    font-size: 0.7rem;
-    color: hsl(var(--bc) / 0.5);
-    font-family: "Roboto Mono", monospace;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .card-actions {
-    display: flex;
-    justify-content: center;
-    padding: 0.75rem;
-    border-top: 1px solid hsl(var(--bc) / 0.1);
-    background: hsl(var(--b1));
-  }
-</style>
+</PageWrapper>
