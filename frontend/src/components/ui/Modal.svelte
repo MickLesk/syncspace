@@ -34,8 +34,9 @@
     dispatch("close");
   }
 
-  function handleBackdropClick() {
-    if (showCloseButton && closeOnBackdrop) {
+  function handleBackdropClick(e) {
+    // Only close if clicking directly on backdrop, not on modal content
+    if (e.target === e.currentTarget && showCloseButton && closeOnBackdrop) {
       handleClose();
     }
   }
@@ -101,16 +102,11 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby={title ? "modal-title" : undefined}
+    on:click={handleBackdropClick}
+    on:keydown={(e) => e.key === "Enter" && handleBackdropClick(e)}
   >
     <!-- Enhanced backdrop with blur -->
-    <div
-      class="modal-backdrop-enhanced"
-      on:click={handleBackdropClick}
-      on:keydown={(e) => e.key === "Enter" && handleBackdropClick()}
-      role="button"
-      tabindex="-1"
-      aria-label="Close"
-    ></div>
+    <div class="modal-backdrop-enhanced"></div>
 
     <div
       bind:this={modalElement}
@@ -171,7 +167,7 @@
     box-shadow:
       0 25px 50px -12px rgba(0, 0, 0, 0.25),
       0 0 0 1px rgba(0, 0, 0, 0.05);
-    backdrop-filter: blur(20px);
+    /* REMOVED backdrop-filter blur from modal itself - only backdrop should be blurred */
     overflow: hidden;
     max-height: 90vh;
     display: flex;
@@ -183,8 +179,8 @@
     position: fixed;
     inset: 0;
     background: hsl(var(--b1) / 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    /* backdrop-filter: blur(12px); */
+    /* -webkit-backdrop-filter: blur(12px); */
     animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 999;
   }

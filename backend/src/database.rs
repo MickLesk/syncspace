@@ -82,19 +82,35 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     .fetch_optional(pool)
     .await?;
     
-    if let Some((count,)) = table_exists {
-        if count > 0 {
-            println!("✅ Database already initialized, skipping migrations");
-            return Ok(());
-        }
+    let migrations_needed = if let Some((count,)) = table_exists {
+        count == 0
+    } else {
+        true
+    };
+
+    if migrations_needed {
+        // Run initial schema migration
+        println!("📋 Running migration: 001_initial_schema.sql");
+        let migration_sql = include_str!("../migrations/001_initial_schema.sql");
+        sqlx::query(migration_sql).execute(pool).await?;
+        
+        println!("📋 Running migration: 002_add_comments_tags.sql");
+        let migration_sql = include_str!("../migrations/002_add_comments_tags.sql");
+        sqlx::query(migration_sql).execute(pool).await?;
     }
 
-    // Read and execute migration file
-    let migration_sql = include_str!("../migrations/001_initial_schema.sql");
+    // Always try to run newer migrations (they use CREATE TABLE IF NOT EXISTS)
+    let check_notifications: Option<(i64,)> = sqlx::query_as(
+        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='notifications'"
+    )
+    .fetch_optional(pool)
+    .await?;
     
-    sqlx::query(migration_sql)
-        .execute(pool)
-        .await?;
+    if check_notifications.map(|(c,)| c == 0).unwrap_or(true) {
+        println!("📋 Running migration: 003_add_notifications_and_preferences.sql");
+        let migration_sql = include_str!("../migrations/003_add_notifications_and_preferences.sql");
+        sqlx::query(migration_sql).execute(pool).await?;
+    }
 
     println!("✅ Migrations completed");
     Ok(())
@@ -312,6 +328,151 @@ pub struct SharedLink {
     pub download_count: i32,
     pub created_at: String,
     pub last_accessed_at: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct Notification {
+    pub id: String,
+    pub user_id: String,
+    #[serde(rename = "type")]
+    pub notification_type: String,
+    pub title: String,
+    pub message: String,
+    pub action_url: Option<String>,
+    pub action_label: Option<String>,
+    pub is_read: bool,
+    pub read_at: Option<String>,
+    pub priority: String,
+    pub related_file_id: Option<String>,
+    pub related_user_id: Option<String>,
+    pub created_at: String,
+    pub expires_at: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct UserPreferences {
+    pub id: String,
+    pub user_id: String,
+    pub view_mode: String,
+    pub sort_by: String,
+    pub sort_order: String,
+    pub items_per_page: i32,
+    pub sidebar_collapsed: bool,
+    pub show_hidden_files: bool,
+    pub recent_searches: Option<String>,
+    pub search_filters: Option<String>,
+    pub notification_email: bool,
+    pub notification_browser: bool,
+    pub notification_sound: bool,
+    pub activity_visible: bool,
+    pub show_online_status: bool,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct FileVersionNew {
+    pub id: String,
+    pub file_id: String,
+    pub version_number: i32,
+    pub size_bytes: i64,
+    pub checksum_sha256: String,
+    pub storage_path: String,
+    pub created_by: String,
+    pub change_description: Option<String>,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct RecentFile {
+    pub id: String,
+    pub user_id: String,
+    pub file_id: String,
+    pub access_count: i32,
+    pub last_accessed_at: String,
+    pub access_type: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct FilePermission {
+    pub id: String,
+    pub item_type: String,
+    pub item_id: String,
+    pub user_id: String,
+    pub can_read: bool,
+    pub can_write: bool,
+    pub can_delete: bool,
+    pub can_share: bool,
+    pub granted_by: String,
+    pub granted_at: String,
+    pub expires_at: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct FileThumbnail {
+    pub id: String,
+    pub file_id: String,
+    pub thumbnail_path: String,
+    pub thumbnail_size_bytes: i32,
+    pub width: i32,
+    pub height: i32,
+    pub format: String,
+    pub generation_status: String,
+    pub generation_error: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct SharedLinkAccessLog {
+    pub id: String,
+    pub shared_link_id: String,
+    pub ip_address: Option<String>,
+    pub user_agent: Option<String>,
+    pub referer: Option<String>,
+    pub user_id: Option<String>,
+    pub action: String,
+    pub accessed_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct Comment {
+    pub id: String,
+    pub item_type: String,
+    pub item_id: String,
+    pub file_path: String,
+    pub author_id: String,
+    pub text: String,
+    pub is_resolved: bool,
+    pub resolved_at: Option<String>,
+    pub resolved_by: Option<String>,
+    pub edited_at: Option<String>,
+    pub edited_by: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct Tag {
+    pub id: String,
+    pub name: String,
+    pub color: Option<String>,
+    pub owner_id: String,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct FileTag {
+    pub id: String,
+    pub file_id: String,
+    pub tag_id: String,
+    pub item_type: String,
+    pub file_path: String,
+    pub tagged_by: String,
+    pub created_at: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]

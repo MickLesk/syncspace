@@ -442,6 +442,19 @@ button {
   -webkit-text-fill-color: transparent;
 }
 
+/* Modal Fixes - Remove blur from dialog backdrops */
+.modal-backdrop,
+.modal:not(.modal-open) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.modal-box {
+  background: hsl(var(--b1)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {

@@ -4,6 +4,7 @@
 mod auth;
 mod database;
 mod search;
+mod api_handlers;
 mod handlers;
 mod thumbnails;
 mod notifications;
@@ -419,7 +420,22 @@ fn build_router(state: AppState) -> Router {
         .route("/api/auth/me", get(me_handler))
         .route("/api/users/profile", get(get_profile_handler).put(update_profile_handler))
         .route("/api/users/settings", get(handlers::users::get_user_settings_handler).put(handlers::users::update_user_settings_handler))
-        .route("/api/users/preferences", get(handlers::users::get_user_preferences_handler).put(handlers::users::update_user_preferences_handler));
+        .route("/api/users/preferences", get(api_handlers::get_user_preferences).put(api_handlers::update_user_preferences));
+    
+    // Folder Management routes (protected) - Backend-First Architecture
+    let folder_routes = Router::new()
+        .route("/api/folders", get(api_handlers::list_folders).post(api_handlers::create_folder))
+        .route("/api/folders/{id}", put(api_handlers::update_folder).delete(api_handlers::delete_folder));
+    
+    // Favorites v2 routes (protected) - Backend-First Architecture
+    let favorites_v2_routes = Router::new()
+        .route("/api/favorites/list", get(api_handlers::list_favorites))
+        .route("/api/favorites/add", post(api_handlers::add_favorite))
+        .route("/api/favorites/{id}/remove", delete(api_handlers::remove_favorite));
+    
+    // Recent Files routes (protected) - Backend-First Architecture
+    let recent_routes = Router::new()
+        .route("/api/files/recent", get(api_handlers::list_recent_files));
     
     // File routes (protected)
     let file_routes = Router::new()
@@ -521,13 +537,13 @@ fn build_router(state: AppState) -> Router {
         .route("/api/collaboration/conflicts", get(handlers::collaboration::list_edit_conflicts_handler))
         .route("/api/collaboration/conflicts/{conflict_id}/resolve", post(handlers::collaboration::resolve_edit_conflict_handler));
     
-    // Notifications routes (protected)
+    // Notifications routes (protected) - using new api_handlers
     let notification_routes = Router::new()
-        .route("/api/notifications", get(get_notifications_handler))
+        .route("/api/notifications", get(api_handlers::list_notifications))
         .route("/api/notifications/unread", get(get_unread_notifications_handler))
-        .route("/api/notifications/{id}/read", put(mark_notification_read_handler))
+        .route("/api/notifications/{id}/read", put(api_handlers::mark_notification_read))
         .route("/api/notifications/read-all", put(mark_all_notifications_read_handler))
-        .route("/api/notifications/{id}", delete(delete_notification_handler));
+        .route("/api/notifications/{id}", delete(api_handlers::delete_notification));
     
     // Webhooks routes (protected)
     let webhook_routes = Router::new()
@@ -624,9 +640,12 @@ fn build_router(state: AppState) -> Router {
     let router = Router::new()
         .merge(root_route)
         .merge(auth_routes)
+        .merge(folder_routes)  // NEW: Backend-First Folder Management
         .merge(file_routes)
         .merge(trash_routes)
         .merge(favorites_routes)
+        .merge(favorites_v2_routes)  // NEW: Backend-First Favorites
+        .merge(recent_routes)  // NEW: Recent Files
         .merge(activity_routes)
         .merge(comments_tags_routes)
         .merge(sharing_routes)
@@ -635,7 +654,7 @@ fn build_router(state: AppState) -> Router {
         .merge(versioning_routes)  // Now uses /api/versions/{file_id}
         .merge(backup_routes)
         .merge(collaboration_routes)  // Real-time collaboration
-        .merge(notification_routes)
+        .merge(notification_routes)  // NEW: Backend-First Notifications integrated
         .merge(webhook_routes)
         .merge(analytics_routes)
         .merge(batch_routes)
@@ -938,8 +957,11 @@ struct UserSettings {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct UpdateSettingsRequest {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     language: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     theme: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     default_view: Option<String>,
 }
 
@@ -1115,25 +1137,26 @@ async fn get_user_preferences_handler(
     let pool = &state.db_pool;
     let user_id = user.id.to_string();
     
-    let prefs: Option<(String, String, i64, String, String, i64, i64)> = 
+    let prefs: Option<(String, String, i64, String, String)> = 
         sqlx::query_as(
             "SELECT 
                 COALESCE(view_mode, 'grid') as view_mode,
                 COALESCE(recent_searches, '[]') as recent_searches, 
                 COALESCE(sidebar_collapsed, 0) as sidebar_collapsed,
                 COALESCE(sort_by, 'name') as sort_by,
-                COALESCE(sort_order, 'asc') as sort_order,
-                COALESCE(auto_refresh, 1) as auto_refresh,
-                COALESCE(upload_progress_visible, 1) as upload_progress_visible
-             FROM users WHERE id = ?"
+                COALESCE(sort_order, 'asc') as sort_order
+             FROM user_preferences WHERE user_id = ?"
         )
         .bind(&user_id)
         .fetch_optional(pool)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| {
+            eprintln!("❌ GET preferences SQL error: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
     
     match prefs {
-        Some((view_mode, recent_searches_json, sidebar_collapsed, sort_by, sort_order, auto_refresh, upload_progress_visible)) => {
+        Some((view_mode, recent_searches_json, sidebar_collapsed, sort_by, sort_order)) => {
             let recent_searches: Vec<String> = serde_json::from_str(&recent_searches_json).unwrap_or_default();
             
             Ok(Json(UserPreferences {
@@ -1142,11 +1165,40 @@ async fn get_user_preferences_handler(
                 sidebar_collapsed: sidebar_collapsed != 0,
                 sort_by,
                 sort_order,
-                auto_refresh: auto_refresh != 0,
-                upload_progress_visible: upload_progress_visible != 0,
+                auto_refresh: true,
+                upload_progress_visible: true,
             }))
         }
-        None => Err(StatusCode::NOT_FOUND),
+        None => {
+            // Create default preferences if they don't exist
+            let id = uuid::Uuid::new_v4().to_string();
+            let now = Utc::now().to_rfc3339();
+            
+            sqlx::query(
+                "INSERT INTO user_preferences (id, user_id, view_mode, sort_by, sort_order, recent_searches, created_at, updated_at)
+                 VALUES (?, ?, 'grid', 'name', 'asc', '[]', ?, ?)"
+            )
+            .bind(&id)
+            .bind(&user_id)
+            .bind(&now)
+            .bind(&now)
+            .execute(pool)
+            .await
+            .map_err(|e| {
+                eprintln!("❌ INSERT preferences error: {:?}", e);
+                StatusCode::INTERNAL_SERVER_ERROR
+            })?;
+            
+            Ok(Json(UserPreferences {
+                view_mode: "grid".to_string(),
+                recent_searches: vec![],
+                sidebar_collapsed: false,
+                sort_by: "name".to_string(),
+                sort_order: "asc".to_string(),
+                auto_refresh: true,
+                upload_progress_visible: true,
+            }))
+        }
     }
 }
 
@@ -1160,80 +1212,82 @@ async fn update_user_preferences_handler(
     let user_id = user.id.to_string();
     let now = Utc::now().to_rfc3339();
     
-    // Build update query dynamically based on provided fields
-    let mut updates = Vec::new();
-    let mut values: Vec<Box<dyn sqlx::Encode<sqlx::Sqlite> + Send + Sync>> = Vec::new();
+    // Ensure preferences exist
+    let exists: Option<(String,)> = sqlx::query_as("SELECT id FROM user_preferences WHERE user_id = ?")
+        .bind(&user_id)
+        .fetch_optional(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
-    // Make clones for individual updates
-    let view_mode_clone = req.view_mode.clone();
-    let recent_searches_clone = req.recent_searches.clone();
-    let sort_by_clone = req.sort_by.clone();
-    let sort_order_clone = req.sort_order.clone();
+    if exists.is_none() {
+        // Create default preferences
+        let id = uuid::Uuid::new_v4().to_string();
+        sqlx::query(
+            "INSERT INTO user_preferences (id, user_id, view_mode, sort_by, sort_order, recent_searches, created_at, updated_at)
+             VALUES (?, ?, 'grid', 'name', 'asc', '[]', ?, ?)"
+        )
+        .bind(&id)
+        .bind(&user_id)
+        .bind(&now)
+        .bind(&now)
+        .execute(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    }
     
-    if let Some(view_mode) = req.view_mode {
-        updates.push("view_mode = ?");
-        values.push(Box::new(view_mode));
+    // Update individual fields
+    if let Some(view_mode) = &req.view_mode {
+        sqlx::query("UPDATE user_preferences SET view_mode = ?, updated_at = ? WHERE user_id = ?")
+            .bind(view_mode)
+            .bind(&now)
+            .bind(&user_id)
+            .execute(pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     }
-    if let Some(recent_searches) = req.recent_searches {
-        updates.push("recent_searches = ?");
-        let json_str = serde_json::to_string(&recent_searches).unwrap_or_default();
-        values.push(Box::new(json_str));
+    
+    if let Some(recent_searches) = &req.recent_searches {
+        let json_str = serde_json::to_string(&recent_searches).unwrap_or_else(|_| "[]".to_string());
+        sqlx::query("UPDATE user_preferences SET recent_searches = ?, updated_at = ? WHERE user_id = ?")
+            .bind(json_str)
+            .bind(&now)
+            .bind(&user_id)
+            .execute(pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     }
+    
     if let Some(sidebar_collapsed) = req.sidebar_collapsed {
-        updates.push("sidebar_collapsed = ?");
-        values.push(Box::new(if sidebar_collapsed { 1i64 } else { 0i64 }));
-    }
-    if let Some(sort_by) = req.sort_by {
-        updates.push("sort_by = ?");
-        values.push(Box::new(sort_by));
-    }
-    if let Some(sort_order) = req.sort_order {
-        updates.push("sort_order = ?");
-        values.push(Box::new(sort_order));
-    }
-    if let Some(auto_refresh) = req.auto_refresh {
-        updates.push("auto_refresh = ?");
-        values.push(Box::new(if auto_refresh { 1i64 } else { 0i64 }));
-    }
-    if let Some(upload_progress_visible) = req.upload_progress_visible {
-        updates.push("upload_progress_visible = ?");
-        values.push(Box::new(if upload_progress_visible { 1i64 } else { 0i64 }));
+        sqlx::query("UPDATE user_preferences SET sidebar_collapsed = ?, updated_at = ? WHERE user_id = ?")
+            .bind(if sidebar_collapsed { 1 } else { 0 })
+            .bind(&now)
+            .bind(&user_id)
+            .execute(pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     }
     
-    if !updates.is_empty() {
-        // Simplified version with individual updates for each field
-        if let Some(view_mode) = view_mode_clone {
-            sqlx::query("UPDATE users SET view_mode = ?, updated_at = ? WHERE id = ?")
-                .bind(view_mode)
-                .bind(&now)
-                .bind(&user_id)
-                .execute(pool)
-                .await
-                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-        }
-        if let Some(recent_searches) = recent_searches_clone {
-            let json_str = serde_json::to_string(&recent_searches).unwrap_or_default();
-            sqlx::query("UPDATE users SET recent_searches = ?, updated_at = ? WHERE id = ?")
-                .bind(json_str)
-                .bind(&now)
-                .bind(&user_id)
-                .execute(pool)
-                .await
-                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-        }
-        if let Some(sidebar_collapsed) = req.sidebar_collapsed {
-            sqlx::query("UPDATE users SET sidebar_collapsed = ?, updated_at = ? WHERE id = ?")
-                .bind(if sidebar_collapsed { 1i64 } else { 0i64 })
-                .bind(&now)
-                .bind(&user_id)
-                .execute(pool)
-                .await
-                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-        }
-        // Continue for other fields as needed...
+    if let Some(sort_by) = &req.sort_by {
+        sqlx::query("UPDATE user_preferences SET sort_by = ?, updated_at = ? WHERE user_id = ?")
+            .bind(sort_by)
+            .bind(&now)
+            .bind(&user_id)
+            .execute(pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     }
     
-    // Fetch and return updated preferences
+    if let Some(sort_order) = &req.sort_order {
+        sqlx::query("UPDATE user_preferences SET sort_order = ?, updated_at = ? WHERE user_id = ?")
+            .bind(sort_order)
+            .bind(&now)
+            .bind(&user_id)
+            .execute(pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    }
+    
+    // Return updated preferences
     get_user_preferences_handler(State(state), user).await
 }
 

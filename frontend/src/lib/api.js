@@ -730,8 +730,69 @@ const performance = {
   }
 };
 
+// ============================================
+// FAVORITES ENDPOINTS
+// ============================================
+
+export const favorites = {
+  /**
+   * List all favorites for current user
+   */
+  async list() {
+    const response = await fetch(`${API_BASE}/favorites/list`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Add file or folder to favorites
+   * @param {string} itemId - File or folder path/ID
+   * @param {string} itemType - 'file' or 'folder'
+   */
+  async add(itemId, itemType = 'file') {
+    const response = await fetch(`${API_BASE}/favorites/add`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ item_id: itemId, item_type: itemType }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Remove item from favorites
+   * @param {string} favoriteId - ID of the favorite record
+   */
+  async remove(favoriteId) {
+    const response = await fetch(`${API_BASE}/favorites/${favoriteId}/remove`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Check if an item is favorited
+   * @param {string} itemId - File or folder path/ID
+   */
+  async isFavorite(itemId) {
+    try {
+      const favorites = await this.list();
+      return favorites.some(fav => fav.item_id === itemId);
+    } catch (err) {
+      console.error("Failed to check favorite status:", err);
+      return false;
+    }
+  }
+};
+
+// ============================================
+// GENERIC API METHODS (for new endpoints)
+// ============================================
+
 export default {
   auth,
+  users,
   files,
   search,
   config,
@@ -740,6 +801,7 @@ export default {
   tags,
   batch,
   performance,
+  favorites,  // Add favorites to default export
   sharing: {
     // Create a share for a file or folder
     async create(fileId = null, folderId = null, options = {}) {
@@ -1214,4 +1276,117 @@ export const system = {
   },
 };
 
+// ============================================
+// SHARES ENDPOINTS
+// ============================================
 
+export const shares = {
+  /**
+   * List all shares
+   */
+  async list() {
+    const response = await fetch(`${API_BASE}/shares`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a new share
+   * @param {Object} shareData - { file_path, permission, expires_at?, password? }
+   */
+  async create(shareData) {
+    const response = await fetch(`${API_BASE}/shares`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(shareData),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get share details
+   * @param {string} shareId - Share ID or token
+   */
+  async get(shareId) {
+    const response = await fetch(`${API_BASE}/shares/${shareId}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update a share
+   * @param {string} shareId - Share ID
+   * @param {Object} updates - { permission?, expires_at? }
+   */
+  async update(shareId, updates) {
+    const response = await fetch(`${API_BASE}/shares/${shareId}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(updates),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a share
+   * @param {string} shareId - Share ID
+   */
+  async delete(shareId) {
+    const response = await fetch(`${API_BASE}/shares/${shareId}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================
+// GENERIC API METHODS (for new endpoints)
+// ============================================
+
+/**
+ * Generic GET request
+ */
+export async function get(endpoint) {
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
+}
+
+/**
+ * Generic POST request
+ */
+export async function post(endpoint, data) {
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  });
+  return handleResponse(response);
+}
+
+/**
+ * Generic PUT request
+ */
+export async function put(endpoint, data = null) {
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    method: 'PUT',
+    headers: getHeaders(),
+    body: data ? JSON.stringify(data) : null,
+  });
+  return handleResponse(response);
+}
+
+/**
+ * Generic DELETE request
+ */
+export async function deleteRequest(endpoint) {
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    method: 'DELETE',
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
+}

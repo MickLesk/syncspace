@@ -1,30 +1,76 @@
 import { writable } from 'svelte/store';
+import api from '../lib/api.js';
 
-// Persist theme to localStorage
+// Theme store with backend sync
 function createThemeStore() {
-  const stored = localStorage.getItem('theme') || 'light';
-  const { subscribe, set } = writable(stored);
+  const stored = localStorage.getItem('theme') || 'syncspace';
+  const { subscribe, set, update } = writable(stored);
   
   return {
     subscribe,
-    set: (value) => {
+    set: async (value) => {
       localStorage.setItem('theme', value);
       document.documentElement.setAttribute('data-theme', value);
       set(value);
+      
+      // Sync to backend if logged in
+      try {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+          await api.put('/api/users', { theme: value });
+        }
+      } catch (err) {
+        console.error('Failed to sync theme to backend:', err);
+      }
+    },
+    // Method to load from backend
+    loadFromBackend: async () => {
+      try {
+        const user = await api.get('/api/users/me');
+        if (user && user.theme) {
+          localStorage.setItem('theme', user.theme);
+          document.documentElement.setAttribute('data-theme', user.theme);
+          set(user.theme);
+        }
+      } catch (err) {
+        console.error('Failed to load theme from backend:', err);
+      }
     }
   };
 }
 
-// Persist language to localStorage
+// Language store with backend sync
 function createLangStore() {
   const stored = localStorage.getItem('lang') || 'de';
   const { subscribe, set } = writable(stored);
   
   return {
     subscribe,
-    set: (value) => {
+    set: async (value) => {
       localStorage.setItem('lang', value);
       set(value);
+      
+      // Sync to backend if logged in
+      try {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+          await api.put('/api/users', { language: value });
+        }
+      } catch (err) {
+        console.error('Failed to sync language to backend:', err);
+      }
+    },
+    // Method to load from backend
+    loadFromBackend: async () => {
+      try {
+        const user = await api.get('/api/users/me');
+        if (user && user.language) {
+          localStorage.setItem('lang', user.language);
+          set(user.language);
+        }
+      } catch (err) {
+        console.error('Failed to load language from backend:', err);
+      }
     }
   };
 }

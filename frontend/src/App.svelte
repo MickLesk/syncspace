@@ -1,6 +1,8 @@
 <script>
+  import { onMount } from "svelte";
   import { auth } from "./stores/auth";
-  import { currentTheme, currentView } from "./stores/ui";
+  import { currentTheme, currentView, currentLang } from "./stores/ui";
+  import { userPreferences } from "./stores/preferences";
   import Login from "./pages/Login.svelte";
   import Sidebar from "./components/Sidebar.svelte";
   import AppHeader from "./components/AppHeader.svelte";
@@ -16,7 +18,35 @@
   import DuplicatesView from "./pages/DuplicatesView.svelte";
   import BackupView from "./pages/BackupView.svelte";
   import PerformanceView from "./pages/PerformanceView.svelte";
+  import NotificationsView from "./pages/NotificationsView.svelte";
+  import RecentFilesView from "./pages/RecentFilesView.svelte";
   import Toast from "./components/ui/Toast.svelte";
+
+  // Load user preferences on mount if logged in
+  onMount(async () => {
+    if ($auth.isLoggedIn) {
+      try {
+        await Promise.all([
+          userPreferences.load(),
+          currentTheme.loadFromBackend?.(),
+          currentLang.loadFromBackend?.(),
+        ]);
+      } catch (err) {
+        console.error("Failed to load user data:", err);
+      }
+    }
+  });
+
+  // Reload preferences when user logs in
+  $: if ($auth.isLoggedIn) {
+    Promise.all([
+      userPreferences.load(),
+      currentTheme.loadFromBackend?.(),
+      currentLang.loadFromBackend?.(),
+    ]).catch((err) => {
+      console.error("Failed to load user data:", err);
+    });
+  }
 
   // Apply theme to document
   $: {
@@ -62,6 +92,10 @@
           <BackupView />
         {:else if $currentView === "performance"}
           <PerformanceView />
+        {:else if $currentView === "notifications"}
+          <NotificationsView />
+        {:else if $currentView === "recent"}
+          <RecentFilesView />
         {/if}
       </main>
     </div>

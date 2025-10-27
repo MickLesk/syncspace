@@ -1,40 +1,96 @@
 <script>
   import { onMount } from "svelte";
+  import api from "../lib/api.js";
+  import { auth } from "../stores/auth.js";
 
   let currentTheme = $state("syncspace");
+  let loading = $state(false);
 
   const themes = [
     { id: "syncspace", name: "Light", icon: "bi-sun-fill" },
     { id: "syncspace-dark", name: "Dark", icon: "bi-moon-fill" },
   ];
 
-  onMount(() => {
-    const saved = localStorage.getItem("theme") || "syncspace";
-    setTheme(saved);
+  // Map backend theme names to frontend theme names
+  function backendToFrontendTheme(backendTheme) {
+    if (backendTheme === "dark") return "syncspace-dark";
+    return "syncspace"; // light or any other value defaults to light
+  }
 
-    // Auto-detect system preference
+  // Map frontend theme names to backend theme names
+  function frontendToBackendTheme(frontendTheme) {
+    if (frontendTheme === "syncspace-dark") return "dark";
+    return "light";
+  }
+
+  onMount(async () => {
+    // Load theme from backend if logged in
+    if ($auth.isLoggedIn) {
+      await loadThemeFromBackend();
+    } else {
+      // Fallback to localStorage for non-logged in users
+      const saved = localStorage.getItem("theme") || "syncspace";
+      applyTheme(saved);
+    }
+
+    // Auto-detect system preference if no theme set
     const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    if (!localStorage.getItem("theme")) {
-      setTheme(darkModeQuery.matches ? "syncspace-dark" : "syncspace");
+    if (!currentTheme || currentTheme === "syncspace") {
+      const prefersDark = darkModeQuery.matches;
+      if (prefersDark) {
+        applyTheme("syncspace-dark");
+      }
     }
 
     darkModeQuery.addEventListener("change", (e) => {
-      if (!localStorage.getItem("theme")) {
-        setTheme(e.matches ? "syncspace-dark" : "syncspace");
+      if (!$auth.isLoggedIn && !localStorage.getItem("theme")) {
+        applyTheme(e.matches ? "syncspace-dark" : "syncspace");
       }
     });
   });
 
-  function setTheme(theme) {
+  async function loadThemeFromBackend() {
+    try {
+      const settings = await api.users.getSettings();
+      if (settings && settings.theme) {
+        const frontendTheme = backendToFrontendTheme(settings.theme);
+        applyTheme(frontendTheme);
+      }
+    } catch (err) {
+      console.error("Failed to load theme from backend:", err);
+      // Fallback to localStorage
+      const saved = localStorage.getItem("theme") || "syncspace";
+      applyTheme(saved);
+    }
+  }
+
+  function applyTheme(theme) {
     currentTheme = theme;
     document.documentElement.setAttribute("data-theme", theme);
+    // Still save to localStorage for instant load on next visit
     localStorage.setItem("theme", theme);
   }
 
-  function toggleTheme() {
+  async function setTheme(theme) {
+    loading = true;
+    applyTheme(theme);
+
+    // Save to backend if logged in
+    if ($auth.isLoggedIn) {
+      try {
+        const backendTheme = frontendToBackendTheme(theme);
+        await api.users.updateSettings({ theme: backendTheme });
+      } catch (err) {
+        console.error("Failed to save theme to backend:", err);
+      }
+    }
+    loading = false;
+  }
+
+  async function toggleTheme() {
     const newTheme =
       currentTheme === "syncspace" ? "syncspace-dark" : "syncspace";
-    setTheme(newTheme);
+    await setTheme(newTheme);
   }
 </script>
 
