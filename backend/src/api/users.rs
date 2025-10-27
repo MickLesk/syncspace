@@ -1,4 +1,3 @@
-use crate::auth::UserInfo;
 //! User management API endpoints
 
 use axum::{extract::State, http::StatusCode, routing::{get, put}, Json, Router};
@@ -9,6 +8,7 @@ use crate::{auth::UserInfo, services, AppState};
 pub struct UpdateProfileRequest {
     pub display_name: Option<String>,
     pub email: Option<String>,
+    pub avatar_base64: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]

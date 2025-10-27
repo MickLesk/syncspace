@@ -1,5 +1,6 @@
-use crate::auth::UserInfo;
 //! Search API endpoints
+
+use crate::auth::UserInfo;
 
 use axum::{extract::{Query, State}, http::StatusCode, routing::get, Json, Router};
 use serde::Deserialize;

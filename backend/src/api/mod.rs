@@ -1,6 +1,7 @@
-use crate::auth::UserInfo;
 //! API Router Module
 //! Centralizes all API route definitions
+
+use crate::auth::UserInfo;
 
 pub mod auth;
 pub mod files;

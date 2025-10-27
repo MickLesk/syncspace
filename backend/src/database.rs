@@ -280,6 +280,7 @@ pub struct File {
 pub struct FileHistory {
     pub id: String,
     pub file_id: String,
+    pub file_path: String,
     pub user_id: String,
     pub action: String,
     pub old_value: Option<String>,

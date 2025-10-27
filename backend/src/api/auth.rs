@@ -10,7 +10,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::auth::{User, UserInfo, UserInfo};
+use crate::auth::{User, UserInfo};
 use crate::services;
 use crate::AppState;
 
@@ -33,6 +33,8 @@ pub struct LoginRequest {
 pub struct AuthResponse {
     pub token: String,
     pub user: UserInfo,
+    pub refresh_token: Option<String>,
+    pub requires_2fa: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -52,9 +54,11 @@ pub struct Disable2FARequest {
 }
 
 #[derive(Debug, Serialize)]
+#[derive(Debug, Serialize)]
 pub struct Setup2FAResponse {
     pub secret: String,
     pub qr_code_url: String,
+    pub qr_url: String,  // Alias for compatibility
 }
 
 // ==================== ROUTER ====================

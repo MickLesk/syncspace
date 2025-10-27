@@ -1,9 +1,10 @@
-use crate::auth::UserInfo;
 //! Activity log and audit trail API
+
+use crate::auth::UserInfo;
 
 use axum::{extract::{Query, State}, http::StatusCode, routing::get, Json, Router};
 use serde::Deserialize;
-use crate::{auth::User, services::activity, AppState};
+use crate::{services, AppState};
 
 #[derive(Debug, Deserialize)]
 pub struct ActivityQuery {

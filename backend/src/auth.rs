@@ -367,23 +367,20 @@ pub struct UserInfo {
 
 // Axum extractor for authenticated user
 use async_trait::async_trait;
-use axum::extract::FromRequestParts;
-use axum::http::request::Parts;
-use axum::http::StatusCode as HttpStatusCode;
 
 #[async_trait]
 impl<S> FromRequestParts<S> for UserInfo
 where
     S: Send + Sync,
 {
-    type Rejection = HttpStatusCode;
+    type Rejection = StatusCode;
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
         parts
             .extensions
             .get::<User>()
             .map(|User(user_info)| user_info.clone())
-            .ok_or(HttpStatusCode::UNAUTHORIZED)
+            .ok_or(StatusCode::UNAUTHORIZED)
     }
 }
 
