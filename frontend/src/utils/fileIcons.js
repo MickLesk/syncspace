@@ -9,75 +9,75 @@ export function getFileIcon(filename, isDirectory = false) {
 
   const iconMap = {
     // Documents
-    pdf: 'file-earmark-pdf',
-    doc: 'file-earmark-word',
-    docx: 'file-earmark-word',
-    txt: 'file-earmark-text',
-    rtf: 'file-earmark-text',
-    odt: 'file-earmark-text',
+    pdf: 'file-earmark-pdf-fill',
+    doc: 'file-earmark-word-fill',
+    docx: 'file-earmark-word-fill',
+    txt: 'file-earmark-text-fill',
+    rtf: 'file-earmark-text-fill',
+    odt: 'file-earmark-text-fill',
     
     // Spreadsheets
-    xls: 'file-earmark-excel',
-    xlsx: 'file-earmark-excel',
-    csv: 'file-earmark-spreadsheet',
-    ods: 'file-earmark-spreadsheet',
+    xls: 'file-earmark-excel-fill',
+    xlsx: 'file-earmark-excel-fill',
+    csv: 'file-earmark-spreadsheet-fill',
+    ods: 'file-earmark-spreadsheet-fill',
     
     // Presentations
-    ppt: 'file-earmark-ppt',
-    pptx: 'file-earmark-ppt',
-    odp: 'file-earmark-slides',
+    ppt: 'file-earmark-ppt-fill',
+    pptx: 'file-earmark-ppt-fill',
+    odp: 'file-earmark-slides-fill',
     
     // Images
-    jpg: 'file-earmark-image',
-    jpeg: 'file-earmark-image',
-    png: 'file-earmark-image',
-    gif: 'file-earmark-image',
-    bmp: 'file-earmark-image',
-    svg: 'file-image',
-    webp: 'file-earmark-image',
-    ico: 'file-earmark-image',
+    jpg: 'file-earmark-image-fill',
+    jpeg: 'file-earmark-image-fill',
+    png: 'file-earmark-image-fill',
+    gif: 'file-earmark-image-fill',
+    bmp: 'file-earmark-image-fill',
+    svg: 'file-image-fill',
+    webp: 'file-earmark-image-fill',
+    ico: 'file-earmark-image-fill',
     
     // Videos
-    mp4: 'file-earmark-play',
-    avi: 'file-earmark-play',
-    mov: 'file-earmark-play',
-    wmv: 'file-earmark-play',
-    flv: 'file-earmark-play',
-    mkv: 'file-earmark-play',
-    webm: 'file-earmark-play',
+    mp4: 'file-earmark-play-fill',
+    avi: 'file-earmark-play-fill',
+    mov: 'file-earmark-play-fill',
+    wmv: 'file-earmark-play-fill',
+    flv: 'file-earmark-play-fill',
+    mkv: 'file-earmark-play-fill',
+    webm: 'file-earmark-play-fill',
     
     // Audio
-    mp3: 'file-earmark-music',
-    wav: 'file-earmark-music',
-    ogg: 'file-earmark-music',
-    flac: 'file-earmark-music',
-    m4a: 'file-earmark-music',
-    wma: 'file-earmark-music',
+    mp3: 'file-earmark-music-fill',
+    wav: 'file-earmark-music-fill',
+    ogg: 'file-earmark-music-fill',
+    flac: 'file-earmark-music-fill',
+    m4a: 'file-earmark-music-fill',
+    wma: 'file-earmark-music-fill',
     
     // Archives
-    zip: 'file-earmark-zip',
-    rar: 'file-earmark-zip',
-    '7z': 'file-earmark-zip',
-    tar: 'file-earmark-zip',
-    gz: 'file-earmark-zip',
+    zip: 'file-earmark-zip-fill',
+    rar: 'file-earmark-zip-fill',
+    '7z': 'file-earmark-zip-fill',
+    tar: 'file-earmark-zip-fill',
+    gz: 'file-earmark-zip-fill',
     
     // Code
-    js: 'file-earmark-code',
-    ts: 'file-earmark-code',
-    jsx: 'file-earmark-code',
-    tsx: 'file-earmark-code',
-    py: 'file-earmark-code',
-    java: 'file-earmark-code',
-    cpp: 'file-earmark-code',
-    c: 'file-earmark-code',
-    h: 'file-earmark-code',
-    cs: 'file-earmark-code',
-    php: 'file-earmark-code',
-    rb: 'file-earmark-code',
-    go: 'file-earmark-code',
-    rs: 'file-earmark-code',
-    swift: 'file-earmark-code',
-    kt: 'file-earmark-code',
+    js: 'file-earmark-code-fill',
+    ts: 'file-earmark-code-fill',
+    jsx: 'file-earmark-code-fill',
+    tsx: 'file-earmark-code-fill',
+    py: 'file-earmark-code-fill',
+    java: 'file-earmark-code-fill',
+    cpp: 'file-earmark-code-fill',
+    c: 'file-earmark-code-fill',
+    h: 'file-earmark-code-fill',
+    cs: 'file-earmark-code-fill',
+    php: 'file-earmark-code-fill',
+    rb: 'file-earmark-code-fill',
+    go: 'file-earmark-code-fill',
+    rs: 'file-earmark-code-fill',
+    swift: 'file-earmark-code-fill',
+    kt: 'file-earmark-code-fill',
     
     // Web
     html: 'filetype-html',
@@ -90,21 +90,21 @@ export function getFileIcon(filename, isDirectory = false) {
     yml: 'filetype-yml',
     
     // Executable
-    exe: 'file-earmark-binary',
-    msi: 'file-earmark-binary',
-    app: 'app',
-    dmg: 'file-earmark-binary',
-    deb: 'file-earmark-binary',
-    rpm: 'file-earmark-binary',
+    exe: 'file-earmark-binary-fill',
+    msi: 'file-earmark-binary-fill',
+    app: 'app-fill',
+    dmg: 'file-earmark-binary-fill',
+    deb: 'file-earmark-binary-fill',
+    rpm: 'file-earmark-binary-fill',
     
     // Fonts
-    ttf: 'file-earmark-font',
-    otf: 'file-earmark-font',
-    woff: 'file-earmark-font',
-    woff2: 'file-earmark-font',
+    ttf: 'file-earmark-font-fill',
+    otf: 'file-earmark-font-fill',
+    woff: 'file-earmark-font-fill',
+    woff2: 'file-earmark-font-fill',
   };
 
-  return iconMap[ext] || 'file-earmark'; // Default file icon
+  return iconMap[ext] || 'file-earmark-fill'; // Default file icon
 }
 
 // Get file type for preview
@@ -129,4 +129,41 @@ export function getFileType(filename) {
 export function isPreviewable(filename) {
   const type = getFileType(filename);
   return ['image', 'video', 'audio', 'text', 'pdf'].includes(type);
+}
+
+// Get color class for file type
+export function getFileIconColor(filename) {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  
+  // Image files - blue
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'ico'].includes(ext)) {
+    return 'text-info';
+  }
+  // Video files - purple
+  if (['mp4', 'avi', 'mkv', 'mov', 'webm', 'flv', 'wmv'].includes(ext)) {
+    return 'text-secondary';
+  }
+  // Audio files - pink
+  if (['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 'wma'].includes(ext)) {
+    return 'text-accent';
+  }
+  // Documents - red
+  if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) {
+    return 'text-error';
+  }
+  // Archive - orange/warning
+  if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) {
+    return 'text-warning';
+  }
+  // Code files - green
+  if (['html', 'css', 'js', 'jsx', 'ts', 'tsx', 'json', 'xml', 'py', 'java', 'c', 'cpp', 'cs', 'php', 'rb', 'go', 'rs', 'swift'].includes(ext)) {
+    return 'text-success';
+  }
+  // Text files - neutral
+  if (['txt', 'md', 'log', 'csv'].includes(ext)) {
+    return 'text-base-content';
+  }
+  
+  // Default - neutral
+  return 'text-base-content';
 }

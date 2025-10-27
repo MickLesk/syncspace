@@ -25,9 +25,9 @@ const JWT_SECRET: &str = "your-secret-key-change-in-production";
 const TOKEN_EXPIRATION_HOURS: i64 = 24;
 const REFRESH_TOKEN_EXPIRATION_DAYS: i64 = 7;
 
-/// User account structure
+/// User account structure (database model)
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct User {
+pub struct UserAccount {
     pub id: Uuid,
     pub username: String,
     #[serde(skip_serializing)]
@@ -41,7 +41,7 @@ pub struct User {
 /// In-memory user database with persistent JSON storage
 #[derive(Clone)]
 pub struct UserDB {
-    users: Arc<Mutex<HashMap<Uuid, User>>>,
+    users: Arc<Mutex<HashMap<Uuid, UserAccount>>>,
 }
 
 impl UserDB {
@@ -55,7 +55,7 @@ impl UserDB {
 
     fn load_from_disk(&self) {
         if let Ok(data) = fs::read_to_string(USERS_FILE) {
-            if let Ok(users_vec) = serde_json::from_str::<Vec<User>>(&data) {
+            if let Ok(users_vec) = serde_json::from_str::<Vec<UserAccount>>(&data) {
                 let mut users = self.users.lock().unwrap();
                 for user in users_vec {
                     users.insert(user.id, user);
@@ -69,13 +69,13 @@ impl UserDB {
 
     fn save_to_disk(&self) {
         let users = self.users.lock().unwrap();
-        let users_vec: Vec<User> = users.values().cloned().collect();
+        let users_vec: Vec<UserAccount> = users.values().cloned().collect();
         if let Ok(json) = serde_json::to_string_pretty(&users_vec) {
             let _ = fs::write(USERS_FILE, json);
         }
     }
 
-    pub fn create_user(&self, username: String, password: String) -> Result<User, String> {
+    pub fn create_user(&self, username: String, password: String) -> Result<UserAccount, String> {
         let mut users = self.users.lock().unwrap();
 
         // Check if username exists
@@ -91,7 +91,7 @@ impl UserDB {
             .map_err(|e| format!("Password hashing failed: {}", e))?
             .to_string();
 
-        let user = User {
+        let user = UserAccount {
             id: Uuid::new_v4(),
             username,
             password_hash,
@@ -108,24 +108,24 @@ impl UserDB {
         Ok(user)
     }
 
-    pub fn get_by_username(&self, username: &str) -> Option<User> {
+    pub fn get_by_username(&self, username: &str) -> Option<UserAccount> {
         let users = self.users.lock().unwrap();
         users.values().find(|u| u.username == username).cloned()
     }
 
-    pub fn get_by_id(&self, id: &Uuid) -> Option<User> {
+    pub fn get_by_id(&self, id: &Uuid) -> Option<UserAccount> {
         let users = self.users.lock().unwrap();
         users.get(id).cloned()
     }
 
-    pub fn update_user(&self, user: User) {
+    pub fn update_user(&self, user: UserAccount) {
         let mut users = self.users.lock().unwrap();
         users.insert(user.id, user);
         drop(users);
         self.save_to_disk();
     }
 
-    pub fn verify_password(&self, username: &str, password: &str) -> Result<User, String> {
+    pub fn verify_password(&self, username: &str, password: &str) -> Result<UserAccount, String> {
         let user = self
             .get_by_username(username)
             .ok_or("Invalid username or password")?;
@@ -163,7 +163,7 @@ impl UserDB {
         Ok(())
     }
 
-    pub fn list_users(&self) -> Vec<User> {
+    pub fn list_users(&self) -> Vec<UserAccount> {
         let users = self.users.lock().unwrap();
         users.values().cloned().collect()
     }
@@ -189,7 +189,7 @@ pub struct RefreshTokenClaims {
 }
 
 /// Generate JWT token for authenticated user
-pub fn generate_token(user: &User) -> Result<String, String> {
+pub fn generate_token(user: &UserAccount) -> Result<String, String> {
     let expiration = Utc::now()
         .checked_add_signed(Duration::hours(TOKEN_EXPIRATION_HOURS))
         .expect("valid timestamp")
@@ -211,7 +211,7 @@ pub fn generate_token(user: &User) -> Result<String, String> {
 }
 
 /// Generate refresh token (7 day expiration)
-pub fn generate_refresh_token(user: &User) -> Result<String, String> {
+pub fn generate_refresh_token(user: &UserAccount) -> Result<String, String> {
     let expiration = Utc::now()
         .checked_add_signed(Duration::days(REFRESH_TOKEN_EXPIRATION_DAYS))
         .ok_or("Invalid timestamp")?
@@ -319,7 +319,7 @@ where
 
         // Return a minimal user struct - the handlers will verify via state.user_db
         // This is a temporary workaround until we fully migrate to database auth
-        Ok(User {
+        Ok(UserAccount {
             id: user_id,
             username: claims.username,
             password_hash: String::new(), // Not needed for auth verification
@@ -364,6 +364,32 @@ pub struct UserInfo {
     pub username: String,
     pub totp_enabled: bool,
 }
+
+// Axum extractor for authenticated user
+use async_trait::async_trait;
+use axum::extract::FromRequestParts;
+use axum::http::request::Parts;
+use axum::http::StatusCode as HttpStatusCode;
+
+#[async_trait]
+impl<S> FromRequestParts<S> for UserInfo
+where
+    S: Send + Sync,
+{
+    type Rejection = HttpStatusCode;
+
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        parts
+            .extensions
+            .get::<User>()
+            .map(|User(user_info)| user_info.clone())
+            .ok_or(HttpStatusCode::UNAUTHORIZED)
+    }
+}
+
+// Tuple struct wrapper for extension storage
+#[derive(Debug, Clone)]
+pub struct User(pub UserInfo);
 
 #[derive(Debug, Deserialize)]
 pub struct Enable2FARequest {

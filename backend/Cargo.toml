@@ -35,6 +35,14 @@ hmac = "0.12"  # For webhook signatures
 # Database
 sqlx = { version = "0.8", features = ["runtime-tokio-native-tls", "sqlite", "chrono", "uuid"] }
 
+# Error handling
+anyhow = "1.0"
+thiserror = "2.0"
+
+# Logging/Tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
 # Search
 tantivy = "0.25"
 lopdf = "0.38"  # PDF text extraction

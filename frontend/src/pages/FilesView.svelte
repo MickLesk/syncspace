@@ -3,7 +3,7 @@
   import { files, currentPath } from "../stores/ui";
   import { favorites } from "../stores/favorites";
   import { success, error as errorToast } from "../stores/toast";
-  import { getFileIcon } from "../utils/fileIcons";
+  import { getFileIcon, getFileIconColor } from "../utils/fileIcons";
   import ContextMenu from "../components/ui/ContextMenu.svelte";
   import Breadcrumb from "../components/Breadcrumb.svelte";
   import Modal from "../components/ui/Modal.svelte";
@@ -71,6 +71,9 @@
   let selectedFiles = $state([]);
   let lastSelectedIndex = $state(-1);
   let selectionMode = $state(false);
+
+  // Global keyboard handler (needs to be outside onMount for cleanup)
+  let keyboardHandler = null;
 
   let filteredFiles = $derived(
     isSearchActive
@@ -192,7 +195,7 @@
     });
 
     // Global keyboard shortcuts
-    const handleKeyboard = (e) => {
+    keyboardHandler = (e) => {
       // Ignore if typing in input/textarea
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
         return;
@@ -201,7 +204,12 @@
       // Ctrl+K - Quick search (already handled by input)
       if (e.ctrlKey && e.key === "k") {
         e.preventDefault();
-        document.querySelector('input[placeholder*="Quick search"]')?.focus();
+        const searchInput = document.querySelector(
+          'input[placeholder*="Quick search"]'
+        );
+        if (searchInput instanceof HTMLInputElement) {
+          searchInput.focus();
+        }
         return;
       }
 
@@ -246,14 +254,15 @@
       }
     };
 
-    window.addEventListener("keydown", handleKeyboard);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyboard);
-    };
+    window.addEventListener("keydown", keyboardHandler);
   });
 
   onDestroy(() => {
+    // Cleanup keyboard listener
+    if (keyboardHandler) {
+      window.removeEventListener("keydown", keyboardHandler);
+    }
+
     if (unsubscribeWebSocket) {
       unsubscribeWebSocket();
     }
@@ -293,24 +302,36 @@
       files.set(filteredData);
     } catch (err) {
       console.error("❌ Failed to load files:", err);
-      
+
       // Specific error handling based on status code
       const errorMessage = err.message || "";
-      if (errorMessage.includes("401") || errorMessage.includes("Unauthorized")) {
+      if (
+        errorMessage.includes("401") ||
+        errorMessage.includes("Unauthorized")
+      ) {
         errorToast("Session expired. Please login again.");
         // Auth redirect is handled by api.js handleResponse
-      } else if (errorMessage.includes("403") || errorMessage.includes("Forbidden")) {
+      } else if (
+        errorMessage.includes("403") ||
+        errorMessage.includes("Forbidden")
+      ) {
         errorToast("Permission denied. You don't have access to this folder.");
-      } else if (errorMessage.includes("404") || errorMessage.includes("Not Found")) {
+      } else if (
+        errorMessage.includes("404") ||
+        errorMessage.includes("Not Found")
+      ) {
         errorToast("Folder not found. It may have been deleted.");
         // Navigate to root
         currentPath.set("/");
-      } else if (errorMessage.includes("500") || errorMessage.includes("Internal Server Error")) {
+      } else if (
+        errorMessage.includes("500") ||
+        errorMessage.includes("Internal Server Error")
+      ) {
         errorToast("Server error. Please try again later.");
       } else {
         errorToast(errorMessage || "Failed to load files");
       }
-      
+
       // Set empty array on error so UI doesn't stay in loading state
       files.set([]);
     } finally {
@@ -551,16 +572,18 @@
       const start = Math.min(lastSelectedIndex, index);
       const end = Math.max(lastSelectedIndex, index);
       const rangeFiles = sortedFiles.slice(start, end + 1);
-      
-      rangeFiles.forEach(f => {
-        if (!selectedFiles.find(sf => sf.name === f.name)) {
+
+      rangeFiles.forEach((f) => {
+        if (!selectedFiles.find((sf) => sf.name === f.name)) {
           selectedFiles.push(f);
         }
       });
       selectedFiles = [...selectedFiles];
     } else if (isCtrlPressed) {
       // Ctrl+Click: Toggle individual
-      const existingIndex = selectedFiles.findIndex(f => f.name === file.name);
+      const existingIndex = selectedFiles.findIndex(
+        (f) => f.name === file.name
+      );
       if (existingIndex >= 0) {
         selectedFiles.splice(existingIndex, 1);
       } else {
@@ -573,7 +596,7 @@
       selectedFiles = [file];
       lastSelectedIndex = index;
     }
-    
+
     selectionMode = selectedFiles.length > 0;
   }
 
@@ -590,23 +613,29 @@
   }
 
   function isFileSelected(file) {
-    return selectedFiles.some(f => f.name === file.name && f.path === file.path);
+    return selectedFiles.some(
+      (f) => f.name === file.name && f.path === file.path
+    );
   }
 
   async function handleBatchDelete() {
     if (selectedFiles.length === 0) return;
 
-    const confirmed = confirm(`Delete ${selectedFiles.length} selected file(s)?`);
+    const confirmed = confirm(
+      `Delete ${selectedFiles.length} selected file(s)?`
+    );
     if (!confirmed) return;
 
     try {
       const backendPath = $currentPath.replace(/^\/+|\/+$/g, "");
-      
+
       for (const file of selectedFiles) {
-        const fullPath = backendPath ? `${backendPath}/${file.name}` : file.name;
+        const fullPath = backendPath
+          ? `${backendPath}/${file.name}`
+          : file.name;
         await api.files.delete(fullPath);
       }
-      
+
       success(`Deleted ${selectedFiles.length} file(s) successfully`);
       deselectAllFiles();
       await loadFiles();
@@ -620,10 +649,12 @@
 
     try {
       const backendPath = $currentPath.replace(/^\/+|\/+$/g, "");
-      
+
       for (const file of selectedFiles) {
         if (file.is_dir) continue; // Skip directories
-        const fullPath = backendPath ? `${backendPath}/${file.name}` : file.name;
+        const fullPath = backendPath
+          ? `${backendPath}/${file.name}`
+          : file.name;
         const blob = await api.files.download(fullPath);
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -631,9 +662,9 @@
         a.download = file.name;
         a.click();
         URL.revokeObjectURL(url);
-        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay between downloads
+        await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay between downloads
       }
-      
+
       success(`Started downloading ${selectedFiles.length} file(s)`);
     } catch (err) {
       errorToast(err.message || "Batch download failed");
@@ -951,29 +982,6 @@
   ondrop={handleDrop}
   role="main"
 >
-  <!-- WebSocket Status Banner -->
-  <div class="mb-4">
-    {#if $wsConnected}
-      <div
-        class="alert alert-success rounded-xl bg-success/10 border-success/30 shadow-sm"
-      >
-        <i class="bi bi-wifi text-success text-lg"></i>
-        <span class="text-sm">
-          <strong>Live sync active</strong> - Files update in real-time
-        </span>
-      </div>
-    {:else}
-      <div
-        class="alert alert-warning rounded-xl bg-warning/10 border-warning/30 shadow-sm"
-      >
-        <i class="bi bi-wifi-off text-warning text-lg"></i>
-        <span class="text-sm">
-          <strong>Reconnecting...</strong> - Live sync temporarily unavailable
-        </span>
-      </div>
-    {/if}
-  </div>
-
   <!-- Toolbar -->
   <div class="toolbar card bg-base-100 border border-base-300 mb-6 shadow-sm">
     <div class="card-body p-4">
@@ -1176,12 +1184,18 @@
 
   <!-- Batch Action Toolbar (appears when files are selected) -->
   {#if selectionMode && selectedFiles.length > 0}
-    <div class="alert alert-info shadow-lg mb-6 rounded-xl border-2 border-primary/30">
+    <div
+      class="alert alert-info shadow-lg mb-6 rounded-xl border-2 border-primary/30"
+    >
       <div class="flex items-center gap-3">
         <i class="bi bi-check-square text-2xl"></i>
         <div class="flex-1">
-          <h3 class="font-bold text-lg">{selectedFiles.length} file(s) selected</h3>
-          <div class="text-sm opacity-70">Ctrl+Click to select more, Shift+Click for range</div>
+          <h3 class="font-bold text-lg">
+            {selectedFiles.length} file(s) selected
+          </h3>
+          <div class="text-sm opacity-70">
+            Ctrl+Click to select more, Shift+Click for range
+          </div>
         </div>
         <div class="flex gap-2">
           <button class="btn btn-sm btn-success gap-2" onclick={selectAllFiles}>
@@ -1193,11 +1207,17 @@
             Clear
           </button>
           <div class="divider divider-horizontal"></div>
-          <button class="btn btn-sm btn-primary gap-2" onclick={handleBatchDownload}>
+          <button
+            class="btn btn-sm btn-primary gap-2"
+            onclick={handleBatchDownload}
+          >
             <i class="bi bi-download"></i>
             Download
           </button>
-          <button class="btn btn-sm btn-error gap-2" onclick={handleBatchDelete}>
+          <button
+            class="btn btn-sm btn-error gap-2"
+            onclick={handleBatchDelete}
+          >
             <i class="bi bi-trash3"></i>
             Delete
           </button>
@@ -1318,7 +1338,10 @@
           class="card bg-base-100 border-2 transition-all duration-300 cursor-pointer group relative overflow-hidden"
           class:border-base-300={!isFileSelected(file)}
           class:border-primary={isFileSelected(file)}
-          class:bg-primary/5={isFileSelected(file)}
+          class:bg-primary={isFileSelected(file)}
+          style={isFileSelected(file)
+            ? "background-color: hsl(var(--p) / 0.05);"
+            : ""}
           class:hover:border-primary={!isFileSelected(file)}
           class:hover:shadow-2xl={true}
           class:hover:scale-105={!isFileSelected(file)}
@@ -1386,8 +1409,8 @@
         >
           <!-- Selection Checkbox -->
           <div class="absolute top-2 left-2 z-20">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               class="checkbox checkbox-primary checkbox-sm"
               checked={isFileSelected(file)}
               onclick={(e) => {
@@ -1458,7 +1481,12 @@
                   <i class="bi bi-folder-fill"></i>
                 </div>
               {:else}
-                <FileThumbnail {file} size="lg" />
+                <!-- Large icon for files (same size as folders) -->
+                <div
+                  class="text-6xl drop-shadow-lg {getFileIconColor(file.name)}"
+                >
+                  <i class="bi bi-{getFileIcon(file.name)}"></i>
+                </div>
               {/if}
             </div>
 

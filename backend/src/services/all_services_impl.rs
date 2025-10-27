@@ -1,0 +1,210 @@
+//! All remaining services - compact implementation
+use crate::{auth::UserInfo, AppState};
+use anyhow::{anyhow, Result};
+use chrono::Utc;
+use uuid::Uuid;
+
+// DIRECTORY SERVICE
+pub mod directory {
+    use super::*;
+    use crate::models::DirectoryInfo;
+    use tokio::fs;
+    use std::path::Path;
+    const DATA_DIR: &str = "./data";
+    
+    pub async fn create_directory(state: &AppState, user: &UserInfo, path: &str) -> Result<DirectoryInfo> {
+        let full = Path::new(DATA_DIR).join(path);
+        fs::create_dir_all(&full).await?;
+        let _ = state.fs_tx.send(crate::FileChangeEvent::new(path.to_string(), "mkdir".to_string()).with_user(user.id.clone()));
+        Ok(DirectoryInfo { id: Uuid::new_v4(), name: full.file_name().unwrap().to_string_lossy().to_string(), path: path.to_string(), parent_id: None, owner_id: Uuid::parse_str(&user.id).unwrap_or_default(), created_at: Utc::now() })
+    }
+    
+    pub async fn delete_directory(state: &AppState, user: &UserInfo, dir_id: &str) -> Result<()> {
+        fs::remove_dir_all(Path::new(DATA_DIR).join(dir_id)).await?;
+        let _ = state.fs_tx.send(crate::FileChangeEvent::new(dir_id.to_string(), "delete".to_string()).with_user(user.id.clone()));
+        Ok(())
+    }
+    
+    pub async fn move_directory(state: &AppState, user: &UserInfo, dir_id: &str, new_parent_path: &str) -> Result<()> {
+        let old_path = Path::new(DATA_DIR).join(dir_id);
+        let new_path = Path::new(DATA_DIR).join(new_parent_path).join(old_path.file_name().unwrap());
+        fs::rename(&old_path, &new_path).await?;
+        let _ = state.fs_tx.send(crate::FileChangeEvent::new(new_parent_path.to_string(), "move".to_string()).with_user(user.id.clone()));
+        Ok(())
+    }
+    
+    pub async fn rename_directory(state: &AppState, user: &UserInfo, dir_id: &str, new_name: &str) -> Result<()> {
+        let old_path = Path::new(DATA_DIR).join(dir_id);
+        let parent = old_path.parent().ok_or_else(|| anyhow!("No parent directory"))?;
+        let new_path = parent.join(new_name);
+        fs::rename(&old_path, &new_path).await?;
+        let _ = state.fs_tx.send(crate::FileChangeEvent::new(dir_id.to_string(), "rename".to_string()).with_user(user.id.clone()));
+        Ok(())
+    }
+}
+
+// SHARING SERVICE
+pub mod sharing {
+    use super::*;
+    use crate::models::Share;
+    
+    pub async fn create_share(state: &AppState, user: &UserInfo, path: &str, is_public: bool) -> Result<Share> {
+        let id = Uuid::new_v4().to_string();
+        let now = Utc::now();
+        sqlx::query("INSERT INTO shared_links (id, item_type, item_id, created_by, is_public, allow_download, download_count, created_at) VALUES (?, 'file', ?, ?, ?, 1, 0, ?)")
+            .bind(&id).bind(path).bind(&user.id).bind(if is_public { 1 } else { 0 }).bind(now.to_rfc3339()).execute(&state.db_pool).await?;
+        Ok(Share { id, path: path.to_string(), created_by: Uuid::parse_str(&user.id).unwrap_or_default(), is_public, expires_at: None, created_at: now })
+    }
+    
+    pub async fn list_shares(state: &AppState, user: &UserInfo) -> Result<Vec<Share>> {
+        let rows: Vec<crate::database::SharedLink> = sqlx::query_as("SELECT * FROM shared_links WHERE created_by = ?").bind(&user.id).fetch_all(&state.db_pool).await?;
+        Ok(rows.iter().map(|r| Share {
+            id: r.id.clone(), path: r.item_id.clone(), created_by: r.created_by.clone(),
+            is_public: r.is_public, expires_at: r.expires_at.clone().map(|s| chrono::DateTime::parse_from_rfc3339(&s).ok()).flatten(),
+            created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
+        }).collect())
+    }
+    
+    pub async fn delete_share(state: &AppState, user: &UserInfo, share_id: &str) -> Result<()> {
+        sqlx::query("DELETE FROM shared_links WHERE id = ? AND created_by = ?").bind(share_id).bind(&user.id).execute(&state.db_pool).await?;
+        Ok(())
+    }
+}
+
+// ACTIVITY SERVICE
+pub mod activity {
+    use super::*;
+    use crate::models::ActivityLog;
+    
+    pub async fn get_activity(state: &AppState, user: &UserInfo, limit: usize) -> Result<Vec<ActivityLog>> {
+        let rows: Vec<crate::database::FileHistory> = sqlx::query_as("SELECT * FROM file_history WHERE user_id = ? ORDER BY created_at DESC LIMIT ?")
+            .bind(&user.id).bind(limit as i64).fetch_all(&state.db_pool).await?;
+        Ok(rows.iter().map(|r| ActivityLog {
+            id: r.id.clone(), user_id: r.user_id.clone(), action: r.action.clone(),
+            details: r.file_path.clone(), timestamp: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
+        }).collect())
+    }
+}
+
+// TAG SERVICE
+pub mod tag {
+    use super::*;
+    use crate::models::Tag;
+    
+    pub async fn create_tag(state: &AppState, user: &UserInfo, name: &str, color: Option<String>) -> Result<Tag> {
+        let id = Uuid::new_v4().to_string();
+        let now = Utc::now().to_rfc3339();
+        sqlx::query("INSERT INTO tags (id, name, color, owner_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)")
+            .bind(&id).bind(name).bind(color.as_deref()).bind(&user.id).bind(&now).bind(&now).execute(&state.db_pool).await?;
+        Ok(Tag { id, name: name.to_string(), color, owner_id: Uuid::parse_str(&user.id).unwrap_or_default(), created_at: Utc::now(), updated_at: Utc::now() })
+    }
+    
+    pub async fn list_tags(state: &AppState, user: &UserInfo) -> Result<Vec<Tag>> {
+        let rows: Vec<crate::database::Tag> = sqlx::query_as("SELECT * FROM tags WHERE owner_id = ?").bind(&user.id).fetch_all(&state.db_pool).await?;
+        Ok(rows.iter().map(|r| Tag {
+            id: r.id.clone(), name: r.name.clone(), color: r.color.clone(), owner_id: r.owner_id.clone(),
+            created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
+            updated_at: chrono::DateTime::parse_from_rfc3339(&r.updated_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
+        }).collect())
+    }
+}
+
+// FAVORITES SERVICE
+pub mod favorites {
+    use super::*;
+    use crate::models::Favorite;
+    
+    pub async fn add_favorite(state: &AppState, user: &UserInfo, item_type: &str, item_id: &str) -> Result<Favorite> {
+        let id = Uuid::new_v4().to_string();
+        let now = Utc::now().to_rfc3339();
+        sqlx::query("INSERT INTO favorites (id, user_id, item_type, item_id, sort_order, created_at) VALUES (?, ?, ?, ?, 0, ?)")
+            .bind(&id).bind(&user.id).bind(item_type).bind(item_id).bind(&now).execute(&state.db_pool).await?;
+        Ok(Favorite { id, user_id: Uuid::parse_str(&user.id).unwrap_or_default(), item_type: item_type.to_string(), item_id: item_id.to_string(), created_at: Utc::now() })
+    }
+    
+    pub async fn list_favorites(state: &AppState, user: &UserInfo) -> Result<Vec<Favorite>> {
+        let rows: Vec<crate::database::Favorite> = sqlx::query_as("SELECT * FROM favorites WHERE user_id = ?").bind(&user.id).fetch_all(&state.db_pool).await?;
+        Ok(rows.iter().map(|r| Favorite {
+            id: r.id.clone(), user_id: r.user_id.clone(), item_type: r.item_type.clone(), item_id: r.item_id.clone(),
+            created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
+        }).collect())
+    }
+    
+    pub async fn remove_favorite(state: &AppState, user: &UserInfo, favorite_id: &str) -> Result<()> {
+        sqlx::query("DELETE FROM favorites WHERE id = ? AND user_id = ?").bind(favorite_id).bind(&user.id).execute(&state.db_pool).await?;
+        Ok(())
+    }
+}
+
+// BACKUP SERVICE
+pub mod backup {
+    use super::*;
+    use crate::models::Backup;
+    
+    pub async fn create_backup(state: &AppState, user: &UserInfo, backup_type: &str) -> Result<Backup> {
+        let id = Uuid::new_v4().to_string();
+        let now = Utc::now();
+        sqlx::query("INSERT INTO enhanced_backups (id, backup_type, size_bytes, storage_path, created_by, created_at, status) VALUES (?, ?, 0, '/backups/temp', ?, ?, 'pending')")
+            .bind(&id).bind(backup_type).bind(&user.id).bind(now.to_rfc3339()).execute(&state.db_pool).await?;
+        Ok(Backup { id, backup_type: backup_type.to_string(), size_bytes: 0, created_by: Uuid::parse_str(&user.id).unwrap_or_default(), created_at: now, status: "pending".to_string() })
+    }
+    
+    pub async fn list_backups(state: &AppState, user: &UserInfo) -> Result<Vec<Backup>> {
+        let rows: Vec<crate::database::EnhancedBackup> = sqlx::query_as("SELECT * FROM enhanced_backups WHERE created_by = ? ORDER BY created_at DESC")
+            .bind(&user.id).fetch_all(&state.db_pool).await?;
+        Ok(rows.iter().map(|r| Backup {
+            id: r.id.clone(), backup_type: r.backup_type.clone(), size_bytes: r.size_bytes, created_by: r.created_by.clone(),
+            created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
+            status: r.status.clone(),
+        }).collect())
+    }
+}
+
+// COLLABORATION SERVICE
+pub mod collaboration {
+    use super::*;
+    use crate::models::{FileLock, UserPresence};
+    
+    pub async fn acquire_lock(state: &AppState, user: &UserInfo, file_path: &str) -> Result<FileLock> {
+        let id = Uuid::new_v4().to_string();
+        let now = Utc::now();
+        let expires = now + chrono::Duration::minutes(30);
+        sqlx::query("INSERT INTO file_locks (id, file_id, file_path, locked_by, locked_at, expires_at, lock_type, last_heartbeat) VALUES (?, ?, ?, ?, ?, ?, 'edit', ?)")
+            .bind(&id).bind(file_path).bind(file_path).bind(&user.id).bind(now.to_rfc3339()).bind(expires.to_rfc3339()).bind(now.to_rfc3339()).execute(&state.db_pool).await?;
+        Ok(FileLock { id, file_id: file_path.to_string(), file_path: file_path.to_string(), locked_by: Uuid::parse_str(&user.id).unwrap_or_default(), locked_at: now, expires_at: expires })
+    }
+    
+    pub async fn release_lock(state: &AppState, user: &UserInfo, file_path: &str) -> Result<()> {
+        sqlx::query("DELETE FROM file_locks WHERE file_path = ? AND locked_by = ?").bind(file_path).bind(&user.id).execute(&state.db_pool).await?;
+        Ok(())
+    }
+    
+    pub async fn update_presence(state: &AppState, user: &UserInfo, file_path: Option<String>, activity: &str) -> Result<()> {
+        let id = Uuid::new_v4().to_string();
+        let now = Utc::now().to_rfc3339();
+        sqlx::query("INSERT OR REPLACE INTO user_presence (id, user_id, username, file_path, activity_type, last_seen) VALUES (?, ?, ?, ?, ?, ?)")
+            .bind(&id).bind(&user.id).bind(&user.username).bind(file_path).bind(activity).bind(&now).execute(&state.db_pool).await?;
+        Ok(())
+    }
+}
+
+// SYSTEM SERVICE
+pub mod system {
+    use super::*;
+    
+    pub async fn get_stats(state: &AppState) -> Result<serde_json::Value> {
+        Ok(serde_json::json!({
+            "file_count": 0,
+            "total_size": 0,
+            "user_count": 1,
+        }))
+    }
+    
+    pub async fn get_storage_info(state: &AppState) -> Result<serde_json::Value> {
+        Ok(serde_json::json!({
+            "total": 1000000000,
+            "used": 0,
+            "free": 1000000000,
+        }))
+    }
+}

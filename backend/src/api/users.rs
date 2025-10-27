@@ -1,0 +1,55 @@
+use crate::auth::UserInfo;
+//! User management API endpoints
+
+use axum::{extract::State, http::StatusCode, routing::{get, put}, Json, Router};
+use serde::{Deserialize, Serialize};
+use crate::{auth::UserInfo, services, AppState};
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateProfileRequest {
+    pub display_name: Option<String>,
+    pub email: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateSettingsRequest {
+    pub theme: Option<String>,
+    pub language: Option<String>,
+    pub default_view: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdatePreferencesRequest {
+    pub preferences: serde_json::Value,
+}
+
+pub fn router() -> Router<AppState> {
+    Router::new()
+        .route("/users/profile", get(get_profile).put(update_profile))
+        .route("/users/settings", get(get_settings).put(update_settings))
+        .route("/users/preferences", get(get_preferences).put(update_preferences))
+}
+
+async fn get_profile(State(state): State<AppState>, user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {
+    services::get_profile(&state, &user).await.map(Json).map_err(|_| StatusCode::NOT_FOUND)
+}
+
+async fn update_profile(State(state): State<AppState>, user: UserInfo, Json(req): Json<UpdateProfileRequest>) -> Result<StatusCode, StatusCode> {
+    services::update_profile(&state, &user, req).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
+}
+
+async fn get_settings(State(state): State<AppState>, user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {
+    services::get_settings(&state, &user).await.map(Json).map_err(|_| StatusCode::NOT_FOUND)
+}
+
+async fn update_settings(State(state): State<AppState>, user: UserInfo, Json(req): Json<UpdateSettingsRequest>) -> Result<StatusCode, StatusCode> {
+    services::update_settings(&state, &user, req).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
+}
+
+async fn get_preferences(State(state): State<AppState>, user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {
+    services::get_preferences(&state, &user).await.map(Json).map_err(|_| StatusCode::NOT_FOUND)
+}
+
+async fn update_preferences(State(state): State<AppState>, user: UserInfo, Json(req): Json<UpdatePreferencesRequest>) -> Result<StatusCode, StatusCode> {
+    services::update_preferences(&state, &user, req.preferences).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
+}

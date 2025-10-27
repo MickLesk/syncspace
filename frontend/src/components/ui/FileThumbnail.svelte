@@ -21,9 +21,9 @@
   };
 
   const iconSizes = {
-    sm: "text-sm",
-    md: "text-xl",
-    lg: "text-4xl",
+    sm: "text-lg",
+    md: "text-2xl",
+    lg: "text-6xl",
   };
 
   // Image file extensions that support thumbnails
