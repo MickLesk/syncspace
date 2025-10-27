@@ -10,6 +10,7 @@ mod file_service_impl;
 mod user_service_impl;
 mod search_service_impl;
 mod all_services_impl;
+pub mod performance_service;
 
 // Re-export auth service functions
 pub use auth_service::*;
@@ -35,6 +36,11 @@ pub use all_services_impl::{
     directory, sharing, activity, tag, favorites,
     backup, collaboration, system
 };
+
+// Performance service module
+pub mod performance {
+    pub use super::performance_service::*;
+}
 
 // Stub functions for missing features
 pub async fn get_thumbnail(_state: &crate::AppState, _user: &crate::auth::UserInfo, _file_id: &str) -> anyhow::Result<Vec<u8>> {

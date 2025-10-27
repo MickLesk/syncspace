@@ -80,22 +80,36 @@ pub fn router() -> Router<AppState> {
 async fn register_handler(
     State(state): State<AppState>,
     Json(req): Json<RegisterRequest>,
-) -> Result<Json<AuthResponse>, StatusCode> {
+) -> Result<Json<AuthResponse>, (StatusCode, Json<serde_json::Value>)> {
     services::register(&state, req.username, req.password)
         .await
         .map(Json)
-        .map_err(|_| StatusCode::BAD_REQUEST)
+        .map_err(|e| {
+            (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({
+                    "error": e.to_string()
+                }))
+            )
+        })
 }
 
 /// Login user
 async fn login_handler(
     State(state): State<AppState>,
     Json(req): Json<LoginRequest>,
-) -> Result<Json<AuthResponse>, StatusCode> {
+) -> Result<Json<AuthResponse>, (StatusCode, Json<serde_json::Value>)> {
     services::login(&state, req.username, req.password, req.totp_code)
         .await
         .map(Json)
-        .map_err(|_| StatusCode::UNAUTHORIZED)
+        .map_err(|e| {
+            (
+                StatusCode::UNAUTHORIZED,
+                Json(serde_json::json!({
+                    "error": e.to_string()
+                }))
+            )
+        })
 }
 
 /// Get current user info
