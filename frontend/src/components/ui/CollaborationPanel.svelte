@@ -133,24 +133,39 @@
   <!-- Lock Status -->
   {#if currentLock}
     <div
-      class="alert {isLockedByMe
-        ? 'alert-info'
-        : 'alert-warning'} shadow-lg mb-3"
+      class="rounded-lg shadow-lg mb-3 p-4 border {isLockedByMe
+        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+        : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'}"
     >
       <div class="flex items-center gap-2">
-        <i class="bi bi-lock-fill"></i>
+        <i
+          class="bi bi-lock-fill {isLockedByMe
+            ? 'text-blue-600 dark:text-blue-400'
+            : 'text-amber-600 dark:text-amber-400'}"
+        ></i>
         <div class="flex-1">
-          <h3 class="font-bold text-sm">
+          <h3
+            class="font-bold text-sm {isLockedByMe
+              ? 'text-blue-900 dark:text-blue-100'
+              : 'text-amber-900 dark:text-amber-100'}"
+          >
             {isLockedByMe
               ? "You have locked this file"
               : `Locked by ${currentLock.locked_by}`}
           </h3>
-          <div class="text-xs opacity-70">
+          <div
+            class="text-xs {isLockedByMe
+              ? 'text-blue-700 dark:text-blue-300'
+              : 'text-amber-700 dark:text-amber-300'}"
+          >
             Expires: {formatTime(currentLock.expires_at)}
           </div>
         </div>
         {#if isLockedByMe}
-          <button class="btn btn-sm btn-ghost" on:click={releaseLock}>
+          <button
+            class="px-3 py-1.5 text-sm rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-200 transition-colors flex items-center gap-2"
+            on:click={releaseLock}
+          >
             <i class="bi bi-unlock"></i>
             Unlock
           </button>
@@ -159,7 +174,10 @@
     </div>
   {:else}
     <div class="mb-3">
-      <button class="btn btn-sm btn-outline gap-2" on:click={acquireLock}>
+      <button
+        class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+        on:click={acquireLock}
+      >
         <i class="bi bi-lock"></i>
         Lock for Editing
       </button>
@@ -168,9 +186,13 @@
 
   <!-- Active Users -->
   {#if filePresence.length > 0}
-    <div class="card bg-slate-50 dark:bg-slate-800 shadow-sm mb-3">
-      <div class="card-body p-3">
-        <h4 class="card-title text-sm mb-2">
+    <div
+      class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm mb-3 border border-gray-200 dark:border-gray-700"
+    >
+      <div class="p-3">
+        <h4
+          class="text-sm font-bold mb-2 flex items-center gap-2 text-gray-900 dark:text-white"
+        >
           <i class="bi bi-people-fill"></i>
           Active Users ({filePresence.length})
         </h4>
@@ -178,33 +200,43 @@
         <div class="space-y-2">
           {#each filePresence as user}
             <div class="flex items-center gap-2 text-sm">
-              <div class="avatar placeholder">
+              <div class="flex items-center justify-center">
                 <div
-                  class="bg-primary text-primary-content rounded-full w-8 h-8"
+                  class="bg-blue-600 dark:bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
                 >
-                  <span class="text-xs"
+                  <span class="text-xs font-medium"
                     >{user.username.charAt(0).toUpperCase()}</span
                   >
                 </div>
               </div>
 
               <div class="flex-1">
-                <div class="font-medium">{user.username}</div>
-                <div class="text-xs opacity-70 flex items-center gap-1">
+                <div class="font-medium text-gray-900 dark:text-white">
+                  {user.username}
+                </div>
+                <div
+                  class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1"
+                >
                   {#if user.activity_type === "editing"}
-                    <span class="badge badge-success badge-xs"></span>
+                    <span
+                      class="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full"
+                    ></span>
                     Editing
                   {:else if user.activity_type === "viewing"}
-                    <span class="badge badge-info badge-xs"></span>
+                    <span
+                      class="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full"
+                    ></span>
                     Viewing
                   {:else}
-                    <span class="badge badge-ghost badge-xs"></span>
+                    <span
+                      class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full"
+                    ></span>
                     Idle
                   {/if}
                 </div>
               </div>
 
-              <div class="text-xs opacity-50">
+              <div class="text-xs text-gray-400 dark:text-gray-500">
                 {formatTime(user.last_seen)}
               </div>
             </div>
@@ -217,7 +249,7 @@
   <!-- Activity Toggle -->
   {#if !compact}
     <button
-      class="btn btn-sm btn-ghost w-full gap-2"
+      class="px-3 py-1.5 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors w-full flex items-center justify-center gap-2"
       on:click={() => (showActivity ? (showActivity = false) : loadActivity())}
     >
       <i class="bi bi-clock-history"></i>
@@ -225,12 +257,18 @@
     </button>
 
     {#if showActivity}
-      <div class="card bg-slate-50 dark:bg-slate-800 shadow-sm mt-3 max-h-64 overflow-y-auto">
-        <div class="card-body p-3">
-          <h4 class="card-title text-sm mb-2">Recent Activity</h4>
+      <div
+        class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm mt-3 max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700"
+      >
+        <div class="p-3">
+          <h4 class="text-sm font-bold mb-2 text-gray-900 dark:text-white">
+            Recent Activity
+          </h4>
 
           {#if $activity.length === 0}
-            <div class="text-center text-sm opacity-50 py-4">
+            <div
+              class="text-center text-sm text-gray-400 dark:text-gray-500 py-4"
+            >
               No activity yet
             </div>
           {:else}
@@ -241,11 +279,15 @@
                     >{getActivityIcon(item.activity_type)}</span
                   >
                   <div class="flex-1">
-                    <div class="font-medium">{item.username}</div>
-                    <div class="opacity-70">
+                    <div class="font-medium text-gray-900 dark:text-white">
+                      {item.username}
+                    </div>
+                    <div class="text-gray-500 dark:text-gray-400">
                       {item.activity_type.replace("_", " ")}
                     </div>
-                    <div class="opacity-50">{formatTime(item.created_at)}</div>
+                    <div class="text-gray-400 dark:text-gray-500">
+                      {formatTime(item.created_at)}
+                    </div>
                   </div>
                 </div>
               {/each}
@@ -258,28 +300,28 @@
 
   <!-- Conflict Warning -->
   {#if $conflicts.some((c) => c.file_path === filePath && c.status === "pending")}
-    <div class="alert alert-error shadow-lg mt-3">
-      <i class="bi bi-exclamation-triangle-fill"></i>
-      <div class="flex-1">
-        <h4 class="font-bold text-sm">Edit Conflict Detected</h4>
-        <div class="text-xs">This file has unresolved conflicts</div>
+    <div
+      class="rounded-lg shadow-lg mt-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
+    >
+      <div class="flex items-center gap-2">
+        <i
+          class="bi bi-exclamation-triangle-fill text-red-600 dark:text-red-400"
+        ></i>
+        <div class="flex-1">
+          <h4 class="font-bold text-sm text-red-900 dark:text-red-100">
+            Edit Conflict Detected
+          </h4>
+          <div class="text-xs text-red-700 dark:text-red-300">
+            This file has unresolved conflicts
+          </div>
+        </div>
+        <button
+          class="px-3 py-1.5 text-sm rounded-lg bg-red-600 dark:bg-red-500 text-white hover:bg-red-700 dark:hover:bg-red-600 transition-colors"
+        >
+          Resolve
+        </button>
       </div>
-      <button class="btn btn-sm">Resolve</button>
     </div>
   {/if}
 </div>
 }
-
-<style>
-  .collaboration-panel {
-    @apply rounded-lg;
-  }
-
-  .collaboration-panel.compact {
-    @apply p-2;
-  }
-
-  .collaboration-panel:not(.compact) {
-    @apply p-4;
-  }
-</style>

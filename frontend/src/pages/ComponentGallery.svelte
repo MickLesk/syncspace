@@ -1,786 +1,280 @@
 <script>
   /**
-   * Component Gallery - Showcase for all DaisyUI components
-   * Created: October 24, 2025
+   * Component Gallery - Tailwind v4 + HyperUI Showcase
+   * Updated: October 27, 2025
    */
-  import Button from "../components/ui/Button.svelte";
-  import Input from "../components/ui/Input.svelte";
-  import Modal from "../components/ui/Modal.svelte";
-  import Badge from "../components/ui/Badge.svelte";
-  import Avatar from "../components/ui/Avatar.svelte";
-  import ProgressBar from "../components/ui/ProgressBar.svelte";
-  import Chip from "../components/ui/Chip.svelte";
-  import PageHeader from "../components/ui/PageHeader.svelte";
+  import Card from "../components/ui/Card.svelte";
 
-  let testValue = "";
-  let emailValue = "";
-  let passwordValue = "";
-  let searchValue = "";
-  let errorValue = "";
-
-  let successValue = "john@example.com";
-
-  // Modal states
-  let showBasicModal = false;
-  let showLargeModal = false;
-  let showConfirmModal = false;
-
-  // Select options
-  let selectedCountry = "";
-  let selectedLanguages = [];
-  const countries = [
-    { value: "us", label: "United States" },
-    { value: "uk", label: "United Kingdom" },
-    { value: "de", label: "Germany" },
-    { value: "fr", label: "France" },
-    { value: "es", label: "Spain" },
-    { value: "it", label: "Italy" },
-  ];
-
-  // Textarea
-  let messageValue = "";
-  let bioValue = "";
-
-  // Checkboxes
-  let agreeTerms = false;
-  let receiveNewsletter = true;
-  let indeterminateState = false;
-
-  function handleClick() {
-    alert("Button clicked!");
-  }
-
-  function handleAsyncAction() {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        alert("Async action completed!");
-        resolve();
-      }, 2000);
-    });
-  }
+  let showModal = false;
 </script>
 
-<PageHeader
-  title="Component Gallery"
-  description="Showcase of all DaisyUI-based components"
-  icon="palette"
-  gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-/>
-
-<div class="gallery-container">
-  <!-- Buttons Section -->
-  <section class="gallery-section">
-    <h2 class="section-title">Buttons</h2>
-
-    <div class="subsection">
-      <h3>Variants</h3>
-      <div class="component-row">
-        <Button>Default</Button>
-        <Button variant="primary">Primary</Button>
-        <Button variant="secondary">Secondary</Button>
-        <Button variant="accent">Accent</Button>
-        <Button variant="ghost">Ghost</Button>
-        <Button variant="outline">Outline</Button>
-        <Button variant="error">Error</Button>
-        <Button variant="success">Success</Button>
-        <Button variant="link">Link</Button>
-      </div>
-    </div>
-
-    <div class="subsection">
-      <h3>Sizes</h3>
-      <div class="component-row">
-        <Button size="xs">Extra Small</Button>
-        <Button size="sm">Small</Button>
-        <Button size="md">Medium</Button>
-        <Button size="lg">Large</Button>
-      </div>
-    </div>
-
-    <div class="subsection">
-      <h3>With Icons</h3>
-      <div class="component-row">
-        <Button variant="primary" iconLeft="upload">Upload</Button>
-        <Button variant="secondary" iconRight="download">Download</Button>
-        <Button variant="error" iconLeft="trash">Delete</Button>
-        <Button variant="success" iconLeft="plus-lg">Create</Button>
-      </div>
-    </div>
-
-    <div class="subsection">
-      <h3>States</h3>
-      <div class="component-row">
-        <Button variant="primary" loading>Loading...</Button>
-        <Button variant="secondary" disabled>Disabled</Button>
-        <Button variant="accent" glass>Glass Effect</Button>
-      </div>
-    </div>
-
-    <div class="subsection">
-      <h3>Full Width</h3>
-      <Button variant="primary" fullWidth iconLeft="save">Save Changes</Button>
-    </div>
-  </section>
-
-  <!-- Inputs Section -->
-  <section class="gallery-section">
-    <h2 class="section-title">Inputs</h2>
-
-    <div class="subsection">
-      <h3>Basic Inputs</h3>
-      <div class="input-grid">
-        <Input
-          label="Name"
-          placeholder="Enter your name"
-          bind:value={testValue}
-          helpText="This is a help text"
-        />
-
-        <Input
-          label="Email"
-          type="email"
-          placeholder="you@example.com"
-          bind:value={emailValue}
-          iconLeft="envelope"
-          required
-        />
-
-        <Input
-          label="Password"
-          type="password"
-          placeholder="••••••••"
-          bind:value={passwordValue}
-          iconLeft="lock"
-          required
-        />
-
-        <Input
-          label="Search"
-          placeholder="Search files..."
-          bind:value={searchValue}
-          iconLeft="search"
-          iconRight="x-lg"
-        />
-      </div>
-    </div>
-
-    <div class="subsection">
-      <h3>Sizes</h3>
-      <div class="input-grid">
-        <InputV2
-          label="Extra Small"
-          size="xs"
-          placeholder="Extra small input"
-        />
-        <InputV2 label="Small" size="sm" placeholder="Small input" />
-        <InputV2 label="Medium" size="md" placeholder="Medium input" />
-        <InputV2 label="Large" size="lg" placeholder="Large input" />
-      </div>
-    </div>
-
-    <div class="subsection">
-      <h3>Validation States</h3>
-      <div class="input-grid">
-        <InputV2
-          label="With Error"
-          bind:value={errorValue}
-          error="This field is required"
-          iconLeft="exclamation-triangle"
-        />
-
-        <InputV2
-          label="With Success"
-          bind:value={successValue}
-          success="Email is valid"
-          iconLeft="check-circle"
-        />
-
-        <InputV2
-          label="With Character Count"
-          placeholder="Type something..."
-          maxlength={50}
-          showCharCount
-        />
-
-        <InputV2 label="Disabled" placeholder="Disabled input" disabled />
-      </div>
-    </div>
-
-    <div class="subsection">
-      <h3>Glass Effect</h3>
-      <InputV2
-        label="Glass Input"
-        placeholder="Glass effect input"
-        glass
-        iconLeft="sparkles"
-      />
-    </div>
-  </section>
-
-  <!-- Select Section -->
-  <section class="gallery-section">
-    <h2 class="section-title">Select Dropdowns</h2>
-
-    <div class="subsection">
-      <h3>Basic Select</h3>
-      <div class="input-grid">
-        <SelectV2
-          bind:value={selectedCountry}
-          options={countries}
-          label="Country"
-          placeholder="Select a country"
-        />
-
-        <SelectV2
-          bind:value={selectedCountry}
-          options={countries}
-          label="Searchable Select"
-          placeholder="Search countries..."
-          searchable
-        />
-
-        <SelectV2
-          bind:value={selectedLanguages}
-          options={[
-            { value: "en", label: "English" },
-            { value: "de", label: "German" },
-            { value: "fr", label: "French" },
-            { value: "es", label: "Spanish" },
-          ]}
-          label="Multiple Select"
-          placeholder="Select languages"
-          multiple
-          searchable
-        />
-      </div>
-    </div>
-  </section>
-
-  <!-- Textarea Section -->
-  <section class="gallery-section">
-    <h2 class="section-title">Textareas</h2>
-
-    <div class="subsection">
-      <h3>Textarea Variants</h3>
-      <div class="input-grid">
-        <textarea
-          bind:value={messageValue}
-          label="Message"
-          placeholder="Type your message..."
-          helpText="Maximum 500 characters"
-          maxlength={500}
-          showCharCount
-        />
-
-        <textarea
-          bind:value={bioValue}
-          label="Bio (Auto-resize)"
-          placeholder="Tell us about yourself..."
-          autoResize
-          rows={2}
-        />
-
-        <textarea
-          label="Large Textarea"
-          placeholder="Larger textarea..."
-          size="lg"
-        />
-      </div>
-    </div>
-  </section>
-
-  <!-- Checkbox Section -->
-  <section class="gallery-section">
-    <h2 class="section-title">Checkboxes</h2>
-
-    <div class="subsection">
-      <h3>Checkbox Variants</h3>
-      <div class="space-y-4">
-        <input
-          bind:checked={agreeTerms}
-          label="I agree to the terms and conditions"
-          description="Please read our privacy policy and terms of service"
-        />
-
-        <input
-          bind:checked={receiveNewsletter}
-          label="Receive newsletter"
-          description="Get weekly updates about new features"
-          color="secondary"
-        />
-
-        <input
-          bind:checked={indeterminateState}
-          indeterminate={true}
-          label="Indeterminate state"
-          description="This checkbox is in an indeterminate state"
-          color="accent"
-        />
-
-        <div class="flex gap-4">
-          <input checked={true} label="Extra Small" size="xs" />
-          <input checked={true} label="Small" size="sm" />
-          <input checked={true} label="Medium" size="md" />
-          <input checked={true} label="Large" size="lg" />
-        </div>
-
-        <div class="flex gap-4">
-          <input checked={true} label="Primary" color="primary" />
-          <input checked={true} label="Secondary" color="secondary" />
-          <input checked={true} label="Accent" color="accent" />
-          <input checked={true} label="Success" color="success" />
-          <input checked={true} label="Error" color="error" />
-        </div>
-      </div>
-    </div>
-  </section>
+<div class="max-w-7xl mx-auto px-4 py-8 space-y-12">
+  <!-- Header -->
+  <div class="text-center space-y-4">
+    <h1
+      class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
+    >
+      Component Gallery
+    </h1>
+    <p class="text-lg text-gray-600 dark:text-gray-400">
+      Tailwind CSS v4 + HyperUI Components Showcase
+    </p>
+  </div>
 
   <!-- Cards Section -->
-  <section class="gallery-section">
-    <h2 class="section-title">Cards</h2>
+  <section class="space-y-6">
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Cards</h2>
 
-    <div class="subsection">
-      <h3>Basic Cards</h3>
-      <div class="card-grid">
-        <CardV2>
-          <svelte:fragment slot="title">Default Card</svelte:fragment>
-          <p>This is a basic card with title and content.</p>
-          <svelte:fragment slot="actions">
-            <Button variant="ghost" size="sm">Cancel</Button>
-            <Button variant="primary" size="sm">Action</Button>
-          </svelte:fragment>
-        </CardV2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <Card>
+        {#snippet children()}
+          <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
+            Basic Card
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            A simple card with default styling and padding.
+          </p>
+        {/snippet}
+      </Card>
 
-        <CardV2 variant="bordered">
-          <svelte:fragment slot="title">Bordered Card</svelte:fragment>
-          <p>This card has a border for better separation.</p>
-          <svelte:fragment slot="actions">
-            <Button variant="outline" size="sm" iconLeft="heart">Like</Button>
-          </svelte:fragment>
-        </CardV2>
-
-        <CardV2 variant="compact">
-          <svelte:fragment slot="title">Compact Card</svelte:fragment>
-          <p>Smaller padding for dense layouts.</p>
-        </CardV2>
-      </div>
-    </div>
-
-    <div class="subsection">
-      <h3>Interactive Cards</h3>
-      <div class="card-grid">
-        <CardV2 hoverable>
-          <svelte:fragment slot="title">
-            <i class="bi bi-star-fill text-warning"></i>
+      <Card hoverable>
+        {#snippet children()}
+          <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
             Hoverable Card
-          </svelte:fragment>
-          <p>Hover over this card to see the lift effect.</p>
-        </CardV2>
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            Hover over me to see the shadow effect!
+          </p>
+        {/snippet}
+      </Card>
 
-        <CardV2 clickable hoverable on:cardclick={() => alert("Card clicked!")}>
-          <svelte:fragment slot="title">
-            <i class="bi bi-hand-index-thumb text-primary"></i>
-            Clickable Card
-          </svelte:fragment>
-          <p>This card is fully clickable and interactive.</p>
-        </CardV2>
-
-        <CardV2 glass hoverable>
-          <svelte:fragment slot="title">
-            <i class="bi bi-droplet text-info"></i>
-            Glass Card
-          </svelte:fragment>
-          <p>Beautiful glassmorphism effect with blur.</p>
-        </CardV2>
-      </div>
-    </div>
-
-    <div class="subsection">
-      <h3>Cards with Images</h3>
-      <div class="card-grid">
-        <CardV2 imageTop="https://picsum.photos/400/200?random=1" hoverable>
-          <svelte:fragment slot="title">Image Top</svelte:fragment>
-          <p>Card with image at the top.</p>
-          <svelte:fragment slot="actions">
-            <Button variant="primary" size="sm" iconLeft="eye">View</Button>
-          </svelte:fragment>
-        </CardV2>
-
-        <CardV2
-          variant="side"
-          imageSide="https://picsum.photos/200/200?random=2"
-        >
-          <svelte:fragment slot="title">Side Image</svelte:fragment>
-          <p>Card with image on the side - great for list items.</p>
-          <svelte:fragment slot="actions">
-            <Button variant="ghost" size="sm">Details</Button>
-          </svelte:fragment>
-        </CardV2>
-      </div>
+      <Card padding="lg" bordered={false}>
+        {#snippet children()}
+          <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
+            No Border
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            Large padding without border.
+          </p>
+        {/snippet}
+      </Card>
     </div>
   </section>
 
-  <!-- Modals Section -->
-  <section class="gallery-section">
-    <h2 class="section-title">Modals</h2>
+  <!-- Buttons Section -->
+  <section class="space-y-6">
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Buttons</h2>
 
-    <div class="subsection">
-      <h3>Modal Variants</h3>
-      <div class="component-row">
-        <Button variant="primary" on:click={() => (showBasicModal = true)}>
-          Open Basic Modal
-        </Button>
-        <Button variant="secondary" on:click={() => (showLargeModal = true)}>
-          Open Large Modal
-        </Button>
-        <Button variant="accent" on:click={() => (showConfirmModal = true)}>
-          Open Confirm Dialog
-        </Button>
-      </div>
+    <Card>
+      {#snippet children()}
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+          Button Variants
+        </h3>
+        <div class="flex flex-wrap gap-3">
+          <button
+            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            Primary
+          </button>
+          <button
+            class="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+          >
+            Secondary
+          </button>
+          <button
+            class="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors dark:border-gray-600 dark:hover:bg-gray-800"
+          >
+            Outline
+          </button>
+          <button
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Danger
+          </button>
+          <button
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            Success
+          </button>
+        </div>
+      {/snippet}
+    </Card>
+
+    <Card>
+      {#snippet children()}
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+          Button Sizes
+        </h3>
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            class="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          >
+            Small
+          </button>
+          <button
+            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          >
+            Medium
+          </button>
+          <button
+            class="px-6 py-3 text-lg bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          >
+            Large
+          </button>
+        </div>
+      {/snippet}
+    </Card>
+  </section>
+
+  <!-- Forms Section -->
+  <section class="space-y-6">
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
+      Form Elements
+    </h2>
+
+    <Card>
+      {#snippet children()}
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+          Inputs
+        </h3>
+        <div class="space-y-4 max-w-md">
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Email Address
+            </label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Message
+            </label>
+            <textarea
+              rows="3"
+              placeholder="Enter your message..."
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            ></textarea>
+          </div>
+        </div>
+      {/snippet}
+    </Card>
+  </section>
+
+  <!-- Badges Section -->
+  <section class="space-y-6">
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
+      Badges & Labels
+    </h2>
+
+    <Card>
+      {#snippet children()}
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+          Status Badges
+        </h3>
+        <div class="flex flex-wrap gap-3">
+          <span
+            class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium dark:bg-green-900 dark:text-green-200"
+          >
+            Active
+          </span>
+          <span
+            class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium dark:bg-yellow-900 dark:text-yellow-200"
+          >
+            Pending
+          </span>
+          <span
+            class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium dark:bg-red-900 dark:text-red-200"
+          >
+            Error
+          </span>
+          <span
+            class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium dark:bg-blue-900 dark:text-blue-200"
+          >
+            Info
+          </span>
+          <span
+            class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium dark:bg-gray-700 dark:text-gray-200"
+          >
+            Default
+          </span>
+        </div>
+      {/snippet}
+    </Card>
+  </section>
+
+  <!-- Grid & Layout Section -->
+  <section class="space-y-6">
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Layouts</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {#each Array(8) as _, i}
+        <div
+          class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg p-6 text-white"
+        >
+          <h4 class="text-lg font-semibold mb-2">Card {i + 1}</h4>
+          <p class="text-indigo-100">Responsive grid layout</p>
+        </div>
+      {/each}
     </div>
   </section>
 
-  <!-- Theme Toggle Section -->
-  <section class="gallery-section">
-    <h2 class="section-title">Theme Switching</h2>
-    <div class="subsection">
-      <p class="mb-4">Click buttons to switch themes:</p>
-      <div class="component-row">
-        <Button
-          variant="primary"
-          on:click={() =>
-            document.documentElement.setAttribute("data-theme", "syncspace")}
-        >
-          Light Theme
-        </Button>
-        <Button
-          variant="secondary"
-          on:click={() =>
-            document.documentElement.setAttribute(
-              "data-theme",
-              "syncspace-dark"
-            )}
-        >
-          Dark Theme
-        </Button>
+  <!-- Alerts Section -->
+  <section class="space-y-6">
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Alerts</h2>
+
+    <div class="space-y-4">
+      <div
+        class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg dark:bg-green-900/20 dark:border-green-400"
+      >
+        <p class="text-green-800 dark:text-green-300 font-medium">
+          Success! Your changes have been saved.
+        </p>
       </div>
-    </div>
-  </section>
 
-  <!-- Code Examples Section -->
-  <section class="gallery-section">
-    <h2 class="section-title">Usage Examples</h2>
+      <div
+        class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg dark:bg-yellow-900/20 dark:border-yellow-400"
+      >
+        <p class="text-yellow-800 dark:text-yellow-300 font-medium">
+          Warning: Please review your input.
+        </p>
+      </div>
 
-    <div class="subsection">
-      <h3>Button Example</h3>
-      <pre><code
-          >{`<Button variant="primary" iconLeft="upload">
-  Upload File
-</Button>`}</code
-        ></pre>
-    </div>
+      <div
+        class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg dark:bg-red-900/20 dark:border-red-400"
+      >
+        <p class="text-red-800 dark:text-red-300 font-medium">
+          Error: Something went wrong.
+        </p>
+      </div>
 
-    <div class="subsection">
-      <h3>Input Example</h3>
-      <pre><code
-          >{`<InputV2 
-  label="Email" 
-  type="email" 
-  placeholder="you@example.com"
-  iconLeft="envelope"
-  bind:value={emailValue}
-  required
-/>`}</code
-        ></pre>
-    </div>
-
-    <div class="subsection">
-      <h3>Card Example</h3>
-      <pre><code
-          >{`<CardV2 hoverable>
-  <svelte:fragment slot="title">Card Title</svelte:fragment>
-  <p>Card content goes here</p>
-  <svelte:fragment slot="actions">
-    <Button variant="primary">Action</Button>
-  </svelte:fragment>
-</CardV2>`}</code
-        ></pre>
-    </div>
-
-    <div class="subsection">
-      <h3>Modal Example</h3>
-      <pre><code
-          >{`<ModalV2 bind:open={showModal} title="Confirm">
-  <p>Are you sure?</p>
-  <svelte:fragment slot="actions">
-    <Button variant="ghost">Cancel</Button>
-    <Button variant="primary">Confirm</Button>
-  </svelte:fragment>
-</ModalV2>`}</code
-        ></pre>
-    </div>
-
-    <div class="subsection">
-      <h3>Select Example</h3>
-      <pre><code
-          >{`<SelectV2 
-  bind:value={selected}
-  options={[
-    { value: "1", label: "Option 1" },
-    { value: "2", label: "Option 2" }
-  ]}
-  searchable
-/>`}</code
-        ></pre>
-    </div>
-
-    <div class="subsection">
-      <h3>Textarea Example</h3>
-      <pre><code
-          >{`<textarea 
-  bind:value={message}
-  label="Message"
-  maxlength={500}
-  showCharCount
-  autoResize
-/>`}</code
-        ></pre>
-    </div>
-
-    <div class="subsection">
-      <h3>Checkbox Example</h3>
-      <pre><code
-          >{`<input 
-  bind:checked={agreed}
-  label="I agree to terms"
-  description="Read our policy"
-/>`}</code
-        ></pre>
+      <div
+        class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg dark:bg-blue-900/20 dark:border-blue-400"
+      >
+        <p class="text-blue-800 dark:text-blue-300 font-medium">
+          Info: New updates are available.
+        </p>
+      </div>
     </div>
   </section>
 </div>
-
-<!-- Modal Examples -->
-<ModalV2 bind:open={showBasicModal} title="Basic Modal">
-  <p class="mb-4">
-    This is a basic modal with a title and content. It can be closed by clicking
-    the X button, pressing ESC, or clicking the backdrop.
-  </p>
-  <p>
-    Modals automatically trap focus and restore it when closed. They also
-    prevent body scrolling while open.
-  </p>
-  <svelte:fragment slot="actions">
-    <Button variant="ghost" on:click={() => (showBasicModal = false)}>
-      Close
-    </Button>
-    <Button variant="primary" on:click={() => (showBasicModal = false)}>
-      Got it!
-    </Button>
-  </svelte:fragment>
-</ModalV2>
-
-<ModalV2 bind:open={showLargeModal} size="lg" title="Large Modal">
-  <div class="space-y-4">
-    <p>
-      This is a larger modal that can contain more content. Perfect for forms,
-      detailed information, or complex interactions.
-    </p>
-
-    <CardV2>
-      <svelte:fragment slot="title">Card Inside Modal</svelte:fragment>
-      <p>You can nest components inside modals!</p>
-    </CardV2>
-
-    <InputV2
-      label="Email"
-      type="email"
-      placeholder="Enter your email"
-      iconLeft="envelope"
-    />
-
-    <InputV2
-      label="Message"
-      placeholder="Type your message..."
-      iconLeft="chat"
-    />
-  </div>
-
-  <svelte:fragment slot="actions">
-    <Button variant="ghost" on:click={() => (showLargeModal = false)}>
-      Cancel
-    </Button>
-    <Button
-      variant="primary"
-      iconLeft="send"
-      on:click={() => {
-        alert("Form submitted!");
-        showLargeModal = false;
-      }}
-    >
-      Submit
-    </Button>
-  </svelte:fragment>
-</ModalV2>
-
-<ModalV2 bind:open={showConfirmModal} size="sm" title="Confirm Action">
-  <div class="text-center">
-    <div class="text-6xl mb-4">⚠️</div>
-    <p class="text-lg font-semibold mb-2">Are you sure?</p>
-    <p class="text-sm opacity-70">
-      This action cannot be undone. Please confirm that you want to proceed.
-    </p>
-  </div>
-
-  <svelte:fragment slot="actions">
-    <Button
-      variant="ghost"
-      fullWidth
-      on:click={() => (showConfirmModal = false)}
-    >
-      Cancel
-    </Button>
-    <Button
-      variant="error"
-      fullWidth
-      iconLeft="trash"
-      on:click={() => {
-        alert("Action confirmed!");
-        showConfirmModal = false;
-      }}
-    >
-      Delete
-    </Button>
-  </svelte:fragment>
-</ModalV2>
-
-<style>
-  .gallery-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: var(--spacing-6);
-  }
-
-  .gallery-section {
-    margin-bottom: var(--spacing-12);
-    padding: var(--spacing-6);
-    background: var(--color-surface-container);
-    border-radius: var(--radius-2xl);
-    box-shadow: var(--shadow-md);
-  }
-
-  .section-title {
-    font-size: var(--font-size-3xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-on-surface);
-    margin-bottom: var(--spacing-6);
-    background: var(--color-brand-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .subsection {
-    margin-bottom: var(--spacing-8);
-  }
-
-  .subsection h3 {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-on-surface);
-    margin-bottom: var(--spacing-4);
-  }
-
-  .component-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-4);
-    align-items: center;
-  }
-
-  .input-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--spacing-4);
-  }
-
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-6);
-  }
-
-  .space-y-4 > * + * {
-    margin-top: var(--spacing-4);
-  }
-
-  .text-center {
-    text-align: center;
-  }
-
-  .text-6xl {
-    font-size: 4rem;
-  }
-
-  .text-lg {
-    font-size: var(--font-size-lg);
-  }
-
-  .text-sm {
-    font-size: var(--font-size-sm);
-  }
-
-  .font-semibold {
-    font-weight: var(--font-weight-semibold);
-  }
-
-  .opacity-70 {
-    opacity: 0.7;
-  }
-
-  .mb-2 {
-    margin-bottom: var(--spacing-2);
-  }
-
-  pre {
-    background: var(--color-surface-container-low);
-    padding: var(--spacing-4);
-    border-radius: var(--radius-lg);
-    overflow-x: auto;
-    margin-top: var(--spacing-2);
-  }
-
-  code {
-    font-family: "Fira Code", "Courier New", monospace;
-    font-size: var(--font-size-sm);
-    color: var(--color-primary);
-  }
-
-  .mb-4 {
-    margin-bottom: var(--spacing-4);
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .gallery-container {
-      padding: var(--spacing-4);
-    }
-
-    .gallery-section {
-      padding: var(--spacing-4);
-    }
-
-    .component-row {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .input-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .card-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>

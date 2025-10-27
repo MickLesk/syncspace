@@ -1,107 +1,97 @@
 <script>
   import { auth } from "../stores/auth.js";
-  import api from "../lib/api.js";
 
   let username = $state("");
+  let email = $state("");
   let password = $state("");
-  let twoFactorCode = $state("");
-  let showTwoFactor = $state(false);
-  let rememberMe = $state(false);
+  let confirmPassword = $state("");
+  let agreedToTerms = $state(false);
   let loading = $state(false);
   let errorMessage = $state("");
+  let successMessage = $state("");
 
-  async function handleLogin(e) {
+  async function handleSignup(e) {
     e.preventDefault();
 
-    if (!username || !password) {
+    // Validation
+    if (!username || !email || !password || !confirmPassword) {
       errorMessage = "Please fill in all fields";
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      errorMessage = "Passwords do not match";
+      return;
+    }
+
+    if (password.length < 8) {
+      errorMessage = "Password must be at least 8 characters";
+      return;
+    }
+
+    if (!agreedToTerms) {
+      errorMessage = "Please accept the terms and conditions";
       return;
     }
 
     loading = true;
     errorMessage = "";
+    successMessage = "";
 
     try {
-      // Step 1: Try to login without 2FA first
-      const loginData = { username, password };
-
-      // Add 2FA code if we're in 2FA mode
-      if (showTwoFactor && twoFactorCode) {
-        loginData.totp_code = twoFactorCode;
-      }
-
-      const response = await fetch("http://localhost:8080/api/auth/login", {
+      const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginData),
+        body: JSON.stringify({ username, email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        // Check if 2FA is required
-        if (data.requires_2fa === true) {
-          showTwoFactor = true;
-          errorMessage = "Please enter your 2FA code";
-          loading = false;
-          return;
-        }
-
-        throw new Error(data.error || "Login failed");
+        throw new Error(data.error || "Registration failed");
       }
 
-      // Login successful - store token and update auth store
-      if (data.token) {
-        localStorage.setItem("authToken", data.token);
+      successMessage = "Account created successfully! Redirecting to login...";
 
-        // Update auth store with user info
-        auth.login({
-          username: data.user?.username || username,
-          email: data.user?.email || "",
-          id: data.user?.id || null,
-        });
-
-        // Redirect to main app
-        window.location.hash = "#/files";
-        // Force reload to trigger App.svelte onMount
-        setTimeout(() => window.location.reload(), 100);
-      } else {
-        throw new Error("No token received");
-      }
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        window.location.hash = "#/login";
+      }, 2000);
     } catch (err) {
-      console.error("Login error:", err);
-      errorMessage = err.message || "Login failed. Please try again.";
+      console.error("Signup error:", err);
+      errorMessage = err.message || "Registration failed. Please try again.";
       loading = false;
     }
   }
 </script>
 
 <!-- Background with animated gradient -->
-<div class="login-container">
+<div class="signup-container">
   <!-- Animated background blobs -->
   <div class="blob blob-1"></div>
   <div class="blob blob-2"></div>
   <div class="blob blob-3"></div>
 
-  <!-- Login Card with Glassmorphism -->
-  <div class="login-card">
+  <!-- Signup Card with Glassmorphism -->
+  <div class="signup-card">
     <!-- Logo Section -->
     <div class="text-center mb-8">
       <div class="logo-circle">
-        <i class="bi bi-cloud-fill text-5xl text-blue-600 dark:text-blue-400"
+        <i
+          class="bi bi-cloud-plus-fill text-5xl text-blue-600 dark:text-blue-400"
         ></i>
       </div>
       <h1
         class="text-4xl font-bold mt-6 mb-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
       >
-        SyncSpace
+        Join SyncSpace
       </h1>
       <p class="text-gray-600 dark:text-gray-400 font-medium">
-        Welcome back! Please login to continue
+        Create your free account
       </p>
     </div>
 
-    <form onsubmit={handleLogin} class="space-y-5">
+    <form onsubmit={handleSignup} class="space-y-5">
       {#if errorMessage}
         <div
           class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-start gap-3 animate-shake"
@@ -111,6 +101,19 @@
           ></i>
           <span class="text-red-800 dark:text-red-200 text-sm font-medium"
             >{errorMessage}</span
+          >
+        </div>
+      {/if}
+
+      {#if successMessage}
+        <div
+          class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 flex items-start gap-3 animate-fade-in"
+        >
+          <i
+            class="bi bi-check-circle-fill text-green-600 dark:text-green-400 text-xl mt-0.5"
+          ></i>
+          <span class="text-green-800 dark:text-green-200 text-sm font-medium"
+            >{successMessage}</span
           >
         </div>
       {/if}
@@ -128,11 +131,33 @@
             type="text"
             bind:value={username}
             class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder="Enter your username"
+            placeholder="Choose a username"
             disabled={loading}
           />
           <i
             class="bi bi-person absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+          ></i>
+        </div>
+      </div>
+
+      <!-- Email Input -->
+      <div class="space-y-2">
+        <label
+          class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
+        >
+          <i class="bi bi-envelope-fill mr-2 text-blue-600 dark:text-blue-400"
+          ></i>Email
+        </label>
+        <div class="relative">
+          <input
+            type="email"
+            bind:value={email}
+            class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            placeholder="your.email@example.com"
+            disabled={loading}
+          />
+          <i
+            class="bi bi-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
           ></i>
         </div>
       </div>
@@ -151,63 +176,64 @@
             type="password"
             bind:value={password}
             class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder="Enter your password"
+            placeholder="Create a strong password"
             disabled={loading}
           />
           <i
             class="bi bi-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
           ></i>
         </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400 ml-1">
+          Minimum 8 characters
+        </p>
       </div>
 
-      <!-- 2FA Code Input -->
-      {#if showTwoFactor}
-        <div class="space-y-2 animate-fade-in">
-          <label
-            class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
-          >
-            <i
-              class="bi bi-shield-check mr-2 text-green-600 dark:text-green-400"
-            ></i>2FA Code
-          </label>
-          <div class="relative">
-            <input
-              type="text"
-              bind:value={twoFactorCode}
-              class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed tracking-widest text-center text-lg font-mono"
-              placeholder="000000"
-              maxlength="6"
-              disabled={loading}
-            />
-            <i
-              class="bi bi-shield-check absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            ></i>
-          </div>
-        </div>
-      {/if}
-
-      <!-- Remember Me & Forgot Password -->
-      <div class="flex justify-between items-center">
-        <label class="flex items-center gap-2 cursor-pointer group">
+      <!-- Confirm Password Input -->
+      <div class="space-y-2">
+        <label
+          class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
+        >
+          <i class="bi bi-shield-check mr-2 text-green-600 dark:text-green-400"
+          ></i>Confirm Password
+        </label>
+        <div class="relative">
           <input
-            type="checkbox"
-            bind:checked={rememberMe}
-            class="w-4 h-4 text-blue-600 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 accent-blue-600"
+            type="password"
+            bind:value={confirmPassword}
+            class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            placeholder="Confirm your password"
+            disabled={loading}
           />
-          <span
-            class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
-            >Remember me</span
+          <i
+            class="bi bi-shield-check absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+          ></i>
+        </div>
+      </div>
+
+      <!-- Terms & Conditions -->
+      <div class="flex items-start gap-3 pt-2">
+        <input
+          type="checkbox"
+          bind:checked={agreedToTerms}
+          id="terms"
+          class="w-4 h-4 mt-1 text-blue-600 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 accent-blue-600"
+        />
+        <label for="terms" class="text-sm text-gray-700 dark:text-gray-300">
+          I agree to the <a
+            href="#/terms"
+            class="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+            >Terms and Conditions</a
+          >
+          and
+          <a
+            href="#/privacy"
+            class="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+            >Privacy Policy</a
           >
         </label>
-        <a
-          href="#/forgot"
-          class="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors hover:underline"
-        >
-          Forgot password?
-        </a>
       </div>
 
-      <!-- Login Button -->
+      <!-- Signup Button -->
       <button
         type="submit"
         class="w-full py-3.5 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
@@ -236,54 +262,21 @@
           </svg>
         {:else}
           <i
-            class="bi bi-box-arrow-in-right group-hover:translate-x-1 transition-transform"
+            class="bi bi-person-plus-fill group-hover:scale-110 transition-transform"
           ></i>
         {/if}
-        <span>{showTwoFactor ? "Verify & Login" : "Login to Account"}</span>
+        <span>{loading ? "Creating Account..." : "Create Account"}</span>
       </button>
     </form>
 
-    <!-- Divider -->
-    <div class="relative my-8">
-      <div class="absolute inset-0 flex items-center">
-        <div class="w-full border-t border-gray-300 dark:border-gray-700"></div>
-      </div>
-      <div class="relative flex justify-center text-sm">
-        <span
-          class="px-4 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 font-medium"
-          >Or continue with</span
-        >
-      </div>
-    </div>
-
-    <!-- Social Login -->
-    <div class="grid grid-cols-2 gap-3">
-      <button
-        class="py-3 px-4 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-200 flex items-center justify-center gap-2 font-medium text-gray-700 dark:text-gray-300 group"
-      >
-        <i
-          class="bi bi-google text-lg text-red-500 group-hover:scale-110 transition-transform"
-        ></i>
-        <span>Google</span>
-      </button>
-      <button
-        class="py-3 px-4 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-200 flex items-center justify-center gap-2 font-medium text-gray-700 dark:text-gray-300 group"
-      >
-        <i
-          class="bi bi-github text-lg group-hover:scale-110 transition-transform"
-        ></i>
-        <span>GitHub</span>
-      </button>
-    </div>
-
-    <!-- Sign Up Link -->
+    <!-- Login Link -->
     <p class="text-center mt-8 text-sm text-gray-600 dark:text-gray-400">
-      Don't have an account?
+      Already have an account?
       <a
-        href="#/signup"
+        href="#/login"
         class="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition-colors"
       >
-        Sign up for free
+        Sign in
       </a>
     </p>
   </div>
@@ -296,7 +289,7 @@
 
 <style>
   /* Main Container with Gradient Background */
-  .login-container {
+  .signup-container {
     position: relative;
     min-height: 100vh;
     display: flex;
@@ -344,11 +337,11 @@
   }
 
   /* Glassmorphism Card */
-  .login-card {
+  .signup-card {
     position: relative;
     z-index: 10;
     width: 100%;
-    max-width: 460px;
+    max-width: 520px;
     padding: 2.5rem;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px) saturate(180%);
@@ -361,7 +354,7 @@
 
   /* Dark mode card */
   @media (prefers-color-scheme: dark) {
-    .login-card {
+    .signup-card {
       background: rgba(17, 24, 39, 0.95);
       box-shadow:
         0 8px 32px 0 rgba(0, 0, 0, 0.3),
@@ -464,7 +457,7 @@
 
   /* Responsive */
   @media (max-width: 640px) {
-    .login-card {
+    .signup-card {
       padding: 1.5rem;
     }
 

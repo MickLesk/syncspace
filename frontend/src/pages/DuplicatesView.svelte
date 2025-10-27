@@ -113,16 +113,20 @@
 
 <div class="duplicates-view">
   <!-- Controls -->
-  <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm mb-6">
-    <div class="card-body p-4">
+  <div
+    class="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm mb-6"
+  >
+    <div class="p-4">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <button
-          class="btn btn-primary gap-2"
+          class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           on:click={scanCurrentFolder}
           disabled={scanning}
         >
           {#if scanning}
-            <span class="loading loading-spinner"></span>
+            <div
+              class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+            ></div>
             Scanning...
           {:else}
             <i class="bi bi-search"></i>
@@ -131,7 +135,10 @@
         </button>
 
         {#if selectedDuplicates.size > 0}
-          <button class="btn btn-error gap-2" on:click={deleteDuplicates}>
+          <button
+            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-2"
+            on:click={deleteDuplicates}
+          >
             <i class="bi bi-trash"></i>
             Delete {selectedDuplicates.size} Selected
           </button>
@@ -142,80 +149,128 @@
 
   <!-- Scan Progress -->
   {#if scanning}
-    <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm mb-6">
-      <div class="card-body">
-        <div class="flex justify-between items-center mb-2">
-          <span class="font-semibold">
-            {#if scanProgress.phase === "quick-scan"}
-              Quick scanning files...
-            {:else if scanProgress.phase === "full-scan"}
-              Deep scanning potential duplicates...
-            {:else if scanProgress.phase === "scanning"}
-              Scanning files...
-            {:else}
-              Initializing...
-            {/if}
-          </span>
-          <span class="text-sm opacity-70">
-            {scanProgress.current} / {scanProgress.total}
-          </span>
-        </div>
-        <progress
-          class="progress progress-primary"
-          value={scanProgress.current}
-          max={scanProgress.total}
-        ></progress>
+    <div
+      class="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm mb-6 p-4"
+    >
+      <div class="flex justify-between items-center mb-2">
+        <span class="font-semibold text-gray-900 dark:text-white">
+          {#if scanProgress.phase === "quick-scan"}
+            Quick scanning files...
+          {:else if scanProgress.phase === "full-scan"}
+            Deep scanning potential duplicates...
+          {:else if scanProgress.phase === "scanning"}
+            Scanning files...
+          {:else}
+            Initializing...
+          {/if}
+        </span>
+        <span class="text-sm text-gray-500 dark:text-gray-400">
+          {scanProgress.current} / {scanProgress.total}
+        </span>
+      </div>
+      <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+        <div
+          class="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all"
+          style="width: {(scanProgress.current / scanProgress.total) * 100}%"
+        ></div>
       </div>
     </div>
   {/if}
 
   <!-- Stats -->
   {#if !scanning && duplicateGroups.length > 0}
-    <div class="stats stats-vertical lg:stats-horizontal shadow mb-6 w-full">
-      <div class="stat">
-        <div class="stat-figure text-warning">
-          <i class="bi bi-files text-4xl"></i>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 shadow-md mb-6 w-full">
+      <div
+        class="bg-white dark:bg-gray-900 rounded-lg p-6 border border-gray-200 dark:border-gray-700"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <div
+              class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1"
+            >
+              Duplicate Groups
+            </div>
+            <div class="text-3xl font-bold text-amber-600 dark:text-amber-500">
+              {duplicateGroups.length}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {totalDuplicates} duplicate files
+            </div>
+          </div>
+          <i
+            class="bi bi-files text-4xl text-amber-600 dark:text-amber-500 opacity-50"
+          ></i>
         </div>
-        <div class="stat-title">Duplicate Groups</div>
-        <div class="stat-value text-warning">{duplicateGroups.length}</div>
-        <div class="stat-desc">{totalDuplicates} duplicate files</div>
       </div>
 
-      <div class="stat">
-        <div class="stat-figure text-error">
-          <i class="bi bi-hdd text-4xl"></i>
+      <div
+        class="bg-white dark:bg-gray-900 rounded-lg p-6 border border-gray-200 dark:border-gray-700"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <div
+              class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1"
+            >
+              Wasted Space
+            </div>
+            <div class="text-3xl font-bold text-red-600 dark:text-red-500">
+              {formatBytes(totalWastedSpace)}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Can be reclaimed
+            </div>
+          </div>
+          <i
+            class="bi bi-hdd text-4xl text-red-600 dark:text-red-500 opacity-50"
+          ></i>
         </div>
-        <div class="stat-title">Wasted Space</div>
-        <div class="stat-value text-error">{formatBytes(totalWastedSpace)}</div>
-        <div class="stat-desc">Can be reclaimed</div>
       </div>
 
-      <div class="stat">
-        <div class="stat-figure text-info">
-          <i class="bi bi-check-circle text-4xl"></i>
+      <div
+        class="bg-white dark:bg-gray-900 rounded-lg p-6 border border-gray-200 dark:border-gray-700"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <div
+              class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1"
+            >
+              Selected
+            </div>
+            <div class="text-3xl font-bold text-blue-600 dark:text-blue-500">
+              {selectedDuplicates.size}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Files to delete
+            </div>
+          </div>
+          <i
+            class="bi bi-check-circle text-4xl text-blue-600 dark:text-blue-500 opacity-50"
+          ></i>
         </div>
-        <div class="stat-title">Selected</div>
-        <div class="stat-value text-info">{selectedDuplicates.size}</div>
-        <div class="stat-desc">Files to delete</div>
       </div>
     </div>
   {/if}
 
   <!-- Empty State -->
   {#if !scanning && duplicateGroups.length === 0}
-    <div class="hero min-h-[400px]">
-      <div class="hero-content text-center">
-        <div class="max-w-md">
-          <i class="bi bi-check-circle text-7xl text-success mb-4"></i>
-          <h1 class="text-3xl font-bold">No Duplicates Found</h1>
-          <p class="py-6">
-            Click "Scan Current Folder" to search for duplicate files
-          </p>
-          <button class="btn btn-primary gap-2" on:click={scanCurrentFolder}>
-            <i class="bi bi-search"></i>
-            Start Scanning
-          </button>
-        </div>
+    <div class="flex items-center justify-center min-h-[400px]">
+      <div class="text-center max-w-md">
+        <i
+          class="bi bi-check-circle text-7xl text-green-500 dark:text-green-400 mb-4"
+        ></i>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+          No Duplicates Found
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 mb-6">
+          Click "Scan Current Folder" to search for duplicate files
+        </p>
+        <button
+          class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2 mx-auto"
+          on:click={scanCurrentFolder}
+        >
+          <i class="bi bi-search"></i>
+          Start Scanning
+        </button>
       </div>
     </div>
   {/if}
@@ -224,32 +279,42 @@
   {#if !scanning && duplicateGroups.length > 0}
     <div class="space-y-6">
       {#each duplicateGroups as group, groupIndex}
-        <div class="card bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 shadow-sm">
-          <div class="card-body">
+        <div
+          class="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm"
+        >
+          <div class="p-4">
             <!-- Group Header -->
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center gap-3">
-                <div class="badge badge-warning badge-lg gap-2">
+                <div
+                  class="px-3 py-1.5 bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200 rounded-lg flex items-center gap-2"
+                >
                   <i class="bi bi-files"></i>
                   {group.count} copies
                 </div>
-                <div class="badge badge-ghost">
+                <div
+                  class="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full"
+                >
                   {formatBytes(group.size)} each
                 </div>
-                <div class="badge badge-error">
+                <div
+                  class="px-2 py-0.5 text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-full"
+                >
                   {formatBytes(group.wastedSpace)} wasted
                 </div>
               </div>
-              <div class="join">
+              <div
+                class="inline-flex rounded-lg border border-gray-300 dark:border-gray-600"
+              >
                 <button
-                  class="btn btn-sm btn-ghost join-item"
+                  class="px-3 py-1.5 text-sm rounded-l-lg border-r border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors flex items-center gap-2"
                   on:click={() => selectAllInGroup(group)}
                 >
                   <i class="bi bi-check-all"></i>
                   Select All
                 </button>
                 <button
-                  class="btn btn-sm btn-ghost join-item"
+                  class="px-3 py-1.5 text-sm rounded-r-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors flex items-center gap-2"
                   on:click={() => deselectGroup(group)}
                 >
                   <i class="bi bi-x"></i>
@@ -260,32 +325,47 @@
 
             <!-- File List -->
             <div class="overflow-x-auto">
-              <table class="table table-zebra">
-                <thead>
-                  <tr>
-                    <th>
+              <table class="w-full">
+                <thead class="border-b border-gray-200 dark:border-gray-700">
+                  <tr class="text-left">
+                    <th class="p-3">
                       <label>
                         <input
                           type="checkbox"
-                          class="checkbox checkbox-sm"
+                          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 opacity-50 cursor-not-allowed"
                           disabled
                         />
                       </label>
                     </th>
-                    <th>Filename</th>
-                    <th>Size</th>
-                    <th>Modified</th>
-                    <th></th>
+                    <th
+                      class="p-3 text-sm font-semibold text-gray-700 dark:text-gray-200"
+                      >Filename</th
+                    >
+                    <th
+                      class="p-3 text-sm font-semibold text-gray-700 dark:text-gray-200"
+                      >Size</th
+                    >
+                    <th
+                      class="p-3 text-sm font-semibold text-gray-700 dark:text-gray-200"
+                      >Modified</th
+                    >
+                    <th class="p-3"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {#each group.files as file, fileIndex}
-                    <tr class:bg-slate-50 dark:bg-slate-800={fileIndex === 0}>
-                      <td>
+                    <tr
+                      class="{fileIndex === 0
+                        ? 'bg-gray-50 dark:bg-gray-800'
+                        : ''} {fileIndex % 2 === 0 && fileIndex > 0
+                        ? 'bg-white dark:bg-gray-900'
+                        : 'bg-gray-50/50 dark:bg-gray-800/50'} border-b border-gray-100 dark:border-gray-800 last:border-0"
+                    >
+                      <td class="p-3">
                         <label>
                           <input
                             type="checkbox"
-                            class="checkbox checkbox-sm"
+                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                             checked={selectedDuplicates.has(file.name)}
                             on:change={() =>
                               toggleDuplicateSelection(file.name)}
@@ -293,34 +373,45 @@
                           />
                         </label>
                       </td>
-                      <td>
+                      <td class="p-3">
                         <div class="flex items-center gap-2">
-                          <i class="bi bi-file-earmark-fill text-primary"></i>
+                          <i
+                            class="bi bi-file-earmark-fill text-blue-600 dark:text-blue-400"
+                          ></i>
                           <div>
-                            <div class="font-semibold">{file.name}</div>
+                            <div
+                              class="font-semibold text-gray-900 dark:text-white"
+                            >
+                              {file.name}
+                            </div>
                             {#if fileIndex === 0}
-                              <div class="badge badge-success badge-xs">
+                              <div
+                                class="px-1.5 py-0.5 text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded inline-block mt-1"
+                              >
                                 Original (keep)
                               </div>
                             {/if}
                           </div>
                         </div>
                       </td>
-                      <td>
-                        <span class="badge badge-ghost"
+                      <td class="p-3">
+                        <span
+                          class="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full"
                           >{formatBytes(file.size)}</span
                         >
                       </td>
-                      <td>
-                        <span class="text-sm opacity-70">
+                      <td class="p-3">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">
                           {file.modified_at
                             ? new Date(file.modified_at).toLocaleString()
                             : "—"}
                         </span>
                       </td>
-                      <td>
+                      <td class="p-3">
                         {#if fileIndex > 0 && selectedDuplicates.has(file.name)}
-                          <div class="badge badge-error badge-sm">
+                          <div
+                            class="px-2 py-0.5 text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-full"
+                          >
                             Will delete
                           </div>
                         {/if}

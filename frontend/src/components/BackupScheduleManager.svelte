@@ -164,12 +164,19 @@
 <div class="backup-schedule-manager p-6">
   <div class="header flex justify-between items-center mb-6">
     <div>
-      <h2 class="text-2xl font-bold mb-2">Backup Schedules</h2>
-      <p class="text-base-content/70">Manage automated backup schedules</p>
+      <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
+        Backup Schedules
+      </h2>
+      <p class="text-gray-500 dark:text-gray-400">
+        Manage automated backup schedules
+      </p>
     </div>
-    <button class="btn btn-primary" onclick={() => (showCreateModal = true)}>
+    <button
+      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
+      onclick={() => (showCreateModal = true)}
+    >
       <svg
-        class="w-5 h-5 mr-2"
+        class="w-5 h-5"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -186,9 +193,11 @@
   </div>
 
   {#if error}
-    <div class="alert alert-error mb-4">
+    <div
+      class="rounded-lg p-4 mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3"
+    >
       <svg
-        class="w-6 h-6"
+        class="w-6 h-6 text-red-600 dark:text-red-400"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -200,18 +209,20 @@
           d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
-      <span>{error}</span>
+      <span class="text-red-900 dark:text-red-100">{error}</span>
     </div>
   {/if}
 
   {#if loading}
     <div class="flex justify-center items-center py-12">
-      <span class="loading loading-spinner loading-lg"></span>
+      <div
+        class="w-12 h-12 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"
+      ></div>
     </div>
   {:else if schedules.length === 0}
     <div class="text-center py-12">
       <svg
-        class="w-16 h-16 mx-auto mb-4 text-base-content/30"
+        class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -223,24 +234,33 @@
           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
-      <p class="text-base-content/70 mb-4">No backup schedules configured</p>
-      <button class="btn btn-primary" onclick={() => (showCreateModal = true)}>
+      <p class="text-gray-500 dark:text-gray-400 mb-4">
+        No backup schedules configured
+      </p>
+      <button
+        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+        onclick={() => (showCreateModal = true)}
+      >
         Create your first schedule
       </button>
     </div>
   {:else}
     <div class="grid gap-4">
       {#each schedules as schedule}
-        <div class="card bg-slate-50 dark:bg-slate-800 shadow-md">
-          <div class="card-body">
+        <div
+          class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700"
+        >
+          <div class="p-4">
             <div class="flex justify-between items-start">
               <div class="flex-1">
-                <h3 class="card-title text-lg mb-2">
+                <h3
+                  class="text-lg font-bold mb-2 flex items-center gap-2 text-gray-900 dark:text-white"
+                >
                   {schedule.name}
                   <div
-                    class="badge badge-sm {schedule.enabled
-                      ? 'badge-success'
-                      : 'badge-ghost'}"
+                    class="px-2 py-0.5 text-xs font-medium rounded-full {schedule.enabled
+                      ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}"
                   >
                     {schedule.enabled ? "Active" : "Disabled"}
                   </div>
@@ -248,33 +268,50 @@
 
                 <div class="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <span class="text-base-content/70">Schedule:</span>
-                    <span class="font-mono ml-2"
+                    <span class="text-gray-500 dark:text-gray-400"
+                      >Schedule:</span
+                    >
+                    <span class="font-mono ml-2 text-gray-900 dark:text-white"
                       >{formatCronExpression(schedule.cron_expression)}</span
                     >
                   </div>
                   <div>
-                    <span class="text-base-content/70">Type:</span>
-                    <span class="badge badge-sm ml-2"
+                    <span class="text-gray-500 dark:text-gray-400">Type:</span>
+                    <span
+                      class="px-1.5 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded ml-2"
                       >{schedule.backup_type}</span
                     >
                   </div>
                   <div>
-                    <span class="text-base-content/70">Destination:</span>
-                    <span class="ml-2">{schedule.destination_type}</span>
+                    <span class="text-gray-500 dark:text-gray-400"
+                      >Destination:</span
+                    >
+                    <span class="ml-2 text-gray-900 dark:text-white"
+                      >{schedule.destination_type}</span
+                    >
                   </div>
                   <div>
-                    <span class="text-base-content/70">Retention:</span>
-                    <span class="ml-2">{schedule.retention_days} days</span>
+                    <span class="text-gray-500 dark:text-gray-400"
+                      >Retention:</span
+                    >
+                    <span class="ml-2 text-gray-900 dark:text-white"
+                      >{schedule.retention_days} days</span
+                    >
                   </div>
                   <div class="col-span-2">
-                    <span class="text-base-content/70">Next run:</span>
-                    <span class="ml-2">{formatDate(schedule.next_run_at)}</span>
+                    <span class="text-gray-500 dark:text-gray-400"
+                      >Next run:</span
+                    >
+                    <span class="ml-2 text-gray-900 dark:text-white"
+                      >{formatDate(schedule.next_run_at)}</span
+                    >
                   </div>
                   {#if schedule.last_run_at}
                     <div class="col-span-2">
-                      <span class="text-base-content/70">Last run:</span>
-                      <span class="ml-2"
+                      <span class="text-gray-500 dark:text-gray-400"
+                        >Last run:</span
+                      >
+                      <span class="ml-2 text-gray-900 dark:text-white"
                         >{formatDate(schedule.last_run_at)}</span
                       >
                     </div>
@@ -284,7 +321,7 @@
 
               <div class="flex gap-2">
                 <button
-                  class="btn btn-sm btn-ghost"
+                  class="px-2 py-1 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
                   onclick={() => toggleSchedule(schedule.id, schedule.enabled)}
                   title={schedule.enabled ? "Disable" : "Enable"}
                 >
@@ -326,7 +363,7 @@
                 </button>
 
                 <button
-                  class="btn btn-sm btn-primary"
+                  class="px-2 py-1 text-sm rounded-lg bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
                   onclick={() => triggerSchedule(schedule.id)}
                   title="Run now"
                 >
@@ -346,7 +383,7 @@
                 </button>
 
                 <button
-                  class="btn btn-sm btn-ghost text-error"
+                  class="px-2 py-1 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400 transition-colors"
                   onclick={() => deleteSchedule(schedule.id)}
                   title="Delete"
                 >
@@ -375,136 +412,161 @@
 
 <!-- Create Schedule Modal -->
 {#if showCreateModal}
-  <div class="modal modal-open">
-    <div class="modal-box max-w-2xl">
-      <h3 class="font-bold text-lg mb-4">Create Backup Schedule</h3>
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+  >
+    <div
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-2xl w-full border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-y-auto"
+    >
+      <div class="p-6">
+        <h3 class="font-bold text-lg mb-4 text-gray-900 dark:text-white">
+          Create Backup Schedule
+        </h3>
 
-      <form
-        onsubmit={(e) => {
-          e.preventDefault();
-          createSchedule();
-        }}
-      >
-        <div class="form-control mb-4">
-          <label class="label">
-            <span class="label-text">Schedule Name</span>
-          </label>
-          <input
-            type="text"
-            class="input input-bordered"
-            bind:value={formData.name}
-            placeholder="e.g., Daily Full Backup"
-            required
-          />
-        </div>
-
-        <div class="form-control mb-4">
-          <label class="label">
-            <span class="label-text">Schedule</span>
-          </label>
-          <select
-            class="select select-bordered"
-            bind:value={formData.cron_expression}
-          >
-            {#each cronPresets as preset}
-              <option value={preset.value}>{preset.label}</option>
-            {/each}
-          </select>
-          {#if formData.cron_expression === ""}
+        <form
+          onsubmit={(e) => {
+            e.preventDefault();
+            createSchedule();
+          }}
+        >
+          <div class="mb-4">
+            <label class="block mb-2">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-200"
+                >Schedule Name</span
+              >
+            </label>
             <input
               type="text"
-              class="input input-bordered mt-2"
-              bind:value={formData.cron_expression}
-              placeholder="* * * * *"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+              bind:value={formData.name}
+              placeholder="e.g., Daily Full Backup"
               required
             />
-          {/if}
-          <label class="label">
-            <span class="label-text-alt"
-              >Format: minute hour day month weekday</span
-            >
-          </label>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Backup Type</span>
-            </label>
-            <select
-              class="select select-bordered"
-              bind:value={formData.backup_type}
-            >
-              <option value="full">Full Backup</option>
-              <option value="database">Database Only</option>
-              <option value="files">Files Only</option>
-            </select>
           </div>
 
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Destination</span>
+          <div class="mb-4">
+            <label class="block mb-2">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-200"
+                >Schedule</span
+              >
             </label>
             <select
-              class="select select-bordered"
-              bind:value={formData.destination_type}
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+              bind:value={formData.cron_expression}
             >
-              <option value="local">Local Storage</option>
-              <option value="s3">Amazon S3</option>
-              <option value="webdav">WebDAV</option>
+              {#each cronPresets as preset}
+                <option value={preset.value}>{preset.label}</option>
+              {/each}
             </select>
+            {#if formData.cron_expression === ""}
+              <input
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent mt-2"
+                bind:value={formData.cron_expression}
+                placeholder="* * * * *"
+                required
+              />
+            {/if}
+            <div class="mt-1">
+              <span class="text-xs text-gray-500 dark:text-gray-400"
+                >Format: minute hour day month weekday</span
+              >
+            </div>
           </div>
-        </div>
 
-        <div class="form-control mb-4">
-          <label class="label">
-            <span class="label-text">Retention Period (days)</span>
-          </label>
-          <input
-            type="number"
-            class="input input-bordered"
-            bind:value={formData.retention_days}
-            min="1"
-            max="365"
-            required
-          />
-          <label class="label">
-            <span class="label-text-alt"
-              >Backups older than this will be automatically deleted</span
-            >
-          </label>
-        </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block mb-2">
+                <span
+                  class="text-sm font-medium text-gray-700 dark:text-gray-200"
+                  >Backup Type</span
+                >
+              </label>
+              <select
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+                bind:value={formData.backup_type}
+              >
+                <option value="full">Full Backup</option>
+                <option value="database">Database Only</option>
+                <option value="files">Files Only</option>
+              </select>
+            </div>
 
-        <div class="form-control mb-6">
-          <label class="label cursor-pointer justify-start gap-4">
+            <div>
+              <label class="block mb-2">
+                <span
+                  class="text-sm font-medium text-gray-700 dark:text-gray-200"
+                  >Destination</span
+                >
+              </label>
+              <select
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+                bind:value={formData.destination_type}
+              >
+                <option value="local">Local Storage</option>
+                <option value="s3">Amazon S3</option>
+                <option value="webdav">WebDAV</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="block mb-2">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-200"
+                >Retention Period (days)</span
+              >
+            </label>
             <input
-              type="checkbox"
-              class="checkbox"
-              bind:checked={formData.enabled}
+              type="number"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+              bind:value={formData.retention_days}
+              min="1"
+              max="365"
+              required
             />
-            <span class="label-text">Enable schedule immediately</span>
-          </label>
-        </div>
+            <div class="mt-1">
+              <span class="text-xs text-gray-500 dark:text-gray-400"
+                >Backups older than this will be automatically deleted</span
+              >
+            </div>
+          </div>
 
-        <div class="modal-action">
-          <button
-            type="button"
-            class="btn"
-            onclick={() => {
-              showCreateModal = false;
-              resetForm();
-            }}
-          >
-            Cancel
-          </button>
-          <button type="submit" class="btn btn-primary">
-            Create Schedule
-          </button>
-        </div>
-      </form>
+          <div class="mb-6">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                bind:checked={formData.enabled}
+              />
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-200"
+                >Enable schedule immediately</span
+              >
+            </label>
+          </div>
+
+          <div class="flex justify-end gap-2">
+            <button
+              type="button"
+              class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              onclick={() => {
+                showCreateModal = false;
+                resetForm();
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+            >
+              Create Schedule
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
     <div
-      class="modal-backdrop"
+      class="fixed inset-0 -z-10"
       onclick={() => {
         showCreateModal = false;
         resetForm();

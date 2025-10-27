@@ -1,0 +1,80 @@
+@import "tailwindcss";
+@import "./glassmorphism.css";
+
+/* ======================
+   Theme Variables
+   ====================== */
+
+:root {
+  /* Brand Colors */
+  --color-brand-primary: #667eea;
+  --color-brand-secondary: #764ba2;
+  --gradient-brand: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
+  /* Surface Colors - Light Mode */
+  --surface-base: #ffffff;
+  --surface-container: #f9fafb;
+  --surface-elevated: #ffffff;
+  
+  /* Text Colors - Light Mode */
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  
+  /* Border Colors */
+  --border-primary: #e5e7eb;
+  --border-secondary: #d1d5db;
+}
+
+/* Dark Mode */
+[data-theme="dark"],
+.dark {
+  color-scheme: dark;
+  
+  /* Surface Colors - Dark Mode */
+  --surface-base: #111827;
+  --surface-container: #1f2937;
+  --surface-elevated: #374151;
+  
+  /* Text Colors - Dark Mode */
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  
+  /* Border Colors */
+  --border-primary: #374151;
+  --border-secondary: #4b5563;
+}
+
+/* ======================
+   Base Styles
+   ====================== */
+
+body {
+  background-color: var(--surface-base);
+  color: var(--text-primary);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* ======================
+   Utility Enhancements
+   ====================== */
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass-effect {
+  background: rgba(17, 24, 39, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gradient-text {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

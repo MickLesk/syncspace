@@ -129,14 +129,17 @@
 
     <div class="header-actions">
       {#if unreadCount() > 0}
-        <button class="btn btn-ghost btn-sm gap-2" onclick={markAllAsRead}>
+        <button
+          class="px-3 py-1.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg transition-colors flex items-center gap-2"
+          onclick={markAllAsRead}
+        >
           <i class="bi bi-check-all"></i>
           Mark all as read
         </button>
       {/if}
       {#if notifications.length > 0}
         <button
-          class="btn btn-ghost btn-sm gap-2 text-error"
+          class="px-3 py-1.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-red-600 dark:text-red-400 rounded-lg transition-colors flex items-center gap-2"
           onclick={clearAll}
         >
           <i class="bi bi-trash"></i>
