@@ -55,7 +55,7 @@ pub fn router() -> Router<AppState> {
         // Rename directory
         .route("/dirs/:dir_id/rename", put(rename_dir_handler))
         // Delete directory (soft delete to trash)
-        .route("/dirs/:dir_id", delete(delete_dir_handler))
+        .route("/dirs/{dir_id}", delete(delete_dir_handler))
         // Batch move directories/files
         .route("/dirs/batch/move", post(batch_move_handler))
         // Get directory tree
@@ -131,7 +131,7 @@ async fn get_directory_tree(
     State(state): State<AppState>,
     user: UserInfo,
 ) -> Result<Json<DirectoryTreeResponse>, StatusCode> {
-    services::directory::get_directory_tree(&state, &user)
+    services::directory::get_directory_tree(&state, &user, "")
         .await
         .map(|dirs| Json(DirectoryTreeResponse {
             total: dirs.len(),

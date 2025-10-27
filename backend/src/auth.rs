@@ -167,6 +167,21 @@ impl UserDB {
         let users = self.users.lock().unwrap();
         users.values().cloned().collect()
     }
+
+    pub fn validate_token(&self, token: &str) -> Result<UserInfo, String> {
+        let claims = verify_token(token)?;
+        let user_id = Uuid::parse_str(&claims.sub).map_err(|_| "Invalid user ID".to_string())?;
+        
+        // Get user from database to ensure they still exist
+        let users = self.users.lock().unwrap();
+        let user = users.get(&user_id).ok_or("User not found")?;
+        
+        Ok(UserInfo {
+            id: user.id.to_string(),
+            username: user.username.clone(),
+            totp_enabled: user.totp_enabled,
+        })
+    }
 }
 
 /// JWT Claims structure
@@ -317,17 +332,12 @@ where
         let user_id = Uuid::parse_str(&claims.sub)
             .map_err(|_| (StatusCode::UNAUTHORIZED, "Invalid user ID"))?;
 
-        // Return a minimal user struct - the handlers will verify via state.user_db
-        // This is a temporary workaround until we fully migrate to database auth
-        Ok(UserAccount {
-            id: user_id,
+        // Return a User wrapping UserInfo
+        Ok(User(UserInfo {
+            id: user_id.to_string(),
             username: claims.username,
-            password_hash: String::new(), // Not needed for auth verification
             totp_enabled: false,
-            totp_secret: None,
-            created_at: Utc::now(), // Placeholder
-            last_login: None,
-        })
+        }))
     }
 }
 
@@ -366,9 +376,6 @@ pub struct UserInfo {
 }
 
 // Axum extractor for authenticated user
-use async_trait::async_trait;
-
-#[async_trait]
 impl<S> FromRequestParts<S> for UserInfo
 where
     S: Send + Sync,

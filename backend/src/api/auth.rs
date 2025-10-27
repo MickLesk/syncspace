@@ -54,7 +54,6 @@ pub struct Disable2FARequest {
 }
 
 #[derive(Debug, Serialize)]
-#[derive(Debug, Serialize)]
 pub struct Setup2FAResponse {
     pub secret: String,
     pub qr_code_url: String,

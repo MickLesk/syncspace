@@ -15,13 +15,13 @@ pub mod directory {
     pub async fn create_directory(state: &AppState, user: &UserInfo, path: &str) -> Result<DirectoryInfo> {
         let full = Path::new(DATA_DIR).join(path);
         fs::create_dir_all(&full).await?;
-        let _ = state.fs_tx.send(crate::FileChangeEvent::new(path.to_string(), "mkdir".to_string()).with_user(user.id.clone()));
+        let _ = state.fs_tx.send(crate::FileChangeEvent::new(path.to_string(), "mkdir".to_string()));
         Ok(DirectoryInfo { id: Uuid::new_v4(), name: full.file_name().unwrap().to_string_lossy().to_string(), path: path.to_string(), parent_id: None, owner_id: Uuid::parse_str(&user.id).unwrap_or_default(), created_at: Utc::now() })
     }
     
     pub async fn delete_directory(state: &AppState, user: &UserInfo, dir_id: &str) -> Result<()> {
         fs::remove_dir_all(Path::new(DATA_DIR).join(dir_id)).await?;
-        let _ = state.fs_tx.send(crate::FileChangeEvent::new(dir_id.to_string(), "delete".to_string()).with_user(user.id.clone()));
+        let _ = state.fs_tx.send(crate::FileChangeEvent::new(dir_id.to_string(), "delete".to_string()));
         Ok(())
     }
     
@@ -29,7 +29,7 @@ pub mod directory {
         let old_path = Path::new(DATA_DIR).join(dir_id);
         let new_path = Path::new(DATA_DIR).join(new_parent_path).join(old_path.file_name().unwrap());
         fs::rename(&old_path, &new_path).await?;
-        let _ = state.fs_tx.send(crate::FileChangeEvent::new(new_parent_path.to_string(), "move".to_string()).with_user(user.id.clone()));
+        let _ = state.fs_tx.send(crate::FileChangeEvent::new(new_parent_path.to_string(), "move".to_string()));
         Ok(())
     }
     
@@ -205,25 +205,19 @@ pub mod tag {
 // FAVORITES SERVICE
 pub mod favorites {
     use super::*;
-    use crate::models::Favorite;
+    use crate::database::Favorite;
     
     pub async fn add_favorite(state: &AppState, user: &UserInfo, item_type: &str, item_id: &str) -> Result<Favorite> {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now().to_rfc3339();
         sqlx::query("INSERT INTO favorites (id, user_id, item_type, item_id, sort_order, created_at) VALUES (?, ?, ?, ?, 0, ?)")
             .bind(&id).bind(&user.id).bind(item_type).bind(item_id).bind(&now).execute(&state.db_pool).await?;
-        Ok(Favorite { id, user_id: Uuid::parse_str(&user.id).unwrap_or_default(), item_type: item_type.to_string(), item_id: item_id.to_string(), created_at: Utc::now() })
+        Ok(Favorite { id, user_id: user.id.clone(), item_type: item_type.to_string(), item_id: item_id.to_string(), sort_order: 0, created_at: now })
     }
     
     pub async fn list_favorites(state: &AppState, user: &UserInfo) -> Result<Vec<Favorite>> {
         let rows: Vec<crate::database::Favorite> = sqlx::query_as("SELECT * FROM favorites WHERE user_id = ?").bind(&user.id).fetch_all(&state.db_pool).await?;
-        Ok(rows.iter().map(|r| Favorite {
-            id: Uuid::parse_str(&r.id).unwrap_or_default(),
-            user_id: Uuid::parse_str(&r.user_id).unwrap_or_default(),
-            item_type: r.item_type.clone(),
-            item_id: r.item_id.clone(),
-            created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
-        }).collect())
+        Ok(rows)
     }
     
     pub async fn remove_favorite(state: &AppState, user: &UserInfo, favorite_id: &str) -> Result<()> {

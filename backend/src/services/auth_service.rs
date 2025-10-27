@@ -27,7 +27,7 @@ pub async fn register(state: &AppState, username: String, password: String) -> R
     let token = auth::generate_token(&user).map_err(|e| anyhow!("Token generation failed: {}", e))?;
     let refresh_token = auth::generate_refresh_token(&user).map_err(|e| anyhow!("Refresh token generation failed: {}", e))?;
     
-    Ok(AuthResponse { token, refresh_token, user: UserInfo { id: user.id.to_string(), username: user.username, totp_enabled: user.totp_enabled }, requires_2fa: false })
+    Ok(AuthResponse { token, refresh_token: Some(refresh_token), user: UserInfo { id: user.id.to_string(), username: user.username, totp_enabled: user.totp_enabled }, requires_2fa: false })
 }
 
 pub async fn login(state: &AppState, username: String, password: String, totp_code: Option<String>) -> Result<AuthResponse, anyhow::Error> {
@@ -52,7 +52,7 @@ pub async fn login(state: &AppState, username: String, password: String, totp_co
     let token = auth::generate_token(&user).map_err(|e| anyhow!("Token generation failed: {}", e))?;
     let refresh_token = auth::generate_refresh_token(&user).map_err(|e| anyhow!("Refresh token generation failed: {}", e))?;
     
-    Ok(AuthResponse { token, refresh_token, user: UserInfo { id: user.id.to_string(), username: user.username.clone(), totp_enabled: user.totp_enabled }, requires_2fa: false })
+    Ok(AuthResponse { token, refresh_token: Some(refresh_token), user: UserInfo { id: user.id.to_string(), username: user.username.clone(), totp_enabled: user.totp_enabled }, requires_2fa: false })
 }
 
 pub async fn change_password(state: &AppState, user: &UserInfo, old_password: String, new_password: String) -> Result<(), anyhow::Error> {
@@ -71,7 +71,11 @@ pub async fn change_password(state: &AppState, user: &UserInfo, old_password: St
 pub async fn setup_2fa(state: &AppState, user: &UserInfo) -> Result<Setup2FAResponse, anyhow::Error> {
     let secret = auth::generate_totp_secret();
     let qr_url = format!("otpauth://totp/SyncSpace:{}?secret={}&issuer=SyncSpace", user.username, secret);
-    Ok(Setup2FAResponse { secret, qr_url })
+    Ok(Setup2FAResponse { 
+        secret: secret.clone(), 
+        qr_code_url: qr_url.clone(), 
+        qr_url 
+    })
 }
 
 pub async fn enable_2fa(state: &AppState, user: &UserInfo, totp_code: String) -> Result<(), anyhow::Error> {
@@ -114,5 +118,5 @@ pub async fn refresh_token(state: &AppState, user: &UserInfo) -> Result<AuthResp
     let token = auth::generate_token(&db_user).map_err(|e| anyhow!("Token generation failed: {}", e))?;
     let new_refresh_token = auth::generate_refresh_token(&db_user).map_err(|e| anyhow!("Refresh token generation failed: {}", e))?;
     
-    Ok(AuthResponse { token, refresh_token: new_refresh_token, user: UserInfo { id: db_user.id.to_string(), username: db_user.username.clone(), totp_enabled: db_user.totp_enabled }, requires_2fa: false })
+    Ok(AuthResponse { token, refresh_token: Some(new_refresh_token), user: UserInfo { id: db_user.id.to_string(), username: db_user.username.clone(), totp_enabled: db_user.totp_enabled }, requires_2fa: false })
 }

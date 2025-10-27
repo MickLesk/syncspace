@@ -15,17 +15,19 @@ pub struct CreateTagRequest {
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/tags", get(list_tags).post(create_tag))
-        .route("/tags/:tag_id", delete(delete_tag))
+        .route("/tags/{tag_id}", delete(delete_tag))
         .route("/file-tags", post(tag_file))
-        .route("/file-tags/:file_tag_id", delete(untag_file))
+        .route("/file-tags/{file_tag_id}", delete(untag_file))
 }
 
 async fn list_tags(State(state): State<AppState>, user: UserInfo) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    services::tag::list(&state, &user).await.map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    let tags = services::tag::list(&state, &user).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(tags.into_iter().map(|t| serde_json::to_value(t).unwrap_or_default()).collect()))
 }
 
 async fn create_tag(State(state): State<AppState>, user: UserInfo, Json(req): Json<CreateTagRequest>) -> Result<Json<serde_json::Value>, StatusCode> {
-    services::tag::create(&state, &user, req).await.map(Json).map_err(|_| StatusCode::BAD_REQUEST)
+    let tag = services::tag::create(&state, &user, &req.name, req.color).await.map_err(|_| StatusCode::BAD_REQUEST)?;
+    serde_json::to_value(tag).map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 async fn delete_tag(State(state): State<AppState>, user: UserInfo, Path(tag_id): Path<String>) -> Result<StatusCode, StatusCode> {
@@ -33,9 +35,15 @@ async fn delete_tag(State(state): State<AppState>, user: UserInfo, Path(tag_id):
 }
 
 async fn tag_file(State(state): State<AppState>, user: UserInfo, Json(req): Json<serde_json::Value>) -> Result<StatusCode, StatusCode> {
-    services::tag::tag_file(&state, &user, req).await.map(|_| StatusCode::CREATED).map_err(|_| StatusCode::BAD_REQUEST)
+    let file_id = req.get("file_id").and_then(|v| v.as_str()).ok_or(StatusCode::BAD_REQUEST)?;
+    let tag_id = req.get("tag_id").and_then(|v| v.as_str()).ok_or(StatusCode::BAD_REQUEST)?;
+    services::tag::tag_file(&state, &user, file_id, tag_id).await.map(|_| StatusCode::CREATED).map_err(|_| StatusCode::BAD_REQUEST)
 }
 
 async fn untag_file(State(state): State<AppState>, user: UserInfo, Path(file_tag_id): Path<String>) -> Result<StatusCode, StatusCode> {
-    services::tag::untag_file(&state, &user, &file_tag_id).await.map(|_| StatusCode::NO_CONTENT).map_err(|_| StatusCode::NOT_FOUND)
+    let parts: Vec<&str> = file_tag_id.split('_').collect();
+    if parts.len() != 2 {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+    services::tag::untag_file(&state, &user, parts[0], parts[1]).await.map(|_| StatusCode::NO_CONTENT).map_err(|_| StatusCode::NOT_FOUND)
 }

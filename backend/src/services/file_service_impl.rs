@@ -95,7 +95,11 @@ pub async fn delete_file(state: &AppState, user: &UserInfo, path: &str) -> Resul
     let file_path = Path::new(DATA_DIR).join(path);
     if !file_path.exists() { return Err(anyhow!("Not found")); }
     
-    fs::remove_file(&file_path).await.or_else(|_| fs::remove_dir_all(&file_path).await)?;
+    if file_path.is_file() {
+        fs::remove_file(&file_path).await?;
+    } else {
+        fs::remove_dir_all(&file_path).await?;
+    }
     
     let log_id = Uuid::new_v4().to_string();
     let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'deleted', ?, 'success', datetime('now'))")
