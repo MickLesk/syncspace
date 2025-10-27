@@ -16,7 +16,7 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/favorites/list", get(list_favorites))
         .route("/favorites/add", post(add_favorite))
-        .route("/favorites/:favorite_id/remove", delete(remove_favorite))
+        .route("/favorites/{favorite_id}/remove", delete(remove_favorite))
 }
 
 async fn list_favorites(State(state): State<AppState>, user: UserInfo) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {

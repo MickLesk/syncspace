@@ -48,18 +48,18 @@ pub struct DirectoryTreeResponse {
 
 pub fn router() -> Router<AppState> {
     Router::new()
-        // Create directory
-        .route("/dirs/*path", post(create_dir_handler))
-        // Move directory
-        .route("/dirs/:dir_id/move", put(move_dir_handler))
-        // Rename directory
-        .route("/dirs/:dir_id/rename", put(rename_dir_handler))
-        // Delete directory (soft delete to trash)
-        .route("/dirs/{dir_id}", delete(delete_dir_handler))
-        // Batch move directories/files
-        .route("/dirs/batch/move", post(batch_move_handler))
         // Get directory tree
         .route("/dirs/tree", axum::routing::get(get_directory_tree))
+        // Batch move directories/files
+        .route("/dirs/batch/move", post(batch_move_handler))
+        // Create directory (using query param or request body for path)
+        .route("/dirs/create", post(create_dir_handler))
+        // Move directory
+        .route("/dirs/{dir_id}/move", put(move_dir_handler))
+        // Rename directory
+        .route("/dirs/{dir_id}/rename", put(rename_dir_handler))
+        // Delete directory (soft delete to trash)
+        .route("/dirs/{dir_id}", delete(delete_dir_handler))
 }
 
 // ==================== HANDLERS ====================
@@ -68,8 +68,9 @@ pub fn router() -> Router<AppState> {
 async fn create_dir_handler(
     State(state): State<AppState>,
     user: UserInfo,
-    Path(path): Path<String>,
+    Json(req): Json<CreateDirRequest>,
 ) -> Result<Json<DirectoryInfo>, StatusCode> {
+    let path = req.parent_path.unwrap_or_else(|| "/".to_string()) + "/" + &req.name;
     services::directory::create_directory(&state, &user, &path)
         .await
         .map(Json)
@@ -130,12 +131,9 @@ async fn batch_move_handler(
 async fn get_directory_tree(
     State(state): State<AppState>,
     user: UserInfo,
-) -> Result<Json<DirectoryTreeResponse>, StatusCode> {
+) -> Result<Json<serde_json::Value>, StatusCode> {
     services::directory::get_directory_tree(&state, &user, "")
         .await
-        .map(|dirs| Json(DirectoryTreeResponse {
-            total: dirs.len(),
-            directories: dirs,
-        }))
+        .map(Json)
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }

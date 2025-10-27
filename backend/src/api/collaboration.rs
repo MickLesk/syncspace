@@ -24,11 +24,11 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/collaboration/locks", get(list_locks).post(acquire_lock))
         .route("/collaboration/locks/{lock_id}", delete(release_lock))
-        .route("/collaboration/locks/:lock_id/heartbeat", post(renew_lock))
+        .route("/collaboration/locks/{lock_id}/heartbeat", post(renew_lock))
         .route("/collaboration/presence", get(get_presence).post(update_presence))
         .route("/collaboration/activity", get(get_activity))
         .route("/collaboration/conflicts", get(list_conflicts))
-        .route("/collaboration/conflicts/:conflict_id/resolve", post(resolve_conflict))
+        .route("/collaboration/conflicts/{conflict_id}/resolve", post(resolve_conflict))
 }
 
 async fn list_locks(State(state): State<AppState>, user: UserInfo, Query(query): Query<std::collections::HashMap<String, String>>) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
@@ -37,7 +37,7 @@ async fn list_locks(State(state): State<AppState>, user: UserInfo, Query(query):
 }
 
 async fn acquire_lock(State(state): State<AppState>, user: UserInfo, Json(req): Json<AcquireLockRequest>) -> Result<Json<serde_json::Value>, StatusCode> {
-    let lock = services::collaboration::acquire_lock(&state, &user, &req.file_path, &req.lock_type, req.duration_seconds).await.map_err(|_| StatusCode::CONFLICT)?;
+    let lock = services::collaboration::acquire_lock(&state, &user, &req.file_path).await.map_err(|_| StatusCode::CONFLICT)?;
     serde_json::to_value(lock).map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
@@ -55,7 +55,7 @@ async fn get_presence(State(state): State<AppState>, user: UserInfo) -> Result<J
 }
 
 async fn update_presence(State(state): State<AppState>, user: UserInfo, Json(req): Json<UpdatePresenceRequest>) -> Result<StatusCode, StatusCode> {
-    services::collaboration::update_presence(&state, &user, &req.file_path, &req.activity_type, req.metadata).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
+    services::collaboration::update_presence(&state, &user, Some(req.file_path), &req.activity_type).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
 }
 
 async fn get_activity(State(state): State<AppState>, user: UserInfo) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
@@ -69,5 +69,6 @@ async fn list_conflicts(State(state): State<AppState>, user: UserInfo) -> Result
 }
 
 async fn resolve_conflict(State(state): State<AppState>, user: UserInfo, Path(conflict_id): Path<String>, Json(req): Json<serde_json::Value>) -> Result<StatusCode, StatusCode> {
-    services::collaboration::resolve_conflict(&state, &user, &conflict_id, req).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
+    let resolution = req.get("resolution").and_then(|v| v.as_str()).unwrap_or("auto");
+    services::collaboration::resolve_conflict(&state, &user, &conflict_id, resolution).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
 }

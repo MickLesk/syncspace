@@ -44,26 +44,24 @@ pub struct FileListResponse {
 
 pub fn router() -> Router<AppState> {
     Router::new()
+        // Upload file (multipart) - specific route first
+        .route("/upload-multipart", post(upload_multipart_handler))
+        // Get thumbnail - specific route
+        .route("/thumbnails/{file_id}", get(get_thumbnail_handler))
         // List files (root)
         .route("/files", get(list_files_root))
-        // List files in directory
-        .route("/files/*path", get(list_files_handler))
         // Download file
-        .route("/file/*path", get(download_file_handler))
+        .route("/file/{*path}", get(download_file_handler))
         // Upload file (raw body)
-        .route("/upload/*path", post(upload_file_handler))
-        // Upload file (multipart)
-        .route("/upload-multipart", post(upload_multipart_handler))
-        // Delete file
-        .route("/files/*path", delete(delete_file_handler))
+        .route("/upload/{*path}", post(upload_file_handler))
         // Rename file
-        .route("/rename/*path", put(rename_file_handler))
+        .route("/rename/{*path}", put(rename_file_handler))
         // Move file
-        .route("/move/*path", put(move_file_handler))
+        .route("/move/{*path}", put(move_file_handler))
         // Copy file
-        .route("/copy/*path", post(copy_file_handler))
-        // Get thumbnail
-        .route("/thumbnails/{file_id}", get(get_thumbnail_handler))
+        .route("/copy/{*path}", post(copy_file_handler))
+        // List files in directory / Delete file - combined route with multiple methods
+        .route("/files/{*path}", get(list_files_handler).delete(delete_file_handler))
 }
 
 // ==================== HANDLERS ====================
