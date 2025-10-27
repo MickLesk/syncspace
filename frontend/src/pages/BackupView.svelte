@@ -384,6 +384,7 @@
                       <button
                         class="btn btn-sm btn-ghost text-error"
                         onclick={() => deleteBackup(backup.id)}
+                        aria-label="Delete backup"
                       >
                         <i class="bi bi-trash"></i>
                       </button>
@@ -478,6 +479,7 @@
                     <button
                       class="btn btn-sm btn-ghost text-error"
                       onclick={() => deleteBackup(backup.id)}
+                      aria-label="Delete backup"
                     >
                       <svg
                         class="w-5 h-5"
@@ -553,6 +555,10 @@
     <div
       class="modal-backdrop-enhanced"
       onclick={() => (showRestoreModal = false)}
+      onkeydown={(e) => e.key === 'Escape' && (showRestoreModal = false)}
+      role="button"
+      tabindex="0"
+      aria-label="Close modal"
     ></div>
     <div class="modal-box max-w-2xl">
       <h3 class="font-bold text-xl mb-4 flex items-center gap-2">

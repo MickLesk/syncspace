@@ -656,13 +656,13 @@
   }
 </script>
 
-<svelte:window on:click={handleClickOutside} />
+<svelte:window onclick={handleClickOutside} />
 
 <div
   class="files-view"
-  on:dragover={handleDragOver}
-  on:dragleave={handleDragLeave}
-  on:drop={handleDrop}
+  ondragover={handleDragOver}
+  ondragleave={handleDragLeave}
+  ondrop={handleDrop}
   role="main"
 >
   <!-- WebSocket Status Banner -->
@@ -696,19 +696,19 @@
         <div class="flex gap-2 flex-1">
           <button
             class="btn btn-primary gap-2"
-            on:click={() => uploadInput?.click()}
+            onclick={() => uploadInput?.click()}
           >
             <i class="bi bi-upload"></i>
             Upload
           </button>
           <button
             class="btn btn-secondary gap-2"
-            on:click={() => (showNewFolderModal = true)}
+            onclick={() => (showNewFolderModal = true)}
           >
             <i class="bi bi-folder-plus"></i>
             New Folder
           </button>
-          <button class="btn btn-ghost gap-2" on:click={() => loadFiles()}>
+          <button class="btn btn-ghost gap-2" onclick={() => loadFiles()}>>
             <i class="bi bi-arrow-clockwise"></i>
             Refresh
           </button>
@@ -730,7 +730,8 @@
                 {#if searchQuery}
                   <button
                     class="btn btn-sm btn-ghost"
-                    on:click={() => (searchQuery = "")}
+                    onclick={() => (searchQuery = "")}
+                    aria-label="Clear search"
                   >
                     <i class="bi bi-x"></i>
                   </button>
@@ -741,7 +742,7 @@
             <!-- Advanced Search Button -->
             <button
               class="btn btn-sm btn-outline gap-2"
-              on:click={() => (showAdvancedSearchModal = true)}
+              onclick={() => (showAdvancedSearchModal = true)}
             >
               <i class="bi bi-funnel"></i>
               Advanced
@@ -751,7 +752,7 @@
             {#if isSearchActive}
               <button
                 class="btn btn-sm btn-warning gap-2"
-                on:click={clearSearch}
+                onclick={clearSearch}
               >
                 <i class="bi bi-x-circle"></i>
                 Clear Search
@@ -770,13 +771,13 @@
               <span class="hidden sm:inline">Sort</span>
             </button>
             <ul
-              tabindex="0"
+              role="menu"
               class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-1"
             >
               <li class="menu-title"><span>Sort By</span></li>
               <li>
                 <button
-                  on:click={() => {
+                  onclick={() => {
                     sortBy = "name";
                     sortOrder =
                       sortOrder === "asc" && sortBy === "name" ? "desc" : "asc";
@@ -797,7 +798,7 @@
               </li>
               <li>
                 <button
-                  on:click={() => {
+                  onclick={() => {
                     sortBy = "modified";
                     sortOrder =
                       sortOrder === "asc" && sortBy === "modified"
@@ -815,7 +816,7 @@
               </li>
               <li>
                 <button
-                  on:click={() => {
+                  onclick={() => {
                     sortBy = "size";
                     sortOrder =
                       sortOrder === "asc" && sortBy === "size" ? "desc" : "asc";
@@ -831,7 +832,7 @@
               </li>
               <li>
                 <button
-                  on:click={() => {
+                  onclick={() => {
                     sortBy = "type";
                     sortOrder =
                       sortOrder === "asc" && sortBy === "type" ? "desc" : "asc";
@@ -866,7 +867,7 @@
               class="btn btn-sm join-item {viewMode === 'grid'
                 ? 'btn-active'
                 : ''}"
-              on:click={() => (viewMode = "grid")}
+              onclick={() => (viewMode = "grid")}
               aria-label="Grid view"
             >
               <i class="bi bi-grid-3x3"></i>
@@ -875,7 +876,7 @@
               class="btn btn-sm join-item {viewMode === 'list'
                 ? 'btn-active'
                 : ''}"
-              on:click={() => (viewMode = "list")}
+              onclick={() => (viewMode = "list")}
               aria-label="List view"
             >
               <i class="bi bi-list-ul"></i>
@@ -904,7 +905,7 @@
           <span class="font-medium">Search Results</span>
           <div class="badge badge-info">{filteredFiles.length} files</div>
         </div>
-        <button class="btn btn-sm btn-ghost" on:click={clearSearch}>
+        <button class="btn btn-sm btn-ghost" onclick={clearSearch}>
           <i class="bi bi-x"></i>
           Close
         </button>
@@ -968,14 +969,14 @@
           <div class="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               class="btn btn-primary gap-2"
-              on:click={() => uploadInput?.click()}
+              onclick={() => uploadInput?.click()}
             >
               <i class="bi bi-upload"></i>
               Upload Files
             </button>
             <button
               class="btn btn-outline gap-2"
-              on:click={() => (showNewFolderModal = true)}
+              onclick={() => (showNewFolderModal = true)}
             >
               <i class="bi bi-folder-plus"></i>
               New Folder
@@ -996,9 +997,9 @@
       {#each sortedFiles as file}
         <div
           class="card bg-base-100 border border-base-300 hover:border-primary hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer group relative overflow-hidden"
-          on:click={() => file.is_dir && navigateToFolder(file)}
-          on:contextmenu={(e) => handleContextMenu(e, file)}
-          on:keydown={(e) =>
+          onclick={() => file.is_dir && navigateToFolder(file)}
+          oncontextmenu={(e) => handleContextMenu(e, file)}
+          onkeydown={(e) =>
             e.key === "Enter" && file.is_dir && navigateToFolder(file)}
           role="button"
           tabindex="0"
@@ -1023,8 +1024,10 @@
           >
             <button
               class="btn btn-circle btn-xs btn-ghost bg-base-100/80 backdrop-blur-sm"
-              on:click|stopPropagation={() =>
-                console.log("Toggle favorite", file.name)}
+              onclick={(e) => {
+                e.stopPropagation();
+                console.log("Toggle favorite", file.name);
+              }}
               title="Add to favorites"
             >
               <i class="bi bi-star text-warning"></i>
@@ -1070,7 +1073,7 @@
               {#if !file.is_dir}
                 <button
                   class="btn btn-ghost btn-xs btn-circle"
-                  on:click|stopPropagation={() => handleDownload(file)}
+                  onclick={(e) => { e.stopPropagation(); handleDownload(file); }}
                   aria-label="Download"
                 >
                   <i class="bi bi-download"></i>
@@ -1078,14 +1081,14 @@
               {/if}
               <button
                 class="btn btn-ghost btn-xs btn-circle"
-                on:click|stopPropagation={() => openRenameModal(file)}
+                onclick={(e) => { e.stopPropagation(); openRenameModal(file); }}
                 aria-label="Rename"
               >
                 <i class="bi bi-pencil"></i>
               </button>
               <button
                 class="btn btn-ghost btn-xs btn-circle text-error"
-                on:click|stopPropagation={() => openDeleteModal(file)}
+                onclick={(e) => { e.stopPropagation(); openDeleteModal(file); }}
                 aria-label="Delete"
               >
                 <i class="bi bi-trash"></i>
@@ -1104,7 +1107,7 @@
             <th class="bg-base-200">
               <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
-                on:click={() => {
+                onclick={() => {
                   sortBy = "name";
                   sortOrder =
                     sortOrder === "asc" && sortBy === "name" ? "desc" : "asc";
@@ -1123,7 +1126,7 @@
             <th class="bg-base-200">
               <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
-                on:click={() => {
+                onclick={() => {
                   sortBy = "type";
                   sortOrder =
                     sortOrder === "asc" && sortBy === "type" ? "desc" : "asc";
@@ -1142,7 +1145,7 @@
             <th class="bg-base-200">
               <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
-                on:click={() => {
+                onclick={() => {
                   sortBy = "size";
                   sortOrder =
                     sortOrder === "asc" && sortBy === "size" ? "desc" : "asc";
@@ -1161,7 +1164,7 @@
             <th class="bg-base-200">
               <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
-                on:click={() => {
+                onclick={() => {
                   sortBy = "modified";
                   sortOrder =
                     sortOrder === "asc" && sortBy === "modified"
@@ -1186,8 +1189,8 @@
           {#each sortedFiles as file}
             <tr
               class="hover:bg-base-200 cursor-pointer transition-colors group"
-              on:click={() => file.is_dir && navigateToFolder(file)}
-              on:contextmenu={(e) => handleContextMenu(e, file)}
+              onclick={() => file.is_dir && navigateToFolder(file)}
+              oncontextmenu={(e) => handleContextMenu(e, file)}
             >
               <td>
                 <div class="flex items-center gap-3">
@@ -1247,7 +1250,7 @@
                   {#if !file.is_dir}
                     <button
                       class="btn btn-ghost btn-sm btn-square hover:btn-primary"
-                      on:click|stopPropagation={() => handleDownload(file)}
+                      onclick={(e) => { e.stopPropagation(); handleDownload(file); }}
                       aria-label="Download"
                       title="Download"
                     >
@@ -1256,7 +1259,7 @@
                   {/if}
                   <button
                     class="btn btn-ghost btn-sm btn-square hover:btn-info"
-                    on:click|stopPropagation={() => openRenameModal(file)}
+                    onclick={(e) => { e.stopPropagation(); openRenameModal(file); }}
                     aria-label="Rename"
                     title="Rename"
                   >
@@ -1264,7 +1267,7 @@
                   </button>
                   <button
                     class="btn btn-ghost btn-sm btn-square hover:btn-error"
-                    on:click|stopPropagation={() => openDeleteModal(file)}
+                    onclick={(e) => { e.stopPropagation(); openDeleteModal(file); }}
                     aria-label="Delete"
                     title="Delete"
                   >
@@ -1285,7 +1288,7 @@
   type="file"
   multiple
   bind:this={uploadInput}
-  on:change={handleFilesSelected}
+  onchange={handleFilesSelected}
   class="hidden"
 />
 
@@ -1451,7 +1454,7 @@
   <div slot="actions">
     <button
       class="btn btn-ghost rounded-xl"
-      on:click={() => (showUploadModal = false)}
+      onclick={() => (showUploadModal = false)}
       disabled={uploading}
     >
       <i class="bi bi-x-lg"></i>
@@ -1460,7 +1463,7 @@
     <button
       class="btn btn-success rounded-xl gap-2"
       class:loading={uploading}
-      on:click={handleFileUpload}
+      onclick={handleFileUpload}
       disabled={uploading || uploadFiles.length === 0}
     >
       {#if uploading}
@@ -1485,24 +1488,24 @@
 >
   <div class="space-y-4">
     <div class="form-control">
-      <label class="label">
+      <label class="label" for="newFolderNameInput">
         <span class="label-text font-semibold text-base-content"
           >Folder Name</span
         >
       </label>
       <input
+        id="newFolderNameInput"
         type="text"
         bind:value={newFolderName}
         placeholder="e.g., Documents, Photos, Projects..."
         class="input input-bordered rounded-xl focus:ring-2 focus:ring-success/50 text-base-content"
-        on:keypress={(e) => e.key === "Enter" && handleCreateFolder()}
-        autofocus
+        onkeypress={(e) => e.key === "Enter" && handleCreateFolder()}
       />
-      <label class="label">
+      <div class="label">
         <span class="label-text-alt text-xs text-base-content/60">
           💡 Choose a descriptive name for easy organization
         </span>
-      </label>
+      </div>
     </div>
 
     <!-- Preview -->
@@ -1520,14 +1523,14 @@
   <div slot="actions" class="flex gap-3 justify-end">
     <button
       class="btn btn-ghost rounded-xl"
-      on:click={() => (showNewFolderModal = false)}
+      onclick={() => (showNewFolderModal = false)}
     >
       <i class="bi bi-x-lg"></i>
       Cancel
     </button>
     <button
       class="btn btn-success rounded-xl gap-2"
-      on:click={handleCreateFolder}
+      onclick={handleCreateFolder}
       disabled={!newFolderName.trim()}
     >
       <i class="bi bi-folder-plus"></i>
@@ -1561,36 +1564,36 @@
     </div>
 
     <div class="form-control">
-      <label class="label">
+      <label class="label" for="renameFileInput">
         <span class="label-text font-semibold text-base-content">New Name</span>
       </label>
       <input
+        id="renameFileInput"
         type="text"
         bind:value={newFileName}
         placeholder="Enter new name..."
         class="input input-bordered rounded-xl focus:ring-2 focus:ring-primary/50 text-base-content"
-        on:keypress={(e) => e.key === "Enter" && handleRename()}
-        autofocus
+        onkeypress={(e) => e.key === "Enter" && handleRename()}
       />
-      <label class="label">
+      <div class="label">
         <span class="label-text-alt text-xs text-base-content/60">
           ⚠️ File extension will be preserved automatically
         </span>
-      </label>
+      </div>
     </div>
   </div>
 
   <div slot="actions" class="flex gap-3 justify-end">
     <button
       class="btn btn-ghost rounded-xl"
-      on:click={() => (showRenameModal = false)}
+      onclick={() => (showRenameModal = false)}
     >
       <i class="bi bi-x-lg"></i>
       Cancel
     </button>
     <button
       class="btn btn-primary rounded-xl gap-2"
-      on:click={handleRename}
+      onclick={handleRename}
       disabled={!newFileName.trim()}
     >
       <i class="bi bi-check-lg"></i>
@@ -1651,12 +1654,12 @@
   <div slot="actions" class="flex gap-3 justify-end">
     <button
       class="btn btn-ghost rounded-xl"
-      on:click={() => (showDeleteModal = false)}
+      onclick={() => (showDeleteModal = false)}
     >
       <i class="bi bi-x-lg"></i>
       Cancel
     </button>
-    <button class="btn btn-error rounded-xl gap-2" on:click={handleDelete}>
+    <button class="btn btn-error rounded-xl gap-2" onclick={handleDelete}>
       <i class="bi bi-trash3-fill"></i>
       Delete Permanently
     </button>
@@ -1783,3 +1786,4 @@
     transform: translateY(-2px);
   }
 </style>
+

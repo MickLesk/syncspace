@@ -109,14 +109,14 @@
   }
 </script>
 
-<svelte:window on:click={handleClickOutside} />
+<svelte:window onclick={handleClickOutside} />
 
 <div class="breadcrumb-nav">
   <!-- Up Button -->
   {#if segments.length > 0}
     <button
       class="btn btn-sm btn-circle btn-ghost"
-      on:click={navigateUp}
+      onclick={navigateUp}
       title={t($currentLang, "goUpOneLevel")}
       aria-label={t($currentLang, "goUpOneLevel")}
     >
@@ -130,26 +130,29 @@
       <!-- Home -->
       <li>
         <div class="breadcrumb-item-wrapper">
-          <button class="breadcrumb-item" on:click={navigateToHome}>
+          <button class="breadcrumb-item" onclick={navigateToHome}>
             <i class="bi bi-house-fill"></i>
             <span class="ml-1">{t($currentLang, "home")}</span>
           </button>
           <div class="breadcrumb-actions">
             <button
               class="breadcrumb-action-btn"
-              on:click|stopPropagation={() => toggleActionMenu("home")}
+              onclick={(e) => {
+                e.stopPropagation();
+                toggleActionMenu("home");
+              }}
               title="Quick actions"
             >
               <i class="bi bi-three-dots-vertical"></i>
             </button>
             {#if activeActionMenu === "home"}
               <div class="breadcrumb-action-menu">
-                <button on:click={() => copySegmentPath(-1)}>
+                <button onclick={() => copySegmentPath(-1)}>
                   <i class="bi bi-clipboard"></i>
                   <span>Copy Path</span>
                   <kbd class="kbd kbd-xs">Ctrl+C</kbd>
                 </button>
-                <button on:click={() => addToFavorites(-1)}>
+                <button onclick={() => addToFavorites(-1)}>
                   <i class="bi bi-star"></i>
                   <span>Add to Favorites</span>
                   <kbd class="kbd kbd-xs">F</kbd>
@@ -166,7 +169,7 @@
           <li>
             <button
               class="breadcrumb-item"
-              on:click={() => navigateToSegment(0)}
+              onclick={() => navigateToSegment(0)}
             >
               {segments[0]}
             </button>
@@ -180,19 +183,26 @@
               <button
                 tabindex="0"
                 class="breadcrumb-item dropdown-trigger"
-                on:click|stopPropagation={() => (dropdownOpen = !dropdownOpen)}
+                onclick={(e) => {
+                  e.stopPropagation();
+                  dropdownOpen = !dropdownOpen;
+                }}
+                aria-label="Show hidden path segments"
               >
                 <i class="bi bi-three-dots"></i>
               </button>
               {#if dropdownOpen}
                 <ul
-                  tabindex="0"
+                  role="menu"
                   class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50"
-                  on:click|stopPropagation
+                  onclick={(e) => e.stopPropagation()}
+                  onkeydown={(e) => {
+                    if (e.key === 'Escape') dropdownOpen = false;
+                  }}
                 >
                   {#each hiddenSegments as segment, i}
                     <li>
-                      <button on:click={() => navigateToSegment(i + 1)}>
+                      <button onclick={() => navigateToSegment(i + 1)}>
                         <i class="bi bi-folder-fill text-warning"></i>
                         {segment}
                       </button>
@@ -212,31 +222,34 @@
                 <button
                   class="breadcrumb-item"
                   class:breadcrumb-active={i === segments.length - 1}
-                  on:click={() => navigateToSegment(i)}
+                  onclick={() => navigateToSegment(i)}
                 >
                   {segment}
                 </button>
                 <div class="breadcrumb-actions">
                   <button
                     class="breadcrumb-action-btn"
-                    on:click|stopPropagation={() => toggleActionMenu(i)}
+                    onclick={(e) => {
+                      e.stopPropagation();
+                      toggleActionMenu(i);
+                    }}
                     title="Quick actions"
                   >
                     <i class="bi bi-three-dots-vertical"></i>
                   </button>
                   {#if activeActionMenu === i}
                     <div class="breadcrumb-action-menu">
-                      <button on:click={() => copySegmentPath(i)}>
+                      <button onclick={() => copySegmentPath(i)}>
                         <i class="bi bi-clipboard"></i>
                         <span>Copy Path</span>
                         <kbd class="kbd kbd-xs">Ctrl+C</kbd>
                       </button>
-                      <button on:click={() => openInNewTab(i)}>
+                      <button onclick={() => openInNewTab(i)}>
                         <i class="bi bi-box-arrow-up-right"></i>
                         <span>Open in New Tab</span>
                         <kbd class="kbd kbd-xs">Ctrl+T</kbd>
                       </button>
-                      <button on:click={() => addToFavorites(i)}>
+                      <button onclick={() => addToFavorites(i)}>
                         <i class="bi bi-star"></i>
                         <span>Add to Favorites</span>
                         <kbd class="kbd kbd-xs">F</kbd>
@@ -255,7 +268,7 @@
                 <button
                   class="breadcrumb-item"
                   class:breadcrumb-active={i === maxVisibleSegments - 2}
-                  on:click={() =>
+                  onclick={() =>
                     navigateToSegment(
                       segments.length - (maxVisibleSegments - 1) + i
                     )}
@@ -265,8 +278,10 @@
                 <div class="breadcrumb-actions">
                   <button
                     class="breadcrumb-action-btn"
-                    on:click|stopPropagation={() =>
-                      toggleActionMenu(`last-${i}`)}
+                    onclick={(e) => {
+                      e.stopPropagation();
+                      toggleActionMenu(`last-${i}`);
+                    }}
                     title="Quick actions"
                   >
                     <i class="bi bi-three-dots-vertical"></i>
@@ -274,7 +289,7 @@
                   {#if activeActionMenu === `last-${i}`}
                     <div class="breadcrumb-action-menu">
                       <button
-                        on:click={() =>
+                        onclick={() =>
                           copySegmentPath(
                             segments.length - (maxVisibleSegments - 1) + i
                           )}
@@ -284,7 +299,7 @@
                         <kbd class="kbd kbd-xs">Ctrl+C</kbd>
                       </button>
                       <button
-                        on:click={() =>
+                        onclick={() =>
                           openInNewTab(
                             segments.length - (maxVisibleSegments - 1) + i
                           )}
@@ -294,7 +309,7 @@
                         <kbd class="kbd kbd-xs">Ctrl+T</kbd>
                       </button>
                       <button
-                        on:click={() =>
+                        onclick={() =>
                           addToFavorites(
                             segments.length - (maxVisibleSegments - 1) + i
                           )}
@@ -317,7 +332,7 @@
   <!-- Copy Path Button -->
   <button
     class="btn btn-sm btn-ghost gap-2"
-    on:click={copyPath}
+    onclick={copyPath}
     title={t($currentLang, "copyFullPath")}
     aria-label={t($currentLang, "copyFullPath")}
   >
