@@ -6,6 +6,9 @@
   import AdvancedSearchModal from "./AdvancedSearchModal.svelte";
   import Modal from "./ui/Modal.svelte";
   import ThemeSwitcher from "./ThemeSwitcher.svelte";
+  import NotificationBell from "./NotificationBell.svelte";
+  import { userPreferences } from "../stores/preferences.js";
+  import { wsConnected } from "../stores/websocket.js";
 
   const dispatch = createEventDispatcher();
 
@@ -35,7 +38,6 @@
   let showAdvancedSearch = $state(false);
   let showSearchDropdown = $state(false);
   let searchResults = $state([]);
-  let recentSearches = $state([]);
   let searchDebounce = null;
   let searchInputRef = null;
 
@@ -95,34 +97,23 @@
   let unreadNotifications = $derived(notifications.filter((n) => !n.read));
   let unreadCount = $derived(unreadNotifications.length);
 
-  // Load recent searches from localStorage
-  function loadRecentSearches() {
-    const stored = localStorage.getItem("recentSearches");
-    if (stored) {
-      try {
-        recentSearches = JSON.parse(stored).slice(0, 5);
-      } catch (e) {
-        recentSearches = [];
-      }
-    }
-  }
+  // Load recent searches from backend preferences
+  let recentSearches = $derived($userPreferences.recent_searches || []);
 
-  // Save search to recent searches
-  function saveRecentSearch(query) {
+  // Save search to recent searches via backend
+  async function saveRecentSearch(query) {
     if (!query.trim()) return;
 
-    // Remove if already exists
-    recentSearches = recentSearches.filter((s) => s !== query);
-    // Add to front
-    recentSearches = [query, ...recentSearches].slice(0, 5);
-    // Save to localStorage
-    localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
+    let searches = [...recentSearches];
+    searches = searches.filter((s) => s !== query);
+    searches = [query, ...searches].slice(0, 10);
+
+    await userPreferences.updatePreferences({ recent_searches: searches });
   }
 
   // Clear recent searches
-  function clearRecentSearches() {
-    recentSearches = [];
-    localStorage.removeItem("recentSearches");
+  async function clearRecentSearches() {
+    await userPreferences.updatePreferences({ recent_searches: [] });
   }
 
   // Handle search input change with debounce
@@ -218,7 +209,6 @@
     if ((e.ctrlKey || e.metaKey) && e.key === "k") {
       e.preventDefault();
       showSearchModal = true;
-      loadRecentSearches();
     }
     // Ctrl+Shift+F for Advanced Search
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "F") {
@@ -261,7 +251,6 @@
             oninput={handleSearchInput}
             onfocus={() => {
               showSearchDropdown = true;
-              loadRecentSearches();
             }}
             onkeydown={(e) => e.key === "Enter" && handleSearch(e)}
           />
@@ -370,94 +359,26 @@
 
     <!-- Right: Actions -->
     <div class="header-right">
+      <!-- WebSocket Connection Status -->
+      <div
+        class="tooltip tooltip-bottom"
+        data-tip={$wsConnected ? "Live sync active" : "Reconnecting..."}
+      >
+        <div
+          class={`badge ${$wsConnected ? "badge-success" : "badge-warning"} gap-2`}
+        >
+          <span
+            class={`w-2 h-2 rounded-full ${$wsConnected ? "bg-success animate-pulse" : "bg-warning"}`}
+          ></span>
+          {$wsConnected ? "Live" : "Offline"}
+        </div>
+      </div>
+
       <!-- Theme Toggle -->
       <ThemeSwitcher />
 
-      <!-- Notifications -->
-      <div class="dropdown dropdown-end">
-        <button class="action-button notification-button" tabindex="0">
-          <div class="notification-icon-wrapper">
-            <i class="bi bi-bell"></i>
-            {#if unreadCount > 0}
-              <span class="notification-badge">{unreadCount}</span>
-            {/if}
-          </div>
-        </button>
-        <div class="dropdown-content notification-dropdown-new">
-          <div class="notification-header-new">
-            <h3 class="notification-title-new">Notifications</h3>
-            <div class="notification-header-actions">
-              {#if unreadCount > 0}
-                <button
-                  class="notification-action-btn"
-                  onclick={markAllAsRead}
-                >
-                  <i class="bi bi-check-all"></i>
-                  Mark all read
-                </button>
-              {/if}
-              <button
-                class="notification-action-btn text-error"
-                onclick={clearAllNotifications}
-              >
-                <i class="bi bi-trash"></i>
-                Clear all
-              </button>
-            </div>
-          </div>
-
-          {#if notifications.length > 0}
-            <ul class="notification-list-new">
-              {#each notifications as notification}
-                <li>
-                  <button
-                    class="notification-item-new"
-                    class:unread={!notification.read}
-                    onclick={() => markAsRead(notification.id)}
-                  >
-                    {#if notification.avatar}
-                      <div class="notification-avatar">
-                        <span>{notification.avatar}</span>
-                      </div>
-                    {:else}
-                      <div class="notification-icon-new {notification.type}">
-                        <i class="bi bi-{notification.icon}"></i>
-                      </div>
-                    {/if}
-
-                    <div class="notification-content-new">
-                      <p class="notification-title-text">
-                        {notification.title}
-                      </p>
-                      <p class="notification-message">{notification.message}</p>
-                      <p class="notification-time-new">
-                        <i class="bi bi-clock"></i>
-                        {notification.time}
-                      </p>
-                    </div>
-
-                    {#if !notification.read}
-                      <div class="notification-unread-indicator"></div>
-                    {/if}
-                  </button>
-                </li>
-              {/each}
-            </ul>
-
-            <div class="notification-footer-new">
-              <button class="btn btn-sm btn-ghost w-full">
-                <i class="bi bi-eye"></i>
-                View All Notifications
-              </button>
-            </div>
-          {:else}
-            <div class="notification-empty">
-              <i class="bi bi-bell-slash text-4xl opacity-30"></i>
-              <p class="text-sm opacity-60 mt-3">No notifications</p>
-            </div>
-          {/if}
-        </div>
-      </div>
+      <!-- Notifications with Backend Integration -->
+      <NotificationBell />
 
       <!-- User Menu -->
       <div class="dropdown dropdown-end">
@@ -889,7 +810,7 @@
     box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2);
     max-height: 400px;
     overflow-y: auto;
-    z-index: 50;
+    z-index: 1000;
     animation: dropdownSlide 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -1012,9 +933,11 @@
   .header-right {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
     min-width: 200px;
     justify-content: flex-end;
+    position: relative;
+    z-index: 100;
   }
 
   .action-button {
@@ -1260,20 +1183,22 @@
   /* New Notification Dropdown Styles */
   .notification-dropdown-new {
     width: 400px;
-    background: hsl(var(--b1));
+    background: hsl(var(--b1)) !important;
     border: 1px solid hsl(var(--bc) / 0.1);
     border-radius: 16px;
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     max-height: 600px;
     display: flex;
     flex-direction: column;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   .notification-header-new {
     padding: 1rem 1.25rem;
     border-bottom: 1px solid hsl(var(--bc) / 0.08);
-    background: hsl(var(--b2) / 0.5);
+    background: hsl(var(--b2)) !important;
   }
 
   .notification-title-new {

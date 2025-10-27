@@ -358,7 +358,7 @@ pub struct RefreshTokenRequest {
     pub refresh_token: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct UserInfo {
     pub id: String,
     pub username: String,

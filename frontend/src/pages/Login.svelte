@@ -1,5 +1,6 @@
 <script>
-  import { success, error } from "../stores/toast.js";
+  import { auth } from "../stores/auth.js";
+  import api from "../lib/api.js";
 
   let username = $state("");
   let password = $state("");
@@ -7,34 +8,71 @@
   let showTwoFactor = $state(false);
   let rememberMe = $state(false);
   let loading = $state(false);
+  let errorMessage = $state("");
 
   async function handleLogin(e) {
     e.preventDefault();
+
     if (!username || !password) {
-      showToast("Fill all fields", "error");
+      errorMessage = "Please fill in all fields";
       return;
     }
+
     loading = true;
-    setTimeout(() => {
-      if (username === "admin" && password === "admin") {
-        if (!showTwoFactor) {
+    errorMessage = "";
+
+    try {
+      // Step 1: Try to login without 2FA first
+      const loginData = { username, password };
+
+      // Add 2FA code if we're in 2FA mode
+      if (showTwoFactor && twoFactorCode) {
+        loginData.totp_code = twoFactorCode;
+      }
+
+      const response = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(loginData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Check if 2FA is required
+        if (data.requires_2fa === true) {
           showTwoFactor = true;
+          errorMessage = "Please enter your 2FA code";
           loading = false;
           return;
         }
-        if (twoFactorCode === "123456") {
-          localStorage.setItem("authToken", "demo-token");
-          showToast("Login successful", "success");
-          goto("/");
-        } else {
-          showToast("Invalid 2FA code", "error");
-          loading = false;
-        }
-      } else {
-        showToast("Invalid credentials", "error");
-        loading = false;
+
+        throw new Error(data.error || "Login failed");
       }
-    }, 800);
+
+      // Login successful - store token and update auth store
+      if (data.token) {
+        localStorage.setItem("authToken", data.token);
+
+        // Update auth store with user info
+        auth.login({
+          username: data.user?.username || username,
+          email: data.user?.email || "",
+          id: data.user?.id || null,
+        });
+
+        // Redirect to main app
+        window.location.hash = "#/files";
+        // Force reload to trigger App.svelte onMount
+        setTimeout(() => window.location.reload(), 100);
+      } else {
+        throw new Error("No token received");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      errorMessage = err.message || "Login failed. Please try again.";
+      loading = false;
+    }
   }
 </script>
 
@@ -47,6 +85,13 @@
     </div>
 
     <form onsubmit={handleLogin}>
+      {#if errorMessage}
+        <div class="alert alert-error mb-4">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span>{errorMessage}</span>
+        </div>
+      {/if}
+
       <div class="form-control">
         <label class="label"><span>Username</span></label>
         <input
@@ -54,7 +99,7 @@
           bind:value={username}
           class="input input-bordered"
           placeholder="admin"
-          autofocus
+          disabled={loading}
         />
       </div>
 
@@ -65,6 +110,7 @@
           bind:value={password}
           class="input input-bordered"
           placeholder="••••••••"
+          disabled={loading}
         />
       </div>
 
@@ -75,8 +121,9 @@
             type="text"
             bind:value={twoFactorCode}
             class="input input-bordered"
-            placeholder="123456"
+            placeholder="Enter 6-digit code"
             maxlength="6"
+            disabled={loading}
           />
         </div>
       {/if}

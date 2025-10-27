@@ -31,6 +31,21 @@ const createPreferencesStore = () => {
     async load() {
       try {
         const prefs = await api.auth.getPreferences();
+        // Parse JSON fields
+        if (prefs.recent_searches && typeof prefs.recent_searches === 'string') {
+          try {
+            prefs.recent_searches = JSON.parse(prefs.recent_searches);
+          } catch {
+            prefs.recent_searches = [];
+          }
+        }
+        if (prefs.search_filters && typeof prefs.search_filters === 'string') {
+          try {
+            prefs.search_filters = JSON.parse(prefs.search_filters);
+          } catch {
+            prefs.search_filters = null;
+          }
+        }
         set(prefs);
         return prefs;
       } catch (error) {
@@ -81,7 +96,8 @@ const createPreferencesStore = () => {
           ...(currentPrefs.recent_searches || []).filter(s => s !== searchQuery)
         ].slice(0, 10); // Keep only last 10 searches
         
-        return await this.updatePreference('recent_searches', recentSearches);
+        // Stringify for backend storage
+        return await this.updatePreference('recent_searches', JSON.stringify(recentSearches));
       } catch (error) {
         console.error('Failed to add recent search:', error);
         throw error;
@@ -90,7 +106,7 @@ const createPreferencesStore = () => {
     
     // Clear recent searches
     async clearRecentSearches() {
-      return await this.updatePreference('recent_searches', []);
+      return await this.updatePreference('recent_searches', JSON.stringify([]));
     },
     
     // Reset to defaults

@@ -9,39 +9,67 @@
   import Spinner from "../components/ui/Spinner.svelte";
   import EmptyState from "../components/ui/EmptyState.svelte";
   import { getFileIcon } from "../utils/fileIcons";
+  import api from "../lib/api.js";
 
-  let favoriteFiles = [];
-  let loading = false;
+  let favoriteFiles = $state([]);
+  let loading = $state(false);
+  let error = $state(null);
+
+  function getFileIconEmoji(mimeType) {
+    if (!mimeType) return "📄";
+    if (mimeType.startsWith("image/")) return "🖼️";
+    if (mimeType.startsWith("video/")) return "🎬";
+    if (mimeType.startsWith("audio/")) return "🎵";
+    if (mimeType.includes("pdf")) return "📕";
+    if (mimeType.includes("zip") || mimeType.includes("archive")) return "📦";
+    if (mimeType.includes("text")) return "📝";
+    if (mimeType.includes("word")) return "📘";
+    if (mimeType.includes("excel") || mimeType.includes("spreadsheet"))
+      return "📊";
+    if (mimeType.includes("powerpoint") || mimeType.includes("presentation"))
+      return "📽️";
+    return "📄";
+  }
 
   onMount(async () => {
     await loadFavorites();
   });
 
-  $: $favorites, loadFavorites(); // Reactively reload when store changes
+  // Reload when favorites store changes
+  favorites.subscribe(() => {
+    loadFavorites();
+  });
 
   async function loadFavorites() {
     loading = true;
+    error = null;
 
     try {
-      const favs = favorites.getAll();
-      console.log("[FavoritesView] Loaded favorites:", favs);
+      // Load from backend API using proper API method
+      const favs = await api.favorites.list();
+      console.log("[FavoritesView] Loaded favorites from API:", favs);
 
       // Convert favorites objects to display format
-      favoriteFiles = favs.map((fav) => ({
+      favoriteFiles = (favs || []).map((fav) => ({
         id: fav.id,
         itemId: fav.item_id,
         itemType: fav.item_type,
         name: fav.item_id.split("/").pop() || fav.item_id,
         fullPath: fav.item_id,
+        createdAt: fav.created_at,
+        // Add metadata if available
+        size: fav.size_bytes,
+        mimeType: fav.mime_type,
       }));
 
       console.log("[FavoritesView] Display files:", favoriteFiles);
     } catch (err) {
       console.error("Failed to load favorites:", err);
+      error = "Failed to load favorites";
       errorToast("Failed to load favorites: " + err.message);
+    } finally {
+      loading = false;
     }
-
-    loading = false;
   }
 
   async function removeFavorite(fav) {
@@ -65,13 +93,68 @@
   function formatPath(path) {
     return path || "/";
   }
+
+  function formatFileSize(bytes) {
+    if (!bytes) return "";
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    if (bytes < 1024 * 1024 * 1024)
+      return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+    return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+    if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+    return date.toLocaleDateString();
+  }
 </script>
 
 <div class="view-container">
+  <div class="view-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="view-title">
+          <span class="icon">⭐</span>
+          {t($currentLang, "favorites")}
+        </h1>
+        <p class="view-subtitle">
+          {favoriteFiles.length}
+          {favoriteFiles.length === 1 ? "item" : "items"}
+        </p>
+      </div>
+
+      <div class="header-actions">
+        <button
+          class="btn btn-sm btn-outline"
+          onclick={loadFavorites}
+          disabled={loading}
+        >
+          <i class="bi bi-arrow-clockwise"></i>
+          Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+
   {#if loading}
     <div class="loading-state">
       <Spinner size="large" />
-      <p>Lade Favoriten...</p>
+      <p>Loading favorites...</p>
+    </div>
+  {:else if error}
+    <div class="error-state">
+      <i class="bi bi-exclamation-triangle text-6xl text-error"></i>
+      <p class="text-error">{error}</p>
+      <button class="btn btn-sm btn-primary" onclick={loadFavorites}>
+        Try Again
+      </button>
     </div>
   {:else if favoriteFiles.length === 0}
     <EmptyState
@@ -80,35 +163,50 @@
       description={t($currentLang, "markFilesAsFavorite")}
     />
   {:else}
-    <div class="favorites-list">
+    <div class="favorites-grid">
       {#each favoriteFiles as file}
-        <div class="favorite-item">
+        <div class="favorite-card">
           <button
-            class="file-info"
+            class="card-content"
             onclick={() => navigateToFile(file.fullPath)}
             type="button"
           >
-            <div class="file-icon">
-              <Icon
-                name={getFileIcon(file.name, file.itemType === "folder")}
-                size={32}
-              />
+            <div class="file-icon-large">
+              {getFileIconEmoji(file.mimeType)}
             </div>
-            <div class="file-details">
-              <div class="file-name">{file.name}</div>
+
+            <div class="file-info">
+              <div class="file-name" title={file.name}>{file.name}</div>
+              <div class="file-meta">
+                {#if file.size}
+                  <span class="meta-item">
+                    <i class="bi bi-file-earmark"></i>
+                    {formatFileSize(file.size)}
+                  </span>
+                {/if}
+                {#if file.createdAt}
+                  <span class="meta-item">
+                    <i class="bi bi-clock"></i>
+                    {formatDate(file.createdAt)}
+                  </span>
+                {/if}
+              </div>
               <div class="file-path">{formatPath(file.fullPath)}</div>
             </div>
           </button>
-          <button
-            class="btn-remove"
-            onclick={(e) => {
-              e.stopPropagation();
-              removeFavorite(file);
-            }}
-            title="Aus Favoriten entfernen"
-          >
-            <Icon name="x-lg" size={20} />
-          </button>
+
+          <div class="card-actions">
+            <button
+              class="btn btn-ghost btn-sm"
+              onclick={(e) => {
+                e.stopPropagation();
+                removeFavorite(file);
+              }}
+              title="Remove from favorites"
+            >
+              <i class="bi bi-star-fill text-warning"></i>
+            </button>
+          </div>
         </div>
       {/each}
     </div>
@@ -117,101 +215,157 @@
 
 <style>
   .view-container {
-    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: hsl(var(--b1));
+  }
+
+  .view-header {
+    padding: 2rem;
+    background: hsl(var(--b1));
+    border-bottom: 1px solid hsl(var(--bc) / 0.1);
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
     max-width: 1400px;
     margin: 0 auto;
   }
 
-  .loading-state {
-    text-align: center;
-    padding: 80px 20px;
-    color: var(--md-sys-color-on-surface-variant);
-    margin: 0 32px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .favorites-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin: 0 32px;
-  }
-
-  .favorite-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px;
-    background: var(--md-sys-color-surface-container);
-    border-radius: 16px;
-    transition: all 0.2s ease;
-    cursor: pointer;
-  }
-
-  .favorite-item:hover {
-    background: var(--md-sys-color-surface-container-high);
-    transform: translateX(4px);
-  }
-
-  .file-info {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+  .title-section {
     flex: 1;
+  }
+
+  .view-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .view-title .icon {
+    font-size: 2.5rem;
+  }
+
+  .view-subtitle {
+    color: hsl(var(--bc) / 0.6);
+    margin: 0;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .loading-state,
+  .error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 1rem;
+    padding: 2rem;
+  }
+
+  .favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .favorite-card {
+    display: flex;
+    flex-direction: column;
+    background: hsl(var(--b2));
+    border: 1px solid hsl(var(--bc) / 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s;
+    height: 100%;
+  }
+
+  .favorite-card:hover {
+    background: hsl(var(--b3));
+    border-color: hsl(var(--p) / 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px hsl(var(--bc) / 0.1);
+  }
+
+  .card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
     background: transparent;
     border: none;
     cursor: pointer;
-    text-align: left;
-    font-family: inherit;
-    padding: 0;
+    text-align: center;
+    width: 100%;
   }
 
-  .file-icon {
-    flex-shrink: 0;
+  .file-icon-large {
+    font-size: 4rem;
+    margin-bottom: 0.5rem;
   }
 
-  .file-details {
-    flex: 1;
-    min-width: 0;
+  .file-info {
+    width: 100%;
   }
 
   .file-name {
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--md-sys-color-on-surface);
-    margin-bottom: 4px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: hsl(var(--bc));
+  }
+
+  .file-meta {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  .meta-item {
+    font-size: 0.75rem;
+    color: hsl(var(--bc) / 0.6);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
   }
 
   .file-path {
-    font-size: 13px;
-    color: var(--md-sys-color-on-surface-variant);
+    font-size: 0.7rem;
+    color: hsl(var(--bc) / 0.5);
     font-family: "Roboto Mono", monospace;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .btn-remove {
-    flex-shrink: 0;
-    padding: 8px;
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    color: var(--md-sys-color-error);
-    cursor: pointer;
-    transition: all 0.2s ease;
+  .card-actions {
     display: flex;
-    align-items: center;
     justify-content: center;
-  }
-
-  .btn-remove:hover {
-    background: var(--md-sys-color-error-container);
+    padding: 0.75rem;
+    border-top: 1px solid hsl(var(--bc) / 0.1);
+    background: hsl(var(--b1));
   }
 </style>

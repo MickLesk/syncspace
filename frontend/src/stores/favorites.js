@@ -1,22 +1,10 @@
-import { writable, derived } from 'svelte/store';
-import { debounce } from '../utils/debounce.js';
+/**
+ * Favorites Store (Backend-synchronized)
+ * Manages user's favorite files and folders via backend API
+ */
 
-// Utility: Get auth token
-function getToken() {
-  let token = localStorage.getItem("authToken");
-  if (!token) {
-    const authData = localStorage.getItem("auth");
-    if (authData) {
-      try {
-        const parsed = JSON.parse(authData);
-        token = parsed.token;
-      } catch (e) {
-        // ignore
-      }
-    }
-  }
-  return token;
-}
+import { writable, derived } from 'svelte/store';
+import api from '../lib/api.js';
 
 function createFavoritesStore() {
   const { subscribe, set, update } = writable(new Map()); // Map of item_id -> favorite
@@ -27,24 +15,21 @@ function createFavoritesStore() {
   // Load favorites from API on startup
   async function loadFromAPI() {
     try {
-      const token = getToken();
-      if (!token) return;
+      const favorites = await api.favorites.list();
+      const map = new Map();
       
-      const response = await fetch('http://localhost:8080/api/favorites', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      if (response.ok) {
-        const favorites = await response.json();
-        const map = new Map();
+      if (Array.isArray(favorites)) {
         favorites.forEach(fav => {
-          // Store by item_id (file/folder ID or path)
+          // Store by item_id (file/folder ID)
           map.set(fav.item_id, fav);
         });
-        set(map);
       }
+      
+      set(map);
+      return favorites;
     } catch (err) {
       console.error('Failed to load favorites from API:', err);
+      return [];
     }
   }
 
@@ -54,58 +39,30 @@ function createFavoritesStore() {
     // Load from API
     load: loadFromAPI,
     
-    // Toggle favorite via API with debouncing
-    toggle: async (itemId, itemType = 'file') => {
-      // Prevent duplicate toggles for the same item
+    // Add favorite
+    add: async (itemId, itemType = 'file') => {
       if (pendingToggles.has(itemId)) {
-        console.log(`Toggle for ${itemId} already pending, skipping`);
+        console.log(`Operation for ${itemId} already pending, skipping`);
         return;
       }
 
       pendingToggles.set(itemId, true);
 
       try {
-        const token = getToken();
-        if (!token) {
-          console.error('Not authenticated');
-          return;
-        }
+        const result = await api.favorites.add(itemId, itemType);
         
-        const response = await fetch('http://localhost:8080/api/favorites', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            item_type: itemType,
-            item_id: itemId
-          })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
+        if (result) {
           update(favorites => {
             const newFavorites = new Map(favorites);
-            if (data.status === 'added') {
-              newFavorites.set(itemId, {
-                id: itemId,
-                item_type: itemType,
-                item_id: itemId
-              });
-            } else {
-              newFavorites.delete(itemId);
-            }
+            newFavorites.set(itemId, result);
             return newFavorites;
           });
         }
       } catch (err) {
-        console.error('Failed to toggle favorite:', err);
+        console.error('Failed to add favorite:', err);
+        throw err;
       } finally {
-        // Remove from pending after a short delay to prevent rapid re-toggles
-        setTimeout(() => {
-          pendingToggles.delete(itemId);
-        }, 300);
+        setTimeout(() => pendingToggles.delete(itemId), 300);
       }
     },
     
@@ -116,6 +73,20 @@ function createFavoritesStore() {
         result = favorites.has(itemId);
       })();
       return result;
+    },
+    
+    // Toggle favorite (add if not exists, remove if exists)
+    toggle: async (itemId, itemType = 'file') => {
+      let isFavorite = false;
+      subscribe(favorites => {
+        isFavorite = favorites.has(itemId);
+      })();
+      
+      if (isFavorite) {
+        return await createFavoritesStore().remove(itemId);
+      } else {
+        return await createFavoritesStore().add(itemId, itemType);
+      }
     },
     
     // Get all favorites
@@ -130,32 +101,29 @@ function createFavoritesStore() {
     // Remove favorite
     remove: async (itemId) => {
       try {
-        const token = getToken();
-        if (!token) return;
-        
         // Get favorite ID from store
         let favId = null;
-        subscribe(favorites => {
+        update(favorites => {
           const fav = favorites.get(itemId);
           if (fav) favId = fav.id;
-        })();
-        
-        if (!favId) return;
-        
-        const response = await fetch(`http://localhost:8080/api/favorites/${favId}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` }
+          return favorites;
         });
         
-        if (response.ok) {
-          update(favorites => {
-            const newFavorites = new Map(favorites);
-            newFavorites.delete(itemId);
-            return newFavorites;
-          });
+        if (!favId) {
+          console.warn('Favorite not found for removal:', itemId);
+          return;
         }
+        
+        await api.favorites.remove(favId);
+        
+        update(favorites => {
+          const newFavorites = new Map(favorites);
+          newFavorites.delete(itemId);
+          return newFavorites;
+        });
       } catch (err) {
         console.error('Failed to remove favorite:', err);
+        throw err;
       }
     },
     

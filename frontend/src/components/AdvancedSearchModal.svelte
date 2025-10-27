@@ -5,29 +5,30 @@
   import Input from "./ui/Input.svelte";
   import FilterBar from "./FilterBar.svelte";
   import Modal from "./ui/Modal.svelte";
+  import { userPreferences } from "../stores/preferences.js";
 
   const dispatch = createEventDispatcher();
 
   // Props
-  export let visible = false;
+  let { visible = $bindable(false) } = $props();
 
   // Search State
-  let searchQuery = "";
-  let activeFilters = {
+  let searchQuery = $state("");
+  let activeFilters = $state({
     fileType: "all",
     sizeMin: "",
     sizeMax: "",
     dateFrom: "",
     dateTo: "",
     modifiedBy: "",
-  };
+  });
 
   // Sort State
-  let sortBy = "name"; // name, date, size, type
-  let sortOrder = "asc"; // asc, desc
+  let sortBy = $state("name"); // name, date, size, type
+  let sortOrder = $state("asc"); // asc, desc
 
-  // Recent Searches (from localStorage)
-  let recentSearches = [];
+  // Recent Searches (from backend preferences)
+  let recentSearches = $derived($userPreferences.recent_searches || []);
 
   // File type options
   const fileTypeOptions = [
@@ -50,42 +51,29 @@
     { value: "type", label: t($currentLang, "type") },
   ];
 
-  // Load recent searches from localStorage
-  onMount(() => {
-    const saved = localStorage.getItem("recentSearches");
-    if (saved) {
-      try {
-        recentSearches = JSON.parse(saved);
-      } catch (e) {
-        console.error("Failed to parse recent searches:", e);
-      }
-    }
-  });
-
-  // Save search to recent searches
-  function saveRecentSearch(query, filters) {
+  // Save search to recent searches via backend
+  async function saveRecentSearch(query) {
     if (!query.trim()) return;
 
-    const search = {
-      query,
-      filters: { ...filters },
-      timestamp: Date.now(),
-    };
+    let searches = [...recentSearches];
 
-    // Remove duplicates and limit to 10
-    recentSearches = [
-      search,
-      ...recentSearches.filter((s) => s.query !== query),
-    ].slice(0, 10);
+    // Remove duplicates
+    searches = searches.filter((s) => {
+      if (typeof s === "string") return s !== query;
+      return s.query !== query;
+    });
 
-    localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
+    // Add new search (just the query string for simplicity)
+    searches = [query, ...searches].slice(0, 10);
+
+    await userPreferences.updatePreferences({ recent_searches: searches });
   }
 
   // Handle search submission
   function handleSearch() {
     if (!searchQuery.trim()) return;
 
-    saveRecentSearch(searchQuery, activeFilters);
+    saveRecentSearch(searchQuery);
 
     dispatch("search", {
       query: searchQuery,
@@ -99,8 +87,9 @@
 
   // Handle recent search click
   function handleRecentSearchClick(search) {
-    searchQuery = search.query;
-    activeFilters = { ...search.filters };
+    // Support both string and object formats
+    const query = typeof search === "string" ? search : search.query;
+    searchQuery = query;
     handleSearch();
   }
 
@@ -132,12 +121,12 @@
   }
 
   // Get active filter count
-  $: activeFilterCount = Object.entries(activeFilters).filter(
-    ([key, value]) => {
+  let activeFilterCount = $derived(
+    Object.entries(activeFilters).filter(([key, value]) => {
       if (key === "fileType") return value !== "all";
       return value !== "";
-    }
-  ).length;
+    }).length
+  );
 
   // Format file size (MB)
   function formatFileSize(mb) {
@@ -167,7 +156,13 @@
     on:close={close}
   >
     <!-- Search Input -->
-    <form on:submit|preventDefault={handleSearch} class="space-y-4">
+    <form
+      onsubmit={(e) => {
+        e.preventDefault();
+        handleSearch();
+      }}
+      class="space-y-4"
+    >
       <div class="form-control">
         <div class="input-group flex">
           <span
@@ -321,7 +316,7 @@
               class="btn btn-sm flex-1 {sortOrder === 'asc'
                 ? 'btn-active'
                 : ''}"
-              on:click={() => (sortOrder = "asc")}
+              onclick={() => (sortOrder = "asc")}
             >
               <i class="bi bi-sort-alpha-down mr-2"></i>
               {t($currentLang, "ascending")}
@@ -331,7 +326,7 @@
               class="btn btn-sm flex-1 {sortOrder === 'desc'
                 ? 'btn-active'
                 : ''}"
-              on:click={() => (sortOrder = "desc")}
+              onclick={() => (sortOrder = "desc")}
             >
               <i class="bi bi-sort-alpha-down-alt mr-2"></i>
               {t($currentLang, "descending")}
@@ -351,7 +346,7 @@
             <button
               type="button"
               class="btn btn-sm btn-ghost gap-2 text-base-content"
-              on:click={() => handleRecentSearchClick(search)}
+              onclick={() => handleRecentSearchClick(search)}
             >
               <i class="bi bi-clock-history"></i>
               {search.query}
@@ -366,7 +361,7 @@
       <button
         type="button"
         class="btn btn-outline btn-sm gap-2"
-        on:click={clearFilters}
+        onclick={clearFilters}
         disabled={activeFilterCount === 0}
       >
         <i class="bi bi-x-circle"></i>
@@ -374,13 +369,13 @@
       </button>
 
       <div class="flex gap-3">
-        <button type="button" class="btn btn-ghost" on:click={close}>
+        <button type="button" class="btn btn-ghost" onclick={close}>
           {t($currentLang, "cancel")}
         </button>
         <button
           type="button"
           class="btn btn-primary gap-2"
-          on:click={handleSearch}
+          onclick={handleSearch}
         >
           <i class="bi bi-search"></i>
           {t($currentLang, "search")}

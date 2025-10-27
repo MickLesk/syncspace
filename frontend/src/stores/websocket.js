@@ -10,7 +10,7 @@ class WebSocketManager {
   constructor() {
     this.ws = null;
     this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = 5;
+    this.maxReconnectAttempts = 10; // Increased from 5 to 10
     this.reconnectDelay = 1000; // Start with 1 second
     this.maxReconnectDelay = 30000; // Max 30 seconds
     this.eventHandlers = new Map();

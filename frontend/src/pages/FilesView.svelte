@@ -11,6 +11,7 @@
   import AdvancedSearchModal from "../components/AdvancedSearchModal.svelte";
   import ShareModal from "../components/ui/ShareModal.svelte";
   import VersionHistoryModal from "../components/ui/VersionHistoryModal.svelte";
+  import FilePreviewModal from "../components/ui/FilePreviewModal.svelte";
   import api from "../lib/api";
   import {
     wsConnected,
@@ -18,56 +19,71 @@
     websocketManager,
   } from "../stores/websocket.js";
 
-  let loading = true;
-  let uploading = false;
-  let searchQuery = "";
-  let viewMode = "grid"; // 'grid' or 'list'
-  let sortBy = "name"; // 'name', 'modified', 'size', 'type'
-  let sortOrder = "asc"; // 'asc' or 'desc'
-  let showFoldersOnly = false;
-  let dragOver = false;
-  let searchResults = [];
-  let isSearchActive = false;
+  let loading = $state(true);
+  let uploading = $state(false);
+  let searchQuery = $state("");
+  let viewMode = $state("grid"); // 'grid' or 'list'
+  let sortBy = $state("name"); // 'name', 'modified', 'size', 'type'
+  let sortOrder = $state("asc"); // 'asc' or 'desc'
+  let showFoldersOnly = $state(false);
+  let dragOver = $state(false);
+  let searchResults = $state([]);
+  let isSearchActive = $state(false);
 
   // Modals
-  let showUploadModal = false;
-  let showNewFolderModal = false;
-  let showRenameModal = false;
-  let showDeleteModal = false;
-  let showAdvancedSearchModal = false;
-  let showShareModal = false;
-  let showVersionHistoryModal = false;
+  let showUploadModal = $state(false);
+  let showNewFolderModal = $state(false);
+  let showRenameModal = $state(false);
+  let showDeleteModal = $state(false);
+  let showAdvancedSearchModal = $state(false);
+  let showShareModal = $state(false);
+  let showVersionHistoryModal = $state(false);
+  let showFilePreview = $state(false);
+  let fileToPreview = $state(null);
+  let showMoveModal = $state(false);
+  let showCopyModal = $state(false);
+  let fileToMove = $state(null);
+  let fileToCopy = $state(null);
+  let moveTargetPath = $state("");
+  let copyTargetPath = $state("");
 
   // Current action targets
-  let fileToRename = null;
-  let fileToDelete = null;
-  let fileToShare = null;
-  let fileToViewVersions = null;
-  let newFolderName = "";
-  let newFileName = "";
+  let fileToRename = $state(null);
+  let fileToDelete = $state(null);
+  let fileToShare = $state(null);
+  let fileToViewVersions = $state(null);
+  let newFolderName = $state("");
+  let newFileName = $state("");
 
   // Context Menu
-  let contextMenuVisible = false;
-  let contextMenuX = 0;
-  let contextMenuY = 0;
-  let contextMenuFile = null;
+  let contextMenuVisible = $state(false);
+  let contextMenuX = $state(0);
+  let contextMenuY = $state(0);
+  let contextMenuFile = $state(null);
 
   // File upload with progress tracking
   let uploadInput;
-  let uploadFiles = [];
-  let uploadProgress = new Map(); // Map<fileIndex, {percent, loaded, total}>
-  let overallProgress = 0;
+  let uploadFiles = $state([]);
+  let uploadProgress = $state(new Map()); // Map<fileIndex, {percent, loaded, total}>
+  let overallProgress = $state(0);
 
-  $: filteredFiles = isSearchActive
-    ? searchResults
-    : searchQuery
-      ? $files.filter((f) =>
-          f.name.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      : $files;
+  // Multi-Select
+  let selectedFiles = $state([]);
+  let lastSelectedIndex = $state(-1);
+  let selectionMode = $state(false);
+
+  let filteredFiles = $derived(
+    isSearchActive
+      ? searchResults
+      : searchQuery
+        ? $files.filter((f) =>
+            f.name.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        : $files
+  );
 
   // Sort and filter files
-  $: sortedFiles = (() => {
+  let sortedFiles = $derived.by(() => {
     let result = showFoldersOnly
       ? filteredFiles.filter((f) => f.is_dir)
       : filteredFiles;
@@ -102,16 +118,26 @@
     const folders = result.filter((f) => f.is_dir);
     const files = result.filter((f) => !f.is_dir);
     return [...folders, ...files];
-  })();
+  });
 
-  $: breadcrumbPath = $currentPath.split("/").filter(Boolean);
+  let breadcrumbPath = $derived($currentPath.split("/").filter(Boolean));
 
   // WebSocket subscription for real-time file updates
   let unsubscribeWebSocket;
   let reloadTimeout = null;
 
+  // React to currentPath changes (e.g. from sidebar navigation)
+  $effect(() => {
+    // Re-load files when path changes
+    const path = $currentPath;
+    loadFiles();
+  });
+
   onMount(async () => {
     await loadFiles();
+
+    // Load favorites from backend
+    await favorites.load();
 
     // Initialize WebSocket connection for real-time file updates
     // Only connect if not already connected
@@ -164,6 +190,67 @@
         }, 1000);
       }
     });
+
+    // Global keyboard shortcuts
+    const handleKeyboard = (e) => {
+      // Ignore if typing in input/textarea
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+        return;
+      }
+
+      // Ctrl+K - Quick search (already handled by input)
+      if (e.ctrlKey && e.key === "k") {
+        e.preventDefault();
+        document.querySelector('input[placeholder*="Quick search"]')?.focus();
+        return;
+      }
+
+      // Escape - Close all modals
+      if (e.key === "Escape") {
+        showUploadModal = false;
+        showNewFolderModal = false;
+        showRenameModal = false;
+        showDeleteModal = false;
+        showAdvancedSearchModal = false;
+        showShareModal = false;
+        showVersionHistoryModal = false;
+        showFilePreview = false;
+        showMoveModal = false;
+        showCopyModal = false;
+        contextMenuVisible = false;
+        return;
+      }
+
+      // Delete - Delete selected file (if context menu file is set)
+      if (e.key === "Delete" && contextMenuFile) {
+        e.preventDefault();
+        fileToDelete = contextMenuFile;
+        showDeleteModal = true;
+        return;
+      }
+
+      // F2 - Rename selected file
+      if (e.key === "F2" && contextMenuFile) {
+        e.preventDefault();
+        fileToRename = contextMenuFile;
+        newFileName = contextMenuFile.name;
+        showRenameModal = true;
+        return;
+      }
+
+      // Ctrl+R - Refresh files
+      if (e.ctrlKey && e.key === "r") {
+        e.preventDefault();
+        loadFiles();
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyboard);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyboard);
+    };
   });
 
   onDestroy(() => {
@@ -179,12 +266,56 @@
     loading = true;
     try {
       const backendPath = $currentPath.replace(/^\/+|\/+$/g, "");
+      console.log("🔍 Loading files from path:", backendPath || "(root)");
+
       const data = await api.files.list(backendPath);
-      files.set(data);
+      console.log("📦 Received files:", data);
+
+      // Filter out system files (database, search index, etc.)
+      const systemFilePatterns = [
+        "syncspace.db",
+        "syncspace.db-shm",
+        "syncspace.db-wal",
+        "search_index",
+        ".tmp",
+        ".lock",
+        ".git",
+      ];
+
+      const filteredData = data.filter((file) => {
+        return !systemFilePatterns.some(
+          (pattern) =>
+            file.name.includes(pattern) || file.path?.includes(pattern)
+        );
+      });
+
+      console.log("✅ Filtered files:", filteredData.length);
+      files.set(filteredData);
     } catch (err) {
-      errorToast(err.message || "Failed to load files");
+      console.error("❌ Failed to load files:", err);
+      
+      // Specific error handling based on status code
+      const errorMessage = err.message || "";
+      if (errorMessage.includes("401") || errorMessage.includes("Unauthorized")) {
+        errorToast("Session expired. Please login again.");
+        // Auth redirect is handled by api.js handleResponse
+      } else if (errorMessage.includes("403") || errorMessage.includes("Forbidden")) {
+        errorToast("Permission denied. You don't have access to this folder.");
+      } else if (errorMessage.includes("404") || errorMessage.includes("Not Found")) {
+        errorToast("Folder not found. It may have been deleted.");
+        // Navigate to root
+        currentPath.set("/");
+      } else if (errorMessage.includes("500") || errorMessage.includes("Internal Server Error")) {
+        errorToast("Server error. Please try again later.");
+      } else {
+        errorToast(errorMessage || "Failed to load files");
+      }
+      
+      // Set empty array on error so UI doesn't stay in loading state
+      files.set([]);
     } finally {
       loading = false;
+      console.log("📊 Loading complete, loading state:", loading);
     }
   }
 
@@ -363,10 +494,150 @@
     }
   }
 
+  async function handleMove() {
+    if (!fileToMove) return;
+
+    try {
+      const sourcePath = fileToMove.path || fileToMove.name;
+      const targetPath = moveTargetPath
+        ? `${moveTargetPath}/${fileToMove.name}`
+        : fileToMove.name;
+
+      await api.files.move(sourcePath, targetPath);
+      success(`Moved ${fileToMove.name} successfully`);
+      await loadFiles();
+      showMoveModal = false;
+      fileToMove = null;
+      moveTargetPath = "";
+    } catch (err) {
+      errorToast(err.message || "Move failed");
+    }
+  }
+
+  async function handleCopy() {
+    if (!fileToCopy) return;
+
+    try {
+      const sourcePath = fileToCopy.path || fileToCopy.name;
+      const targetPath = copyTargetPath
+        ? `${copyTargetPath}/${fileToCopy.name}`
+        : fileToCopy.name;
+
+      await api.files.copy(sourcePath, targetPath);
+      success(`Copied ${fileToCopy.name} successfully`);
+      await loadFiles();
+      showCopyModal = false;
+      fileToCopy = null;
+      copyTargetPath = "";
+    } catch (err) {
+      errorToast(err.message || "Copy failed");
+    }
+  }
+
   function openRenameModal(file) {
     fileToRename = file;
     newFileName = file.name;
     showRenameModal = true;
+  }
+
+  // ===== MULTI-SELECT FUNCTIONS =====
+
+  function toggleFileSelection(file, index, event) {
+    const isCtrlPressed = event?.ctrlKey || event?.metaKey;
+    const isShiftPressed = event?.shiftKey;
+
+    if (isShiftPressed && lastSelectedIndex >= 0) {
+      // Shift+Click: Range select
+      const start = Math.min(lastSelectedIndex, index);
+      const end = Math.max(lastSelectedIndex, index);
+      const rangeFiles = sortedFiles.slice(start, end + 1);
+      
+      rangeFiles.forEach(f => {
+        if (!selectedFiles.find(sf => sf.name === f.name)) {
+          selectedFiles.push(f);
+        }
+      });
+      selectedFiles = [...selectedFiles];
+    } else if (isCtrlPressed) {
+      // Ctrl+Click: Toggle individual
+      const existingIndex = selectedFiles.findIndex(f => f.name === file.name);
+      if (existingIndex >= 0) {
+        selectedFiles.splice(existingIndex, 1);
+      } else {
+        selectedFiles.push(file);
+      }
+      selectedFiles = [...selectedFiles];
+      lastSelectedIndex = index;
+    } else {
+      // Regular click: Select only this file
+      selectedFiles = [file];
+      lastSelectedIndex = index;
+    }
+    
+    selectionMode = selectedFiles.length > 0;
+  }
+
+  function selectAllFiles() {
+    selectedFiles = [...sortedFiles];
+    selectionMode = true;
+    success(`Selected ${selectedFiles.length} files`);
+  }
+
+  function deselectAllFiles() {
+    selectedFiles = [];
+    selectionMode = false;
+    lastSelectedIndex = -1;
+  }
+
+  function isFileSelected(file) {
+    return selectedFiles.some(f => f.name === file.name && f.path === file.path);
+  }
+
+  async function handleBatchDelete() {
+    if (selectedFiles.length === 0) return;
+
+    const confirmed = confirm(`Delete ${selectedFiles.length} selected file(s)?`);
+    if (!confirmed) return;
+
+    try {
+      const backendPath = $currentPath.replace(/^\/+|\/+$/g, "");
+      
+      for (const file of selectedFiles) {
+        const fullPath = backendPath ? `${backendPath}/${file.name}` : file.name;
+        await api.files.delete(fullPath);
+      }
+      
+      success(`Deleted ${selectedFiles.length} file(s) successfully`);
+      deselectAllFiles();
+      await loadFiles();
+    } catch (err) {
+      errorToast(err.message || "Batch delete failed");
+    }
+  }
+
+  async function handleBatchDownload() {
+    if (selectedFiles.length === 0) return;
+
+    try {
+      const backendPath = $currentPath.replace(/^\/+|\/+$/g, "");
+      
+      for (const file of selectedFiles) {
+        if (file.is_dir) continue; // Skip directories
+        const fullPath = backendPath ? `${backendPath}/${file.name}` : file.name;
+        const blob = await api.files.download(fullPath);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        URL.revokeObjectURL(url);
+        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay between downloads
+      }
+      
+      success(`Started downloading ${selectedFiles.length} file(s)`);
+    } catch (err) {
+      errorToast(err.message || "Batch download failed");
+    }
   }
 
   function openDeleteModal(file) {
@@ -386,17 +657,24 @@
 
   function handleDragOver(e) {
     e.preventDefault();
+    e.stopPropagation();
     dragOver = true;
   }
 
   function handleDragLeave(e) {
     e.preventDefault();
-    dragOver = false;
+    e.stopPropagation();
+    // Only hide if leaving the main container
+    if (e.target.classList.contains("files-view")) {
+      dragOver = false;
+    }
   }
 
   function handleDrop(e) {
     e.preventDefault();
+    e.stopPropagation();
     dragOver = false;
+
     const droppedFiles = Array.from(e.dataTransfer.files || []);
     if (droppedFiles.length > 0) {
       uploadFiles = droppedFiles;
@@ -478,8 +756,7 @@
         await handleDownload(contextMenuFile);
         break;
       case "Preview":
-        // TODO: Implement preview panel (Item #8)
-        success("Preview coming soon");
+        openFilePreview(contextMenuFile);
         break;
       case "Rename":
         openRenameModal(contextMenuFile);
@@ -493,12 +770,14 @@
         success("Removed from favorites");
         break;
       case "Copy":
-        // TODO: Implement clipboard copy (Item #7)
-        success("Copy to clipboard coming soon");
+        fileToCopy = contextMenuFile;
+        copyTargetPath = $currentPath;
+        showCopyModal = true;
         break;
       case "Move":
-        // TODO: Implement move dialog (Item #7)
-        success("Move dialog coming soon");
+        fileToMove = contextMenuFile;
+        moveTargetPath = $currentPath;
+        showMoveModal = true;
         break;
       case "Details":
         // TODO: Implement details panel (Item #8)
@@ -520,6 +799,13 @@
 
   function handleClickOutside() {
     contextMenuVisible = false;
+  }
+
+  // File Preview Function
+  function openFilePreview(file) {
+    if (file.is_dir) return; // Only preview files, not folders
+    fileToPreview = file;
+    showFilePreview = true;
   }
 
   // Advanced Search Functions
@@ -708,7 +994,8 @@
             <i class="bi bi-folder-plus"></i>
             New Folder
           </button>
-          <button class="btn btn-ghost gap-2" onclick={() => loadFiles()}>>
+          <button class="btn btn-ghost gap-2" onclick={() => loadFiles()}
+            >>
             <i class="bi bi-arrow-clockwise"></i>
             Refresh
           </button>
@@ -887,6 +1174,38 @@
     </div>
   </div>
 
+  <!-- Batch Action Toolbar (appears when files are selected) -->
+  {#if selectionMode && selectedFiles.length > 0}
+    <div class="alert alert-info shadow-lg mb-6 rounded-xl border-2 border-primary/30">
+      <div class="flex items-center gap-3">
+        <i class="bi bi-check-square text-2xl"></i>
+        <div class="flex-1">
+          <h3 class="font-bold text-lg">{selectedFiles.length} file(s) selected</h3>
+          <div class="text-sm opacity-70">Ctrl+Click to select more, Shift+Click for range</div>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-sm btn-success gap-2" onclick={selectAllFiles}>
+            <i class="bi bi-check-all"></i>
+            Select All
+          </button>
+          <button class="btn btn-sm btn-ghost gap-2" onclick={deselectAllFiles}>
+            <i class="bi bi-x-circle"></i>
+            Clear
+          </button>
+          <div class="divider divider-horizontal"></div>
+          <button class="btn btn-sm btn-primary gap-2" onclick={handleBatchDownload}>
+            <i class="bi bi-download"></i>
+            Download
+          </button>
+          <button class="btn btn-sm btn-error gap-2" onclick={handleBatchDelete}>
+            <i class="bi bi-trash3"></i>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  {/if}
+
   <!-- Breadcrumb Navigation -->
   {#if !isSearchActive}
     <Breadcrumb
@@ -994,16 +1313,90 @@
     <div
       class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 p-4"
     >
-      {#each sortedFiles as file}
+      {#each sortedFiles as file, index}
         <div
-          class="card bg-base-100 border border-base-300 hover:border-primary hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer group relative overflow-hidden"
-          onclick={() => file.is_dir && navigateToFolder(file)}
+          class="card bg-base-100 border-2 transition-all duration-300 cursor-pointer group relative overflow-hidden"
+          class:border-base-300={!isFileSelected(file)}
+          class:border-primary={isFileSelected(file)}
+          class:bg-primary/5={isFileSelected(file)}
+          class:hover:border-primary={!isFileSelected(file)}
+          class:hover:shadow-2xl={true}
+          class:hover:scale-105={!isFileSelected(file)}
+          draggable="true"
+          ondragstart={(e) => {
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", JSON.stringify(file));
+          }}
+          ondragover={(e) => {
+            if (file.is_dir) {
+              e.preventDefault();
+              e.currentTarget.classList.add("drag-over");
+            }
+          }}
+          ondragleave={(e) => {
+            e.currentTarget.classList.remove("drag-over");
+          }}
+          ondrop={async (e) => {
+            e.preventDefault();
+            e.currentTarget.classList.remove("drag-over");
+            if (!file.is_dir) return;
+
+            try {
+              const draggedFile = JSON.parse(
+                e.dataTransfer.getData("text/plain")
+              );
+              if (draggedFile.name === file.name) return; // Can't drop on itself
+
+              const sourcePath = draggedFile.path || draggedFile.name;
+              const targetPath = `${file.path || file.name}/${draggedFile.name}`;
+
+              await api.files.move(sourcePath, targetPath);
+              success(`Moved ${draggedFile.name} to ${file.name}`);
+              await loadFiles();
+            } catch (err) {
+              errorToast(`Failed to move file: ${err.message}`);
+            }
+          }}
+          onclick={(e) => {
+            // Check if Ctrl or Shift is pressed for multi-select
+            if (e.ctrlKey || e.metaKey || e.shiftKey) {
+              e.preventDefault();
+              toggleFileSelection(file, index, e);
+            } else if (!isFileSelected(file)) {
+              // Regular click
+              if (file.is_dir) {
+                navigateToFolder(file);
+              } else {
+                openFilePreview(file);
+              }
+            }
+          }}
           oncontextmenu={(e) => handleContextMenu(e, file)}
-          onkeydown={(e) =>
-            e.key === "Enter" && file.is_dir && navigateToFolder(file)}
+          onkeydown={(e) => {
+            if (e.key === "Enter") {
+              if (file.is_dir) {
+                navigateToFolder(file);
+              } else {
+                openFilePreview(file);
+              }
+            }
+          }}
           role="button"
           tabindex="0"
         >
+          <!-- Selection Checkbox -->
+          <div class="absolute top-2 left-2 z-20">
+            <input 
+              type="checkbox" 
+              class="checkbox checkbox-primary checkbox-sm"
+              checked={isFileSelected(file)}
+              onclick={(e) => {
+                e.stopPropagation();
+                toggleFileSelection(file, index, e);
+              }}
+            />
+          </div>
+
           <!-- File Type Badge -->
           <div class="absolute top-2 right-2 z-10">
             {#if file.is_dir}
@@ -1024,13 +1417,34 @@
           >
             <button
               class="btn btn-circle btn-xs btn-ghost bg-base-100/80 backdrop-blur-sm"
-              onclick={(e) => {
+              onclick={async (e) => {
                 e.stopPropagation();
-                console.log("Toggle favorite", file.name);
+                const itemId = file.path || file.name;
+                const isFav = $favorites.has(itemId);
+                try {
+                  if (isFav) {
+                    await favorites.remove(itemId);
+                    success(`${file.name} removed from favorites`);
+                  } else {
+                    await favorites.add(
+                      itemId,
+                      file.is_dir ? "folder" : "file"
+                    );
+                    success(`${file.name} added to favorites`);
+                  }
+                } catch (err) {
+                  errorToast(`Failed to update favorites: ${err.message}`);
+                }
               }}
-              title="Add to favorites"
+              title={$favorites.has(file.path || file.name)
+                ? "Remove from favorites"
+                : "Add to favorites"}
             >
-              <i class="bi bi-star text-warning"></i>
+              <i
+                class="bi {$favorites.has(file.path || file.name)
+                  ? 'bi-star-fill'
+                  : 'bi-star'} text-warning"
+              ></i>
             </button>
           </div>
 
@@ -1073,7 +1487,10 @@
               {#if !file.is_dir}
                 <button
                   class="btn btn-ghost btn-xs btn-circle"
-                  onclick={(e) => { e.stopPropagation(); handleDownload(file); }}
+                  onclick={(e) => {
+                    e.stopPropagation();
+                    handleDownload(file);
+                  }}
                   aria-label="Download"
                 >
                   <i class="bi bi-download"></i>
@@ -1081,14 +1498,20 @@
               {/if}
               <button
                 class="btn btn-ghost btn-xs btn-circle"
-                onclick={(e) => { e.stopPropagation(); openRenameModal(file); }}
+                onclick={(e) => {
+                  e.stopPropagation();
+                  openRenameModal(file);
+                }}
                 aria-label="Rename"
               >
                 <i class="bi bi-pencil"></i>
               </button>
               <button
                 class="btn btn-ghost btn-xs btn-circle text-error"
-                onclick={(e) => { e.stopPropagation(); openDeleteModal(file); }}
+                onclick={(e) => {
+                  e.stopPropagation();
+                  openDeleteModal(file);
+                }}
                 aria-label="Delete"
               >
                 <i class="bi bi-trash"></i>
@@ -1189,7 +1612,48 @@
           {#each sortedFiles as file}
             <tr
               class="hover:bg-base-200 cursor-pointer transition-colors group"
-              onclick={() => file.is_dir && navigateToFolder(file)}
+              draggable="true"
+              ondragstart={(e) => {
+                e.dataTransfer.effectAllowed = "move";
+                e.dataTransfer.setData("text/plain", JSON.stringify(file));
+              }}
+              ondragover={(e) => {
+                if (file.is_dir) {
+                  e.preventDefault();
+                  e.currentTarget.classList.add("bg-primary/10");
+                }
+              }}
+              ondragleave={(e) => {
+                e.currentTarget.classList.remove("bg-primary/10");
+              }}
+              ondrop={async (e) => {
+                e.preventDefault();
+                e.currentTarget.classList.remove("bg-primary/10");
+                if (!file.is_dir) return;
+
+                try {
+                  const draggedFile = JSON.parse(
+                    e.dataTransfer.getData("text/plain")
+                  );
+                  if (draggedFile.name === file.name) return;
+
+                  const sourcePath = draggedFile.path || draggedFile.name;
+                  const targetPath = `${file.path || file.name}/${draggedFile.name}`;
+
+                  await api.files.move(sourcePath, targetPath);
+                  success(`Moved ${draggedFile.name} to ${file.name}`);
+                  await loadFiles();
+                } catch (err) {
+                  errorToast(`Failed to move file: ${err.message}`);
+                }
+              }}
+              onclick={() => {
+                if (file.is_dir) {
+                  navigateToFolder(file);
+                } else {
+                  openFilePreview(file);
+                }
+              }}
               oncontextmenu={(e) => handleContextMenu(e, file)}
             >
               <td>
@@ -1250,7 +1714,10 @@
                   {#if !file.is_dir}
                     <button
                       class="btn btn-ghost btn-sm btn-square hover:btn-primary"
-                      onclick={(e) => { e.stopPropagation(); handleDownload(file); }}
+                      onclick={(e) => {
+                        e.stopPropagation();
+                        handleDownload(file);
+                      }}
                       aria-label="Download"
                       title="Download"
                     >
@@ -1259,7 +1726,10 @@
                   {/if}
                   <button
                     class="btn btn-ghost btn-sm btn-square hover:btn-info"
-                    onclick={(e) => { e.stopPropagation(); openRenameModal(file); }}
+                    onclick={(e) => {
+                      e.stopPropagation();
+                      openRenameModal(file);
+                    }}
                     aria-label="Rename"
                     title="Rename"
                   >
@@ -1267,7 +1737,10 @@
                   </button>
                   <button
                     class="btn btn-ghost btn-sm btn-square hover:btn-error"
-                    onclick={(e) => { e.stopPropagation(); openDeleteModal(file); }}
+                    onclick={(e) => {
+                      e.stopPropagation();
+                      openDeleteModal(file);
+                    }}
                     aria-label="Delete"
                     title="Delete"
                   >
@@ -1666,6 +2139,118 @@
   </div>
 </Modal>
 
+<!-- Move File Modal -->
+<Modal
+  visible={showMoveModal}
+  title={`Move ${fileToMove?.name || ""}`}
+  icon="arrows-move"
+  size="sm"
+  variant="primary"
+  on:close={() => (showMoveModal = false)}
+>
+  <div class="space-y-4">
+    <div class="flex items-center gap-3 p-4 bg-base-200 rounded-xl">
+      <div class="text-4xl text-primary">
+        <i class="bi {getFileIcon(fileToMove?.name)}"></i>
+      </div>
+      <div class="flex-1">
+        <div class="font-semibold text-base-content">{fileToMove?.name}</div>
+        <div class="text-sm text-base-content/60">
+          {fileToMove?.is_dir ? "Folder" : "File"}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-control">
+      <label class="label" for="moveTargetPath">
+        <span class="label-text font-semibold">Target Path</span>
+      </label>
+      <input
+        id="moveTargetPath"
+        type="text"
+        bind:value={moveTargetPath}
+        placeholder="Enter destination path..."
+        class="input input-bordered rounded-xl"
+        onkeypress={(e) => e.key === "Enter" && handleMove()}
+      />
+      <div class="label">
+        <span class="label-text-alt text-xs">
+          Current location: {$currentPath || "/"}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div slot="actions" class="flex gap-3 justify-end">
+    <button
+      class="btn btn-ghost rounded-xl"
+      onclick={() => (showMoveModal = false)}
+    >
+      Cancel
+    </button>
+    <button class="btn btn-primary rounded-xl gap-2" onclick={handleMove}>
+      <i class="bi bi-arrows-move"></i>
+      Move
+    </button>
+  </div>
+</Modal>
+
+<!-- Copy File Modal -->
+<Modal
+  visible={showCopyModal}
+  title={`Copy ${fileToCopy?.name || ""}`}
+  icon="clipboard"
+  size="sm"
+  variant="primary"
+  on:close={() => (showCopyModal = false)}
+>
+  <div class="space-y-4">
+    <div class="flex items-center gap-3 p-4 bg-base-200 rounded-xl">
+      <div class="text-4xl text-primary">
+        <i class="bi {getFileIcon(fileToCopy?.name)}"></i>
+      </div>
+      <div class="flex-1">
+        <div class="font-semibold text-base-content">{fileToCopy?.name}</div>
+        <div class="text-sm text-base-content/60">
+          {fileToCopy?.is_dir ? "Folder" : "File"}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-control">
+      <label class="label" for="copyTargetPath">
+        <span class="label-text font-semibold">Target Path</span>
+      </label>
+      <input
+        id="copyTargetPath"
+        type="text"
+        bind:value={copyTargetPath}
+        placeholder="Enter destination path..."
+        class="input input-bordered rounded-xl"
+        onkeypress={(e) => e.key === "Enter" && handleCopy()}
+      />
+      <div class="label">
+        <span class="label-text-alt text-xs">
+          Current location: {$currentPath || "/"}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div slot="actions" class="flex gap-3 justify-end">
+    <button
+      class="btn btn-ghost rounded-xl"
+      onclick={() => (showCopyModal = false)}
+    >
+      Cancel
+    </button>
+    <button class="btn btn-primary rounded-xl gap-2" onclick={handleCopy}>
+      <i class="bi bi-clipboard"></i>
+      Copy
+    </button>
+  </div>
+</Modal>
+
 <!-- Context Menu -->
 <ContextMenu
   visible={contextMenuVisible}
@@ -1702,18 +2287,22 @@
   on:close={() => (showAdvancedSearchModal = false)}
 />
 
+<!-- File Preview Modal -->
+<FilePreviewModal bind:visible={showFilePreview} bind:file={fileToPreview} />
+
 <style>
   /* Drag & Drop Zone Overlay */
   .drop-zone-overlay {
     position: fixed;
     inset: 0;
-    z-index: 50;
+    z-index: 9999;
     background: hsl(var(--b1) / 0.95);
     backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
     animation: fadeIn 0.2s ease-out;
+    pointer-events: none;
   }
 
   .drop-content {
@@ -1723,6 +2312,7 @@
     border: 3px dashed hsl(var(--p));
     background: hsl(var(--b2) / 0.5);
     min-width: 400px;
+    pointer-events: none;
   }
 
   .drop-animation {
@@ -1744,6 +2334,13 @@
   /* File Cards Hover Effects */
   :global(.card:hover .bi-star) {
     animation: starPulse 0.6s ease-in-out;
+  }
+
+  /* Drag and Drop Styles */
+  :global(.drag-over) {
+    border-color: hsl(var(--p)) !important;
+    background: hsl(var(--p) / 0.1) !important;
+    transform: scale(1.02) !important;
   }
 
   @keyframes starPulse {
@@ -1786,4 +2383,3 @@
     transform: translateY(-2px);
   }
 </style>
-

@@ -43,6 +43,12 @@
       category: "main",
     },
     {
+      id: "recent",
+      icon: "clock-history",
+      label: "Recent Files",
+      category: "main",
+    },
+    {
       id: "shared",
       icon: "share-fill",
       label: t($currentLang, "shared"),
@@ -65,7 +71,7 @@
       id: "activity",
       label: "Activity",
       category: "tools",
-      icon: "clock-history",
+      icon: "activity",
       badge: notificationCount,
       badgeClass: "badge-accent",
     },
