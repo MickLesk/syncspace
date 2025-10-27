@@ -1,7 +1,6 @@
 <script>
   import { onMount } from "svelte";
   import { success, error as errorToast } from "../stores/toast";
-  import { showToast } from "../stores/ui.js";
 
   let trashedFiles = $state([]);
   let loading = $state(false);
@@ -58,7 +57,7 @@
       deletedDate.getTime() + file.autoDeleteDays * 24 * 60 * 60 * 1000
     );
     const now = new Date();
-    const daysLeft = Math.ceil((autoDeleteDate - now) / (1000 * 60 * 60 * 24));
+    const daysLeft = Math.ceil((autoDeleteDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     return Math.max(0, daysLeft);
   }
 
@@ -375,8 +374,20 @@
 
 <!-- Permanent Delete Warning Modal -->
 {#if showDeleteModal}
-  <div class="modal modal-open" onclick={closeDeleteModal}>
-    <div class="modal-box max-w-2xl" onclick={(e) => e.stopPropagation()}>
+  <div 
+    class="modal modal-open" 
+    onclick={closeDeleteModal}
+    onkeydown={(e) => e.key === 'Escape' && closeDeleteModal()}
+    role="button"
+    tabindex="0"
+  >
+    <div 
+      class="modal-box max-w-2xl" 
+      onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => e.stopPropagation()}
+      role="dialog"
+      tabindex="0"
+    >
       <h3 class="font-bold text-lg mb-4 text-error">
         <i class="bi bi-exclamation-triangle-fill"></i>
         Permanent Delete Warning

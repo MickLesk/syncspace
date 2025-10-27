@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { showToast } from "../stores/ui.js";
+  import { showToast } from "../stores/toast.js";
 
   let users = $state([]);
   let loading = $state(true);

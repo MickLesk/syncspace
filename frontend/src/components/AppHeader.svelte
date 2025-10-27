@@ -30,9 +30,9 @@
     viewNames[$currentView]?.icon || "bi-cloud-arrow-up-fill"
   );
 
-  let searchQuery = "";
-  let showSearchModal = false;
-  let showAdvancedSearch = false;
+  let searchQuery = $state("");
+  let showSearchModal = $state(false);
+  let showAdvancedSearch = $state(false);
   let showSearchDropdown = $state(false);
   let searchResults = $state([]);
   let recentSearches = $state([]);
@@ -258,17 +258,17 @@
             placeholder="{t($currentLang, 'searchPlaceholder')}..."
             bind:value={searchQuery}
             bind:this={searchInputRef}
-            on:input={handleSearchInput}
-            on:focus={() => {
+            oninput={handleSearchInput}
+            onfocus={() => {
               showSearchDropdown = true;
               loadRecentSearches();
             }}
-            on:keydown={(e) => e.key === "Enter" && handleSearch(e)}
+            onkeydown={(e) => e.key === "Enter" && handleSearch(e)}
           />
           {#if searchQuery}
             <button
               class="search-clear-btn"
-              on:click={() => {
+              onclick={() => {
                 searchQuery = "";
                 searchResults = [];
               }}
@@ -282,7 +282,7 @@
 
         <button
           class="advanced-button-new"
-          on:click={() => (showAdvancedSearch = true)}
+          onclick={() => (showAdvancedSearch = true)}
           title="{t($currentLang, 'advancedSearch')} (Ctrl+Shift+F)"
         >
           <i class="bi bi-funnel"></i>
@@ -297,7 +297,7 @@
                 {#each searchResults as result}
                   <button
                     class="search-result-item"
-                    on:click={() => selectSearchResult(result)}
+                    onclick={() => selectSearchResult(result)}
                   >
                     <i
                       class="bi bi-{result.icon} text-{result.type === 'folder'
@@ -318,7 +318,7 @@
                   <div class="search-section-title">Recent Searches</div>
                   <button
                     class="search-clear-all"
-                    on:click={clearRecentSearches}
+                    onclick={clearRecentSearches}
                   >
                     Clear
                   </button>
@@ -326,7 +326,7 @@
                 {#each recentSearches as recent}
                   <button
                     class="search-result-item"
-                    on:click={() => selectRecentSearch(recent)}
+                    onclick={() => selectRecentSearch(recent)}
                   >
                     <i class="bi bi-clock-history opacity-60"></i>
                     <div class="search-result-content">
@@ -390,7 +390,7 @@
               {#if unreadCount > 0}
                 <button
                   class="notification-action-btn"
-                  on:click={markAllAsRead}
+                  onclick={markAllAsRead}
                 >
                   <i class="bi bi-check-all"></i>
                   Mark all read
@@ -398,7 +398,7 @@
               {/if}
               <button
                 class="notification-action-btn text-error"
-                on:click={clearAllNotifications}
+                onclick={clearAllNotifications}
               >
                 <i class="bi bi-trash"></i>
                 Clear all
@@ -413,7 +413,7 @@
                   <button
                     class="notification-item-new"
                     class:unread={!notification.read}
-                    on:click={() => markAsRead(notification.id)}
+                    onclick={() => markAsRead(notification.id)}
                   >
                     {#if notification.avatar}
                       <div class="notification-avatar">
@@ -488,7 +488,7 @@
             <li>
               <button
                 class="user-menu-item-new"
-                on:click={() => dispatch("navigate", "profile")}
+                onclick={() => dispatch("navigate", "profile")}
               >
                 <i class="bi bi-person-circle"></i>
                 <div class="menu-item-content">
@@ -501,7 +501,7 @@
             <li>
               <button
                 class="user-menu-item-new"
-                on:click={() => dispatch("navigate", "settings")}
+                onclick={() => dispatch("navigate", "settings")}
               >
                 <i class="bi bi-gear-fill"></i>
                 <div class="menu-item-content">
@@ -514,7 +514,7 @@
             <li>
               <button
                 class="user-menu-item-new"
-                on:click={() => dispatch("navigate", "storage")}
+                onclick={() => dispatch("navigate", "storage")}
               >
                 <i class="bi bi-hdd-fill"></i>
                 <div class="menu-item-content">
@@ -542,7 +542,7 @@
           <div class="divider-new"></div>
 
           <div class="user-dropdown-footer-new">
-            <button class="logout-button-new" on:click={handleLogout}>
+            <button class="logout-button-new" onclick={handleLogout}>
               <i class="bi bi-box-arrow-right"></i>
               <span>Log Out</span>
             </button>
@@ -562,9 +562,9 @@
   variant="primary"
   on:close={() => (showSearchModal = false)}
 >
-  <form on:submit={handleSearch}>
+  <form onsubmit={handleSearch}>
     <div class="form-control">
-      <label class="label">
+      <label class="label" for="quickSearchInput">
         <span class="label-text font-medium">Search Query</span>
         <span class="label-text-alt text-xs opacity-60">
           <kbd class="kbd kbd-xs">Ctrl</kbd> + <kbd class="kbd kbd-xs">K</kbd>
@@ -577,18 +577,18 @@
           <i class="bi bi-search text-lg"></i>
         </span>
         <input
+          id="quickSearchInput"
           type="text"
           placeholder="Search for files, folders..."
           class="input input-bordered flex-1 rounded-l-none rounded-r-xl focus:ring-2 focus:ring-primary/50"
           bind:value={searchQuery}
-          autofocus
         />
       </div>
-      <label class="label">
+      <div class="label">
         <span class="label-text-alt text-xs opacity-60">
           💡 Use <strong>Ctrl+Shift+F</strong> for advanced search with filters
         </span>
-      </label>
+      </div>
     </div>
   </form>
 
@@ -596,7 +596,7 @@
     <button
       type="button"
       class="btn btn-ghost rounded-xl"
-      on:click={() => (showSearchModal = false)}
+      onclick={() => (showSearchModal = false)}
     >
       <i class="bi bi-x-lg"></i>
       Cancel
@@ -604,7 +604,7 @@
     <button
       type="button"
       class="btn btn-primary rounded-xl gap-2"
-      on:click={handleSearch}
+      onclick={handleSearch}
     >
       <i class="bi bi-search"></i>
       Search
