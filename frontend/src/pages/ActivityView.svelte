@@ -1,10 +1,11 @@
 <script>
   import { onMount } from "svelte";
-  import { activity } from "../../stores/activity";
-  import { error as errorToast } from "../../stores/toast";
-  import PageWrapper from "../../components/PageWrapper.svelte";
-  import ModernCard from "../../components/ui/ModernCard.svelte";
-  import ModernButton from "../../components/ui/ModernButton.svelte";
+  import { activity } from "../stores/activity";
+  import { error as errorToast } from "../stores/toast";
+  import PageWrapper from "../components/PageWrapper.svelte";
+  import PageHeader from "../components/ui/PageHeader.svelte";
+  import ModernCard from "../components/ui/ModernCard.svelte";
+  import ModernButton from "../components/ui/ModernButton.svelte";
 
   let groupedActivities = {};
   let selectedFilter = "all";
@@ -140,51 +141,55 @@
 </script>
 
 <PageWrapper gradient>
-  <!-- Animated Blobs -->
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
-
-  <!-- Page Header -->
-  <div class="mb-8 relative z-10">
-    <h1
-      class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3"
-    >
-      <i class="bi bi-activity"></i>
-      Activity Timeline
-    </h1>
-    <p class="text-base-content/70">Track all file operations and changes</p>
-  </div>
+  <PageHeader
+    title="Activity Timeline"
+    subtitle="Track all file operations and changes"
+    icon="activity"
+  />
 
   <!-- Stats -->
   {#if $activity.length > 0}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <ModernCard variant="gradient" hoverable>
+      <ModernCard variant="glass" hoverable>
         {#snippet children()}
           <div class="text-center">
-            <div class="text-primary mb-3">
+            <div class="text-primary-500 mb-3">
               <i class="bi bi-activity text-5xl"></i>
             </div>
-            <div class="text-sm font-semibold text-base-content/60 mb-1">
+            <div
+              class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
+            >
               Total Events
             </div>
-            <div class="text-4xl font-bold mb-2">{$activity.length}</div>
-            <div class="text-xs text-base-content/50">All time</div>
+            <div
+              class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2"
+            >
+              {$activity.length}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-500">All time</div>
           </div>
         {/snippet}
       </ModernCard>
 
-      <ModernCard variant="gradient" hoverable>
+      <ModernCard variant="glass" hoverable>
         {#snippet children()}
           <div class="text-center">
-            <div class="text-success mb-3">
+            <div class="text-green-500 mb-3">
               <i class="bi bi-calendar-check text-5xl"></i>
             </div>
-            <div class="text-sm font-semibold text-base-content/60 mb-1">
+            <div
+              class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
+            >
               Today
             </div>
-            <div class="text-4xl font-bold mb-2">{todayCount}</div>
-            <div class="text-xs text-base-content/50">Recent activity</div>
+            <div
+              class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2"
+            >
+              {todayCount}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-500">
+              Recent activity
+            </div>
           </div>
         {/snippet}
       </ModernCard>
@@ -223,9 +228,9 @@
               role="tab"
               class="px-3 py-2 text-sm rounded-md transition-all flex items-center gap-2 {selectedFilter ===
               type.value
-                ? 'glass-card text-primary font-semibold shadow-md scale-105'
-                : 'hover:glass-card'}"
-              onclick={() => (selectedFilter = type.value)}
+                ? 'bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 font-semibold shadow-md scale-105'
+                : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300'}"
+              on:click={() => (selectedFilter = type.value)}
             >
               <i class="bi bi-{type.icon}"></i>
               {type.label}
@@ -238,11 +243,11 @@
           <input
             type="text"
             placeholder="Search activities..."
-            class="input input-bordered glass-input w-full md:w-64 pr-10"
+            class="glass-input w-full md:w-64 pr-10"
             bind:value={searchQuery}
           />
           <button
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"
           >
             <i class="bi bi-search"></i>
           </button>
@@ -253,14 +258,18 @@
 
   <!-- Timeline -->
   {#if Object.keys(groupedActivities).length === 0}
-    <ModernCard variant="glass" class="text-center py-16">
+    <ModernCard variant="glass" padding="large">
       {#snippet children()}
-        <div class="animate-fade-in">
-          <div class="text-primary/30 mb-6">
+        <div class="text-center animate-fade-in">
+          <div class="text-primary-500/30 mb-6">
             <i class="bi bi-clock-history text-8xl"></i>
           </div>
-          <h3 class="text-2xl font-bold mb-3">No Activity Yet</h3>
-          <p class="text-base-content/60">File operations will appear here</p>
+          <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">
+            No Activity Yet
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            File operations will appear here
+          </p>
         </div>
       {/snippet}
     </ModernCard>
@@ -272,26 +281,26 @@
       >
         <!-- Date Badge -->
         <div class="flex items-center gap-3 mb-4">
-          <div class="badge badge-glass-primary badge-lg font-bold">
+          <div class="badge-glass-primary text-base font-bold px-4 py-2">
             {dateLabel}
           </div>
           <div
-            class="flex-1 h-px bg-gradient-to-r from-primary/50 to-transparent"
+            class="flex-1 h-px bg-gradient-to-r from-primary-500/50 to-transparent"
           ></div>
         </div>
 
         <!-- Timeline -->
-        <div class="relative pl-8 border-l-2 border-primary/20 space-y-6">
+        <div class="relative pl-8 border-l-2 border-primary-500/20 space-y-6">
           {#each activities as act, i}
             {@const config = typeConfig[act.type] || typeConfig.create}
             {@const colorMap = {
-              success: "bg-success text-success-content",
-              info: "bg-info text-info-content",
-              error: "bg-error text-error-content",
-              warning: "bg-warning text-warning-content",
-              primary: "bg-primary text-primary-content",
-              secondary: "bg-secondary text-secondary-content",
-              accent: "bg-accent text-accent-content",
+              success: "bg-green-500 text-white",
+              info: "bg-blue-500 text-white",
+              error: "bg-red-500 text-white",
+              warning: "bg-yellow-500 text-white",
+              primary: "bg-primary-500 text-white",
+              secondary: "bg-gray-500 text-white",
+              accent: "bg-purple-500 text-white",
             }}
             <div
               class="relative animate-fade-in"
@@ -301,14 +310,15 @@
               <div
                 class="absolute -left-[2.25rem] top-2 w-10 h-10 rounded-full {colorMap[
                   config.color
-                ] || 'bg-primary'} flex items-center justify-center shadow-lg"
+                ] ||
+                  'bg-primary-500 text-white'} flex items-center justify-center shadow-lg"
               >
                 <i class="bi bi-{config.icon} text-lg"></i>
               </div>
 
               <!-- Time Stamp -->
               <div
-                class="absolute -left-[10.5rem] top-2 text-xs text-base-content/50 text-right w-32 font-mono"
+                class="absolute -left-[10.5rem] top-2 text-xs text-gray-500 dark:text-gray-500 text-right w-32 font-mono"
               >
                 {formatTime(act.timestamp)}
               </div>
@@ -318,22 +328,32 @@
                 {#snippet children()}
                   <div class="flex items-start justify-between gap-2">
                     <div class="flex-1">
-                      <div class="badge badge-glass-{config.color} mb-2">
+                      <div class="badge-glass-{config.color} mb-2">
                         <i class="bi bi-{config.icon} mr-1"></i>
                         {config.label}
                       </div>
-                      <h3 class="font-bold text-base">{act.filename}</h3>
+                      <h3
+                        class="font-bold text-base text-gray-900 dark:text-gray-100"
+                      >
+                        {act.filename}
+                      </h3>
                       {#if act.path}
-                        <p class="text-xs font-mono text-base-content/50 mt-1">
+                        <p
+                          class="text-xs font-mono text-gray-500 dark:text-gray-500 mt-1"
+                        >
                           {act.path}
                         </p>
                       {/if}
                       {#if act.details}
-                        <p class="text-sm text-base-content/70 mt-2">
+                        <p
+                          class="text-sm text-gray-700 dark:text-gray-300 mt-2"
+                        >
                           {act.details}
                         </p>
                       {/if}
-                      <div class="text-xs text-base-content/40 mt-2 italic">
+                      <div
+                        class="text-xs text-gray-400 dark:text-gray-600 mt-2 italic"
+                      >
                         {getRelativeTime(act.timestamp)}
                       </div>
                     </div>
@@ -347,9 +367,3 @@
     {/each}
   {/if}
 </PageWrapper>
-
-<style>
-  /* ActivityView - using glassmorphism.css */
-</style>
-
-

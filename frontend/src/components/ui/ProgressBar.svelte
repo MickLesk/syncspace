@@ -70,7 +70,7 @@
   }
 
   .progress-fill.animated::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -151,10 +151,7 @@
   }
 
   /* Dark Mode */
-  @media (prefers-color-scheme: dark) {
-    .progress-track {
-      background: rgba(255, 255, 255, 0.08);
-    }
+  :global(.dark) .progress-track {
+    background: rgba(255, 255, 255, 0.08);
   }
 </style>
-

@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { success, error as errorToast } from "../../stores/toast";
   import PageWrapper from "../../components/PageWrapper.svelte";
+  import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
 
@@ -209,90 +210,76 @@
 </script>
 
 <PageWrapper gradient>
-  <!-- Animated Blobs -->
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
-
-  <!-- Header -->
-  <div class="mb-8 relative z-10">
-    <div class="flex justify-between items-start mb-4">
-      <div>
-        <h1
-          class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3"
-        >
-          <i class="bi bi-trash3-fill"></i>
-          Trash
-        </h1>
-        <p class="text-base-content/70">
-          {#if trashedFiles.length > 0}
-            {trashedFiles.length} item(s) • {formatBytes(totalSize)} total
-          {:else}
-            No deleted files
-          {/if}
-        </p>
-      </div>
-
+  <PageHeader
+    title="Trash"
+    subtitle={trashedFiles.length > 0
+      ? `${trashedFiles.length} item(s) • ${formatBytes(totalSize)} total`
+      : "No deleted files"}
+    icon="trash3-fill"
+  >
+    {#snippet actions()}
       {#if trashedFiles.length > 0}
-        <div class="flex gap-3">
-          <ModernButton
-            variant="success"
-            icon="arrow-counterclockwise"
-            disabled={selectedFiles.size === 0 && trashedFiles.length === 0}
-            onclick={handleRestoreAll}
-          >
-            Restore {selectedFiles.size > 0 ? `(${selectedFiles.size})` : "All"}
-          </ModernButton>
-          <ModernButton
-            variant="danger"
-            icon="x-circle"
-            onclick={() =>
-              openDeleteModal(selectedFiles.size > 0 ? "selected" : "all")}
-          >
-            {selectedFiles.size > 0
-              ? `Delete (${selectedFiles.size})`
-              : "Empty Trash"}
-          </ModernButton>
-        </div>
+        <ModernButton
+          variant="success"
+          icon="arrow-counterclockwise"
+          disabled={selectedFiles.size === 0 && trashedFiles.length === 0}
+          onclick={handleRestoreAll}
+        >
+          Restore {selectedFiles.size > 0 ? `(${selectedFiles.size})` : "All"}
+        </ModernButton>
+        <ModernButton
+          variant="danger"
+          icon="x-circle"
+          onclick={() =>
+            openDeleteModal(selectedFiles.size > 0 ? "selected" : "all")}
+        >
+          Empty {selectedFiles.size > 0 ? `(${selectedFiles.size})` : "All"}
+        </ModernButton>
       {/if}
-    </div>
+    {/snippet}
+  </PageHeader>
 
-    <!-- Bulk Select Bar -->
-    {#if trashedFiles.length > 0}
-      <div class="glass-card-light p-4 flex justify-between items-center">
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            class="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 bg-white dark:bg-gray-800 cursor-pointer"
-            checked={selectedFiles.size === trashedFiles.length &&
-              trashedFiles.length > 0}
-            indeterminate={selectedFiles.size > 0 &&
-              selectedFiles.size < trashedFiles.length}
-            onchange={toggleSelectAll}
-          />
-          <span class="text-sm font-semibold">
-            {selectedFiles.size > 0
-              ? `${selectedFiles.size} selected`
-              : "Select all"}
-          </span>
-        </label>
+  <!-- Bulk Select Bar -->
+  {#if trashedFiles.length > 0}
+    <ModernCard variant="glass" padding="normal" class="mb-6">
+      {#snippet children()}
+        <div class="flex justify-between items-center">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              class="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 bg-white dark:bg-gray-800 cursor-pointer"
+              checked={selectedFiles.size === trashedFiles.length &&
+                trashedFiles.length > 0}
+              indeterminate={selectedFiles.size > 0 &&
+                selectedFiles.size < trashedFiles.length}
+              onchange={toggleSelectAll}
+            />
+            <span
+              class="text-sm font-semibold text-gray-900 dark:text-gray-100"
+            >
+              {selectedFiles.size > 0
+                ? `${selectedFiles.size} selected`
+                : "Select all"}
+            </span>
+          </label>
 
-        {#if selectedFiles.size > 0}
-          <ModernButton
-            variant="ghost"
-            size="sm"
-            icon="x"
-            onclick={() => {
-              selectedFiles.clear();
-              selectedFiles = selectedFiles;
-            }}
-          >
-            Clear
-          </ModernButton>
-        {/if}
-      </div>
-    {/if}
-  </div>
+          {#if selectedFiles.size > 0}
+            <ModernButton
+              variant="ghost"
+              size="sm"
+              icon="x"
+              onclick={() => {
+                selectedFiles.clear();
+                selectedFiles = selectedFiles;
+              }}
+            >
+              Clear
+            </ModernButton>
+          {/if}
+        </div>
+      {/snippet}
+    </ModernCard>
+  {/if}
 
   <!-- Empty State -->
   {#if trashedFiles.length === 0}
@@ -307,7 +294,7 @@
             Deleted files will appear here. You can restore them or permanently
             delete them.
           </p>
-          <div class="glass-card-light max-w-md mx-auto p-6 text-left">
+          <div class="glass-card max-w-md mx-auto p-6 text-left">
             <div class="flex gap-3">
               <i class="bi bi-info-circle-fill text-info text-2xl flex-shrink-0"
               ></i>
@@ -446,7 +433,7 @@
       </h3>
 
       <!-- Warning Alert -->
-      <div class="glass-card-light border-l-4 border-error p-4 mb-6">
+      <div class="glass-card border-l-4 border-error p-4 mb-6">
         <div class="flex gap-4">
           <i
             class="bi bi-exclamation-octagon-fill text-error text-3xl flex-shrink-0"
@@ -463,7 +450,7 @@
       </div>
 
       <!-- Delete Details -->
-      <div class="glass-card-light p-6 mb-6">
+      <div class="glass-card p-6 mb-6">
         <p class="text-base-content/80 mb-4 font-semibold">
           You are about to permanently delete:
         </p>
@@ -534,7 +521,7 @@
       </div>
 
       <!-- Confirmation Checklist -->
-      <div class="glass-card-light border-l-4 border-warning p-4 mb-6">
+      <div class="glass-card border-l-4 border-warning p-4 mb-6">
         <p class="font-bold mb-3 flex items-center gap-2">
           <i class="bi bi-check2-all text-warning"></i>
           Before you proceed:
@@ -584,10 +571,7 @@
     background: rgb(59 130 246 / 0.15);
   }
 
-  @media (prefers-color-scheme: dark) {
-    .table tbody tr:hover {
-      background: rgb(31 41 55 / 0.5);
-    }
+  :global(.dark) .table tbody tr:hover {
+    background: rgb(31 41 55 / 0.5);
   }
 </style>
-

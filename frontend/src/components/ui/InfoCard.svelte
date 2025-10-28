@@ -28,10 +28,7 @@
     </div>
   </button>
 {:else}
-  <div
-    class="info-card {variant} {padding}"
-    class:hoverable
-  >
+  <div class="info-card {variant} {padding}" class:hoverable>
     {#if title}
       <h3 class="card-title">{title}</h3>
     {/if}
@@ -115,7 +112,11 @@
   }
 
   .gradient {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08));
+    background: linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.08),
+      rgba(139, 92, 246, 0.08)
+    );
     border: 1px solid rgba(99, 102, 241, 0.15);
     box-shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
   }
@@ -136,26 +137,27 @@
   }
 
   /* Dark Mode */
-  @media (prefers-color-scheme: dark) {
-    .default {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 255, 255, 0.08);
-    }
+  :global(.dark) .default {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
 
-    .bordered {
-      background: var(--md-sys-color-surface);
-      border-color: rgba(129, 140, 248, 0.3);
-    }
+  :global(.dark) .bordered {
+    background: var(--md-sys-color-surface);
+    border-color: rgba(129, 140, 248, 0.3);
+  }
 
-    .glass {
-      background: rgba(30, 41, 59, 0.85);
-      border-color: rgba(255, 255, 255, 0.08);
-    }
+  :global(.dark) .glass {
+    background: rgba(30, 41, 59, 0.85);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
 
-    .gradient {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.12));
-      border-color: rgba(99, 102, 241, 0.2);
-    }
+  :global(.dark) .gradient {
+    background: linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.12),
+      rgba(139, 92, 246, 0.12)
+    );
+    border-color: rgba(99, 102, 241, 0.2);
   }
 </style>
-

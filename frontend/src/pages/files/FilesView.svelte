@@ -522,7 +522,7 @@
 {:else}
   <!-- Main Container -->
   <div
-    class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6"
+    class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-6"
     ondragover={handleDragOver}
     ondragleave={handleDragLeave}
     ondrop={handleDrop}
@@ -560,7 +560,7 @@
 
             <button
               onclick={() => (showNewFolderModal = true)}
-              class="px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 flex items-center gap-2"
+              class="px-4 py-2 bg-gray-100 border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:bg-gray-200 hover:border-gray-400 transition-all duration-200 flex items-center gap-2"
             >
               <i class="bi bi-folder-plus"></i>
               <span>New Folder</span>
@@ -568,7 +568,7 @@
 
             <button
               onclick={() => loadFiles()}
-              class="px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 bg-gray-100 border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:bg-gray-200 hover:border-gray-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Refresh files"
               disabled={loading}
             >
@@ -587,10 +587,10 @@
                 type="search"
                 bind:value={searchQuery}
                 placeholder="Search files..."
-                class="w-full px-4 py-2 pl-10 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
+                class="w-full px-4 py-2 pl-10 bg-gray-100 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all text-gray-900 placeholder-gray-500"
               />
               <i
-                class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
               ></i>
             </div>
           </div>
@@ -598,7 +598,7 @@
           <!-- Advanced Search -->
           <button
             onclick={() => (showAdvancedSearchModal = true)}
-            class="px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-blue-500 transition-all flex items-center gap-2 text-sm font-medium"
+            class="px-4 py-2 bg-gray-100 border-2 border-gray-300 text-gray-800 rounded-xl hover:bg-gray-200 hover:border-blue-500 transition-all flex items-center gap-2 text-sm font-medium"
           >
             <i class="bi bi-filter"></i>
             <span>Advanced</span>
@@ -617,13 +617,13 @@
 
           <!-- View Mode Toggle -->
           <div
-            class="flex bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden"
+            class="flex bg-gray-100 border-2 border-gray-300 rounded-xl overflow-hidden"
           >
             <button
               onclick={() => (viewMode = "grid")}
               class="px-4 py-2 {viewMode === 'grid'
                 ? 'bg-blue-600 text-white'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'} transition-all"
+                : 'text-gray-700 hover:bg-gray-200'} transition-all"
             >
               <i class="bi bi-grid-3x3"></i>
             </button>
@@ -631,7 +631,7 @@
               onclick={() => (viewMode = "list")}
               class="px-4 py-2 {viewMode === 'list'
                 ? 'bg-blue-600 text-white'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'} transition-all"
+                : 'text-gray-700 hover:bg-gray-200'} transition-all"
             >
               <i class="bi bi-list-ul"></i>
             </button>
@@ -642,7 +642,7 @@
 
     <!-- Breadcrumb -->
     <div class="max-w-7xl mx-auto mb-6">
-      <div class="glass-card-light p-4">
+      <div class="glass-card p-4">
         <nav class="flex items-center gap-2 text-sm">
           <button
             onclick={() => navigateToBreadcrumb("/")}
@@ -676,7 +676,7 @@
     {#if selectionMode && selectedFiles.length > 0}
       <div class="max-w-7xl mx-auto mb-6">
         <div
-          class="glass-card-light border-l-4 border-blue-500 p-4 animate-slide-down"
+          class="glass-card border-l-4 border-blue-500 p-4 animate-slide-down"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -1118,4 +1118,3 @@
 <style>
   /* Additional custom styles if needed */
 </style>
-

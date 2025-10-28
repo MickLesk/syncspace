@@ -1,4 +1,8 @@
 <script>
+  import PageWrapper from "../components/PageWrapper.svelte";
+  import ModernCard from "../components/ui/ModernCard.svelte";
+  import ModernButton from "../components/ui/ModernButton.svelte";
+
   function goHome() {
     window.location.hash = "#/files";
   }
@@ -8,96 +12,67 @@
   }
 </script>
 
-<!-- 404 Page with Glassmorphism -->
-<div class="error-container">
-  <!-- Animated background blobs -->
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
+<PageWrapper fullHeight gradient>
+  <div class="flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-2xl mx-auto text-center animate-slide-up">
+      <ModernCard variant="glass" padding="large">
+        {#snippet children()}
+          <!-- 404 Icon -->
+          <div class="mb-8">
+            <div class="inline-flex items-center justify-center w-32 h-32 rounded-full bg-primary-100 dark:bg-primary-900/30 mb-4">
+              <i class="bi bi-file-earmark-x-fill text-6xl text-primary-600 dark:text-primary-400"></i>
+            </div>
+            <div class="text-8xl font-bold gradient-text-primary">404</div>
+          </div>
 
-  <!-- Error Card -->
-  <div class="error-card">
-    <!-- 404 Icon -->
-    <div class="error-icon-wrapper">
-      <div class="error-icon">
-        <i
-          class="bi bi-file-earmark-x-fill text-8xl text-blue-600 dark:text-blue-400"
-        ></i>
-      </div>
-      <div class="error-code">404</div>
-    </div>
+          <!-- Error Message -->
+          <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">
+            Page Not Found
+          </h1>
+          <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+            Oops! The page you're looking for doesn't exist. It might have been moved or deleted.
+          </p>
 
-    <!-- Error Message -->
-    <h1
-      class="text-4xl font-bold mt-8 mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
-    >
-      Page Not Found
-    </h1>
-    <p
-      class="text-gray-600 dark:text-gray-400 text-lg mb-8 max-w-md text-center"
-    >
-      Oops! The page you're looking for doesn't exist. It might have been moved
-      or deleted.
-    </p>
+          <!-- Action Buttons -->
+          <div class="flex gap-4 flex-wrap justify-center mb-12">
+            <ModernButton variant="gradient" icon="house-fill" onclick={goHome}>
+              Go Home
+            </ModernButton>
+            <ModernButton variant="ghost" icon="arrow-left" onclick={goBack}>
+              Go Back
+            </ModernButton>
+          </div>
 
-    <!-- Action Buttons -->
-    <div class="flex gap-4 flex-wrap justify-center">
-      <button
-        onclick={goHome}
-        class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-200 flex items-center gap-2 group"
-      >
-        <i class="bi bi-house-fill group-hover:scale-110 transition-transform"
-        ></i>
-        <span>Go Home</span>
-      </button>
-
-      <button
-        onclick={goBack}
-        class="px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-200 flex items-center gap-2 group"
-      >
-        <i
-          class="bi bi-arrow-left group-hover:-translate-x-1 transition-transform"
-        ></i>
-        <span>Go Back</span>
-      </button>
-    </div>
-
-    <!-- Quick Links -->
-    <div
-      class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 w-full"
-    >
-      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 text-center">
-        Quick Links
-      </p>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <a href="#/files" class="quick-link">
-          <i class="bi bi-folder-fill text-blue-500"></i>
-          <span>Files</span>
-        </a>
-        <a href="#/favorites" class="quick-link">
-          <i class="bi bi-star-fill text-yellow-500"></i>
-          <span>Favorites</span>
-        </a>
-        <a href="#/recent" class="quick-link">
-          <i class="bi bi-clock-fill text-green-500"></i>
-          <span>Recent</span>
-        </a>
-        <a href="#/settings" class="quick-link">
-          <i class="bi bi-gear-fill text-purple-500"></i>
-          <span>Settings</span>
-        </a>
-      </div>
+          <!-- Quick Links -->
+          <div class="pt-8 border-t border-gray-200 dark:border-gray-700">
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              Quick Links
+            </p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <a href="#/files" class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group">
+                <i class="bi bi-folder-fill text-2xl text-blue-500 group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Files</span>
+              </a>
+              <a href="#/favorites" class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group">
+                <i class="bi bi-star-fill text-2xl text-yellow-500 group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Favorites</span>
+              </a>
+              <a href="#/recent" class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group">
+                <i class="bi bi-clock-fill text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Recent</span>
+              </a>
+              <a href="#/settings" class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group">
+                <i class="bi bi-gear-fill text-2xl text-purple-500 group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Settings</span>
+              </a>
+            </div>
+          </div>
+        {/snippet}
+      </ModernCard>
     </div>
   </div>
-</div>
+</PageWrapper>
 
-<style>
-  /* Main Container with Gradient Background */
-  .error-container {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
     overflow: hidden;
@@ -160,13 +135,11 @@
   }
 
   /* Dark mode card */
-  @media (prefers-color-scheme: dark) {
-    .error-card {
-      background: rgba(17, 24, 39, 0.95);
-      box-shadow:
-        0 8px 32px 0 rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-    }
+  :global(.dark) .error-card {
+    background: rgba(17, 24, 39, 0.95);
+    box-shadow:
+      0 8px 32px 0 rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
   }
 
   /* Error Icon */
@@ -222,12 +195,10 @@
     font-weight: 500;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .quick-link {
-      background: rgb(31 41 55);
-      border-color: rgb(55 65 81);
-      color: rgb(209 213 219);
-    }
+  :global(.dark) .quick-link {
+    background: rgb(31 41 55);
+    border-color: rgb(55 65 81);
+    color: rgb(209 213 219);
   }
 
   .quick-link:hover {
@@ -236,10 +207,8 @@
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
   }
 
-  @media (prefers-color-scheme: dark) {
-    .quick-link:hover {
-      border-color: rgb(59 130 246);
-    }
+  :global(.dark) .quick-link:hover {
+    border-color: rgb(59 130 246);
   }
 
   .quick-link i {

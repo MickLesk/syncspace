@@ -4,6 +4,10 @@
   import api from "../../lib/api";
   import BackupScheduleManager from "../../components/backup/BackupScheduleManager.svelte";
   import BackupVerificationPanel from "../../components/backup/BackupVerificationPanel.svelte";
+  import PageWrapper from "../../components/PageWrapper.svelte";
+  import PageHeader from "../../components/ui/PageHeader.svelte";
+  import ModernCard from "../../components/ui/ModernCard.svelte";
+  import ModernButton from "../../components/ui/ModernButton.svelte";
 
   let activeTab = $state("backups"); // 'backups', 'schedules', 'export'
   let viewMode = $state("timeline"); // 'timeline', 'grid'
@@ -15,11 +19,11 @@
 
   function getStatusBadge(status) {
     const badges = {
-      completed: "badge-success",
-      in_progress: "badge-warning",
-      failed: "badge-error",
+      completed: "badge-glass-success",
+      in_progress: "badge-glass-warning",
+      failed: "badge-glass-error",
     };
-    return badges[status] || "badge-ghost";
+    return badges[status] || "badge-glass-info";
   }
 
   function getStatusIcon(status) {
@@ -144,146 +148,131 @@
   });
 </script>
 
-<div class="backup-view p-6">
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold mb-2">Backup & Restore</h1>
-    <p class="text-base-content/70">
-      Manage backups, schedules, and restore points
-    </p>
-  </div>
+<PageWrapper gradient>
+  <PageHeader
+    title="Backup & Restore"
+    subtitle="Manage backups, schedules, and restore points"
+    icon="cloud-arrow-up"
+  />
 
   <!-- Tabs -->
-  <div class="tabs tabs-boxed mb-6">
-    <button
-      class="tab {activeTab === 'backups' ? 'tab-active' : ''}"
-      onclick={() => (activeTab = "backups")}
-    >
-      <svg
-        class="w-5 h-5 mr-2"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
+  <ModernCard variant="glass" class="mb-6">
+    <div class="flex gap-2 p-2">
+      <ModernButton
+        variant={activeTab === "backups" ? "primary" : "ghost"}
+        onclick={() => (activeTab = "backups")}
+        class="flex-1"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-        />
-      </svg>
-      Backups
-    </button>
+        <i class="bi bi-archive mr-2"></i>
+        Backups
+      </ModernButton>
 
-    <button
-      class="tab {activeTab === 'schedules' ? 'tab-active' : ''}"
-      onclick={() => (activeTab = "schedules")}
-    >
-      <svg
-        class="w-5 h-5 mr-2"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
+      <ModernButton
+        variant={activeTab === "schedules" ? "primary" : "ghost"}
+        onclick={() => (activeTab = "schedules")}
+        class="flex-1"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-      Schedules
-    </button>
+        <i class="bi bi-clock-history mr-2"></i>
+        Schedules
+      </ModernButton>
 
-    <button
-      class="tab {activeTab === 'export' ? 'tab-active' : ''}"
-      onclick={() => (activeTab = "export")}
-    >
-      <svg
-        class="w-5 h-5 mr-2"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
+      <ModernButton
+        variant={activeTab === "export" ? "primary" : "ghost"}
+        onclick={() => (activeTab = "export")}
+        class="flex-1"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-        />
-      </svg>
-      Export/Import
-    </button>
-  </div>
+        <i class="bi bi-cloud-arrow-down mr-2"></i>
+        Export/Import
+      </ModernButton>
+    </div>
+  </ModernCard>
 
   <!-- Tab Content -->
   {#if activeTab === "backups"}
     <div class="backups-tab">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold">Backup History</h2>
-        <div class="flex gap-2 items-center">
-          <!-- View Mode Toggle -->
-          <div
-            class="flex rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700"
-          >
-            <button
-              class="px-3 py-1.5 text-sm transition-all {viewMode === 'timeline'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
-              onclick={() => (viewMode = "timeline")}
-              title="Timeline View"
+      <ModernCard variant="glass" class="mb-4">
+        <div
+          class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4"
+        >
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+            Backup History
+          </h2>
+          <div class="flex flex-wrap gap-2 items-center">
+            <!-- View Mode Toggle -->
+            <div
+              class="flex rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700"
             >
-              <i class="bi bi-clock-history"></i>
-            </button>
-            <button
-              class="px-3 py-1.5 text-sm border-l-2 border-gray-200 dark:border-gray-700 transition-all {viewMode ===
-              'grid'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
-              onclick={() => (viewMode = "grid")}
-              title="Grid View"
-            >
-              <i class="bi bi-grid-3x3-gap"></i>
-            </button>
-          </div>
+              <button
+                class="px-3 py-1.5 text-sm transition-all {viewMode ===
+                'timeline'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
+                onclick={() => (viewMode = "timeline")}
+                title="Timeline View"
+              >
+                <i class="bi bi-clock-history"></i>
+              </button>
+              <button
+                class="px-3 py-1.5 text-sm border-l-2 border-gray-200 dark:border-gray-700 transition-all {viewMode ===
+                'grid'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
+                onclick={() => (viewMode = "grid")}
+                title="Grid View"
+              >
+                <i class="bi bi-grid-3x3-gap"></i>
+              </button>
+            </div>
 
-          <!-- Create Backup Buttons -->
-          <button
-            class="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all flex items-center gap-2 text-sm shadow-md"
-            onclick={() => createBackup("full")}
-          >
-            <i class="bi bi-plus-lg"></i>
-            Full Backup
-          </button>
-          <button
-            class="px-3 py-1.5 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all flex items-center gap-2 text-sm"
-            onclick={() => createBackup("database")}
-          >
-            Database
-          </button>
-          <button
-            class="px-3 py-1.5 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all flex items-center gap-2 text-sm"
-            onclick={() => createBackup("files")}
-          >
-            Files
-          </button>
+            <!-- Create Backup Buttons -->
+            <ModernButton
+              variant="gradient"
+              onclick={() => createBackup("full")}
+            >
+              <i class="bi bi-plus-lg mr-2"></i>
+              Full Backup
+            </ModernButton>
+            <ModernButton
+              variant="secondary"
+              onclick={() => createBackup("database")}
+            >
+              Database
+            </ModernButton>
+            <ModernButton
+              variant="secondary"
+              onclick={() => createBackup("files")}
+            >
+              Files
+            </ModernButton>
+          </div>
         </div>
-      </div>
+      </ModernCard>
 
       {#if loadingBackups}
-        <div class="flex justify-center py-12">
-          <span class="loading loading-spinner loading-lg"></span>
-        </div>
+        <ModernCard variant="glass">
+          <div class="flex justify-center py-12">
+            <span class="loading loading-spinner loading-lg text-primary-600"
+            ></span>
+          </div>
+        </ModernCard>
       {:else if backups.length === 0}
-        <div class="text-center py-12">
-          <i class="bi bi-archive text-6xl text-base-content/30 mb-4"></i>
-          <p class="text-base-content/70 mb-4">No backups found</p>
-          <button
-            class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-500/25"
-            onclick={() => createBackup("full")}
-          >
-            Create your first backup
-          </button>
-        </div>
+        <ModernCard variant="glass">
+          <div class="text-center py-12">
+            <i
+              class="bi bi-archive text-6xl text-gray-300 dark:text-gray-600 mb-4"
+            ></i>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+              No backups found
+            </p>
+            <ModernButton
+              variant="gradient"
+              onclick={() => createBackup("full")}
+            >
+              <i class="bi bi-plus-lg mr-2"></i>
+              Create your first backup
+            </ModernButton>
+          </div>
+        </ModernCard>
       {:else if viewMode === "timeline"}
         <!-- Timeline View -->
         <div class="backup-timeline">
@@ -303,33 +292,35 @@
               </div>
 
               <div class="timeline-content">
-                <div
-                  class="card bg-white dark:bg-slate-900 shadow-md hover:shadow-lg transition-all"
+                <ModernCard
+                  variant="glass"
+                  hoverable
+                  class="border-2 border-gray-100 dark:border-gray-800 hover:border-primary-200 dark:hover:border-primary-800"
                 >
-                  <div class="card-body p-4">
+                  <div class="p-4">
                     <div class="flex justify-between items-start mb-3">
                       <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-2">
-                          <span
-                            class="badge badge-outline badge-{getStatusColor(
-                              backup.status
-                            )} badge-lg"
-                          >
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                          <span class="badge-glass-primary">
                             {backup.backup_type}
                           </span>
-                          <span class="badge {getStatusBadge(backup.status)}">
+                          <span class={getStatusBadge(backup.status)}>
                             {backup.status}
                           </span>
                         </div>
-                        <h3 class="font-bold text-sm text-base-content/70">
+                        <h3
+                          class="font-bold text-sm text-gray-600 dark:text-gray-400"
+                        >
                           {backup.id}
                         </h3>
                       </div>
                       <div class="text-right">
-                        <div class="text-sm font-semibold text-primary">
+                        <div
+                          class="text-sm font-semibold text-primary-600 dark:text-primary-400"
+                        >
                           {getRelativeTime(backup.created_at)}
                         </div>
-                        <div class="text-xs text-base-content/50">
+                        <div class="text-xs text-gray-500 dark:text-gray-500">
                           {formatDate(backup.created_at)}
                         </div>
                       </div>
@@ -338,21 +329,27 @@
                     <!-- Backup Stats -->
                     <div class="grid grid-cols-3 gap-3 mb-3">
                       <div class="stat-mini">
-                        <i class="bi bi-hdd text-primary"></i>
+                        <i
+                          class="bi bi-hdd text-primary-600 dark:text-primary-400"
+                        ></i>
                         <div class="stat-mini-label">Size</div>
                         <div class="stat-mini-value">
                           {formatBytes(backup.size_bytes)}
                         </div>
                       </div>
                       <div class="stat-mini">
-                        <i class="bi bi-files text-secondary"></i>
+                        <i
+                          class="bi bi-files text-secondary-600 dark:text-secondary-400"
+                        ></i>
                         <div class="stat-mini-label">Files</div>
                         <div class="stat-mini-value">
                           {backup.file_count || 0}
                         </div>
                       </div>
                       <div class="stat-mini">
-                        <i class="bi bi-speedometer2 text-accent"></i>
+                        <i
+                          class="bi bi-speedometer2 text-purple-600 dark:text-purple-400"
+                        ></i>
                         <div class="stat-mini-label">Duration</div>
                         <div class="stat-mini-value">
                           {backup.duration_seconds
@@ -363,40 +360,49 @@
                     </div>
 
                     {#if backup.error_message}
-                      <div class="alert alert-error alert-sm mb-3">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        <span class="text-xs">{backup.error_message}</span>
+                      <div
+                        class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-3 flex items-start gap-2"
+                      >
+                        <i
+                          class="bi bi-exclamation-triangle-fill text-red-600 dark:text-red-400"
+                        ></i>
+                        <span class="text-xs text-red-700 dark:text-red-300"
+                          >{backup.error_message}</span
+                        >
                       </div>
                     {/if}
 
                     <!-- Actions -->
-                    <div class="flex gap-2 justify-end">
+                    <div class="flex flex-wrap gap-2 justify-end">
                       {#if backup.status === "completed"}
-                        <button
-                          class="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all flex items-center gap-2 text-sm shadow-md"
+                        <ModernButton
+                          variant="primary"
                           onclick={() => previewRestore(backup)}
+                          size="sm"
                         >
-                          <i class="bi bi-arrow-counterclockwise"></i>
+                          <i class="bi bi-arrow-counterclockwise mr-1"></i>
                           Restore
-                        </button>
-                        <button
-                          class="px-3 py-1.5 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all flex items-center gap-2 text-sm"
+                        </ModernButton>
+                        <ModernButton
+                          variant="secondary"
                           onclick={() => (selectedBackup = backup)}
+                          size="sm"
                         >
-                          <i class="bi bi-shield-check"></i>
+                          <i class="bi bi-shield-check mr-1"></i>
                           Verify
-                        </button>
+                        </ModernButton>
                       {/if}
-                      <button
-                        class="px-3 py-1.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all flex items-center gap-2 text-sm"
+                      <ModernButton
+                        variant="danger"
                         onclick={() => deleteBackup(backup.id)}
+                        size="sm"
                         aria-label="Delete backup"
                       >
                         <i class="bi bi-trash"></i>
-                      </button>
+                      </ModernButton>
                     </div>
                   </div>
-                </div>
+                </ModernCard>
               </div>
             </div>
           {/each}
@@ -405,114 +411,99 @@
         <!-- Grid View (Original) -->
         <div class="grid gap-4">
           {#each backups as backup}
-            <div class="card bg-slate-50 dark:bg-slate-800 shadow-md">
-              <div class="card-body">
-                <div class="flex justify-between items-start">
+            <ModernCard variant="glass" hoverable>
+              <div class="p-4">
+                <div
+                  class="flex flex-col sm:flex-row justify-between items-start gap-4"
+                >
                   <div class="flex-1">
-                    <h3 class="card-title text-lg mb-2">
-                      <span class="badge badge-sm">{backup.backup_type}</span>
-                      {backup.id}
-                      <div
-                        class="badge badge-sm {getStatusBadge(backup.status)}"
+                    <h3
+                      class="text-lg font-bold mb-2 flex flex-wrap items-center gap-2"
+                    >
+                      <span class="badge-glass-primary"
+                        >{backup.backup_type}</span
                       >
+                      <span class="text-gray-900 dark:text-gray-100 text-base"
+                        >{backup.id}</span
+                      >
+                      <span class={getStatusBadge(backup.status)}>
                         {backup.status}
-                      </div>
+                      </span>
                     </h3>
 
-                    <div class="grid grid-cols-3 gap-3 text-sm">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                       <div>
-                        <span class="text-base-content/70">Size:</span>
-                        <span class="ml-2 font-semibold"
+                        <span class="text-gray-600 dark:text-gray-400"
+                          >Size:</span
+                        >
+                        <span
+                          class="ml-2 font-semibold text-gray-900 dark:text-gray-100"
                           >{formatBytes(backup.size_bytes)}</span
                         >
                       </div>
                       <div>
-                        <span class="text-base-content/70">Files:</span>
-                        <span class="ml-2 font-semibold"
+                        <span class="text-gray-600 dark:text-gray-400"
+                          >Files:</span
+                        >
+                        <span
+                          class="ml-2 font-semibold text-gray-900 dark:text-gray-100"
                           >{backup.file_count || 0}</span
                         >
                       </div>
                       <div>
-                        <span class="text-base-content/70">Created:</span>
-                        <span class="ml-2">{formatDate(backup.created_at)}</span
+                        <span class="text-gray-600 dark:text-gray-400"
+                          >Created:</span
+                        >
+                        <span class="ml-2 text-gray-900 dark:text-gray-100"
+                          >{formatDate(backup.created_at)}</span
                         >
                       </div>
                     </div>
 
                     {#if backup.error_message}
-                      <div class="alert alert-error mt-2">
-                        <svg
-                          class="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                      <div
+                        class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mt-3 flex items-start gap-2"
+                      >
+                        <i
+                          class="bi bi-exclamation-circle-fill text-red-600 dark:text-red-400"
+                        ></i>
+                        <span class="text-sm text-red-700 dark:text-red-300"
+                          >{backup.error_message}</span
                         >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        <span>{backup.error_message}</span>
                       </div>
                     {/if}
                   </div>
 
-                  <div class="flex gap-2">
+                  <div class="flex flex-wrap gap-2">
                     {#if backup.status === "completed"}
-                      <button
-                        class="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all flex items-center gap-2 text-sm shadow-md"
+                      <ModernButton
+                        variant="secondary"
                         onclick={() => (selectedBackup = backup)}
                       >
-                        <svg
-                          class="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
+                        <i class="bi bi-shield-check mr-1"></i>
                         Verify
-                      </button>
+                      </ModernButton>
                     {/if}
 
-                    <button
-                      class="px-3 py-1.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all flex items-center gap-2 text-sm"
+                    <ModernButton
+                      variant="danger"
                       onclick={() => deleteBackup(backup.id)}
                       aria-label="Delete backup"
                     >
-                      <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
+                      <i class="bi bi-trash"></i>
+                    </ModernButton>
                   </div>
                 </div>
 
                 {#if selectedBackup?.id === backup.id}
                   <div
-                    class="mt-4 pt-4 border-t border-slate-300 dark:border-slate-600"
+                    class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"
                   >
                     <BackupVerificationPanel backupId={backup.id} />
                   </div>
                 {/if}
               </div>
-            </div>
+            </ModernCard>
           {/each}
         </div>
       {/if}
@@ -520,148 +511,171 @@
   {:else if activeTab === "schedules"}
     <BackupScheduleManager />
   {:else if activeTab === "export"}
-    <div class="export-tab">
-      <div class="alert alert-info mb-6">
-        <svg
-          class="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+    <div class="export-tab space-y-4">
+      <ModernCard variant="glass">
+        <div
+          class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <div>
-          <h3 class="font-bold">Export/Import Feature</h3>
-          <div class="text-sm">
-            Manual backup export and import coming soon. Use the Backups tab for
-            automated backups.
+          <i
+            class="bi bi-info-circle-fill text-blue-600 dark:text-blue-400 text-2xl"
+          ></i>
+          <div>
+            <h3 class="font-bold text-blue-900 dark:text-blue-100 mb-1">
+              Export/Import Feature
+            </h3>
+            <div class="text-sm text-blue-800 dark:text-blue-200">
+              Manual backup export and import coming soon. Use the Backups tab
+              for automated backups.
+            </div>
           </div>
         </div>
-      </div>
+      </ModernCard>
 
-      <div class="card bg-slate-50 dark:bg-slate-800">
-        <div class="card-body">
-          <h3 class="card-title">Coming Soon</h3>
-          <p>
+      <ModernCard variant="glass">
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            Coming Soon
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400">
             Manual export and import functionality will be integrated here. For
             now, use the backend API or schedules for automated backups.
           </p>
         </div>
-      </div>
+      </ModernCard>
     </div>
   {/if}
-</div>
+</PageWrapper>
 
 <!-- Restore Preview Modal -->
 {#if showRestoreModal && restorePreview}
-  <div class="modal modal-open">
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
     <div
-      class="modal-backdrop-enhanced"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm"
       onclick={() => (showRestoreModal = false)}
       onkeydown={(e) => e.key === "Escape" && (showRestoreModal = false)}
       role="button"
       tabindex="0"
       aria-label="Close modal"
     ></div>
-    <div class="modal-box max-w-2xl">
-      <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
-        <i class="bi bi-arrow-counterclockwise text-primary"></i>
-        Restore Preview
-      </h3>
 
-      <div class="alert alert-warning mb-4">
-        <i class="bi bi-exclamation-triangle-fill"></i>
-        <div>
-          <div class="font-bold">Warning</div>
-          <div class="text-sm">
-            Restoring will replace current data. Make sure you have a recent
-            backup before proceeding.
-          </div>
-        </div>
-      </div>
-
-      <div class="space-y-4">
-        <!-- Backup Details -->
-        <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
-          <h4 class="font-semibold mb-3">Backup Information</h4>
-          <div class="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <span class="text-base-content/70">Backup ID:</span>
-              <div class="font-mono text-xs mt-1">
-                {restorePreview.backupId}
-              </div>
-            </div>
-            <div>
-              <span class="text-base-content/70">Created:</span>
-              <div class="mt-1">{formatDate(restorePreview.backupDate)}</div>
-            </div>
-            <div>
-              <span class="text-base-content/70">Type:</span>
-              <div class="mt-1">
-                <span class="badge badge-outline">{restorePreview.type}</span>
-              </div>
-            </div>
-            <div>
-              <span class="text-base-content/70">Size:</span>
-              <div class="mt-1">{formatBytes(restorePreview.size)}</div>
-            </div>
-            <div>
-              <span class="text-base-content/70">Files:</span>
-              <div class="mt-1">
-                {restorePreview.fileCount.toLocaleString()}
-              </div>
-            </div>
-            <div>
-              <span class="text-base-content/70">Estimated Duration:</span>
-              <div class="mt-1">{restorePreview.estimatedDuration}</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Restore Impact -->
-        <div class="bg-error/10 border border-error/20 rounded-lg p-4">
-          <h4 class="font-semibold text-error mb-2 flex items-center gap-2">
-            <i class="bi bi-exclamation-octagon-fill"></i>
-            Restore Impact
-          </h4>
-          <ul
-            class="list-disc list-inside text-sm space-y-1 text-base-content/70"
-          >
-            <li>All current files will be replaced with backup versions</li>
-            <li>Database will be restored to backup state</li>
-            <li>Recent changes since backup will be lost</li>
-            <li>System will be unavailable during restore</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="modal-action">
-        <button
-          class="btn btn-ghost"
-          onclick={() => (showRestoreModal = false)}
+    <ModernCard
+      variant="glass"
+      class="relative max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+    >
+      <div class="p-6">
+        <h3
+          class="font-bold text-xl mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100"
         >
-          Cancel
-        </button>
-        <button class="btn btn-error" onclick={confirmRestore}>
-          <i class="bi bi-arrow-counterclockwise"></i>
-          Confirm Restore
-        </button>
+          <i class="bi bi-arrow-counterclockwise text-primary-600"></i>
+          Restore Preview
+        </h3>
+
+        <div
+          class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4 flex items-start gap-3"
+        >
+          <i
+            class="bi bi-exclamation-triangle-fill text-yellow-600 dark:text-yellow-400 text-xl"
+          ></i>
+          <div>
+            <div class="font-bold text-yellow-900 dark:text-yellow-100">
+              Warning
+            </div>
+            <div class="text-sm text-yellow-800 dark:text-yellow-200">
+              Restoring will replace current data. Make sure you have a recent
+              backup before proceeding.
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Backup Details -->
+          <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+            <h4 class="font-semibold mb-3 text-gray-900 dark:text-gray-100">
+              Backup Information
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div>
+                <span class="text-gray-600 dark:text-gray-400">Backup ID:</span>
+                <div
+                  class="font-mono text-xs mt-1 text-gray-900 dark:text-gray-100"
+                >
+                  {restorePreview.backupId}
+                </div>
+              </div>
+              <div>
+                <span class="text-gray-600 dark:text-gray-400">Created:</span>
+                <div class="mt-1 text-gray-900 dark:text-gray-100">
+                  {formatDate(restorePreview.backupDate)}
+                </div>
+              </div>
+              <div>
+                <span class="text-gray-600 dark:text-gray-400">Type:</span>
+                <div class="mt-1">
+                  <span class="badge-glass-primary">{restorePreview.type}</span>
+                </div>
+              </div>
+              <div>
+                <span class="text-gray-600 dark:text-gray-400">Size:</span>
+                <div class="mt-1 text-gray-900 dark:text-gray-100">
+                  {formatBytes(restorePreview.size)}
+                </div>
+              </div>
+              <div>
+                <span class="text-gray-600 dark:text-gray-400">Files:</span>
+                <div class="mt-1 text-gray-900 dark:text-gray-100">
+                  {restorePreview.fileCount.toLocaleString()}
+                </div>
+              </div>
+              <div>
+                <span class="text-gray-600 dark:text-gray-400"
+                  >Estimated Duration:</span
+                >
+                <div class="mt-1 text-gray-900 dark:text-gray-100">
+                  {restorePreview.estimatedDuration}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Restore Impact -->
+          <div
+            class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
+          >
+            <h4
+              class="font-semibold text-red-700 dark:text-red-300 mb-2 flex items-center gap-2"
+            >
+              <i class="bi bi-exclamation-octagon-fill"></i>
+              Restore Impact
+            </h4>
+            <ul
+              class="list-disc list-inside text-sm space-y-1 text-red-600 dark:text-red-400"
+            >
+              <li>All current files will be replaced with backup versions</li>
+              <li>Database will be restored to backup state</li>
+              <li>Recent changes since backup will be lost</li>
+              <li>System will be unavailable during restore</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 mt-6">
+          <ModernButton
+            variant="ghost"
+            onclick={() => (showRestoreModal = false)}
+          >
+            Cancel
+          </ModernButton>
+          <ModernButton variant="danger" onclick={confirmRestore}>
+            <i class="bi bi-arrow-counterclockwise mr-2"></i>
+            Confirm Restore
+          </ModernButton>
+        </div>
       </div>
-    </div>
+    </ModernCard>
   </div>
 {/if}
 
 <style>
-  .backup-view {
-    padding: 1.5rem;
-    min-height: calc(100vh - 200px);
-  }
-
   /* Timeline Styles */
   .backup-timeline {
     position: relative;
@@ -699,19 +713,19 @@
   }
 
   .timeline-icon-success {
-    background: hsl(var(--su));
-    color: hsl(var(--suc));
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
   }
 
   .timeline-icon-warning {
-    background: hsl(var(--wa));
-    color: hsl(var(--wac));
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
   .timeline-icon-error {
-    background: hsl(var(--er));
-    color: hsl(var(--erc));
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
   }
 
   .timeline-line {
@@ -722,8 +736,8 @@
     width: 2px;
     background: linear-gradient(
       to bottom,
-      hsl(var(--bc) / 0.2) 0%,
-      hsl(var(--bc) / 0.1) 100%
+      rgba(156, 163, 175, 0.3) 0%,
+      rgba(156, 163, 175, 0.1) 100%
     );
     transform: translateX(-50%);
     z-index: 1;
@@ -731,15 +745,7 @@
 
   .timeline-content {
     flex: 1;
-    animation: slideEnter 0.4s ease-out;
-  }
-
-  .timeline-content .card {
-    border: 2px solid hsl(var(--bc) / 0.05);
-  }
-
-  .timeline-content .card:hover {
-    border-color: hsl(var(--p) / 0.2);
+    animation: slide-up 0.4s ease-out;
   }
 
   /* Mini Stats */
@@ -749,9 +755,13 @@
     align-items: center;
     gap: 0.25rem;
     padding: 0.75rem;
-    background: hsl(var(--b2) / 0.5);
+    background: rgba(229, 231, 235, 0.3);
     border-radius: 0.5rem;
     text-align: center;
+  }
+
+  :global(.dark) .stat-mini {
+    background: rgba(55, 65, 81, 0.3);
   }
 
   .stat-mini i {
@@ -762,25 +772,23 @@
   .stat-mini-label {
     font-size: 0.625rem;
     font-weight: 600;
-    color: hsl(var(--bc) / 0.6);
+    color: rgb(107, 114, 128);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+  }
+
+  :global(.dark) .stat-mini-label {
+    color: rgb(156, 163, 175);
   }
 
   .stat-mini-value {
     font-size: 0.875rem;
     font-weight: 700;
-    color: hsl(var(--bc));
+    color: rgb(17, 24, 39);
   }
 
-  /* Modal Backdrop */
-  .modal-backdrop-enhanced {
-    position: fixed;
-    inset: 0;
-    background: hsl(var(--b1) / 0.7);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    animation: fadeIn 0.3s ease-out;
+  :global(.dark) .stat-mini-value {
+    color: rgb(243, 244, 246);
   }
 
   @media (max-width: 768px) {

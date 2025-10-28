@@ -1,6 +1,10 @@
 <script>
   import { onMount } from "svelte";
   import api from "../../lib/api.js";
+  import PageWrapper from "../../components/PageWrapper.svelte";
+  import PageHeader from "../../components/ui/PageHeader.svelte";
+  import ModernCard from "../../components/ui/ModernCard.svelte";
+  import ModernButton from "../../components/ui/ModernButton.svelte";
 
   let recentFiles = $state([]);
   let loading = $state(true);
@@ -68,16 +72,16 @@
 
   function getAccessTypeBadge(accessType) {
     const badges = {
-      view: { icon: "👁️", label: "Viewed", color: "badge-info" },
-      edit: { icon: "✏️", label: "Edited", color: "badge-warning" },
-      download: { icon: "⬇️", label: "Downloaded", color: "badge-success" },
-      upload: { icon: "⬆️", label: "Uploaded", color: "badge-primary" },
+      view: { icon: "eye", label: "Viewed", color: "info" },
+      edit: { icon: "pencil", label: "Edited", color: "warning" },
+      download: { icon: "download", label: "Downloaded", color: "success" },
+      upload: { icon: "upload", label: "Uploaded", color: "primary" },
     };
     return (
       badges[accessType] || {
-        icon: "📁",
+        icon: "file-earmark",
         label: "Accessed",
-        color: "badge-ghost",
+        color: "info",
       }
     );
   }
@@ -100,289 +104,147 @@
   }
 </script>
 
-<div class="recent-files-view">
-  <div class="view-header">
-    <div class="header-content">
-      <div class="title-section">
-        <h1 class="view-title">
-          <span class="icon">🕒</span>
-          Recent Files
-        </h1>
-        <p class="view-subtitle">Files you've recently accessed</p>
-      </div>
+<PageWrapper gradient>
+  <PageHeader
+    title="Recent Files"
+    subtitle="Files you've recently accessed"
+    icon="clock-history"
+  >
+    {#snippet actions()}
+      <select
+        class="glass-input px-3 py-1.5 rounded-lg text-sm"
+        bind:value={limit}
+        onchange={loadRecentFiles}
+      >
+        <option value={10}>Last 10</option>
+        <option value={20}>Last 20</option>
+        <option value={50}>Last 50</option>
+        <option value={100}>Last 100</option>
+      </select>
 
-      <div class="header-actions">
-        <select
-          class="px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
-          bind:value={limit}
-          onchange={loadRecentFiles}
-        >
-          <option value={10}>Last 10</option>
-          <option value={20}>Last 20</option>
-          <option value={50}>Last 50</option>
-          <option value={100}>Last 100</option>
-        </select>
+      <ModernButton
+        variant="secondary"
+        icon="arrow-clockwise"
+        onclick={loadRecentFiles}
+        disabled={loading}
+      >
+        Refresh
+      </ModernButton>
+    {/snippet}
+  </PageHeader>
 
-        <button
-          class="px-3 py-1.5 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          onclick={loadRecentFiles}
-          disabled={loading}
-        >
-          <i class="bi bi-arrow-clockwise"></i>
-          Refresh
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div class="view-content">
+  <div class="space-y-6">
     {#if loading}
-      <div class="loading-state">
+      <div class="flex items-center justify-center py-16">
         <div
-          class="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"
         ></div>
-        <p>Loading recent files...</p>
       </div>
     {:else if error}
-      <div class="error-state">
-        <i
-          class="bi bi-exclamation-triangle text-6xl text-red-600 dark:text-red-400"
-        ></i>
-        <p class="text-red-600 dark:text-red-400">{error}</p>
-        <button
-          class="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all text-sm"
-          onclick={loadRecentFiles}
-        >
-          Try Again
-        </button>
-      </div>
-    {:else if recentFiles.length === 0}
-      <div class="empty-state">
-        <i class="bi bi-clock-history text-8xl opacity-20"></i>
-        <h3>No recent files</h3>
-        <p>Files you access will appear here</p>
-      </div>
-    {:else}
-      <div class="files-grid">
-        {#each recentFiles as file}
-          <div
-            class="file-card"
-            onclick={() => openFile(file)}
-            role="button"
-            tabindex="0"
-          >
-            <div class="file-icon">
-              {getFileIcon(file.mime_type)}
+      <ModernCard variant="glass" padding="large">
+        {#snippet children()}
+          <div class="text-center animate-fade-in">
+            <div class="mb-6">
+              <i class="bi bi-exclamation-triangle text-6xl text-red-500/30"
+              ></i>
             </div>
-
-            <div class="file-info">
-              <div class="file-name" title={file.filename}>
-                {file.filename}
-              </div>
-
-              <div class="file-meta">
-                <span class="file-size">{formatFileSize(file.size_bytes)}</span>
-                <span class="separator">•</span>
-                <span class="file-date">
-                  {formatLastAccessed(file.last_accessed_at)}
-                </span>
-              </div>
-
-              <div class="file-stats">
-                <span class="stat">
-                  <i class="bi bi-eye"></i>
-                  {file.access_count}
-                  {file.access_count === 1 ? "time" : "times"}
-                </span>
-
-                {#if file.access_type}
-                  {@const badge = getAccessTypeBadge(file.access_type)}
-                  <span
-                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
-                  >
-                    {badge.icon}
-                    {badge.label}
-                  </span>
-                {/if}
-              </div>
-            </div>
-
-            <div class="file-actions">
-              <button
-                class="p-1 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-xs"
-                onclick={(e) => {
-                  e.stopPropagation();
-                  console.log("Quick preview");
-                }}
-              >
-                <i class="bi bi-eye"></i>
-              </button>
-            </div>
+            <h3 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-3">
+              {error}
+            </h3>
+            <ModernButton
+              variant="gradient"
+              icon="arrow-clockwise"
+              onclick={loadRecentFiles}
+            >
+              Try Again
+            </ModernButton>
           </div>
+        {/snippet}
+      </ModernCard>
+    {:else if recentFiles.length === 0}
+      <ModernCard variant="glass" padding="large">
+        {#snippet children()}
+          <div class="text-center animate-fade-in">
+            <div class="mb-6">
+              <i class="bi bi-clock-history text-8xl opacity-20"></i>
+            </div>
+            <h3
+              class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100"
+            >
+              No recent files
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              Files you access will appear here
+            </p>
+          </div>
+        {/snippet}
+      </ModernCard>
+    {:else}
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {#each recentFiles as file, i}
+          <ModernCard
+            variant="glass"
+            hoverable
+            clickable
+            onclick={() => openFile(file)}
+            class="animate-slide-up"
+            style="animation-delay: {i * 30}ms"
+          >
+            {#snippet children()}
+              <div class="flex gap-4">
+                <div class="text-5xl flex-shrink-0">
+                  {getFileIcon(file.mime_type)}
+                </div>
+
+                <div class="flex-1 min-w-0">
+                  <h3
+                    class="font-bold text-lg mb-2 truncate text-gray-900 dark:text-gray-100"
+                    title={file.filename}
+                  >
+                    {file.filename}
+                  </h3>
+
+                  <div
+                    class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3"
+                  >
+                    <span>{formatFileSize(file.size_bytes)}</span>
+                    <span>•</span>
+                    <span>{formatLastAccessed(file.last_accessed_at)}</span>
+                  </div>
+
+                  <div class="flex gap-2 flex-wrap items-center">
+                    <span class="badge-glass-info text-xs">
+                      <i class="bi bi-eye"></i>
+                      {file.access_count}
+                      {file.access_count === 1 ? "time" : "times"}
+                    </span>
+
+                    {#if file.access_type}
+                      {@const badge = getAccessTypeBadge(file.access_type)}
+                      <span class="badge-glass-{badge.color} text-xs">
+                        <i class="bi bi-{badge.icon}"></i>
+                        {badge.label}
+                      </span>
+                    {/if}
+                  </div>
+                </div>
+
+                <div class="flex-shrink-0">
+                  <ModernButton
+                    variant="ghost"
+                    size="sm"
+                    icon="eye"
+                    onclick={(e) => {
+                      e.stopPropagation();
+                      console.log("Quick preview");
+                    }}
+                  />
+                </div>
+              </div>
+            {/snippet}
+          </ModernCard>
         {/each}
       </div>
     {/if}
   </div>
-</div>
-
-<style>
-  .recent-files-view {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background: white;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .recent-files-view {
-      background: rgb(17 24 39);
-    }
-  }
-
-  .view-header {
-    padding: 2rem;
-    background: white;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .view-header {
-      background: rgb(17 24 39);
-      border-bottom-color: rgba(255, 255, 255, 0.1);
-    }
-  }
-
-  .header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 2rem;
-  }
-
-  .title-section {
-    flex: 1;
-  }
-
-  .view-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0 0 0.5rem 0;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .view-title .icon {
-    font-size: 2.5rem;
-  }
-
-  .view-subtitle {
-    color: hsl(var(--bc) / 0.6);
-    margin: 0;
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-  }
-
-  .view-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 2rem;
-  }
-
-  .files-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .file-card {
-    display: flex;
-    gap: 1rem;
-    padding: 1.25rem;
-    background: hsl(var(--b2));
-    border: 1px solid hsl(var(--bc) / 0.1);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .file-card:hover {
-    background: hsl(var(--b3));
-    border-color: hsl(var(--p) / 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px hsl(var(--bc) / 0.1);
-  }
-
-  .file-icon {
-    font-size: 2.5rem;
-    flex-shrink: 0;
-  }
-
-  .file-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .file-name {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .file-meta {
-    font-size: 0.875rem;
-    color: hsl(var(--bc) / 0.6);
-    margin-bottom: 0.5rem;
-  }
-
-  .separator {
-    margin: 0 0.5rem;
-  }
-
-  .file-stats {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .stat {
-    font-size: 0.75rem;
-    color: hsl(var(--bc) / 0.5);
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
-
-  .file-actions {
-    flex-shrink: 0;
-  }
-
-  .loading-state,
-  .error-state,
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 400px;
-    gap: 1rem;
-  }
-
-  .empty-state h3 {
-    margin: 0.5rem 0 0 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
-  .empty-state p {
-    color: hsl(var(--bc) / 0.5);
-    margin: 0;
-  }
-</style>
+</PageWrapper>

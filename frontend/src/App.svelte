@@ -28,7 +28,6 @@
 
   // Tools Views
   import DuplicatesView from "./pages/tools/DuplicatesView.svelte";
-  import PerformanceView from "./pages/tools/PerformanceView.svelte";
 
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
@@ -71,6 +70,15 @@
   $effect(() => {
     if (typeof document !== "undefined") {
       document.documentElement.setAttribute("data-theme", $currentTheme);
+
+      // Add/remove 'dark' class for Tailwind v4
+      const isDark =
+        $currentTheme === "syncspace-dark" || $currentTheme === "dark";
+      if (isDark) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
     }
   });
 
@@ -98,11 +106,11 @@
     <Login />
   {/if}
 {:else}
-  <div class="app-container">
+  <div class="app-container bg-gray-50 dark:bg-gray-900 transition-colors">
     <Sidebar />
     <div class="main-wrapper">
       <AppHeader on:navigate={handleNavigate} />
-      <main class="main-content">
+      <main class="main-content bg-gray-50 dark:bg-gray-900">
         {#if $currentView === "design"}
           <DesignShowcase />
         {:else if $currentView === "files"}
@@ -127,8 +135,6 @@
           <DuplicatesView />
         {:else if $currentView === "backup"}
           <BackupView />
-        {:else if $currentView === "performance"}
-          <PerformanceView />
         {:else if $currentView === "notifications"}
           <NotificationsView />
         {:else if $currentView === "recent"}
@@ -147,7 +153,6 @@
     width: 100vw;
     display: flex;
     overflow: hidden;
-    background: var(--md-sys-color-background);
   }
 
   .main-wrapper {
@@ -160,6 +165,5 @@
   .main-content {
     flex: 1;
     overflow-y: auto;
-    background: var(--md-sys-color-background);
   }
 </style>

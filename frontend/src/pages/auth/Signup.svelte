@@ -353,13 +353,11 @@
   }
 
   /* Dark mode card */
-  @media (prefers-color-scheme: dark) {
-    .signup-card {
-      background: rgba(17, 24, 39, 0.95);
-      box-shadow:
-        0 8px 32px 0 rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-    }
+  :global(.dark) .signup-card {
+    background: rgba(17, 24, 39, 0.95);
+    box-shadow:
+      0 8px 32px 0 rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
   }
 
   /* Logo Circle with Pulse */
@@ -471,4 +469,3 @@
     }
   }
 </style>
-

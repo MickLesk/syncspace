@@ -32,21 +32,6 @@
       const saved = localStorage.getItem("theme") || "syncspace";
       applyTheme(saved);
     }
-
-    // Auto-detect system preference if no theme set
-    const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    if (!currentTheme || currentTheme === "syncspace") {
-      const prefersDark = darkModeQuery.matches;
-      if (prefersDark) {
-        applyTheme("syncspace-dark");
-      }
-    }
-
-    darkModeQuery.addEventListener("change", (e) => {
-      if (!$auth.isLoggedIn && !localStorage.getItem("theme")) {
-        applyTheme(e.matches ? "syncspace-dark" : "syncspace");
-      }
-    });
   });
 
   async function loadThemeFromBackend() {
@@ -113,14 +98,14 @@
 </script>
 
 <button
-  class="w-11 h-11 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300"
+  class="w-11 h-11 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 transition-all duration-300 border-2 border-gray-300 hover:border-gray-400"
   onclick={toggleTheme}
   title="Toggle theme"
 >
   <i
     class="{currentTheme === 'syncspace'
       ? 'bi-moon'
-      : 'bi-sun'} text-xl text-gray-700 dark:text-gray-200"
+      : 'bi-sun'} text-xl text-gray-700"
   ></i>
 </button>
 
@@ -138,4 +123,3 @@
     transform: rotate(180deg);
   }
 </style>
-
