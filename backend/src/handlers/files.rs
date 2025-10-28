@@ -134,7 +134,7 @@ pub async fn upload_file_handler(
     let _ = state.fs_tx.send(FileChangeEvent {
         path: path.clone(),
         kind: "create".to_string(),
-        timestamp: Utc::now(),
+        timestamp: Utc::now().to_rfc3339(),
         user_id: Some(user.id.to_string()),
         metadata: None,
     });
@@ -159,7 +159,7 @@ pub async fn upload_multipart_handler(
         let _ = state.fs_tx.send(FileChangeEvent {
             path: name,
             kind: "create".to_string(),
-            timestamp: Utc::now(),
+            timestamp: Utc::now().to_rfc3339(),
             user_id: Some(user.id.to_string()),
             metadata: None,
         });
@@ -180,7 +180,7 @@ pub async fn create_dir_handler(
     let _ = state.fs_tx.send(FileChangeEvent {
         path,
         kind: "create".to_string(),
-        timestamp: Utc::now(),
+        timestamp: Utc::now().to_rfc3339(),
         user_id: Some(user.id.to_string()),
         metadata: None,
     });
@@ -203,7 +203,7 @@ pub async fn rename_file_handler(
     let _ = state.fs_tx.send(FileChangeEvent {
         path,
         kind: "rename".to_string(),
-        timestamp: Utc::now(),
+        timestamp: Utc::now().to_rfc3339(),
         user_id: Some(user.id.to_string()),
         metadata: Some(serde_json::json!({ "new_path": req.new_path })),
     });
@@ -236,7 +236,7 @@ pub async fn copy_file_handler(
     let _ = state.fs_tx.send(FileChangeEvent {
         path: req.new_path.clone(),
         kind: "create".to_string(),
-        timestamp: Utc::now(),
+        timestamp: Utc::now().to_rfc3339(),
         user_id: Some(user.id.to_string()),
         metadata: Some(serde_json::json!({ "copied_from": path })),
     });
@@ -266,7 +266,7 @@ pub async fn delete_file_handler(
     let _ = state.fs_tx.send(FileChangeEvent {
         path,
         kind: "delete".to_string(),
-        timestamp: Utc::now(),
+        timestamp: Utc::now().to_rfc3339(),
         user_id: Some(user.id.to_string()),
         metadata: None,
     });
