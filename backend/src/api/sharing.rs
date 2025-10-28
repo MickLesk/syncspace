@@ -18,6 +18,8 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/shares", get(list_shares).post(create_share))
         .route("/shares/{share_id}", get(get_share).put(update_share).delete(delete_share))
+        .route("/shares/{share_id}/permissions", put(update_share_permissions))
+        .route("/shared-with-me", get(list_shared_with_me))
 }
 
 async fn list_shares(State(state): State<AppState>, user: UserInfo) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
@@ -41,4 +43,23 @@ async fn update_share(State(state): State<AppState>, user: UserInfo, Path(share_
 
 async fn delete_share(State(state): State<AppState>, user: UserInfo, Path(share_id): Path<String>) -> Result<StatusCode, StatusCode> {
     services::sharing::delete_share(&state, &user, &share_id).await.map(|_| StatusCode::NO_CONTENT).map_err(|_| StatusCode::NOT_FOUND)
+}
+
+async fn update_share_permissions(
+    State(state): State<AppState>,
+    user: UserInfo,
+    Path(share_id): Path<String>,
+    Json(req): Json<serde_json::Value>,
+) -> Result<StatusCode, StatusCode> {
+    // Reuse update_share for now
+    services::sharing::update_share(&state, &user, &share_id, req).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
+}
+
+async fn list_shared_with_me(
+    State(state): State<AppState>,
+    user: UserInfo,
+) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
+    // TODO: Implement actual query for files shared with current user
+    let shares = services::sharing::list_shares(&state, &user).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(shares.into_iter().map(|s| serde_json::to_value(s).unwrap_or_default()).collect()))
 }

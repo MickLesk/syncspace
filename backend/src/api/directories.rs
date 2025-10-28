@@ -54,14 +54,15 @@ pub fn router() -> Router<AppState> {
         .route("/dirs/batch/move", post(batch_move_handler))
         // Create directory (using query param or request body for path)
         .route("/dirs/create", post(create_dir_handler))
-        // Create directory with path parameter (for compatibility)
-        .route("/dirs/{*path}", post(create_dir_from_path))
+        // SPECIFIC routes MUST come BEFORE catch-all routes!
         // Move directory
         .route("/dirs/{dir_id}/move", put(move_dir_handler))
         // Rename directory
         .route("/dirs/{dir_id}/rename", put(rename_dir_handler))
         // Delete directory (soft delete to trash)
         .route("/dirs/{dir_id}", delete(delete_dir_handler))
+        // Create directory with path parameter uses POST /dirs with body now
+        // REMOVED catch-all to avoid conflicts - use /dirs/create instead
 }
 
 // ==================== HANDLERS ====================
