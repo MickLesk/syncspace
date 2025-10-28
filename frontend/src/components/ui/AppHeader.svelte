@@ -61,7 +61,7 @@
     try {
       // Load fresh server info
       serverInfo = await api.system.getStatus();
-      
+
       // Calculate uptime if available
       if (serverInfo?.uptime_seconds) {
         backendUptime = formatUptime(serverInfo.uptime_seconds);
@@ -768,7 +768,8 @@
             <div class="text-xs text-gray-600 dark:text-gray-400">Database</div>
           </div>
           <div class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            {serverInfo.database?.active_connections || 0}/{serverInfo.database?.pool_size || 10}
+            {serverInfo.database?.active_connections || 0}/{serverInfo.database
+              ?.pool_size || 10}
           </div>
           <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">
             Active Connections
@@ -781,7 +782,9 @@
         >
           <div class="flex items-center gap-3 mb-2">
             <i class="bi bi-broadcast text-2xl text-purple-500"></i>
-            <div class="text-xs text-gray-600 dark:text-gray-400">WebSocket</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400">
+              WebSocket
+            </div>
           </div>
           <div class="text-xl font-bold text-gray-900 dark:text-gray-100">
             {serverInfo.websocket?.active_connections || 0}
@@ -868,7 +871,9 @@
             <div class="flex justify-between">
               <span class="text-gray-600 dark:text-gray-400">Status:</span>
               <span class="font-medium text-gray-900 dark:text-gray-100">
-                {serverInfo.search_index.initialized ? '✅ Initialized' : '❌ Not initialized'}
+                {serverInfo.search_index.initialized
+                  ? "✅ Initialized"
+                  : "❌ Not initialized"}
               </span>
             </div>
             <div class="flex justify-between">
@@ -891,7 +896,9 @@
             </div>
           </div>
           <div class="text-center">
-            <div class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+            <div
+              class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-1"
+            >
               {serverInfo.endpoints.length}
             </div>
             <div class="text-xs text-gray-500 dark:text-gray-500">
@@ -899,9 +906,9 @@
             </div>
           </div>
           <div class="mt-3 text-xs text-center">
-            <a 
-              href="http://localhost:8080/status" 
-              target="_blank" 
+            <a
+              href="http://localhost:8080/status"
+              target="_blank"
               rel="noopener noreferrer"
               class="text-primary-600 dark:text-primary-400 hover:underline"
             >
