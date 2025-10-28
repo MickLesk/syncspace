@@ -26,7 +26,9 @@ pub fn router() -> Router<AppState> {
         .route("/collaboration/locks/{lock_id}", delete(release_lock))
         .route("/collaboration/locks/{lock_id}/heartbeat", post(renew_lock))
         .route("/collaboration/presence", get(get_presence).post(update_presence))
+        .route("/collaboration/presence/{user_id}", delete(remove_presence))
         .route("/collaboration/activity", get(get_activity))
+        .route("/collaboration/activity/{*file_path}", get(get_file_activity))
         .route("/collaboration/conflicts", get(list_conflicts))
         .route("/collaboration/conflicts/{conflict_id}/resolve", post(resolve_conflict))
 }
@@ -58,7 +60,26 @@ async fn update_presence(State(state): State<AppState>, user: UserInfo, Json(req
     services::collaboration::update_presence(&state, &user, Some(req.file_path), &req.activity_type).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
 }
 
+async fn remove_presence(
+    State(state): State<AppState>,
+    user: UserInfo,
+    Path(user_id): Path<String>,
+) -> Result<StatusCode, StatusCode> {
+    // TODO: Implement presence removal
+    Ok(StatusCode::NO_CONTENT)
+}
+
 async fn get_activity(State(state): State<AppState>, user: UserInfo) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
+    let activities = services::collaboration::get_activity(&state, &user).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(activities.into_iter().map(|a| serde_json::to_value(a).unwrap_or_default()).collect()))
+}
+
+async fn get_file_activity(
+    State(state): State<AppState>,
+    user: UserInfo,
+    Path(file_path): Path<String>,
+) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
+    // TODO: Filter activities by file path
     let activities = services::collaboration::get_activity(&state, &user).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     Ok(Json(activities.into_iter().map(|a| serde_json::to_value(a).unwrap_or_default()).collect()))
 }

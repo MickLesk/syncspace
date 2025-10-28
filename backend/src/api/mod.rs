@@ -15,6 +15,12 @@ pub mod collaboration;
 pub mod system;
 pub mod performance;
 pub mod notifications;
+pub mod comments;
+pub mod trash;
+pub mod versions;
+pub mod batch;
+pub mod config;
+pub mod peers;
 
 use axum::{
     middleware,
@@ -46,6 +52,12 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(system::router())
                 .merge(performance::router())
                 .merge(notifications::router())
+                .merge(comments::router())
+                .merge(trash::router())
+                .merge(versions::router())
+                .merge(batch::router())
+                .merge(config::router())
+                .merge(peers::router())
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,
