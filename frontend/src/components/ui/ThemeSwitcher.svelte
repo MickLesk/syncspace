@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
-  import api from "../lib/api.js";
-  import { auth } from "../stores/auth.js";
+  import api from "../../lib/api.js";
+  import { auth } from "../../stores/auth.js";
 
   let currentTheme = $state("syncspace");
   let loading = $state(false);

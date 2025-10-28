@@ -1,8 +1,8 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { success, error as errorToast } from "../../../stores/toast.js";
-  import Modal from "../../ui/Modal.svelte";
-  import api from "../../../lib/api.js";
+  import { success, error as errorToast } from "../../stores/toast.js";
+  import Modal from "../ui/Modal.svelte";
+  import api from "../../lib/api.js";
 
   const dispatch = createEventDispatcher();
 

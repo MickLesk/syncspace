@@ -1,5 +1,5 @@
 <script>
-  import { auth } from "../stores/auth.js";
+  import { auth } from "../../stores/auth.js";
 
   let username = $state("");
   let email = $state("");

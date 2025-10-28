@@ -1,9 +1,9 @@
 <script>
-  import GeneralSettings from "./settings/GeneralSettings.svelte";
-  import UsersSettings from "./settings/UsersSettings.svelte";
-  import StorageSettings from "./settings/StorageSettings.svelte";
-  import BackupSettings from "./settings/BackupSettings.svelte";
-  import AboutSettings from "./settings/AboutSettings.svelte";
+  import GeneralSettings from "./GeneralSettings.svelte";
+  import UsersSettings from "./UsersSettings.svelte";
+  import StorageSettings from "./StorageSettings.svelte";
+  import BackupSettings from "./BackupSettings.svelte";
+  import AboutSettings from "./AboutSettings.svelte";
 
   let activeTab = $state("general");
   let searchQuery = $state("");

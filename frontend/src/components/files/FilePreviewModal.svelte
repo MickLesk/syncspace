@@ -1,8 +1,8 @@
 <script>
   import { onMount } from "svelte";
   import Modal from "../ui/Modal.svelte";
-  import { getFileIcon } from "../../../utils/fileIcons";
-  import api from "../../../lib/api";
+  import { getFileIcon } from "../../utils/fileIcons";
+  import api from "../../lib/api";
 
   let { visible = $bindable(false), file = $bindable(null) } = $props();
 
