@@ -122,16 +122,16 @@
     <div class="demo-section">
       <h2>API Endpoint Testing</h2>
       <div class="test-controls">
-        <button class="btn btn-primary" on:click={testPerformanceAPI}>
+        <button class="btn btn-primary" onclick={testPerformanceAPI}>
           🧪 Test All Endpoints
         </button>
-        <button class="btn btn-secondary" on:click={testCacheClear}>
+        <button class="btn btn-secondary" onclick={testCacheClear}>
           🗑️ Test Cache Clear
         </button>
-        <button class="btn btn-accent" on:click={testJobQueue}>
+        <button class="btn btn-accent" onclick={testJobQueue}>
           ⚙️ Test Job Queue
         </button>
-        <button class="btn btn-ghost" on:click={clearResults}>
+        <button class="btn btn-ghost" onclick={clearResults}>
           🧹 Clear Results
         </button>
       </div>
@@ -341,3 +341,4 @@
     }
   }
 </style>
+

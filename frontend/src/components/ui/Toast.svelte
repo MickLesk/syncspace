@@ -97,7 +97,7 @@
 
         <button
           class="toast-close-btn"
-          on:click={() => removeToast(toast.id)}
+          onclick={() => removeToast(toast.id)}
           aria-label="Close"
         >
           <i class="bi bi-x-lg"></i>
@@ -283,3 +283,4 @@
     }
   }
 </style>
+

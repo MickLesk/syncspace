@@ -11,7 +11,9 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   <!-- Backup Configuration -->
-  <div class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow">
+  <div
+    class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow"
+  >
     <div class="card-body">
       <h2 class="card-title mb-4">
         <i class="bi bi-cloud-arrow-up-fill text-info"></i>
@@ -74,7 +76,7 @@
       </div>
 
       <div class="card-actions justify-end mt-4">
-        <button class="btn btn-primary btn-sm" on:click={handleBackupNow}>
+        <button class="btn btn-primary btn-sm" onclick={handleBackupNow}>
           <i class="bi bi-cloud-arrow-up"></i>
           Backup Now
         </button>
@@ -83,7 +85,9 @@
   </div>
 
   <!-- Backup History -->
-  <div class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow">
+  <div
+    class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow"
+  >
     <div class="card-body">
       <h2 class="card-title">
         <i class="bi bi-archive-fill text-secondary"></i>
@@ -116,3 +120,4 @@
     </div>
   </div>
 </div>
+

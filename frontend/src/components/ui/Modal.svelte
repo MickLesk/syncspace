@@ -1,5 +1,5 @@
 <script>
-  import { createEventDispatcher, onMount, onDestroy } from "svelte";
+  import { onMount, onDestroy } from "svelte";
 
   export let visible = false;
   export let title = "";
@@ -9,8 +9,7 @@
   export let showCloseButton = true;
   export let closeOnBackdrop = true;
   export let closeOnEscape = true;
-
-  const dispatch = createEventDispatcher();
+  export let onclose = () => {}; // Svelte 5 callback
 
   let modalElement;
 
@@ -31,7 +30,7 @@
   };
 
   function handleClose() {
-    dispatch("close");
+    onclose();
   }
 
   function handleBackdropClick(e) {
@@ -97,26 +96,26 @@
 </script>
 
 {#if visible}
-  <dialog
-    class="modal modal-open"
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center"
     role="dialog"
     aria-modal="true"
     aria-labelledby={title ? "modal-title" : undefined}
-    on:click={handleBackdropClick}
-    on:keydown={(e) => e.key === "Enter" && handleBackdropClick(e)}
+    onclick={handleBackdropClick}
+    onkeydown={(e) => e.key === "Enter" && handleBackdropClick(e)}
   >
     <!-- Enhanced backdrop with blur -->
     <div class="modal-backdrop-enhanced"></div>
 
     <div
       bind:this={modalElement}
-      class="modal-box {sizeClasses[size]} material-modal"
+      class="relative {sizeClasses[size]} w-full material-modal"
       class:modal-primary={variant === "primary"}
       class:modal-success={variant === "success"}
       class:modal-warning={variant === "warning"}
       class:modal-danger={variant === "danger"}
-      on:click={(e) => e.stopPropagation()}
-      on:keydown={() => {}}
+      onclick={(e) => e.stopPropagation()}
+      onkeydown={() => {}}
       role="document"
       tabindex="-1"
     >
@@ -125,7 +124,7 @@
         {#if showCloseButton}
           <button
             class="modal-close-btn-new"
-            on:click={handleClose}
+            onclick={handleClose}
             aria-label="Close modal"
             type="button"
           >
@@ -155,7 +154,7 @@
         </div>
       {/if}
     </div>
-  </dialog>
+  </div>
 {/if}
 
 <style>
@@ -163,33 +162,45 @@
   .material-modal {
     padding: 0;
     border-radius: 1.5rem;
-    border: 2px solid hsl(var(--bc) / 0.1);
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    background: white;
     box-shadow:
       0 25px 50px -12px rgba(0, 0, 0, 0.25),
       0 0 0 1px rgba(0, 0, 0, 0.05);
-    /* REMOVED backdrop-filter blur from modal itself - only backdrop should be blurred */
     overflow: hidden;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
     animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .material-modal {
+      background: rgb(17 24 39);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
   }
 
   .modal-backdrop-enhanced {
     position: fixed;
     inset: 0;
-    background: hsl(var(--b1) / 0.7);
-    /* backdrop-filter: blur(12px); */
-    /* -webkit-backdrop-filter: blur(12px); */
+    background: rgba(0, 0, 0, 0.5);
     animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 999;
   }
 
   .modal-header {
     padding: 1.5rem 2rem;
-    border-bottom: 2px solid hsl(var(--bc) / 0.1);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
     position: relative;
     flex-shrink: 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .modal-header {
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
   }
 
   .modal-close-btn-new {
@@ -204,16 +215,29 @@
     padding: 0;
     border: none;
     background: transparent;
-    color: hsl(var(--bc) / 0.5);
+    color: rgba(0, 0, 0, 0.5);
     border-radius: 0.75rem;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  @media (prefers-color-scheme: dark) {
+    .modal-close-btn-new {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+
   .modal-close-btn-new:hover {
-    background: hsl(var(--bc) / 0.1);
-    color: hsl(var(--bc));
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 1);
     transform: rotate(90deg) scale(1.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .modal-close-btn-new:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 1);
+    }
   }
 
   .modal-close-btn-new:active {
@@ -228,17 +252,24 @@
     width: 48px;
     height: 48px;
     border-radius: 16px;
-    background: hsl(var(--p) / 0.15);
+    background: rgba(59, 130, 246, 0.15);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: hsl(var(--p));
+    color: rgb(59, 130, 246);
   }
 
   .modal-content {
     padding: 2rem;
     overflow-y: auto;
     flex: 1;
+    color: rgb(17 24 39);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .modal-content {
+      color: rgb(243 244 246);
+    }
   }
 
   .modal-content::-webkit-scrollbar {
@@ -246,52 +277,68 @@
   }
 
   .modal-content::-webkit-scrollbar-track {
-    background: hsl(var(--b2));
+    background: rgb(243 244 246);
     border-radius: 4px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .modal-content::-webkit-scrollbar-track {
+      background: rgb(31 41 55);
+    }
   }
 
   .modal-content::-webkit-scrollbar-thumb {
-    background: hsl(var(--bc) / 0.3);
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 4px;
   }
 
+  @media (prefers-color-scheme: dark) {
+    .modal-content::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+
   .modal-content::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--bc) / 0.5);
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .modal-content::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
   }
 
   .modal-actions {
     padding: 1.5rem 2rem;
-    border-top: 2px solid hsl(var(--bc) / 0.1);
+    border-top: 2px solid rgba(0, 0, 0, 0.1);
     display: flex;
     gap: 0.75rem;
     justify-content: flex-end;
-    background: hsl(var(--b2) / 0.5);
+    background: rgba(243, 244, 246, 0.5);
     flex-shrink: 0;
   }
 
-  /* Better text contrast in light mode */
-  .modal-content :global(.text-base-content) {
-    color: hsl(var(--bc)) !important;
-  }
-
-  .modal-content :global(.alert) {
-    color: hsl(var(--bc));
+  @media (prefers-color-scheme: dark) {
+    .modal-actions {
+      border-top-color: rgba(255, 255, 255, 0.1);
+      background: rgba(31, 41, 55, 0.5);
+    }
   }
 
   /* Variant-specific icon colors */
   .modal-success .modal-icon {
-    background: hsl(var(--su) / 0.15);
-    color: hsl(var(--su));
+    background: rgba(34, 197, 94, 0.15);
+    color: rgb(34, 197, 94);
   }
 
   .modal-warning .modal-icon {
-    background: hsl(var(--wa) / 0.15);
-    color: hsl(var(--wa));
+    background: rgba(234, 179, 8, 0.15);
+    color: rgb(234, 179, 8);
   }
 
   .modal-danger .modal-icon {
-    background: hsl(var(--er) / 0.15);
-    color: hsl(var(--er));
+    background: rgba(239, 68, 68, 0.15);
+    color: rgb(239, 68, 68);
   }
 
   /* Smooth animations */
@@ -303,6 +350,15 @@
     to {
       opacity: 1;
       transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
     }
   }
 
@@ -331,6 +387,10 @@
       width: 100%;
     }
 
+    .modal-actions :global(button) {
+      width: 100%;
+    }
+
     .modal-close-btn-new {
       right: 1rem;
       top: 1rem;
@@ -343,3 +403,4 @@
     }
   }
 </style>
+

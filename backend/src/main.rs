@@ -106,13 +106,16 @@ async fn main() {
         .expect("Failed to connect to database");
 
     // Run migrations
-    println!("🔄 Running database migrations...");
-    sqlx::migrate!("./migrations")
-        .run(&db_pool)
-        .await
-        .expect("Failed to run migrations");
+    // NOTE: Migrationen temporarily disabled due to schema inconsistencies in migrations 4-16
+    // Only migrations 001-003 are stable. The application works without the advanced features.
+    // TODO: Fix migration schemas before re-enabling
+    // println!("🔄 Running database migrations...");
+    // sqlx::migrate!("./migrations")
+    //     .run(&db_pool)
+    //     .await
+    //     .expect("Failed to run migrations");
 
-    println!("✅ Database connection established and migrations completed");
+    println!("✅ Database connection established");
 
     // Initialize auth system
     let user_db = UserDB::new();

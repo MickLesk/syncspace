@@ -164,7 +164,7 @@
         {#if isLockedByMe}
           <button
             class="px-3 py-1.5 text-sm rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-200 transition-colors flex items-center gap-2"
-            on:click={releaseLock}
+            onclick={releaseLock}
           >
             <i class="bi bi-unlock"></i>
             Unlock
@@ -176,7 +176,7 @@
     <div class="mb-3">
       <button
         class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
-        on:click={acquireLock}
+        onclick={acquireLock}
       >
         <i class="bi bi-lock"></i>
         Lock for Editing
@@ -250,7 +250,7 @@
   {#if !compact}
     <button
       class="px-3 py-1.5 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors w-full flex items-center justify-center gap-2"
-      on:click={() => (showActivity ? (showActivity = false) : loadActivity())}
+      onclick={() => (showActivity ? (showActivity = false) : loadActivity())}
     >
       <i class="bi bi-clock-history"></i>
       {showActivity ? "Hide" : "Show"} Activity
@@ -325,3 +325,4 @@
   {/if}
 </div>
 }
+

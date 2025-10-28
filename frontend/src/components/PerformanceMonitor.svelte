@@ -118,7 +118,7 @@
           class="px-3 py-1.5 text-sm rounded-lg font-medium transition-colors {isMonitoring
             ? 'bg-red-500 hover:bg-red-600 text-white'
             : 'bg-green-500 hover:bg-green-600 text-white'}"
-          on:click={isMonitoring ? stopMonitoring : startMonitoring}
+          onclick={isMonitoring ? stopMonitoring : startMonitoring}
         >
           {isMonitoring ? "Stop" : "Start"} Monitoring
         </button>
@@ -133,19 +133,19 @@
           >
             <button
               class="w-full px-3 py-2 text-sm text-left rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              on:click={clearCache}
+              onclick={clearCache}
             >
               Clear Cache
             </button>
             <button
               class="w-full px-3 py-2 text-sm text-left rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              on:click={queueTestJob}
+              onclick={queueTestJob}
             >
               Queue Test Job
             </button>
             <button
               class="w-full px-3 py-2 text-sm text-left rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              on:click={exportData}
+              onclick={exportData}
             >
               Export Data
             </button>
@@ -187,7 +187,7 @@
         'overview'
           ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow'
           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
-        on:click={() => (selectedTab = "overview")}
+        onclick={() => (selectedTab = "overview")}
       >
         Overview
       </button>
@@ -196,7 +196,7 @@
         'cache'
           ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow'
           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
-        on:click={() => (selectedTab = "cache")}
+        onclick={() => (selectedTab = "cache")}
       >
         Cache
       </button>
@@ -205,7 +205,7 @@
         'jobs'
           ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow'
           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
-        on:click={() => (selectedTab = "jobs")}
+        onclick={() => (selectedTab = "jobs")}
       >
         Jobs
       </button>
@@ -214,7 +214,7 @@
         'system'
           ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow'
           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
-        on:click={() => (selectedTab = "system")}
+        onclick={() => (selectedTab = "system")}
       >
         System
       </button>
@@ -381,7 +381,7 @@
         <div class="cache-actions mt-4">
           <button
             class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors"
-            on:click={clearCache}
+            onclick={clearCache}
           >
             Clear All Caches
           </button>
@@ -416,7 +416,7 @@
             <p>No background jobs currently running</p>
             <button
               class="px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
-              on:click={queueTestJob}
+              onclick={queueTestJob}
             >
               Queue Test Job
             </button>
@@ -475,3 +475,4 @@
     {/if}
   {/if}
 </div>
+

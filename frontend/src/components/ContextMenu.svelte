@@ -33,3 +33,4 @@
   .context-menu-item kbd { margin-left: auto; font-size: 0.75rem; opacity: 0.6; }
   @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 </style>
+

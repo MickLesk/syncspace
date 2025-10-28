@@ -15,3 +15,4 @@
   style="font-size: {size}px; color: {color};"
   aria-hidden="true"
 ></i>
+

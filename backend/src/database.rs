@@ -71,7 +71,7 @@ pub async fn init_db() -> Result<SqlitePool, sqlx::Error> {
     Ok(pool)
 }
 
-/// Run SQL migrations from files
+/// Run SQL migrations from files - SIMPLIFIED VERSION for core tables only
 async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     println!("🔄 Running database migrations...");
 
@@ -97,24 +97,16 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         println!("📋 Running migration: 002_add_comments_tags.sql");
         let migration_sql = include_str!("../migrations/002_add_comments_tags.sql");
         sqlx::query(migration_sql).execute(pool).await?;
-    }
-
-    // Always try to run newer migrations (they use CREATE TABLE IF NOT EXISTS)
-    let check_notifications: Option<(i64,)> = sqlx::query_as(
-        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='notifications'"
-    )
-    .fetch_optional(pool)
-    .await?;
-    
-    if check_notifications.map(|(c,)| c == 0).unwrap_or(true) {
-        println!("📋 Running migration: 003_add_notifications_and_preferences.sql");
-        let migration_sql = include_str!("../migrations/003_add_notifications_and_preferences.sql");
+        
+        println!("📋 Running migration: 003_add_backups.sql");
+        let migration_sql = include_str!("../migrations/003_add_backups.sql");
         sqlx::query(migration_sql).execute(pool).await?;
     }
 
-    println!("✅ Migrations completed");
+    println!("✅ Migrations completed (001-003 only, advanced features disabled)");
     Ok(())
 }
+
 
 /// Ensure admin user exists (username: admin, password: admin)
 /// This user is never overwritten and always available for initial access

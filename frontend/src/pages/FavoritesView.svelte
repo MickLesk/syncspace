@@ -263,3 +263,4 @@
     animation: slideUp 0.3s ease-out both;
   }
 </style>
+

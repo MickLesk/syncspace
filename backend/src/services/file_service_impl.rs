@@ -72,17 +72,45 @@ pub async fn upload_file(state: &AppState, user: &UserInfo, path: &str, data: Ve
     tmp_file.flush().await?;
     fs::rename(&tmp_path, &target).await?;
     
+    // CRITICAL FIX: Create database entry with CORRECT column names!
+    let file_id = Uuid::new_v4().to_string();
+    let now = Utc::now().to_rfc3339();
+    
+    // SAFE: Extract filename, fallback to "upload" if path is invalid
+    let filename = target
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("upload")
+        .to_string();
+    
+    let size_bytes = data.len() as i64;
+    
+    sqlx::query(
+        "INSERT INTO files (id, name, path, owner_id, size_bytes, storage_path, is_deleted, version, created_at, updated_at) 
+         VALUES (?, ?, ?, ?, ?, ?, 0, 1, ?, ?)"
+    )
+    .bind(&file_id)
+    .bind(&filename)
+    .bind(path)
+    .bind(&user.id)
+    .bind(size_bytes)
+    .bind(path) // storage_path = same as path for now
+    .bind(&now)
+    .bind(&now)
+    .execute(&state.db_pool)
+    .await?;
+    
     let log_id = Uuid::new_v4().to_string();
-    let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'created', ?, 'success', datetime('now'))")
-        .bind(&log_id).bind(&user.id).bind(path).execute(&state.db_pool).await;
+    let _ = sqlx::query("INSERT INTO file_history (id, file_id, user_id, action, status, created_at) VALUES (?, ?, ?, 'created', 'success', datetime('now'))")
+        .bind(&log_id).bind(&file_id).bind(&user.id).execute(&state.db_pool).await;
     
     let _ = state.fs_tx.send(FileChangeEvent::new(path.to_string(), "create".to_string()));
     
     Ok(FileInfo {
-        id: Uuid::new_v4(), 
-        name: target.file_name().unwrap().to_string_lossy().to_string(),
+        id: Uuid::parse_str(&file_id).unwrap_or_default(), 
+        name: filename,
         path: path.to_string(), 
-        size: data.len() as i64, 
+        size: size_bytes, 
         is_directory: false,
         owner_id: Uuid::parse_str(&user.id).unwrap_or_default(), 
         created_at: Utc::now(), 

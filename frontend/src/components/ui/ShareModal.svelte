@@ -267,7 +267,7 @@
           />
           <button
             class="btn btn-primary join-item gap-2"
-            on:click={copyShareUrl}
+            onclick={copyShareUrl}
           >
             <i class="bi bi-clipboard"></i>
             Copy
@@ -329,13 +329,13 @@
   <!-- Actions slot - outside {#if} for proper Svelte slot placement -->
   <div slot="actions" class="flex gap-3 justify-end">
     {#if !showShareResult}
-      <button class="btn btn-ghost" on:click={close}>
+      <button class="btn btn-ghost" onclick={close}>
         <i class="bi bi-x-lg"></i>
         Cancel
       </button>
       <button
         class="btn btn-primary gap-2"
-        on:click={handleCreateShare}
+        onclick={handleCreateShare}
         disabled={loading || (shareType === "private" && !userEmail.trim())}
       >
         {#if loading}
@@ -346,14 +346,15 @@
         Create Share
       </button>
     {:else}
-      <button class="btn btn-primary gap-2" on:click={copyShareUrl}>
+      <button class="btn btn-primary gap-2" onclick={copyShareUrl}>
         <i class="bi bi-clipboard"></i>
         Copy URL
       </button>
-      <button class="btn btn-ghost" on:click={close}>
+      <button class="btn btn-ghost" onclick={close}>
         <i class="bi bi-check-lg"></i>
         Done
       </button>
     {/if}
   </div>
 </Modal>
+

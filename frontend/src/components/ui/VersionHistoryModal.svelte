@@ -158,7 +158,7 @@
         </h3>
         <button
           class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
-          on:click={onClose}
+          onclick={onClose}
         >
           ✕
         </button>
@@ -237,7 +237,7 @@
                       >
                         <li>
                           <button
-                            on:click={() => downloadVersion(version)}
+                            onclick={() => downloadVersion(version)}
                             class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                           >
                             Download
@@ -246,7 +246,7 @@
                         {#if !version.is_current}
                           <li>
                             <button
-                              on:click={() => openRestoreModal(version)}
+                              onclick={() => openRestoreModal(version)}
                               class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                             >
                               Restore
@@ -254,7 +254,7 @@
                           </li>
                           <li>
                             <button
-                              on:click={() => deleteVersion(version)}
+                              onclick={() => deleteVersion(version)}
                               class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                             >
                               Delete
@@ -271,7 +271,7 @@
                         .from?.id === version.id
                         ? 'bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500'
                         : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}"
-                      on:click={() => selectVersionForDiff(version, "from")}
+                      onclick={() => selectVersionForDiff(version, "from")}
                     >
                       From
                     </button>
@@ -280,7 +280,7 @@
                         .to?.id === version.id
                         ? 'bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500'
                         : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}"
-                      on:click={() => selectVersionForDiff(version, "to")}
+                      onclick={() => selectVersionForDiff(version, "to")}
                     >
                       To
                     </button>
@@ -353,7 +353,7 @@
       >
         <button
           class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          on:click={onClose}
+          onclick={onClose}
         >
           Close
         </button>
@@ -404,13 +404,13 @@
       >
         <button
           class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-          on:click={() => restoreVersion(versionToRestore)}
+          onclick={() => restoreVersion(versionToRestore)}
         >
           Restore Version
         </button>
         <button
           class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          on:click={() => (showRestoreModal = false)}
+          onclick={() => (showRestoreModal = false)}
         >
           Cancel
         </button>
@@ -418,3 +418,4 @@
     </div>
   </div>
 {/if}
+

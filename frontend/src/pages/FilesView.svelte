@@ -62,7 +62,7 @@
   let contextMenuFile = $state(null);
 
   // File upload with progress
-  let uploadInput;
+  let uploadInput; // DOM element reference - NOT $state()
   let uploadFiles = $state([]);
   let uploadProgress = $state(new Map());
   let overallProgress = $state(0);
@@ -191,13 +191,18 @@
     if (!newFolderName.trim()) return;
 
     try {
-      await api.directories.create($currentPath, newFolderName);
+      // Construct the full path for the new folder
+      const folderPath = $currentPath
+        ? `${$currentPath.replace(/\/$/, "")}/${newFolderName}`
+        : newFolderName;
+      await api.files.createDir(folderPath);
       success(`Folder created: ${newFolderName}`);
       showNewFolderModal = false;
       newFolderName = "";
       await loadFiles();
     } catch (err) {
       errorToast("Failed to create folder");
+      console.error(err);
     }
   }
 
@@ -319,7 +324,9 @@
 
   async function toggleFavorite(file) {
     const filePath = $currentPath + file.name;
-    if ($favorites.some((f) => f.path === filePath)) {
+    // $favorites is a Map, not an array - use .has() or check values
+    const favoritesArray = Array.from($favorites.values());
+    if (favoritesArray.some((f) => f.path === filePath)) {
       await favorites.remove(filePath);
       success("Removed from favorites");
     } else {
@@ -561,10 +568,12 @@
 
             <button
               onclick={() => loadFiles()}
-              class="px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200"
-              aria-label="Refresh"
+              class="px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Refresh files"
+              disabled={loading}
             >
-              <i class="bi bi-arrow-clockwise"></i>
+              <i class="bi bi-arrow-clockwise {loading ? 'animate-spin' : ''}"
+              ></i>
             </button>
           </div>
         </div>
@@ -835,7 +844,7 @@
               </div>
 
               <!-- Favorite Icon -->
-              {#if $favorites.some((f) => f.path === $currentPath + file.name)}
+              {#if Array.from($favorites.values()).some((f) => f.path === $currentPath + file.name)}
                 <div class="absolute top-2 right-2">
                   <i class="bi bi-star-fill text-yellow-500"></i>
                 </div>
@@ -893,7 +902,7 @@
                       )}"
                     ></i>
                     <span class="font-medium">{file.name}</span>
-                    {#if $favorites.some((f) => f.path === $currentPath + file.name)}
+                    {#if Array.from($favorites.values()).some((f) => f.path === $currentPath + file.name)}
                       <i class="bi bi-star-fill text-yellow-500 text-sm"></i>
                     {/if}
                   </td>
@@ -1105,3 +1114,4 @@
 <style>
   /* Additional custom styles if needed */
 </style>
+

@@ -225,7 +225,7 @@
               type.value
                 ? 'glass-card text-primary font-semibold shadow-md scale-105'
                 : 'hover:glass-card-light'}"
-              on:click={() => (selectedFilter = type.value)}
+              onclick={() => (selectedFilter = type.value)}
             >
               <i class="bi bi-{type.icon}"></i>
               {type.label}
@@ -351,3 +351,4 @@
 <style>
   /* ActivityView - using glassmorphism.css */
 </style>
+

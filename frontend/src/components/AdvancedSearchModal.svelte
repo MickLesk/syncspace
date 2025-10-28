@@ -144,7 +144,7 @@
   }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 {#if visible}
   <Modal
@@ -163,17 +163,17 @@
       }}
       class="space-y-4"
     >
-      <div class="form-control">
-        <div class="input-group flex">
+      <div class="space-y-2">
+        <div class="flex rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20">
           <span
-            class="px-4 bg-slate-50 dark:bg-slate-800 flex items-center rounded-l-xl border border-r-0 border-slate-300 dark:border-slate-600 text-base-content"
+            class="px-4 bg-gray-50 dark:bg-gray-800 flex items-center text-gray-600 dark:text-gray-400"
           >
             <i class="bi bi-search text-lg"></i>
           </span>
           <input
             type="text"
             placeholder={t($currentLang, "searchPlaceholder")}
-            class="input input-bordered flex-1 rounded-l-none rounded-r-xl focus:ring-2 focus:ring-primary/50 text-base-content"
+            class="flex-1 px-4 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 outline-none"
             bind:value={searchQuery}
             autofocus
           />
@@ -411,3 +411,4 @@
     border-right: none;
   }
 </style>
+

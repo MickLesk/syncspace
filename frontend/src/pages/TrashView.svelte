@@ -68,12 +68,29 @@
 
   function getAutoDeleteBadge(file) {
     const daysLeft = getDaysUntilAutoDelete(file);
-    if (daysLeft === 0) return { text: "Deletes today", class: "badge-error" };
+    if (daysLeft === 0)
+      return {
+        text: "Deletes today",
+        class:
+          "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800",
+      };
     if (daysLeft <= 3)
-      return { text: `${daysLeft} days left`, class: "badge-warning" };
+      return {
+        text: `${daysLeft} days left`,
+        class:
+          "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800",
+      };
     if (daysLeft <= 7)
-      return { text: `${daysLeft} days left`, class: "badge-info" };
-    return { text: `${daysLeft} days left`, class: "badge-ghost" };
+      return {
+        text: `${daysLeft} days left`,
+        class:
+          "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800",
+      };
+    return {
+      text: `${daysLeft} days left`,
+      class:
+        "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700",
+    };
   }
 
   function handleRestore(file) {
@@ -246,7 +263,7 @@
         <label class="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
-            class="checkbox checkbox-sm checkbox-primary"
+            class="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 bg-white dark:bg-gray-800 cursor-pointer"
             checked={selectedFiles.size === trashedFiles.length &&
               trashedFiles.length > 0}
             indeterminate={selectedFiles.size > 0 &&
@@ -310,13 +327,13 @@
     <ModernCard variant="glass">
       {#snippet children()}
         <div class="overflow-x-auto">
-          <table class="table table-zebra">
+          <table class="table w-full border-collapse-zebra">
             <thead>
               <tr>
                 <th>
                   <input
                     type="checkbox"
-                    class="checkbox checkbox-sm checkbox-primary"
+                    class="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 bg-white dark:bg-gray-800 cursor-pointer"
                     checked={selectedFiles.size === trashedFiles.length}
                     onchange={toggleSelectAll}
                   />
@@ -339,7 +356,7 @@
                   <td>
                     <input
                       type="checkbox"
-                      class="checkbox checkbox-sm checkbox-primary"
+                      class="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 bg-white dark:bg-gray-800 cursor-pointer"
                       checked={selectedFiles.has(file.id)}
                       onchange={() => toggleSelectFile(file.id)}
                     />
@@ -367,7 +384,9 @@
                   </td>
                   <td>
                     <span
-                      class="badge {getAutoDeleteBadge(file).class} badge-sm"
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border {getAutoDeleteBadge(
+                        file
+                      ).class}"
                     >
                       <i class="bi bi-clock-history mr-1"></i>
                       {getAutoDeleteBadge(file).text}
@@ -541,3 +560,4 @@
     background: hsl(var(--p) / 0.15);
   }
 </style>
+

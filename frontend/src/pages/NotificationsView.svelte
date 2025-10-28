@@ -319,3 +319,4 @@
 <style>
   /* NotificationsView Styles */
 </style>
+

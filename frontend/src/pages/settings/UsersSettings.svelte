@@ -101,7 +101,7 @@
       </h2>
       <button
         class="px-3 py-1.5 text-sm bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
-        on:click={() => (showAddUserModal = true)}
+        onclick={() => (showAddUserModal = true)}
       >
         <i class="bi bi-person-plus-fill"></i>
         Add User
@@ -206,7 +206,7 @@
                   <div class="flex gap-1 justify-end">
                     <button
                       class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      on:click={() => openDeleteUserModal(user)}
+                      onclick={() => openDeleteUserModal(user)}
                       aria-label="Delete user"
                       disabled={user.username === $auth.username}
                     >
@@ -226,7 +226,7 @@
         <p class="opacity-70 mb-4">Create your first user account</p>
         <button
           class="btn btn-primary"
-          on:click={() => (showAddUserModal = true)}
+          onclick={() => (showAddUserModal = true)}
         >
           <i class="bi bi-person-plus-fill"></i>
           Add User
@@ -240,15 +240,19 @@
 {#if showAddUserModal}
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-    on:click={() => (showAddUserModal = false)}
+    onclick={() => (showAddUserModal = false)}
+    role="button"
+    tabindex="-1"
   >
     <div
       class="bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-md w-full mx-4 relative"
-      on:click|stopPropagation
+      onclick={(e) => e.stopPropagation()}
+      role="dialog"
+      aria-modal="true"
     >
       <button
         class="absolute right-2 top-2 w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 flex items-center justify-center transition-colors"
-        on:click={() => (showAddUserModal = false)}
+        onclick={() => (showAddUserModal = false)}
         aria-label="Close modal"
       >
         ✕
@@ -312,13 +316,13 @@
         <div class="flex justify-end gap-2 mt-6">
           <button
             class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg transition-colors"
-            on:click={() => (showAddUserModal = false)}
+            onclick={() => (showAddUserModal = false)}
           >
             Cancel
           </button>
           <button
             class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
-            on:click={handleAddUser}
+            onclick={handleAddUser}
           >
             <i class="bi bi-check-lg"></i>
             Create User
@@ -333,11 +337,15 @@
 {#if showDeleteUserModal}
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-    on:click={() => (showDeleteUserModal = false)}
+    onclick={() => (showDeleteUserModal = false)}
+    role="button"
+    tabindex="-1"
   >
     <div
       class="bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-md w-full mx-4 text-center p-6"
-      on:click|stopPropagation
+      onclick={(e) => e.stopPropagation()}
+      role="dialog"
+      aria-modal="true"
     >
       <div class="text-6xl text-red-600 dark:text-red-400 mb-4">
         <i class="bi bi-person-x-fill"></i>
@@ -351,13 +359,13 @@
       <div class="flex justify-center gap-2">
         <button
           class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg transition-colors"
-          on:click={() => (showDeleteUserModal = false)}
+          onclick={() => (showDeleteUserModal = false)}
         >
           Cancel
         </button>
         <button
           class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-2"
-          on:click={handleDeleteUser}
+          onclick={handleDeleteUser}
         >
           <i class="bi bi-trash"></i>
           Delete User
@@ -366,3 +374,4 @@
     </div>
   </div>
 {/if}
+
