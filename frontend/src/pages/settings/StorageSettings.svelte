@@ -12,116 +12,182 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   <!-- Storage Configuration -->
   <div
-    class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow"
+    class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow p-6"
   >
-    <div class="card-body">
-      <h2 class="card-title">
-        <i class="bi bi-hdd-fill text-primary"></i>
-        Storage Configuration
-      </h2>
+    <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+      <i class="bi bi-hdd-fill text-blue-600 dark:text-blue-400"></i>
+      Storage Configuration
+    </h2>
 
-      <div class="space-y-4">
-        <div class="form-control">
-          <label class="label" for="storage-location">
-            <span class="label-text">Storage Location</span>
-          </label>
-          <label class="input input-bordered flex items-center gap-2">
-            <i class="bi bi-folder-fill opacity-70"></i>
-            <input
-              type="text"
-              id="storage-location"
-              class="grow"
-              bind:value={storageLocation}
-              disabled
-            />
-          </label>
-          <label class="label">
-            <span class="label-text-alt">Path where files are stored</span>
-          </label>
-        </div>
-
-        <div class="form-control">
-          <label class="label" for="max-file-size">
-            <span class="label-text">Max File Size (MB)</span>
-          </label>
-          <label class="input input-bordered flex items-center gap-2">
-            <i class="bi bi-file-earmark-arrow-up opacity-70"></i>
-            <input
-              type="number"
-              id="max-file-size"
-              class="grow"
-              bind:value={maxFileSize}
-            />
-          </label>
-          <label class="label">
-            <span class="label-text-alt">Maximum size for uploaded files</span>
-          </label>
-        </div>
-
-        <div
-          class="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg"
+    <div class="space-y-6">
+      <div class="space-y-2">
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          for="storage-location"
         >
-          <div>
-            <div class="font-semibold">Cache Size</div>
-            <div class="text-sm opacity-70">Currently using 245 MB</div>
-          </div>
-          <button class="btn btn-error btn-sm" onclick={handleClearCache}>
-            <i class="bi bi-trash-fill"></i>
-            Clear Cache
-          </button>
+          Storage Location
+        </label>
+        <div
+          class="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl"
+        >
+          <i class="bi bi-folder-fill text-gray-400 dark:text-gray-600"></i>
+          <input
+            type="text"
+            id="storage-location"
+            class="flex-1 bg-transparent outline-none text-gray-900 dark:text-gray-100 disabled:opacity-70"
+            bind:value={storageLocation}
+            disabled
+          />
         </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          Path where files are stored
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          for="max-file-size"
+        >
+          Max File Size (MB)
+        </label>
+        <div
+          class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20"
+        >
+          <i
+            class="bi bi-file-earmark-arrow-up text-gray-400 dark:text-gray-600"
+          ></i>
+          <input
+            type="number"
+            id="max-file-size"
+            class="flex-1 bg-transparent outline-none text-gray-900 dark:text-gray-100"
+            bind:value={maxFileSize}
+          />
+        </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          Maximum size for uploaded files
+        </p>
+      </div>
+
+      <div
+        class="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-xl"
+      >
+        <div>
+          <div class="font-semibold text-gray-900 dark:text-gray-100">
+            Cache Size
+          </div>
+          <div class="text-sm text-gray-500 dark:text-gray-400">
+            Currently using 245 MB
+          </div>
+        </div>
+        <button
+          class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all flex items-center gap-2 text-sm shadow-lg shadow-red-500/25"
+          onclick={handleClearCache}
+        >
+          <i class="bi bi-trash-fill"></i>
+          Clear Cache
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Storage Stats -->
   <div
-    class="card bg-white dark:bg-slate-900 shadow-xl hover:shadow-2xl transition-shadow"
+    class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow p-6"
   >
-    <div class="card-body">
-      <h2 class="card-title">
-        <i class="bi bi-pie-chart-fill text-info"></i>
-        Storage Usage
-      </h2>
+    <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+      <i class="bi bi-pie-chart-fill text-purple-600 dark:text-purple-400"></i>
+      Storage Usage
+    </h2>
 
-      <div class="stats stats-vertical shadow w-full">
-        <div class="stat">
-          <div class="stat-figure text-primary">
-            <i class="bi bi-hdd text-3xl"></i>
+    <div class="space-y-4">
+      <div
+        class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800"
+      >
+        <div class="flex items-center gap-6">
+          <div class="text-blue-600 dark:text-blue-400">
+            <i class="bi bi-hdd text-5xl"></i>
           </div>
-          <div class="stat-title">Total Space</div>
-          <div class="stat-value text-primary">50 GB</div>
-          <div class="stat-desc">Allocated storage</div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-figure text-secondary">
-            <i class="bi bi-files text-3xl"></i>
+          <div class="flex-1">
+            <div
+              class="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1"
+            >
+              Total Space
+            </div>
+            <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">
+              50 GB
+            </div>
+            <div class="text-sm text-gray-500 dark:text-gray-500 mt-1">
+              Allocated storage
+            </div>
           </div>
-          <div class="stat-title">Used Space</div>
-          <div class="stat-value text-secondary">42.5 GB</div>
-          <div class="stat-desc">85% of total space</div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-figure text-success">
-            <i class="bi bi-check-circle text-3xl"></i>
-          </div>
-          <div class="stat-title">Available</div>
-          <div class="stat-value text-success">7.5 GB</div>
-          <div class="stat-desc">Free space remaining</div>
         </div>
       </div>
 
-      <div class="mt-4">
-        <div class="flex justify-between text-sm mb-2">
+      <div
+        class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800"
+      >
+        <div class="flex items-center gap-6">
+          <div class="text-purple-600 dark:text-purple-400">
+            <i class="bi bi-files text-5xl"></i>
+          </div>
+          <div class="flex-1">
+            <div
+              class="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1"
+            >
+              Used Space
+            </div>
+            <div
+              class="text-3xl font-bold text-purple-600 dark:text-purple-400"
+            >
+              42.5 GB
+            </div>
+            <div class="text-sm text-gray-500 dark:text-gray-500 mt-1">
+              85% of total space
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-6 border border-green-200 dark:border-green-800"
+      >
+        <div class="flex items-center gap-6">
+          <div class="text-green-600 dark:text-green-400">
+            <i class="bi bi-check-circle text-5xl"></i>
+          </div>
+          <div class="flex-1">
+            <div
+              class="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1"
+            >
+              Available
+            </div>
+            <div class="text-3xl font-bold text-green-600 dark:text-green-400">
+              7.5 GB
+            </div>
+            <div class="text-sm text-gray-500 dark:text-gray-500 mt-1">
+              Free space remaining
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <div
+          class="flex justify-between text-sm mb-2 text-gray-700 dark:text-gray-300"
+        >
           <span>Storage Usage</span>
           <span class="font-semibold">85%</span>
         </div>
-        <progress class="progress progress-primary w-full" value="85" max="100"
-        ></progress>
+        <div
+          class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden"
+        >
+          <div
+            class="bg-gradient-to-r from-blue-600 to-purple-600 h-3 rounded-full transition-all duration-500"
+            style="width: 85%"
+          ></div>
+        </div>
       </div>
     </div>
   </div>
 </div>
-

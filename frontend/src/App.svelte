@@ -5,23 +5,32 @@
   import { userPreferences } from "./stores/preferences";
   import Login from "./pages/Login.svelte";
   import Signup from "./pages/Signup.svelte";
-  import Sidebar from "./components/Sidebar.svelte";
+  import Sidebar from "./components/navigation/Sidebar.svelte";
   import AppHeader from "./components/AppHeader.svelte";
-  import FilesView from "./pages/FilesView.svelte";
-  import SharedView from "./pages/SharedView.svelte";
-  import FavoritesView from "./pages/FavoritesView.svelte";
-  import TrashView from "./pages/TrashView.svelte";
-  import UsersView from "./pages/UsersView.svelte";
+
+  // File Views
+  import FilesView from "./pages/files/FilesView.svelte";
+  import SharedView from "./pages/files/SharedView.svelte";
+  import FavoritesView from "./pages/files/FavoritesView.svelte";
+  import RecentFilesView from "./pages/files/RecentFilesView.svelte";
+
+  // System Views
+  import TrashView from "./pages/system/TrashView.svelte";
+  import ActivityView from "./pages/system/ActivityView.svelte";
+  import NotificationsView from "./pages/system/NotificationsView.svelte";
+  import BackupView from "./pages/system/BackupView.svelte";
+  import StorageView from "./pages/system/StorageView.svelte";
+  import UsersView from "./pages/system/UsersView.svelte";
+
+  // Tools Views
+  import DuplicatesView from "./pages/tools/DuplicatesView.svelte";
+  import PerformanceView from "./pages/tools/PerformanceView.svelte";
+
+  // Other Views
   import SettingsView from "./pages/SettingsView.svelte";
   import ProfileView from "./pages/ProfileView.svelte";
-  import StorageView from "./pages/StorageView.svelte";
-  import ActivityView from "./pages/ActivityView.svelte";
-  import DuplicatesView from "./pages/DuplicatesView.svelte";
-  import BackupView from "./pages/BackupView.svelte";
-  import PerformanceView from "./pages/PerformanceView.svelte";
-  import NotificationsView from "./pages/NotificationsView.svelte";
-  import RecentFilesView from "./pages/RecentFilesView.svelte";
   import DesignShowcase from "./pages/DesignShowcase.svelte";
+
   import Toast from "./components/ui/Toast.svelte";
 
   // Load user preferences on mount if logged in
@@ -148,4 +157,3 @@
     background: var(--md-sys-color-background);
   }
 </style>
-
