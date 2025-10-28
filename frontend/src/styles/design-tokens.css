@@ -67,6 +67,7 @@
 }
 
 /* Dark Mode */
+.dark,
 [data-theme="dark"],
 [data-theme="syncspace-dark"] {
   --color-primary: #818cf8;
@@ -182,6 +183,7 @@
   --shadow-secondary: 0 8px 24px rgba(118, 75, 162, 0.3);
 }
 
+.dark,
 [data-theme="dark"],
 [data-theme="syncspace-dark"] {
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
@@ -251,6 +253,7 @@
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
+.dark,
 [data-theme="dark"],
 [data-theme="syncspace-dark"] {
   --glass-background: rgba(31, 41, 55, 0.7);

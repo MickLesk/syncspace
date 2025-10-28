@@ -75,9 +75,9 @@
   });
 </script>
 
-<div class="toast toast-end toast-bottom z-[9999]">
+<div class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none">
   {#each $toasts as toast (toast.id)}
-    <div class="toast-item {getAlertClass(toast.type)}" role="alert">
+    <div class="toast-item {getAlertClass(toast.type)} pointer-events-auto" role="alert">
       <div class="toast-content">
         <div class="toast-icon-wrapper">
           <i class="bi bi-{getIcon(toast.type)} toast-icon"></i>
@@ -115,14 +115,18 @@
   .toast-item {
     min-width: 360px;
     max-width: 500px;
-    background: hsl(var(--b1));
-    border: 1px solid hsl(var(--bc) / 0.1);
+    background: white;
+    border: 1px solid rgba(17, 24, 39, 0.1);
     border-radius: 12px;
     box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(8px);
-    margin-bottom: 0.75rem;
+  }
+
+  :global(.dark) .toast-item {
+    background: #1f2937;
+    border-color: rgba(255, 255, 255, 0.1);
   }
 
   .toast-content {
@@ -147,23 +151,23 @@
   }
 
   .alert-success .toast-icon-wrapper {
-    background: hsl(var(--su) / 0.15);
-    color: hsl(var(--su));
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
   }
 
   .alert-error .toast-icon-wrapper {
-    background: hsl(var(--er) / 0.15);
-    color: hsl(var(--er));
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
   }
 
   .alert-warning .toast-icon-wrapper {
-    background: hsl(var(--wa) / 0.15);
-    color: hsl(var(--wa));
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
   }
 
   .alert-info .toast-icon-wrapper {
-    background: hsl(var(--in) / 0.15);
-    color: hsl(var(--in));
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
   }
 
   .toast-text-wrapper {
@@ -175,15 +179,23 @@
   .toast-title {
     font-size: 0.9375rem;
     font-weight: 700;
-    color: hsl(var(--bc));
+    color: #111827;
     margin: 0 0 0.25rem 0;
+  }
+
+  :global(.dark) .toast-title {
+    color: #f9fafb;
   }
 
   .toast-message {
     font-size: 0.875rem;
-    color: hsl(var(--bc) / 0.8);
+    color: rgba(17, 24, 39, 0.8);
     margin: 0;
     line-height: 1.4;
+  }
+
+  :global(.dark) .toast-message {
+    color: rgba(249, 250, 251, 0.8);
   }
 
   .toast-close-btn {
@@ -194,23 +206,37 @@
     width: 32px;
     height: 32px;
     border: none;
-    background: hsl(var(--bc) / 0.05);
-    color: hsl(var(--bc) / 0.6);
+    background: rgba(17, 24, 39, 0.05);
+    color: rgba(17, 24, 39, 0.6);
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
   }
 
+  :global(.dark) .toast-close-btn {
+    background: rgba(249, 250, 251, 0.05);
+    color: rgba(249, 250, 251, 0.6);
+  }
+
   .toast-close-btn:hover {
-    background: hsl(var(--bc) / 0.1);
-    color: hsl(var(--bc));
+    background: rgba(17, 24, 39, 0.1);
+    color: #111827;
+  }
+
+  :global(.dark) .toast-close-btn:hover {
+    background: rgba(249, 250, 251, 0.1);
+    color: #f9fafb;
   }
 
   /* Progress Bar */
   .toast-progress-bg {
     height: 3px;
-    background: hsl(var(--bc) / 0.05);
+    background: rgba(17, 24, 39, 0.05);
     overflow: hidden;
+  }
+
+  :global(.dark) .toast-progress-bg {
+    background: rgba(249, 250, 251, 0.05);
   }
 
   .toast-progress-bar {
@@ -219,19 +245,19 @@
   }
 
   .toast-progress-bar.success {
-    background: hsl(var(--su));
+    background: #10b981;
   }
 
   .toast-progress-bar.error {
-    background: hsl(var(--er));
+    background: #ef4444;
   }
 
   .toast-progress-bar.warning {
-    background: hsl(var(--wa));
+    background: #f59e0b;
   }
 
   .toast-progress-bar.info {
-    background: hsl(var(--in));
+    background: #3b82f6;
   }
 
   @keyframes slideIn {
