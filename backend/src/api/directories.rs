@@ -18,7 +18,11 @@ use crate::AppState;
 
 #[derive(Debug, Deserialize)]
 pub struct CreateDirRequest {
-    pub name: String,
+    // Support both formats: 
+    // 1. { "path": "folder/subfolder" } - full path from frontend
+    // 2. { "name": "folder", "parent_path": "/some/path" } - legacy format
+    pub path: Option<String>,
+    pub name: Option<String>,
     pub parent_path: Option<String>,
 }
 
@@ -48,21 +52,20 @@ pub struct DirectoryTreeResponse {
 
 pub fn router() -> Router<AppState> {
     Router::new()
-        // Get directory tree
+        // Get directory tree - SPECIFIC routes FIRST
         .route("/dirs/tree", axum::routing::get(get_directory_tree))
         // Batch move directories/files
         .route("/dirs/batch/move", post(batch_move_handler))
-        // Create directory (using query param or request body for path)
+        // Create directory (using path in request body)
         .route("/dirs/create", post(create_dir_handler))
-        // SPECIFIC routes MUST come BEFORE catch-all routes!
-        // Move directory
+        // Move directory - specific ID patterns
         .route("/dirs/{dir_id}/move", put(move_dir_handler))
         // Rename directory
         .route("/dirs/{dir_id}/rename", put(rename_dir_handler))
         // Delete directory (soft delete to trash)
         .route("/dirs/{dir_id}", delete(delete_dir_handler))
-        // Create directory with path parameter uses POST /dirs with body now
-        // REMOVED catch-all to avoid conflicts - use /dirs/create instead
+        // NOTE: Cannot use /dirs/{*path} catch-all after specific routes - Axum limitation
+        // Frontend must use /dirs/create with path in body instead
 }
 
 // ==================== HANDLERS ====================
@@ -73,7 +76,18 @@ async fn create_dir_handler(
     user: UserInfo,
     Json(req): Json<CreateDirRequest>,
 ) -> Result<Json<DirectoryInfo>, StatusCode> {
-    let path = req.parent_path.unwrap_or_else(|| "/".to_string()) + "/" + &req.name;
+    // Support both formats:
+    // 1. path: "folder/subfolder" (new format from frontend)
+    // 2. name + parent_path (legacy format)
+    let path = if let Some(p) = req.path {
+        p
+    } else if let Some(name) = req.name {
+        let parent = req.parent_path.unwrap_or_else(|| "/".to_string());
+        format!("{}/{}", parent.trim_end_matches('/'), name)
+    } else {
+        return Err(StatusCode::BAD_REQUEST);
+    };
+    
     services::directory::create_directory(&state, &user, &path)
         .await
         .map(Json)

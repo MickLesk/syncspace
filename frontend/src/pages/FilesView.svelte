@@ -12,7 +12,11 @@
   import VersionHistoryModal from "../components/ui/VersionHistoryModal.svelte";
   import FilePreviewModal from "../components/ui/FilePreviewModal.svelte";
   import api from "../lib/api";
-  import { wsConnected, onFileEvent, websocketManager } from "../stores/websocket.js";
+  import {
+    wsConnected,
+    onFileEvent,
+    websocketManager,
+  } from "../stores/websocket.js";
   import Loading from "../components/Loading.svelte";
 
   // ==================== STATE ====================
@@ -73,7 +77,9 @@
     isSearchActive
       ? searchResults
       : searchQuery
-        ? $files.filter((f) => f.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        ? $files.filter((f) =>
+            f.name.toLowerCase().includes(searchQuery.toLowerCase())
+          )
         : $files
   );
 
@@ -150,10 +156,8 @@
     for (let i = 0; i < uploadFiles.length; i++) {
       const file = uploadFiles[i];
       try {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        await api.files.upload($currentPath, formData, (percent) => {
+        // Use uploadWithProgress which sends to /upload-multipart with FormData
+        await api.files.uploadWithProgress($currentPath, file, (percent) => {
           uploadProgress.set(i, { percent, file: file.name });
           updateOverallProgress();
         });
@@ -576,7 +580,9 @@
                 placeholder="Search files..."
                 class="w-full px-4 py-2 pl-10 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
               />
-              <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+              <i
+                class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              ></i>
             </div>
           </div>
 
@@ -601,7 +607,9 @@
           {/if}
 
           <!-- View Mode Toggle -->
-          <div class="flex bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+          <div
+            class="flex bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden"
+          >
             <button
               onclick={() => (viewMode = "grid")}
               class="px-4 py-2 {viewMode === 'grid'
@@ -639,7 +647,11 @@
             <button
               onclick={() => {
                 const path =
-                  "/" + getPathSegments().slice(0, i + 1).join("/") + "/";
+                  "/" +
+                  getPathSegments()
+                    .slice(0, i + 1)
+                    .join("/") +
+                  "/";
                 navigateToBreadcrumb(path);
               }}
               class="text-blue-600 dark:text-blue-400 hover:underline font-medium"
@@ -654,12 +666,16 @@
     <!-- Selection Toolbar -->
     {#if selectionMode && selectedFiles.length > 0}
       <div class="max-w-7xl mx-auto mb-6">
-        <div class="glass-card-light border-l-4 border-blue-500 p-4 animate-slide-down">
+        <div
+          class="glass-card-light border-l-4 border-blue-500 p-4 animate-slide-down"
+        >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <i class="bi bi-check-square text-2xl text-blue-600"></i>
               <div>
-                <h3 class="font-bold text-lg">{selectedFiles.length} file(s) selected</h3>
+                <h3 class="font-bold text-lg">
+                  {selectedFiles.length} file(s) selected
+                </h3>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                   Ctrl+Click to select more, Shift+Click for range
                 </p>
@@ -713,7 +729,9 @@
                   <span>{prog.file}</span>
                   <span>{prog.percent}%</span>
                 </div>
-                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div
+                  class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2"
+                >
                   <div
                     class="bg-blue-600 h-2 rounded-full transition-all duration-300"
                     style="width: {prog.percent}%"
@@ -740,11 +758,15 @@
 
     <!-- Drag Over Overlay -->
     {#if dragOver}
-      <div class="fixed inset-0 z-50 bg-blue-500/20 backdrop-blur-sm flex items-center justify-center animate-fade-in">
+      <div
+        class="fixed inset-0 z-50 bg-blue-500/20 backdrop-blur-sm flex items-center justify-center animate-fade-in"
+      >
         <div class="glass-card p-12 text-center">
           <i class="bi bi-cloud-upload text-6xl text-blue-600 mb-4"></i>
           <h2 class="text-2xl font-bold mb-2">Drop files to upload</h2>
-          <p class="text-gray-600 dark:text-gray-400">Release to start uploading</p>
+          <p class="text-gray-600 dark:text-gray-400">
+            Release to start uploading
+          </p>
         </div>
       </div>
     {/if}
@@ -773,7 +795,9 @@
         </div>
       {:else if viewMode === "grid"}
         <!-- Grid View -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div
+          class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+        >
           {#each sortedFiles as file, index}
             <div
               class="glass-card p-4 cursor-pointer hover:scale-105 transition-all duration-200 {selectedFiles.some(
@@ -785,7 +809,9 @@
               oncontextmenu={(e) => handleContextMenu(e, file)}
             >
               <!-- Thumbnail -->
-              <div class="aspect-square mb-3 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-xl">
+              <div
+                class="aspect-square mb-3 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-xl"
+              >
                 {#if file.is_dir}
                   <i class="bi bi-folder-fill text-5xl text-blue-500"></i>
                 {:else}
@@ -795,7 +821,10 @@
 
               <!-- File Info -->
               <div class="text-center">
-                <p class="font-semibold text-sm truncate mb-1" title={file.name}>
+                <p
+                  class="font-semibold text-sm truncate mb-1"
+                  title={file.name}
+                >
                   {file.name}
                 </p>
                 {#if !file.is_dir}
@@ -818,18 +847,28 @@
         <!-- List View -->
         <div class="glass-card overflow-hidden">
           <table class="w-full">
-            <thead class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <thead
+              class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700"
+            >
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                <th
+                  class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
+                >
                   Name
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                <th
+                  class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
+                >
                   Size
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                <th
+                  class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
+                >
                   Modified
                 </th>
-                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider">
+                <th
+                  class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider"
+                >
                   Actions
                 </th>
               </tr>
@@ -849,21 +888,27 @@
                     <i
                       class="bi bi-{file.is_dir
                         ? 'folder-fill text-blue-500'
-                        : getFileIcon(file.name)} text-xl {getFileIconColor(file.name)}"
+                        : getFileIcon(file.name)} text-xl {getFileIconColor(
+                        file.name
+                      )}"
                     ></i>
                     <span class="font-medium">{file.name}</span>
                     {#if $favorites.some((f) => f.path === $currentPath + file.name)}
                       <i class="bi bi-star-fill text-yellow-500 text-sm"></i>
                     {/if}
                   </td>
-                  <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                  <td
+                    class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400"
+                  >
                     {#if !file.is_dir}
                       {(file.size_bytes / 1024).toFixed(1)} KB
                     {:else}
                       —
                     {/if}
                   </td>
-                  <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                  <td
+                    class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400"
+                  >
                     {new Date(file.modified_at).toLocaleDateString()}
                   </td>
                   <td class="px-6 py-4 text-right">
@@ -955,7 +1000,9 @@
 {#if showDeleteModal}
   <Modal title="Confirm Delete" onclose={() => (showDeleteModal = false)}>
     <div class="space-y-4">
-      <p>Are you sure you want to delete <strong>{fileToDelete?.name}</strong>?</p>
+      <p>
+        Are you sure you want to delete <strong>{fileToDelete?.name}</strong>?
+      </p>
       <div class="flex gap-3 justify-end">
         <button
           onclick={() => (showDeleteModal = false)}
