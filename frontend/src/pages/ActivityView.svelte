@@ -147,7 +147,9 @@
 
   <!-- Page Header -->
   <div class="mb-8 relative z-10">
-    <h1 class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3">
+    <h1
+      class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3"
+    >
       <i class="bi bi-activity"></i>
       Activity Timeline
     </h1>
@@ -163,7 +165,9 @@
             <div class="text-primary mb-3">
               <i class="bi bi-activity text-5xl"></i>
             </div>
-            <div class="text-sm font-semibold text-base-content/60 mb-1">Total Events</div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">
+              Total Events
+            </div>
             <div class="text-4xl font-bold mb-2">{$activity.length}</div>
             <div class="text-xs text-base-content/50">All time</div>
           </div>
@@ -176,7 +180,9 @@
             <div class="text-success mb-3">
               <i class="bi bi-calendar-check text-5xl"></i>
             </div>
-            <div class="text-sm font-semibold text-base-content/60 mb-1">Today</div>
+            <div class="text-sm font-semibold text-base-content/60 mb-1">
+              Today
+            </div>
             <div class="text-4xl font-bold mb-2">{todayCount}</div>
             <div class="text-xs text-base-content/50">Recent activity</div>
           </div>
@@ -185,7 +191,9 @@
 
       <ModernCard variant="glass" hoverable>
         {#snippet children()}
-          <div class="text-center flex flex-col items-center justify-center h-full">
+          <div
+            class="text-center flex flex-col items-center justify-center h-full"
+          >
             <ModernButton
               variant="danger"
               icon="trash-fill"
@@ -206,11 +214,15 @@
     {#snippet children()}
       <div class="flex flex-col md:flex-row gap-4">
         <!-- Filter Tabs -->
-        <div role="tablist" class="flex flex-wrap gap-2 flex-1 glass-card-light p-2 rounded-lg">
+        <div
+          role="tablist"
+          class="flex flex-wrap gap-2 flex-1 glass-card-light p-2 rounded-lg"
+        >
           {#each activityTypes as type}
             <button
               role="tab"
-              class="px-3 py-2 text-sm rounded-md transition-all flex items-center gap-2 {selectedFilter === type.value
+              class="px-3 py-2 text-sm rounded-md transition-all flex items-center gap-2 {selectedFilter ===
+              type.value
                 ? 'glass-card text-primary font-semibold shadow-md scale-105'
                 : 'hover:glass-card-light'}"
               on:click={() => (selectedFilter = type.value)}
@@ -229,7 +241,9 @@
             class="input input-bordered glass-input w-full md:w-64 pr-10"
             bind:value={searchQuery}
           />
-          <button class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50">
+          <button
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50"
+          >
             <i class="bi bi-search"></i>
           </button>
         </div>
@@ -252,13 +266,18 @@
     </ModernCard>
   {:else}
     {#each Object.entries(groupedActivities) as [dateLabel, activities], groupIndex}
-      <div class="mb-8 animate-slide-up" style="animation-delay: {groupIndex * 100}ms;">
+      <div
+        class="mb-8 animate-slide-up"
+        style="animation-delay: {groupIndex * 100}ms;"
+      >
         <!-- Date Badge -->
         <div class="flex items-center gap-3 mb-4">
           <div class="badge badge-glass-primary badge-lg font-bold">
             {dateLabel}
           </div>
-          <div class="flex-1 h-px bg-gradient-to-r from-primary/50 to-transparent"></div>
+          <div
+            class="flex-1 h-px bg-gradient-to-r from-primary/50 to-transparent"
+          ></div>
         </div>
 
         <!-- Timeline -->
@@ -272,16 +291,25 @@
               warning: "bg-warning text-warning-content",
               primary: "bg-primary text-primary-content",
               secondary: "bg-secondary text-secondary-content",
-              accent: "bg-accent text-accent-content"
+              accent: "bg-accent text-accent-content",
             }}
-            <div class="relative animate-fade-in" style="animation-delay: {i * 50}ms;">
+            <div
+              class="relative animate-fade-in"
+              style="animation-delay: {i * 50}ms;"
+            >
               <!-- Timeline Icon -->
-              <div class="absolute -left-[2.25rem] top-2 w-10 h-10 rounded-full {colorMap[config.color] || 'bg-primary'} flex items-center justify-center shadow-lg">
+              <div
+                class="absolute -left-[2.25rem] top-2 w-10 h-10 rounded-full {colorMap[
+                  config.color
+                ] || 'bg-primary'} flex items-center justify-center shadow-lg"
+              >
                 <i class="bi bi-{config.icon} text-lg"></i>
               </div>
 
               <!-- Time Stamp -->
-              <div class="absolute -left-[10.5rem] top-2 text-xs text-base-content/50 text-right w-32 font-mono">
+              <div
+                class="absolute -left-[10.5rem] top-2 text-xs text-base-content/50 text-right w-32 font-mono"
+              >
                 {formatTime(act.timestamp)}
               </div>
 
@@ -296,10 +324,14 @@
                       </div>
                       <h3 class="font-bold text-base">{act.filename}</h3>
                       {#if act.path}
-                        <p class="text-xs font-mono text-base-content/50 mt-1">{act.path}</p>
+                        <p class="text-xs font-mono text-base-content/50 mt-1">
+                          {act.path}
+                        </p>
                       {/if}
                       {#if act.details}
-                        <p class="text-sm text-base-content/70 mt-2">{act.details}</p>
+                        <p class="text-sm text-base-content/70 mt-2">
+                          {act.details}
+                        </p>
                       {/if}
                       <div class="text-xs text-base-content/40 mt-2 italic">
                         {getRelativeTime(act.timestamp)}
@@ -316,7 +348,6 @@
   {/if}
 </PageWrapper>
 
-<!-- No additional styles needed - using glassmorphism.css -->
-
-  }
+<style>
+  /* ActivityView - using glassmorphism.css */
 </style>

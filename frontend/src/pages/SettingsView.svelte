@@ -74,282 +74,116 @@
   }
 </script>
 
-<div class="settings-container">
-  <!-- Settings Header with Search -->
-  <div class="settings-header">
-    <div class="header-content">
-      <div class="header-title">
-        <i class="bi bi-gear-fill"></i>
-        <h1>Settings</h1>
-      </div>
-      <div class="header-description">
-        Configure your SyncSpace preferences and system settings
+<!-- Main Container -->
+<div
+  class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6"
+>
+  <!-- Animated Background Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- Content Container -->
+  <div class="relative z-10 max-w-7xl mx-auto">
+    <!-- Settings Header -->
+    <div class="glass-card mb-6 p-6">
+      <div class="flex flex-wrap items-center justify-between gap-6">
+        <div class="flex-1 min-w-[250px]">
+          <h1
+            class="text-3xl font-bold gradient-text mb-2 flex items-center gap-3"
+          >
+            <i class="bi bi-gear-fill"></i>
+            Settings
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400">
+            Configure your SyncSpace preferences and system settings
+          </p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative w-full md:w-80">
+          <i
+            class="absolute left-3 top-1/2 -translate-y-1/2 bi bi-search text-gray-400"
+          ></i>
+          <input
+            type="text"
+            bind:value={searchQuery}
+            placeholder="Search settings..."
+            class="w-full pl-10 pr-10 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          />
+          {#if searchQuery.length > 0}
+            <button
+              onclick={clearSearch}
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              aria-label="Clear search"
+            >
+              <i class="bi bi-x-lg"></i>
+            </button>
+          {/if}
+        </div>
       </div>
     </div>
 
-    <!-- Search Bar -->
-    <div class="search-wrapper">
-      <div class="input-group">
-        <i class="input-icon-left bi bi-search"></i>
-        <input
-          type="text"
-          bind:value={searchQuery}
-          placeholder="Search settings..."
-          class="w-full px-10 py-2 border border-blue-500 dark:border-blue-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
-        />
-        {#if searchQuery.length > 0}
+    <!-- Tab Navigation -->
+    <div class="glass-card mb-6 p-2">
+      <div class="flex flex-wrap gap-2">
+        {#each filteredTabs as tab}
           <button
-            class="search-clear-btn"
+            onclick={() => handleTabChange(tab.id)}
+            class="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all"
+            class:bg-gradient-to-r={activeTab === tab.id}
+            class:from-blue-500={activeTab === tab.id}
+            class:to-purple-600={activeTab === tab.id}
+            class:text-white={activeTab === tab.id}
+            class:shadow-lg={activeTab === tab.id}
+            class:text-gray-700={activeTab !== tab.id}
+            class:dark:text-gray-300={activeTab !== tab.id}
+            class:hover:bg-gray-100={activeTab !== tab.id}
+            class:dark:hover:bg-gray-800={activeTab !== tab.id}
+          >
+            <i class="bi bi-{tab.icon}"></i>
+            <span>{tab.label}</span>
+          </button>
+        {/each}
+      </div>
+    </div>
+
+    {#if filteredTabs.length === 0}
+      <!-- No Results State -->
+      <div class="glass-card text-center py-16">
+        <div class="animate-fade-in">
+          <i class="bi bi-search text-8xl text-gray-300 dark:text-gray-600 mb-6"
+          ></i>
+          <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">
+            No settings found
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400 mb-6">
+            Try searching for something else
+          </p>
+          <button
             onclick={clearSearch}
-            aria-label="Clear search"
+            class="px-6 py-3 rounded-lg font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2"
           >
             <i class="bi bi-x-lg"></i>
+            Clear Search
           </button>
+        </div>
+      </div>
+    {:else}
+      <!-- Tab Content -->
+      <div class="glass-card p-6">
+        {#if activeTab === "general"}
+          <GeneralSettings />
+        {:else if activeTab === "users"}
+          <UsersSettings />
+        {:else if activeTab === "storage"}
+          <StorageSettings />
+        {:else if activeTab === "backup"}
+          <BackupSettings />
+        {:else if activeTab === "about"}
+          <AboutSettings />
         {/if}
       </div>
-    </div>
+    {/if}
   </div>
-
-  <!-- Tab Navigation -->
-  <div class="tab-nav">
-    {#each filteredTabs as tab}
-      <button
-        class="tab-btn"
-        class:active={activeTab === tab.id}
-        onclick={() => handleTabChange(tab.id)}
-      >
-        <i class="bi bi-{tab.icon}"></i>
-        <span>{tab.label}</span>
-      </button>
-    {/each}
-  </div>
-
-  {#if filteredTabs.length === 0}
-    <!-- No Results State -->
-    <div class="no-results">
-      <i class="bi bi-search"></i>
-      <h3>No settings found</h3>
-      <p>Try searching for something else</p>
-      <button
-        class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
-        onclick={clearSearch}
-      >
-        <i class="bi bi-x-lg"></i>
-        Clear Search
-      </button>
-    </div>
-  {:else}
-    <!-- Tab Content -->
-    <div class="tab-panel">
-      {#if activeTab === "general"}
-        <GeneralSettings />
-      {:else if activeTab === "users"}
-        <UsersSettings />
-      {:else if activeTab === "storage"}
-        <StorageSettings />
-      {:else if activeTab === "backup"}
-        <BackupSettings />
-      {:else if activeTab === "about"}
-        <AboutSettings />
-      {/if}
-    </div>
-  {/if}
 </div>
-
-<style>
-  .settings-container {
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .settings-header {
-    margin-bottom: 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 2rem;
-    flex-wrap: wrap;
-  }
-
-  .header-content {
-    flex: 1;
-    min-width: 250px;
-  }
-
-  .header-title {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .header-title i {
-    font-size: 2rem;
-    color: hsl(var(--p));
-  }
-
-  .header-title h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: hsl(var(--bc));
-    margin: 0;
-  }
-
-  .header-description {
-    font-size: 0.9375rem;
-    color: hsl(var(--bc) / 0.6);
-    margin-left: 2.75rem;
-  }
-
-  .search-wrapper {
-    flex: 0 1 400px;
-    min-width: 250px;
-  }
-
-  .search-clear-btn {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    padding: 0;
-    border: none;
-    background: hsl(var(--bc) / 0.1);
-    color: hsl(var(--bc) / 0.6);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .search-clear-btn:hover {
-    background: hsl(var(--bc) / 0.2);
-    color: hsl(var(--bc));
-    transform: translateY(-50%) scale(1.1);
-  }
-
-  .search-clear-btn i {
-    font-size: 0.75rem;
-  }
-
-  .tab-nav {
-    display: flex;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    background: hsl(var(--b2));
-    border-radius: 1rem;
-    margin-bottom: 2rem;
-    border: 2px solid hsl(var(--bc) / 0.05);
-    flex-wrap: wrap;
-  }
-
-  .tab-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    padding: 0.875rem 1.5rem;
-    border: none;
-    background: transparent;
-    color: hsl(var(--bc) / 0.7);
-    border-radius: 0.75rem;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    white-space: nowrap;
-  }
-
-  .tab-btn i {
-    font-size: 1.25rem;
-  }
-
-  .tab-btn:hover {
-    background: hsl(var(--bc) / 0.08);
-    color: hsl(var(--bc));
-    transform: translateY(-1px);
-  }
-
-  .tab-btn.active {
-    background: hsl(var(--p));
-    color: hsl(var(--pc));
-    box-shadow: 0 4px 12px hsl(var(--p) / 0.3);
-  }
-
-  .tab-btn.active:hover {
-    transform: translateY(-1px);
-  }
-
-  .tab-panel {
-    animation: slideEnter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .no-results {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-    text-align: center;
-    animation: fadeIn 0.3s ease-out;
-  }
-
-  .no-results i {
-    font-size: 4rem;
-    color: hsl(var(--bc) / 0.3);
-    margin-bottom: 1rem;
-  }
-
-  .no-results h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: hsl(var(--bc));
-    margin: 0 0 0.5rem 0;
-  }
-
-  .no-results p {
-    font-size: 1rem;
-    color: hsl(var(--bc) / 0.6);
-    margin: 0 0 1.5rem 0;
-  }
-
-  @media (max-width: 768px) {
-    .settings-container {
-      padding: 1rem;
-    }
-
-    .settings-header {
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .search-wrapper {
-      flex: 1 1 100%;
-    }
-
-    .header-title h1 {
-      font-size: 1.5rem;
-    }
-
-    .header-title i {
-      font-size: 1.5rem;
-    }
-
-    .tab-nav {
-      padding: 0.375rem;
-      gap: 0.375rem;
-    }
-
-    .tab-btn {
-      padding: 0.625rem 1rem;
-      font-size: 0.875rem;
-    }
-
-    .tab-btn i {
-      font-size: 1rem;
-    }
-  }
-</style>

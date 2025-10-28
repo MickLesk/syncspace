@@ -1,14 +1,13 @@
-<script>
+﻿<script>
   import { onMount } from "svelte";
   import api from "../lib/api.js";
-  import PageWrapper from "../components/PageWrapper.svelte";
-  import ModernCard from "../components/ui/ModernCard.svelte";
-  import ModernButton from "../components/ui/ModernButton.svelte";
+  import { success, error as errorToast } from "../stores/toast";
   import Loading from "../components/Loading.svelte";
+  import Modal from "../components/ui/Modal.svelte";
 
   let shares = $state([]);
   let loading = $state(true);
-  let error = $state(null);
+  let errorMsg = $state(null);
   let showCreateModal = $state(false);
   let showEditModal = $state(false);
   let showDeleteModal = $state(false);
@@ -28,12 +27,13 @@
   async function loadShares() {
     try {
       loading = true;
-      error = null;
+      errorMsg = null;
       const response = await api.shares.list();
       shares = response || [];
     } catch (err) {
       console.error("Failed to load shares:", err);
-      error = "Failed to load shares";
+      errorMsg = "Failed to load shares";
+      errorToast("Failed to load shares");
       shares = [];
     } finally {
       loading = false;
@@ -50,12 +50,13 @@
       };
 
       await api.shares.create(shareData);
+      success("Share created successfully");
       showCreateModal = false;
       resetForm();
       await loadShares();
     } catch (err) {
       console.error("Failed to create share:", err);
-      error = "Failed to create share";
+      errorToast("Failed to create share");
     }
   }
 
@@ -69,12 +70,13 @@
       };
 
       await api.shares.update(selectedShare.id, updates);
+      success("Share updated successfully");
       showEditModal = false;
       selectedShare = null;
       await loadShares();
     } catch (err) {
       console.error("Failed to update share:", err);
-      error = "Failed to update share";
+      errorToast("Failed to update share");
     }
   }
 
@@ -83,12 +85,13 @@
 
     try {
       await api.shares.delete(selectedShare.id);
+      success("Share deleted successfully");
       showDeleteModal = false;
       selectedShare = null;
       await loadShares();
     } catch (err) {
       console.error("Failed to delete share:", err);
-      error = "Failed to delete share";
+      errorToast("Failed to delete share");
     }
   }
 
@@ -116,9 +119,14 @@
     return new Date(dateString).toLocaleDateString();
   }
 
-  function copyShareLink(shareId) {
+  async function copyShareLink(shareId) {
     const link = `${window.location.origin}/share/${shareId}`;
-    navigator.clipboard.writeText(link);
+    try {
+      await navigator.clipboard.writeText(link);
+      success("Share link copied to clipboard");
+    } catch (err) {
+      errorToast("Failed to copy link");
+    }
   }
 
   function isExpired(expiresAt) {
@@ -127,357 +135,365 @@
   }
 </script>
 
-<PageWrapper gradient>
-  <!-- Animated Blobs -->
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
-
-  <!-- Page Header -->
-  <div class="flex justify-between items-start mb-8 relative z-10">
-    <div>
-      <h1
-        class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3"
-      >
-        <i class="bi bi-share-fill"></i>
-        Shared Files
-      </h1>
-      <p class="text-base-content/70">Manage file sharing and collaboration</p>
-    </div>
-    <ModernButton
-      variant="gradient"
-      icon="plus-circle"
-      onclick={() => (showCreateModal = true)}
-    >
-      Create Share
-    </ModernButton>
-  </div>
-
-  {#if error}
-    <div class="glass-card-light border-l-4 border-error p-4 mb-6">
-      <div class="flex gap-3">
-        <i class="bi bi-exclamation-triangle text-error text-2xl"></i>
-        <p class="font-semibold">{error}</p>
-      </div>
-    </div>
-  {/if}
-
-  {#if loading}
-    <Loading />
-  {:else if shares.length === 0}
-    <ModernCard variant="glass" class="text-center py-16">
-      {#snippet children()}
-        <div class="animate-fade-in">
-          <div class="text-primary/30 mb-6">
-            <i class="bi bi-share text-8xl"></i>
+{#if loading}
+  <Loading />
+{:else}
+  <div
+    class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6"
+  >
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="relative z-10 max-w-7xl mx-auto">
+      <div class="glass-card mb-6 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-3xl font-bold gradient-text mb-2">Shared Files</h1>
+            <p class="text-gray-600 dark:text-gray-400">
+              Manage file shares and collaboration
+            </p>
           </div>
-          <h2 class="text-2xl font-bold mb-3">No shares yet</h2>
-          <p class="text-base-content/60 mb-6">
-            Create your first share to collaborate with others
-          </p>
-          <ModernButton
-            variant="gradient"
-            icon="plus-circle"
+          <button
             onclick={() => (showCreateModal = true)}
+            class="px-6 py-3 rounded-lg font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+            ><i class="bi bi-plus-circle"></i> Create Share</button
           >
-            Create Share
-          </ModernButton>
         </div>
-      {/snippet}
-    </ModernCard>
-  {:else}
-    <ModernCard variant="glass">
-      {#snippet children()}
-        <div class="overflow-x-auto">
-          <table class="table table-zebra">
-            <thead>
-              <tr>
-                <th>File Path</th>
-                <th>Permissions</th>
-                <th>Expires</th>
-                <th>Created</th>
-                <th>Protected</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each shares as share, i (share.id)}
-                <tr
-                  class:expired={isExpired(share.expires_at)}
-                  class="animate-slide-up"
-                  style="animation-delay: {i * 30}ms;"
-                >
-                  <td class="font-mono text-sm text-primary"
-                    >{share.file_path}</td
+      </div>
+      {#if errorMsg}
+        <div class="glass-card-light border-l-4 border-red-500 p-4 mb-6">
+          <div class="flex items-center gap-3">
+            <i class="bi bi-exclamation-triangle text-red-500 text-2xl"></i>
+            <p class="font-semibold text-gray-900 dark:text-gray-100">
+              {errorMsg}
+            </p>
+          </div>
+        </div>
+      {/if}
+      {#if shares.length === 0}
+        <div class="glass-card text-center py-16">
+          <div class="animate-fade-in">
+            <div class="text-8xl mb-6 opacity-30">
+              <i class="bi bi-share"></i>
+            </div>
+            <h2
+              class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100"
+            >
+              No shares yet
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">
+              Create your first share to collaborate with others
+            </p>
+            <button
+              onclick={() => (showCreateModal = true)}
+              class="px-6 py-3 rounded-lg font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2"
+              ><i class="bi bi-plus-circle"></i> Create Share</button
+            >
+          </div>
+        </div>
+      {:else}
+        <div class="glass-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead
+                ><tr
+                  class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
+                  ><th
+                    class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
+                    >File Path</th
+                  ><th
+                    class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
+                    >Permissions</th
+                  ><th
+                    class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
+                    >Expires</th
+                  ><th
+                    class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
+                    >Created</th
+                  ><th
+                    class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
+                    >Protected</th
+                  ><th
+                    class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
+                    >Actions</th
+                  ></tr
+                ></thead
+              ><tbody
+                >{#each shares as share, i (share.id)}<tr
+                    class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors animate-slide-up"
+                    class:opacity-50={isExpired(share.expires_at)}
+                    style="animation-delay: {i * 30}ms;"
+                    ><td
+                      class="px-6 py-4 font-mono text-sm text-blue-600 dark:text-blue-400"
+                      >{share.file_path}</td
+                    ><td class="px-6 py-4"
+                      ><span
+                        class="px-3 py-1 rounded-full text-xs font-medium"
+                        class:bg-blue-100={share.permissions === "read"}
+                        class:text-blue-700={share.permissions === "read"}
+                        class:dark:bg-blue-900={share.permissions === "read"}
+                        class:dark:text-blue-300={share.permissions === "read"}
+                        class:bg-yellow-100={share.permissions === "write"}
+                        class:text-yellow-700={share.permissions === "write"}
+                        class:dark:bg-yellow-900={share.permissions === "write"}
+                        class:dark:text-yellow-300={share.permissions ===
+                          "write"}>{share.permissions}</span
+                      ></td
+                    ><td
+                      class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400"
+                      >{formatDate(share.expires_at)}</td
+                    ><td
+                      class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400"
+                      >{formatDate(share.created_at)}</td
+                    ><td class="px-6 py-4"
+                      >{#if share.password_hash}<i
+                          class="bi bi-lock-fill text-yellow-500 text-lg"
+                        ></i>{:else}<i
+                          class="bi bi-unlock text-gray-400 text-lg"
+                        ></i>{/if}</td
+                    ><td class="px-6 py-4"
+                      ><div class="flex gap-2">
+                        <button
+                          onclick={() => copyShareLink(share.id)}
+                          class="px-3 py-1.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all flex items-center gap-1"
+                          ><i class="bi bi-clipboard"></i> Copy</button
+                        ><button
+                          onclick={() => openEditModal(share)}
+                          class="px-3 py-1.5 rounded-lg text-sm font-medium text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900 transition-all flex items-center gap-1"
+                          ><i class="bi bi-pencil"></i> Edit</button
+                        ><button
+                          onclick={() => openDeleteModal(share)}
+                          class="px-3 py-1.5 rounded-lg text-sm font-medium text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 transition-all flex items-center gap-1"
+                          ><i class="bi bi-trash"></i> Delete</button
+                        >
+                      </div></td
+                    ></tr
+                  >{/each}</tbody
+              >
+            </table>
+          </div>
+          <div
+            class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 px-6 py-4"
+          >
+            <div class="flex items-center justify-between text-sm">
+              <div class="text-gray-600 dark:text-gray-400">
+                <span class="font-semibold">{shares.length}</span> total share{shares.length !==
+                1
+                  ? "s"
+                  : ""}
+              </div>
+              <div class="flex gap-4 text-gray-600 dark:text-gray-400">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-lock-fill text-yellow-500"></i><span
+                    >{shares.filter((s) => s.password_hash).length} protected</span
                   >
-                  <td>
-                    <span
-                      class="badge badge-glass-{share.permissions === 'read'
-                        ? 'info'
-                        : 'warning'}"
-                    >
-                      {share.permissions}
-                    </span>
-                  </td>
-                  <td>{formatDate(share.expires_at)}</td>
-                  <td>{formatDate(share.created_at)}</td>
-                  <td>
-                    {#if share.password_hash}
-                      <i
-                        class="bi bi-lock-fill text-warning text-lg"
-                        title="Password protected"
-                      ></i>
-                    {:else}
-                      <i
-                        class="bi bi-unlock text-base-content/30 text-lg"
-                        title="No password"
-                      ></i>
-                    {/if}
-                  </td>
-                  <td>
-                    <div class="flex gap-2">
-                      <ModernButton
-                        variant="ghost"
-                        size="sm"
-                        icon="clipboard"
-                        onclick={() => copyShareLink(share.id)}
-                      >
-                        Copy
-                      </ModernButton>
-                      <ModernButton
-                        variant="ghost"
-                        size="sm"
-                        icon="pencil"
-                        onclick={() => openEditModal(share)}
-                      >
-                        Edit
-                      </ModernButton>
-                      <ModernButton
-                        variant="danger"
-                        size="sm"
-                        icon="trash"
-                        onclick={() => openDeleteModal(share)}
-                      >
-                        Delete
-                      </ModernButton>
-                    </div>
-                  </td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-exclamation-triangle text-red-500"></i><span
+                    >{shares.filter((s) => isExpired(s.expires_at)).length} expired</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      {/snippet}
-    </ModernCard>
-  {/if}
-</PageWrapper>
-
-{#if showCreateModal}
-  <div class="modal modal-open">
-    <div class="modal-box glass-card max-w-2xl">
-      <h3
-        class="font-bold text-2xl mb-6 gradient-text-primary flex items-center gap-2"
-      >
-        <i class="bi bi-plus-circle-fill"></i>
-        Create New Share
-      </h3>
-
-      <div class="space-y-4">
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-semibold">File Path</span>
-          </label>
-          <input
-            type="text"
-            class="input input-bordered glass-input"
-            bind:value={newShare.file_path}
-            placeholder="/path/to/file"
-          />
-        </div>
-
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-semibold">Permissions</span>
-          </label>
-          <select
-            class="select select-bordered glass-input"
-            bind:value={newShare.permissions}
-          >
-            <option value="read">Read Only</option>
-            <option value="write">Read & Write</option>
-          </select>
-        </div>
-
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-semibold">Expires At (Optional)</span>
-          </label>
-          <input
-            type="datetime-local"
-            class="input input-bordered glass-input"
-            bind:value={newShare.expires_at}
-          />
-        </div>
-
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-semibold">Password (Optional)</span>
-          </label>
-          <input
-            type="password"
-            class="input input-bordered glass-input"
-            bind:value={newShare.password}
-            placeholder="Leave empty for no password"
-          />
-        </div>
-      </div>
-
-      <div class="modal-action mt-6">
-        <ModernButton
-          variant="ghost"
-          onclick={() => {
-            showCreateModal = false;
-            resetForm();
-          }}
-        >
-          Cancel
-        </ModernButton>
-        <ModernButton
-          variant="gradient"
-          icon="plus-circle"
-          onclick={handleCreateShare}
-        >
-          Create Share
-        </ModernButton>
-      </div>
+      {/if}
     </div>
   </div>
 {/if}
 
-{#if showEditModal && selectedShare}
-  <div class="modal modal-open">
-    <div class="modal-box glass-card max-w-2xl">
-      <h3
-        class="font-bold text-2xl mb-6 gradient-text-primary flex items-center gap-2"
+<Modal bind:show={showCreateModal} title="Create Share" size="md"
+  >{#snippet content()}<form
+      onsubmit={(e) => {
+        e.preventDefault();
+        handleCreateShare();
+      }}
+      class="space-y-5"
+    >
+      <div>
+        <label
+          for="file_path"
+          class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+          >File Path</label
+        ><input
+          id="file_path"
+          type="text"
+          bind:value={newShare.file_path}
+          placeholder="/path/to/file.txt"
+          class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          required
+        />
+      </div>
+      <div>
+        <label
+          for="permissions"
+          class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+          >Permissions</label
+        ><select
+          id="permissions"
+          bind:value={newShare.permissions}
+          class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          ><option value="read">Read Only</option><option value="write"
+            >Read & Write</option
+          ></select
+        >
+      </div>
+      <div>
+        <label
+          for="expires_at"
+          class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+          >Expiration Date (Optional)</label
+        ><input
+          id="expires_at"
+          type="datetime-local"
+          bind:value={newShare.expires_at}
+          class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+        />
+      </div>
+      <div>
+        <label
+          for="password"
+          class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+          >Password (Optional)</label
+        ><input
+          id="password"
+          type="password"
+          bind:value={newShare.password}
+          placeholder="Leave empty for no password"
+          class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+        />
+      </div>
+      <div
+        class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700"
       >
-        <i class="bi bi-pencil-fill"></i>
-        Edit Share
-      </h3>
+        <button
+          type="button"
+          onclick={() => (showCreateModal = false)}
+          class="px-5 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+          >Cancel</button
+        ><button
+          type="submit"
+          class="px-5 py-2.5 rounded-lg font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+          ><i class="bi bi-plus-circle"></i> Create Share</button
+        >
+      </div>
+    </form>{/snippet}</Modal
+>
 
-      <div class="space-y-4">
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-semibold">File Path</span>
-          </label>
-          <input
+<Modal bind:show={showEditModal} title="Edit Share" size="md"
+  >{#snippet content()}{#if selectedShare}<form
+        onsubmit={(e) => {
+          e.preventDefault();
+          handleUpdateShare();
+        }}
+        class="space-y-5"
+      >
+        <div>
+          <label
+            class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+            >File Path</label
+          ><input
             type="text"
-            class="input input-bordered glass-input"
             value={selectedShare.file_path}
             disabled
+            class="w-full px-4 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400"
           />
-          <label class="label">
-            <span class="label-text-alt opacity-70"
-              >File path cannot be changed</span
-            >
-          </label>
         </div>
-
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-semibold">Permissions</span>
-          </label>
-          <select
-            class="select select-bordered glass-input"
+        <div>
+          <label
+            for="edit_permissions"
+            class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+            >Permissions</label
+          ><select
+            id="edit_permissions"
             bind:value={selectedShare.permissions}
+            class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            ><option value="read">Read Only</option><option value="write"
+              >Read & Write</option
+            ></select
           >
-            <option value="read">Read Only</option>
-            <option value="write">Read & Write</option>
-          </select>
         </div>
-
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-semibold">Expires At</span>
-          </label>
-          <input
+        <div>
+          <label
+            for="edit_expires_at"
+            class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+            >Expiration Date (Optional)</label
+          ><input
+            id="edit_expires_at"
             type="datetime-local"
-            class="input input-bordered glass-input"
             bind:value={selectedShare.expires_at}
+            class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
         </div>
-      </div>
-
-      <div class="modal-action mt-6">
-        <ModernButton
-          variant="ghost"
-          onclick={() => {
-            showEditModal = false;
-            selectedShare = null;
-          }}
+        <div>
+          <label
+            for="edit_password"
+            class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+            >Password (Leave empty to keep current)</label
+          ><input
+            id="edit_password"
+            type="password"
+            bind:value={selectedShare.password}
+            placeholder="Enter new password or leave empty"
+            class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          />
+        </div>
+        <div
+          class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700"
         >
-          Cancel
-        </ModernButton>
-        <ModernButton
-          variant="primary"
-          icon="check-circle"
-          onclick={handleUpdateShare}
-        >
-          Save Changes
-        </ModernButton>
-      </div>
-    </div>
-  </div>
-{/if}
+          <button
+            type="button"
+            onclick={() => {
+              showEditModal = false;
+              selectedShare = null;
+            }}
+            class="px-5 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+            >Cancel</button
+          ><button
+            type="submit"
+            class="px-5 py-2.5 rounded-lg font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+            ><i class="bi bi-save"></i> Save Changes</button
+          >
+        </div>
+      </form>{/if}{/snippet}</Modal
+>
 
-{#if showDeleteModal && selectedShare}
-  <div class="modal modal-open">
-    <div class="modal-box glass-card">
-      <h3 class="font-bold text-2xl mb-6 text-error flex items-center gap-2">
-        <i class="bi bi-exclamation-triangle-fill"></i>
-        Delete Share
-      </h3>
-
-      <div class="glass-card-light border-l-4 border-error p-4 mb-4">
-        <p>
-          Are you sure you want to delete the share for <strong
-            class="font-mono text-primary">{selectedShare.file_path}</strong
-          >?
-        </p>
-        <p class="text-sm text-base-content/70 mt-2">
-          This action cannot be undone.
-        </p>
-      </div>
-
-      <div class="modal-action">
-        <ModernButton
-          variant="ghost"
-          onclick={() => {
-            showDeleteModal = false;
-            selectedShare = null;
-          }}
-        >
-          Cancel
-        </ModernButton>
-        <ModernButton
-          variant="danger"
-          icon="trash-fill"
-          onclick={handleDeleteShare}
-        >
-          Delete Share
-        </ModernButton>
-      </div>
-    </div>
-  </div>
-{/if}
-
-<style>
-  .table tr.expired {
-    opacity: 0.5;
-    text-decoration: line-through;
-  }
-
-  .glass-input {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-  }
-</style>
+<Modal bind:show={showDeleteModal} title="Delete Share" size="sm"
+  >{#snippet content()}{#if selectedShare}<div class="space-y-4">
+        <div class="glass-card-light border-l-4 border-red-500 p-4">
+          <div class="flex items-start gap-3">
+            <i class="bi bi-exclamation-triangle-fill text-red-500 text-2xl"
+            ></i>
+            <div class="flex-1">
+              <p class="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                Are you sure you want to delete this share?
+              </p>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                File: <span
+                  class="font-mono font-semibold text-blue-600 dark:text-blue-400"
+                  >{selectedShare.file_path}</span
+                >
+              </p>
+              <p class="text-sm text-red-600 dark:text-red-400 mt-2">
+                This action cannot be undone.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+          <button
+            type="button"
+            onclick={() => {
+              showDeleteModal = false;
+              selectedShare = null;
+            }}
+            class="px-5 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+            >Cancel</button
+          ><button
+            onclick={handleDeleteShare}
+            class="px-5 py-2.5 rounded-lg font-medium bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+            ><i class="bi bi-trash-fill"></i> Delete Share</button
+          >
+        </div>
+      </div>{/if}{/snippet}</Modal
+>

@@ -1,19 +1,14 @@
 <script>
   import { onMount } from "svelte";
   import { favorites } from "../stores/favorites";
-  import { currentPath, currentLang } from "../stores/ui.js";
-  import { t } from "../i18n.js";
-  import { success, error as errorToast } from "../stores/toast";
-  import { getFileIcon } from "../utils/fileIcons";
+  import { currentPath } from "../stores/ui.js";
+  import { success, error } from "../stores/toast";
   import api from "../lib/api.js";
-  import PageWrapper from "../components/PageWrapper.svelte";
-  import ModernCard from "../components/ui/ModernCard.svelte";
-  import ModernButton from "../components/ui/ModernButton.svelte";
   import Loading from "../components/Loading.svelte";
 
   let favoriteFiles = $state([]);
   let loading = $state(false);
-  let error = $state(null);
+  let errorMsg = $state(null);
 
   function getFileIconEmoji(mimeType) {
     if (!mimeType) return "📄";
@@ -42,14 +37,12 @@
 
   async function loadFavorites() {
     loading = true;
-    error = null;
+    errorMsg = null;
 
     try {
-      // Load from backend API using proper API method
       const favs = await api.favorites.list();
       console.log("[FavoritesView] Loaded favorites from API:", favs);
 
-      // Convert favorites objects to display format
       favoriteFiles = (favs || []).map((fav) => ({
         id: fav.id,
         itemId: fav.item_id,
@@ -57,7 +50,6 @@
         name: fav.item_id.split("/").pop() || fav.item_id,
         fullPath: fav.item_id,
         createdAt: fav.created_at,
-        // Add metadata if available
         size: fav.size_bytes,
         mimeType: fav.mime_type,
       }));
@@ -65,21 +57,22 @@
       console.log("[FavoritesView] Display files:", favoriteFiles);
     } catch (err) {
       console.error("Failed to load favorites:", err);
-      error = "Failed to load favorites";
-      errorToast("Failed to load favorites: " + err.message);
+      errorMsg = "Failed to load favorites";
+      error("Failed to load favorites: " + err.message);
     } finally {
       loading = false;
     }
   }
 
-  async function removeFavorite(fav) {
+  async function removeFavorite(fav, e) {
+    e?.stopPropagation();
     try {
       await favorites.remove(fav.itemId);
-      success(`${fav.name} aus Favoriten entfernt`);
+      success(`${fav.name} removed from favorites`);
       await loadFavorites();
     } catch (err) {
       console.error("Failed to remove favorite:", err);
-      errorToast("Failed to remove favorite");
+      error("Failed to remove favorite");
     }
   }
 
@@ -116,130 +109,157 @@
   }
 </script>
 
-<PageWrapper gradient>
-  <!-- Animated Blobs -->
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
+{#if loading}
+  <Loading />
+{:else}
+  <!-- Main Container -->
+  <div
+    class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6"
+  >
+    <!-- Animated Background Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
 
-  <!-- Page Header -->
-  <div class="flex justify-between items-start mb-8 relative z-10">
-    <div>
-      <h1
-        class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3"
-      >
-        <i class="bi bi-star-fill text-amber-500"></i>
-        {t($currentLang, "favorites")}
-      </h1>
-      <p class="text-base-content/70">
-        {favoriteFiles.length}
-        {favoriteFiles.length === 1 ? "item" : "items"}
-      </p>
-    </div>
-    <ModernButton
-      variant="ghost"
-      icon="arrow-clockwise"
-      disabled={loading}
-      onclick={loadFavorites}
-    >
-      Refresh
-    </ModernButton>
-  </div>
-
-  {#if loading}
-    <Loading />
-  {:else if error}
-    <ModernCard variant="glass" class="text-center py-16">
-      {#snippet children()}
-        <div class="text-error/30 mb-6">
-          <i class="bi bi-exclamation-triangle text-8xl"></i>
-        </div>
-        <h3 class="text-2xl font-bold text-error mb-3">{error}</h3>
-        <ModernButton
-          variant="primary"
-          icon="arrow-clockwise"
-          onclick={loadFavorites}
-        >
-          Try Again
-        </ModernButton>
-      {/snippet}
-    </ModernCard>
-  {:else if favoriteFiles.length === 0}
-    <ModernCard variant="glass" class="text-center py-16">
-      {#snippet children()}
-        <div class="animate-fade-in">
-          <div class="text-amber-500/30 mb-6">
-            <i class="bi bi-star text-8xl"></i>
+    <!-- Page Header -->
+    <div class="max-w-7xl mx-auto mb-6">
+      <div class="glass-card p-6 animate-slide-down">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1
+              class="text-3xl font-bold gradient-text mb-2 flex items-center gap-3"
+            >
+              <i class="bi bi-star-fill text-yellow-500"></i>
+              Favorites
+            </h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              {favoriteFiles.length}
+              {favoriteFiles.length === 1 ? "item" : "items"}
+            </p>
           </div>
-          <h3 class="text-2xl font-bold mb-3">
-            {t($currentLang, "noFavorites")}
+
+          <button
+            onclick={loadFavorites}
+            disabled={loading}
+            class="px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            <i class="bi bi-arrow-clockwise {loading ? 'animate-spin' : ''}"
+            ></i>
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="max-w-7xl mx-auto">
+      {#if errorMsg}
+        <!-- Error State -->
+        <div class="glass-card p-12 text-center animate-slide-up">
+          <div class="mb-6">
+            <i class="bi bi-exclamation-triangle text-6xl text-red-500/30"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-3">
+            {errorMsg}
           </h3>
-          <p class="text-base-content/60">
-            {t($currentLang, "markFilesAsFavorite")}
+          <button
+            onclick={loadFavorites}
+            class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto"
+          >
+            <i class="bi bi-arrow-clockwise"></i>
+            Try Again
+          </button>
+        </div>
+      {:else if favoriteFiles.length === 0}
+        <!-- Empty State -->
+        <div class="glass-card p-12 text-center animate-slide-up">
+          <div class="mb-6">
+            <i class="bi bi-star text-6xl text-yellow-500/30"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-3">No favorites yet</h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            Mark files as favorites to see them here
           </p>
         </div>
-      {/snippet}
-    </ModernCard>
-  {:else}
-    <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-    >
-      {#each favoriteFiles as file, i}
-        <ModernCard
-          variant="glass"
-          hoverable
-          clickable
-          onclick={() => navigateToFile(file.fullPath)}
-          class="animate-slide-up"
-          style="animation-delay: {i * 30}ms;"
+      {:else}
+        <!-- Favorites Grid -->
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
         >
-          {#snippet children()}
-            <div class="text-center">
-              <div class="text-6xl mb-4">
-                {getFileIconEmoji(file.mimeType)}
+          {#each favoriteFiles as file, i}
+            <div
+              class="glass-card p-6 cursor-pointer hover:scale-105 transition-all duration-200 animate-slide-up"
+              style="animation-delay: {i * 30}ms"
+              onclick={() => navigateToFile(file.fullPath)}
+            >
+              <!-- File Icon -->
+              <div class="text-center mb-4">
+                <div class="text-6xl mb-3">
+                  {getFileIconEmoji(file.mimeType)}
+                </div>
+                <h3 class="font-bold text-lg mb-2 truncate" title={file.name}>
+                  {file.name}
+                </h3>
               </div>
 
-              <h3 class="font-bold text-lg mb-2 truncate" title={file.name}>
-                {file.name}
-              </h3>
-
+              <!-- File Metadata -->
               <div
-                class="flex gap-3 justify-center text-xs text-base-content/60 mb-3"
+                class="flex flex-wrap gap-3 justify-center text-xs text-gray-600 dark:text-gray-400 mb-3"
               >
                 {#if file.size}
-                  <span class="flex items-center gap-1">
+                  <span
+                    class="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg"
+                  >
                     <i class="bi bi-file-earmark"></i>
                     {formatFileSize(file.size)}
                   </span>
                 {/if}
                 {#if file.createdAt}
-                  <span class="flex items-center gap-1">
+                  <span
+                    class="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg"
+                  >
                     <i class="bi bi-clock"></i>
                     {formatDate(file.createdAt)}
                   </span>
                 {/if}
               </div>
 
-              <div class="text-xs font-mono text-base-content/50 mb-4 truncate">
+              <!-- File Path -->
+              <div
+                class="text-xs font-mono text-gray-500 dark:text-gray-500 mb-4 truncate text-center px-2"
+              >
                 {formatPath(file.fullPath)}
               </div>
 
-              <ModernButton
-                variant="ghost"
-                size="sm"
-                icon="star-fill"
-                onclick={(e) => {
-                  e.stopPropagation();
-                  removeFavorite(file);
-                }}
-                fullWidth
+              <!-- Remove Button -->
+              <button
+                onclick={(e) => removeFavorite(file, e)}
+                class="w-full px-4 py-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 font-semibold rounded-xl hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-all flex items-center justify-center gap-2"
               >
-                <span class="text-amber-500">Remove Favorite</span>
-              </ModernButton>
+                <i class="bi bi-star-fill"></i>
+                <span>Remove Favorite</span>
+              </button>
             </div>
-          {/snippet}
-        </ModernCard>
-      {/each}
+          {/each}
+        </div>
+      {/if}
     </div>
-  {/if}
-</PageWrapper>
+  </div>
+{/if}
+
+<style>
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out both;
+  }
+</style>

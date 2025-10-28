@@ -86,9 +86,15 @@
 
   <div class="relative z-10 max-w-6xl mx-auto">
     <!-- Cover Photo -->
-    <div class="relative h-64 rounded-3xl overflow-hidden mb-8 animate-slide-up">
+    <div
+      class="relative h-64 rounded-3xl overflow-hidden mb-8 animate-slide-up"
+    >
       {#if user.coverPhoto}
-        <img src={user.coverPhoto} alt="Cover" class="w-full h-full object-cover" />
+        <img
+          src={user.coverPhoto}
+          alt="Cover"
+          class="w-full h-full object-cover"
+        />
       {:else}
         <div class="w-full h-full gradient-bg-primary"></div>
       {/if}
@@ -110,16 +116,26 @@
           <div class="text-center pt-20 pb-6">
             <!-- Avatar -->
             <div class="relative inline-block mb-4">
-              <div class="w-40 h-40 rounded-full border-4 border-base-100 overflow-hidden shadow-2xl">
+              <div
+                class="w-40 h-40 rounded-full border-4 border-base-100 overflow-hidden shadow-2xl"
+              >
                 {#if user.avatar}
-                  <img src={user.avatar} alt={user.displayName} class="w-full h-full object-cover" />
+                  <img
+                    src={user.avatar}
+                    alt={user.displayName}
+                    class="w-full h-full object-cover"
+                  />
                 {:else}
-                  <div class="w-full h-full gradient-bg-primary flex items-center justify-center text-white text-5xl font-bold">
+                  <div
+                    class="w-full h-full gradient-bg-primary flex items-center justify-center text-white text-5xl font-bold"
+                  >
                     {getInitials(user.displayName)}
                   </div>
                 {/if}
               </div>
-              <label class="absolute bottom-0 right-0 w-12 h-12 rounded-full bg-primary text-primary-content border-4 border-base-100 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-lg">
+              <label
+                class="absolute bottom-0 right-0 w-12 h-12 rounded-full bg-primary text-primary-content border-4 border-base-100 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-lg"
+              >
                 <i class="bi bi-camera-fill"></i>
                 <input
                   type="file"
@@ -149,11 +165,15 @@
             {:else}
               <h1 class="text-4xl font-bold mb-2">{user.displayName}</h1>
               <p class="text-base-content/60 mb-3">@{user.username}</p>
-              <p class="text-base-content/80 max-w-2xl mx-auto mb-4">{user.bio}</p>
+              <p class="text-base-content/80 max-w-2xl mx-auto mb-4">
+                {user.bio}
+              </p>
             {/if}
 
             <!-- Meta Info -->
-            <div class="flex gap-6 justify-center text-sm text-base-content/60 mb-6">
+            <div
+              class="flex gap-6 justify-center text-sm text-base-content/60 mb-6"
+            >
               <span class="flex items-center gap-2">
                 <i class="bi bi-envelope"></i>
                 {user.email}
@@ -167,14 +187,25 @@
             <!-- Actions -->
             <div class="flex gap-3 justify-center">
               {#if editMode}
-                <ModernButton variant="gradient" icon="check-lg" onclick={saveProfile}>
+                <ModernButton
+                  variant="gradient"
+                  icon="check-lg"
+                  onclick={saveProfile}
+                >
                   Save Changes
                 </ModernButton>
-                <ModernButton variant="ghost" onclick={() => (editMode = false)}>
+                <ModernButton
+                  variant="ghost"
+                  onclick={() => (editMode = false)}
+                >
                   Cancel
                 </ModernButton>
               {:else}
-                <ModernButton variant="gradient" icon="pencil" onclick={() => (editMode = true)}>
+                <ModernButton
+                  variant="gradient"
+                  icon="pencil"
+                  onclick={() => (editMode = true)}
+                >
                   Edit Profile
                 </ModernButton>
               {/if}
@@ -185,12 +216,17 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 animate-slide-up" style="animation-delay: 200ms;">
+    <div
+      class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 animate-slide-up"
+      style="animation-delay: 200ms;"
+    >
       <ModernCard variant="gradient" hoverable>
         {#snippet children()}
           <div class="text-center py-6">
             <i class="bi bi-files text-5xl mb-3 block"></i>
-            <div class="text-4xl font-bold mb-1">{user.stats.files.toLocaleString()}</div>
+            <div class="text-4xl font-bold mb-1">
+              {user.stats.files.toLocaleString()}
+            </div>
             <div class="text-sm opacity-90">Files</div>
           </div>
         {/snippet}
@@ -200,7 +236,9 @@
         {#snippet children()}
           <div class="text-center py-6">
             <i class="bi bi-hdd text-5xl mb-3 block"></i>
-            <div class="text-4xl font-bold mb-1">{formatBytes(user.stats.storage)}</div>
+            <div class="text-4xl font-bold mb-1">
+              {formatBytes(user.stats.storage)}
+            </div>
             <div class="text-sm opacity-90">Storage Used</div>
           </div>
         {/snippet}
@@ -235,15 +273,20 @@
             <i class="bi bi-clock-history text-primary"></i>
             Recent Files
           </h2>
-          
+
           <div class="space-y-2">
             {#each recentFiles as file, i (file.id)}
               <div class="animate-fade-in" style="animation-delay: {i * 50}ms;">
-                <div class="glass-card-light p-4 rounded-xl hover:scale-[1.02] transition-transform cursor-pointer">
+                <div
+                  class="glass-card-light p-4 rounded-xl hover:scale-[1.02] transition-transform cursor-pointer"
+                >
                   <div class="flex items-center gap-4">
-                    <i class="bi bi-file-earmark-fill text-3xl text-primary"></i>
+                    <i class="bi bi-file-earmark-fill text-3xl text-primary"
+                    ></i>
                     <div class="flex-1">
-                      <div class="font-semibold text-base-content">{file.name}</div>
+                      <div class="font-semibold text-base-content">
+                        {file.name}
+                      </div>
                       <div class="text-sm text-base-content/60">
                         {formatBytes(file.size)} • {formatDate(file.modified)}
                       </div>
@@ -266,3 +309,5 @@
 </PageWrapper>
 
 <style>
+  /* ProfileView Styles */
+</style>

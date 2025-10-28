@@ -107,395 +107,413 @@
   );
 </script>
 
-<div class="users-view">
-  <div class="users-header">
-    <div class="header-top">
-      <div>
-        <h1 class="text-3xl font-bold">
-          <i class="bi bi-people-fill"></i> Users
-        </h1>
-        <p class="text-base-content/60 mt-1">{filteredUsers.length} users</p>
-      </div>
-      <div class="header-actions">
-        <div
-          class="inline-flex rounded-lg border border-gray-300 dark:border-gray-600"
-        >
-          <button
-            class="px-3 py-1.5 text-sm rounded-l-lg border-r border-gray-300 dark:border-gray-600 transition-colors {viewMode ===
-            'table'
-              ? 'bg-blue-600 text-white'
-              : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'}"
-            onclick={() => (viewMode = "table")}
-            aria-label="Table view"><i class="bi bi-table"></i></button
-          >
-          <button
-            class="px-3 py-1.5 text-sm rounded-r-lg transition-colors {viewMode ===
-            'cards'
-              ? 'bg-blue-600 text-white'
-              : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'}"
-            onclick={() => (viewMode = "cards")}
-            aria-label="Cards view"><i class="bi bi-grid-3x3-gap"></i></button
-          >
-        </div>
-        <button
-          class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
-          ><i class="bi bi-plus-lg"></i> Add User</button
-        >
-      </div>
-    </div>
-    <div class="filter-row">
-      <div
-        class="inline-flex rounded-lg border border-gray-300 dark:border-gray-600"
-      >
-        <button
-          class="px-3 py-1.5 text-sm rounded-l-lg border-r border-gray-300 dark:border-gray-600 transition-colors {filterRole ===
-          'all'
-            ? 'bg-blue-600 text-white'
-            : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'}"
-          onclick={() => (filterRole = "all")}>All</button
-        >
-        <button
-          class="px-3 py-1.5 text-sm border-r border-gray-300 dark:border-gray-600 transition-colors {filterRole ===
-          'admin'
-            ? 'bg-blue-600 text-white'
-            : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'}"
-          onclick={() => (filterRole = "admin")}>Admins</button
-        >
-        <button
-          class="px-3 py-1.5 text-sm rounded-r-lg transition-colors {filterRole ===
-          'user'
-            ? 'bg-blue-600 text-white'
-            : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'}"
-          onclick={() => (filterRole = "user")}>Users</button
-        >
-      </div>
-      {#if selectedUsers.size > 0}
-        <div class="bulk-actions">
-          <span class="text-sm">{selectedUsers.size} selected</span>
-          <button
-            class="px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-2"
-            ><i class="bi bi-trash"></i> Delete</button
-          >
-        </div>
-      {/if}
-    </div>
-  </div>
+<!-- Main Container -->
+<div
+  class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6"
+>
+  <!-- Animated Background Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 
-  {#if loading}
-    <div class="loading-container">
-      <div
-        class="w-12 h-12 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"
-      ></div>
-    </div>
-  {:else if viewMode === "table"}
-    <div class="table-container">
-      <table class="table table-zebra">
-        <thead>
-          <tr>
-            <th
-              ><input
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                onchange={toggleSelectAll}
-                checked={selectedUsers.size === filteredUsers.length}
-              /></th
-            >
-            <th>User</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Files</th>
-            <th>Storage</th>
-            <th>Last Active</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each filteredUsers as user (user.id)}
-            <tr class:selected={selectedUsers.has(user.id)}>
-              <td
-                ><input
-                  type="checkbox"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                  checked={selectedUsers.has(user.id)}
-                  onchange={() => toggleSelectUser(user.id)}
-                /></td
-              >
-              <td>
-                <div class="flex items-center gap-3">
-                  <div class="avatar-cell">
-                    <div class="avatar-placeholder">
-                      {getUserInitials(user.username)}
-                    </div>
-                    <div
-                      class="status-dot {getStatusIndicator(user.status).color}"
-                    ></div>
-                  </div>
-                  <div>
-                    <div class="font-semibold">{user.username}</div>
-                    <div class="text-sm text-base-content/60">{user.email}</div>
-                  </div>
-                </div>
-              </td>
-              <td
-                ><span
-                  class="px-2 py-0.5 text-xs {getRoleBadgeClass(
-                    user.role
-                  )} rounded-full">{user.role}</span
-                ></td
-              >
-              <td
-                ><span class="text-sm"
-                  >{getStatusIndicator(user.status).text}</span
-                ></td
-              >
-              <td>{user.filesCount.toLocaleString()}</td>
-              <td>{formatBytes(user.storageUsed)}</td>
-              <td class="text-sm text-base-content/60"
-                >{formatLastActive(user.lastActive)}</td
-              >
-              <td>
-                <div class="flex gap-1">
-                  <button
-                    class="px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded transition-colors"
-                    aria-label="Edit user"><i class="bi bi-pencil"></i></button
-                  >
-                  <button
-                    class="px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 text-red-600 dark:text-red-400 rounded transition-colors"
-                    aria-label="Delete user"><i class="bi bi-trash"></i></button
-                  >
-                </div>
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
-  {:else}
-    <div class="cards-grid">
-      {#each filteredUsers as user (user.id)}
-        <div class="user-card" class:selected={selectedUsers.has(user.id)}>
-          <div class="card-header">
-            <input
-              type="checkbox"
-              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-              checked={selectedUsers.has(user.id)}
-              onchange={() => toggleSelectUser(user.id)}
-            />
-            <div
-              class="status-dot {getStatusIndicator(user.status).color}"
-            ></div>
-          </div>
-          <div class="card-avatar">
-            <div class="avatar-placeholder-large">
-              {getUserInitials(user.username)}
-            </div>
-          </div>
-          <div class="card-info">
-            <h3 class="user-name">{user.username}</h3>
-            <p class="user-email">{user.email}</p>
-            <span
-              class="px-2 py-0.5 text-xs {getRoleBadgeClass(
-                user.role
-              )} rounded-full mt-2 inline-block">{user.role}</span
-            >
-          </div>
-          <div class="card-stats">
-            <div class="stat-item">
-              <i class="bi bi-files"></i> <span>{user.filesCount}</span>
-            </div>
-            <div class="stat-item">
-              <i class="bi bi-hdd"></i>
-              <span>{formatBytes(user.storageUsed)}</span>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="text-xs text-base-content/50"
-              >{formatLastActive(user.lastActive)}</span
-            >
-            <div class="flex gap-1">
-              <button
-                class="px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded transition-colors"
-                aria-label="Edit user"><i class="bi bi-pencil"></i></button
-              >
-              <button
-                class="px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 text-red-600 dark:text-red-400 rounded transition-colors"
-                aria-label="Delete user"><i class="bi bi-trash"></i></button
-              >
-            </div>
-          </div>
+  <!-- Content Container -->
+  <div class="relative z-10 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="glass-card mb-6 p-6">
+      <div class="flex items-center justify-between flex-wrap gap-4 mb-6">
+        <div>
+          <h1
+            class="text-3xl font-bold gradient-text mb-2 flex items-center gap-3"
+          >
+            <i class="bi bi-people-fill"></i>
+            Users
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400">
+            {filteredUsers.length} user{filteredUsers.length !== 1 ? "s" : ""}
+          </p>
         </div>
-      {/each}
+
+        <div class="flex gap-3 flex-wrap">
+          <!-- View Mode Toggle -->
+          <div
+            class="flex rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600"
+          >
+            <button
+              onclick={() => (viewMode = "table")}
+              class="px-3 py-2 text-sm transition-colors"
+              class:bg-gradient-to-r={viewMode === "table"}
+              class:from-blue-500={viewMode === "table"}
+              class:to-purple-600={viewMode === "table"}
+              class:text-white={viewMode === "table"}
+              class:bg-white={viewMode !== "table"}
+              class:dark:bg-gray-800={viewMode !== "table"}
+              class:hover:bg-gray-100={viewMode !== "table"}
+              class:dark:hover:bg-gray-700={viewMode !== "table"}
+              class:text-gray-700={viewMode !== "table"}
+              class:dark:text-gray-200={viewMode !== "table"}
+              aria-label="Table view"
+            >
+              <i class="bi bi-table"></i>
+            </button>
+            <button
+              onclick={() => (viewMode = "cards")}
+              class="px-3 py-2 text-sm border-l border-gray-300 dark:border-gray-600 transition-colors"
+              class:bg-gradient-to-r={viewMode === "cards"}
+              class:from-blue-500={viewMode === "cards"}
+              class:to-purple-600={viewMode === "cards"}
+              class:text-white={viewMode === "cards"}
+              class:bg-white={viewMode !== "cards"}
+              class:dark:bg-gray-800={viewMode !== "cards"}
+              class:hover:bg-gray-100={viewMode !== "cards"}
+              class:dark:hover:bg-gray-700={viewMode !== "cards"}
+              class:text-gray-700={viewMode !== "cards"}
+              class:dark:text-gray-200={viewMode !== "cards"}
+              aria-label="Cards view"
+            >
+              <i class="bi bi-grid-3x3-gap"></i>
+            </button>
+          </div>
+
+          <button
+            class="px-4 py-2 rounded-lg font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+          >
+            <i class="bi bi-plus-lg"></i>
+            Add User
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div
+          class="flex rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600"
+        >
+          <button
+            onclick={() => (filterRole = "all")}
+            class="px-4 py-2 text-sm transition-colors"
+            class:bg-gradient-to-r={filterRole === "all"}
+            class:from-blue-500={filterRole === "all"}
+            class:to-purple-600={filterRole === "all"}
+            class:text-white={filterRole === "all"}
+            class:bg-white={filterRole !== "all"}
+            class:dark:bg-gray-800={filterRole !== "all"}
+            class:hover:bg-gray-100={filterRole !== "all"}
+            class:dark:hover:bg-gray-700={filterRole !== "all"}
+            class:text-gray-700={filterRole !== "all"}
+            class:dark:text-gray-200={filterRole !== "all"}
+          >
+            All
+          </button>
+          <button
+            onclick={() => (filterRole = "admin")}
+            class="px-4 py-2 text-sm border-l border-gray-300 dark:border-gray-600 transition-colors"
+            class:bg-gradient-to-r={filterRole === "admin"}
+            class:from-blue-500={filterRole === "admin"}
+            class:to-purple-600={filterRole === "admin"}
+            class:text-white={filterRole === "admin"}
+            class:bg-white={filterRole !== "admin"}
+            class:dark:bg-gray-800={filterRole !== "admin"}
+            class:hover:bg-gray-100={filterRole !== "admin"}
+            class:dark:hover:bg-gray-700={filterRole !== "admin"}
+            class:text-gray-700={filterRole !== "admin"}
+            class:dark:text-gray-200={filterRole !== "admin"}
+          >
+            Admins
+          </button>
+          <button
+            onclick={() => (filterRole = "user")}
+            class="px-4 py-2 text-sm border-l border-gray-300 dark:border-gray-600 transition-colors"
+            class:bg-gradient-to-r={filterRole === "user"}
+            class:from-blue-500={filterRole === "user"}
+            class:to-purple-600={filterRole === "user"}
+            class:text-white={filterRole === "user"}
+            class:bg-white={filterRole !== "user"}
+            class:dark:bg-gray-800={filterRole !== "user"}
+            class:hover:bg-gray-100={filterRole !== "user"}
+            class:dark:hover:bg-gray-700={filterRole !== "user"}
+            class:text-gray-700={filterRole !== "user"}
+            class:dark:text-gray-200={filterRole !== "user"}
+          >
+            Users
+          </button>
+        </div>
+
+        {#if selectedUsers.size > 0}
+          <div
+            class="flex items-center gap-4 glass-card-light px-4 py-2 rounded-lg"
+          >
+            <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+              {selectedUsers.size} selected
+            </span>
+            <button
+              class="px-3 py-1.5 text-sm rounded-lg font-medium bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition-all flex items-center gap-2"
+            >
+              <i class="bi bi-trash"></i>
+              Delete
+            </button>
+          </div>
+        {/if}
+      </div>
     </div>
-  {/if}
+
+    {#if loading}
+      <div class="glass-card text-center py-16">
+        <div
+          class="w-12 h-12 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin mx-auto"
+        ></div>
+      </div>
+    {:else if viewMode === "table"}
+      <!-- Table View -->
+      <div class="glass-card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr
+                class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
+              >
+                <th class="px-6 py-4 text-left">
+                  <input
+                    type="checkbox"
+                    class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                    onchange={toggleSelectAll}
+                    checked={selectedUsers.size === filteredUsers.length}
+                  />
+                </th>
+                <th
+                  class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
+                  >User</th
+                >
+                <th
+                  class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
+                  >Role</th
+                >
+                <th
+                  class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
+                  >Status</th
+                >
+                <th
+                  class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
+                  >Files</th
+                >
+                <th
+                  class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
+                  >Storage</th
+                >
+                <th
+                  class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
+                  >Last Active</th
+                >
+                <th
+                  class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
+                  >Actions</th
+                >
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              {#each filteredUsers as user (user.id)}
+                <tr
+                  class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors {selectedUsers.has(
+                    user.id
+                  )
+                    ? 'bg-blue-50 dark:bg-blue-900/20'
+                    : ''}"
+                >
+                  <td class="px-6 py-4">
+                    <input
+                      type="checkbox"
+                      class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                      checked={selectedUsers.has(user.id)}
+                      onchange={() => toggleSelectUser(user.id)}
+                    />
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="relative">
+                        <div
+                          class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm"
+                        >
+                          {getUserInitials(user.username)}
+                        </div>
+                        <div
+                          class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-gray-800 {getStatusIndicator(
+                            user.status
+                          ).color}"
+                        ></div>
+                      </div>
+                      <div>
+                        <div
+                          class="font-semibold text-gray-900 dark:text-gray-100"
+                        >
+                          {user.username}
+                        </div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                          {user.email}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span
+                      class="px-2 py-1 text-xs font-medium {getRoleBadgeClass(
+                        user.role
+                      )} rounded-full"
+                    >
+                      {user.role}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-gray-700 dark:text-gray-300">
+                      {getStatusIndicator(user.status).text}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-gray-700 dark:text-gray-300"
+                    >{user.filesCount.toLocaleString()}</td
+                  >
+                  <td class="px-6 py-4 text-gray-700 dark:text-gray-300"
+                    >{formatBytes(user.storageUsed)}</td
+                  >
+                  <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
+                    >{formatLastActive(user.lastActive)}</td
+                  >
+                  <td class="px-6 py-4">
+                    <div class="flex gap-2">
+                      <button
+                        class="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        aria-label="Edit user"
+                      >
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button
+                        class="p-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        aria-label="Delete user"
+                      >
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {:else}
+      <!-- Cards View -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {#each filteredUsers as user (user.id)}
+          <div
+            class="glass-card p-6 hover:shadow-xl transition-all duration-300 relative"
+            class:ring-2={selectedUsers.has(user.id)}
+            class:ring-blue-500={selectedUsers.has(user.id)}
+          >
+            <!-- Selection Checkbox -->
+            <div class="absolute top-4 right-4 flex items-center gap-2">
+              <input
+                type="checkbox"
+                class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                checked={selectedUsers.has(user.id)}
+                onchange={() => toggleSelectUser(user.id)}
+              />
+              <div
+                class="w-3 h-3 rounded-full {getStatusIndicator(user.status)
+                  .color}"
+              ></div>
+            </div>
+
+            <!-- Avatar -->
+            <div class="flex flex-col items-center mb-4">
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl mb-3"
+              >
+                {getUserInitials(user.username)}
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+                {user.username}
+              </h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                {user.email}
+              </p>
+              <span
+                class="px-3 py-1 text-xs font-medium {getRoleBadgeClass(
+                  user.role
+                )} rounded-full"
+              >
+                {user.role}
+              </span>
+            </div>
+
+            <!-- Stats -->
+            <div
+              class="grid grid-cols-2 gap-4 mb-4 pt-4 border-t border-gray-200 dark:border-gray-700"
+            >
+              <div class="text-center">
+                <div
+                  class="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400 mb-1"
+                >
+                  <i class="bi bi-files"></i>
+                  <span class="text-xs uppercase tracking-wider">Files</span>
+                </div>
+                <div
+                  class="text-lg font-semibold text-gray-900 dark:text-gray-100"
+                >
+                  {user.filesCount.toLocaleString()}
+                </div>
+              </div>
+              <div class="text-center">
+                <div
+                  class="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400 mb-1"
+                >
+                  <i class="bi bi-hdd"></i>
+                  <span class="text-xs uppercase tracking-wider">Storage</span>
+                </div>
+                <div
+                  class="text-lg font-semibold text-gray-900 dark:text-gray-100"
+                >
+                  {formatBytes(user.storageUsed)}
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div
+              class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700"
+            >
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                {formatLastActive(user.lastActive)}
+              </span>
+              <div class="flex gap-2">
+                <button
+                  class="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Edit user"
+                >
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button
+                  class="p-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  aria-label="Delete user"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </div>
 </div>
 
 <style>
-  .users-view {
-    padding: 0;
+  /* Status indicator colors */
+  :global(.bg-green-400) {
+    background-color: rgb(74, 222, 128);
   }
-  .users-header {
-    background: hsl(var(--b1));
-    border-bottom: 1px solid hsl(var(--bc) / 0.1);
-    padding: 2rem;
-    margin: -2rem -2rem 2rem -2rem;
+
+  :global(.bg-gray-400) {
+    background-color: rgb(156, 163, 175);
   }
-  .header-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
-  }
-  .header-actions {
-    display: flex;
-    gap: 0.75rem;
-  }
-  .filter-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-  }
-  .bulk-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 1rem;
-    background: hsl(var(--b2));
-    border-radius: var(--rounded-btn);
-  }
-  .loading-container {
-    display: flex;
-    justify-content: center;
-    padding: 4rem;
-  }
-  .table-container {
-    margin: 0 2rem 2rem 2rem;
-    border: 1px solid hsl(var(--bc) / 0.1);
-    border-radius: var(--rounded-box);
-    overflow: hidden;
-  }
-  .table tr.selected {
-    background: hsl(var(--p) / 0.1);
-  }
-  .avatar-cell {
-    position: relative;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-  }
-  .avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: hsl(var(--p) / 0.2);
-    color: hsl(var(--p));
-    font-weight: 600;
-    font-size: 0.875rem;
-  }
-  .status-dot {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 0.75rem;
-    height: 0.75rem;
-    border-radius: 50%;
-    border: 2px solid hsl(var(--b1));
-  }
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-    padding: 2rem;
-  }
-  .user-card {
-    background: hsl(var(--b1));
-    border: 1px solid hsl(var(--bc) / 0.1);
-    border-radius: var(--rounded-box);
-    padding: 1.5rem;
-    text-align: center;
-    transition: all 0.3s;
-  }
-  .user-card:hover {
-    border-color: hsl(var(--p) / 0.3);
-    transform: translateY(-4px);
-  }
-  .user-card.selected {
-    border-color: hsl(var(--p));
-    background: hsl(var(--p) / 0.05);
-  }
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-  }
-  .card-avatar {
-    margin: 0 auto 1rem auto;
-    width: 5rem;
-    height: 5rem;
-    border-radius: 50%;
-    position: relative;
-  }
-  .avatar-placeholder-large {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: hsl(var(--p) / 0.2);
-    color: hsl(var(--p));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-  .card-info {
-    margin-bottom: 1rem;
-  }
-  .user-name {
-    font-weight: 700;
-    font-size: 1.125rem;
-  }
-  .user-email {
-    font-size: 0.875rem;
-    color: hsl(var(--bc) / 0.6);
-  }
-  .card-stats {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    padding: 1rem 0;
-    border-top: 1px solid hsl(var(--bc) / 0.1);
-    border-bottom: 1px solid hsl(var(--bc) / 0.1);
-    margin-bottom: 1rem;
-  }
-  .stat-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-  }
-  .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  @media (max-width: 768px) {
-    .users-header {
-      padding: 1.5rem;
-      margin: -1.5rem -1.5rem 1.5rem -1.5rem;
-    }
-    .header-top {
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .table-container {
-      margin: 0 1rem 1rem 1rem;
-    }
-    .cards-grid {
-      grid-template-columns: 1fr;
-      padding: 1rem;
-    }
+
+  :global(.bg-yellow-400) {
+    background-color: rgb(250, 204, 21);
   }
 </style>
