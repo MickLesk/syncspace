@@ -122,13 +122,18 @@
     <!-- Header -->
     <div class="flex justify-between items-start mb-8 gap-4 flex-wrap">
       <div class="flex-1 min-w-0">
-        <h1 class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3">
+        <h1
+          class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3"
+        >
           <i class="bi bi-bell-fill"></i>
           Notifications
         </h1>
         <p class="text-base-content/60 text-lg">
           {#if unreadCount() > 0}
-            You have <span class="badge badge-glass-info badge-sm">{unreadCount()}</span> unread notification{unreadCount() > 1 ? "s" : ""}
+            You have <span class="badge badge-glass-info badge-sm"
+              >{unreadCount()}</span
+            >
+            unread notification{unreadCount() > 1 ? "s" : ""}
           {:else}
             You're all caught up! 🎉
           {/if}
@@ -164,25 +169,37 @@
       {#snippet children()}
         <div class="glass-card-light p-2 rounded-lg flex gap-2">
           <button
-            class="flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 {filterType === 'all' ? 'glass-card text-primary shadow-md scale-105' : 'hover:glass-card-light text-base-content/60 hover:text-base-content'}"
+            class="flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 {filterType ===
+            'all'
+              ? 'glass-card text-primary shadow-md scale-105'
+              : 'hover:glass-card-light text-base-content/60 hover:text-base-content'}"
             onclick={() => (filterType = "all")}
           >
             <i class="bi bi-list-ul mr-2"></i>
             All <span class="badge badge-sm ml-2">{notifications.length}</span>
           </button>
           <button
-            class="flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 {filterType === 'unread' ? 'glass-card text-primary shadow-md scale-105' : 'hover:glass-card-light text-base-content/60 hover:text-base-content'}"
+            class="flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 {filterType ===
+            'unread'
+              ? 'glass-card text-primary shadow-md scale-105'
+              : 'hover:glass-card-light text-base-content/60 hover:text-base-content'}"
             onclick={() => (filterType = "unread")}
           >
             <i class="bi bi-envelope mr-2"></i>
             Unread <span class="badge badge-sm ml-2">{unreadCount()}</span>
           </button>
           <button
-            class="flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 {filterType === 'read' ? 'glass-card text-primary shadow-md scale-105' : 'hover:glass-card-light text-base-content/60 hover:text-base-content'}"
+            class="flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 {filterType ===
+            'read'
+              ? 'glass-card text-primary shadow-md scale-105'
+              : 'hover:glass-card-light text-base-content/60 hover:text-base-content'}"
             onclick={() => (filterType = "read")}
           >
             <i class="bi bi-envelope-open mr-2"></i>
-            Read <span class="badge badge-sm ml-2">{notifications.length - unreadCount()}</span>
+            Read
+            <span class="badge badge-sm ml-2"
+              >{notifications.length - unreadCount()}</span
+            >
           </button>
         </div>
       {/snippet}
@@ -193,26 +210,38 @@
       {#if filteredNotifications().length > 0}
         {#each filteredNotifications() as notification, i}
           <div class="animate-slide-up" style="animation-delay: {i * 50}ms;">
-            <ModernCard 
-              variant="glass" 
-              hoverable 
-              class="{!notification.read ? 'border-l-4 border-primary' : ''}"
+            <ModernCard
+              variant="glass"
+              hoverable
+              class={!notification.read ? "border-l-4 border-primary" : ""}
             >
               {#snippet children()}
                 <div class="flex items-start gap-4">
                   <!-- Icon/Avatar -->
                   <div class="flex-shrink-0">
                     {#if notification.avatar}
-                      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-sm">
+                      <div
+                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-sm"
+                      >
                         {notification.avatar}
                       </div>
                     {:else}
-                      <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl
-                        {notification.type === 'success' ? 'bg-success/20 text-success' : ''}
-                        {notification.type === 'info' ? 'bg-info/20 text-info' : ''}
-                        {notification.type === 'warning' ? 'bg-warning/20 text-warning' : ''}
-                        {notification.type === 'error' ? 'bg-error/20 text-error' : ''}
-                      ">
+                      <div
+                        class="w-12 h-12 rounded-xl flex items-center justify-center text-xl
+                        {notification.type === 'success'
+                          ? 'bg-success/20 text-success'
+                          : ''}
+                        {notification.type === 'info'
+                          ? 'bg-info/20 text-info'
+                          : ''}
+                        {notification.type === 'warning'
+                          ? 'bg-warning/20 text-warning'
+                          : ''}
+                        {notification.type === 'error'
+                          ? 'bg-error/20 text-error'
+                          : ''}
+                      "
+                      >
                         <i class="bi bi-{notification.icon}"></i>
                       </div>
                     {/if}
@@ -221,10 +250,16 @@
                   <!-- Content -->
                   <div class="flex-1 min-w-0">
                     <div class="flex justify-between items-start gap-3 mb-2">
-                      <h3 class="font-bold text-base-content {!notification.read ? 'text-base' : 'text-sm'}">
+                      <h3
+                        class="font-bold text-base-content {!notification.read
+                          ? 'text-base'
+                          : 'text-sm'}"
+                      >
                         {notification.title}
                       </h3>
-                      <span class="badge badge-glass-info badge-sm flex-shrink-0">
+                      <span
+                        class="badge badge-glass-info badge-sm flex-shrink-0"
+                      >
                         <i class="bi bi-clock mr-1"></i>
                         {formatRelativeTime(notification.time)}
                       </span>
@@ -282,3 +317,5 @@
 </PageWrapper>
 
 <style>
+  /* NotificationsView Styles */
+</style>

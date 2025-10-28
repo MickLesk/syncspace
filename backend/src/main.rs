@@ -110,6 +110,19 @@ async fn main() {
     let user_db = UserDB::new();
     let rate_limiter = Arc::new(RateLimiter::new());
 
+    // Create default admin user if no users exist
+    if user_db.get_by_username("admin").is_none() {
+        println!("📝 Creating default admin user (username: admin, password: admin)");
+        println!("⚠️  WARNING: Change the default password after first login!");
+        if let Err(e) = user_db.create_user("admin".to_string(), "admin".to_string()) {
+            eprintln!("❌ Failed to create admin user: {}", e);
+        } else {
+            println!("✅ Default admin user created successfully");
+        }
+    } else {
+        println!("✅ Admin user already exists");
+    }
+
     // Initialize search index
     let search_index = Arc::new(
         SearchIndex::new()
