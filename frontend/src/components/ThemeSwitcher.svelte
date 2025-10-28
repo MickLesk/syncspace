@@ -58,8 +58,10 @@
       }
     } catch (err) {
       // Silent fallback for 404 (endpoint not implemented) - this is expected
-      if (err.message && err.message.includes('404')) {
-        console.log('[ThemeSwitcher] Backend endpoint not implemented, using localStorage');
+      if (err.message && err.message.includes("404")) {
+        console.log(
+          "[ThemeSwitcher] Backend endpoint not implemented, using localStorage"
+        );
       } else {
         console.error("Failed to load theme from backend:", err);
       }

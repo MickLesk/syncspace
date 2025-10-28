@@ -30,13 +30,16 @@
       loading = true;
       error = null;
       // Use generic fetch with auth token since this endpoint doesn't exist in api.files
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:8080/api/files/recent?limit=${limit}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `http://localhost:8080/api/files/recent?limit=${limit}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-      
+      );
+
       if (response.ok) {
         const data = await response.json();
         recentFiles = data || [];

@@ -14,3 +14,5 @@ pub mod trash;
 pub mod favorites;
 pub mod comments;
 pub mod activity;
+pub mod user_handlers;
+pub mod notification_handlers;

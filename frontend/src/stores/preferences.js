@@ -6,6 +6,8 @@
 import { writable } from 'svelte/store';
 import api from '../lib/api.js';
 
+const STORAGE_KEY = 'userPreferences';
+
 // Default preferences
 const defaultPreferences = {
   view_mode: 'grid',
@@ -32,8 +34,8 @@ const createPreferencesStore = () => {
       try {
         const response = await api.users.getPreferences();
         if (response) {
-          Object.assign(state, response);
-          persist();
+          set(response);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(response));
         }
       } catch (error) {
         // Silent fallback for 404 (endpoint not implemented) - this is expected
@@ -47,7 +49,7 @@ const createPreferencesStore = () => {
         if (stored) {
           try {
             const parsed = JSON.parse(stored);
-            Object.assign(state, parsed);
+            set(parsed);
           } catch (e) {
             console.error('Failed to parse stored preferences:', e);
           }
@@ -61,11 +63,16 @@ const createPreferencesStore = () => {
         const updateData = { [key]: value };
         const updatedPrefs = await api.users.updatePreferences(updateData);
         set(updatedPrefs);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPrefs));
         return updatedPrefs;
       } catch (error) {
         console.error('Failed to update preference:', error);
         // Update locally as fallback
-        update(prefs => ({ ...prefs, [key]: value }));
+        update(prefs => {
+          const newPrefs = { ...prefs, [key]: value };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(newPrefs));
+          return newPrefs;
+        });
         throw error;
       }
     },
@@ -75,11 +82,16 @@ const createPreferencesStore = () => {
       try {
         const updatedPrefs = await api.users.updatePreferences(updates);
         set(updatedPrefs);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPrefs));
         return updatedPrefs;
       } catch (error) {
         console.error('Failed to update preferences:', error);
         // Update locally as fallback
-        update(prefs => ({ ...prefs, ...updates }));
+        update(prefs => {
+          const newPrefs = { ...prefs, ...updates };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(newPrefs));
+          return newPrefs;
+        });
         throw error;
       }
     },
@@ -114,10 +126,12 @@ const createPreferencesStore = () => {
       try {
         const resetPrefs = await api.users.updatePreferences(defaultPreferences);
         set(resetPrefs);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(resetPrefs));
         return resetPrefs;
       } catch (error) {
         console.error('Failed to reset preferences:', error);
         set(defaultPreferences);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultPreferences));
         throw error;
       }
     }

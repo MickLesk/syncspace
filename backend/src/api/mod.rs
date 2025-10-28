@@ -1,8 +1,6 @@
 //! API Router Module
 //! Centralizes all API route definitions
 
-use crate::auth::UserInfo;
-
 pub mod auth;
 pub mod files;
 pub mod directories;
@@ -16,6 +14,7 @@ pub mod backup;
 pub mod collaboration;
 pub mod system;
 pub mod performance;
+pub mod notifications;
 
 use axum::{
     middleware,
@@ -28,9 +27,6 @@ use crate::AppState;
 /// Build the complete API router
 pub fn build_api_router(state: AppState) -> Router<AppState> {
     Router::new()
-        // Health check
-        .route("/health", get(|| async { "OK" }))
-        
         // Auth routes (public)
         .merge(auth::router())
         
@@ -49,6 +45,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(collaboration::router())
                 .merge(system::router())
                 .merge(performance::router())
+                .merge(notifications::router())
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

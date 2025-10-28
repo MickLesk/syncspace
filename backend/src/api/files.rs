@@ -48,11 +48,15 @@ pub fn router() -> Router<AppState> {
         .route("/upload-multipart", post(upload_multipart_handler))
         // Get thumbnail - specific route
         .route("/thumbnails/{file_id}", get(get_thumbnail_handler))
+        // Recent files
+        .route("/files/recent", get(list_recent_files))
         // List files (root)
         .route("/files", get(list_files_root))
         // Download file
         .route("/file/{*path}", get(download_file_handler))
-        // Upload file (raw body)
+        // Upload file (raw body) - handle both with and without path
+        .route("/upload", post(upload_file_to_root))
+        .route("/upload/", post(upload_file_to_root))
         .route("/upload/{*path}", post(upload_file_handler))
         // Rename file
         .route("/rename/{*path}", put(rename_file_handler))
@@ -116,6 +120,28 @@ async fn upload_file_handler(
         .await
         .map(|_| StatusCode::CREATED)
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+/// Upload file to root directory (when path is empty)
+async fn upload_file_to_root(
+    State(state): State<AppState>,
+    user: UserInfo,
+    body: axum::body::Bytes,
+) -> Result<StatusCode, StatusCode> {
+    services::upload_file(&state, &user, "", body.to_vec())
+        .await
+        .map(|_| StatusCode::CREATED)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+/// List recent files
+async fn list_recent_files(
+    State(state): State<AppState>,
+    user: UserInfo,
+) -> Result<Json<Vec<FileInfo>>, StatusCode> {
+    // TODO: Implement recent files service
+    // For now return empty list
+    Ok(Json(vec![]))
 }
 
 /// Upload a file (multipart form)
