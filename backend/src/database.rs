@@ -75,20 +75,22 @@ pub async fn init_db() -> Result<SqlitePool, sqlx::Error> {
 async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     println!("🔄 Running database migrations...");
 
-    // Check if migrations were already run by checking for a table
+    // Check if migrations were already run by checking for user_preferences table
+    // (which is created in the last migration 015)
     let table_exists: Option<(i64,)> = sqlx::query_as(
-        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='users'"
+        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='user_preferences'"
     )
     .fetch_optional(pool)
     .await?;
     
     let migrations_needed = if let Some((count,)) = table_exists {
-        count == 0
+        count == 0  // If table doesn't exist (count=0), run migrations
     } else {
-        true
+        true  // If query failed, definitely run migrations
     };
 
     if migrations_needed {
+        println!("📦 Database tables missing. Running all migrations...");
         // Run initial schema migration
         println!("📋 Running migration: 001_initial_schema.sql");
         let migration_sql = include_str!("../migrations/001_initial_schema.sql");
