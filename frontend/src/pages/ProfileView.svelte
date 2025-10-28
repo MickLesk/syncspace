@@ -152,12 +152,12 @@
                 <input
                   type="text"
                   bind:value={user.displayName}
-                  class="input input-bordered glass-input w-full"
+                  class="w-full px-4 py-2 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-2 border-white/20 dark:border-gray-700/20 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100"
                   placeholder="Display Name"
                 />
                 <textarea
                   bind:value={user.bio}
-                  class="textarea textarea-bordered glass-input w-full"
+                  class="w-full px-4 py-2 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-2 border-white/20 dark:border-gray-700/20 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100"
                   rows="2"
                   placeholder="Bio"
                 ></textarea>
@@ -292,7 +292,7 @@
                       </div>
                     </div>
                     <button
-                      class="btn btn-ghost btn-sm btn-square"
+                      class="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                       aria-label="File options"
                     >
                       <i class="bi bi-three-dots-vertical"></i>
@@ -311,4 +311,3 @@
 <style>
   /* ProfileView Styles */
 </style>
-

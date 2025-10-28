@@ -225,7 +225,7 @@
         <h3 class="text-2xl font-bold mb-2">No users yet</h3>
         <p class="opacity-70 mb-4">Create your first user account</p>
         <button
-          class="btn btn-primary"
+          class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-500/25"
           onclick={() => (showAddUserModal = true)}
         >
           <i class="bi bi-person-plus-fill"></i>
@@ -374,4 +374,3 @@
     </div>
   </div>
 {/if}
-
