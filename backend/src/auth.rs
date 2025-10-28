@@ -30,7 +30,6 @@ const REFRESH_TOKEN_EXPIRATION_DAYS: i64 = 7;
 pub struct UserAccount {
     pub id: Uuid,
     pub username: String,
-    #[serde(skip_serializing)]
     pub password_hash: String,
     pub totp_secret: Option<String>,
     pub totp_enabled: bool,
@@ -375,6 +374,13 @@ pub struct UserInfo {
     pub totp_enabled: bool,
 }
 
+impl UserInfo {
+    /// Alias for backward compatibility with code expecting user_id
+    pub fn user_id(&self) -> &str {
+        &self.id
+    }
+}
+
 // Axum extractor for authenticated user
 impl<S> FromRequestParts<S> for UserInfo
 where
@@ -394,6 +400,25 @@ where
 // Tuple struct wrapper for extension storage
 #[derive(Debug, Clone)]
 pub struct User(pub UserInfo);
+
+impl User {
+    pub fn id(&self) -> &str {
+        &self.0.id
+    }
+    
+    pub fn username(&self) -> &str {
+        &self.0.username
+    }
+}
+
+// Provide direct field access for backward compatibility
+impl std::ops::Deref for User {
+    type Target = UserInfo;
+    
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 #[derive(Debug, Deserialize)]
 pub struct Enable2FARequest {

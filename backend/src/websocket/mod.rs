@@ -15,6 +15,10 @@ pub struct FileChangeEvent {
     pub path: String,
     pub kind: String,
     pub timestamp: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>,
 }
 
 impl FileChangeEvent {
@@ -23,7 +27,19 @@ impl FileChangeEvent {
             path,
             kind,
             timestamp: chrono::Utc::now().to_rfc3339(),
+            user_id: None,
+            metadata: None,
         }
+    }
+    
+    pub fn with_user(mut self, user_id: String) -> Self {
+        self.user_id = Some(user_id);
+        self
+    }
+    
+    pub fn with_metadata(mut self, metadata: serde_json::Value) -> Self {
+        self.metadata = Some(metadata);
+        self
     }
 }
 

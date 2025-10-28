@@ -12,14 +12,18 @@
 mod api;
 mod auth;
 mod database;
+mod handlers;
 mod middleware;
 mod models;
 mod search;
 mod services;
+mod status;
 mod websocket;
 
 use std::net::SocketAddr;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use axum::{
     extract::DefaultBodyLimit,
@@ -54,6 +58,10 @@ pub struct AppState {
     cache_manager: CacheManager,
     job_processor: JobProcessor,
     performance_monitor: Arc<PerformanceMonitor>,
+    // Status page fields
+    pub start_time: u64,
+    pub active_ws_connections: Arc<AtomicUsize>,
+    pub db: sqlx::SqlitePool, // Alias for status page
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -140,6 +148,12 @@ async fn main() {
     // Create WebSocket broadcast channel
     let (fs_tx, _) = broadcast::channel::<FileChangeEvent>(100);
 
+    // Get start time for uptime calculation
+    let start_time = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+
     // Build application state
     let app_state = AppState {
         config,
@@ -147,10 +161,13 @@ async fn main() {
         user_db,
         rate_limiter,
         search_index,
-        db_pool,
+        db_pool: db_pool.clone(),
         cache_manager,
         job_processor,
         performance_monitor,
+        start_time,
+        active_ws_connections: Arc::new(AtomicUsize::new(0)),
+        db: db_pool, // Alias for status page compatibility
     };
 
     // Build router
@@ -181,8 +198,16 @@ fn build_router(state: AppState) -> Router {
         .allow_headers(Any);
 
     Router::new()
+        // Root - Status page (direct access on http://localhost:8080)
+        .route("/", get(status::get_status_html))
+        
         // WebSocket endpoint
         .route("/api/ws", get(websocket::ws_handler))
+        
+        // Additional status endpoints
+        .route("/status", get(status::get_status_html))
+        .route("/status/json", get(status::get_status_json))
+        .route("/health", get(status::health_check))
         
         // API routes (delegated to api module)
         .nest("/api", api::build_api_router(state.clone()))

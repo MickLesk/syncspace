@@ -2,7 +2,7 @@
 
 use axum::{extract::State, http::StatusCode, routing::{get, put}, Json, Router};
 use serde::{Deserialize, Serialize};
-use crate::{auth::UserInfo, services, AppState};
+use crate::{auth::UserInfo, services, AppState, handlers};
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateProfileRequest {
@@ -26,8 +26,8 @@ pub struct UpdatePreferencesRequest {
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/users/profile", get(get_profile).put(update_profile))
-        .route("/users/settings", get(get_settings).put(update_settings))
-        .route("/users/preferences", get(get_preferences).put(update_preferences))
+        .route("/users/settings", get(handlers::user_handlers::get_user_settings).put(handlers::user_handlers::update_user_settings))
+        .route("/users/preferences", get(handlers::user_handlers::get_user_preferences).put(handlers::user_handlers::update_user_preferences))
 }
 
 async fn get_profile(State(state): State<AppState>, user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {

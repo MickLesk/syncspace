@@ -54,6 +54,8 @@ pub fn router() -> Router<AppState> {
         .route("/dirs/batch/move", post(batch_move_handler))
         // Create directory (using query param or request body for path)
         .route("/dirs/create", post(create_dir_handler))
+        // Create directory with path parameter (for compatibility)
+        .route("/dirs/{*path}", post(create_dir_from_path))
         // Move directory
         .route("/dirs/{dir_id}/move", put(move_dir_handler))
         // Rename directory
@@ -74,6 +76,18 @@ async fn create_dir_handler(
     services::directory::create_directory(&state, &user, &path)
         .await
         .map(Json)
+        .map_err(|_| StatusCode::BAD_REQUEST)
+}
+
+/// Create directory from path parameter (for API compatibility)
+async fn create_dir_from_path(
+    State(state): State<AppState>,
+    user: UserInfo,
+    Path(path): Path<String>,
+) -> Result<StatusCode, StatusCode> {
+    services::directory::create_directory(&state, &user, &path)
+        .await
+        .map(|_| StatusCode::CREATED)
         .map_err(|_| StatusCode::BAD_REQUEST)
 }
 
