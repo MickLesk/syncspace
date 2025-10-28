@@ -1272,7 +1272,7 @@ export const system = {
    * Get server status
    */
   async getStatus() {
-    const response = await fetch(`${API_BASE}/status`, {
+    const response = await fetch(`http://localhost:8080/status/json`, {
       headers: getHeaders(),
     });
     return handleResponse(response);
