@@ -14,9 +14,9 @@
     {#if icon}
       <i class="bi {icon}"></i>
     {/if}
-    
+
     <span class="chip-label">{label}</span>
-    
+
     <button
       class="remove-btn"
       onclick={(e) => {
@@ -39,7 +39,7 @@
     {#if icon}
       <i class="bi {icon}"></i>
     {/if}
-    
+
     <span class="chip-label">{label}</span>
   </button>
 {/if}
@@ -154,7 +154,11 @@
   /* Variants */
   .tag {
     cursor: default;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08));
+    background: linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.08),
+      rgba(139, 92, 246, 0.08)
+    );
     border-color: rgba(99, 102, 241, 0.15);
     color: #6366f1;
   }
@@ -168,34 +172,31 @@
   }
 
   /* Dark Mode */
-  @media (prefers-color-scheme: dark) {
-    .chip {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.1);
-    }
+  :global(.dark) .chip {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
 
-    .chip:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(129, 140, 248, 0.3);
-    }
+  :global(.dark) .chip:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(129, 140, 248, 0.3);
+  }
 
-    .chip.selected {
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    }
+  :global(.dark) .chip.selected {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  }
 
-    .tag {
-      background: rgba(99, 102, 241, 0.15);
-      border-color: rgba(99, 102, 241, 0.25);
-      color: #818cf8;
-    }
+  :global(.dark) .tag {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.25);
+    color: #818cf8;
+  }
 
-    .remove-btn {
-      background: rgba(255, 255, 255, 0.15);
-    }
+  :global(.dark) .remove-btn {
+    background: rgba(255, 255, 255, 0.15);
+  }
 
-    .remove-btn:hover {
-      background: rgba(255, 255, 255, 0.25);
-    }
+  :global(.dark) .remove-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
   }
 </style>
-

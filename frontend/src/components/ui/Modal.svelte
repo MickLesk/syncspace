@@ -175,11 +175,9 @@
     z-index: 1000;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .material-modal {
-      background: rgb(17 24 39);
-      border-color: rgba(255, 255, 255, 0.1);
-    }
+  :global(.dark) .material-modal {
+    background: rgb(31 41 55);
+    border-color: rgba(255, 255, 255, 0.1);
   }
 
   .modal-backdrop-enhanced {
@@ -197,7 +195,7 @@
     flex-shrink: 0;
   }
 
-  @media (prefers-color-scheme: dark) {
+  :global(.dark) .modal-header {
     .modal-header {
       border-bottom-color: rgba(255, 255, 255, 0.1);
     }
@@ -221,10 +219,8 @@
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  @media (prefers-color-scheme: dark) {
-    .modal-close-btn-new {
-      color: rgba(255, 255, 255, 0.5);
-    }
+  :global(.dark) .modal-close-btn-new {
+    color: rgba(255, 255, 255, 0.5);
   }
 
   .modal-close-btn-new:hover {
@@ -233,11 +229,9 @@
     transform: rotate(90deg) scale(1.05);
   }
 
-  @media (prefers-color-scheme: dark) {
-    .modal-close-btn-new:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 1);
-    }
+  :global(.dark) .modal-close-btn-new:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 1);
   }
 
   .modal-close-btn-new:active {
@@ -266,10 +260,8 @@
     color: rgb(17 24 39);
   }
 
-  @media (prefers-color-scheme: dark) {
-    .modal-content {
-      color: rgb(243 244 246);
-    }
+  :global(.dark) .modal-content {
+    color: rgb(243 244 246);
   }
 
   .modal-content::-webkit-scrollbar {
@@ -281,10 +273,8 @@
     border-radius: 4px;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .modal-content::-webkit-scrollbar-track {
-      background: rgb(31 41 55);
-    }
+  :global(.dark) .modal-content::-webkit-scrollbar-track {
+    background: rgb(31 41 55);
   }
 
   .modal-content::-webkit-scrollbar-thumb {
@@ -292,20 +282,16 @@
     border-radius: 4px;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .modal-content::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.3);
-    }
+  :global(.dark) .modal-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
   }
 
   .modal-content::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 0, 0, 0.5);
   }
 
-  @media (prefers-color-scheme: dark) {
-    .modal-content::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.5);
-    }
+  :global(.dark) .modal-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
   }
 
   .modal-actions {
@@ -318,11 +304,9 @@
     flex-shrink: 0;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .modal-actions {
-      border-top-color: rgba(255, 255, 255, 0.1);
-      background: rgba(31, 41, 55, 0.5);
-    }
+  :global(.dark) .modal-actions {
+    border-top-color: rgba(255, 255, 255, 0.1);
+    background: rgba(31, 41, 55, 0.5);
   }
 
   /* Variant-specific icon colors */

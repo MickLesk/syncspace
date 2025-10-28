@@ -89,7 +89,7 @@
   }
 
   .underline .tab::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -2px;
     left: 0;
@@ -136,28 +136,25 @@
   }
 
   /* Dark Mode */
-  @media (prefers-color-scheme: dark) {
-    .pills {
-      background: rgba(255, 255, 255, 0.04);
-    }
+  :global(.dark) .pills {
+    background: rgba(255, 255, 255, 0.04);
+  }
 
-    .underline {
-      border-color: rgba(255, 255, 255, 0.08);
-    }
+  :global(.dark) .underline {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
 
-    .glass {
-      background: rgba(30, 41, 59, 0.85);
-      border-color: rgba(255, 255, 255, 0.08);
-    }
+  :global(.dark) .glass {
+    background: rgba(30, 41, 59, 0.85);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
 
-    .glass .tab:hover {
-      background: rgba(255, 255, 255, 0.08);
-    }
+  :global(.dark) .glass .tab:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
 
-    .glass .tab.active {
-      background: rgba(255, 255, 255, 0.12);
-      color: #818cf8;
-    }
+  :global(.dark) .glass .tab.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: #818cf8;
   }
 </style>
-

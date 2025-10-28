@@ -6,11 +6,31 @@ function createThemeStore() {
   const stored = localStorage.getItem('theme') || 'syncspace';
   const { subscribe, set, update } = writable(stored);
   
+  // Apply initial theme on load
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('data-theme', stored);
+    const isDark = stored === 'syncspace-dark' || stored === 'dark';
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }
+  
   return {
     subscribe,
     set: async (value) => {
       localStorage.setItem('theme', value);
       document.documentElement.setAttribute('data-theme', value);
+      
+      // Add/remove 'dark' class for Tailwind v4
+      const isDark = value === 'syncspace-dark' || value === 'dark';
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      
       set(value);
       
       // Sync to backend if logged in
@@ -28,8 +48,18 @@ function createThemeStore() {
       try {
         const response = await api.users.getSettings();
         if (response?.theme) {
-          state.current = response.theme;
-          persist();
+          const theme = response.theme;
+          localStorage.setItem('theme', theme);
+          document.documentElement.setAttribute('data-theme', theme);
+          
+          const isDark = theme === 'syncspace-dark' || theme === 'dark';
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+          
+          set(theme);
         }
       } catch (error) {
         // Silent fallback for 404 (endpoint not implemented) - this is expected

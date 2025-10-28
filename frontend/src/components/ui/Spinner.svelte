@@ -163,16 +163,13 @@
   }
 
   /* Dark Mode */
-  @media (prefers-color-scheme: dark) {
-    .spinner-circular {
-      border-color: rgba(129, 140, 248, 0.2);
-      border-top-color: #818cf8;
-    }
+  :global(.dark) .spinner-circular {
+    border-color: rgba(129, 140, 248, 0.2);
+    border-top-color: #818cf8;
+  }
 
-    .spinner-dots span,
-    .spinner-bars span {
-      background: #818cf8;
-    }
+  :global(.dark) .spinner-dots span,
+  :global(.dark) .spinner-bars span {
+    background: #818cf8;
   }
 </style>
-

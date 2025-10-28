@@ -1,7 +1,7 @@
 <script>
   /**
-   * Modern Glassmorphism Card Component
-   * Wiederverwendbare Card mit verschiedenen Styles
+   * Modern Card Component v2 - Tailwind v4
+   * Unified card with dark/light mode support
    */
   let {
     children,
@@ -13,7 +13,19 @@
     hoverable = false,
     clickable = false,
     onclick = null,
+    class: className = "",
   } = $props();
+
+  const baseClasses = "rounded-2xl transition-all duration-200";
+
+  const variantClasses = {
+    default:
+      "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg",
+    glass: "glass-card hover:shadow-glass-lg",
+    gradient:
+      "gradient-bg-primary text-white shadow-lg hover:shadow-xl hover:scale-[1.02]",
+    elevated: "bg-white dark:bg-gray-800 shadow-xl hover:shadow-2xl border-0",
+  };
 
   const paddingClasses = {
     none: "",
@@ -24,9 +36,11 @@
 </script>
 
 <div
-  class="modern-card variant-{variant} {paddingClasses[padding]}"
-  class:hoverable
-  class:clickable
+  class="{baseClasses} {variantClasses[variant]} {paddingClasses[
+    padding
+  ]} {className}"
+  class:cursor-pointer={clickable}
+  class:hover:scale-[1.02]={hoverable}
   role={clickable ? "button" : undefined}
   tabindex={clickable ? 0 : undefined}
   {onclick}
@@ -38,18 +52,24 @@
   }}
 >
   {#if title || subtitle || icon}
-    <div class="card-header">
+    <div class="flex items-start gap-4 mb-4" class:mb-0={!title && !subtitle}>
       {#if icon}
-        <div class="card-icon">
+        <div
+          class="flex-shrink-0 w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 text-xl"
+        >
           <i class="bi bi-{icon}"></i>
         </div>
       {/if}
-      <div class="card-header-text">
+      <div class="flex-1 min-w-0">
         {#if title}
-          <h3 class="card-title">{title}</h3>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">
+            {title}
+          </h3>
         {/if}
         {#if subtitle}
-          <p class="card-subtitle">{subtitle}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            {subtitle}
+          </p>
         {/if}
       </div>
     </div>
@@ -59,165 +79,3 @@
     {@render children()}
   </div>
 </div>
-
-<style>
-  .modern-card {
-    position: relative;
-    background: white;
-    border-radius: 16px;
-    border: 1px solid rgb(229 231 235);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .modern-card {
-      background: rgb(17 24 39);
-      border-color: rgb(55 65 81);
-    }
-  }
-
-  /* Variants */
-  .variant-glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(12px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow:
-      0 4px 16px rgba(0, 0, 0, 0.05),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .variant-glass {
-      background: rgba(17, 24, 39, 0.7);
-      border-color: rgba(55, 65, 81, 0.5);
-    }
-  }
-
-  .variant-gradient {
-    background: linear-gradient(
-      135deg,
-      rgba(59, 130, 246, 0.05),
-      rgba(147, 51, 234, 0.05)
-    );
-    border: 2px solid transparent;
-    background-clip: padding-box;
-  }
-
-  .variant-elevated {
-    box-shadow:
-      0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .variant-elevated {
-      box-shadow:
-        0 4px 6px -1px rgba(0, 0, 0, 0.3),
-        0 2px 4px -1px rgba(0, 0, 0, 0.2);
-    }
-  }
-
-  /* States */
-  .hoverable:hover {
-    transform: translateY(-2px);
-    box-shadow:
-      0 10px 20px -5px rgba(0, 0, 0, 0.1),
-      0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .hoverable:hover {
-      box-shadow:
-        0 10px 20px -5px rgba(0, 0, 0, 0.4),
-        0 4px 6px -2px rgba(0, 0, 0, 0.3);
-    }
-  }
-
-  .clickable {
-    cursor: pointer;
-  }
-
-  .clickable:active {
-    transform: scale(0.98);
-  }
-
-  /* Header */
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .card-icon {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, rgb(59 130 246), rgb(147 51 234));
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: white;
-    flex-shrink: 0;
-  }
-
-  .card-header-text {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .card-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: rgb(17 24 39);
-    margin: 0;
-    line-height: 1.4;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .card-title {
-      color: white;
-    }
-  }
-
-  .card-subtitle {
-    font-size: 0.875rem;
-    color: rgb(107 114 128);
-    margin: 0.25rem 0 0 0;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .card-subtitle {
-      color: rgb(156 163 175);
-    }
-  }
-
-  .card-content {
-    color: rgb(55 65 81);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .card-content {
-      color: rgb(209 213 219);
-    }
-  }
-
-  /* Responsive */
-  @media (max-width: 640px) {
-    .modern-card {
-      border-radius: 12px;
-    }
-
-    .card-icon {
-      width: 40px;
-      height: 40px;
-      font-size: 1.25rem;
-    }
-
-    .card-title {
-      font-size: 1.125rem;
-    }
-  }
-</style>
-

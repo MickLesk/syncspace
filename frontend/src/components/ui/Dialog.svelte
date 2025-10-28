@@ -135,11 +135,8 @@
   }
 
   /* Dark Mode */
-  @media (prefers-color-scheme: dark) {
-    .dialog {
-      background: rgba(30, 41, 59, 0.95);
-      border-color: rgba(255, 255, 255, 0.1);
-    }
+  :global(.dark) .dialog {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
   }
 </style>
-

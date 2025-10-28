@@ -1,69 +1,53 @@
 <script>
   /**
-   * Modern Page Wrapper with Glassmorphism Background
-   * Wrapper für alle internen Pages (nach dem Login)
+   * Modern Page Wrapper v2 - Unified Design System
+   * Harmonized wrapper for all pages with dark/light mode support
    */
-  import { currentView } from "../stores/ui.js";
-
   let {
     children,
     fullHeight = false,
     padding = true,
     gradient = true,
+    maxWidth = "7xl", // sm, md, lg, xl, 2xl, 3xl, 4xl, 5xl, 6xl, 7xl, full
   } = $props();
+
+  const maxWidthClasses = {
+    sm: "max-w-screen-sm",
+    md: "max-w-screen-md",
+    lg: "max-w-screen-lg",
+    xl: "max-w-screen-xl",
+    "2xl": "max-w-screen-2xl",
+    "3xl": "max-w-7xl",
+    "4xl": "max-w-[1600px]",
+    "5xl": "max-w-[1800px]",
+    "6xl": "max-w-[2000px]",
+    "7xl": "max-w-[2200px]",
+    full: "max-w-full",
+  };
 </script>
 
 <div
-  class="modern-page-wrapper"
+  class="page-wrapper relative min-h-[calc(100vh-4rem)] bg-gray-50 dark:bg-gray-900 transition-colors duration-200"
   class:full-height={fullHeight}
-  class:no-padding={!padding}
-  class:with-gradient={gradient}
+  class:p-0={!padding}
+  class:p-4={padding}
+  class:md:p-6={padding}
+  class:lg:p-8={padding}
 >
-  <!-- Subtle Background Pattern -->
+  <!-- Animated Background Blobs -->
   {#if gradient}
-    <div class="bg-pattern"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
   {/if}
 
   <!-- Page Content -->
-  <div class="page-inner">
+  <div class="page-inner relative z-10 mx-auto {maxWidthClasses[maxWidth]}">
     {@render children()}
   </div>
 </div>
 
 <style>
-  .modern-page-wrapper {
-    position: relative;
-    min-height: calc(100vh - 4rem);
-    padding: 2rem;
-    background: rgb(249 250 251);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .modern-page-wrapper {
-      background: rgb(17 24 39);
-    }
-  }
-
-  .with-gradient {
-    background: linear-gradient(
-      135deg,
-      rgb(249 250 251) 0%,
-      rgb(243 244 246) 50%,
-      rgb(249 250 251) 100%
-    );
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .with-gradient {
-      background: linear-gradient(
-        135deg,
-        rgb(17 24 39) 0%,
-        rgb(31 41 55) 50%,
-        rgb(17 24 39) 100%
-      );
-    }
-  }
-
   .full-height {
     min-height: 100vh;
     display: flex;
@@ -71,37 +55,9 @@
     justify-content: center;
   }
 
-  .no-padding {
-    padding: 0;
-  }
-
-  /* Subtle Pattern Overlay */
-  .bg-pattern {
-    position: absolute;
-    inset: 0;
-    opacity: 0.03;
-    background-image: radial-gradient(
-        circle at 25px 25px,
-        rgb(59 130 246) 2%,
-        transparent 0%
-      ),
-      radial-gradient(circle at 75px 75px, rgb(147 51 234) 2%, transparent 0%);
-    background-size: 100px 100px;
-    pointer-events: none;
-  }
-
-  .page-inner {
-    position: relative;
-    z-index: 1;
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-
-  /* Responsive */
   @media (max-width: 768px) {
     .modern-page-wrapper {
       padding: 1rem;
     }
   }
 </style>
-

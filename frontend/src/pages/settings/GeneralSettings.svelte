@@ -4,6 +4,8 @@
     currentLang,
     favoritesEnabled,
   } from "../../stores/ui.js";
+  import ModernCard from "../../components/ui/ModernCard.svelte";
+  import ModernButton from "../../components/ui/ModernButton.svelte";
 
   const languageOptions = [
     { value: "de", label: "🇩🇪 Deutsch" },
@@ -16,65 +18,61 @@
   let autoBackup = true;
 </script>
 
-<div class="settings-grid">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   <!-- Theme Settings -->
-  <div
-    class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl hover:shadow-2xl transition-all p-6"
-  >
-    <div class="space-y-4">
+  <ModernCard variant="glass" hoverable>
+    <div class="p-6 space-y-4">
       <div class="flex items-center gap-3">
         <i
           class="bi bi-palette-fill text-2xl text-primary-600 dark:text-primary-400"
         ></i>
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Theme</h2>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+          Theme
+        </h2>
       </div>
       <p class="text-sm text-gray-600 dark:text-gray-400">
         Choose your preferred color scheme
       </p>
       <div class="flex gap-3">
-        <button
-          class="flex-1 px-4 py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 {$currentTheme ===
-          'light'
-            ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30 hover:bg-primary-700'
-            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border-2 border-gray-200 dark:border-gray-700'}"
+        <ModernButton
+          variant={$currentTheme === "light" ? "primary" : "secondary"}
+          class="flex-1"
           onclick={() => {
             currentTheme.set("light");
             document.documentElement.setAttribute("data-theme", "syncspace");
+            document.documentElement.classList.remove("dark");
           }}
         >
-          <i class="bi bi-sun-fill"></i>
+          <i class="bi bi-sun-fill mr-2"></i>
           Light
-        </button>
-        <button
-          class="flex-1 px-4 py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 {$currentTheme ===
-          'dark'
-            ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30 hover:bg-primary-700'
-            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border-2 border-gray-200 dark:border-gray-700'}"
+        </ModernButton>
+        <ModernButton
+          variant={$currentTheme === "dark" ? "primary" : "secondary"}
+          class="flex-1"
           onclick={() => {
             currentTheme.set("dark");
             document.documentElement.setAttribute(
               "data-theme",
               "syncspace-dark"
             );
+            document.documentElement.classList.add("dark");
           }}
         >
-          <i class="bi bi-moon-fill"></i>
+          <i class="bi bi-moon-fill mr-2"></i>
           Dark
-        </button>
+        </ModernButton>
       </div>
     </div>
-  </div>
+  </ModernCard>
 
   <!-- Language Settings -->
-  <div
-    class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl hover:shadow-2xl transition-all p-6"
-  >
-    <div class="space-y-4">
+  <ModernCard variant="glass" hoverable>
+    <div class="p-6 space-y-4">
       <div class="flex items-center gap-3">
         <i
           class="bi bi-translate text-2xl text-secondary-600 dark:text-secondary-400"
         ></i>
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
           Language
         </h2>
       </div>
@@ -90,7 +88,7 @@
         </label>
         <select
           id="language-select"
-          class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 transition-all"
+          class="glass-input w-full"
           bind:value={$currentLang}
         >
           {#each languageOptions as option}
@@ -99,16 +97,15 @@
         </select>
       </div>
     </div>
-  </div>
+  </ModernCard>
 
   <!-- Notification Settings -->
-  <div
-    class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl hover:shadow-2xl transition-all p-6"
-  >
-    <div class="space-y-4">
+  <ModernCard variant="glass" hoverable>
+    <div class="p-6 space-y-4">
       <div class="flex items-center gap-3">
-        <i class="bi bi-bell-fill text-2xl text-accent"></i>
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+        <i class="bi bi-bell-fill text-2xl text-purple-600 dark:text-purple-400"
+        ></i>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
           Notifications
         </h2>
       </div>
@@ -117,7 +114,7 @@
           class="flex items-center justify-between gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
         >
           <label for="enable-notifications" class="flex-1 cursor-pointer">
-            <span class="block font-medium text-gray-900 dark:text-white"
+            <span class="block font-medium text-gray-900 dark:text-gray-100"
               >Enable Notifications</span
             >
             <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -126,9 +123,7 @@
           </label>
           <div class="flex items-center gap-2">
             <span
-              class="text-xs font-semibold uppercase tracking-wider {enableNotifications
-                ? 'text-primary-600 dark:text-primary-400'
-                : 'text-gray-400 dark:text-gray-600'}"
+              class="badge-glass-{enableNotifications ? 'success' : 'error'}"
             >
               {enableNotifications ? "ON" : "OFF"}
             </span>
@@ -153,7 +148,7 @@
           class="flex items-center justify-between gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
         >
           <label for="auto-backup" class="flex-1 cursor-pointer">
-            <span class="block font-medium text-gray-900 dark:text-white"
+            <span class="block font-medium text-gray-900 dark:text-gray-100"
               >Auto Backup Notifications</span
             >
             <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -161,11 +156,7 @@
             </p>
           </label>
           <div class="flex items-center gap-2">
-            <span
-              class="text-xs font-semibold uppercase tracking-wider {autoBackup
-                ? 'text-secondary-600 dark:text-secondary-400'
-                : 'text-gray-400 dark:text-gray-600'}"
-            >
+            <span class="badge-glass-{autoBackup ? 'success' : 'error'}">
               {autoBackup ? "ON" : "OFF"}
             </span>
             <button
@@ -187,17 +178,15 @@
         </div>
       </div>
     </div>
-  </div>
+  </ModernCard>
 
   <!-- Features Settings -->
-  <!-- Features -->
-  <div
-    class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl hover:shadow-2xl transition-all p-6"
-  >
-    <div class="space-y-4">
+  <ModernCard variant="glass" hoverable>
+    <div class="p-6 space-y-4">
       <div class="flex items-center gap-3">
-        <i class="bi bi-toggles text-2xl text-warning"></i>
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+        <i class="bi bi-toggles text-2xl text-yellow-600 dark:text-yellow-400"
+        ></i>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
           Features
         </h2>
       </div>
@@ -206,7 +195,7 @@
           class="flex items-center justify-between gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
         >
           <label for="favorites-enabled" class="flex-1 cursor-pointer">
-            <span class="block font-medium text-gray-900 dark:text-white"
+            <span class="block font-medium text-gray-900 dark:text-gray-100"
               >Enable Favorites System</span
             >
             <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -215,11 +204,7 @@
             </p>
           </label>
           <div class="flex items-center gap-2">
-            <span
-              class="text-xs font-semibold uppercase tracking-wider {$favoritesEnabled
-                ? 'text-warning'
-                : 'text-gray-400 dark:text-gray-600'}"
-            >
+            <span class="badge-glass-{$favoritesEnabled ? 'warning' : 'error'}">
               {$favoritesEnabled ? "ON" : "OFF"}
             </span>
             <button
@@ -241,28 +226,5 @@
         </div>
       </div>
     </div>
-  </div>
+  </ModernCard>
 </div>
-
-<style>
-  .settings-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-    gap: var(--spacing-6);
-  }
-
-  .space-y-3 > * + * {
-    margin-top: var(--spacing-3);
-  }
-
-  .space-y-4 > * + * {
-    margin-top: var(--spacing-4);
-  }
-
-  @media (max-width: 1024px) {
-    .settings-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>
-

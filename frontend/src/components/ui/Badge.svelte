@@ -92,15 +92,12 @@
   }
 
   /* Dark Mode */
-  @media (prefers-color-scheme: dark) {
-    .default {
-      background: rgba(255, 255, 255, 0.08);
-    }
+  :global(.dark) .default {
+    background: rgba(255, 255, 255, 0.08);
+  }
 
-    .glass {
-      background: rgba(30, 41, 59, 0.85);
-      border-color: rgba(255, 255, 255, 0.08);
-    }
+  :global(.dark) .glass {
+    background: rgba(30, 41, 59, 0.85);
+    border-color: rgba(255, 255, 255, 0.08);
   }
 </style>
-

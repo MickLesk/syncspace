@@ -131,7 +131,7 @@
   }
 
   .glass-primary::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
@@ -156,15 +156,13 @@
   }
 
   /* Dark Mode */
-  @media (prefers-color-scheme: dark) {
-    .glass {
-      background: rgba(30, 41, 59, 0.85);
-      border-color: rgba(255, 255, 255, 0.08);
-    }
+  :global(.dark) .glass {
+    background: rgba(30, 41, 59, 0.85);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
 
-    .glass:hover:not(:disabled) {
-      background: rgba(30, 41, 59, 0.95);
-    }
+  :global(.dark) .glass:hover:not(:disabled) {
+    background: rgba(30, 41, 59, 0.95);
   }
 
   .outlined {
@@ -198,4 +196,3 @@
     z-index: 1;
   }
 </style>
-

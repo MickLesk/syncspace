@@ -115,13 +115,11 @@
   }
 
   /* Dark mode card */
-  @media (prefers-color-scheme: dark) {
-    .loading-card {
-      background: rgba(17, 24, 39, 0.95);
-      box-shadow:
-        0 8px 32px 0 rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-    }
+  :global(.dark) .loading-card {
+    background: rgba(17, 24, 39, 0.95);
+    box-shadow:
+      0 8px 32px 0 rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
   }
 
   /* Logo with Nested Circles */
@@ -176,10 +174,8 @@
     text-align: center;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .loading-text {
-      color: rgb(156 163 175);
-    }
+  :global(.dark) .loading-text {
+    color: rgb(156 163 175);
   }
 
   /* Progress Bar */
@@ -192,10 +188,8 @@
     margin-bottom: 2rem;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .progress-bar {
-      background: rgb(55 65 81);
-    }
+  :global(.dark) .progress-bar {
+    background: rgb(55 65 81);
   }
 
   .progress-fill {
@@ -213,10 +207,8 @@
     font-weight: 500;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .tagline {
-      color: rgb(107 114 128);
-    }
+  :global(.dark) .tagline {
+    color: rgb(107 114 128);
   }
 
   /* Animations */
@@ -303,4 +295,3 @@
     }
   }
 </style>
-

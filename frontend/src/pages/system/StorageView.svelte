@@ -242,7 +242,7 @@
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div class="glass-card-light p-6 text-center">
+          <div class="glass-card p-6 text-center">
             <div class="text-blue-600 dark:text-blue-400 mb-2">
               <i class="bi bi-pie-chart-fill text-4xl"></i>
             </div>
@@ -261,7 +261,7 @@
             </div>
           </div>
 
-          <div class="glass-card-light p-6 text-center">
+          <div class="glass-card p-6 text-center">
             <div class="text-red-600 dark:text-red-400 mb-2">
               <i class="bi bi-exclamation-triangle-fill text-4xl"></i>
             </div>
@@ -278,7 +278,7 @@
             </div>
           </div>
 
-          <div class="glass-card-light p-6 text-center">
+          <div class="glass-card p-6 text-center">
             <div class="text-green-600 dark:text-green-400 mb-2">
               <i class="bi bi-check-circle-fill text-4xl"></i>
             </div>
@@ -300,7 +300,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Disk Usage Chart -->
-          <div class="glass-card-light p-6">
+          <div class="glass-card p-6">
             <h3
               class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100"
             >
@@ -316,7 +316,7 @@
           </div>
 
           <!-- Capacity Progress -->
-          <div class="glass-card-light p-6">
+          <div class="glass-card p-6">
             <h3
               class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100"
             >
