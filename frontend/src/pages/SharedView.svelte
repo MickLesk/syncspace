@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   import { onMount } from "svelte";
   import api from "../lib/api.js";
   import { success, error as errorToast } from "../stores/toast";
@@ -302,111 +302,41 @@
   </div>
 {/if}
 
-<Modal bind:show={showCreateModal} title="Create Share" size="md"
-  >{#snippet content()}<form
-      onsubmit={(e) => {
-        e.preventDefault();
-        handleCreateShare();
-      }}
-      class="space-y-5"
-    >
-      <div>
-        <label
-          for="file_path"
-          class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
-          >File Path</label
-        ><input
-          id="file_path"
-          type="text"
-          bind:value={newShare.file_path}
-          placeholder="/path/to/file.txt"
-          class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          required
-        />
-      </div>
-      <div>
-        <label
-          for="permissions"
-          class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
-          >Permissions</label
-        ><select
-          id="permissions"
-          bind:value={newShare.permissions}
-          class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          ><option value="read">Read Only</option><option value="write"
-            >Read & Write</option
-          ></select
-        >
-      </div>
-      <div>
-        <label
-          for="expires_at"
-          class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
-          >Expiration Date (Optional)</label
-        ><input
-          id="expires_at"
-          type="datetime-local"
-          bind:value={newShare.expires_at}
-          class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-        />
-      </div>
-      <div>
-        <label
-          for="password"
-          class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
-          >Password (Optional)</label
-        ><input
-          id="password"
-          type="password"
-          bind:value={newShare.password}
-          placeholder="Leave empty for no password"
-          class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-        />
-      </div>
-      <div
-        class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700"
-      >
-        <button
-          type="button"
-          onclick={() => (showCreateModal = false)}
-          class="px-5 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
-          >Cancel</button
-        ><button
-          type="submit"
-          class="px-5 py-2.5 rounded-lg font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
-          ><i class="bi bi-plus-circle"></i> Create Share</button
-        >
-      </div>
-    </form>{/snippet}</Modal
->
-
-<Modal bind:show={showEditModal} title="Edit Share" size="md"
-  >{#snippet content()}{#if selectedShare}<form
+{#if showCreateModal}
+  <Modal
+    visible={showCreateModal}
+    title="Create Share"
+    size="md"
+    onclose={() => (showCreateModal = false)}
+    >{#snippet content()}<form
         onsubmit={(e) => {
           e.preventDefault();
-          handleUpdateShare();
+          handleCreateShare();
         }}
         class="space-y-5"
       >
         <div>
           <label
+            for="file_path"
             class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
             >File Path</label
           ><input
+            id="file_path"
             type="text"
-            value={selectedShare.file_path}
-            disabled
-            class="w-full px-4 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400"
+            bind:value={newShare.file_path}
+            placeholder="/path/to/file.txt"
+            class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            required
           />
         </div>
         <div>
           <label
-            for="edit_permissions"
+            for="permissions"
             class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
             >Permissions</label
           ><select
-            id="edit_permissions"
-            bind:value={selectedShare.permissions}
+            id="permissions"
+            bind:value={newShare.permissions}
             class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             ><option value="read">Read Only</option><option value="write"
               >Read & Write</option
@@ -415,26 +345,26 @@
         </div>
         <div>
           <label
-            for="edit_expires_at"
+            for="expires_at"
             class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
             >Expiration Date (Optional)</label
           ><input
-            id="edit_expires_at"
+            id="expires_at"
             type="datetime-local"
-            bind:value={selectedShare.expires_at}
+            bind:value={newShare.expires_at}
             class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
         </div>
         <div>
           <label
-            for="edit_password"
+            for="password"
             class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
-            >Password (Leave empty to keep current)</label
+            >Password (Optional)</label
           ><input
-            id="edit_password"
+            id="password"
             type="password"
-            bind:value={selectedShare.password}
-            placeholder="Enter new password or leave empty"
+            bind:value={newShare.password}
+            placeholder="Leave empty for no password"
             class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
         </div>
@@ -443,57 +373,146 @@
         >
           <button
             type="button"
-            onclick={() => {
-              showEditModal = false;
-              selectedShare = null;
-            }}
+            onclick={() => (showCreateModal = false)}
             class="px-5 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
             >Cancel</button
           ><button
             type="submit"
             class="px-5 py-2.5 rounded-lg font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
-            ><i class="bi bi-save"></i> Save Changes</button
+            ><i class="bi bi-plus-circle"></i> Create Share</button
           >
         </div>
-      </form>{/if}{/snippet}</Modal
->
+      </form>{/snippet}</Modal
+  >
+{/if}
 
-<Modal bind:show={showDeleteModal} title="Delete Share" size="sm"
-  >{#snippet content()}{#if selectedShare}<div class="space-y-4">
-        <div class="glass-card-light border-l-4 border-red-500 p-4">
-          <div class="flex items-start gap-3">
-            <i class="bi bi-exclamation-triangle-fill text-red-500 text-2xl"
-            ></i>
-            <div class="flex-1">
-              <p class="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                Are you sure you want to delete this share?
-              </p>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                File: <span
-                  class="font-mono font-semibold text-blue-600 dark:text-blue-400"
-                  >{selectedShare.file_path}</span
-                >
-              </p>
-              <p class="text-sm text-red-600 dark:text-red-400 mt-2">
-                This action cannot be undone.
-              </p>
+{#if showEditModal}
+  <Modal
+    visible={showEditModal}
+    title="Edit Share"
+    size="md"
+    onclose={() => (showEditModal = false)}
+    >{#snippet content()}{#if selectedShare}<form
+          onsubmit={(e) => {
+            e.preventDefault();
+            handleUpdateShare();
+          }}
+          class="space-y-5"
+        >
+          <div>
+            <label
+              class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+              >File Path</label
+            ><input
+              type="text"
+              value={selectedShare.file_path}
+              disabled
+              class="w-full px-4 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400"
+            />
+          </div>
+          <div>
+            <label
+              for="edit_permissions"
+              class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+              >Permissions</label
+            ><select
+              id="edit_permissions"
+              bind:value={selectedShare.permissions}
+              class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              ><option value="read">Read Only</option><option value="write"
+                >Read & Write</option
+              ></select
+            >
+          </div>
+          <div>
+            <label
+              for="edit_expires_at"
+              class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+              >Expiration Date (Optional)</label
+            ><input
+              id="edit_expires_at"
+              type="datetime-local"
+              bind:value={selectedShare.expires_at}
+              class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            />
+          </div>
+          <div>
+            <label
+              for="edit_password"
+              class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+              >Password (Leave empty to keep current)</label
+            ><input
+              id="edit_password"
+              type="password"
+              bind:value={selectedShare.password}
+              placeholder="Enter new password or leave empty"
+              class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            />
+          </div>
+          <div
+            class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700"
+          >
+            <button
+              type="button"
+              onclick={() => {
+                showEditModal = false;
+                selectedShare = null;
+              }}
+              class="px-5 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+              >Cancel</button
+            ><button
+              type="submit"
+              class="px-5 py-2.5 rounded-lg font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+              ><i class="bi bi-save"></i> Save Changes</button
+            >
+          </div>
+        </form>{/if}{/snippet}</Modal
+  >
+{/if}
+
+{#if showDeleteModal}
+  <Modal
+    visible={showDeleteModal}
+    title="Delete Share"
+    size="sm"
+    onclose={() => (showDeleteModal = false)}
+    >{#snippet content()}{#if selectedShare}<div class="space-y-4">
+          <div class="glass-card-light border-l-4 border-red-500 p-4">
+            <div class="flex items-start gap-3">
+              <i class="bi bi-exclamation-triangle-fill text-red-500 text-2xl"
+              ></i>
+              <div class="flex-1">
+                <p class="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  Are you sure you want to delete this share?
+                </p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  File: <span
+                    class="font-mono font-semibold text-blue-600 dark:text-blue-400"
+                    >{selectedShare.file_path}</span
+                  >
+                </p>
+                <p class="text-sm text-red-600 dark:text-red-400 mt-2">
+                  This action cannot be undone.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="flex justify-end gap-3 pt-2">
-          <button
-            type="button"
-            onclick={() => {
-              showDeleteModal = false;
-              selectedShare = null;
-            }}
-            class="px-5 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
-            >Cancel</button
-          ><button
-            onclick={handleDeleteShare}
-            class="px-5 py-2.5 rounded-lg font-medium bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
-            ><i class="bi bi-trash-fill"></i> Delete Share</button
-          >
-        </div>
-      </div>{/if}{/snippet}</Modal
->
+          <div class="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onclick={() => {
+                showDeleteModal = false;
+                selectedShare = null;
+              }}
+              class="px-5 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+              >Cancel</button
+            ><button
+              onclick={handleDeleteShare}
+              class="px-5 py-2.5 rounded-lg font-medium bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+              ><i class="bi bi-trash-fill"></i> Delete Share</button
+            >
+          </div>
+        </div>{/if}{/snippet}</Modal
+  >
+{/if}
+

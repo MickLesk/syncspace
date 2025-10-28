@@ -56,7 +56,7 @@
             <span class="chip-label">{filter.label}</span>
             <button
               class="chip-remove"
-              on:click={() => handleRemove(filter.key)}
+              onclick={() => handleRemove(filter.key)}
               title={t($currentLang, "removeFilter")}
             >
               <i class="bi bi-x"></i>
@@ -67,7 +67,7 @@
 
       <button
         class="px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg transition-colors flex items-center gap-1"
-        on:click={handleClearAll}
+        onclick={handleClearAll}
       >
         <i class="bi bi-x-circle"></i>
         {t($currentLang, "clearAll")}
@@ -150,3 +150,4 @@
     font-size: 0.75rem;
   }
 </style>
+

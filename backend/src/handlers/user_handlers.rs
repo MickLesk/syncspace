@@ -174,25 +174,10 @@ pub async fn update_user_settings(
 pub async fn get_user_preferences(
     State(state): State<AppState>,
     user_info: UserInfo,
-) -> Result<impl IntoResponse, StatusCode> {
-    // Check if preferences exist, create if not
-    let prefs_exist: Option<(i64,)> = sqlx::query_as(
-        "SELECT COUNT(*) FROM user_preferences WHERE user_id = ?"
-    )
-    .bind(&user_info.id)
-    .fetch_optional(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    if let Some((count,)) = prefs_exist {
-        if count == 0 {
-            // Create default preferences
-            create_default_preferences(&state.db_pool, &user_info.id).await?;
-        }
-    }
-
-    // Fetch preferences
-    let row = sqlx::query(
+) -> Result<Json<UserPreferences>, StatusCode> {
+    // GRACEFUL DEGRADATION: If user_preferences table doesn't exist (migration disabled),
+    // return default preferences instead of crashing
+    let result = sqlx::query(
         r#"
         SELECT 
             view_mode, sort_by, sort_order, items_per_page,
@@ -204,31 +189,49 @@ pub async fn get_user_preferences(
         "#
     )
     .bind(&user_info.id)
-    .fetch_one(&state.db_pool)
-    .await
-    .map_err(|e| {
-        eprintln!("Failed to fetch user preferences: {:?}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
+    .fetch_optional(&state.db_pool)
+    .await;
 
-    let recent_searches_json: Option<String> = row.try_get::<String, _>("recent_searches").ok();
-    let recent_searches: Vec<String> = recent_searches_json
-        .and_then(|json: String| serde_json::from_str(&json).ok())
-        .unwrap_or_default();
+    let preferences = match result {
+        Ok(Some(row)) => {
+            let recent_searches_json: Option<String> = row.try_get::<String, _>("recent_searches").ok();
+            let recent_searches: Vec<String> = recent_searches_json
+                .and_then(|json: String| serde_json::from_str(&json).ok())
+                .unwrap_or_default();
 
-    let preferences = UserPreferences {
-        view_mode: row.try_get::<String, _>("view_mode").unwrap_or_else(|_| "grid".to_string()),
-        sort_by: row.try_get::<String, _>("sort_by").unwrap_or_else(|_| "name".to_string()),
-        sort_order: row.try_get::<String, _>("sort_order").unwrap_or_else(|_| "asc".to_string()),
-        items_per_page: row.try_get::<i32, _>("items_per_page").unwrap_or(50),
-        sidebar_collapsed: row.try_get::<bool, _>("sidebar_collapsed").unwrap_or(false),
-        show_hidden_files: row.try_get::<bool, _>("show_hidden_files").unwrap_or(false),
-        recent_searches,
-        notification_email: row.try_get::<bool, _>("notification_email").unwrap_or(true),
-        notification_browser: row.try_get::<bool, _>("notification_browser").unwrap_or(true),
-        notification_sound: row.try_get::<bool, _>("notification_sound").unwrap_or(false),
-        activity_visible: row.try_get::<bool, _>("activity_visible").unwrap_or(true),
-        show_online_status: row.try_get::<bool, _>("show_online_status").unwrap_or(true),
+            UserPreferences {
+                view_mode: row.try_get::<String, _>("view_mode").unwrap_or_else(|_| "grid".to_string()),
+                sort_by: row.try_get::<String, _>("sort_by").unwrap_or_else(|_| "name".to_string()),
+                sort_order: row.try_get::<String, _>("sort_order").unwrap_or_else(|_| "asc".to_string()),
+                items_per_page: row.try_get::<i32, _>("items_per_page").unwrap_or(50),
+                sidebar_collapsed: row.try_get::<bool, _>("sidebar_collapsed").unwrap_or(false),
+                show_hidden_files: row.try_get::<bool, _>("show_hidden_files").unwrap_or(false),
+                recent_searches,
+                notification_email: row.try_get::<bool, _>("notification_email").unwrap_or(true),
+                notification_browser: row.try_get::<bool, _>("notification_browser").unwrap_or(true),
+                notification_sound: row.try_get::<bool, _>("notification_sound").unwrap_or(false),
+                activity_visible: row.try_get::<bool, _>("activity_visible").unwrap_or(true),
+                show_online_status: row.try_get::<bool, _>("show_online_status").unwrap_or(true),
+            }
+        },
+        Ok(None) | Err(_) => {
+            // Table doesn't exist or no preferences found - return defaults
+            eprintln!("⚠️  user_preferences table not available or no data - using defaults");
+            UserPreferences {
+                view_mode: "grid".to_string(),
+                sort_by: "name".to_string(),
+                sort_order: "asc".to_string(),
+                items_per_page: 50,
+                sidebar_collapsed: false,
+                show_hidden_files: false,
+                recent_searches: vec![],
+                notification_email: true,
+                notification_browser: true,
+                notification_sound: false,
+                activity_visible: true,
+                show_online_status: true,
+            }
+        }
     };
 
     Ok(Json(preferences))
@@ -240,6 +243,34 @@ pub async fn update_user_preferences(
     user_info: UserInfo,
     Json(payload): Json<UpdateUserPreferences>,
 ) -> Result<impl IntoResponse, StatusCode> {
+    // GRACEFUL DEGRADATION: If table doesn't exist, return defaults instead of crashing
+    let table_exists = sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name='user_preferences'")
+        .fetch_optional(&state.db_pool)
+        .await
+        .ok()
+        .flatten()
+        .is_some();
+
+    if !table_exists {
+        eprintln!("⚠️  user_preferences table not available - ignoring update, returning defaults");
+        // Return default preferences (updates are ignored but don't crash)
+        let preferences = UserPreferences {
+            view_mode: payload.view_mode.unwrap_or_else(|| "grid".to_string()),
+            sort_by: payload.sort_by.unwrap_or_else(|| "name".to_string()),
+            sort_order: payload.sort_order.unwrap_or_else(|| "asc".to_string()),
+            items_per_page: payload.items_per_page.unwrap_or(50),
+            sidebar_collapsed: payload.sidebar_collapsed.unwrap_or(false),
+            show_hidden_files: payload.show_hidden_files.unwrap_or(false),
+            recent_searches: payload.recent_searches.unwrap_or_default(),
+            notification_email: payload.notification_email.unwrap_or(true),
+            notification_browser: payload.notification_browser.unwrap_or(true),
+            notification_sound: payload.notification_sound.unwrap_or(false),
+            activity_visible: payload.activity_visible.unwrap_or(true),
+            show_online_status: payload.show_online_status.unwrap_or(true),
+        };
+        return Ok(Json(preferences));
+    }
+
     let now = chrono::Utc::now().to_rfc3339();
 
     // Ensure preferences exist

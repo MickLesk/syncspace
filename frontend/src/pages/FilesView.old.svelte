@@ -1570,7 +1570,7 @@
   {:else}
     <!-- List View -->
     <div class="overflow-x-auto p-4">
-      <table class="table table-zebra table-pin-rows">
+      <table class="table table-zebra w-full border-collapse-pin-rows">
         <thead class="bg-slate-50 dark:bg-slate-800">
           <tr>
             <th class="bg-slate-50 dark:bg-slate-800">
@@ -2429,3 +2429,4 @@
     transform: translateY(-2px);
   }
 </style>
+

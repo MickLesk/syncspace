@@ -72,7 +72,7 @@
 <div class="notification-bell">
   <button
     class="bell-button"
-    on:click={toggleDropdown}
+    onclick={toggleDropdown}
     aria-label="Notifications"
   >
     <span class="bell-icon">🔔</span>
@@ -86,7 +86,7 @@
       <div class="dropdown-header">
         <h3>Notifications</h3>
         {#if $unreadCount > 0}
-          <button class="mark-all" on:click={markAllAsRead}>
+          <button class="mark-all" onclick={markAllAsRead}>
             Mark all as read
           </button>
         {/if}
@@ -103,7 +103,7 @@
             <div
               class="notification-item"
               class:unread={!notif.is_read}
-              on:click={() => markAsRead(notif.id)}
+              onclick={() => markAsRead(notif.id)}
             >
               <div class="notif-icon">
                 {getNotificationIcon(notif.notification_type)}
@@ -298,3 +298,4 @@
     text-decoration: underline;
   }
 </style>
+

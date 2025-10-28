@@ -267,7 +267,7 @@
   }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <!-- Material 3 Expressive Header with Glassmorphism -->
 <header class="app-header">
@@ -381,17 +381,32 @@
                 <p class="text-sm opacity-60 mt-2">Search files and folders</p>
                 <div class="search-shortcuts mt-3">
                   <div class="search-shortcut-item">
-                    <kbd class="kbd kbd-xs">Ctrl</kbd>
+                    <kbd
+                      class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"
+                      >Ctrl</kbd
+                    >
                     <span>+</span>
-                    <kbd class="kbd kbd-xs">K</kbd>
+                    <kbd
+                      class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"
+                      >K</kbd
+                    >
                     <span class="text-xs opacity-60 ml-2">Quick search</span>
                   </div>
                   <div class="search-shortcut-item">
-                    <kbd class="kbd kbd-xs">Ctrl</kbd>
+                    <kbd
+                      class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"
+                      >Ctrl</kbd
+                    >
                     <span>+</span>
-                    <kbd class="kbd kbd-xs">Shift</kbd>
+                    <kbd
+                      class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"
+                      >Shift</kbd
+                    >
                     <span>+</span>
-                    <kbd class="kbd kbd-xs">F</kbd>
+                    <kbd
+                      class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"
+                      >F</kbd
+                    >
                     <span class="text-xs opacity-60 ml-2">Advanced</span>
                   </div>
                 </div>
@@ -1855,3 +1870,4 @@
     }
   }
 </style>
+

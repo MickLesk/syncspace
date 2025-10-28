@@ -75,3 +75,4 @@
   .upload-actions { display: flex; align-items: center; }
   @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 </style>
+

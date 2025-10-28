@@ -319,7 +319,7 @@
             </div>
           {:else if users.length > 0}
             <div class="overflow-x-auto">
-              <table class="table table-zebra">
+              <table class="table w-full border-collapse-zebra">
                 <thead>
                   <tr>
                     <th>User</th>
@@ -853,3 +853,4 @@
     }
   }
 </style>
+

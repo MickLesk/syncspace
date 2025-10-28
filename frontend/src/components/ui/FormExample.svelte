@@ -107,7 +107,7 @@
         Create Account
       </h2>
 
-      <form on:submit={handleSubmit}>
+      <form onsubmit={handleSubmit}>
         <!-- Form Section: Account Details -->
         <div class="form-section">
           <div class="form-section-title">
@@ -129,7 +129,7 @@
                 <input
                   type="text"
                   bind:value={formData.username}
-                  on:input={validateUsername}
+                  oninput={validateUsername}
                   placeholder="johndoe"
                   class="input input-bordered input-primary input-with-icon-left w-full"
                   class:input-success={validation.username.valid === true}
@@ -175,7 +175,7 @@
                 <input
                   type="email"
                   bind:value={formData.email}
-                  on:input={validateEmail}
+                  oninput={validateEmail}
                   placeholder="john@example.com"
                   class="input input-bordered input-primary input-with-icon-left w-full"
                   class:input-success={validation.email.valid === true}
@@ -222,7 +222,7 @@
               <input
                 type="password"
                 bind:value={formData.password}
-                on:input={validatePassword}
+                oninput={validatePassword}
                 placeholder="••••••••"
                 class="input input-bordered input-primary input-with-icon-left w-full"
                 class:input-success={validation.password.valid === true}
@@ -290,7 +290,7 @@
               <input
                 type="password"
                 bind:value={formData.confirmPassword}
-                on:input={validateConfirmPassword}
+                oninput={validateConfirmPassword}
                 placeholder="••••••••"
                 class="input input-bordered input-primary input-with-icon-left w-full"
                 class:input-success={validation.confirmPassword.valid === true}
@@ -435,3 +435,4 @@
     background: linear-gradient(135deg, hsl(var(--b2)) 0%, hsl(var(--b3)) 100%);
   }
 </style>
+

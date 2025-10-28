@@ -120,7 +120,7 @@
       <div class="flex flex-wrap items-center justify-between gap-3">
         <button
           class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          on:click={scanCurrentFolder}
+          onclick={scanCurrentFolder}
           disabled={scanning}
         >
           {#if scanning}
@@ -137,7 +137,7 @@
         {#if selectedDuplicates.size > 0}
           <button
             class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-2"
-            on:click={deleteDuplicates}
+            onclick={deleteDuplicates}
           >
             <i class="bi bi-trash"></i>
             Delete {selectedDuplicates.size} Selected
@@ -266,7 +266,7 @@
         </p>
         <button
           class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2 mx-auto"
-          on:click={scanCurrentFolder}
+          onclick={scanCurrentFolder}
         >
           <i class="bi bi-search"></i>
           Start Scanning
@@ -308,14 +308,14 @@
               >
                 <button
                   class="px-3 py-1.5 text-sm rounded-l-lg border-r border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors flex items-center gap-2"
-                  on:click={() => selectAllInGroup(group)}
+                  onclick={() => selectAllInGroup(group)}
                 >
                   <i class="bi bi-check-all"></i>
                   Select All
                 </button>
                 <button
                   class="px-3 py-1.5 text-sm rounded-r-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors flex items-center gap-2"
-                  on:click={() => deselectGroup(group)}
+                  onclick={() => deselectGroup(group)}
                 >
                   <i class="bi bi-x"></i>
                   Deselect
@@ -367,7 +367,7 @@
                             type="checkbox"
                             class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                             checked={selectedDuplicates.has(file.name)}
-                            on:change={() =>
+                            onchange={() =>
                               toggleDuplicateSelection(file.name)}
                             disabled={fileIndex === 0}
                           />
@@ -434,3 +434,4 @@
     min-height: calc(100vh - 200px);
   }
 </style>
+

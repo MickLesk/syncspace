@@ -153,7 +153,7 @@
               class:dark:text-gray-200={viewMode !== "table"}
               aria-label="Table view"
             >
-              <i class="bi bi-table"></i>
+              <i class="bi bi-w-full border-collapse"></i>
             </button>
             <button
               onclick={() => (viewMode = "cards")}
@@ -517,3 +517,4 @@
     background-color: rgb(250, 204, 21);
   }
 </style>
+
