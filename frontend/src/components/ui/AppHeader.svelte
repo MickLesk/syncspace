@@ -1,15 +1,15 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { currentTheme, currentLang, currentView } from "../stores/ui";
-  import { auth } from "../stores/auth";
-  import { t } from "../i18n.js";
-  import AdvancedSearchModal from "./AdvancedSearchModal.svelte";
-  import Modal from "./ui/Modal.svelte";
+  import { currentTheme, currentLang, currentView } from "../../stores/ui";
+  import { auth } from "../../stores/auth";
+  import { t } from "../../i18n.js";
+  import AdvancedSearchModal from "../search/AdvancedSearchModal.svelte";
+  import Modal from "./Modal.svelte";
   import ThemeSwitcher from "./ThemeSwitcher.svelte";
   import NotificationBell from "./NotificationBell.svelte";
-  import { userPreferences } from "../stores/preferences.js";
-  import { wsConnected } from "../stores/websocket.js";
-  import api from "../lib/api.js";
+  import { userPreferences } from "../../stores/preferences.js";
+  import { wsConnected } from "../../stores/websocket.js";
+  import api from "../../lib/api.js";
   import { onMount } from "svelte";
 
   const dispatch = createEventDispatcher();
@@ -1870,4 +1870,3 @@
     }
   }
 </style>
-

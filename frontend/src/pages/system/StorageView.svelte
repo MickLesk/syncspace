@@ -3,7 +3,7 @@
   import { error as errorToast, success } from "../../stores/toast";
   import api from "../../lib/api";
   import Chart from "../../components/ui/Chart.svelte";
-  import Loading from "../../components/Loading.svelte";
+  import Loading from "../../components/ui/Loading.svelte";
 
   let loading = true;
   let loadingDisk = true;
@@ -683,5 +683,6 @@
     </div>
   {/if}
 </div>
+
 
 
