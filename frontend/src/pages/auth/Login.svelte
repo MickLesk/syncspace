@@ -1,6 +1,6 @@
 <script>
-  import { auth } from "../stores/auth.js";
-  import api from "../lib/api.js";
+  import { auth } from "../../stores/auth.js";
+  import api from "../../lib/api.js";
   import { onMount } from "svelte";
 
   let username = $state("");

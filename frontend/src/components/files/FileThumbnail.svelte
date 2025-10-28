@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
-  import { getFileIcon } from "../../../utils/fileIcons.js";
-  import api from "../../../lib/api.js";
+  import { getFileIcon } from "../../utils/fileIcons.js";
+  import api from "../../lib/api.js";
 
   export let file = null;
   export let size = "md"; // sm, md, lg

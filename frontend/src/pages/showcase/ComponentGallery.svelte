@@ -3,7 +3,7 @@
    * Component Gallery - Tailwind v4 + HyperUI Showcase
    * Updated: October 27, 2025
    */
-  import Card from "../components/ui/Card.svelte";
+  import Card from "../../components/ui/Card.svelte";
 
   let showModal = false;
 </script>

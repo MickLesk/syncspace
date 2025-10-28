@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
-  import api from "../../../lib/api.js";
-  import { success, error } from "../../../stores/toast.js";
+  import api from "../../lib/api.js";
+  import { success, error } from "../../stores/toast.js";
 
   export let file = null;
   export let isOpen = false;

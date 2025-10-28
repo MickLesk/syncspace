@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { notifications, unreadCount } from "../stores/notifications.js";
+  import { notifications, unreadCount } from "../../stores/notifications.js";
 
   let showDropdown = false;
   let recentNotifications = [];

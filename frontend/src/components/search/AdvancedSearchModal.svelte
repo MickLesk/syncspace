@@ -3,7 +3,7 @@
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import Input from "../ui/Input.svelte";
-  import FilterBar from "../FilterBar.svelte";
+  import FilterBar from "./FilterBar.svelte";
   import Modal from "../ui/Modal.svelte";
   import { userPreferences } from "../../stores/preferences.js";
 

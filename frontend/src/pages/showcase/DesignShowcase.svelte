@@ -1,7 +1,7 @@
 <script>
-  import PageWrapper from "../components/PageWrapper.svelte";
-  import ModernCard from "../components/ui/ModernCard.svelte";
-  import ModernButton from "../components/ui/ModernButton.svelte";
+  import PageWrapper from "../../components/PageWrapper.svelte";
+  import ModernCard from "../../components/ui/ModernCard.svelte";
+  import ModernButton from "../../components/ui/ModernButton.svelte";
 
   let loadingButton = $state(false);
 
