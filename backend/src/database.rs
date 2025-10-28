@@ -71,6 +71,53 @@ pub async fn init_db() -> Result<SqlitePool, sqlx::Error> {
     Ok(pool)
 }
 
+/// Helper function to execute multi-statement SQL migrations
+async fn execute_migration_statements(pool: &SqlitePool, migration_sql: &str) -> Result<(), sqlx::Error> {
+    // Remove SQL comments (both -- line comments and inline comments)
+    // and join lines into a cleaned SQL string
+    let cleaned_sql: String = migration_sql
+        .lines()
+        .map(|line| {
+            // Remove inline comments (everything after --)
+            if let Some(pos) = line.find("--") {
+                &line[..pos]
+            } else {
+                line
+            }
+        })
+        .filter(|line| !line.trim().is_empty())
+        .collect::<Vec<_>>()
+        .join("\n");
+    
+    // Split into individual statements by semicolon
+    let statements: Vec<String> = cleaned_sql
+        .split(';')
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect();
+    
+    // Start a transaction for all statements in this migration
+    let mut tx = pool.begin().await?;
+    
+    // Execute each statement individually within the transaction
+    for (i, statement) in statements.iter().enumerate() {
+        println!("  ↳ Executing statement {}/{}: {}...", i+1, statements.len(), 
+                 if statement.len() > 60 { &statement[..60] } else { statement });
+        
+        if let Err(e) = sqlx::query(statement).execute(&mut *tx).await {
+            eprintln!("❌ Failed to execute statement {}:", i+1);
+            eprintln!("   SQL: {}", statement);
+            eprintln!("   Error: {:?}", e);
+            return Err(e);
+        }
+    }
+    
+    // Commit the transaction
+    tx.commit().await?;
+    
+    Ok(())
+}
+
 /// Run SQL migrations from files - SIMPLIFIED VERSION for core tables only
 async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     println!("🔄 Running database migrations...");
@@ -94,70 +141,70 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         // Run initial schema migration
         println!("📋 Running migration: 001_initial_schema.sql");
         let migration_sql = include_str!("../migrations/001_initial_schema.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 002_add_comments_tags.sql");
         let migration_sql = include_str!("../migrations/002_add_comments_tags.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 003_add_backups.sql");
         let migration_sql = include_str!("../migrations/003_add_backups.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 004_add_notifications_and_preferences.sql");
         let migration_sql = include_str!("../migrations/004_add_notifications_and_preferences.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 005_add_notifications.sql");
         let migration_sql = include_str!("../migrations/005_add_notifications.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 006_add_webhooks.sql");
         let migration_sql = include_str!("../migrations/006_add_webhooks.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 007_add_encryption.sql");
         let migration_sql = include_str!("../migrations/007_add_encryption.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 008_add_locking.sql");
         let migration_sql = include_str!("../migrations/008_add_locking.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 009_add_permissions.sql");
         let migration_sql = include_str!("../migrations/009_add_permissions.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 010_add_additional_features.sql");
         let migration_sql = include_str!("../migrations/010_add_additional_features.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 011_add_integration_features.sql");
         let migration_sql = include_str!("../migrations/011_add_integration_features.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 012_add_oauth.sql");
         let migration_sql = include_str!("../migrations/012_add_oauth.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 013_add_collaboration.sql");
         let migration_sql = include_str!("../migrations/013_add_collaboration.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 014_add_file_versioning.sql");
         let migration_sql = include_str!("../migrations/014_add_file_versioning.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 015_add_user_preferences.sql");
         let migration_sql = include_str!("../migrations/015_add_user_preferences.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
         
         println!("📋 Running migration: 016_add_backup_scheduling.sql");
         let migration_sql = include_str!("../migrations/016_add_backup_scheduling.sql");
-        sqlx::query(migration_sql).execute(pool).await?;
+        execute_migration_statements(pool, migration_sql).await?;
     }
 
-    println!("✅ All migrations completed (001-016)");
+    println!("✅ All 16 migrations completed successfully!");
     Ok(())
 }
 

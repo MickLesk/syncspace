@@ -1,5 +1,5 @@
--- File Locks for collaborative editing
-CREATE TABLE IF NOT EXISTS file_locks (
+-- Collaborative File Locks (renamed from file_locks to avoid conflict with 008_add_locking.sql)
+CREATE TABLE IF NOT EXISTS collaborative_locks (
     id TEXT PRIMARY KEY,
     file_id TEXT NOT NULL,
     file_path TEXT NOT NULL,
@@ -11,10 +11,10 @@ CREATE TABLE IF NOT EXISTS file_locks (
     FOREIGN KEY (locked_by) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_file_locks_file_id ON file_locks(file_id);
-CREATE INDEX idx_file_locks_file_path ON file_locks(file_path);
-CREATE INDEX idx_file_locks_locked_by ON file_locks(locked_by);
-CREATE INDEX idx_file_locks_expires_at ON file_locks(expires_at);
+CREATE INDEX idx_collaborative_locks_file_id ON collaborative_locks(file_id);
+CREATE INDEX idx_collaborative_locks_file_path ON collaborative_locks(file_path);
+CREATE INDEX idx_collaborative_locks_locked_by ON collaborative_locks(locked_by);
+CREATE INDEX idx_collaborative_locks_expires_at ON collaborative_locks(expires_at);
 
 -- User Presence tracking
 CREATE TABLE IF NOT EXISTS user_presence (

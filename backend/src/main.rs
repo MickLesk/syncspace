@@ -98,22 +98,10 @@ async fn main() {
     // Load or create config
     let config = Arc::new(Mutex::new(Config::default()));
 
-    // Initialize database
-    let db_pool = sqlx::sqlite::SqlitePoolOptions::new()
-        .max_connections(10)
-        .connect("sqlite:./data/syncspace.db?mode=rwc")
+    // Initialize database with migrations
+    let db_pool = database::init_db()
         .await
-        .expect("Failed to connect to database");
-
-    // Run migrations
-    // NOTE: Migrationen temporarily disabled due to schema inconsistencies in migrations 4-16
-    // Only migrations 001-003 are stable. The application works without the advanced features.
-    // TODO: Fix migration schemas before re-enabling
-    // println!("🔄 Running database migrations...");
-    // sqlx::migrate!("./migrations")
-    //     .run(&db_pool)
-    //     .await
-    //     .expect("Failed to run migrations");
+        .expect("Failed to initialize database");
 
     println!("✅ Database connection established");
 
