@@ -1,6 +1,7 @@
 <script>
   import { auth } from "../stores/auth.js";
   import api from "../lib/api.js";
+  import { onMount } from "svelte";
 
   let username = $state("");
   let password = $state("");
@@ -9,6 +10,33 @@
   let rememberMe = $state(false);
   let loading = $state(false);
   let errorMessage = $state("");
+  let backendOnline = $state(false);
+  let checkingBackend = $state(true);
+
+  // Check backend status on mount and periodically
+  onMount(() => {
+    checkBackendStatus();
+    const interval = setInterval(checkBackendStatus, 3000); // Check every 3 seconds
+    return () => clearInterval(interval);
+  });
+
+  async function checkBackendStatus() {
+    try {
+      // Simple health check - just try to reach the backend
+      const response = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: "", password: "" }),
+      });
+      // If we get ANY response (even error), backend is online
+      backendOnline = true;
+      checkingBackend = false;
+    } catch (err) {
+      // Network error = backend offline
+      backendOnline = false;
+      checkingBackend = false;
+    }
+  }
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -78,6 +106,23 @@
 
 <!-- Background with animated gradient -->
 <div class="login-container">
+  <!-- Backend Status Indicator -->
+  <div class="backend-status-indicator">
+    <div class="status-circle {backendOnline ? 'online' : 'offline'}">
+      <span class="status-pulse"></span>
+      <span class="status-dot"></span>
+    </div>
+    <div class="status-text">
+      {#if checkingBackend}
+        <span class="text-white/90 text-xs font-medium">Checking...</span>
+      {:else if backendOnline}
+        <span class="text-green-300 text-xs font-semibold">Backend Online</span>
+      {:else}
+        <span class="text-red-300 text-xs font-semibold">Backend Offline</span>
+      {/if}
+    </div>
+  </div>
+
   <!-- Animated background blobs -->
   <div class="blob blob-1"></div>
   <div class="blob blob-2"></div>
@@ -475,6 +520,109 @@
 
     .logo-circle i {
       font-size: 2.5rem !important;
+    }
+  }
+
+  /* Backend Status Indicator */
+  .backend-status-indicator {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .status-circle {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .status-dot {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    z-index: 2;
+  }
+
+  .status-pulse {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    z-index: 1;
+  }
+
+  /* Online State - Green */
+  .status-circle.online .status-dot {
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  }
+
+  .status-circle.online .status-pulse {
+    background: #10b981;
+    animation: statusPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Offline State - Red */
+  .status-circle.offline .status-dot {
+    background: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+  }
+
+  .status-circle.offline .status-pulse {
+    background: #ef4444;
+    animation: statusPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes statusPulse {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(2);
+      opacity: 0.3;
+    }
+    100% {
+      transform: scale(2.5);
+      opacity: 0;
+    }
+  }
+
+  .status-text {
+    display: flex;
+    align-items: center;
+  }
+
+  @media (max-width: 640px) {
+    .backend-status-indicator {
+      top: 1rem;
+      right: 1rem;
+      padding: 0.375rem 0.75rem;
+    }
+
+    .status-text span {
+      font-size: 0.625rem;
+    }
+
+    .status-circle,
+    .status-dot,
+    .status-pulse {
+      width: 10px;
+      height: 10px;
     }
   }
 </style>

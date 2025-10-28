@@ -4,7 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{svelte,js,ts,jsx,tsx}",
   ],
-  darkMode: ['class', '[data-theme="dark"]'],
+  darkMode: 'class', // Nur 'class' für Tailwind v4
   theme: {
     extend: {
       colors: {

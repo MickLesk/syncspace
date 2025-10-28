@@ -66,7 +66,18 @@
 
   function applyTheme(theme) {
     currentTheme = theme;
+    const isDark = theme === "syncspace-dark";
+    
+    // Set data-theme attribute (for backwards compatibility)
     document.documentElement.setAttribute("data-theme", theme);
+    
+    // Set 'dark' class for Tailwind dark mode
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
     // Still save to localStorage for instant load on next visit
     localStorage.setItem("theme", theme);
   }
@@ -95,11 +106,11 @@
 </script>
 
 <button
-  class="btn btn-ghost btn-circle"
+  class="w-11 h-11 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300"
   onclick={toggleTheme}
   title="Toggle theme"
 >
-  <i class="{currentTheme === 'syncspace' ? 'bi-moon' : 'bi-sun'} text-xl"></i>
+  <i class="{currentTheme === 'syncspace' ? 'bi-moon' : 'bi-sun'} text-xl text-gray-700 dark:text-gray-200"></i>
 </button>
 
 <style>

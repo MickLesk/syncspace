@@ -10,11 +10,33 @@
   import { userPreferences } from "../stores/preferences.js";
   import { wsConnected } from "../stores/websocket.js";
   import api from "../lib/api.js";
+  import { onMount } from "svelte";
 
   const dispatch = createEventDispatcher();
 
   let serverInfo = $state(null);
   let showServerInfo = $state(false);
+  let backendOnline = $state(false);
+
+  // Check backend status periodically
+  onMount(() => {
+    checkBackendStatus();
+    const interval = setInterval(checkBackendStatus, 3000);
+    return () => clearInterval(interval);
+  });
+
+  async function checkBackendStatus() {
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: "", password: "" }),
+      });
+      backendOnline = true;
+    } catch (err) {
+      backendOnline = false;
+    }
+  }
 
   async function loadServerInfo() {
     if (showServerInfo) {
@@ -68,6 +90,8 @@
   let userInitials = $derived(
     $auth.username ? $auth.username.substring(0, 2).toUpperCase() : "AD"
   );
+
+  let showUserDropdown = $state(false);
 
   // Mock notifications data
   let notifications = $state([
@@ -389,7 +413,7 @@
           onclick={loadServerInfo}
         >
           <span class="relative flex h-3 w-3">
-            {#if $wsConnected}
+            {#if backendOnline}
               <span
                 class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"
               ></span>
@@ -398,12 +422,12 @@
               ></span>
             {:else}
               <span
-                class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"
+                class="relative inline-flex rounded-full h-3 w-3 bg-red-500"
               ></span>
             {/if}
           </span>
           <span class="text-sm font-medium text-gray-700 dark:text-gray-200"
-            >{$wsConnected ? "Live" : "Offline"}</span
+            >{backendOnline ? "Online" : "Offline"}</span
           >
         </button>
 
@@ -436,11 +460,11 @@
                     Status
                   </div>
                   <div
-                    class="text-sm font-semibold {$wsConnected
+                    class="text-sm font-semibold {backendOnline
                       ? 'text-green-600 dark:text-green-400'
-                      : 'text-amber-600 dark:text-amber-400'}"
+                      : 'text-red-600 dark:text-red-400'}"
                   >
-                    {$wsConnected ? "Online" : "Offline"}
+                    {backendOnline ? "Online" : "Offline"}
                   </div>
                 </div>
                 <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-2">
@@ -503,15 +527,24 @@
       <NotificationBell />
 
       <!-- User Menu -->
-      <div class="dropdown dropdown-end">
-        <button class="user-avatar-button" tabindex="0">
+      <div class="user-menu-container">
+        <button 
+          class="user-avatar-button" 
+          onclick={() => showUserDropdown = !showUserDropdown}
+        >
           <div class="user-avatar">
             <span class="user-initials">{userInitials}</span>
             <div class="user-status-indicator"></div>
           </div>
         </button>
-        <div class="dropdown-content user-dropdown-new">
-          <div class="user-dropdown-header-new">
+        
+        {#if showUserDropdown}
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div class="fixed inset-0 z-[99]" onclick={() => showUserDropdown = false}></div>
+          
+          <div class="user-dropdown-new">
+            <div class="user-dropdown-header-new">
             <div class="user-avatar-large-new">
               <span class="user-initials-large">{userInitials}</span>
               <div class="user-status-indicator-large"></div>
@@ -594,6 +627,7 @@
             </button>
           </div>
         </div>
+        {/if}
       </div>
     </div>
   </div>
@@ -685,16 +719,19 @@
     top: 0;
     z-index: 1000;
     height: 64px;
-    /* Light Mode: Clean white with gradient border */
     background: white;
     border-bottom: 3px solid transparent;
-    border-image: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)
-      1;
+    border-image: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%) 1;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     color: #111827;
   }
 
-  /* Dark Mode handled by Tailwind dark: classes */
+  /* Dark Mode */
+  :global(.dark) .app-header {
+    background: #1f2937;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    color: #f9fafb;
+  }
 
   .header-container {
     display: flex;
@@ -1152,6 +1189,10 @@
   }
 
   /* User Avatar */
+  .user-menu-container {
+    position: relative;
+  }
+
   .user-avatar-button {
     background: none;
     border: none;
@@ -1622,12 +1663,17 @@
 
   /* New User Dropdown Styles */
   .user-dropdown-new {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.75rem);
+    z-index: 100;
     width: 320px;
     background: white;
     border: 1px solid rgba(17, 24, 39, 0.1);
     border-radius: 16px;
     box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2);
     overflow: hidden;
+    animation: slideDown 0.2s ease;
   }
 
   .user-dropdown-header-new {
