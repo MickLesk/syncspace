@@ -106,13 +106,13 @@ async fn main() {
         .expect("Failed to connect to database");
 
     // Run migrations
-    // TODO: Fix duplicate migration version numbers (003, 012) before enabling
-    // sqlx::migrate!("./migrations")
-    //     .run(&db_pool)
-    //     .await
-    //     .expect("Failed to run migrations");
+    println!("🔄 Running database migrations...");
+    sqlx::migrate!("./migrations")
+        .run(&db_pool)
+        .await
+        .expect("Failed to run migrations");
 
-    println!("✅ Database connection established (migrations skipped)");
+    println!("✅ Database connection established and migrations completed");
 
     // Initialize auth system
     let user_db = UserDB::new();

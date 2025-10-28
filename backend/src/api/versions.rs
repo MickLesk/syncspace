@@ -214,11 +214,11 @@ async fn update_version_metadata(
 /// Build versions router
 pub fn router() -> Router<AppState> {
     Router::new()
-        .route("/versions/{file_id}", get(list_versions))
-        .route("/versions/{file_id}/create", post(create_version))
-        .route("/versions/{version_id}", get(get_version).delete(delete_version))
-        .route("/versions/{version_id}/restore", post(restore_version))
-        .route("/versions/{from_version_id}/diff/{to_version_id}", get(get_version_diff))
-        .route("/versions/{version_id}/download", get(download_version))
-        .route("/versions/{version_id}/metadata", get(get_version_metadata).put(update_version_metadata))
+        .route("/versions/file/{file_id}", get(list_versions))
+        .route("/versions/file/{file_id}/create", post(create_version))
+        .route("/versions/version/{version_id}", get(get_version).delete(delete_version))
+        .route("/versions/version/{version_id}/restore", post(restore_version))
+        .route("/versions/diff/{from_version_id}/{to_version_id}", get(get_version_diff))
+        .route("/versions/version/{version_id}/download", get(download_version))
+        .route("/versions/version/{version_id}/metadata", get(get_version_metadata).put(update_version_metadata))
 }

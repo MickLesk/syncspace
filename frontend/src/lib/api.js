@@ -348,10 +348,12 @@ export const files = {
    */
   async createDir(path) {
     const cleanPath = path.replace(/^\/+|\/+$/g, '');
-    // Don't manually encode - fetch API does it automatically
-    const response = await fetch(`${API_BASE}/dirs/${cleanPath}`, {
+    // Changed to use /dirs/create with path in body instead of URL
+    // Backend cannot support /dirs/{*path} catch-all due to Axum route conflicts
+    const response = await fetch(`${API_BASE}/dirs/create`, {
       method: "POST",
-      headers: getHeaders(false),
+      headers: getHeaders(),
+      body: JSON.stringify({ path: cleanPath }),
     });
     return handleResponse(response);
   },

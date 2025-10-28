@@ -9,13 +9,19 @@ use axum::{
     routing::{delete, get, post, put},
     Json, Router,
 };
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
+use tokio::fs;
+use tokio::io::AsyncWriteExt;
 use tokio_util::io::ReaderStream;
 
 use crate::auth::UserInfo;
 use crate::models::FileInfo;
 use crate::services;
+use crate::websocket::FileChangeEvent;
 use crate::AppState;
+
+const BASE_DIR: &str = "./data";
 
 // ==================== REQUEST/RESPONSE TYPES ====================
 
@@ -150,8 +156,55 @@ async fn upload_multipart_handler(
     user: UserInfo,
     mut multipart: Multipart,
 ) -> Result<StatusCode, StatusCode> {
-    // TODO: Implement upload_multipart service function
-    Err(StatusCode::NOT_IMPLEMENTED)
+    // Extract path from form field (if provided, otherwise use root)
+    let mut target_path = String::new();
+    
+    while let Some(field) = multipart.next_field().await.map_err(|_| StatusCode::BAD_REQUEST)? {
+        let field_name = field.name().unwrap_or("").to_string();
+        
+        if field_name == "path" {
+            // Path field
+            target_path = field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?;
+        } else if field_name == "file" {
+            // File field
+            let filename = field.file_name().unwrap_or("upload").to_string();
+            let data = field.bytes().await.map_err(|_| StatusCode::BAD_REQUEST)?;
+            
+            // Construct full path: BASE_DIR/target_path/filename
+            let full_path = if target_path.is_empty() {
+                format!("{}/{}", BASE_DIR, filename)
+            } else {
+                let clean_path = target_path.trim_start_matches('/');
+                format!("{}/{}/{}", BASE_DIR, clean_path, filename)
+            };
+            
+            // Ensure parent directory exists
+            if let Some(parent) = std::path::Path::new(&full_path).parent() {
+                fs::create_dir_all(parent).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            }
+            
+            // Write file
+            let mut file = fs::File::create(&full_path).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            file.write_all(&data).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            
+            // Broadcast file change event
+            let event_path = if target_path.is_empty() {
+                filename.clone()
+            } else {
+                format!("{}/{}", target_path.trim_start_matches('/'), filename)
+            };
+            
+            let _ = state.fs_tx.send(FileChangeEvent {
+                path: event_path,
+                kind: "created".to_string(),
+                timestamp: Utc::now().to_rfc3339(),
+                user_id: Some(user.id.clone()),
+                metadata: None,
+            });
+        }
+    }
+    
+    Ok(StatusCode::CREATED)
 }
 
 /// Delete a file or directory
