@@ -17,25 +17,29 @@ function createThemeStore() {
       try {
         const token = localStorage.getItem('authToken');
         if (token) {
-          await api.put('/api/users', { theme: value });
+          await api.users.updateSettings({ theme: value });
         }
       } catch (err) {
         console.error('Failed to sync theme to backend:', err);
       }
     },
     // Method to load from backend
-    loadFromBackend: async () => {
+    async loadFromBackend() {
       try {
-        const user = await api.get('/api/users/me');
-        if (user && user.theme) {
-          localStorage.setItem('theme', user.theme);
-          document.documentElement.setAttribute('data-theme', user.theme);
-          set(user.theme);
+        const response = await api.users.getSettings();
+        if (response?.theme) {
+          state.current = response.theme;
+          persist();
         }
-      } catch (err) {
-        console.error('Failed to load theme from backend:', err);
+      } catch (error) {
+        // Silent fallback for 404 (endpoint not implemented) - this is expected
+        if (error.message && error.message.includes('404')) {
+          console.log('[Theme] Backend endpoint not implemented, using localStorage');
+        } else {
+          console.error('Failed to load theme from backend:', error);
+        }
       }
-    }
+    },
   };
 }
 
@@ -54,7 +58,7 @@ function createLangStore() {
       try {
         const token = localStorage.getItem('authToken');
         if (token) {
-          await api.put('/api/users', { language: value });
+          await api.users.updateSettings({ language: value });
         }
       } catch (err) {
         console.error('Failed to sync language to backend:', err);
@@ -63,13 +67,18 @@ function createLangStore() {
     // Method to load from backend
     loadFromBackend: async () => {
       try {
-        const user = await api.get('/api/users/me');
-        if (user && user.language) {
-          localStorage.setItem('lang', user.language);
-          set(user.language);
+        const settings = await api.users.getSettings();
+        if (settings && settings.language) {
+          localStorage.setItem('lang', settings.language);
+          set(settings.language);
         }
       } catch (err) {
-        console.error('Failed to load language from backend:', err);
+        // Silent fallback for 404 (endpoint not implemented) - this is expected
+        if (err.message && err.message.includes('404')) {
+          console.log('[Language] Backend endpoint not implemented, using localStorage');
+        } else {
+          console.error('Failed to load language from backend:', err);
+        }
       }
     }
   };

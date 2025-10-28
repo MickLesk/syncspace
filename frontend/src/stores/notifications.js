@@ -37,6 +37,12 @@ const createNotificationsStore = () => {
         set(Array.isArray(notifications) ? notifications : []);
         return notifications;
       } catch (error) {
+        // Silent fallback for 404 (endpoint not implemented) - this is expected
+        if (error.message && error.message.includes('404')) {
+          console.log('[Notifications] Backend endpoint not implemented');
+          set([]);
+          return [];
+        }
         console.error('Failed to load notifications:', error);
         return [];
       }

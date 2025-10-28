@@ -219,15 +219,16 @@ export const files = {
    * List files in a directory
    */
   async list(path = "") {
-    // Don't encode slashes - only encode individual path segments
-    // Backend expects /api/files/ for root, /api/files/folder/ for folders
+    // Clean and encode path
     const cleanPath = path.replace(/^\/+|\/+$/g, ''); // Remove leading/trailing slashes
-    const encodedPath = cleanPath
-      .split('/')
-      .map(segment => encodeURIComponent(segment))
-      .join('/');
     
-    const response = await fetch(`${API_BASE}/files/${encodedPath}`, {
+    // For root directory, use /api/files (no trailing slash)
+    // For subdirectories, use /api/files/{path}
+    const url = cleanPath 
+      ? `${API_BASE}/files/${cleanPath.split('/').map(segment => encodeURIComponent(segment)).join('/')}`
+      : `${API_BASE}/files`;
+    
+    const response = await fetch(url, {
       headers: getHeaders(false),
     });
     return handleResponse(response);

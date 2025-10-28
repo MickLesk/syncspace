@@ -29,11 +29,24 @@
     try {
       loading = true;
       error = null;
-      const response = await api.get(`/api/files/recent?limit=${limit}`);
-      recentFiles = response || [];
+      // Use generic fetch with auth token since this endpoint doesn't exist in api.files
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`http://localhost:8080/api/files/recent?limit=${limit}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        recentFiles = data || [];
+      } else {
+        throw new Error(`API Error ${response.status}`);
+      }
     } catch (err) {
       console.error("Failed to load recent files:", err);
       error = "Failed to load recent files";
+      recentFiles = [];
     } finally {
       loading = false;
     }

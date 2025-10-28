@@ -421,8 +421,7 @@
                 class="relative inline-flex rounded-full h-3 w-3 bg-green-500"
               ></span>
             {:else}
-              <span
-                class="relative inline-flex rounded-full h-3 w-3 bg-red-500"
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"
               ></span>
             {/if}
           </span>
@@ -528,105 +527,108 @@
 
       <!-- User Menu -->
       <div class="user-menu-container">
-        <button 
-          class="user-avatar-button" 
-          onclick={() => showUserDropdown = !showUserDropdown}
+        <button
+          class="user-avatar-button"
+          onclick={() => (showUserDropdown = !showUserDropdown)}
         >
           <div class="user-avatar">
             <span class="user-initials">{userInitials}</span>
             <div class="user-status-indicator"></div>
           </div>
         </button>
-        
+
         {#if showUserDropdown}
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <div class="fixed inset-0 z-[99]" onclick={() => showUserDropdown = false}></div>
-          
+          <div
+            class="fixed inset-0 z-[99]"
+            onclick={() => (showUserDropdown = false)}
+          ></div>
+
           <div class="user-dropdown-new">
             <div class="user-dropdown-header-new">
-            <div class="user-avatar-large-new">
-              <span class="user-initials-large">{userInitials}</span>
-              <div class="user-status-indicator-large"></div>
+              <div class="user-avatar-large-new">
+                <span class="user-initials-large">{userInitials}</span>
+                <div class="user-status-indicator-large"></div>
+              </div>
+              <div class="user-info-new">
+                <p class="user-name-new">{$auth.username || "Admin"}</p>
+                <p class="user-role-new">
+                  <span
+                    class="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded-full"
+                    >Administrator</span
+                  >
+                </p>
+                <p class="user-email-new">admin@syncspace.local</p>
+              </div>
             </div>
-            <div class="user-info-new">
-              <p class="user-name-new">{$auth.username || "Admin"}</p>
-              <p class="user-role-new">
-                <span
-                  class="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded-full"
-                  >Administrator</span
+
+            <div class="divider-new"></div>
+
+            <ul class="user-menu-new">
+              <li>
+                <button
+                  class="user-menu-item-new"
+                  onclick={() => dispatch("navigate", "profile")}
                 >
-              </p>
-              <p class="user-email-new">admin@syncspace.local</p>
+                  <i class="bi bi-person-circle"></i>
+                  <div class="menu-item-content">
+                    <span class="menu-item-label">Profile</span>
+                    <span class="menu-item-desc">View and edit profile</span>
+                  </div>
+                  <i class="bi bi-chevron-right menu-item-arrow"></i>
+                </button>
+              </li>
+              <li>
+                <button
+                  class="user-menu-item-new"
+                  onclick={() => dispatch("navigate", "settings")}
+                >
+                  <i class="bi bi-gear-fill"></i>
+                  <div class="menu-item-content">
+                    <span class="menu-item-label">Settings</span>
+                    <span class="menu-item-desc">Preferences & options</span>
+                  </div>
+                  <i class="bi bi-chevron-right menu-item-arrow"></i>
+                </button>
+              </li>
+              <li>
+                <button
+                  class="user-menu-item-new"
+                  onclick={() => dispatch("navigate", "storage")}
+                >
+                  <i class="bi bi-hdd-fill"></i>
+                  <div class="menu-item-content">
+                    <span class="menu-item-label">Storage</span>
+                    <span class="menu-item-desc">Manage your files</span>
+                  </div>
+                  <i class="bi bi-chevron-right menu-item-arrow"></i>
+                </button>
+              </li>
+            </ul>
+
+            <div class="divider-new"></div>
+
+            <ul class="user-menu-new">
+              <li>
+                <button class="user-menu-item-new">
+                  <i class="bi bi-question-circle"></i>
+                  <div class="menu-item-content">
+                    <span class="menu-item-label">Help & Support</span>
+                  </div>
+                </button>
+              </li>
+            </ul>
+
+            <div class="divider-new"></div>
+
+            <div class="user-dropdown-footer-new">
+              <button class="logout-button-new" onclick={handleLogout}>
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Log Out</span>
+              </button>
             </div>
           </div>
-
-          <div class="divider-new"></div>
-
-          <ul class="user-menu-new">
-            <li>
-              <button
-                class="user-menu-item-new"
-                onclick={() => dispatch("navigate", "profile")}
-              >
-                <i class="bi bi-person-circle"></i>
-                <div class="menu-item-content">
-                  <span class="menu-item-label">Profile</span>
-                  <span class="menu-item-desc">View and edit profile</span>
-                </div>
-                <i class="bi bi-chevron-right menu-item-arrow"></i>
-              </button>
-            </li>
-            <li>
-              <button
-                class="user-menu-item-new"
-                onclick={() => dispatch("navigate", "settings")}
-              >
-                <i class="bi bi-gear-fill"></i>
-                <div class="menu-item-content">
-                  <span class="menu-item-label">Settings</span>
-                  <span class="menu-item-desc">Preferences & options</span>
-                </div>
-                <i class="bi bi-chevron-right menu-item-arrow"></i>
-              </button>
-            </li>
-            <li>
-              <button
-                class="user-menu-item-new"
-                onclick={() => dispatch("navigate", "storage")}
-              >
-                <i class="bi bi-hdd-fill"></i>
-                <div class="menu-item-content">
-                  <span class="menu-item-label">Storage</span>
-                  <span class="menu-item-desc">Manage your files</span>
-                </div>
-                <i class="bi bi-chevron-right menu-item-arrow"></i>
-              </button>
-            </li>
-          </ul>
-
-          <div class="divider-new"></div>
-
-          <ul class="user-menu-new">
-            <li>
-              <button class="user-menu-item-new">
-                <i class="bi bi-question-circle"></i>
-                <div class="menu-item-content">
-                  <span class="menu-item-label">Help & Support</span>
-                </div>
-              </button>
-            </li>
-          </ul>
-
-          <div class="divider-new"></div>
-
-          <div class="user-dropdown-footer-new">
-            <button class="logout-button-new" onclick={handleLogout}>
-              <i class="bi bi-box-arrow-right"></i>
-              <span>Log Out</span>
-            </button>
-          </div>
-        </div>
         {/if}
       </div>
     </div>
@@ -721,7 +723,8 @@
     height: 64px;
     background: white;
     border-bottom: 3px solid transparent;
-    border-image: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%) 1;
+    border-image: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)
+      1;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     color: #111827;
   }

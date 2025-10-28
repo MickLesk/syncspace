@@ -20,8 +20,8 @@
   onMount(async () => {
     try {
       // Shared files count
-      const sharedResponse = await api.shares.list();
-      sharedCount = sharedResponse?.data?.length || 0;
+      const sharedResponse = await api.sharing?.list();
+      sharedCount = sharedResponse?.data?.length || sharedResponse?.length || 0;
 
       // Trash count (simulated - would need backend endpoint)
       // trashCount = await api.trash.count();

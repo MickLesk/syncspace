@@ -57,7 +57,12 @@
         applyTheme(frontendTheme);
       }
     } catch (err) {
-      console.error("Failed to load theme from backend:", err);
+      // Silent fallback for 404 (endpoint not implemented) - this is expected
+      if (err.message && err.message.includes('404')) {
+        console.log('[ThemeSwitcher] Backend endpoint not implemented, using localStorage');
+      } else {
+        console.error("Failed to load theme from backend:", err);
+      }
       // Fallback to localStorage
       const saved = localStorage.getItem("theme") || "syncspace";
       applyTheme(saved);
@@ -67,17 +72,17 @@
   function applyTheme(theme) {
     currentTheme = theme;
     const isDark = theme === "syncspace-dark";
-    
+
     // Set data-theme attribute (for backwards compatibility)
     document.documentElement.setAttribute("data-theme", theme);
-    
+
     // Set 'dark' class for Tailwind dark mode
     if (isDark) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
-    
+
     // Still save to localStorage for instant load on next visit
     localStorage.setItem("theme", theme);
   }
@@ -110,7 +115,11 @@
   onclick={toggleTheme}
   title="Toggle theme"
 >
-  <i class="{currentTheme === 'syncspace' ? 'bi-moon' : 'bi-sun'} text-xl text-gray-700 dark:text-gray-200"></i>
+  <i
+    class="{currentTheme === 'syncspace'
+      ? 'bi-moon'
+      : 'bi-sun'} text-xl text-gray-700 dark:text-gray-200"
+  ></i>
 </button>
 
 <style>
