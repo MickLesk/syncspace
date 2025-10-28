@@ -4,7 +4,7 @@
   import { currentPath } from "../../stores/ui.js";
   import { success, error } from "../../stores/toast";
   import api from "../../lib/api.js";
-  import Loading from "../../components/Loading.svelte";
+  import Loading from "../../components/ui/Loading.svelte";
 
   let favoriteFiles = $state([]);
   let loading = $state(false);
@@ -263,5 +263,6 @@
     animation: slideUp 0.3s ease-out both;
   }
 </style>
+
 
 

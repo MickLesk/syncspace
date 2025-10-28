@@ -3,10 +3,14 @@
   import { auth } from "./stores/auth";
   import { currentTheme, currentView, currentLang } from "./stores/ui";
   import { userPreferences } from "./stores/preferences";
-  import Login from "./pages/Login.svelte";
-  import Signup from "./pages/Signup.svelte";
+
+  // Auth Views
+  import Login from "./pages/auth/Login.svelte";
+  import Signup from "./pages/auth/Signup.svelte";
+
+  // Navigation & Header
   import Sidebar from "./components/navigation/Sidebar.svelte";
-  import AppHeader from "./components/AppHeader.svelte";
+  import AppHeader from "./components/ui/AppHeader.svelte";
 
   // File Views
   import FilesView from "./pages/files/FilesView.svelte";
@@ -26,10 +30,12 @@
   import DuplicatesView from "./pages/tools/DuplicatesView.svelte";
   import PerformanceView from "./pages/tools/PerformanceView.svelte";
 
-  // Other Views
-  import SettingsView from "./pages/SettingsView.svelte";
-  import ProfileView from "./pages/ProfileView.svelte";
-  import DesignShowcase from "./pages/DesignShowcase.svelte";
+  // User & Settings Views
+  import SettingsView from "./pages/settings/SettingsView.svelte";
+  import ProfileView from "./pages/user/ProfileView.svelte";
+
+  // Showcase (Development)
+  import DesignShowcase from "./pages/showcase/DesignShowcase.svelte";
 
   import Toast from "./components/ui/Toast.svelte";
 

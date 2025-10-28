@@ -17,7 +17,7 @@
     onFileEvent,
     websocketManager,
   } from "../../stores/websocket.js";
-  import Loading from "../../components/Loading.svelte";
+  import Loading from "../../components/ui/Loading.svelte";
 
   // ==================== STATE ====================
   let loading = $state(true);
@@ -1118,3 +1118,4 @@
 <style>
   /* Additional custom styles if needed */
 </style>
+

@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import api from "../../lib/api.js";
   import { success, error as errorToast } from "../../stores/toast";
-  import Loading from "../../components/Loading.svelte";
+  import Loading from "../../components/ui/Loading.svelte";
   import Modal from "../../components/ui/Modal.svelte";
 
   let shares = $state([]);
@@ -515,5 +515,6 @@
         </div>{/if}{/snippet}</Modal
   >
 {/if}
+
 
 
