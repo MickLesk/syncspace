@@ -98,14 +98,16 @@
 </script>
 
 <button
-  class="w-11 h-11 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 transition-all duration-300 border-2 border-gray-300 hover:border-gray-400"
+  class="w-11 h-11 flex items-center justify-center transition-all duration-300 hover:scale-110"
   onclick={toggleTheme}
   title="Toggle theme"
 >
   <i
     class="{currentTheme === 'syncspace'
-      ? 'bi-moon'
-      : 'bi-sun'} text-xl text-gray-700"
+      ? 'bi-moon-fill'
+      : 'bi-sun-fill'} text-2xl {currentTheme === 'syncspace'
+      ? 'text-indigo-500 hover:text-indigo-600'
+      : 'text-amber-500 hover:text-amber-600'}"
   ></i>
 </button>
 
