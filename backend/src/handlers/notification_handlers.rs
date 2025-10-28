@@ -89,20 +89,20 @@ pub async fn get_notifications(
     let notifications: Vec<Notification> = rows
         .into_iter()
         .map(|row| Notification {
-            id: row.get("id").unwrap_or_default(),
-            user_id: row.get("user_id").unwrap_or_default(),
-            notification_type: row.get("type").unwrap_or_else(|_| "info".to_string()),
-            title: row.get("title").unwrap_or_default(),
-            message: row.get("message").unwrap_or_default(),
-            action_url: row.get("action_url").ok(),
-            action_label: row.get("action_label").ok(),
+            id: row.try_get::<String, _>("id").unwrap_or_default(),
+            user_id: row.try_get::<String, _>("user_id").unwrap_or_default(),
+            notification_type: row.try_get::<String, _>("type").unwrap_or_else(|_| "info".to_string()),
+            title: row.try_get::<String, _>("title").unwrap_or_default(),
+            message: row.try_get::<String, _>("message").unwrap_or_default(),
+            action_url: row.try_get::<String, _>("action_url").ok(),
+            action_label: row.try_get::<String, _>("action_label").ok(),
             is_read: row.try_get::<i64, _>("is_read").unwrap_or(0) != 0,
-            read_at: row.get("read_at").ok(),
-            priority: row.get("priority").unwrap_or_else(|_| "normal".to_string()),
-            related_file_id: row.get("related_file_id").ok(),
-            related_user_id: row.get("related_user_id").ok(),
-            created_at: row.get("created_at").unwrap_or_default(),
-            expires_at: row.get("expires_at").ok(),
+            read_at: row.try_get::<String, _>("read_at").ok(),
+            priority: row.try_get::<String, _>("priority").unwrap_or_else(|_| "normal".to_string()),
+            related_file_id: row.try_get::<String, _>("related_file_id").ok(),
+            related_user_id: row.try_get::<String, _>("related_user_id").ok(),
+            created_at: row.try_get::<String, _>("created_at").unwrap_or_default(),
+            expires_at: row.try_get::<String, _>("expires_at").ok(),
         })
         .collect();
 

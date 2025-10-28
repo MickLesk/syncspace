@@ -140,7 +140,7 @@ pub async fn acquire_file_lock_handler(
     let event = FileChangeEvent {
         path: request.file_path.clone(),
         kind: "lock_acquired".to_string(),
-        timestamp: now,
+        timestamp: now.to_rfc3339(),
         user_id: Some(user.username.clone()),
         metadata: Some(serde_json::json!({
             "lock_id": lock_id,
@@ -206,7 +206,7 @@ pub async fn release_file_lock_handler(
         let event = FileChangeEvent {
             path: lock.file_path,
             kind: "lock_released".to_string(),
-            timestamp: now,
+            timestamp: now.to_rfc3339(),
             user_id: Some(user.username.clone()),
             metadata: None,
         };
@@ -323,7 +323,7 @@ pub async fn update_user_presence_handler(
         let event = FileChangeEvent {
             path: path.clone(),
             kind: "presence_updated".to_string(),
-            timestamp: now,
+            timestamp: now.to_rfc3339(),
             user_id: Some(user.username.clone()),
             metadata: Some(serde_json::json!({
                 "activity_type": request.activity_type

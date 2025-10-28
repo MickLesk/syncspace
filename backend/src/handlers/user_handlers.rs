@@ -87,9 +87,9 @@ pub async fn get_user_settings(
     })?;
 
     let settings = UserSettings {
-        language: row.get("language").unwrap_or_else(|_| "en".to_string()),
-        theme: row.get("theme").unwrap_or_else(|_| "light".to_string()),
-        default_view: row.get("default_view").unwrap_or_else(|_| "grid".to_string()),
+        language: row.try_get::<String, _>("language").unwrap_or_else(|_| "en".to_string()),
+        theme: row.try_get::<String, _>("theme").unwrap_or_else(|_| "light".to_string()),
+        default_view: row.try_get::<String, _>("default_view").unwrap_or_else(|_| "grid".to_string()),
     };
 
     Ok(Json(settings))
@@ -160,9 +160,9 @@ pub async fn update_user_settings(
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let settings = UserSettings {
-        language: row.get("language").unwrap_or_else(|_| "en".to_string()),
-        theme: row.get("theme").unwrap_or_else(|_| "light".to_string()),
-        default_view: row.get("default_view").unwrap_or_else(|_| "grid".to_string()),
+        language: row.try_get::<String, _>("language").unwrap_or_else(|_| "en".to_string()),
+        theme: row.try_get::<String, _>("theme").unwrap_or_else(|_| "light".to_string()),
+        default_view: row.try_get::<String, _>("default_view").unwrap_or_else(|_| "grid".to_string()),
     };
 
     Ok(Json(settings))
@@ -211,16 +211,16 @@ pub async fn get_user_preferences(
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
-    let recent_searches_json: Option<String> = row.get("recent_searches").ok();
+    let recent_searches_json: Option<String> = row.try_get::<String, _>("recent_searches").ok();
     let recent_searches: Vec<String> = recent_searches_json
-        .and_then(|json| serde_json::from_str(&json).ok())
+        .and_then(|json: String| serde_json::from_str(&json).ok())
         .unwrap_or_default();
 
     let preferences = UserPreferences {
-        view_mode: row.get("view_mode").unwrap_or_else(|_| "grid".to_string()),
-        sort_by: row.get("sort_by").unwrap_or_else(|_| "name".to_string()),
-        sort_order: row.get("sort_order").unwrap_or_else(|_| "asc".to_string()),
-        items_per_page: row.get("items_per_page").unwrap_or(50),
+        view_mode: row.try_get::<String, _>("view_mode").unwrap_or_else(|_| "grid".to_string()),
+        sort_by: row.try_get::<String, _>("sort_by").unwrap_or_else(|_| "name".to_string()),
+        sort_order: row.try_get::<String, _>("sort_order").unwrap_or_else(|_| "asc".to_string()),
+        items_per_page: row.try_get::<i32, _>("items_per_page").unwrap_or(50),
         sidebar_collapsed: row.try_get::<bool, _>("sidebar_collapsed").unwrap_or(false),
         show_hidden_files: row.try_get::<bool, _>("show_hidden_files").unwrap_or(false),
         recent_searches,
@@ -258,7 +258,7 @@ pub async fn update_user_preferences(
     }
 
     // Build dynamic update
-    let mut updates = Vec::new();
+    let mut updates: Vec<String> = Vec::new();
     
     if let Some(view_mode) = &payload.view_mode {
         sqlx::query("UPDATE user_preferences SET view_mode = ? WHERE user_id = ?")
