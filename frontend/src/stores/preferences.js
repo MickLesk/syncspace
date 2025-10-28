@@ -30,28 +30,28 @@ const createPreferencesStore = () => {
     // Load preferences from backend
     async load() {
       try {
-        const prefs = await api.auth.getPreferences();
-        // Parse JSON fields
-        if (prefs.recent_searches && typeof prefs.recent_searches === 'string') {
-          try {
-            prefs.recent_searches = JSON.parse(prefs.recent_searches);
-          } catch {
-            prefs.recent_searches = [];
-          }
+        const response = await api.users.getPreferences();
+        if (response) {
+          Object.assign(state, response);
+          persist();
         }
-        if (prefs.search_filters && typeof prefs.search_filters === 'string') {
-          try {
-            prefs.search_filters = JSON.parse(prefs.search_filters);
-          } catch {
-            prefs.search_filters = null;
-          }
-        }
-        set(prefs);
-        return prefs;
       } catch (error) {
-        console.warn('Failed to load preferences from backend:', error);
-        // Keep default values
-        return defaultPreferences;
+        // Silent fallback for 404 (endpoint not implemented) - this is expected
+        if (error.message && error.message.includes('404')) {
+          console.log('[Preferences] Backend endpoint not implemented, using localStorage');
+        } else {
+          console.error('Failed to load preferences from backend:', error);
+        }
+        // Fall back to localStorage
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            Object.assign(state, parsed);
+          } catch (e) {
+            console.error('Failed to parse stored preferences:', e);
+          }
+        }
       }
     },
     
@@ -59,7 +59,7 @@ const createPreferencesStore = () => {
     async updatePreference(key, value) {
       try {
         const updateData = { [key]: value };
-        const updatedPrefs = await api.auth.updatePreferences(updateData);
+        const updatedPrefs = await api.users.updatePreferences(updateData);
         set(updatedPrefs);
         return updatedPrefs;
       } catch (error) {
@@ -73,7 +73,7 @@ const createPreferencesStore = () => {
     // Update multiple preferences at once
     async updatePreferences(updates) {
       try {
-        const updatedPrefs = await api.auth.updatePreferences(updates);
+        const updatedPrefs = await api.users.updatePreferences(updates);
         set(updatedPrefs);
         return updatedPrefs;
       } catch (error) {
@@ -112,7 +112,7 @@ const createPreferencesStore = () => {
     // Reset to defaults
     async reset() {
       try {
-        const resetPrefs = await api.auth.updatePreferences(defaultPreferences);
+        const resetPrefs = await api.users.updatePreferences(defaultPreferences);
         set(resetPrefs);
         return resetPrefs;
       } catch (error) {
