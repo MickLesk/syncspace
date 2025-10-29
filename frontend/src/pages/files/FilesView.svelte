@@ -724,34 +724,11 @@
     <!-- Breadcrumb -->
     <div class="max-w-7xl mx-auto mb-6">
       <div class="glass-card p-4">
-        <nav class="flex items-center gap-2 text-sm">
-          <button
-            onclick={() => navigateToBreadcrumb("/")}
-            class="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-          >
-            <i class="bi bi-house-fill"></i>
-            Home
-          </button>
-          {#each getPathSegments() as segment, i}
-            <i class="bi bi-chevron-right text-gray-400"></i>
-            <button
-              onclick={() => {
-                const path =
-                  "/" +
-                  getPathSegments()
-                    .slice(0, i + 1)
-                    .join("/") +
-                  "/";
-                navigateToBreadcrumb(path);
-              }}
-              class="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-            >
-              {segment}
-            </button>
-          {/each}
-        </nav>
+        <Breadcrumbs path={$currentPath} on:navigate={e => loadFiles(e.detail.path)} />
       </div>
     </div>
+
+import Breadcrumbs from '../../components/Breadcrumbs.svelte';
 
     <!-- Selection Toolbar -->
     <div class="max-w-7xl mx-auto">
