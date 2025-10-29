@@ -93,7 +93,7 @@
         });
 
         loading.show("Login successful! Redirecting...");
-        
+
         // Redirect to main app
         window.location.hash = "#/files";
         // Force reload to trigger App.svelte onMount
@@ -630,4 +630,3 @@
     }
   }
 </style>
-

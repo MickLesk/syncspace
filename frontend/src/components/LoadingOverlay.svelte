@@ -1,5 +1,5 @@
 <script>
-  import { loading } from '../stores/ui.js';
+  import { loading } from "../stores/ui.js";
 
   // Subscribe to loading state
   $: isLoading = $loading.isLoading;
@@ -7,7 +7,9 @@
   $: progress = $loading.progress;
 
   // Calculate progress percentage
-  $: progressPercent = progress ? Math.round((progress.current / progress.total) * 100) : 0;
+  $: progressPercent = progress
+    ? Math.round((progress.current / progress.total) * 100)
+    : 0;
 </script>
 
 {#if isLoading}

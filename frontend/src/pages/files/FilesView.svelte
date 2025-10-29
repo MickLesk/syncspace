@@ -20,6 +20,7 @@
     websocketManager,
   } from "../../stores/websocket.js";
   import Loading from "../../components/ui/Loading.svelte";
+  import VirtualList from "../../components/ui/VirtualList.svelte";
 
   // ==================== STATE ====================
   let loading = $state(true);
@@ -74,6 +75,11 @@
   let lastSelectedIndex = $state(-1);
   let selectionMode = $state(false);
 
+  // Performance Optimization: Pagination
+  const ITEMS_PER_PAGE = 50; // Show 50 items initially
+  const LOAD_MORE_INCREMENT = 50; // Load 50 more each time
+  let displayLimit = $state(ITEMS_PER_PAGE);
+
   // ==================== COMPUTED ====================
   let filteredFiles = $derived(
     isSearchActive
@@ -97,7 +103,7 @@
           comparison = a.name.localeCompare(b.name);
           break;
         case "modified":
-          comparison = new Date(a.modified_at) - new Date(b.modified_at);
+          comparison = new Date(a.modified_at).getTime() - new Date(b.modified_at).getTime();
           break;
         case "size":
           comparison = (a.size || 0) - (b.size || 0);
@@ -118,6 +124,16 @@
       return 0;
     });
   });
+  
+  // Paginated files for display (defined AFTER sortedFiles)
+  let paginatedFiles = $derived(sortedFiles.slice(0, displayLimit));
+  let hasMoreFiles = $derived(sortedFiles.length > displayLimit);
+
+  // Reset display limit when files change (new search, navigation, etc.)
+  $effect(() => {
+    sortedFiles; // Track changes
+    displayLimit = ITEMS_PER_PAGE;
+  });
 
   // ==================== LIFECYCLE ====================
   onMount(async () => {
@@ -131,6 +147,26 @@
       window.removeEventListener("keydown", keyboardHandler);
     }
   });
+
+  // ==================== PERFORMANCE: INFINITE SCROLL ====================
+  function handleInfiniteScroll(node) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMoreFiles) {
+          displayLimit += LOAD_MORE_INCREMENT;
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(node);
+
+    return {
+      destroy() {
+        observer.disconnect();
+      },
+    };
+  }
 
   // ==================== FUNCTIONS ====================
   async function loadFiles(path = null) {
@@ -780,7 +816,7 @@
         <div
           class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
         >
-          {#each sortedFiles as file, index}
+          {#each paginatedFiles as file, index}
             <div
               class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer relative group border border-gray-100 dark:border-gray-700 {selectedFiles.some(
                 (f) => f.name === file.name
@@ -886,6 +922,21 @@
             </div>
           {/each}
         </div>
+
+        <!-- Load More Button (Grid View) -->
+        {#if hasMoreFiles}
+          <div class="flex justify-center mt-8 mb-4">
+            <button
+              onclick={() => (displayLimit += LOAD_MORE_INCREMENT)}
+              class="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center gap-2"
+            >
+              <i class="bi bi-arrow-down-circle"></i>
+              Load More ({sortedFiles.length - displayLimit} remaining)
+            </button>
+          </div>
+          <!-- Infinite Scroll Sentinel -->
+          <div use:handleInfiniteScroll class="h-4"></div>
+        {/if}
       {:else}
         <!-- List View -->
         <div class="glass-card overflow-hidden">
@@ -917,7 +968,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-              {#each sortedFiles as file, index}
+              {#each paginatedFiles as file, index}
                 <tr
                   class="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer {selectedFiles.some(
                     (f) => f.name === file.name
@@ -974,6 +1025,21 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Load More Button (List View) -->
+        {#if hasMoreFiles}
+          <div class="flex justify-center mt-6 mb-4">
+            <button
+              onclick={() => (displayLimit += LOAD_MORE_INCREMENT)}
+              class="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center gap-2"
+            >
+              <i class="bi bi-arrow-down-circle"></i>
+              Load More ({sortedFiles.length - displayLimit} remaining)
+            </button>
+          </div>
+          <!-- Infinite Scroll Sentinel -->
+          <div use:handleInfiniteScroll class="h-4"></div>
+        {/if}
       {/if}
     </div>
   </PageWrapper>
