@@ -77,10 +77,17 @@ impl UserDB {
     pub fn create_user(&self, username: String, password: String) -> Result<UserAccount, String> {
         let mut users = self.users.lock().unwrap();
 
+        // Validate username
+        crate::security::validate_username(&username)
+            .map_err(|_| "Invalid username format (3-32 alphanumeric, underscore, hyphen only)".to_string())?;
+
         // Check if username exists
         if users.values().any(|u| u.username == username) {
             return Err("Username already exists".to_string());
         }
+
+        // Validate password strength
+        crate::security::validate_password_strength(&password)?;
 
         // Hash password
         let salt = SaltString::generate(&mut OsRng);
