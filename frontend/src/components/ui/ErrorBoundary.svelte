@@ -1,0 +1,23 @@
+<script>
+  import { createEventDispatcher } from "svelte";
+  export let error = null;
+  const dispatch = createEventDispatcher();
+</script>
+
+{#if error}
+  <div
+    class="bg-red-100 dark:bg-red-900/40 border border-red-400 dark:border-red-700 text-red-800 dark:text-red-200 px-4 py-3 rounded relative mb-4"
+    role="alert"
+  >
+    <strong class="font-bold">Error:</strong>
+    <span class="block sm:inline">{error.message || error}</span>
+    <button
+      class="absolute top-0 right-0 mt-2 mr-2 text-red-700 dark:text-red-200 hover:text-red-900"
+      aria-label="Dismiss error"
+      on:click={() => dispatch("dismiss")}
+    >
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+{/if}
+<slot />

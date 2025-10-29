@@ -1,26 +1,73 @@
 <script>
-  import { onMount, onDestroy } from "svelte";
-  import { files, currentPath } from "../../stores/ui";
-  import { favorites } from "../../stores/favorites";
-  import { success, error as errorToast } from "../../stores/toast";
-  import { getFileIcon, getFileIconColor } from "../../utils/fileIcons";
-  import PageWrapper from "../../components/PageWrapper.svelte";
-  import ContextMenu from "../../components/ui/ContextMenu.svelte";
-  import Modal from "../../components/ui/Modal.svelte";
-  import FileThumbnail from "../../components/files/FileThumbnail.svelte";
-  import AdvancedSearchModal from "../../components/search/AdvancedSearchModal.svelte";
-  import ShareModal from "../../components/sharing/ShareModal.svelte";
-  import VersionHistoryModal from "../../components/files/VersionHistoryModal.svelte";
-  import FilePreviewModal from "../../components/files/FilePreviewModal.svelte";
-  import BatchOperationsToolbar from "../../components/ui/BatchOperationsToolbar.svelte";
-  import api from "../../lib/api";
-  import {
-    wsConnected,
-    onFileEvent,
-    websocketManager,
-  } from "../../stores/websocket.js";
-  import Loading from "../../components/ui/Loading.svelte";
-  import VirtualList from "../../components/ui/VirtualList.svelte";
+// ...existing imports...
+import UploadProgress from '../../components/files/UploadProgress.svelte';
+
+// Keyboard Shortcuts Help Dialog
+let showShortcutsHelp = false;
+function showHelpDialog() { showShortcutsHelp = true; }
+function hideHelpDialog() { showShortcutsHelp = false; }
+function handleGlobalKeydown(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+  if (e.key === 'Delete' && selectedFiles.length > 0) {
+    handleBatchDelete();
+    e.preventDefault();
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+    selectAllFiles();
+    e.preventDefault();
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+    if (selectedFiles.length > 0) {
+      navigator.clipboard.writeText(selectedFiles.map(f => f.name).join('\n'));
+      success('Copied file names');
+      e.preventDefault();
+    }
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
+    errorToast('Paste not implemented');
+    e.preventDefault();
+  } else if (e.key === 'F2' && selectedFiles.length === 1) {
+    fileToRename = selectedFiles[0];
+    newFileName = fileToRename.name;
+    showRenameModal = true;
+    e.preventDefault();
+  } else if (e.key === 'Escape') {
+    if (showFilePreview) {
+      showFilePreview = false;
+    } else if (selectionMode) {
+      deselectAllFiles();
+    } else if (showShortcutsHelp) {
+      hideHelpDialog();
+    }
+    e.preventDefault();
+  } else if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+    showHelpDialog();
+    e.preventDefault();
+  }
+}
+onMount(() => {
+  window.addEventListener('keydown', handleGlobalKeydown);
+});
+onDestroy(() => {
+  window.removeEventListener('keydown', handleGlobalKeydown);
+});
+// ...existing code...
+</script>
+    <!-- Keyboard Shortcuts Help Dialog -->
+    {#if showShortcutsHelp}
+      <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-md w-full">
+          <h2 class="text-xl font-bold mb-4">Keyboard Shortcuts</h2>
+          <ul class="space-y-2 text-sm">
+            <li><b>Delete</b>: Delete selected files</li>
+            <li><b>Ctrl+A</b>: Select all files</li>
+            <li><b>Ctrl+C</b>: Copy selected file names</li>
+            <li><b>Ctrl+V</b>: Paste (not implemented)</li>
+            <li><b>F2</b>: Rename selected file</li>
+            <li><b>ESC</b>: Deselect, close modals</li>
+            <li><b>Ctrl+/</b>: Show this help</li>
+          </ul>
+          <button class="btn btn-primary mt-6 w-full" on:click={hideHelpDialog}>Close</button>
+        </div>
+      </div>
+
 
   // ==================== STATE ====================
   let loading = $state(true);
@@ -85,7 +132,7 @@
   onMount(() => {
     escHandler = (e) => {
       if (dragOver && e.key === "Escape") dragOver = false;
-    };
+    }
     window.addEventListener("keydown", escHandler);
   });
   onDestroy(() => {
@@ -206,6 +253,8 @@
     uploading = true;
     uploadFiles = Array.from(uploadInput.files);
     uploadProgress = new Map();
+    showUploadPanel();
+    updateUploadPanel();
 
     for (let i = 0; i < uploadFiles.length; i++) {
       const file = uploadFiles[i];
@@ -214,8 +263,8 @@
         await api.files.uploadWithProgress($currentPath, file, (percent) => {
           uploadProgress.set(i, { percent, file: file.name });
           updateOverallProgress();
+          updateUploadPanel();
         });
-
         success(`Uploaded: ${file.name}`);
       } catch (err) {
         errorToast(`Failed to upload: ${file.name}`);
@@ -226,6 +275,9 @@
     uploadFiles = [];
     uploadProgress.clear();
     uploadInput.value = "";
+    updateUploadPanel();
+    setTimeout(hideUploadPanel, 2000);
+
     await loadFiles();
   }
 
@@ -724,11 +776,22 @@
     <!-- Breadcrumb -->
     <div class="max-w-7xl mx-auto mb-6">
       <div class="glass-card p-4">
-        <Breadcrumbs path={$currentPath} on:navigate={e => loadFiles(e.detail.path)} />
+        <Breadcrumbs
+          path={$currentPath}
+          on:navigate={(e) => loadFiles(e.detail.path)}
+        />
       </div>
     </div>
 
-import Breadcrumbs from '../../components/Breadcrumbs.svelte';
+    import Breadcrumbs from '../../components/Breadcrumbs.svelte';
+
+    <!-- Advanced Search Filters -->
+    <div class="max-w-7xl mx-auto mb-4">
+      <SearchFilters
+        filters={searchFilters}
+        on:change={(e) => handleFilterChange(e.detail)}
+      />
+    </div>
 
     <!-- Selection Toolbar -->
     <div class="max-w-7xl mx-auto">
@@ -942,6 +1005,19 @@ import Breadcrumbs from '../../components/Breadcrumbs.svelte';
                 <th
                   class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
                 >
+                  <input
+                    type="checkbox"
+                    class="mr-2 accent-blue-600"
+                    checked={selectedFiles.length === paginatedFiles.length &&
+                      paginatedFiles.length > 0}
+                    indeterminate={selectedFiles.length > 0 &&
+                      selectedFiles.length < paginatedFiles.length}
+                    on:change={() =>
+                      selectedFiles.length === paginatedFiles.length
+                        ? deselectAllFiles()
+                        : selectAllFiles()}
+                    aria-label="Select all files"
+                  />
                   Name
                 </th>
                 <th
@@ -973,6 +1049,13 @@ import Breadcrumbs from '../../components/Breadcrumbs.svelte';
                   oncontextmenu={(e) => handleContextMenu(e, file)}
                 >
                   <td class="px-6 py-4 flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      class="mr-2 accent-blue-600"
+                      checked={selectedFiles.some((f) => f.name === file.name)}
+                      on:click|stopPropagation={() => toggleSelection(file)}
+                      aria-label="Select file"
+                    />
                     <i
                       class="bi bi-{file.is_directory
                         ? 'folder-fill text-blue-500 dark:text-blue-400'
