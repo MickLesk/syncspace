@@ -25,9 +25,18 @@ pub struct UpdatePreferencesRequest {
 
 pub fn router() -> Router<AppState> {
     Router::new()
+        .route("/users/me", get(get_current_user))
         .route("/users/profile", get(get_profile).put(update_profile))
         .route("/users/settings", get(handlers::user_handlers::get_user_settings).put(handlers::user_handlers::update_user_settings))
         .route("/users/preferences", get(handlers::user_handlers::get_user_preferences).put(handlers::user_handlers::update_user_preferences))
+}
+
+/// Get current authenticated user info (for token validation)
+async fn get_current_user(user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {
+    Ok(Json(serde_json::json!({
+        "id": user.user_id,
+        "username": user.username
+    })))
 }
 
 async fn get_profile(State(state): State<AppState>, user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {
