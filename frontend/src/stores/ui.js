@@ -195,3 +195,27 @@ export const sidebarCollapsed = createSidebarStore();
 export const favoritesEnabled = createFavoritesEnabledStore();
 export const files = writable([]);
 export const currentPath = createPathStore();
+
+// Global loading state
+function createLoadingStore() {
+  const { subscribe, set, update } = writable({
+    isLoading: false,
+    message: '',
+    progress: null // For upload progress: { current: number, total: number }
+  });
+  
+  return {
+    subscribe,
+    show: (message = 'Loading...', progress = null) => {
+      set({ isLoading: true, message, progress });
+    },
+    hide: () => {
+      set({ isLoading: false, message: '', progress: null });
+    },
+    updateProgress: (current, total) => {
+      update(state => ({ ...state, progress: { current, total } }));
+    }
+  };
+}
+
+export const loading = createLoadingStore();
