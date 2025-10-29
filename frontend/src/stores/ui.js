@@ -3,13 +3,14 @@ import api from '../lib/api.js';
 
 // Theme store with backend sync
 function createThemeStore() {
-  const stored = localStorage.getItem('theme') || 'syncspace';
+  const stored = localStorage.getItem('theme') || 'light';
   const { subscribe, set, update } = writable(stored);
   
   // Apply initial theme on load
   if (typeof document !== 'undefined') {
-    document.documentElement.setAttribute('data-theme', stored);
-    const isDark = stored === 'syncspace-dark' || stored === 'dark';
+    const isDark = stored === 'dark' || stored === 'syncspace-dark';
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    
     if (isDark) {
       document.documentElement.classList.add('dark');
     } else {
@@ -20,11 +21,12 @@ function createThemeStore() {
   return {
     subscribe,
     set: async (value) => {
-      localStorage.setItem('theme', value);
-      document.documentElement.setAttribute('data-theme', value);
+      const isDark = value === 'dark' || value === 'syncspace-dark';
       
-      // Add/remove 'dark' class for Tailwind v4
-      const isDark = value === 'syncspace-dark' || value === 'dark';
+      localStorage.setItem('theme', value);
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      
+      // Set .dark class for Tailwind
       if (isDark) {
         document.documentElement.classList.add('dark');
       } else {
@@ -49,10 +51,11 @@ function createThemeStore() {
         const response = await api.users.getSettings();
         if (response?.theme) {
           const theme = response.theme;
-          localStorage.setItem('theme', theme);
-          document.documentElement.setAttribute('data-theme', theme);
+          const isDark = theme === 'dark' || theme === 'syncspace-dark';
           
-          const isDark = theme === 'syncspace-dark' || theme === 'dark';
+          localStorage.setItem('theme', theme);
+          document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+          
           if (isDark) {
             document.documentElement.classList.add('dark');
           } else {
@@ -62,7 +65,7 @@ function createThemeStore() {
           set(theme);
         }
       } catch (error) {
-        // Silent fallback for 404 (endpoint not implemented) - this is expected
+        // Silent fallback for 404
         if (error.message && error.message.includes('404')) {
           console.log('[Theme] Backend endpoint not implemented, using localStorage');
         } else {

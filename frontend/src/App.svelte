@@ -38,6 +38,16 @@
 
   import Toast from "./components/ui/Toast.svelte";
 
+  // FORCE LIGHT MODE ON APP START - aber erlaube später umschalten
+  onMount(() => {
+    // Initialisiere mit Light-Mode
+    if (!localStorage.getItem("theme")) {
+      localStorage.setItem("theme", "light");
+      document.documentElement.classList.remove("dark");
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  });
+
   // Load user preferences on mount if logged in
   onMount(async () => {
     if ($auth.isLoggedIn) {
@@ -66,19 +76,26 @@
     }
   });
 
-  // Apply theme to document
+  // Apply theme to document - SAUBERE Implementierung
   $effect(() => {
     if (typeof document !== "undefined") {
-      document.documentElement.setAttribute("data-theme", $currentTheme);
-
-      // Add/remove 'dark' class for Tailwind v4
       const isDark =
-        $currentTheme === "syncspace-dark" || $currentTheme === "dark";
+        $currentTheme === "dark" || $currentTheme === "syncspace-dark";
+
+      // Setze das data-theme Attribut
+      document.documentElement.setAttribute(
+        "data-theme",
+        isDark ? "dark" : "light"
+      );
+
+      // Setze oder entferne die .dark Klasse für Tailwind
       if (isDark) {
         document.documentElement.classList.add("dark");
       } else {
         document.documentElement.classList.remove("dark");
       }
+
+      console.log(`[App.svelte] Theme: ${$currentTheme}, isDark: ${isDark}`);
     }
   });
 

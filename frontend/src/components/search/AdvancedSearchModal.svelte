@@ -117,6 +117,7 @@
 
   // Close modal
   function close() {
+    visible = false;
     dispatch("close");
   }
 
@@ -138,9 +139,15 @@
   function handleKeydown(e) {
     if (e.key === "Escape") {
       close();
-    } else if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+    } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
       handleSearch();
     }
+  }
+
+  // Handle form submission (ENTER key in input)
+  function handleFormSubmit(e) {
+    e.preventDefault();
+    handleSearch();
   }
 </script>
 
@@ -156,13 +163,7 @@
     on:close={close}
   >
     <!-- Search Input -->
-    <form
-      onsubmit={(e) => {
-        e.preventDefault();
-        handleSearch();
-      }}
-      class="space-y-4"
-    >
+    <form onsubmit={handleFormSubmit} class="space-y-4">
       <div class="space-y-2">
         <div
           class="flex rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20"

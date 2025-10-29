@@ -138,7 +138,9 @@
           <span>{error}</span>
         </div>
       {:else if fileType === "image" && blobUrl}
-        <div class="flex justify-center bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+        <div
+          class="flex justify-center bg-slate-50 dark:bg-slate-800 rounded-lg p-4"
+        >
           <img
             src={blobUrl}
             alt={file?.name || "Image"}
@@ -235,5 +237,3 @@
     min-height: 200px;
   }
 </style>
-
-

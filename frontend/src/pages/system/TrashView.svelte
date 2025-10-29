@@ -5,6 +5,7 @@
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
+  import api from "../../lib/api";
 
   let trashedFiles = $state([]);
   let loading = $state(false);
@@ -15,30 +16,8 @@
   let deleteTarget = $state(null); // 'single', 'selected', 'all'
   let deleteTargetFile = $state(null);
 
-  // Placeholder - Backend has no trash endpoint yet
-  onMount(() => {
-    // Future: Load trashed files from backend
-    // Mock data for demonstration
-    trashedFiles = [
-      {
-        id: 1,
-        name: "Document.pdf",
-        originalPath: "/Documents/Work",
-        size: 2048576,
-        deletedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        autoDeleteDays: 28,
-      },
-      {
-        id: 2,
-        name: "Image.png",
-        originalPath: "/Pictures/Vacation",
-        size: 5242880,
-        deletedAt: new Date(
-          Date.now() - 15 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-        autoDeleteDays: 15,
-      },
-    ];
+  onMount(async () => {
+    await loadTrash();
 
     // Start auto-delete countdown
     startCountdown();
@@ -47,6 +26,25 @@
       if (countdownInterval) clearInterval(countdownInterval);
     };
   });
+
+  async function loadTrash() {
+    loading = true;
+    try {
+      const response = await api.listTrash();
+      if (response.ok) {
+        const data = await response.json();
+        trashedFiles = data || [];
+      } else {
+        errorToast("Failed to load trash");
+      }
+    } catch (err) {
+      console.error("Failed to load trash:", err);
+      errorToast("Failed to load trash");
+      trashedFiles = [];
+    } finally {
+      loading = false;
+    }
+  }
 
   function startCountdown() {
     // Update countdown every minute
@@ -95,10 +93,25 @@
   }
 
   function handleRestore(file) {
-    success(`Restored: ${file.name}`);
-    trashedFiles = trashedFiles.filter((f) => f.id !== file.id);
-    selectedFiles.delete(file.id);
-    selectedFiles = selectedFiles; // Trigger reactivity
+    restoreFile(file);
+  }
+
+  async function restoreFile(file) {
+    try {
+      const response = await api.restoreTrash(file.path || file.name);
+      if (response.ok) {
+        success(`Restored: ${file.name}`);
+        await loadTrash(); // Reload trash list
+        selectedFiles.delete(file.id);
+        selectedFiles = selectedFiles;
+      } else {
+        errorToast(`Failed to restore ${file.name}`);
+      }
+    } catch (err) {
+      console.error("Failed to restore file:", err);
+      errorToast(`Failed to restore ${file.name}`);
+    }
+  }
   }
 
   function handleRestoreAll() {

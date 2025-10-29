@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import { createWebSocket } from '../lib/api.js';
+import { success, info, warning } from './toast.js';
 
 // WebSocket connection state
 export const wsConnected = writable(false);
@@ -102,22 +103,29 @@ class WebSocketManager {
     // Broadcast to all file-related components
     this.emit('file_change', event);
     
+    // Show toast notifications for file events
+    const fileName = event.path?.split('/').pop() || event.path;
+    
     // Handle specific event types
     switch (event.kind) {
       case 'created':
         console.log(`📄 File created: ${event.path}`);
+        success(`File created: ${fileName}`, 2500);
         this.emit('file_created', event);
         break;
       case 'modified':
         console.log(`✏️ File modified: ${event.path}`);
+        info(`File modified: ${fileName}`, 2000);
         this.emit('file_modified', event);
         break;
       case 'deleted':
         console.log(`🗑️ File deleted: ${event.path}`);
+        warning(`File deleted: ${fileName}`, 2500);
         this.emit('file_deleted', event);
         break;
       case 'renamed':
         console.log(`📝 File renamed: ${event.path}`);
+        info(`File renamed: ${fileName}`, 2500);
         this.emit('file_renamed', event);
         break;
     }

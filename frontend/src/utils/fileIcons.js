@@ -135,35 +135,55 @@ export function isPreviewable(filename) {
 export function getFileIconColor(filename) {
   const ext = filename.split('.').pop()?.toLowerCase();
   
-  // Image files - blue
+  // Image files - purple
   if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'ico'].includes(ext)) {
-    return 'text-info';
+    return 'text-purple-600';
   }
-  // Video files - purple
+  // Video files - pink
   if (['mp4', 'avi', 'mkv', 'mov', 'webm', 'flv', 'wmv'].includes(ext)) {
-    return 'text-secondary';
+    return 'text-pink-600';
   }
-  // Audio files - pink
+  // Audio files - yellow
   if (['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 'wma'].includes(ext)) {
-    return 'text-accent';
+    return 'text-yellow-600';
   }
-  // Documents - red
-  if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) {
-    return 'text-error';
+  // Documents - blue/red
+  if (['pdf'].includes(ext)) {
+    return 'text-red-600';
   }
-  // Archive - orange/warning
+  if (['doc', 'docx', 'txt', 'md'].includes(ext)) {
+    return 'text-blue-600';
+  }
+  // Spreadsheets - green
+  if (['xls', 'xlsx', 'csv'].includes(ext)) {
+    return 'text-green-600';
+  }
+  // Presentations - orange
+  if (['ppt', 'pptx'].includes(ext)) {
+    return 'text-orange-600';
+  }
+  // Archive - brown/amber
   if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) {
-    return 'text-warning';
+    return 'text-amber-700';
   }
-  // Code files - green
-  if (['html', 'css', 'js', 'jsx', 'ts', 'tsx', 'json', 'xml', 'py', 'java', 'c', 'cpp', 'cs', 'php', 'rb', 'go', 'rs', 'swift'].includes(ext)) {
-    return 'text-success';
+  // Code files - cyan/varied
+  if (['js', 'ts', 'jsx', 'tsx', 'json'].includes(ext)) {
+    return 'text-cyan-600';
   }
-  // Text files - neutral
-  if (['txt', 'md', 'log', 'csv'].includes(ext)) {
-    return 'text-base-content';
+  if (['html'].includes(ext)) {
+    return 'text-orange-500';
+  }
+  if (['css', 'scss', 'sass'].includes(ext)) {
+    return 'text-blue-500';
+  }
+  if (['py', 'java', 'c', 'cpp', 'cs', 'php', 'rb', 'go', 'rs', 'swift'].includes(ext)) {
+    return 'text-green-600';
+  }
+  // Text files - gray
+  if (['txt', 'md', 'log'].includes(ext)) {
+    return 'text-gray-600';
   }
   
-  // Default - neutral
-  return 'text-base-content';
+  // Default - gray
+  return 'text-gray-500';
 }

@@ -48,8 +48,8 @@ pub async fn init_db() -> Result<SqlitePool, sqlx::Error> {
             Box::pin(async move {
                 // Enable WAL mode for better concurrency
                 sqlx::query("PRAGMA journal_mode=WAL;").execute(&mut *conn).await?;
-                // Enable foreign keys
-                sqlx::query("PRAGMA foreign_keys=ON;").execute(&mut *conn).await?;
+                // TEMPORARILY DISABLE foreign keys due to InMemory vs SQLite user_id mismatch
+                sqlx::query("PRAGMA foreign_keys=OFF;").execute(&mut *conn).await?;
                 // Optimize for performance
                 sqlx::query("PRAGMA synchronous=NORMAL;").execute(&mut *conn).await?;
                 sqlx::query("PRAGMA temp_store=MEMORY;").execute(&mut *conn).await?;

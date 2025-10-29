@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { getFileIcon } from "../../utils/fileIcons.js";
+  import { getFileIcon, getFileIconColor } from "../../utils/fileIcons.js";
   import api from "../../lib/api.js";
 
   export let file = null;
@@ -17,13 +17,13 @@
   const sizeClasses = {
     sm: "w-8 h-8",
     md: "w-12 h-12",
-    lg: "w-24 h-24",
+    lg: "", // No size constraint for grid view - let icon determine size
   };
 
   const iconSizes = {
     sm: "text-lg",
     md: "text-2xl",
-    lg: "text-6xl",
+    lg: "!text-9xl", // Extra large with !important
   };
 
   // Image file extensions that support thumbnails
@@ -111,13 +111,11 @@
     {/if}
   {:else if showIcon || fallbackToIcon}
     <!-- Fallback Icon -->
-    <div
-      class="w-full h-full rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center"
-    >
+    <div class="w-full h-full rounded-lg flex items-center justify-center">
       <i
-        class="bi {getFileIcon(file?.name || '')} text-primary {iconSizes[
-          size
-        ]}"
+        class="bi bi-{getFileIcon(file?.name || '')} {getFileIconColor(
+          file?.name || ''
+        )} {iconSizes[size]}"
       ></i>
     </div>
   {:else}
@@ -141,5 +139,3 @@
     </div>
   {/if}
 </div>
-
-

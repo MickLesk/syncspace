@@ -805,6 +805,48 @@ export default {
   batch,
   performance,
   favorites,  // Add favorites to default export
+  
+  // Recent files endpoints
+  recent: {
+    async list(limit = 50) {
+      const response = await fetch(`${API_BASE}/recent?limit=${limit}`, {
+        headers: getHeaders()
+      });
+      return handleResponse(response);
+    },
+    
+    async accessed(limit = 50) {
+      const response = await fetch(`${API_BASE}/recent/accessed?limit=${limit}`, {
+        headers: getHeaders()
+      });
+      return handleResponse(response);
+    },
+    
+    async uploaded(limit = 50) {
+      const response = await fetch(`${API_BASE}/recent/uploaded?limit=${limit}`, {
+        headers: getHeaders()
+      });
+      return handleResponse(response);
+    }
+  },
+  
+  // System endpoints
+  system: {
+    async storage() {
+      const response = await fetch(`${API_BASE}/system/storage`, {
+        headers: getHeaders()
+      });
+      return handleResponse(response);
+    },
+    
+    async stats() {
+      const response = await fetch(`${API_BASE}/stats`, {
+        headers: getHeaders()
+      });
+      return handleResponse(response);
+    }
+  },
+  
   sharing: {
     // Create a share for a file or folder
     async create(fileId = null, folderId = null, options = {}) {
@@ -943,6 +985,39 @@ export default {
         body: JSON.stringify({ metadata })
       });
       return { data: await handleResponse(response) };
+    }
+  },
+  
+  // Duplicate files detection endpoints
+  duplicates: {
+    // Find all duplicate files
+    async find(minSizeBytes = 0) {
+      const response = await fetch(`${API_BASE}/duplicates?min_size_bytes=${minSizeBytes}`, {
+        headers: getHeaders()
+      });
+      return handleResponse(response);
+    },
+    
+    // Get duplicate statistics
+    async stats() {
+      const response = await fetch(`${API_BASE}/duplicates/stats`, {
+        headers: getHeaders()
+      });
+      return handleResponse(response);
+    },
+    
+    // Resolve duplicates by keeping one and deleting others
+    async resolve(checksum, keepFileId, deleteFileIds) {
+      const response = await fetch(`${API_BASE}/duplicates/resolve`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          checksum,
+          keep_file_id: keepFileId,
+          delete_file_ids: deleteFileIds
+        })
+      });
+      return handleResponse(response);
     }
   },
   
