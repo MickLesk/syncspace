@@ -39,6 +39,8 @@
   // UI Components
   import Toast from "./components/ui/Toast.svelte";
   import LoadingOverlay from "./components/LoadingOverlay.svelte";
+  import ErrorBoundary from "./components/ui/ErrorBoundary.svelte";
+  import ActivityFeed from "./components/ActivityFeed.svelte";
 
   // FORCE LIGHT MODE ON APP START - aber erlaube später umschalten
   onMount(() => {
@@ -129,37 +131,42 @@
     <Sidebar />
     <div class="main-wrapper">
       <AppHeader on:navigate={handleNavigate} />
-      <main class="main-content bg-gray-50 dark:bg-gray-900">
-        {#if $currentView === "design"}
-          <DesignShowcase />
-        {:else if $currentView === "files"}
-          <FilesView />
-        {:else if $currentView === "shared"}
-          <SharedView />
-        {:else if $currentView === "favorites"}
-          <FavoritesView />
-        {:else if $currentView === "trash"}
-          <TrashView />
-        {:else if $currentView === "users"}
-          <UsersView />
-        {:else if $currentView === "settings"}
-          <SettingsView />
-        {:else if $currentView === "profile"}
-          <ProfileView />
-        {:else if $currentView === "storage"}
-          <StorageView />
-        {:else if $currentView === "activity"}
-          <ActivityView />
-        {:else if $currentView === "duplicates"}
-          <DuplicatesView />
-        {:else if $currentView === "backup"}
-          <BackupView />
-        {:else if $currentView === "notifications"}
-          <NotificationsView />
-        {:else if $currentView === "recent"}
-          <RecentFilesView />
-        {/if}
-      </main>
+      <div style="display: flex; height: 100%;">
+        <ErrorBoundary style="flex: 1; min-width: 0;">
+          <main class="main-content bg-gray-50 dark:bg-gray-900">
+            {#if $currentView === "design"}
+              <DesignShowcase />
+            {:else if $currentView === "files"}
+              <FilesView />
+            {:else if $currentView === "shared"}
+              <SharedView />
+            {:else if $currentView === "favorites"}
+              <FavoritesView />
+            {:else if $currentView === "trash"}
+              <TrashView />
+            {:else if $currentView === "users"}
+              <UsersView />
+            {:else if $currentView === "settings"}
+              <SettingsView />
+            {:else if $currentView === "profile"}
+              <ProfileView />
+            {:else if $currentView === "storage"}
+              <StorageView />
+            {:else if $currentView === "activity"}
+              <ActivityView />
+            {:else if $currentView === "duplicates"}
+              <DuplicatesView />
+            {:else if $currentView === "backup"}
+              <BackupView />
+            {:else if $currentView === "notifications"}
+              <NotificationsView />
+            {:else if $currentView === "recent"}
+              <RecentFilesView />
+            {/if}
+          </main>
+        </ErrorBoundary>
+        <ActivityFeed />
+      </div>
     </div>
   </div>
 {/if}
