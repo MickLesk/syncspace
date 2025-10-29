@@ -21,6 +21,8 @@ pub mod versions;
 pub mod batch;
 pub mod config;
 pub mod peers;
+pub mod recent;
+pub mod duplicates;
 
 use axum::{
     middleware,
@@ -58,6 +60,8 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(batch::router())
                 .merge(config::router())
                 .merge(peers::router())
+                .merge(recent::router())
+                .merge(duplicates::router())
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
@@ -10,6 +10,10 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css?v=2"
     />
+    <script>
+      // FORCE LIGHT MODE - Clean solution
+      document.documentElement.setAttribute('data-theme', 'light');
+    </script>
   </head>
   <body>
     <div id="app"></div>

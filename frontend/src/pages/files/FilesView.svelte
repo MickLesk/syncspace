@@ -4,6 +4,7 @@
   import { favorites } from "../../stores/favorites";
   import { success, error as errorToast } from "../../stores/toast";
   import { getFileIcon, getFileIconColor } from "../../utils/fileIcons";
+  import PageWrapper from "../../components/PageWrapper.svelte";
   import ContextMenu from "../../components/ui/ContextMenu.svelte";
   import Modal from "../../components/ui/Modal.svelte";
   import FileThumbnail from "../../components/files/FileThumbnail.svelte";
@@ -85,7 +86,7 @@
 
   let sortedFiles = $derived.by(() => {
     let result = showFoldersOnly
-      ? filteredFiles.filter((f) => f.is_dir)
+      ? filteredFiles.filter((f) => f.is_directory)
       : filteredFiles;
 
     result = [...result].sort((a, b) => {
@@ -98,7 +99,7 @@
           comparison = new Date(a.modified_at) - new Date(b.modified_at);
           break;
         case "size":
-          comparison = (a.size_bytes || 0) - (b.size_bytes || 0);
+          comparison = (a.size || 0) - (b.size || 0);
           break;
         case "type":
           const extA = a.name.split(".").pop() || "";
@@ -111,8 +112,8 @@
 
     // Always put folders first
     return result.sort((a, b) => {
-      if (a.is_dir && !b.is_dir) return -1;
-      if (!a.is_dir && b.is_dir) return 1;
+      if (a.is_directory && !b.is_directory) return -1;
+      if (!a.is_directory && b.is_directory) return 1;
       return 0;
     });
   });
@@ -136,7 +137,9 @@
     try {
       const targetPath = path || $currentPath;
       const response = await api.files.list(targetPath);
-      files.set(response.data || []);
+      // response is already the array, not wrapped in { data: ... }
+      const fileList = Array.isArray(response) ? response : response.data || [];
+      files.set(fileList);
       if (path) currentPath.set(path);
     } catch (err) {
       errorToast("Failed to load files");
@@ -349,7 +352,7 @@
 
   // ==================== FILE INTERACTION ====================
   function openFile(file) {
-    if (file.is_dir) {
+    if (file.is_directory) {
       const newPath = $currentPath + file.name + "/";
       loadFiles(newPath);
     } else {
@@ -520,13 +523,7 @@
 {#if loading}
   <Loading />
 {:else}
-  <!-- Main Container -->
-  <div
-    class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-6"
-    ondragover={handleDragOver}
-    ondragleave={handleDragLeave}
-    ondrop={handleDrop}
-  >
+  <PageWrapper gradient={true} maxWidth="7xl">
     <!-- Upload Input (hidden) -->
     <input
       type="file"
@@ -535,6 +532,23 @@
       onchange={handleFileUpload}
       class="hidden"
     />
+
+    <!-- Drag & Drop Overlay -->
+    {#if dragOver}
+      <div
+        class="fixed inset-0 bg-blue-500/20 backdrop-blur-sm z-50 flex items-center justify-center"
+        ondragover={handleDragOver}
+        ondragleave={handleDragLeave}
+        ondrop={handleDrop}
+      >
+        <div class="text-center">
+          <i class="bi bi-cloud-upload text-8xl text-blue-500 mb-4"></i>
+          <p class="text-2xl font-bold text-blue-600">
+            Drop files here to upload
+          </p>
+        </div>
+      </div>
+    {/if}
 
     <!-- Page Header -->
     <div class="max-w-7xl mx-auto mb-6">
@@ -560,7 +574,7 @@
 
             <button
               onclick={() => (showNewFolderModal = true)}
-              class="px-4 py-2 bg-gray-100 border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:bg-gray-200 hover:border-gray-400 transition-all duration-200 flex items-center gap-2"
+              class="px-4 py-2 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 flex items-center gap-2"
             >
               <i class="bi bi-folder-plus"></i>
               <span>New Folder</span>
@@ -568,7 +582,7 @@
 
             <button
               onclick={() => loadFiles()}
-              class="px-4 py-2 bg-gray-100 border-2 border-gray-300 text-gray-800 font-semibold rounded-xl hover:bg-gray-200 hover:border-gray-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Refresh files"
               disabled={loading}
             >
@@ -587,7 +601,7 @@
                 type="search"
                 bind:value={searchQuery}
                 placeholder="Search files..."
-                class="w-full px-4 py-2 pl-10 bg-gray-100 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all text-gray-900 placeholder-gray-500"
+                class="w-full px-4 py-2 pl-10 bg-white border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all text-gray-900 placeholder-gray-500"
               />
               <i
                 class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
@@ -598,7 +612,7 @@
           <!-- Advanced Search -->
           <button
             onclick={() => (showAdvancedSearchModal = true)}
-            class="px-4 py-2 bg-gray-100 border-2 border-gray-300 text-gray-800 rounded-xl hover:bg-gray-200 hover:border-blue-500 transition-all flex items-center gap-2 text-sm font-medium"
+            class="px-4 py-2 bg-white border-2 border-gray-300 text-gray-800 rounded-xl hover:bg-gray-50 hover:border-blue-500 transition-all flex items-center gap-2 text-sm font-medium"
           >
             <i class="bi bi-filter"></i>
             <span>Advanced</span>
@@ -617,13 +631,13 @@
 
           <!-- View Mode Toggle -->
           <div
-            class="flex bg-gray-100 border-2 border-gray-300 rounded-xl overflow-hidden"
+            class="flex bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-xl overflow-hidden"
           >
             <button
               onclick={() => (viewMode = "grid")}
               class="px-4 py-2 {viewMode === 'grid'
                 ? 'bg-blue-600 text-white'
-                : 'text-gray-700 hover:bg-gray-200'} transition-all"
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'} transition-all"
             >
               <i class="bi bi-grid-3x3"></i>
             </button>
@@ -631,7 +645,7 @@
               onclick={() => (viewMode = "list")}
               class="px-4 py-2 {viewMode === 'list'
                 ? 'bg-blue-600 text-white'
-                : 'text-gray-700 hover:bg-gray-200'} transition-all"
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'} transition-all"
             >
               <i class="bi bi-list-ul"></i>
             </button>
@@ -785,8 +799,12 @@
       {#if sortedFiles.length === 0}
         <!-- Empty State -->
         <div class="glass-card p-12 text-center animate-slide-up">
-          <i class="bi bi-folder2-open text-6xl text-gray-400 mb-4"></i>
-          <h3 class="text-xl font-bold mb-2">No files found</h3>
+          <i
+            class="bi bi-folder2-open text-6xl text-gray-400 dark:text-gray-600 mb-4"
+          ></i>
+          <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">
+            No files found
+          </h3>
           <p class="text-gray-600 dark:text-gray-400 mb-6">
             {isSearchActive
               ? "Try adjusting your search criteria"
@@ -805,11 +823,11 @@
       {:else if viewMode === "grid"}
         <!-- Grid View -->
         <div
-          class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+          class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
         >
           {#each sortedFiles as file, index}
             <div
-              class="glass-card p-4 cursor-pointer hover:scale-105 transition-all duration-200 {selectedFiles.some(
+              class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer relative group border border-gray-100 dark:border-gray-700 {selectedFiles.some(
                 (f) => f.name === file.name
               )
                 ? 'ring-2 ring-blue-500'
@@ -817,36 +835,97 @@
               onclick={(e) => handleFileClick(file, index, e)}
               oncontextmenu={(e) => handleContextMenu(e, file)}
             >
-              <!-- Thumbnail -->
+              <!-- Action Button (Three Dots) -->
               <div
-                class="aspect-square mb-3 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-xl"
+                class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
               >
-                {#if file.is_dir}
-                  <i class="bi bi-folder-fill text-5xl text-blue-500"></i>
+                <button
+                  onclick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleContextMenu(e, file);
+                  }}
+                  type="button"
+                  class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-all border border-gray-300 dark:border-gray-600"
+                  title="Actions"
+                >
+                  <i
+                    class="bi bi-three-dots-vertical text-gray-700 dark:text-gray-300"
+                  ></i>
+                </button>
+              </div>
+
+              <!-- Thumbnail/Icon Container -->
+              <div class="flex items-center justify-center mb-4 h-32">
+                {#if file.is_directory}
+                  <i
+                    class="bi bi-folder-fill text-blue-500 dark:text-blue-400"
+                    style="font-size: 5rem;"
+                  ></i>
+                {:else if file.name.endsWith(".pdf")}
+                  <i
+                    class="bi bi-file-earmark-pdf-fill text-red-600 dark:text-red-400"
+                    style="font-size: 5rem;"
+                  ></i>
+                {:else if file.name.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)}
+                  <i
+                    class="bi bi-file-earmark-image-fill text-purple-600 dark:text-purple-400"
+                    style="font-size: 5rem;"
+                  ></i>
+                {:else if file.name.match(/\.(xlsx|xls|csv)$/i)}
+                  <i
+                    class="bi bi-file-earmark-excel-fill text-green-600 dark:text-green-400"
+                    style="font-size: 5rem;"
+                  ></i>
+                {:else if file.name.match(/\.(tar|zip|rar|7z|gz)$/i)}
+                  <i
+                    class="bi bi-file-earmark-zip-fill text-amber-700 dark:text-amber-400"
+                    style="font-size: 5rem;"
+                  ></i>
+                {:else if file.name.match(/\.(mp4|avi|mkv|mov|webm)$/i)}
+                  <i
+                    class="bi bi-file-earmark-play-fill text-pink-600 dark:text-pink-400"
+                    style="font-size: 5rem;"
+                  ></i>
+                {:else if file.name.match(/\.(mp3|wav|ogg|flac)$/i)}
+                  <i
+                    class="bi bi-file-earmark-music-fill text-yellow-600 dark:text-yellow-400"
+                    style="font-size: 5rem;"
+                  ></i>
+                {:else if file.name.match(/\.(js|ts|jsx|tsx|json|html|css|py|java|cpp|c|rs|go|php|rb)$/i)}
+                  <i
+                    class="bi bi-file-earmark-code-fill text-cyan-600 dark:text-cyan-400"
+                    style="font-size: 5rem;"
+                  ></i>
                 {:else}
-                  <FileThumbnail {file} size="large" />
+                  <i
+                    class="bi bi-file-earmark-fill text-gray-500 dark:text-gray-400"
+                    style="font-size: 5rem;"
+                  ></i>
                 {/if}
               </div>
 
               <!-- File Info -->
               <div class="text-center">
                 <p
-                  class="font-semibold text-sm truncate mb-1"
+                  class="font-semibold text-sm truncate mb-1 text-gray-900 dark:text-gray-100"
                   title={file.name}
                 >
                   {file.name}
                 </p>
-                {#if !file.is_dir}
-                  <p class="text-xs text-gray-500">
-                    {(file.size_bytes / 1024).toFixed(1)} KB
+                {#if !file.is_directory}
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    {(file.size / 1024).toFixed(1)} KB
                   </p>
                 {/if}
               </div>
 
               <!-- Favorite Icon -->
               {#if Array.from($favorites.values()).some((f) => f.path === $currentPath + file.name)}
-                <div class="absolute top-2 right-2">
-                  <i class="bi bi-star-fill text-yellow-500"></i>
+                <div class="absolute top-3 right-3">
+                  <i
+                    class="bi bi-star-fill text-yellow-500 text-lg drop-shadow-lg"
+                  ></i>
                 </div>
               {/if}
             </div>
@@ -857,26 +936,26 @@
         <div class="glass-card overflow-hidden">
           <table class="w-full">
             <thead
-              class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700"
+              class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700"
             >
               <tr>
                 <th
-                  class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
+                  class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
                 >
                   Name
                 </th>
                 <th
-                  class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
+                  class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
                 >
                   Size
                 </th>
                 <th
-                  class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
+                  class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
                 >
                   Modified
                 </th>
                 <th
-                  class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider"
+                  class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
                 >
                   Actions
                 </th>
@@ -895,22 +974,26 @@
                 >
                   <td class="px-6 py-4 flex items-center gap-3">
                     <i
-                      class="bi bi-{file.is_dir
-                        ? 'folder-fill text-blue-500'
+                      class="bi bi-{file.is_directory
+                        ? 'folder-fill text-blue-500 dark:text-blue-400'
                         : getFileIcon(file.name)} text-xl {getFileIconColor(
                         file.name
                       )}"
                     ></i>
-                    <span class="font-medium">{file.name}</span>
+                    <span class="font-medium text-gray-900 dark:text-gray-100"
+                      >{file.name}</span
+                    >
                     {#if Array.from($favorites.values()).some((f) => f.path === $currentPath + file.name)}
-                      <i class="bi bi-star-fill text-yellow-500 text-sm"></i>
+                      <i
+                        class="bi bi-star-fill text-yellow-500 dark:text-yellow-400 text-sm"
+                      ></i>
                     {/if}
                   </td>
                   <td
                     class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400"
                   >
-                    {#if !file.is_dir}
-                      {(file.size_bytes / 1024).toFixed(1)} KB
+                    {#if !file.is_directory}
+                      {(file.size / 1024).toFixed(1)} KB
                     {:else}
                       —
                     {/if}
@@ -938,7 +1021,7 @@
         </div>
       {/if}
     </div>
-  </div>
+  </PageWrapper>
 {/if}
 
 <!-- Context Menu -->

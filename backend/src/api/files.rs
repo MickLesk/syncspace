@@ -188,7 +188,10 @@ async fn upload_multipart_handler(
         // Use the service layer to handle upload (creates DB entry + saves file)
         services::upload_file(&state, &user, upload_path, data)
             .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .map_err(|e| {
+                eprintln!("[upload_multipart_handler] Upload failed: {:?}", e);
+                StatusCode::INTERNAL_SERVER_ERROR
+            })?;
         
         Ok(StatusCode::CREATED)
     } else {

@@ -195,9 +195,10 @@ fn build_router(state: AppState) -> Router {
         // WebSocket endpoint
         .route("/api/ws", get(websocket::ws_handler))
         
-        // Additional status endpoints
+        // Public status endpoints (no auth required)
         .route("/status", get(status::get_status_html))
         .route("/status/json", get(status::get_status_json))
+        .route("/api/status", get(status::get_status_json))  // Public API status
         .route("/health", get(status::health_check))
         
         // API routes (delegated to api module)

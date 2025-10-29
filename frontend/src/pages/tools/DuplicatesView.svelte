@@ -25,25 +25,32 @@
     scanning = true;
     duplicateGroups = [];
     selectedDuplicates.clear();
-    scanProgress = { phase: "initializing", current: 0, total: 0 };
+    scanProgress = { phase: "scanning", current: 0, total: 100 };
 
     try {
-      const fileList = $files.filter((f) => !f.is_dir);
+      success("Scanning for duplicates...");
 
-      if (fileList.length === 0) {
-        errorToast("No files to scan in current folder");
-        scanning = false;
-        return;
-      }
+      // Use backend API to find duplicates
+      const groups = await api.duplicates.find(0); // min_size_bytes = 0 to find all
 
-      success(`Scanning ${fileList.length} files for duplicates...`);
+      // Transform backend response to match UI format
+      duplicateGroups = groups.map((group) => ({
+        hash: group.checksum,
+        count: group.file_count,
+        wastedSpace: group.potential_savings_bytes,
+        files: group.files.map((file) => ({
+          id: file.id,
+          name: file.name,
+          path: file.path,
+          size: file.size_bytes,
+          created_at: file.created_at,
+        })),
+      }));
 
-      const groups = await findRemoteDuplicates(fileList, api, (progress) => {
-        scanProgress = progress;
-      });
-
-      duplicateGroups = groups;
-      totalWastedSpace = groups.reduce((sum, g) => sum + g.wastedSpace, 0);
+      totalWastedSpace = groups.reduce(
+        (sum, g) => sum + g.potential_savings_bytes,
+        0
+      );
 
       if (groups.length > 0) {
         success(
@@ -53,9 +60,11 @@
         success("No duplicates found!");
       }
     } catch (e) {
+      console.error("Failed to scan for duplicates:", e);
       errorToast("Failed to scan for duplicates");
     } finally {
       scanning = false;
+      scanProgress = { phase: "", current: 0, total: 0 };
     }
   }
 

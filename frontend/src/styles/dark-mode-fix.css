@@ -1,0 +1,74 @@
+/**
+ * Dark Mode Fix - Replaces dark: Tailwind classes with proper [data-theme="dark"] selectors
+ * This ensures Light-Mode works correctly
+ */
+
+/* INPUT FIELDS */
+[data-theme="dark"] input[type="search"],
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background-color: rgb(55 65 81);
+  border-color: rgb(75 85 99);
+  color: rgb(243 244 246);
+}
+
+[data-theme="dark"] input::placeholder {
+  color: rgb(156 163 175);
+}
+
+/* BUTTONS */
+[data-theme="dark"] button[class*="bg-white"],
+[data-theme="dark"] button.glass-card {
+  background-color: rgb(55 65 81);
+  border-color: rgb(75 85 99);
+  color: rgb(243 244 246);
+}
+
+[data-theme="dark"] button[class*="bg-white"]:hover {
+  background-color: rgb(75 85 99);
+}
+
+/* CARDS & CONTAINERS */
+[data-theme="dark"] .glass-card {
+  background: rgba(31, 41, 55, 0.85);
+  border-color: rgba(75, 85, 99, 0.5);
+}
+
+[data-theme="dark"] [class*="bg-white"] {
+  background-color: rgb(55 65 81);
+  color: rgb(243 244 246);
+}
+
+[data-theme="dark"] [class*="text-gray-800"] {
+  color: rgb(243 244 246);
+}
+
+[data-theme="dark"] [class*="text-gray-900"] {
+  color: rgb(243 244 246);
+}
+
+[data-theme="dark"] [class*="text-gray-700"] {
+  color: rgb(209 213 219);
+}
+
+[data-theme="dark"] [class*="border-gray-300"] {
+  border-color: rgb(75 85 99);
+}
+
+[data-theme="dark"] [class*="border-gray-100"] {
+  border-color: rgb(75 85 99);
+}
+
+/* BLOBS */
+[data-theme="dark"] .blob {
+  mix-blend-mode: lighten;
+  opacity: 0.25;
+  filter: blur(100px);
+}
+
+/* FOCUS STATES */
+[data-theme="dark"] *:focus {
+  border-color: rgb(59 130 246);
+}
