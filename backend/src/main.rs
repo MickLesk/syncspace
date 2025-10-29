@@ -16,6 +16,7 @@ mod handlers;
 mod middleware;
 mod models;
 mod search;
+mod security;
 mod services;
 mod status;
 mod websocket;
@@ -28,6 +29,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use axum::{
     extract::DefaultBodyLimit,
     http::Method,
+    middleware as axum_middleware,
     routing::get,
     Router,
 };
@@ -204,7 +206,8 @@ fn build_router(state: AppState) -> Router {
         // API routes (delegated to api module)
         .nest("/api", api::build_api_router(state.clone()))
         
-        // Apply middleware
+        // Apply middleware (order matters!)
+        .layer(axum_middleware::from_fn(security::security_headers_middleware))
         .layer(cors)
         .layer(DefaultBodyLimit::max(100 * 1024 * 1024)) // 100 MB
         

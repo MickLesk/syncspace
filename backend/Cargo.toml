@@ -58,6 +58,7 @@ flate2 = "1.1"
 image = "0.25"
 tempfile = "3.23"
 sysinfo = "0.37"  # System information (CPU, memory, disk usage)
+regex = "1.11"  # Input validation
 
 # Performance & Caching
 redis = { version = "0.32", features = ["tokio-comp", "connection-manager"] }

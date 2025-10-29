@@ -112,7 +112,6 @@
       errorToast(`Failed to restore ${file.name}`);
     }
   }
-  }
 
   function handleRestoreAll() {
     const count = selectedFiles.size || trashedFiles.length;
