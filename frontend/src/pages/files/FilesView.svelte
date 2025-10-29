@@ -80,6 +80,18 @@
   const LOAD_MORE_INCREMENT = 50; // Load 50 more each time
   let displayLimit = $state(ITEMS_PER_PAGE);
 
+  // Accessibility: ESC cancels drag overlay
+  let escHandler;
+  onMount(() => {
+    escHandler = (e) => {
+      if (dragOver && e.key === "Escape") dragOver = false;
+    };
+    window.addEventListener("keydown", escHandler);
+  });
+  onDestroy(() => {
+    if (escHandler) window.removeEventListener("keydown", escHandler);
+  });
+
   // ==================== COMPUTED ====================
   let filteredFiles = $derived(
     isSearchActive
@@ -103,7 +115,9 @@
           comparison = a.name.localeCompare(b.name);
           break;
         case "modified":
-          comparison = new Date(a.modified_at).getTime() - new Date(b.modified_at).getTime();
+          comparison =
+            new Date(a.modified_at).getTime() -
+            new Date(b.modified_at).getTime();
           break;
         case "size":
           comparison = (a.size || 0) - (b.size || 0);
@@ -124,7 +138,7 @@
       return 0;
     });
   });
-  
+
   // Paginated files for display (defined AFTER sortedFiles)
   let paginatedFiles = $derived(sortedFiles.slice(0, displayLimit));
   let hasMoreFiles = $derived(sortedFiles.length > displayLimit);
@@ -452,7 +466,12 @@
 
     const items = e.dataTransfer.files;
     if (items.length > 0) {
-      uploadInput.files = items;
+      // Create a DataTransfer to assign multiple files to the input
+      const dt = new DataTransfer();
+      for (let i = 0; i < items.length; i++) {
+        dt.items.add(items[i]);
+      }
+      uploadInput.files = dt.files;
       await handleFileUpload();
     }
   }
@@ -570,19 +589,30 @@
       class="hidden"
     />
 
-    <!-- Drag & Drop Overlay -->
+    <!-- Drag & Drop Overlay (single, accessible, improved) -->
     {#if dragOver}
       <div
-        class="fixed inset-0 bg-blue-500/20 backdrop-blur-sm z-50 flex items-center justify-center"
+        class="fixed inset-0 z-50 bg-blue-600/30 backdrop-blur-sm flex items-center justify-center animate-fade-in"
         ondragover={handleDragOver}
         ondragleave={handleDragLeave}
         ondrop={handleDrop}
+        aria-label="File upload drop zone"
+        role="dialog"
+        tabindex="0"
       >
-        <div class="text-center">
-          <i class="bi bi-cloud-upload text-8xl text-blue-500 mb-4"></i>
-          <p class="text-2xl font-bold text-blue-600">
-            Drop files here to upload
+        <div
+          class="glass-card p-12 text-center border-4 border-blue-400 rounded-2xl shadow-2xl bg-white/80 dark:bg-gray-900/80"
+          aria-live="assertive"
+        >
+          <i
+            class="bi bi-cloud-upload text-7xl text-blue-600 mb-4"
+            aria-hidden="true"
+          ></i>
+          <h2 class="text-2xl font-bold mb-2">Drop files to upload</h2>
+          <p class="text-gray-700 dark:text-gray-300 mb-2">
+            Release to start uploading. You can drop multiple files.
           </p>
+          <p class="text-xs text-gray-500">(ESC to cancel)</p>
         </div>
       </div>
     {/if}
@@ -770,20 +800,7 @@
       </div>
     {/if}
 
-    <!-- Drag Over Overlay -->
-    {#if dragOver}
-      <div
-        class="fixed inset-0 z-50 bg-blue-500/20 backdrop-blur-sm flex items-center justify-center animate-fade-in"
-      >
-        <div class="glass-card p-12 text-center">
-          <i class="bi bi-cloud-upload text-6xl text-blue-600 mb-4"></i>
-          <h2 class="text-2xl font-bold mb-2">Drop files to upload</h2>
-          <p class="text-gray-600 dark:text-gray-400">
-            Release to start uploading
-          </p>
-        </div>
-      </div>
-    {/if}
+    <!-- (Removed duplicate drag overlay) -->
 
     <!-- Files Grid/List -->
     <div class="max-w-7xl mx-auto">
@@ -1217,7 +1234,16 @@
   onClose={() => (showVersionHistoryModal = false)}
 />
 
-<FilePreviewModal bind:visible={showFilePreview} bind:file={fileToPreview} />
+<FilePreviewModal
+  bind:visible={showFilePreview}
+  bind:file={fileToPreview}
+  allFiles={paginatedFiles.filter((f) => !f.is_directory)}
+  currentIndex={fileToPreview
+    ? paginatedFiles
+        .filter((f) => !f.is_directory)
+        .findIndex((f) => f.name === fileToPreview.name)
+    : 0}
+/>
 
 <style>
   /* Additional custom styles if needed */
