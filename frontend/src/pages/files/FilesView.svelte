@@ -12,6 +12,7 @@
   import ShareModal from "../../components/sharing/ShareModal.svelte";
   import VersionHistoryModal from "../../components/files/VersionHistoryModal.svelte";
   import FilePreviewModal from "../../components/files/FilePreviewModal.svelte";
+  import BatchOperationsToolbar from "../../components/ui/BatchOperationsToolbar.svelte";
   import api from "../../lib/api";
   import {
     wsConnected,
@@ -687,58 +688,12 @@
     </div>
 
     <!-- Selection Toolbar -->
-    {#if selectionMode && selectedFiles.length > 0}
-      <div class="max-w-7xl mx-auto mb-6">
-        <div
-          class="glass-card border-l-4 border-blue-500 p-4 animate-slide-down"
-        >
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <i class="bi bi-check-square text-2xl text-blue-600"></i>
-              <div>
-                <h3 class="font-bold text-lg">
-                  {selectedFiles.length} file(s) selected
-                </h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                  Ctrl+Click to select more, Shift+Click for range
-                </p>
-              </div>
-            </div>
-
-            <div class="flex gap-2">
-              <button
-                onclick={selectAllFiles}
-                class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all flex items-center gap-2"
-              >
-                <i class="bi bi-check-all"></i>
-                Select All
-              </button>
-              <button
-                onclick={deselectAllFiles}
-                class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all flex items-center gap-2"
-              >
-                <i class="bi bi-x-circle"></i>
-                Clear
-              </button>
-              <button
-                onclick={handleBatchDownload}
-                class="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all flex items-center gap-2"
-              >
-                <i class="bi bi-download"></i>
-                Download
-              </button>
-              <button
-                onclick={handleBatchDelete}
-                class="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all flex items-center gap-2"
-              >
-                <i class="bi bi-trash3"></i>
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    {/if}
+    <div class="max-w-7xl mx-auto">
+      <BatchOperationsToolbar
+        bind:selectedFiles
+        onClearSelection={deselectAllFiles}
+      />
+    </div>
 
     <!-- Upload Progress -->
     {#if uploading}

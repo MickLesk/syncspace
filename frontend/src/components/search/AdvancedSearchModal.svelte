@@ -5,7 +5,10 @@
   import Input from "../ui/Input.svelte";
   import FilterBar from "./FilterBar.svelte";
   import Modal from "../ui/Modal.svelte";
+  import SavedSearchesModal from "./SavedSearchesModal.svelte";
   import { userPreferences } from "../../stores/preferences.js";
+  import { savedSearches } from "../../stores/savedSearches.js";
+  import { success, error as errorToast } from "../../stores/toast.js";
 
   const dispatch = createEventDispatcher();
 
@@ -26,6 +29,11 @@
   // Sort State
   let sortBy = $state("name"); // name, date, size, type
   let sortOrder = $state("asc"); // asc, desc
+
+  // Saved Searches Modal
+  let showSavedSearches = $state(false);
+  let showSaveDialog = $state(false);
+  let saveSearchName = $state("");
 
   // Recent Searches (from backend preferences)
   let recentSearches = $derived($userPreferences.recent_searches || []);
@@ -91,6 +99,49 @@
     const query = typeof search === "string" ? search : search.query;
     searchQuery = query;
     handleSearch();
+  }
+
+  // Handle saved search selection
+  function handleSelectSavedSearch(search) {
+    searchQuery = search.query;
+    activeFilters = { ...search.filters };
+    sortBy = search.sortBy || "name";
+    sortOrder = search.sortOrder || "asc";
+    handleSearch();
+  }
+
+  // Open save search dialog
+  function openSaveDialog() {
+    if (!searchQuery.trim()) {
+      errorToast("Please enter a search query first");
+      return;
+    }
+    saveSearchName = `Search: ${searchQuery.substring(0, 30)}`;
+    showSaveDialog = true;
+  }
+
+  // Save current search
+  async function handleSaveSearch() {
+    if (!saveSearchName.trim()) {
+      errorToast("Please enter a name for this search");
+      return;
+    }
+
+    try {
+      await savedSearches.saveSearch({
+        name: saveSearchName,
+        query: searchQuery,
+        filters: { ...activeFilters },
+        sortBy,
+        sortOrder,
+      });
+
+      success("Search saved successfully");
+      showSaveDialog = false;
+      saveSearchName = "";
+    } catch (err) {
+      errorToast("Failed to save search");
+    }
   }
 
   // Clear all filters
@@ -376,15 +427,37 @@
 
     <!-- Action Buttons Slot -->
     <div slot="actions" class="flex gap-3 justify-between w-full">
-      <button
-        type="button"
-        class="px-4 py-2 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        onclick={clearFilters}
-        disabled={activeFilterCount === 0}
-      >
-        <i class="bi bi-x-circle"></i>
-        {t($currentLang, "clearFilters")}
-      </button>
+      <div class="flex gap-2">
+        <button
+          type="button"
+          class="px-4 py-2 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          onclick={clearFilters}
+          disabled={activeFilterCount === 0}
+        >
+          <i class="bi bi-x-circle"></i>
+          {t($currentLang, "clearFilters")}
+        </button>
+
+        <button
+          type="button"
+          class="px-4 py-2 border-2 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all text-sm flex items-center gap-2"
+          onclick={() => (showSavedSearches = true)}
+          title="View saved searches"
+        >
+          <i class="bi bi-bookmark"></i>
+          Saved
+        </button>
+
+        <button
+          type="button"
+          class="px-4 py-2 border-2 border-green-200 dark:border-green-700 text-green-700 dark:text-green-300 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 transition-all text-sm flex items-center gap-2"
+          onclick={openSaveDialog}
+          title="Save current search"
+        >
+          <i class="bi bi-bookmark-plus"></i>
+          Save
+        </button>
+      </div>
 
       <div class="flex gap-3">
         <button
@@ -411,6 +484,65 @@
       </div>
     </div>
   </Modal>
+{/if}
+
+<!-- Saved Searches Modal -->
+<SavedSearchesModal
+  bind:visible={showSavedSearches}
+  onSelectSearch={handleSelectSavedSearch}
+/>
+
+<!-- Save Search Dialog -->
+{#if showSaveDialog}
+  <dialog class="modal modal-open">
+    <div class="modal-box">
+      <h3 class="text-lg font-bold mb-4">Save Search</h3>
+
+      <div class="form-control mb-4">
+        <label for="search-name" class="label">
+          <span class="label-text">Search Name</span>
+        </label>
+        <input
+          id="search-name"
+          type="text"
+          bind:value={saveSearchName}
+          placeholder="My Important Search"
+          class="input input-bordered w-full"
+          onkeydown={(e) => e.key === "Enter" && handleSaveSearch()}
+        />
+        <label class="label">
+          <span class="label-text-alt">Give this search a memorable name</span>
+        </label>
+      </div>
+
+      <div class="bg-base-200 p-3 rounded-lg mb-4 text-sm">
+        <div class="font-medium mb-2">Search details:</div>
+        <div class="text-base-content/70 space-y-1">
+          <div>Query: "{searchQuery}"</div>
+          {#if activeFilterCount > 0}
+            <div>Filters: {activeFilterCount} active</div>
+          {/if}
+          <div>Sort: {sortBy} ({sortOrder})</div>
+        </div>
+      </div>
+
+      <div class="modal-action">
+        <button class="btn btn-ghost" onclick={() => (showSaveDialog = false)}
+          >Cancel</button
+        >
+        <button class="btn btn-primary" onclick={handleSaveSearch}>
+          <i class="bi bi-bookmark-check"></i>
+          Save
+        </button>
+      </div>
+    </div>
+    <button
+      class="modal-backdrop bg-black/50"
+      onclick={() => (showSaveDialog = false)}
+      aria-label="Close save dialog"
+      tabindex="-1"
+    ></button>
+  </dialog>
 {/if}
 
 <style>
