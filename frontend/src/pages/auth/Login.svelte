@@ -1,5 +1,6 @@
 <script>
   import { auth } from "../../stores/auth.js";
+  import { loading } from "../../stores/ui.js";
   import api from "../../lib/api.js";
   import { onMount } from "svelte";
 
@@ -8,7 +9,7 @@
   let twoFactorCode = $state("");
   let showTwoFactor = $state(false);
   let rememberMe = $state(false);
-  let loading = $state(false);
+  let loginInProgress = $state(false);
   let errorMessage = $state("");
   let backendOnline = $state(false);
   let checkingBackend = $state(true);
@@ -46,7 +47,8 @@
       return;
     }
 
-    loading = true;
+    loginInProgress = true;
+    loading.show("Logging in...");
     errorMessage = "";
 
     try {
@@ -71,7 +73,8 @@
         if (data.requires_2fa === true) {
           showTwoFactor = true;
           errorMessage = "Please enter your 2FA code";
-          loading = false;
+          loginInProgress = false;
+          loading.hide();
           return;
         }
 
@@ -89,6 +92,8 @@
           id: data.user?.id || null,
         });
 
+        loading.show("Login successful! Redirecting...");
+        
         // Redirect to main app
         window.location.hash = "#/files";
         // Force reload to trigger App.svelte onMount
@@ -99,7 +104,8 @@
     } catch (err) {
       console.error("Login error:", err);
       errorMessage = err.message || "Login failed. Please try again.";
-      loading = false;
+      loginInProgress = false;
+      loading.hide();
     }
   }
 </script>
@@ -174,7 +180,7 @@
             bind:value={username}
             class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="Enter your username"
-            disabled={loading}
+            disabled={loginInProgress}
           />
           <i
             class="bi bi-person absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
@@ -197,7 +203,7 @@
             bind:value={password}
             class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="Enter your password"
-            disabled={loading}
+            disabled={loginInProgress}
           />
           <i
             class="bi bi-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
@@ -222,7 +228,7 @@
               class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed tracking-widest text-center text-lg font-mono"
               placeholder="000000"
               maxlength="6"
-              disabled={loading}
+              disabled={loginInProgress}
             />
             <i
               class="bi bi-shield-check absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
@@ -256,7 +262,7 @@
       <button
         type="submit"
         class="w-full py-3.5 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
-        disabled={loading}
+        disabled={loginInProgress}
       >
         {#if loading}
           <svg
@@ -624,3 +630,4 @@
     }
   }
 </style>
+

@@ -36,7 +36,9 @@
   // Showcase (Development)
   import DesignShowcase from "./pages/showcase/DesignShowcase.svelte";
 
+  // UI Components
   import Toast from "./components/ui/Toast.svelte";
+  import LoadingOverlay from "./components/LoadingOverlay.svelte";
 
   // FORCE LIGHT MODE ON APP START - aber erlaube später umschalten
   onMount(() => {
@@ -160,7 +162,11 @@
       </main>
     </div>
   </div>
-{/if}<Toast />
+{/if}
+
+<!-- Global Components -->
+<Toast />
+<LoadingOverlay />
 
 <style>
   /* Bootstrap Icons loaded from CDN in index.html */
