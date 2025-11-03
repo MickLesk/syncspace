@@ -137,10 +137,11 @@
 
   <div class="space-y-6">
     {#if loading}
-      <div class="flex items-center justify-center py-16">
-        <div
-          class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"
-        ></div>
+      <!-- Skeleton Loading State -->
+      <div class="space-y-4">
+        {#each Array(6) as _}
+          <div class="skeleton h-24 w-full rounded-xl"></div>
+        {/each}
       </div>
     {:else if error}
       <ModernCard variant="glass" padding="large">
