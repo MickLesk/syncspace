@@ -35,9 +35,11 @@
 ## ⚡ Quick Start
 
 **One-Command Startup** (Windows):
+
 ```powershell
 .\start.ps1   # PowerShell with process monitoring
 ```
+
 ```batch
 start.bat     # Batch with auto-browser
 ```
@@ -45,18 +47,22 @@ start.bat     # Batch with auto-browser
 **Manual Startup**:
 
 1. **Backend:**
+
    ```bash
    cd backend
    cargo run --release
    ```
+
    Backend runs on `http://localhost:8080`
 
 2. **Frontend:**
+
    ```bash
    cd frontend
    npm install
    npm run dev
    ```
+
    Frontend runs on `http://localhost:5173`
 
 3. **Login:**
@@ -202,6 +208,7 @@ A self-hosted, cross-platform file sync solution with a beautiful Material Desig
 ### Option 1: One-Command Startup (Recommended)
 
 **Windows:**
+
 ```powershell
 # PowerShell (with process monitoring)
 .\start.ps1
@@ -211,6 +218,7 @@ start.bat
 ```
 
 This will:
+
 - Build and start the Rust backend on `localhost:8080`
 - Install dependencies and start Vite dev server on `localhost:5173`
 - Open browser automatically (batch version)
@@ -219,12 +227,14 @@ This will:
 ### Option 2: Manual Startup
 
 **Terminal 1 - Backend:**
+
 ```bash
 cd backend
 cargo run --release
 ```
 
 **Terminal 2 - Frontend:**
+
 ```bash
 cd frontend
 npm install
@@ -234,6 +244,7 @@ npm run dev
 **Access:** Open browser to `http://localhost:5173`
 
 **Default Login:**
+
 - Username: `admin`
 - Password: `admin`
 - ⚠️ **Change immediately in Settings!**
@@ -312,6 +323,7 @@ backend/
 ```
 
 **Migration Status**: 🔄 **Transitioning from warp 0.3 to axum 0.7**
+
 - Dependencies updated
 - Code migration in progress
 - Enables native multipart upload support
@@ -399,6 +411,7 @@ frontend/
 ⚠️ **IMPORTANT**: Change the default `admin/admin` credentials immediately after first login!
 
 **Recommendations:**
+
 - Use strong passwords (12+ characters, mixed case, numbers, symbols)
 - Enable 2FA for all accounts
 - Regularly update passwords
@@ -495,6 +508,7 @@ Auto-created on first run in `backend/` directory.
 ### User Database (`syncspace.db`)
 
 SQLite database with:
+
 - User accounts (UUID, username, password hash)
 - TOTP secrets (if 2FA enabled)
 - Timestamps (created, last login)
@@ -504,6 +518,7 @@ Managed automatically by SQLx migrations.
 ### Search Index (`data/search_index/`)
 
 Tantivy index directory:
+
 - Auto-created on first search
 - Background indexing on file changes
 - Supports 40+ file types
@@ -512,6 +527,7 @@ Tantivy index directory:
 ### System File Filtering
 
 Automatically hides from all directory listings:
+
 - Database files: `syncspace.db`, `*.db-shm`, `*.db-wal`
 - Search index: `search_index/`, `.tantivy-*`
 - Lock files: `*.lock`
@@ -590,28 +606,32 @@ Contributions are welcome! Please feel free to submit a Pull Request.
    cd syncspace
    ```
 3. **Install dependencies:**
+
    ```bash
    # Backend dependencies (auto-installed by Cargo)
    cd backend
    cargo build
-   
+
    # Frontend dependencies
    cd ../frontend
    npm install
    ```
+
 4. **Create a feature branch:**
    ```bash
    git checkout -b feature/amazing-feature
    ```
 5. **Start development servers:**
+
    ```powershell
    # Windows: Use startup scripts
    .\start.ps1
-   
+
    # Or manually in separate terminals
    cd backend && cargo run --release
    cd frontend && npm run dev
    ```
+
 6. **Make your changes and test thoroughly**
 7. **Commit your changes:**
    ```bash
@@ -638,6 +658,7 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 - `ci:` CI/CD changes
 
 **Examples:**
+
 ```bash
 feat: add file preview modal with keyboard navigation
 fix: resolve upload progress tracking race condition
@@ -648,6 +669,7 @@ refactor: migrate from warp to axum framework
 ### Code Style
 
 **Rust:**
+
 - Follow [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
 - Run `cargo fmt` before committing
 - Run `cargo clippy` and fix warnings
@@ -655,6 +677,7 @@ refactor: migrate from warp to axum framework
 - Document public functions with `///` rustdoc comments
 
 **JavaScript/Svelte:**
+
 - Use ESLint configuration (provided)
 - Prefer arrow functions for callbacks
 - Use TypeScript for type safety
@@ -662,6 +685,7 @@ refactor: migrate from warp to axum framework
 - Keep components focused and reusable
 
 **General:**
+
 - Write descriptive commit messages
 - Add tests for new features
 - Update documentation
@@ -693,11 +717,13 @@ refactor: migrate from warp to axum framework
 ### Backend won't compile
 
 **Issue:** Migration to axum in progress
+
 ```
 error[E0599]: no method named `and` found for...
 ```
 
 **Solution:** The codebase is currently being migrated from warp to axum. If you encounter compilation errors:
+
 1. Ensure you're on the correct branch
 2. Check that all dependencies in `Cargo.toml` are up to date
 3. Run `cargo clean && cargo build`
@@ -707,6 +733,7 @@ error[E0599]: no method named `and` found for...
 **Issue:** Backend not running or CORS misconfigured
 
 **Solution:**
+
 1. Ensure backend is running on `http://localhost:8080`
 2. Check backend terminal for errors
 3. Verify CORS is enabled in backend configuration
@@ -716,6 +743,7 @@ error[E0599]: no method named `and` found for...
 **Issue:** Multipart upload endpoint not yet available
 
 **Solution:**
+
 - Currently only single-file upload supported
 - Multipart upload coming with axum migration
 - Check browser console for specific error messages
@@ -725,6 +753,7 @@ error[E0599]: no method named `and` found for...
 **Issue:** Search index not created
 
 **Solution:**
+
 1. Upload some files to trigger indexing
 2. Check `data/search_index/` directory exists
 3. Backend logs will show indexing progress
@@ -761,4 +790,3 @@ This project is licensed under the **Apache License 2.0** - see the [LICENSE](LI
 **Made with ❤️ by [MickLesk](https://github.com/MickLesk)**
 
 **Material 3 Expressive Design** • **Rust (axum) Backend** • **Svelte 5 Frontend** • **Self-Hosted Sync**
-
