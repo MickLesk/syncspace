@@ -11,7 +11,7 @@
   import AdvancedSearchModal from "../components/AdvancedSearchModal.svelte";
   import ShareModal from "../components/ui/ShareModal.svelte";
   import VersionHistoryModal from "../components/ui/VersionHistoryModal.svelte";
-  import FilePreviewModal from "../components/ui/FilePreviewModal.svelte";
+  import FilePreviewModal from "../components/files/FilePreviewModal.svelte";
   import api from "../lib/api";
   import {
     wsConnected,
@@ -843,6 +843,9 @@
     fileToPreview = file;
     showFilePreview = true;
   }
+
+  // Get current file index for preview navigation
+  let currentFileIndex = $derived(filteredFiles.findIndex(f => f.name === fileToPreview?.name));
 
   // Advanced Search Functions
   async function handleAdvancedSearch(event) {
@@ -2264,7 +2267,12 @@
 />
 
 <!-- File Preview Modal -->
-<FilePreviewModal bind:visible={showFilePreview} bind:file={fileToPreview} />
+<FilePreviewModal 
+  bind:visible={showFilePreview} 
+  bind:file={fileToPreview}
+  allFiles={filteredFiles.filter(f => !f.is_dir)}
+  currentIndex={currentFileIndex}
+/>
 
 <style>
   /* Drag & Drop Zone Overlay */
