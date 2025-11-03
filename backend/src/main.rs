@@ -112,16 +112,34 @@ async fn main() {
     let rate_limiter = Arc::new(RateLimiter::new());
 
     // Create default admin user if no users exist
-    if user_db.get_by_username("admin").is_none() {
+    let admin_user_id_string = if user_db.get_by_username("admin").is_none() {
         println!("📝 Creating default admin user (username: admin, password: admin)");
         println!("⚠️  WARNING: Change the default password after first login!");
         if let Err(e) = user_db.create_user("admin".to_string(), "admin".to_string()) {
             eprintln!("❌ Failed to create admin user: {}", e);
+            "00000000-0000-0000-0000-000000000000".to_string()
         } else {
             println!("✅ Default admin user created successfully");
+            // Get the admin user ID from the user_db
+            user_db.get_by_username("admin")
+                .map(|u| u.id.to_string())
+                .unwrap_or_else(|| "00000000-0000-0000-0000-000000000000".to_string())
         }
     } else {
         println!("✅ Admin user already exists");
+        user_db.get_by_username("admin")
+            .map(|u| u.id.to_string())
+            .unwrap_or_else(|| "00000000-0000-0000-0000-000000000000".to_string())
+    };
+
+    // Sync filesystem to database with admin user ownership
+    match services::sync_service::sync_filesystem_to_db(&db_pool, &admin_user_id_string).await {
+        Ok(count) => {
+            if count > 0 {
+                println!("✅ Synced {} existing files to database", count);
+            }
+        },
+        Err(e) => eprintln!("⚠️  Filesystem sync failed: {}", e),
     }
 
     // Initialize search index

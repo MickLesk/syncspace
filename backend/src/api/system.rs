@@ -10,6 +10,7 @@ pub fn router() -> Router<AppState> {
         .route("/stats", get(get_stats))
         .route("/system/storage", get(get_storage_info))
         .route("/config/info", get(get_config_info))
+        .route("/system/sync", get(sync_filesystem))
 }
 
 // Status endpoint is now public and handled in main.rs
@@ -26,4 +27,22 @@ async fn get_storage_info(State(state): State<AppState>, user: UserInfo) -> Resu
 
 async fn get_config_info(State(state): State<AppState>) -> Result<Json<serde_json::Value>, StatusCode> {
     services::system::get_config_info(&state).await.map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn sync_filesystem(State(state): State<AppState>, user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {
+    println!("🔄 Manual filesystem sync triggered by user: {}", user.username);
+    
+    match crate::services::sync_service::sync_filesystem_to_db(&state.db_pool, &user.id).await {
+        Ok(count) => {
+            Ok(Json(serde_json::json!({
+                "success": true,
+                "synced_count": count,
+                "message": format!("{} files synced to database", count)
+            })))
+        }
+        Err(e) => {
+            eprintln!("❌ Filesystem sync failed: {}", e);
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    }
 }

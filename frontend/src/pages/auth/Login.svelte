@@ -252,7 +252,7 @@
         </div>
       {/if}
 
-      <!-- Remember Me & Forgot Password -->
+      <!-- Remember Me -->
       <div class="flex justify-between items-center">
         <label class="flex items-center gap-2 cursor-pointer group">
           <input
@@ -265,12 +265,6 @@
             >Remember me</span
           >
         </label>
-        <a
-          href="#/forgot"
-          class="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors hover:underline"
-        >
-          Forgot password?
-        </a>
       </div>
 
       <!-- Login Button -->
@@ -279,7 +273,7 @@
         class="w-full py-3.5 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
         disabled={loginInProgress}
       >
-        {#if loading}
+        {#if loginInProgress}
           <svg
             class="animate-spin h-5 w-5"
             xmlns="http://www.w3.org/2000/svg"
@@ -308,50 +302,6 @@
         <span>{showTwoFactor ? "Verify & Login" : "Login to Account"}</span>
       </button>
     </form>
-
-    <!-- Divider -->
-    <div class="relative my-8">
-      <div class="absolute inset-0 flex items-center">
-        <div class="w-full border-t border-gray-300 dark:border-gray-700"></div>
-      </div>
-      <div class="relative flex justify-center text-sm">
-        <span
-          class="px-4 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 font-medium"
-          >Or continue with</span
-        >
-      </div>
-    </div>
-
-    <!-- Social Login -->
-    <div class="grid grid-cols-2 gap-3">
-      <button
-        class="py-3 px-4 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-200 flex items-center justify-center gap-2 font-medium text-gray-700 dark:text-gray-300 group"
-      >
-        <i
-          class="bi bi-google text-lg text-red-500 group-hover:scale-110 transition-transform"
-        ></i>
-        <span>Google</span>
-      </button>
-      <button
-        class="py-3 px-4 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-200 flex items-center justify-center gap-2 font-medium text-gray-700 dark:text-gray-300 group"
-      >
-        <i
-          class="bi bi-github text-lg group-hover:scale-110 transition-transform"
-        ></i>
-        <span>GitHub</span>
-      </button>
-    </div>
-
-    <!-- Sign Up Link -->
-    <p class="text-center mt-8 text-sm text-gray-600 dark:text-gray-400">
-      Don't have an account?
-      <a
-        href="#/signup"
-        class="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition-colors"
-      >
-        Sign up for free
-      </a>
-    </p>
   </div>
 
   <!-- Footer -->
