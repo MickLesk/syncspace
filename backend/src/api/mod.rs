@@ -23,6 +23,7 @@ pub mod config;
 pub mod peers;
 pub mod recent;
 pub mod duplicates;
+pub mod folder_colors;
 
 use axum::{
     middleware,
@@ -61,6 +62,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(peers::router())
                 .merge(recent::router())
                 .merge(duplicates::router())
+                .merge(folder_colors::router())
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,
