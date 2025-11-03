@@ -273,36 +273,38 @@
 
         <!-- Date Range Filter -->
         <div class="space-y-2">
-          <label
+          <div
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             <i class="bi bi-calendar text-blue-600 dark:text-blue-400 mr-2"></i>
             {t($currentLang, "dateModified")}
-          </label>
+          </div>
           <div class="flex gap-2">
             <input
               type="date"
               class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
               bind:value={activeFilters.dateFrom}
               placeholder={t($currentLang, "from")}
+              aria-label="From date"
             />
             <input
               type="date"
               class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
               bind:value={activeFilters.dateTo}
               placeholder={t($currentLang, "to")}
+              aria-label="To date"
             />
           </div>
         </div>
 
         <!-- File Size Filter -->
         <div class="space-y-2">
-          <label
+          <div
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             <i class="bi bi-hdd text-blue-600 dark:text-blue-400 mr-2"></i>
             {t($currentLang, "fileSize")}
-          </label>
+          </div>
           <div class="flex gap-2">
             <input
               type="number"
@@ -310,6 +312,7 @@
               bind:value={activeFilters.sizeMin}
               placeholder={t($currentLang, "minSizeMB")}
               min="0"
+              aria-label="Minimum file size"
             />
             <input
               type="number"
@@ -317,6 +320,7 @@
               bind:value={activeFilters.sizeMax}
               placeholder={t($currentLang, "maxSizeMB")}
               min="0"
+              aria-label="Maximum file size"
             />
           </div>
         </div>
@@ -324,12 +328,14 @@
         <!-- Modified By Filter (if multi-user) -->
         <div class="space-y-2">
           <label
+            for="modifiedByFilter"
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             <i class="bi bi-person text-blue-600 dark:text-blue-400 mr-2"></i>
             {t($currentLang, "modifiedBy")}
           </label>
           <input
+            id="modifiedByFilter"
             type="text"
             class="w-full px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
             bind:value={activeFilters.modifiedBy}
@@ -348,6 +354,7 @@
         <!-- Sort By -->
         <div class="space-y-2">
           <label
+            for="sortByFilter"
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             <i class="bi bi-sort-down text-blue-600 dark:text-blue-400 mr-2"
@@ -355,6 +362,7 @@
             {t($currentLang, "sortBy")}
           </label>
           <select
+            id="sortByFilter"
             class="w-full px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100"
             bind:value={sortBy}
           >
@@ -366,15 +374,17 @@
 
         <!-- Sort Order -->
         <div class="space-y-2">
-          <label
+          <div
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             <i class="bi bi-arrow-down-up text-blue-600 dark:text-blue-400 mr-2"
             ></i>
             {t($currentLang, "sortOrder")}
-          </label>
+          </div>
           <div
             class="flex rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700"
+            role="group"
+            aria-label="Sort order"
           >
             <button
               type="button"
@@ -510,10 +520,11 @@
           placeholder="My Important Search"
           class="input input-bordered w-full"
           onkeydown={(e) => e.key === "Enter" && handleSaveSearch()}
+          aria-describedby="search-name-help"
         />
-        <label class="label">
+        <div id="search-name-help" class="label">
           <span class="label-text-alt">Give this search a memorable name</span>
-        </label>
+        </div>
       </div>
 
       <div class="bg-base-200 p-3 rounded-lg mb-4 text-sm">
@@ -545,27 +556,3 @@
     ></button>
   </dialog>
 {/if}
-
-<style>
-  .btn-group {
-    display: flex;
-    border-radius: 0.75rem;
-    overflow: hidden;
-  }
-
-  .btn-group .btn {
-    border-radius: 0;
-    border-right: 1px solid rgba(0, 0, 0, 0.1);
-  }
-
-  .btn-group .btn:first-child {
-    border-top-left-radius: 0.75rem;
-    border-bottom-left-radius: 0.75rem;
-  }
-
-  .btn-group .btn:last-child {
-    border-top-right-radius: 0.75rem;
-    border-bottom-right-radius: 0.75rem;
-    border-right: none;
-  }
-</style>

@@ -243,7 +243,7 @@
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
     onclick={() => (showAddUserModal = false)}
-    onkeydown={(e) => e.key === 'Escape' && (showAddUserModal = false)}
+    onkeydown={(e) => e.key === "Escape" && (showAddUserModal = false)}
     role="button"
     tabindex="-1"
   >
@@ -330,7 +330,7 @@
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
     onclick={() => (showDeleteUserModal = false)}
-    onkeydown={(e) => e.key === 'Escape' && (showDeleteUserModal = false)}
+    onkeydown={(e) => e.key === "Escape" && (showDeleteUserModal = false)}
     role="button"
     tabindex="-1"
   >
