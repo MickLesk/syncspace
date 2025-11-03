@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { files, currentPath } from "../../stores/ui";
   import { success, error as errorToast } from "../../stores/toast";
-  import { modals } from "../../stores/modals";
+  import { modals, modalEvents } from "../../stores/modals";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import Breadcrumbs from "../../components/Breadcrumbs.svelte";
   import SearchFilters from "../../components/search/SearchFilters.svelte";
@@ -30,7 +30,7 @@
   let contextMenu = $state(null);
   let contextMenuPosition = $state({ x: 0, y: 0 });
 
-  // Operation State  
+  // Operation State
   let currentFile = $state(null);
 
   let searchFilters = $state({
@@ -148,12 +148,12 @@
 
   // Modal Event Listeners - Listen to events from ModalPortal
   onMount(() => {
-    const unsubUpload = modalEvents.on('upload', handleUpload);
-    const unsubCreateFolder = modalEvents.on('createFolder', createNewFolder);
-    const unsubRename = modalEvents.on('renameFile', ({ file, newName }) => {
+    const unsubUpload = modalEvents.on("upload", handleUpload);
+    const unsubCreateFolder = modalEvents.on("createFolder", createNewFolder);
+    const unsubRename = modalEvents.on("renameFile", ({ file, newName }) => {
       renameFile(file, newName);
     });
-    const unsubDelete = modalEvents.on('deleteFile', deleteFile);
+    const unsubDelete = modalEvents.on("deleteFile", deleteFile);
 
     return () => {
       unsubUpload();
@@ -188,8 +188,7 @@
     if (file.is_directory) {
       navigateTo($currentPath + file.name + "/");
     } else {
-      currentFile = file;
-      showPreviewModal = true;
+      modals.openPreview(file);
     }
   }
 
@@ -224,31 +223,20 @@
     }
 
     await loadFiles();
-    showUploadModal = false;
 
     setTimeout(() => {
       uploadProgress = uploadProgress.filter((up) => up.status === "uploading");
     }, 3000);
   }
 
-  function openUploadModal() {
-    showUploadModal = true;
-  }
-
-  function openNewFolderModal() {
-    showNewFolderModal = true;
-  }
-
-  async function createNewFolder() {
-    if (!newFolderName.trim()) return;
+  async function createNewFolder(folderName) {
+    if (!folderName.trim()) return;
 
     try {
       const fullPath = $currentPath
-        ? `${$currentPath}${newFolderName}`
-        : newFolderName;
-      await api.files.createDirectory(fullPath);
-      newFolderName = "";
-      showNewFolderModal = false;
+        ? `${$currentPath}${folderName}`
+        : folderName;
+      await api.files.createDir(fullPath);
       success("Folder created");
       await loadFiles();
     } catch (error) {
@@ -257,20 +245,13 @@
     }
   }
 
-  async function renameFile() {
-    if (!newFileName.trim() || !currentFile) return;
+  async function renameFile(file, newName) {
+    if (!newName.trim() || !file) return;
 
     try {
-      const dir =
-        currentFile.file_path?.split("/").slice(0, -1).join("/") || "";
-      const newPath = dir ? `${dir}/${newFileName}` : newFileName;
-      await api.files.rename(
-        currentFile.file_path || currentFile.name,
-        newPath
-      );
-      newFileName = "";
-      showRenameModal = false;
-      currentFile = null;
+      const dir = file.file_path?.split("/").slice(0, -1).join("/") || "";
+      const newPath = dir ? `${dir}/${newName}` : newName;
+      await api.files.rename(file.file_path || file.name, newPath);
       success("File renamed");
       await loadFiles();
     } catch (error) {
@@ -279,12 +260,11 @@
     }
   }
 
-  async function deleteFile() {
-    if (!currentFile) return;
+  async function deleteFile(file) {
+    if (!file) return;
 
     try {
-      await api.files.delete(currentFile.file_path || currentFile.name);
-      showDeleteModal = false;
+      await api.files.delete(file.file_path || file.name);
       currentFile = null;
       success("File deleted");
       await loadFiles();
@@ -313,11 +293,44 @@
     await loadFiles();
   }
 
-  function downloadFile(file) {
-    window.open(
-      `http://localhost:8080/api/download/${file.file_path || file.name}`,
-      "_blank"
-    );
+  async function downloadFile(file) {
+    const filePath = file.file_path || file.path || file.name;
+    const encodedPath = filePath
+      .split("/")
+      .map((segment) => encodeURIComponent(segment))
+      .join("/");
+
+    try {
+      // Use fetch with auth token to download
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `http://localhost:8080/api/file/${encodedPath}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.status}`);
+      }
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.name || "download";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      success("File downloaded");
+    } catch (err) {
+      errorToast("Download failed: " + err.message);
+    }
   }
 
   function selectAll() {
@@ -372,7 +385,7 @@
       closeContextMenu();
     } else if (e.ctrlKey && e.key === "u") {
       e.preventDefault();
-      showUploadModal = true;
+      modals.openUpload();
     } else if (e.ctrlKey && e.key === "f") {
       e.preventDefault();
       document.getElementById("search-input")?.focus();
@@ -424,9 +437,9 @@
       {selectionMode}
       selectedCount={selectedFiles.size}
       onRefresh={loadFiles}
-      onUpload={openUploadModal}
-      onNewFolder={openNewFolderModal}
-      onAdvancedSearch={() => (showAdvancedSearchModal = true)}
+      onUpload={() => modals.openUpload()}
+      onNewFolder={() => modals.openNewFolder()}
+      onAdvancedSearch={() => modals.openAdvancedSearch()}
       onSelectionToggle={toggleSelectionMode}
       onBatchDelete={batchDelete}
     />
@@ -451,7 +464,7 @@
           ? "Try adjusting your search criteria"
           : "Upload files or create a new folder to get started"}
         actionText="Upload Files"
-        onAction={() => (showUploadModal = true)}
+        onAction={() => modals.openUpload()}
       />
     {:else}
       <div
@@ -480,179 +493,18 @@
     file={contextMenu}
     position={contextMenuPosition}
     onClose={closeContextMenu}
-    onRename={() => {
-      newFileName = currentFile?.name || "";
-      showRenameModal = true;
-    }}
-    onDelete={() => (showDeleteModal = true)}
-    onMove={() => (showMoveModal = true)}
-    onCopy={() => (showCopyModal = true)}
-    onShare={() => (showShareModal = true)}
+    onRename={() => modals.openRename(currentFile)}
+    onDelete={() => modals.openDelete(currentFile)}
+    onMove={() => modals.openMove(currentFile)}
+    onCopy={() => modals.openCopy(currentFile)}
+    onShare={() => modals.openShare(currentFile)}
     onDownload={() => downloadFile(currentFile)}
-    onVersionHistory={() => (showVersionHistoryModal = true)}
-    onPreview={() => (showPreviewModal = true)}
+    onVersionHistory={() => modals.openVersionHistory(currentFile)}
+    onPreview={() => modals.openPreview(currentFile)}
   />
 {/if}
 
-<!-- Upload Modal -->
-<Modal 
-  visible={showUploadModal}
-  title="Upload Files" 
-  onclose={() => (showUploadModal = false)}
->
-  <FileUploadZone onFilesSelected={handleUpload} currentPath={$currentPath} />
-</Modal>
-
-<!-- New Folder Modal -->
-<Modal 
-  visible={showNewFolderModal}
-  title="Create New Folder" 
-  onclose={() => (showNewFolderModal = false)}
->
-  <div class="space-y-4">
-    <div>
-      <label for="folder-name" class="block text-sm font-medium mb-2">
-        Folder Name
-      </label>
-      <input
-        id="folder-name"
-        type="text"
-        bind:value={newFolderName}
-        placeholder="Enter folder name"
-        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-        onkeydown={(e) => e.key === "Enter" && createNewFolder()}
-      />
-    </div>
-      <div class="flex justify-end gap-2">
-        <button
-          type="button"
-          class="btn btn-ghost"
-          onclick={() => (showNewFolderModal = false)}
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          class="btn btn-primary"
-          onclick={createNewFolder}
-          disabled={!newFolderName.trim()}
-        >
-          <i class="bi bi-folder-plus"></i>
-          Create
-        </button>
-      </div>
-    </div>
-  </Modal>
-{/if}
-
-<!-- Rename Modal -->
-<Modal 
-  visible={showRenameModal}
-  title="Rename File" 
-  onclose={() => (showRenameModal = false)}
->
-  <div class="space-y-4">
-    <div>
-      <label for="new-name" class="block text-sm font-medium mb-2">
-        New Name
-      </label>
-      <input
-        id="new-name"
-        type="text"
-        bind:value={newFileName}
-        placeholder="Enter new name"
-        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-        onkeydown={(e) => e.key === "Enter" && renameFile()}
-      />
-    </div>
-    <div class="flex justify-end gap-2">
-      <button
-        type="button"
-        class="btn btn-ghost"
-        onclick={() => (showRenameModal = false)}
-      >
-        Cancel
-      </button>
-      <button
-        type="button"
-        class="btn btn-primary"
-        onclick={renameFile}
-        disabled={!newFileName.trim()}
-      >
-        <i class="bi bi-pencil"></i>
-        Rename
-      </button>
-    </div>
-  </div>
-</Modal>
-
-<!-- Delete Modal -->
-<Modal 
-  visible={showDeleteModal}
-  title="Delete File" 
-  onclose={() => (showDeleteModal = false)}
->
-    <div class="space-y-4">
-      <p class="text-gray-700 dark:text-gray-300">
-        Are you sure you want to delete <strong>{currentFile?.name}</strong>?
-        This action cannot be undone.
-      </p>
-      <div class="flex justify-end gap-2">
-        <button
-          type="button"
-          class="btn btn-ghost"
-          onclick={() => (showDeleteModal = false)}
-        >
-          Cancel
-        </button>
-        <button type="button" class="btn btn-error" onclick={deleteFile}>
-          <i class="bi bi-trash"></i>
-          Delete
-        </button>
-      </div>
-    </div>
-  </Modal>
-{/if}
-
-<!-- Preview Modal -->
-<Modal
-  visible={showPreviewModal && currentFile}
-  title="File Preview"
-  onclose={() => (showPreviewModal = false)}
-  size="large"
->
-    <div class="space-y-4">
-      <div class="bg-gray-100 dark:bg-gray-900 rounded-lg p-6 text-center">
-        <i
-          class="bi bi-file-earmark text-6xl text-gray-400 dark:text-gray-500 mb-4"
-        ></i>
-        <p class="font-semibold text-lg text-gray-900 dark:text-gray-100">
-          {currentFile.name}
-        </p>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
-          {((currentFile.size_bytes || 0) / 1024).toFixed(1)} KB
-        </p>
-      </div>
-      <div class="flex justify-center gap-2">
-        <button
-          type="button"
-          class="btn btn-primary"
-          onclick={() => downloadFile(currentFile)}
-        >
-          <i class="bi bi-download"></i>
-          Download
-        </button>
-        <button
-          type="button"
-          class="btn btn-ghost"
-          onclick={() => (showPreviewModal = false)}
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </Modal>
-{/if}
+<!-- All modals now rendered globally in ModalPortal.svelte -->
 
 <style>
   /* Ensure smooth transitions */

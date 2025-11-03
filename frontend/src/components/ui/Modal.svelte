@@ -16,8 +16,8 @@
   const sizeClasses = {
     sm: "max-w-sm",
     md: "max-w-2xl",
-    lg: "max-w-4xl",
-    xl: "max-w-6xl",
+    lg: "max-w-3xl",
+    xl: "max-w-5xl",
     full: "w-11/12 max-w-7xl",
   };
 
@@ -215,6 +215,7 @@
     border-radius: 0.75rem;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
   }
 
   :global(.dark) .modal-close-btn-new {

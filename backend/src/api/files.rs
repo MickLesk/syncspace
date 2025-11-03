@@ -139,9 +139,10 @@ async fn list_recent_files(
     State(state): State<AppState>,
     user: UserInfo,
 ) -> Result<Json<Vec<FileInfo>>, StatusCode> {
-    // TODO: Implement recent files service
-    // For now return empty list
-    Ok(Json(vec![]))
+    services::get_recent_files(&state, &user, 20)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 /// Upload a file (multipart form)
@@ -185,6 +186,8 @@ async fn upload_multipart_handler(
         // CRITICAL: Remove leading slash to prevent path.join() from replacing base path
         let upload_path = upload_path.trim_start_matches('/');
         
+        eprintln!("[upload_multipart_handler] Uploading to path: '{}' (size: {} bytes)", upload_path, data.len());
+        
         // Use the service layer to handle upload (creates DB entry + saves file)
         services::upload_file(&state, &user, upload_path, data)
             .await
@@ -192,6 +195,8 @@ async fn upload_multipart_handler(
                 eprintln!("[upload_multipart_handler] Upload failed: {:?}", e);
                 StatusCode::INTERNAL_SERVER_ERROR
             })?;
+        
+        eprintln!("[upload_multipart_handler] Upload successful: '{}'", upload_path);
         
         Ok(StatusCode::CREATED)
     } else {

@@ -15,6 +15,13 @@
 
   let newFolderName = $state("");
   let newFileName = $state("");
+
+  // Auto-populate rename field with current filename
+  $effect(() => {
+    if ($modals.rename.visible && $modals.rename.data) {
+      newFileName = $modals.rename.data.name || "";
+    }
+  });
 </script>
 
 <!-- Upload Modal -->
@@ -234,6 +241,4 @@
 </Modal>
 
 <!-- Advanced Search Modal -->
-{#if $modals.advancedSearch.visible}
-  <AdvancedSearchModal onClose={() => modals.close("advancedSearch")} />
-{/if}
+<AdvancedSearchModal bind:visible={$modals.advancedSearch.visible} />
