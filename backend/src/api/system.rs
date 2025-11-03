@@ -2,7 +2,7 @@
 
 use crate::auth::UserInfo;
 
-use axum::{extract::State, http::StatusCode, routing::get, Json, Router};
+use axum::{extract::State, http::StatusCode, routing::{get, post}, Json, Router};
 use crate::{services, AppState};
 
 pub fn router() -> Router<AppState> {
@@ -10,7 +10,8 @@ pub fn router() -> Router<AppState> {
         .route("/stats", get(get_stats))
         .route("/system/storage", get(get_storage_info))
         .route("/config/info", get(get_config_info))
-        .route("/system/sync", get(sync_filesystem))
+        // Manual sync endpoint temporarily disabled - sync runs automatically on startup
+        // .route("/system/sync", post(sync_filesystem))
 }
 
 // Status endpoint is now public and handled in main.rs
@@ -32,17 +33,17 @@ async fn get_config_info(State(state): State<AppState>) -> Result<Json<serde_jso
 async fn sync_filesystem(State(state): State<AppState>, user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {
     println!("🔄 Manual filesystem sync triggered by user: {}", user.username);
     
-    match crate::services::sync_service::sync_filesystem_to_db(&state.db_pool, &user.id).await {
-        Ok(count) => {
-            Ok(Json(serde_json::json!({
-                "success": true,
-                "synced_count": count,
-                "message": format!("{} files synced to database", count)
-            })))
-        }
-        Err(e) => {
+    let user_id_str = user.id.to_string();
+    let count = crate::services::sync_service::sync_filesystem_to_db(&state.db_pool, &user_id_str)
+        .await
+        .map_err(|e| {
             eprintln!("❌ Filesystem sync failed: {}", e);
-            Err(StatusCode::INTERNAL_SERVER_ERROR)
-        }
-    }
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+    
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "synced_count": count,
+        "message": format!("{} files synced to database", count)
+    })))
 }
