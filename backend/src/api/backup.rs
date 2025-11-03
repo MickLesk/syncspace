@@ -58,43 +58,43 @@ async fn create_backup(State(state): State<AppState>, user: UserInfo, Json(req):
     serde_json::to_value(backup).map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
-async fn get_backup(State(state): State<AppState>, user: UserInfo, Path(backup_id): Path<String>) -> Result<Json<serde_json::Value>, StatusCode> {
+async fn get_backup(State(_state): State<AppState>, _user: UserInfo, Path(backup_id): Path<String>) -> Result<Json<serde_json::Value>, StatusCode> {
     Ok(Json(serde_json::json!({"id": backup_id})))
 }
 
-async fn delete_backup(State(state): State<AppState>, user: UserInfo, Path(backup_id): Path<String>) -> Result<StatusCode, StatusCode> {
+async fn delete_backup(State(_state): State<AppState>, _user: UserInfo, Path(_backup_id): Path<String>) -> Result<StatusCode, StatusCode> {
     Ok(StatusCode::NO_CONTENT)
 }
 
-async fn verify_backup(State(state): State<AppState>, user: UserInfo, Path(backup_id): Path<String>) -> Result<Json<serde_json::Value>, StatusCode> {
+async fn verify_backup(State(_state): State<AppState>, _user: UserInfo, Path(_backup_id): Path<String>) -> Result<Json<serde_json::Value>, StatusCode> {
     Ok(Json(serde_json::json!({"valid": true})))
 }
 
 async fn list_verifications(
-    State(state): State<AppState>,
-    Path(backup_id): Path<String>,
+    State(_state): State<AppState>,
+    Path(_backup_id): Path<String>,
 ) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
     // TODO: Implement verification history
     Ok(Json(vec![]))
 }
 
-async fn cleanup_backups(State(state): State<AppState>, user: UserInfo) -> Result<StatusCode, StatusCode> {
+async fn cleanup_backups(State(_state): State<AppState>, _user: UserInfo) -> Result<StatusCode, StatusCode> {
     Ok(StatusCode::OK)
 }
 
 // Backup schedule handlers
 
 async fn list_schedules(
-    State(state): State<AppState>,
-    user: UserInfo,
+    State(_state): State<AppState>,
+    _user: UserInfo,
 ) -> Result<Json<Vec<BackupSchedule>>, StatusCode> {
     // TODO: Implement schedule listing
     Ok(Json(vec![]))
 }
 
 async fn create_schedule(
-    State(state): State<AppState>,
-    user: UserInfo,
+    State(_state): State<AppState>,
+    _user: UserInfo,
     Json(req): Json<CreateScheduleRequest>,
 ) -> Result<Json<BackupSchedule>, StatusCode> {
     let schedule = BackupSchedule {
@@ -109,15 +109,15 @@ async fn create_schedule(
 }
 
 async fn get_schedule(
-    State(state): State<AppState>,
-    Path(schedule_id): Path<Uuid>,
+    State(_state): State<AppState>,
+    Path(_schedule_id): Path<Uuid>,
 ) -> Result<Json<BackupSchedule>, StatusCode> {
     // TODO: Implement schedule retrieval
     Err(StatusCode::NOT_FOUND)
 }
 
 async fn update_schedule(
-    State(state): State<AppState>,
+    State(_state): State<AppState>,
     Path(schedule_id): Path<Uuid>,
     Json(req): Json<CreateScheduleRequest>,
 ) -> Result<Json<BackupSchedule>, StatusCode> {
@@ -133,17 +133,17 @@ async fn update_schedule(
 }
 
 async fn delete_schedule(
-    State(state): State<AppState>,
-    Path(schedule_id): Path<Uuid>,
+    State(_state): State<AppState>,
+    Path(_schedule_id): Path<Uuid>,
 ) -> Result<StatusCode, StatusCode> {
     // TODO: Implement schedule deletion
     Ok(StatusCode::NO_CONTENT)
 }
 
 async fn trigger_schedule(
-    State(state): State<AppState>,
-    user: UserInfo,
-    Path(schedule_id): Path<Uuid>,
+    State(_state): State<AppState>,
+    _user: UserInfo,
+    Path(_schedule_id): Path<Uuid>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     // TODO: Trigger backup from schedule
     Ok(Json(serde_json::json!({

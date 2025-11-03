@@ -41,9 +41,9 @@ pub struct BatchOperationStatus {
 
 /// Batch copy files
 async fn batch_copy(
-    State(state): State<AppState>,
-    user_info: UserInfo,
-    Json(req): Json<BatchCopyRequest>,
+    State(_state): State<AppState>,
+    _user_info: UserInfo,
+    Json(_req): Json<BatchCopyRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
     let job_id = Uuid::new_v4();
     
@@ -59,9 +59,9 @@ async fn batch_copy(
 
 /// Batch compress files
 async fn batch_compress(
-    State(state): State<AppState>,
-    user_info: UserInfo,
-    Json(req): Json<BatchCompressRequest>,
+    State(_state): State<AppState>,
+    _user_info: UserInfo,
+    Json(_req): Json<BatchCompressRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
     let job_id = Uuid::new_v4();
     
@@ -76,7 +76,7 @@ async fn batch_compress(
 
 /// Get batch operation status
 async fn get_batch_status(
-    State(state): State<AppState>,
+    State(_state): State<AppState>,
     Path(job_id): Path<Uuid>,
 ) -> Result<impl IntoResponse, StatusCode> {
     // TODO: Retrieve actual status from database/cache
@@ -95,9 +95,9 @@ async fn get_batch_status(
 
 /// Cancel batch operation
 async fn cancel_batch_operation(
-    State(state): State<AppState>,
-    Path(job_id): Path<Uuid>,
-    user_info: UserInfo,
+    State(_state): State<AppState>,
+    Path(_job_id): Path<Uuid>,
+    _user_info: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
     // TODO: Implement cancellation logic
     

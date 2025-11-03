@@ -219,8 +219,11 @@ export const files = {
    * List files in a directory
    */
   async list(path = "") {
+    // Ensure path is a string
+    const pathStr = String(path || "");
+    
     // Clean and encode path
-    const cleanPath = path.replace(/^\/+|\/+$/g, ''); // Remove leading/trailing slashes
+    const cleanPath = pathStr.replace(/^\/+|\/+$/g, ''); // Remove leading/trailing slashes
     
     // For root directory, use /api/files (no trailing slash)
     // For subdirectories, use /api/files/{path}
@@ -1128,24 +1131,27 @@ export default {
   },
   
   createWebSocket,
+  
   // Trash endpoints
-  listTrash: () => fetch(`${API_BASE}/trash`, { headers: getHeaders() }),
-  restoreTrash: (path) => fetch(`${API_BASE}/trash/restore/${encodeURIComponent(path)}`, { 
-    method: 'POST', 
-    headers: getHeaders() 
-  }),
-  permanentDeleteTrash: (path) => fetch(`${API_BASE}/trash/permanent/${encodeURIComponent(path)}`, { 
-    method: 'DELETE', 
-    headers: getHeaders() 
-  }),
-  cleanupTrash: () => fetch(`${API_BASE}/trash/cleanup`, { 
-    method: 'DELETE', 
-    headers: getHeaders() 
-  }),
-  emptyTrash: () => fetch(`${API_BASE}/trash/empty`, { 
-    method: 'DELETE', 
-    headers: getHeaders() 
-  }),
+  trash: {
+    list: () => fetch(`${API_BASE}/trash`, { headers: getHeaders() }),
+    restore: (path) => fetch(`${API_BASE}/trash/restore/${encodeURIComponent(path)}`, { 
+      method: 'POST', 
+      headers: getHeaders() 
+    }),
+    permanentDelete: (path) => fetch(`${API_BASE}/trash/permanent/${encodeURIComponent(path)}`, { 
+      method: 'DELETE', 
+      headers: getHeaders() 
+    }),
+    cleanup: () => fetch(`${API_BASE}/trash/cleanup`, { 
+      method: 'DELETE', 
+      headers: getHeaders() 
+    }),
+    empty: () => fetch(`${API_BASE}/trash/empty`, { 
+      method: 'DELETE', 
+      headers: getHeaders() 
+    })
+  }
 };
 
 // ============================================

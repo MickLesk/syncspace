@@ -196,6 +196,10 @@ export const favoritesEnabled = createFavoritesEnabledStore();
 export const files = writable([]);
 export const currentPath = createPathStore();
 
+// Aliases for backward compatibility
+export const theme = currentTheme;
+export const language = currentLang;
+
 // Global loading state
 function createLoadingStore() {
   const { subscribe, set, update } = writable({

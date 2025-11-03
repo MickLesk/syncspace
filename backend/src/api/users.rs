@@ -44,6 +44,11 @@ async fn get_profile(State(state): State<AppState>, user: UserInfo) -> Result<Js
 }
 
 async fn update_profile(State(state): State<AppState>, user: UserInfo, Json(req): Json<UpdateProfileRequest>) -> Result<StatusCode, StatusCode> {
+    // SECURITY: Validate email if provided
+    if let Some(ref email) = req.email {
+        crate::security::validate_email(email).map_err(|_| StatusCode::BAD_REQUEST)?;
+    }
+    
     services::update_profile(&state, &user, req).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
 }
 

@@ -118,6 +118,34 @@ function createModalStore() {
         advancedSearch: { visible: true, data: null }
       }));
     },
+    
+    openMove: (file) => {
+      update(state => ({
+        ...state,
+        move: { visible: true, data: file }
+      }));
+    },
+    
+    openCopy: (file) => {
+      update(state => ({
+        ...state,
+        copy: { visible: true, data: file }
+      }));
+    },
+    
+    openShare: (file) => {
+      update(state => ({
+        ...state,
+        share: { visible: true, data: file }
+      }));
+    },
+    
+    openVersionHistory: (file) => {
+      update(state => ({
+        ...state,
+        versionHistory: { visible: true, data: file }
+      }));
+    },
   };
 }
 

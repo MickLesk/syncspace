@@ -61,9 +61,9 @@ async fn update_presence(State(state): State<AppState>, user: UserInfo, Json(req
 }
 
 async fn remove_presence(
-    State(state): State<AppState>,
-    user: UserInfo,
-    Path(user_id): Path<String>,
+    State(_state): State<AppState>,
+    _user: UserInfo,
+    Path(_user_id): Path<String>,
 ) -> Result<StatusCode, StatusCode> {
     // TODO: Implement presence removal
     Ok(StatusCode::NO_CONTENT)
