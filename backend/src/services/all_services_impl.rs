@@ -124,16 +124,45 @@ pub mod activity {
     use crate::models::ActivityLog;
     
     pub async fn get_activity(state: &AppState, user: &UserInfo, limit: usize) -> Result<Vec<ActivityLog>> {
-        let rows: Vec<crate::database::FileHistory> = sqlx::query_as("SELECT * FROM file_history WHERE user_id = ? ORDER BY created_at DESC LIMIT ?")
-            .bind(&user.id).bind(limit as i64).fetch_all(&state.db_pool).await?;
-        Ok(rows.iter().map(|r| ActivityLog {
-            id: Uuid::parse_str(&r.id).unwrap_or_default(),
-            user_id: Uuid::parse_str(&r.user_id).unwrap_or_default(),
-            action: r.action.clone(),
-            resource_type: "file".to_string(),
-            resource_id: Some(r.file_path.clone()),
-            metadata: None,
-            created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
+        // Query all activity with user info - don't filter by user_id to show all activity
+        #[derive(sqlx::FromRow)]
+        struct ActivityRow {
+            id: String,
+            user_id: String,
+            action: String,
+            file_path: String,
+            created_at: String,
+            username: Option<String>,
+        }
+        
+        let rows: Vec<ActivityRow> = sqlx::query_as(
+            "SELECT fh.id, fh.user_id, fh.action, fh.file_path, fh.created_at, u.username
+             FROM file_history fh
+             LEFT JOIN users u ON u.id = fh.user_id
+             ORDER BY fh.created_at DESC
+             LIMIT ?"
+        )
+        .bind(limit as i64)
+        .fetch_all(&state.db_pool)
+        .await?;
+        
+        Ok(rows.iter().map(|r| {
+            let metadata = serde_json::json!({
+                "username": r.username.as_ref().unwrap_or(&"Unknown".to_string()),
+                "file_path": &r.file_path
+            });
+            
+            ActivityLog {
+                id: Uuid::parse_str(&r.id).unwrap_or_default(),
+                user_id: Uuid::parse_str(&r.user_id).unwrap_or_default(),
+                action: r.action.clone(),
+                resource_type: "file".to_string(),
+                resource_id: Some(r.file_path.clone()),
+                metadata: Some(metadata),
+                created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at)
+                    .unwrap_or_else(|_| Utc::now().into())
+                    .with_timezone(&Utc),
+            }
         }).collect())
     }
     
@@ -143,7 +172,19 @@ pub mod activity {
     }
     
     pub async fn get_stats(state: &AppState, user: &UserInfo) -> Result<serde_json::Value> {
-        Ok(serde_json::json!({"total": 0, "today": 0}))
+        let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM file_history")
+            .fetch_one(&state.db_pool)
+            .await
+            .unwrap_or(0);
+        
+        let today: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM file_history WHERE DATE(created_at) = DATE('now')"
+        )
+        .fetch_one(&state.db_pool)
+        .await
+        .unwrap_or(0);
+        
+        Ok(serde_json::json!({"total": total, "today": today}))
     }
 }
 

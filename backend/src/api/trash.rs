@@ -35,20 +35,39 @@ async fn list_trash(
     State(state): State<AppState>,
     user_info: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let items = sqlx::query_as::<_, TrashItem>(
-        r#"
-        SELECT id, original_path, file_name, file_size, deleted_at, deleted_by
-        FROM trash_items
-        WHERE deleted_by = ?
-        ORDER BY deleted_at DESC
-        "#,
+    // Query files marked as deleted from the files table
+    #[derive(sqlx::FromRow)]
+    struct TrashRow {
+        id: String,
+        original_path: String,
+        file_name: String,
+        file_size: i64,
+        deleted_at: String,
+        deleted_by: String,
+    }
+    
+    let items: Vec<TrashRow> = sqlx::query_as(
+        "SELECT id, path as original_path, name as file_name, size_bytes as file_size, updated_at as deleted_at, owner_id as deleted_by
+         FROM files
+         WHERE is_deleted = 1
+         ORDER BY updated_at DESC"
     )
-    .bind(&user_info.id)
     .fetch_all(&state.db)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
-    Ok(Json(items))
+    let trash_items: Vec<TrashItem> = items.iter().map(|row| TrashItem {
+        id: uuid::Uuid::parse_str(&row.id).unwrap_or_default(),
+        original_path: row.original_path.clone(),
+        file_name: row.file_name.clone(),
+        file_size: row.file_size,
+        deleted_at: chrono::DateTime::parse_from_rfc3339(&row.deleted_at)
+            .map(|dt| dt.with_timezone(&chrono::Utc))
+            .unwrap_or_else(|_| chrono::Utc::now()),
+        deleted_by: row.deleted_by.clone(),
+    }).collect();
+    
+    Ok(Json(trash_items))
 }
 
 /// Restore item from trash
@@ -58,17 +77,14 @@ async fn restore_from_trash(
     user_info: UserInfo,
     Json(req): Json<RestoreRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    // TODO: Implement actual file restoration logic
-    // For now, just remove from trash_items table
+    // Restore file by setting is_deleted = 0
+    let now = chrono::Utc::now().to_rfc3339();
     
     let result = sqlx::query(
-        r#"
-        DELETE FROM trash_items
-        WHERE original_path = ? AND deleted_by = ?
-        "#,
+        "UPDATE files SET is_deleted = 0, updated_at = ? WHERE path = ? AND is_deleted = 1"
     )
+    .bind(&now)
     .bind(&path)
-    .bind(&user_info.id)
     .execute(&state.db)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -76,6 +92,11 @@ async fn restore_from_trash(
     if result.rows_affected() == 0 {
         return Err(StatusCode::NOT_FOUND);
     }
+    
+    // Log the restoration
+    let log_id = uuid::Uuid::new_v4().to_string();
+    let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'restored', ?, 'success', datetime('now'))")
+        .bind(&log_id).bind(&user_info.id).bind(&path).execute(&state.db).await;
     
     Ok((StatusCode::OK, Json(serde_json::json!({
         "message": "Item restored successfully"

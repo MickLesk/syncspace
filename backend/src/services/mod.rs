@@ -18,7 +18,8 @@ pub use auth_service::*;
 // Re-export file service functions
 pub use file_service_impl::{
     list_files, download_file, upload_file,
-    delete_file, rename_file, move_file, copy_file
+    delete_file, rename_file, move_file, copy_file,
+    get_recent_files
 };
 
 // Re-export user service functions
