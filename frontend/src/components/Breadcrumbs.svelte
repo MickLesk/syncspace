@@ -7,7 +7,7 @@
 
   // Store: segments for current path
   export let path = "";
-  $: segments = getPathSegments(path || $currentPath);
+  $: segments = getPathSegments(path || "");
 
   // Emit navigation event
   function handleNavigate(idx) {

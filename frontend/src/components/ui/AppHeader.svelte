@@ -9,7 +9,7 @@
   import ThemeSwitcher from "./ThemeSwitcher.svelte";
   import NotificationBell from "./NotificationBell.svelte";
   import { userPreferences } from "../../stores/preferences.js";
-  import { wsConnected } from "../../stores/websocket.js";
+  import { wsConnected } from "@stores/websocket.js";
   import api from "../../lib/api.js";
   import { onMount } from "svelte";
 
@@ -1551,7 +1551,7 @@
     background: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef);
     display: flex;
     align-items: center;
-    justify-center: center;
+    justify-content: center;
     border: 2px solid white;
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
   }
@@ -1608,12 +1608,6 @@
 
   .user-menu-item:hover {
     background: #f9fafb;
-  }
-
-  .user-menu-item i {
-    font-size: 1.125rem;
-    width: 20px;
-    text-align: center;
   }
 
   .user-menu-item.logout {

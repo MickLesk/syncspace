@@ -1,0 +1,146 @@
+<script>
+  let {
+    onFilesSelected,
+    accept = "*",
+    multiple = true,
+    currentPath = "",
+  } = $props();
+
+  let isDragging = $state(false);
+  let fileInput;
+  let dragCounter = 0;
+
+  function handleDragEnter(e) {
+    e.preventDefault();
+    dragCounter++;
+    isDragging = true;
+  }
+
+  function handleDragLeave(e) {
+    e.preventDefault();
+    dragCounter--;
+    if (dragCounter === 0) {
+      isDragging = false;
+    }
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+  }
+
+  async function handleDrop(e) {
+    e.preventDefault();
+    isDragging = false;
+    dragCounter = 0;
+
+    const items = e.dataTransfer?.items;
+    if (!items) return;
+
+    const files = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.kind === "file") {
+        const file = item.getAsFile();
+        if (file) files.push(file);
+      }
+    }
+
+    if (files.length > 0) {
+      onFilesSelected?.(files);
+    }
+  }
+
+  function handleFileSelect(e) {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      onFilesSelected?.(files);
+    }
+    // Reset input
+    if (fileInput) fileInput.value = "";
+  }
+
+  function triggerFileInput() {
+    fileInput?.click();
+  }
+</script>
+
+<div
+  role="region"
+  aria-label="File upload drop zone"
+  class="upload-zone relative border-2 border-dashed rounded-lg p-8 transition-all"
+  class:border-blue-500={isDragging}
+  class:bg-blue-50={isDragging}
+  class:dark-bg-blue-900={isDragging}
+  class:border-gray-300={!isDragging}
+  class:dark:border-gray-600={!isDragging}
+  ondragenter={handleDragEnter}
+  ondragleave={handleDragLeave}
+  ondragover={handleDragOver}
+  ondrop={handleDrop}
+>
+  <input
+    bind:this={fileInput}
+    type="file"
+    {accept}
+    {multiple}
+    onchange={handleFileSelect}
+    class="hidden"
+    id="file-upload-input"
+  />
+
+  <div class="text-center">
+    {#if isDragging}
+      <i class="bi bi-download text-6xl text-blue-500 mb-4 block animate-bounce"
+      ></i>
+      <p class="text-xl font-semibold text-blue-600 dark:text-blue-400 mb-2">
+        Drop files here
+      </p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Release to upload to {currentPath || "root"}
+      </p>
+    {:else}
+      <i
+        class="bi bi-cloud-upload text-6xl text-gray-400 dark:text-gray-500 mb-4 block"
+      ></i>
+      <p class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">
+        Drag & drop files here
+      </p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">or</p>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        onclick={triggerFileInput}
+      >
+        <i class="bi bi-folder2-open"></i>
+        Browse Files
+      </button>
+    {/if}
+  </div>
+</div>
+
+<style>
+  .upload-zone {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .upload-zone.border-blue-500 {
+    transform: scale(1.02);
+  }
+
+  @keyframes bounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-bounce {
+    animation: bounce 1s infinite;
+  }
+</style>

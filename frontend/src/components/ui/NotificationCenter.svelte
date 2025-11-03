@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { wsEvents } from "../../stores/websocket";
+  import { wsEvents } from "@stores/websocket.js";
   import ModernCard from "./ModernCard.svelte";
   import ModernButton from "./ModernButton.svelte";
 

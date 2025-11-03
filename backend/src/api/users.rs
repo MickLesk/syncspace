@@ -34,7 +34,7 @@ pub fn router() -> Router<AppState> {
 /// Get current authenticated user info (for token validation)
 async fn get_current_user(user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {
     Ok(Json(serde_json::json!({
-        "id": user.user_id,
+        "id": user.user_id(),
         "username": user.username
     })))
 }

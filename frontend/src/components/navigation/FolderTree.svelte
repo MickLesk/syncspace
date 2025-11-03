@@ -1,7 +1,7 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { currentPath } from "../../stores/ui";
-  import { onFileEvent } from "../../stores/websocket";
+  import { onFileEvent } from "@stores/websocket.js";
   import api from "../../lib/api";
   import { success, error as errorToast } from "../../stores/toast";
 
@@ -546,5 +546,3 @@
     font-size: 0.625rem;
   }
 </style>
-
-
