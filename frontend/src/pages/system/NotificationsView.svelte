@@ -115,6 +115,7 @@
 </script>
 
 <PageWrapper gradient>
+  <div class="page-fade-in">
   <PageHeader
     title="Notifications"
     subtitle={unreadCount() > 0
@@ -292,5 +293,6 @@
         {/snippet}
       </ModernCard>
     {/if}
+  </div>
   </div>
 </PageWrapper>

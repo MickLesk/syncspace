@@ -14,6 +14,7 @@
 </script>
 
 <PageWrapper>
+  <div class="page-fade-in">
   <!-- Page Header -->
   <div class="glass-header mb-8">
     <div class="flex items-center gap-4">
@@ -327,4 +328,5 @@
       </div>
     {/snippet}
   </ModernCard>
+  </div>
 </PageWrapper>
