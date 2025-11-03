@@ -26,6 +26,11 @@
   let uploadProgress = $state([]);
   let selectionMode = $state(false);
 
+  // Search State
+  let isSearchMode = $state(false);
+  let searchResults = $state([]);
+  let searchLoading = $state(false);
+
   // Context Menu
   let contextMenu = $state(null);
   let contextMenuPosition = $state({ x: 0, y: 0 });
@@ -43,6 +48,11 @@
 
   // Computed: Filtered & Sorted Files
   let displayFiles = $derived(() => {
+    // If in search mode, use search results instead
+    if (isSearchMode) {
+      return searchResults;
+    }
+
     let result = [...$files];
 
     // CRITICAL: Filter out system files that should NEVER be shown
