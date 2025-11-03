@@ -457,10 +457,10 @@
             Recent Files
           </h2>
 
-          <div class="space-y-3">
+          <div class="space-y-3 list-stagger">
             {#each recentFiles as file (file.id)}
               <div
-                class="bg-white/50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50 hover:scale-[1.01] transition-transform cursor-pointer"
+                class="bg-white/50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50 hover-lift cursor-pointer"
               >
                 <div class="flex items-center gap-4">
                   <i
