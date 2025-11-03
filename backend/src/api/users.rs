@@ -2,7 +2,7 @@
 
 use axum::{extract::State, http::StatusCode, routing::get, Json, Router};
 use serde::Deserialize;
-use crate::{auth::UserInfo, services, AppState, handlers};
+use crate::{auth::UserInfo, services, AppState};
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateProfileRequest {
@@ -27,8 +27,8 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/users/me", get(get_current_user))
         .route("/users/profile", get(get_profile).put(update_profile))
-        .route("/users/settings", get(handlers::user_handlers::get_user_settings).put(handlers::user_handlers::update_user_settings))
-        .route("/users/preferences", get(handlers::user_handlers::get_user_preferences).put(handlers::user_handlers::update_user_preferences))
+        .route("/users/settings", get(get_user_settings).put(update_user_settings))
+        .route("/users/preferences", get(get_user_preferences).put(update_user_preferences))
 }
 
 /// Get current authenticated user info (for token validation)
@@ -60,10 +60,18 @@ async fn update_settings(State(state): State<AppState>, user: UserInfo, Json(req
     services::update_settings(&state, &user, req).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
 }
 
-async fn get_preferences(State(state): State<AppState>, user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {
+async fn get_user_preferences(State(state): State<AppState>, user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {
     services::get_preferences(&state, &user).await.map(Json).map_err(|_| StatusCode::NOT_FOUND)
 }
 
-async fn update_preferences(State(state): State<AppState>, user: UserInfo, Json(req): Json<UpdatePreferencesRequest>) -> Result<StatusCode, StatusCode> {
+async fn update_user_preferences(State(state): State<AppState>, user: UserInfo, Json(req): Json<UpdatePreferencesRequest>) -> Result<StatusCode, StatusCode> {
     services::update_preferences(&state, &user, req.preferences).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
+}
+
+async fn get_user_settings(State(state): State<AppState>, user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {
+    services::get_settings(&state, &user).await.map(Json).map_err(|_| StatusCode::NOT_FOUND)
+}
+
+async fn update_user_settings(State(state): State<AppState>, user: UserInfo, Json(req): Json<UpdateSettingsRequest>) -> Result<StatusCode, StatusCode> {
+    services::update_settings(&state, &user, req).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
 }
