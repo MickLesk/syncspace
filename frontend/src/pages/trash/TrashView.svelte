@@ -371,9 +371,10 @@
   <!-- Content -->
   <div class="content">
     {#if loading}
-      <div class="loading">
-        <div class="spinner"></div>
-        <p>Loading trash...</p>
+      <div class="space-y-4 p-6">
+        {#each Array(6) as _}
+          <div class="skeleton h-24 w-full rounded-xl"></div>
+        {/each}
       </div>
     {:else if error}
       <div class="error">

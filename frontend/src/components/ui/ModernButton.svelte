@@ -34,7 +34,7 @@
     success:
       "bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white focus:ring-green-500 dark:focus:ring-green-400 shadow-md hover:shadow-lg dark:shadow-green-500/20",
     gradient:
-      "gradient-bg-primary text-white shadow-lg hover:shadow-xl hover:scale-105 focus:ring-primary-500 dark:focus:ring-primary-400",
+      "gradient-bg-primary text-white shadow-lg hover:shadow-xl hover:scale-105 focus:ring-primary-500 dark:focus:ring-primary-400 hover-glow",
   };
 
   const sizeClasses = {
