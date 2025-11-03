@@ -8,6 +8,8 @@
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
+  import LoadingState from "../../components/ui/LoadingState.svelte";
+  import EmptyState from "../../components/ui/EmptyState.svelte";
 
   let activeTab = $state("backups"); // 'backups', 'schedules', 'export'
   let viewMode = $state("timeline"); // 'timeline', 'grid'

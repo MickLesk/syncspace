@@ -33,7 +33,12 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      'bootstrap-icons/font/fonts': resolve(__dirname, 'node_modules/bootstrap-icons/font/fonts')
-    }
+      'bootstrap-icons/font/fonts': resolve(__dirname, 'node_modules/bootstrap-icons/font/fonts'),
+      '@': resolve(__dirname, 'src'),
+      '@stores': resolve(__dirname, 'src/stores'),
+      '@components': resolve(__dirname, 'src/components'),
+      '@lib': resolve(__dirname, 'src/lib')
+    },
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.svelte']
   }
 })

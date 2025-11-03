@@ -3,6 +3,7 @@
 //! Provides security headers, CSRF protection, input validation, and security utilities.
 
 use axum::{
+    body::Body,
     http::{HeaderMap, HeaderValue, StatusCode, Request},
     middleware::Next,
     response::Response,
@@ -14,9 +15,9 @@ use std::sync::OnceLock;
 
 /// Security headers middleware
 /// Adds CSP, HSTS, X-Frame-Options, etc.
-pub async fn security_headers_middleware<B>(
-    request: Request<B>,
-    next: Next<B>,
+pub async fn security_headers_middleware(
+    request: Request<Body>,
+    next: Next,
 ) -> Response {
     let mut response = next.run(request).await;
     let headers = response.headers_mut();

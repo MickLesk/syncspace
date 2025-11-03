@@ -6,6 +6,7 @@
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
+  import EmptyState from "../../components/ui/EmptyState.svelte";
 
   // Mock notifications data (should be from API in production)
   let notifications = $state([

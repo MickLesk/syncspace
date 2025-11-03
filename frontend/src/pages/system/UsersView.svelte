@@ -5,6 +5,8 @@
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
+  import EmptyState from "../../components/ui/EmptyState.svelte";
+  import LoadingState from "../../components/ui/LoadingState.svelte";
 
   let users = $state([]);
   let loading = $state(true);
@@ -201,12 +203,15 @@
   </ModernCard>
 
   {#if loading}
-    <ModernCard variant="glass">
-      <div class="text-center py-16">
-        <span class="loading loading-spinner loading-lg text-primary-600"
-        ></span>
-      </div>
-    </ModernCard>
+    <LoadingState variant="table" count={5} message="Loading users..." />
+  {:else if filteredUsers.length === 0}
+    <EmptyState
+      icon="👥"
+      title="No users found"
+      description={filterRole === "all"
+        ? "No users in the system yet"
+        : `No ${filterRole}s found`}
+    />
   {:else if viewMode === "table"}
     <!-- Table View -->
     <ModernCard variant="glass" class="overflow-hidden">

@@ -6,6 +6,7 @@
 
   let username = $state("");
   let password = $state("");
+  let showPassword = $state(false);
   let twoFactorCode = $state("");
   let showTwoFactor = $state(false);
   let rememberMe = $state(false);
@@ -169,6 +170,7 @@
       <!-- Username Input -->
       <div class="space-y-2">
         <label
+          for="username-input"
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <i class="bi bi-person-fill mr-2 text-blue-600 dark:text-blue-400"
@@ -176,6 +178,7 @@
         </label>
         <div class="relative">
           <input
+            id="username-input"
             type="text"
             bind:value={username}
             class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -191,6 +194,7 @@
       <!-- Password Input -->
       <div class="space-y-2">
         <label
+          for="password-input"
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <i
@@ -199,15 +203,24 @@
         </label>
         <div class="relative">
           <input
-            type="password"
+            id="password-input"
+            type={showPassword ? "text" : "password"}
             bind:value={password}
-            class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="Enter your password"
             disabled={loginInProgress}
           />
           <i
             class="bi bi-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
           ></i>
+          <button
+            type="button"
+            onclick={() => (showPassword = !showPassword)}
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            aria-label="Toggle password visibility"
+          >
+            <i class="bi bi-{showPassword ? 'eye-slash' : 'eye'}"></i>
+          </button>
         </div>
       </div>
 
@@ -215,6 +228,7 @@
       {#if showTwoFactor}
         <div class="space-y-2 animate-fade-in">
           <label
+            for="twofa-input"
             class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
           >
             <i
@@ -223,6 +237,7 @@
           </label>
           <div class="relative">
             <input
+              id="twofa-input"
               type="text"
               bind:value={twoFactorCode}
               class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed tracking-widest text-center text-lg font-mono"

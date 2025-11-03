@@ -17,7 +17,7 @@
     wsConnected,
     onFileEvent,
     websocketManager,
-  } from "../stores/websocket.js";
+  } from "@stores/websocket.js";
   import PageWrapper from "../components/PageWrapper.svelte";
   import PageHeader from "../components/ui/PageHeader.svelte";
   import ModernCard from "../components/ui/ModernCard.svelte";

@@ -109,6 +109,8 @@
 
   // Check for hash-based routing (login vs signup)
   let showSignup = $state(false);
+  let isMobileMenuOpen = $state(false);
+  let isMobile = $state(false);
 
   onMount(() => {
     const checkRoute = () => {
@@ -116,7 +118,19 @@
     };
     checkRoute();
     window.addEventListener("hashchange", checkRoute);
-    return () => window.removeEventListener("hashchange", checkRoute);
+
+    // Check if mobile
+    const checkMobile = () => {
+      isMobile = window.innerWidth < 768;
+      if (!isMobile) isMobileMenuOpen = false;
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => {
+      window.removeEventListener("hashchange", checkRoute);
+      window.removeEventListener("resize", checkMobile);
+    };
   });
 </script>
 
@@ -128,43 +142,73 @@
   {/if}
 {:else}
   <div class="app-container bg-gray-50 dark:bg-gray-900 transition-colors">
-    <Sidebar />
+    <!-- Mobile Menu Toggle -->
+    {#if isMobile}
+      <button
+        onclick={() => (isMobileMenuOpen = !isMobileMenuOpen)}
+        class="mobile-menu-toggle fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg md:hidden"
+        aria-label="Toggle menu"
+      >
+        <span class="text-2xl">{isMobileMenuOpen ? "✕" : "☰"}</span>
+      </button>
+    {/if}
+
+    <!-- Sidebar with mobile support -->
+    <div
+      class="sidebar-wrapper"
+      class:mobile-open={isMobileMenuOpen && isMobile}
+      class:mobile-closed={!isMobileMenuOpen && isMobile}
+    >
+      <Sidebar />
+    </div>
+
+    <!-- Overlay for mobile -->
+    {#if isMobile && isMobileMenuOpen}
+      <button
+        onclick={() => (isMobileMenuOpen = false)}
+        class="mobile-overlay fixed inset-0 bg-black bg-opacity-50 z-30"
+        aria-label="Close menu"
+      ></button>
+    {/if}
+
     <div class="main-wrapper">
       <AppHeader on:navigate={handleNavigate} />
       <div style="display: flex; height: 100%;">
-        <ErrorBoundary style="flex: 1; min-width: 0;">
-          <main class="main-content bg-gray-50 dark:bg-gray-900">
-            {#if $currentView === "design"}
-              <DesignShowcase />
-            {:else if $currentView === "files"}
-              <FilesView />
-            {:else if $currentView === "shared"}
-              <SharedView />
-            {:else if $currentView === "favorites"}
-              <FavoritesView />
-            {:else if $currentView === "trash"}
-              <TrashView />
-            {:else if $currentView === "users"}
-              <UsersView />
-            {:else if $currentView === "settings"}
-              <SettingsView />
-            {:else if $currentView === "profile"}
-              <ProfileView />
-            {:else if $currentView === "storage"}
-              <StorageView />
-            {:else if $currentView === "activity"}
-              <ActivityView />
-            {:else if $currentView === "duplicates"}
-              <DuplicatesView />
-            {:else if $currentView === "backup"}
-              <BackupView />
-            {:else if $currentView === "notifications"}
-              <NotificationsView />
-            {:else if $currentView === "recent"}
-              <RecentFilesView />
-            {/if}
-          </main>
-        </ErrorBoundary>
+        <div style="flex: 1; min-width: 0;">
+          <ErrorBoundary>
+            <main class="main-content bg-gray-50 dark:bg-gray-900">
+              {#if $currentView === "design"}
+                <DesignShowcase />
+              {:else if $currentView === "files"}
+                <FilesView />
+              {:else if $currentView === "shared"}
+                <SharedView />
+              {:else if $currentView === "favorites"}
+                <FavoritesView />
+              {:else if $currentView === "trash"}
+                <TrashView />
+              {:else if $currentView === "users"}
+                <UsersView />
+              {:else if $currentView === "settings"}
+                <SettingsView />
+              {:else if $currentView === "profile"}
+                <ProfileView />
+              {:else if $currentView === "storage"}
+                <StorageView />
+              {:else if $currentView === "activity"}
+                <ActivityView />
+              {:else if $currentView === "duplicates"}
+                <DuplicatesView />
+              {:else if $currentView === "backup"}
+                <BackupView />
+              {:else if $currentView === "notifications"}
+                <NotificationsView />
+              {:else if $currentView === "recent"}
+                <RecentFilesView />
+              {/if}
+            </main>
+          </ErrorBoundary>
+        </div>
         <ActivityFeed />
       </div>
     </div>
@@ -183,6 +227,7 @@
     width: 100vw;
     display: flex;
     overflow: hidden;
+    position: relative;
   }
 
   .main-wrapper {
@@ -195,5 +240,48 @@
   .main-content {
     flex: 1;
     overflow-y: auto;
+  }
+
+  /* Mobile Sidebar Support */
+  .sidebar-wrapper {
+    transition: transform 0.3s ease-in-out;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar-wrapper {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100vh;
+      z-index: 40;
+      transform: translateX(-100%);
+    }
+
+    .sidebar-wrapper.mobile-open {
+      transform: translateX(0);
+    }
+
+    .mobile-menu-toggle {
+      display: block;
+    }
+
+    .main-wrapper {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .mobile-menu-toggle {
+      display: none;
+    }
+
+    .sidebar-wrapper {
+      position: relative;
+      transform: none !important;
+    }
+  }
+
+  .mobile-overlay {
+    display: block;
   }
 </style>

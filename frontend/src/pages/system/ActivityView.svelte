@@ -5,6 +5,7 @@
   import PageWrapper from "../../components/PageWrapper.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
+  import EmptyState from "../../components/ui/EmptyState.svelte";
 
   let groupedActivities = {};
   let selectedFilter = "all";
@@ -351,5 +352,3 @@
 <style>
   /* ActivityView - using glassmorphism.css */
 </style>
-
-
