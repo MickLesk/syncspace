@@ -17,6 +17,14 @@
 
   let backendOnline = $state(false);
   let showBackendModal = $state(false);
+  let showActivityFeed = $state(false);
+
+  function toggleActivityFeed() {
+    showActivityFeed = !showActivityFeed;
+    dispatch("toggleActivityFeed", { visible: showActivityFeed });
+  }
+
+  export { showActivityFeed };
 
   // Check backend status periodically
   onMount(() => {
@@ -428,6 +436,37 @@
           >
         </button>
       </div>
+
+      <!-- Activity Feed Toggle Button (moved from App.svelte) -->
+      <button
+        onclick={toggleActivityFeed}
+        class="relative p-2 rounded-lg transition-all duration-300 hover:scale-110"
+        class:bg-gradient-to-br={showActivityFeed}
+        class:from-primary-500={showActivityFeed}
+        class:to-secondary-500={showActivityFeed}
+        class:hover:bg-gray-100={!showActivityFeed}
+        class:dark:hover:bg-gray-800={!showActivityFeed}
+        title={showActivityFeed ? "Hide Activity Feed" : "Show Activity Feed"}
+      >
+        <i
+          class="bi bi-activity text-xl transition-colors duration-300"
+          class:text-white={showActivityFeed}
+          class:text-primary-500={!showActivityFeed}
+          class:dark:text-primary-400={!showActivityFeed}
+        ></i>
+
+        <!-- Pulse Indicator when closed -->
+        {#if !showActivityFeed}
+          <span class="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+            <span
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"
+            ></span>
+            <span
+              class="relative inline-flex rounded-full h-2 w-2 bg-primary-500"
+            ></span>
+          </span>
+        {/if}
+      </button>
 
       <!-- Theme Toggle -->
       <ThemeSwitcher />
