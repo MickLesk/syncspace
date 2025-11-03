@@ -1,14 +1,23 @@
-# 🚀 SyncSpace
+<div align="center">
+  <img src=".github/images/logo-banner.png" alt="SyncSpace Logo" width="600" />
+  
+  # SyncSpace
+  
+  **Modern Material 3 File Synchronization Service**
+  
+  A self-hosted, cross-platform file sync solution with a beautiful Material Design 3 Expressive interface.  
+  Built with Rust (backend) and Svelte 5 (frontend).
+</div>
 
-**Modern Material 3 File Synchronization Service**
-
-A self-hosted, cross-platform file sync solution with a beautiful Material Design 3 Expressive interface. Built with Rust (backend) and Svelte 5 (frontend).
+<div align="center">
 
 ![Version](https://img.shields.io/badge/version-0.3.0-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
 ![Material 3](https://img.shields.io/badge/Material-3%20Expressive-purple)
-![Rust](https://img.shields.io/badge/Rust-axum%200.7-orange)
+![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)
 ![Svelte](https://img.shields.io/badge/Svelte-5-red)
+
+</div>
 
 ---
 

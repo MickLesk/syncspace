@@ -6,6 +6,7 @@ use std::path::Path;
 use tokio::fs;
 use tokio::io::AsyncWriteExt;
 use uuid::Uuid;
+use sqlx::Row;
 
 const DATA_DIR: &str = "./data";
 
