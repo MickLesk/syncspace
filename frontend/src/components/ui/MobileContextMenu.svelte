@@ -111,7 +111,9 @@
 
       {#if isMobile}
         <div class="mobile-footer">
-          <button class="cancel-button" onclick={onClose}> Cancel </button>
+          <button class="cancel-button" onclick={() => onClose()}>
+            Cancel
+          </button>
         </div>
       {/if}
     </div>

@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import api from "../../lib/api.js";
 
-  /** @type {string | null} jobId - UUID of batch operation */
+  /** @type {{jobId?: string | null, onClose?: Function}} */
   let { jobId = $bindable(null), onClose = () => {} } = $props();
 
   /** @type {Object | null} operation status */

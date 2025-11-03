@@ -229,7 +229,6 @@
             placeholder={t($currentLang, "searchPlaceholder")}
             class="flex-1 px-4 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 outline-none"
             bind:value={searchQuery}
-            autofocus
           />
         </div>
       </div>
@@ -253,6 +252,7 @@
         <!-- File Type Filter -->
         <div class="space-y-2">
           <label
+            for="fileTypeFilter"
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             <i class="bi bi-file-earmark text-blue-600 dark:text-blue-400 mr-2"
@@ -260,6 +260,7 @@
             {t($currentLang, "fileType")}
           </label>
           <select
+            id="fileTypeFilter"
             class="w-full px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100"
             bind:value={activeFilters.fileType}
           >

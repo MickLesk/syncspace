@@ -6,7 +6,7 @@
   import BatchProgressDialog from "./BatchProgressDialog.svelte";
   import { success, error as errorToast } from "../../stores/toast.js";
 
-  /** @type {Object[]} selectedFiles - Array of selected file objects */
+  /** @type {{selectedFiles?: any[], onClearSelection?: Function}} */
   let { selectedFiles = $bindable([]), onClearSelection = () => {} } = $props();
 
   /** @type {boolean} show folder picker dialog */
@@ -292,9 +292,9 @@
           onkeydown={(e) => e.key === "Enter" && executeFolderAction()}
           aria-describedby="target-folder-help"
         />
-        <label id="target-folder-help" class="label">
+        <div id="target-folder-help" class="label">
           <span class="label-text-alt">Enter the destination folder path</span>
-        </label>
+        </div>
       </div>
 
       <div class="modal-action">
