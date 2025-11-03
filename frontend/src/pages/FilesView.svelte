@@ -2283,6 +2283,12 @@
   currentIndex={currentFileIndex}
 />
 
+<!-- Folder Color Picker Modal -->
+<FolderColorPicker 
+  bind:visible={showFolderColorPicker} 
+  bind:folder={folderForColorPicker}
+/>
+
 <style>
   /* Drag & Drop Zone Overlay */
   .drop-zone-overlay {
