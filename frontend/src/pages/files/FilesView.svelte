@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { files, currentPath } from "../../stores/ui";
   import { success, error as errorToast } from "../../stores/toast";
+  import { modals } from "../../stores/modals";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import Breadcrumbs from "../../components/Breadcrumbs.svelte";
   import SearchFilters from "../../components/search/SearchFilters.svelte";
@@ -11,7 +12,6 @@
   import LoadingState from "../../components/ui/LoadingState.svelte";
   import FileCard from "../../components/files/FileCard.svelte";
   import FileToolbar from "../../components/files/FileToolbar.svelte";
-  import FileUploadZone from "../../components/files/FileUploadZone.svelte";
   import FileActionsMenu from "../../components/files/FileActionsMenu.svelte";
   import api from "../../lib/api";
   import { websocketManager } from "@stores/websocket.js";
@@ -26,27 +26,12 @@
   let uploadProgress = $state([]);
   let selectionMode = $state(false);
 
-  // Modal States
-  let showUploadModal = $state(false);
-  let showNewFolderModal = $state(false);
-  let showRenameModal = $state(false);
-  let showDeleteModal = $state(false);
-  let showMoveModal = $state(false);
-  let showCopyModal = $state(false);
-  let showShareModal = $state(false);
-  let showVersionHistoryModal = $state(false);
-  let showAdvancedSearchModal = $state(false);
-  let showPreviewModal = $state(false);
-
   // Context Menu
   let contextMenu = $state(null);
   let contextMenuPosition = $state({ x: 0, y: 0 });
 
-  // Operation State
+  // Operation State  
   let currentFile = $state(null);
-  let newFolderName = $state("");
-  let newFileName = $state("");
-  let destinationPath = $state("");
 
   let searchFilters = $state({
     type: "all",
@@ -161,6 +146,23 @@
     window.removeEventListener("keydown", handleKeydown);
   });
 
+  // Modal Event Listeners - Listen to events from ModalPortal
+  onMount(() => {
+    const unsubUpload = modalEvents.on('upload', handleUpload);
+    const unsubCreateFolder = modalEvents.on('createFolder', createNewFolder);
+    const unsubRename = modalEvents.on('renameFile', ({ file, newName }) => {
+      renameFile(file, newName);
+    });
+    const unsubDelete = modalEvents.on('deleteFile', deleteFile);
+
+    return () => {
+      unsubUpload();
+      unsubCreateFolder();
+      unsubRename();
+      unsubDelete();
+    };
+  });
+
   async function loadFiles(path = null) {
     loading = true;
     try {
@@ -227,6 +229,14 @@
     setTimeout(() => {
       uploadProgress = uploadProgress.filter((up) => up.status === "uploading");
     }, 3000);
+  }
+
+  function openUploadModal() {
+    showUploadModal = true;
+  }
+
+  function openNewFolderModal() {
+    showNewFolderModal = true;
   }
 
   async function createNewFolder() {
@@ -413,9 +423,9 @@
       bind:showFoldersOnly
       {selectionMode}
       selectedCount={selectedFiles.size}
-      onRefresh={() => loadFiles()}
-      onUpload={() => (showUploadModal = true)}
-      onNewFolder={() => (showNewFolderModal = true)}
+      onRefresh={loadFiles}
+      onUpload={openUploadModal}
+      onNewFolder={openNewFolderModal}
       onAdvancedSearch={() => (showAdvancedSearchModal = true)}
       onSelectionToggle={toggleSelectionMode}
       onBatchDelete={batchDelete}
@@ -485,29 +495,34 @@
 {/if}
 
 <!-- Upload Modal -->
-{#if showUploadModal}
-  <Modal title="Upload Files" onclose={() => (showUploadModal = false)}>
-    <FileUploadZone onFilesSelected={handleUpload} currentPath={$currentPath} />
-  </Modal>
-{/if}
+<Modal 
+  visible={showUploadModal}
+  title="Upload Files" 
+  onclose={() => (showUploadModal = false)}
+>
+  <FileUploadZone onFilesSelected={handleUpload} currentPath={$currentPath} />
+</Modal>
 
 <!-- New Folder Modal -->
-{#if showNewFolderModal}
-  <Modal title="Create New Folder" onclose={() => (showNewFolderModal = false)}>
-    <div class="space-y-4">
-      <div>
-        <label for="folder-name" class="block text-sm font-medium mb-2">
-          Folder Name
-        </label>
-        <input
-          id="folder-name"
-          type="text"
-          bind:value={newFolderName}
-          placeholder="Enter folder name"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-          onkeydown={(e) => e.key === "Enter" && createNewFolder()}
-        />
-      </div>
+<Modal 
+  visible={showNewFolderModal}
+  title="Create New Folder" 
+  onclose={() => (showNewFolderModal = false)}
+>
+  <div class="space-y-4">
+    <div>
+      <label for="folder-name" class="block text-sm font-medium mb-2">
+        Folder Name
+      </label>
+      <input
+        id="folder-name"
+        type="text"
+        bind:value={newFolderName}
+        placeholder="Enter folder name"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+        onkeydown={(e) => e.key === "Enter" && createNewFolder()}
+      />
+    </div>
       <div class="flex justify-end gap-2">
         <button
           type="button"
@@ -531,47 +546,52 @@
 {/if}
 
 <!-- Rename Modal -->
-{#if showRenameModal}
-  <Modal title="Rename File" onclose={() => (showRenameModal = false)}>
-    <div class="space-y-4">
-      <div>
-        <label for="new-name" class="block text-sm font-medium mb-2">
-          New Name
-        </label>
-        <input
-          id="new-name"
-          type="text"
-          bind:value={newFileName}
-          placeholder="Enter new name"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-          onkeydown={(e) => e.key === "Enter" && renameFile()}
-        />
-      </div>
-      <div class="flex justify-end gap-2">
-        <button
-          type="button"
-          class="btn btn-ghost"
-          onclick={() => (showRenameModal = false)}
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          class="btn btn-primary"
-          onclick={renameFile}
-          disabled={!newFileName.trim()}
-        >
-          <i class="bi bi-pencil"></i>
-          Rename
-        </button>
-      </div>
+<Modal 
+  visible={showRenameModal}
+  title="Rename File" 
+  onclose={() => (showRenameModal = false)}
+>
+  <div class="space-y-4">
+    <div>
+      <label for="new-name" class="block text-sm font-medium mb-2">
+        New Name
+      </label>
+      <input
+        id="new-name"
+        type="text"
+        bind:value={newFileName}
+        placeholder="Enter new name"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+        onkeydown={(e) => e.key === "Enter" && renameFile()}
+      />
     </div>
-  </Modal>
-{/if}
+    <div class="flex justify-end gap-2">
+      <button
+        type="button"
+        class="btn btn-ghost"
+        onclick={() => (showRenameModal = false)}
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        onclick={renameFile}
+        disabled={!newFileName.trim()}
+      >
+        <i class="bi bi-pencil"></i>
+        Rename
+      </button>
+    </div>
+  </div>
+</Modal>
 
 <!-- Delete Modal -->
-{#if showDeleteModal}
-  <Modal title="Delete File" onclose={() => (showDeleteModal = false)}>
+<Modal 
+  visible={showDeleteModal}
+  title="Delete File" 
+  onclose={() => (showDeleteModal = false)}
+>
     <div class="space-y-4">
       <p class="text-gray-700 dark:text-gray-300">
         Are you sure you want to delete <strong>{currentFile?.name}</strong>?
@@ -595,12 +615,12 @@
 {/if}
 
 <!-- Preview Modal -->
-{#if showPreviewModal && currentFile}
-  <Modal
-    title="File Preview"
-    onclose={() => (showPreviewModal = false)}
-    size="large"
-  >
+<Modal
+  visible={showPreviewModal && currentFile}
+  title="File Preview"
+  onclose={() => (showPreviewModal = false)}
+  size="large"
+>
     <div class="space-y-4">
       <div class="bg-gray-100 dark:bg-gray-900 rounded-lg p-6 text-center">
         <i
@@ -639,5 +659,79 @@
   :global(.file-card-grid),
   :global(.file-card-list) {
     transition: all 0.2s ease;
+  }
+
+  /* Drag & Drop Visual Feedback */
+  :global(body.dragging-files) {
+    cursor: copy !important;
+  }
+
+  :global(body.dragging-files)::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.1) 0%,
+      rgba(147, 51, 234, 0.1) 100%
+    );
+    border: 3px dashed rgba(59, 130, 246, 0.5);
+    border-radius: 1rem;
+    margin: 1rem;
+    pointer-events: none;
+    z-index: 9999;
+    animation: pulse-border 2s ease-in-out infinite;
+  }
+
+  :global(body.dragging-files) :global(.main-content) {
+    position: relative;
+  }
+
+  :global(body.dragging-files) :global(.main-content)::before {
+    content: "📁 Drop files here to upload";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.95) 0%,
+      rgba(147, 51, 234, 0.95) 100%
+    );
+    color: white;
+    padding: 2rem 3rem;
+    border-radius: 1rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    pointer-events: none;
+    animation: bounce-in 0.3s ease-out;
+  }
+
+  @keyframes pulse-border {
+    0%,
+    100% {
+      opacity: 1;
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+    50% {
+      opacity: 0.6;
+      border-color: rgba(147, 51, 234, 0.7);
+    }
+  }
+
+  @keyframes bounce-in {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.5);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
   }
 </style>

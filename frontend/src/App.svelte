@@ -41,6 +41,7 @@
   import LoadingOverlay from "./components/LoadingOverlay.svelte";
   import ErrorBoundary from "./components/ui/ErrorBoundary.svelte";
   import ActivityFeed from "./components/ActivityFeed.svelte";
+  import ModalPortal from "./components/modals/ModalPortal.svelte";
 
   // FORCE LIGHT MODE ON APP START - aber erlaube später umschalten
   onMount(() => {
@@ -147,7 +148,9 @@
     <Login />
   {/if}
 {:else}
-  <div class="app-container bg-gray-50 dark:bg-gray-900 transition-colors">
+  <div
+    class="app-container bg-gray-50 dark:bg-gray-900 transition-colors overflow-x-hidden"
+  >
     <!-- Mobile Menu Toggle -->
     {#if isMobile}
       <button
@@ -177,71 +180,19 @@
       ></button>
     {/if}
 
-    <div class="main-wrapper">
-      <AppHeader on:navigate={handleNavigate} />
+    <div class="main-wrapper overflow-x-hidden">
+      <AppHeader
+        on:navigate={handleNavigate}
+        on:toggleActivityFeed={(e) => (showActivityFeed = e.detail.visible)}
+        bind:showActivityFeed
+      />
 
-      <!-- Modern Activity Feed Toggle Button -->
-      <button
-        onclick={() => (showActivityFeed = !showActivityFeed)}
-        class="fixed top-20 right-6 z-40 group"
-        title={showActivityFeed ? "Hide Activity Feed" : "Show Activity Feed"}
-      >
-        <!-- Button Background with Gradient on Active -->
-        <div
-          class="relative p-4 rounded-2xl shadow-xl border-2 transition-all duration-300 transform"
-          class:bg-gradient-to-br={showActivityFeed}
-          class:from-primary-500={showActivityFeed}
-          class:to-secondary-500={showActivityFeed}
-          class:bg-white={!showActivityFeed}
-          class:dark:bg-gray-800={!showActivityFeed}
-          class:border-primary-500={showActivityFeed}
-          class:border-gray-200={!showActivityFeed}
-          class:dark:border-gray-700={!showActivityFeed}
-          class:scale-110={showActivityFeed}
-          class:group-hover:scale-110={!showActivityFeed}
-          class:rotate-12={showActivityFeed}
-        >
-          <i
-            class="bi bi-activity text-2xl transition-colors duration-300"
-            class:text-white={showActivityFeed}
-            class:text-primary-500={!showActivityFeed}
-            class:dark:text-primary-400={!showActivityFeed}
-          ></i>
-
-          <!-- Pulse Indicator when closed -->
-          {#if !showActivityFeed}
-            <span class="absolute -top-1 -right-1 flex h-4 w-4">
-              <span
-                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"
-              ></span>
-              <span
-                class="relative inline-flex rounded-full h-4 w-4 bg-primary-500"
-              ></span>
-            </span>
-          {/if}
-
-          <!-- Close Icon when open -->
-          {#if showActivityFeed}
-            <div
-              class="absolute -top-1 -right-1 bg-white dark:bg-gray-800 rounded-full p-1 shadow-md"
-            >
-              <i class="bi bi-x text-sm text-gray-600 dark:text-gray-400"></i>
-            </div>
-          {/if}
-        </div>
-
-        <!-- Tooltip -->
-        <div
-          class="absolute top-full right-0 mt-2 px-3 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap"
-        >
-          {showActivityFeed ? "Close" : "Activity"} Feed
-        </div>
-      </button>
-
-      <div style="display: flex; height: 100%;">
-        <div style="flex: 1; min-width: 0;">
+      <div style="display: flex; height: 100%; overflow-x: hidden;">
+        <div style="flex: 1; min-width: 0; overflow-x: hidden;">
           <ErrorBoundary>
-            <main class="main-content bg-gray-50 dark:bg-gray-900">
+            <main
+              class="main-content bg-gray-50 dark:bg-gray-900 overflow-x-hidden"
+            >
               {#if $currentView === "design"}
                 <DesignShowcase />
               {:else if $currentView === "files"}
@@ -300,14 +251,21 @@
 <Toast />
 <LoadingOverlay />
 
+<!-- Global Modal Portal - All modals rendered here -->
+{#if $auth.isLoggedIn}
+  <ModalPortal />
+{/if}
+
 <style>
   /* Bootstrap Icons loaded from CDN in index.html */
 
   .app-container {
     height: 100vh;
     width: 100vw;
+    max-width: 100vw;
     display: flex;
     overflow: hidden;
+    overflow-x: hidden;
     position: relative;
   }
 
@@ -316,11 +274,17 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    overflow-x: hidden;
+    max-width: 100%;
   }
 
   .main-content {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
+    max-width: 100%;
+    background: transparent !important;
+    box-shadow: none !important;
   }
 
   /* Mobile Sidebar Support */

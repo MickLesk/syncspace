@@ -27,7 +27,7 @@
 </script>
 
 <div
-  class="page-wrapper relative min-h-[calc(100vh-4rem)] bg-gradient-to-br from-white via-blue-50/50 to-purple-50/50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-indigo-950/50 dark:to-purple-950/50 transition-colors duration-200"
+  class="page-wrapper relative min-h-[calc(100vh-4rem)] bg-transparent transition-colors duration-200"
   class:full-height={fullHeight}
   class:p-0={!padding}
   class:p-4={padding}
