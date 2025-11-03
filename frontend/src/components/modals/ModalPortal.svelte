@@ -241,7 +241,10 @@
 </Modal>
 
 <!-- Advanced Search Modal -->
-<AdvancedSearchModal bind:visible={$modals.advancedSearch.visible} />
+<AdvancedSearchModal
+  bind:visible={$modals.advancedSearch.visible}
+  on:search={(e) => modalEvents.emit("search", e.detail)}
+/>
 
 <!-- Move File Modal -->
 <Modal
