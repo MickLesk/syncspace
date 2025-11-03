@@ -22,7 +22,7 @@
   }
 </script>
 
-<nav class="mobile-nav" role="navigation" aria-label="Mobile bottom navigation">
+<nav class="mobile-nav" aria-label="Mobile bottom navigation">
   {#each navItems as item}
     <button
       class="nav-item {activeView === item.id ? 'active' : ''}"

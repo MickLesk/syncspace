@@ -10,7 +10,7 @@
     target = null,
   } = $props();
 
-  let menuElement;
+  let menuElement = $state(null);
   let adjustedX = $state(0);
   let adjustedY = $state(0);
 
