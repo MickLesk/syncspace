@@ -151,400 +151,404 @@
 </script>
 
 <PageWrapper gradient>
-  <PageHeader
-    title="Backup & Restore"
-    subtitle="Manage backups, schedules, and restore points"
-    icon="cloud-arrow-up"
-  />
+  <div class="page-fade-in">
+    <PageHeader
+      title="Backup & Restore"
+      subtitle="Manage backups, schedules, and restore points"
+      icon="cloud-arrow-up"
+    />
 
-  <!-- Tabs -->
-  <ModernCard variant="glass" class="mb-6">
-    <div class="flex gap-2 p-2">
-      <ModernButton
-        variant={activeTab === "backups" ? "primary" : "ghost"}
-        onclick={() => (activeTab = "backups")}
-        class="flex-1"
-      >
-        <i class="bi bi-archive mr-2"></i>
-        Backups
-      </ModernButton>
-
-      <ModernButton
-        variant={activeTab === "schedules" ? "primary" : "ghost"}
-        onclick={() => (activeTab = "schedules")}
-        class="flex-1"
-      >
-        <i class="bi bi-clock-history mr-2"></i>
-        Schedules
-      </ModernButton>
-
-      <ModernButton
-        variant={activeTab === "export" ? "primary" : "ghost"}
-        onclick={() => (activeTab = "export")}
-        class="flex-1"
-      >
-        <i class="bi bi-cloud-arrow-down mr-2"></i>
-        Export/Import
-      </ModernButton>
-    </div>
-  </ModernCard>
-
-  <!-- Tab Content -->
-  {#if activeTab === "backups"}
-    <div class="backups-tab">
-      <ModernCard variant="glass" class="mb-4">
-        <div
-          class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4"
+    <!-- Tabs -->
+    <ModernCard variant="glass" class="mb-6">
+      <div class="flex gap-2 p-2">
+        <ModernButton
+          variant={activeTab === "backups" ? "primary" : "ghost"}
+          onclick={() => (activeTab = "backups")}
+          class="flex-1"
         >
-          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            Backup History
-          </h2>
-          <div class="flex flex-wrap gap-2 items-center">
-            <!-- View Mode Toggle -->
-            <div
-              class="flex rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700"
-            >
-              <button
-                class="px-3 py-1.5 text-sm transition-all {viewMode ===
-                'timeline'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
-                onclick={() => (viewMode = "timeline")}
-                title="Timeline View"
-              >
-                <i class="bi bi-clock-history"></i>
-              </button>
-              <button
-                class="px-3 py-1.5 text-sm border-l-2 border-gray-200 dark:border-gray-700 transition-all {viewMode ===
-                'grid'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
-                onclick={() => (viewMode = "grid")}
-                title="Grid View"
-              >
-                <i class="bi bi-grid-3x3-gap"></i>
-              </button>
-            </div>
+          <i class="bi bi-archive mr-2"></i>
+          Backups
+        </ModernButton>
 
-            <!-- Create Backup Buttons -->
-            <ModernButton
-              variant="gradient"
-              onclick={() => createBackup("full")}
-            >
-              <i class="bi bi-plus-lg mr-2"></i>
-              Full Backup
-            </ModernButton>
-            <ModernButton
-              variant="secondary"
-              onclick={() => createBackup("database")}
-            >
-              Database
-            </ModernButton>
-            <ModernButton
-              variant="secondary"
-              onclick={() => createBackup("files")}
-            >
-              Files
-            </ModernButton>
-          </div>
-        </div>
-      </ModernCard>
+        <ModernButton
+          variant={activeTab === "schedules" ? "primary" : "ghost"}
+          onclick={() => (activeTab = "schedules")}
+          class="flex-1"
+        >
+          <i class="bi bi-clock-history mr-2"></i>
+          Schedules
+        </ModernButton>
 
-      {#if loadingBackups}
-        <div class="space-y-4">
-          {#each Array(4) as _}
-            <div class="skeleton h-40 w-full rounded-xl"></div>
-          {/each}
-        </div>
-      {:else if backups.length === 0}
-        <ModernCard variant="glass">
-          <div class="text-center py-12">
-            <i
-              class="bi bi-archive text-6xl text-gray-300 dark:text-gray-600 mb-4"
-            ></i>
-            <p class="text-gray-600 dark:text-gray-400 mb-4">
-              No backups found
-            </p>
-            <ModernButton
-              variant="gradient"
-              onclick={() => createBackup("full")}
-            >
-              <i class="bi bi-plus-lg mr-2"></i>
-              Create your first backup
-            </ModernButton>
-          </div>
-        </ModernCard>
-      {:else if viewMode === "timeline"}
-        <!-- Timeline View -->
-        <div class="backup-timeline">
-          {#each backups as backup, index}
-            <div class="timeline-item">
-              <div class="timeline-marker">
-                <div
-                  class="timeline-icon timeline-icon-{getStatusColor(
-                    backup.status
-                  )}"
+        <ModernButton
+          variant={activeTab === "export" ? "primary" : "ghost"}
+          onclick={() => (activeTab = "export")}
+          class="flex-1"
+        >
+          <i class="bi bi-cloud-arrow-down mr-2"></i>
+          Export/Import
+        </ModernButton>
+      </div>
+    </ModernCard>
+
+    <!-- Tab Content -->
+    {#if activeTab === "backups"}
+      <div class="backups-tab">
+        <ModernCard variant="glass" class="mb-4">
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4"
+          >
+            <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+              Backup History
+            </h2>
+            <div class="flex flex-wrap gap-2 items-center">
+              <!-- View Mode Toggle -->
+              <div
+                class="flex rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700"
+              >
+                <button
+                  class="px-3 py-1.5 text-sm transition-all {viewMode ===
+                  'timeline'
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
+                  onclick={() => (viewMode = "timeline")}
+                  title="Timeline View"
                 >
-                  <i class="bi bi-{getStatusIcon(backup.status)}"></i>
-                </div>
-                {#if index < backups.length - 1}
-                  <div class="timeline-line"></div>
-                {/if}
+                  <i class="bi bi-clock-history"></i>
+                </button>
+                <button
+                  class="px-3 py-1.5 text-sm border-l-2 border-gray-200 dark:border-gray-700 transition-all {viewMode ===
+                  'grid'
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
+                  onclick={() => (viewMode = "grid")}
+                  title="Grid View"
+                >
+                  <i class="bi bi-grid-3x3-gap"></i>
+                </button>
               </div>
 
-              <div class="timeline-content">
-                <ModernCard
-                  variant="glass"
-                  hoverable
-                  class="border-2 border-gray-100 dark:border-gray-800 hover:border-primary-200 dark:hover:border-primary-800"
-                >
-                  <div class="p-4">
-                    <div class="flex justify-between items-start mb-3">
-                      <div class="flex-1">
-                        <div class="flex flex-wrap items-center gap-2 mb-2">
-                          <span class="badge-glass-primary">
-                            {backup.backup_type}
-                          </span>
-                          <span class={getStatusBadge(backup.status)}>
-                            {backup.status}
-                          </span>
+              <!-- Create Backup Buttons -->
+              <ModernButton
+                variant="gradient"
+                onclick={() => createBackup("full")}
+              >
+                <i class="bi bi-plus-lg mr-2"></i>
+                Full Backup
+              </ModernButton>
+              <ModernButton
+                variant="secondary"
+                onclick={() => createBackup("database")}
+              >
+                Database
+              </ModernButton>
+              <ModernButton
+                variant="secondary"
+                onclick={() => createBackup("files")}
+              >
+                Files
+              </ModernButton>
+            </div>
+          </div>
+        </ModernCard>
+
+        {#if loadingBackups}
+          <div class="space-y-4">
+            {#each Array(4) as _}
+              <div class="skeleton h-40 w-full rounded-xl"></div>
+            {/each}
+          </div>
+        {:else if backups.length === 0}
+          <ModernCard variant="glass">
+            <div class="text-center py-12">
+              <i
+                class="bi bi-archive text-6xl text-gray-300 dark:text-gray-600 mb-4"
+              ></i>
+              <p class="text-gray-600 dark:text-gray-400 mb-4">
+                No backups found
+              </p>
+              <ModernButton
+                variant="gradient"
+                onclick={() => createBackup("full")}
+              >
+                <i class="bi bi-plus-lg mr-2"></i>
+                Create your first backup
+              </ModernButton>
+            </div>
+          </ModernCard>
+        {:else if viewMode === "timeline"}
+          <!-- Timeline View -->
+          <div class="backup-timeline">
+            {#each backups as backup, index}
+              <div class="timeline-item">
+                <div class="timeline-marker">
+                  <div
+                    class="timeline-icon timeline-icon-{getStatusColor(
+                      backup.status
+                    )}"
+                  >
+                    <i class="bi bi-{getStatusIcon(backup.status)}"></i>
+                  </div>
+                  {#if index < backups.length - 1}
+                    <div class="timeline-line"></div>
+                  {/if}
+                </div>
+
+                <div class="timeline-content">
+                  <ModernCard
+                    variant="glass"
+                    hoverable
+                    class="border-2 border-gray-100 dark:border-gray-800 hover:border-primary-200 dark:hover:border-primary-800"
+                  >
+                    <div class="p-4">
+                      <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                          <div class="flex flex-wrap items-center gap-2 mb-2">
+                            <span class="badge-glass-primary">
+                              {backup.backup_type}
+                            </span>
+                            <span class={getStatusBadge(backup.status)}>
+                              {backup.status}
+                            </span>
+                          </div>
+                          <h3
+                            class="font-bold text-sm text-gray-600 dark:text-gray-400"
+                          >
+                            {backup.id}
+                          </h3>
                         </div>
-                        <h3
-                          class="font-bold text-sm text-gray-600 dark:text-gray-400"
-                        >
-                          {backup.id}
-                        </h3>
+                        <div class="text-right">
+                          <div
+                            class="text-sm font-semibold text-primary-600 dark:text-primary-400"
+                          >
+                            {getRelativeTime(backup.created_at)}
+                          </div>
+                          <div class="text-xs text-gray-500 dark:text-gray-500">
+                            {formatDate(backup.created_at)}
+                          </div>
+                        </div>
                       </div>
-                      <div class="text-right">
+
+                      <!-- Backup Stats -->
+                      <div class="grid grid-cols-3 gap-3 mb-3">
+                        <div class="stat-mini">
+                          <i
+                            class="bi bi-hdd text-primary-600 dark:text-primary-400"
+                          ></i>
+                          <div class="stat-mini-label">Size</div>
+                          <div class="stat-mini-value">
+                            {formatBytes(backup.size_bytes)}
+                          </div>
+                        </div>
+                        <div class="stat-mini">
+                          <i
+                            class="bi bi-files text-secondary-600 dark:text-secondary-400"
+                          ></i>
+                          <div class="stat-mini-label">Files</div>
+                          <div class="stat-mini-value">
+                            {backup.file_count || 0}
+                          </div>
+                        </div>
+                        <div class="stat-mini">
+                          <i
+                            class="bi bi-speedometer2 text-purple-600 dark:text-purple-400"
+                          ></i>
+                          <div class="stat-mini-label">Duration</div>
+                          <div class="stat-mini-value">
+                            {backup.duration_seconds
+                              ? `${backup.duration_seconds}s`
+                              : "N/A"}
+                          </div>
+                        </div>
+                      </div>
+
+                      {#if backup.error_message}
                         <div
-                          class="text-sm font-semibold text-primary-600 dark:text-primary-400"
+                          class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-3 flex items-start gap-2"
                         >
-                          {getRelativeTime(backup.created_at)}
+                          <i
+                            class="bi bi-exclamation-triangle-fill text-red-600 dark:text-red-400"
+                          ></i>
+                          <span class="text-xs text-red-700 dark:text-red-300"
+                            >{backup.error_message}</span
+                          >
                         </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-500">
-                          {formatDate(backup.created_at)}
-                        </div>
-                      </div>
-                    </div>
+                      {/if}
 
-                    <!-- Backup Stats -->
-                    <div class="grid grid-cols-3 gap-3 mb-3">
-                      <div class="stat-mini">
-                        <i
-                          class="bi bi-hdd text-primary-600 dark:text-primary-400"
-                        ></i>
-                        <div class="stat-mini-label">Size</div>
-                        <div class="stat-mini-value">
-                          {formatBytes(backup.size_bytes)}
-                        </div>
-                      </div>
-                      <div class="stat-mini">
-                        <i
-                          class="bi bi-files text-secondary-600 dark:text-secondary-400"
-                        ></i>
-                        <div class="stat-mini-label">Files</div>
-                        <div class="stat-mini-value">
-                          {backup.file_count || 0}
-                        </div>
-                      </div>
-                      <div class="stat-mini">
-                        <i
-                          class="bi bi-speedometer2 text-purple-600 dark:text-purple-400"
-                        ></i>
-                        <div class="stat-mini-label">Duration</div>
-                        <div class="stat-mini-value">
-                          {backup.duration_seconds
-                            ? `${backup.duration_seconds}s`
-                            : "N/A"}
-                        </div>
-                      </div>
-                    </div>
-
-                    {#if backup.error_message}
-                      <div
-                        class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-3 flex items-start gap-2"
-                      >
-                        <i
-                          class="bi bi-exclamation-triangle-fill text-red-600 dark:text-red-400"
-                        ></i>
-                        <span class="text-xs text-red-700 dark:text-red-300"
-                          >{backup.error_message}</span
-                        >
-                      </div>
-                    {/if}
-
-                    <!-- Actions -->
-                    <div class="flex flex-wrap gap-2 justify-end">
-                      {#if backup.status === "completed"}
+                      <!-- Actions -->
+                      <div class="flex flex-wrap gap-2 justify-end">
+                        {#if backup.status === "completed"}
+                          <ModernButton
+                            variant="primary"
+                            onclick={() => previewRestore(backup)}
+                            size="sm"
+                          >
+                            <i class="bi bi-arrow-counterclockwise mr-1"></i>
+                            Restore
+                          </ModernButton>
+                          <ModernButton
+                            variant="secondary"
+                            onclick={() => (selectedBackup = backup)}
+                            size="sm"
+                          >
+                            <i class="bi bi-shield-check mr-1"></i>
+                            Verify
+                          </ModernButton>
+                        {/if}
                         <ModernButton
-                          variant="primary"
-                          onclick={() => previewRestore(backup)}
+                          variant="danger"
+                          onclick={() => deleteBackup(backup.id)}
                           size="sm"
+                          aria-label="Delete backup"
                         >
-                          <i class="bi bi-arrow-counterclockwise mr-1"></i>
-                          Restore
+                          <i class="bi bi-trash"></i>
                         </ModernButton>
+                      </div>
+                    </div>
+                  </ModernCard>
+                </div>
+              </div>
+            {/each}
+          </div>
+        {:else}
+          <!-- Grid View (Original) -->
+          <div class="grid gap-4">
+            {#each backups as backup}
+              <ModernCard variant="glass" hoverable>
+                <div class="p-4">
+                  <div
+                    class="flex flex-col sm:flex-row justify-between items-start gap-4"
+                  >
+                    <div class="flex-1">
+                      <h3
+                        class="text-lg font-bold mb-2 flex flex-wrap items-center gap-2"
+                      >
+                        <span class="badge-glass-primary"
+                          >{backup.backup_type}</span
+                        >
+                        <span class="text-gray-900 dark:text-gray-100 text-base"
+                          >{backup.id}</span
+                        >
+                        <span class={getStatusBadge(backup.status)}>
+                          {backup.status}
+                        </span>
+                      </h3>
+
+                      <div
+                        class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm"
+                      >
+                        <div>
+                          <span class="text-gray-600 dark:text-gray-400"
+                            >Size:</span
+                          >
+                          <span
+                            class="ml-2 font-semibold text-gray-900 dark:text-gray-100"
+                            >{formatBytes(backup.size_bytes)}</span
+                          >
+                        </div>
+                        <div>
+                          <span class="text-gray-600 dark:text-gray-400"
+                            >Files:</span
+                          >
+                          <span
+                            class="ml-2 font-semibold text-gray-900 dark:text-gray-100"
+                            >{backup.file_count || 0}</span
+                          >
+                        </div>
+                        <div>
+                          <span class="text-gray-600 dark:text-gray-400"
+                            >Created:</span
+                          >
+                          <span class="ml-2 text-gray-900 dark:text-gray-100"
+                            >{formatDate(backup.created_at)}</span
+                          >
+                        </div>
+                      </div>
+
+                      {#if backup.error_message}
+                        <div
+                          class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mt-3 flex items-start gap-2"
+                        >
+                          <i
+                            class="bi bi-exclamation-circle-fill text-red-600 dark:text-red-400"
+                          ></i>
+                          <span class="text-sm text-red-700 dark:text-red-300"
+                            >{backup.error_message}</span
+                          >
+                        </div>
+                      {/if}
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                      {#if backup.status === "completed"}
                         <ModernButton
                           variant="secondary"
                           onclick={() => (selectedBackup = backup)}
-                          size="sm"
                         >
                           <i class="bi bi-shield-check mr-1"></i>
                           Verify
                         </ModernButton>
                       {/if}
+
                       <ModernButton
                         variant="danger"
                         onclick={() => deleteBackup(backup.id)}
-                        size="sm"
                         aria-label="Delete backup"
                       >
                         <i class="bi bi-trash"></i>
                       </ModernButton>
                     </div>
                   </div>
-                </ModernCard>
-              </div>
-            </div>
-          {/each}
-        </div>
-      {:else}
-        <!-- Grid View (Original) -->
-        <div class="grid gap-4">
-          {#each backups as backup}
-            <ModernCard variant="glass" hoverable>
-              <div class="p-4">
-                <div
-                  class="flex flex-col sm:flex-row justify-between items-start gap-4"
-                >
-                  <div class="flex-1">
-                    <h3
-                      class="text-lg font-bold mb-2 flex flex-wrap items-center gap-2"
-                    >
-                      <span class="badge-glass-primary"
-                        >{backup.backup_type}</span
-                      >
-                      <span class="text-gray-900 dark:text-gray-100 text-base"
-                        >{backup.id}</span
-                      >
-                      <span class={getStatusBadge(backup.status)}>
-                        {backup.status}
-                      </span>
-                    </h3>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                      <div>
-                        <span class="text-gray-600 dark:text-gray-400"
-                          >Size:</span
-                        >
-                        <span
-                          class="ml-2 font-semibold text-gray-900 dark:text-gray-100"
-                          >{formatBytes(backup.size_bytes)}</span
-                        >
-                      </div>
-                      <div>
-                        <span class="text-gray-600 dark:text-gray-400"
-                          >Files:</span
-                        >
-                        <span
-                          class="ml-2 font-semibold text-gray-900 dark:text-gray-100"
-                          >{backup.file_count || 0}</span
-                        >
-                      </div>
-                      <div>
-                        <span class="text-gray-600 dark:text-gray-400"
-                          >Created:</span
-                        >
-                        <span class="ml-2 text-gray-900 dark:text-gray-100"
-                          >{formatDate(backup.created_at)}</span
-                        >
-                      </div>
+                  {#if selectedBackup?.id === backup.id}
+                    <div
+                      class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"
+                    >
+                      <BackupVerificationPanel backupId={backup.id} />
                     </div>
-
-                    {#if backup.error_message}
-                      <div
-                        class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mt-3 flex items-start gap-2"
-                      >
-                        <i
-                          class="bi bi-exclamation-circle-fill text-red-600 dark:text-red-400"
-                        ></i>
-                        <span class="text-sm text-red-700 dark:text-red-300"
-                          >{backup.error_message}</span
-                        >
-                      </div>
-                    {/if}
-                  </div>
-
-                  <div class="flex flex-wrap gap-2">
-                    {#if backup.status === "completed"}
-                      <ModernButton
-                        variant="secondary"
-                        onclick={() => (selectedBackup = backup)}
-                      >
-                        <i class="bi bi-shield-check mr-1"></i>
-                        Verify
-                      </ModernButton>
-                    {/if}
-
-                    <ModernButton
-                      variant="danger"
-                      onclick={() => deleteBackup(backup.id)}
-                      aria-label="Delete backup"
-                    >
-                      <i class="bi bi-trash"></i>
-                    </ModernButton>
-                  </div>
+                  {/if}
                 </div>
-
-                {#if selectedBackup?.id === backup.id}
-                  <div
-                    class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"
-                  >
-                    <BackupVerificationPanel backupId={backup.id} />
-                  </div>
-                {/if}
+              </ModernCard>
+            {/each}
+          </div>
+        {/if}
+      </div>
+    {:else if activeTab === "schedules"}
+      <BackupScheduleManager />
+    {:else if activeTab === "export"}
+      <div class="export-tab space-y-4">
+        <ModernCard variant="glass">
+          <div
+            class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3"
+          >
+            <i
+              class="bi bi-info-circle-fill text-blue-600 dark:text-blue-400 text-2xl"
+            ></i>
+            <div>
+              <h3 class="font-bold text-blue-900 dark:text-blue-100 mb-1">
+                Export/Import Feature
+              </h3>
+              <div class="text-sm text-blue-800 dark:text-blue-200">
+                Manual backup export and import coming soon. Use the Backups tab
+                for automated backups.
               </div>
-            </ModernCard>
-          {/each}
-        </div>
-      {/if}
-    </div>
-  {:else if activeTab === "schedules"}
-    <BackupScheduleManager />
-  {:else if activeTab === "export"}
-    <div class="export-tab space-y-4">
-      <ModernCard variant="glass">
-        <div
-          class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3"
-        >
-          <i
-            class="bi bi-info-circle-fill text-blue-600 dark:text-blue-400 text-2xl"
-          ></i>
-          <div>
-            <h3 class="font-bold text-blue-900 dark:text-blue-100 mb-1">
-              Export/Import Feature
-            </h3>
-            <div class="text-sm text-blue-800 dark:text-blue-200">
-              Manual backup export and import coming soon. Use the Backups tab
-              for automated backups.
             </div>
           </div>
-        </div>
-      </ModernCard>
+        </ModernCard>
 
-      <ModernCard variant="glass">
-        <div class="p-6">
-          <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Coming Soon
-          </h3>
-          <p class="text-gray-600 dark:text-gray-400">
-            Manual export and import functionality will be integrated here. For
-            now, use the backend API or schedules for automated backups.
-          </p>
-        </div>
-      </ModernCard>
-    </div>
-  {/if}
+        <ModernCard variant="glass">
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              Coming Soon
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              Manual export and import functionality will be integrated here.
+              For now, use the backend API or schedules for automated backups.
+            </p>
+          </div>
+        </ModernCard>
+      </div>
+    {/if}
+  </div>
 </PageWrapper>
 
 <!-- Restore Preview Modal -->

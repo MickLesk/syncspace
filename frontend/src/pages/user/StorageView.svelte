@@ -88,7 +88,7 @@
   }
 </script>
 
-<div class="container mx-auto px-4 py-8 max-w-6xl">
+<div class="container mx-auto px-4 py-8 max-w-6xl page-fade-in">
   <div class="mb-8">
     <h1
       class="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3"
@@ -102,8 +102,13 @@
   </div>
 
   {#if loading}
-    <div class="flex items-center justify-center py-12">
-      <div class="loading loading-spinner loading-lg text-primary"></div>
+    <div class="space-y-6">
+      <div class="skeleton h-64 w-full rounded-2xl"></div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {#each Array(3) as _}
+          <div class="skeleton h-32 w-full rounded-xl"></div>
+        {/each}
+      </div>
     </div>
   {:else}
     <div class="space-y-6">

@@ -209,7 +209,7 @@
 </script>
 
 <PageWrapper>
-  <div class="space-y-6">
+  <div class="page-fade-in space-y-6">
     <!-- Tab Navigation -->
     <div class="flex gap-4 border-b-2 border-gray-200 dark:border-gray-700">
       <button

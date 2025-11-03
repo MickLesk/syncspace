@@ -93,7 +93,7 @@
 </script>
 
 <ModernCard variant="glass">
-  <div class="p-6">
+  <div class="p-6 page-fade-in">
     <div class="flex items-center justify-between mb-4">
       <h2
         class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2"
@@ -112,9 +112,10 @@
     </div>
 
     {#if loadingUsers}
-      <div class="flex justify-center items-center h-64">
-        <span class="loading loading-spinner loading-lg text-primary-600"
-        ></span>
+      <div class="space-y-4">
+        {#each Array(5) as _}
+          <div class="skeleton h-20 w-full rounded-xl"></div>
+        {/each}
       </div>
     {:else if users.length > 0}
       <div class="overflow-x-auto">
