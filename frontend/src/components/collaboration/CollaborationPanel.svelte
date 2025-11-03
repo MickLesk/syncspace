@@ -24,7 +24,7 @@
 
     try {
       const data = await api.collaboration.getPresence(filePath);
-      presenceList = data.filter((p) => p.user_id !== $auth?.user?.id);
+      presenceList = data.filter((p) => p.user_id !== $auth?.userId);
     } catch (err) {
       console.error("Failed to load presence:", err);
     }
@@ -36,8 +36,8 @@
 
     try {
       const locks = await api.collaboration.listLocks(filePath);
-      const myLock = locks.find((l) => l.user_id === $auth?.user?.id);
-      const otherLock = locks.find((l) => l.user_id !== $auth?.user?.id);
+      const myLock = locks.find((l) => l.user_id === $auth?.userId);
+      const otherLock = locks.find((l) => l.user_id !== $auth?.userId);
 
       currentLock = myLock || otherLock || null;
     } catch (err) {
@@ -147,12 +147,12 @@
     stopLockHeartbeat();
 
     // Remove presence
-    if (filePath && $auth?.user?.id) {
-      api.collaboration.removePresence($auth?.user.id).catch(() => {});
+    if (filePath && $auth?.userId) {
+      api.collaboration.removePresence($auth?.userId).catch(() => {});
     }
 
     // Release lock if owned
-    if (currentLock && currentLock.user_id === $auth?.user?.id) {
+    if (currentLock && currentLock.user_id === $auth?.userId) {
       api.collaboration.releaseLock(currentLock.id).catch(() => {});
     }
   });
@@ -169,10 +169,10 @@
   // Computed
   const hasOtherUsers = $derived(presenceList.length > 0);
   const isLockedByOther = $derived(
-    currentLock && currentLock.user_id !== $auth?.user?.id
+    currentLock && currentLock.user_id !== $auth?.userId
   );
   const isLockedByMe = $derived(
-    currentLock && currentLock.user_id === $auth?.user?.id
+    currentLock && currentLock.user_id === $auth?.userId
   );
 
   // Format timestamp

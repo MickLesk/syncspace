@@ -184,11 +184,11 @@
             </div>
 
             <div
-              class="flex-1 overflow-y-auto border rounded-lg bg-white dark:bg-slate-900"
+              class="flex-1 overflow-y-auto border rounded-lg bg-white dark:bg-gray-900"
             >
               {#each versions as version (version.id)}
                 <div
-                  class="border-b border-slate-200 dark:border-slate-700 p-3 hover:bg-base-50 relative"
+                  class="border-b border-gray-200 dark:border-gray-700 p-3 hover:bg-base-50 relative"
                 >
                   <div class="flex justify-between items-start">
                     <div class="flex-1">
@@ -219,7 +219,7 @@
 
                       {#if version.comment}
                         <div
-                          class="text-sm bg-slate-50 dark:bg-slate-800 p-2 rounded mb-2"
+                          class="text-sm bg-gray-50 dark:bg-gray-800 p-2 rounded mb-2"
                         >
                           {version.comment}
                         </div>

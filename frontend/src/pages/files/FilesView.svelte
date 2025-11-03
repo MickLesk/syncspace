@@ -60,6 +60,34 @@
   let displayFiles = $derived(() => {
     let result = [...$files];
 
+    // CRITICAL: Filter out system files that should NEVER be shown
+    const systemFiles = [
+      "syncspace.db",
+      "syncspace.db-shm",
+      "syncspace.db-wal",
+      "search_index",
+      ".git",
+      ".gitignore",
+      "node_modules",
+      ".env",
+      ".DS_Store",
+      "Thumbs.db",
+      "desktop.ini",
+    ];
+
+    result = result.filter((f) => {
+      const fileName = f.name.toLowerCase();
+      // Filter exact matches
+      if (systemFiles.some((sys) => fileName === sys.toLowerCase())) {
+        return false;
+      }
+      // Filter files starting with .
+      if (fileName.startsWith(".")) {
+        return false;
+      }
+      return true;
+    });
+
     // Apply folder filter
     if (showFoldersOnly) {
       result = result.filter((f) => f.is_directory);
@@ -342,6 +370,31 @@
   }
 </script>
 
+<!-- Global Drag & Drop Zone -->
+<svelte:window
+  ondragenter={(e) => {
+    e.preventDefault();
+    if (e.dataTransfer?.types.includes("Files")) {
+      document.body.classList.add("dragging-files");
+    }
+  }}
+  ondragleave={(e) => {
+    e.preventDefault();
+    if (e.target === document.body || e.relatedTarget === null) {
+      document.body.classList.remove("dragging-files");
+    }
+  }}
+  ondrop={(e) => {
+    e.preventDefault();
+    document.body.classList.remove("dragging-files");
+    const files = Array.from(e.dataTransfer?.files || []);
+    if (files.length > 0) {
+      handleUpload(files);
+    }
+  }}
+  ondragover={(e) => e.preventDefault()}
+/>
+
 <PageWrapper>
   <div class="p-4 md:p-6">
     <!-- Header with Breadcrumbs -->
@@ -349,17 +402,6 @@
       <Breadcrumbs
         path={$currentPath}
         on:navigate={(e) => navigateTo(e.detail)}
-      />
-    </div>
-
-    <!-- Search Bar (above toolbar) -->
-    <div class="mb-4">
-      <input
-        id="search-input"
-        type="text"
-        bind:value={searchQuery}
-        placeholder="Search files... (Ctrl+F)"
-        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
     </div>
 
@@ -377,13 +419,6 @@
       onAdvancedSearch={() => (showAdvancedSearchModal = true)}
       onSelectionToggle={toggleSelectionMode}
       onBatchDelete={batchDelete}
-    />
-
-    <!-- Search Filters -->
-    <SearchFilters
-      onFilterChange={(newFilters) => {
-        searchFilters = { ...searchFilters, ...newFilters };
-      }}
     />
 
     <!-- Upload Progress -->

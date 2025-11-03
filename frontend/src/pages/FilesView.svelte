@@ -1024,33 +1024,14 @@
 
           <!-- Right: Search and View Mode -->
           <div class="flex items-center gap-3">
-            <!-- Quick Search -->
-            <div class="relative">
-              <input
-                type="text"
-                placeholder="Quick search..."
-                class="input input-sm input-bordered glass-input w-48 pr-8"
-                bind:value={searchQuery}
-              />
-              {#if searchQuery}
-                <button
-                  class="btn btn-sm btn-ghost btn-circle absolute right-1 top-1/2 -translate-y-1/2"
-                  onclick={() => (searchQuery = "")}
-                  aria-label="Clear search"
-                >
-                  <i class="bi bi-x"></i>
-                </button>
-              {/if}
-            </div>
-
-            <!-- Advanced Search Button -->
+            <!-- Advanced Search / Filter Button -->
             <ModernButton
               variant="ghost"
               size="sm"
               icon="funnel"
               onclick={() => (showAdvancedSearchModal = true)}
             >
-              Advanced
+              Search & Filter
             </ModernButton>
 
             <!-- Clear Search Results -->
@@ -1257,7 +1238,7 @@
       <p class="text-sm opacity-70">Loading files...</p>
     </div>
   {:else if sortedFiles.length === 0}
-    <div class="hero min-h-[500px] bg-slate-50 dark:bg-slate-800 rounded-2xl m-4">
+    <div class="hero min-h-[500px] bg-gray-50 dark:bg-gray-800 rounded-2xl m-4">
       <div class="hero-content text-center">
         <div class="max-w-lg">
           <div class="mb-8">
@@ -1268,8 +1249,8 @@
               ></i>
             </div>
           </div>
-          <h1 class="text-4xl font-bold mb-4">This folder is empty</h1>
-          <p class="text-lg mb-8 opacity-70">
+          <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">This folder is empty</h1>
+          <p class="text-lg mb-8 text-gray-600 dark:text-gray-400">
             Get started by uploading files or creating a new folder
           </p>
           <div class="flex flex-col sm:flex-row gap-3 justify-center">
@@ -1302,16 +1283,16 @@
     >
       {#each sortedFiles as file, index}
         <div
-          class="card bg-white dark:bg-slate-900 border-2 transition-all duration-300 cursor-pointer group relative overflow-hidden"
-          class:border-slate-300 dark:border-slate-600={!isFileSelected(file)}
+          class="card bg-white dark:bg-gray-800 border-2 transition-all duration-300 cursor-pointer group relative overflow-hidden"
+          class:border-gray-200={!isFileSelected(file)}
+          class:dark:border-gray-700={!isFileSelected(file)}
           class:border-primary={isFileSelected(file)}
-          class:bg-primary={isFileSelected(file)}
-          style={isFileSelected(file)
-            ? "background-color: hsl(var(--p) / 0.05);"
-            : ""}
           class:hover:border-primary={!isFileSelected(file)}
           class:hover:shadow-2xl={true}
           class:hover:scale-105={!isFileSelected(file)}
+          style={isFileSelected(file)
+            ? "background-color: hsl(var(--p) / 0.1); border-color: hsl(var(--p));"
+            : ""}
           draggable="true"
           ondragstart={(e) => {
             e.dataTransfer.effectAllowed = "move";
@@ -1520,9 +1501,9 @@
     <!-- List View -->
     <div class="overflow-x-auto p-4">
       <table class="table table-zebra table-pin-rows">
-        <thead class="bg-slate-50 dark:bg-slate-800">
+        <thead class="bg-gray-50 dark:bg-gray-800">
           <tr>
-            <th class="bg-slate-50 dark:bg-slate-800">
+            <th class="bg-gray-50 dark:bg-gray-800">
               <button
                 class="flex items-center gap-1 hover:text-primary transition-colors"
                 onclick={() => {

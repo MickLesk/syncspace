@@ -1,5 +1,27 @@
 @import "tailwindcss";
-@import "./design-tokens.css";
+
+/* ======================
+   Tailwind v4 Dark Mode Configuration
+   ====================== */
+
+/* Define dark variant to use .dark class on :root */
+@variant dark (:root.dark &);
+
+/* Set color-scheme on root */
+:root.light {
+  color-scheme: light;
+}
+
+:root.dark {
+  color-scheme: dark;
+}
+
+/* Fallback if no class is set - use system preference */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not(.dark) {
+    color-scheme: dark;
+  }
+}
 
 /* ======================
    Theme Variables
@@ -27,8 +49,8 @@
 }
 
 /* Dark Mode */
-[data-theme="dark"],
-.dark {
+.dark,
+[data-theme="dark"] {
   color-scheme: dark;
   
   /* Surface Colors - Dark Mode */

@@ -4,7 +4,7 @@
    * Unified button with dark/light mode support
    */
   let {
-    children,
+    children = null,
     variant = "primary", // primary, secondary, ghost, danger, success, gradient
     size = "md", // sm, md, lg
     icon = "",
@@ -15,6 +15,8 @@
     onclick = null,
     type = "button",
     class: className = "",
+    "aria-label": ariaLabel = "",
+    ...restProps
   } = $props();
 
   const baseClasses =
@@ -22,17 +24,17 @@
 
   const variantClasses = {
     primary:
-      "bg-primary-500 hover:bg-primary-600 text-white focus:ring-primary-500 shadow-md hover:shadow-lg",
+      "bg-primary-500 hover:bg-primary-600 text-white focus:ring-primary-500 dark:focus:ring-primary-400 shadow-md hover:shadow-lg dark:shadow-primary-500/20",
     secondary:
-      "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white focus:ring-gray-500",
+      "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white focus:ring-gray-400 dark:focus:ring-gray-500 border border-gray-300 dark:border-gray-600",
     ghost:
-      "bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 focus:ring-gray-500",
+      "bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 focus:ring-gray-400 dark:focus:ring-gray-600",
     danger:
-      "bg-red-500 hover:bg-red-600 text-white focus:ring-red-500 shadow-md hover:shadow-lg",
+      "bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white focus:ring-red-500 dark:focus:ring-red-400 shadow-md hover:shadow-lg dark:shadow-red-500/20",
     success:
-      "bg-green-500 hover:bg-green-600 text-white focus:ring-green-500 shadow-md hover:shadow-lg",
+      "bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white focus:ring-green-500 dark:focus:ring-green-400 shadow-md hover:shadow-lg dark:shadow-green-500/20",
     gradient:
-      "gradient-bg-primary text-white shadow-lg hover:shadow-xl hover:scale-105 focus:ring-primary-500",
+      "gradient-bg-primary text-white shadow-lg hover:shadow-xl hover:scale-105 focus:ring-primary-500 dark:focus:ring-primary-400",
   };
 
   const sizeClasses = {
@@ -51,6 +53,8 @@
     : ''} {disabled || loading ? disabledClasses : ''} {className}"
   disabled={disabled || loading}
   {onclick}
+  aria-label={ariaLabel || undefined}
+  {...restProps}
 >
   {#if loading}
     <svg
