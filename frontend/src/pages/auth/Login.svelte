@@ -136,7 +136,7 @@
   <div class="blob blob-3"></div>
 
   <!-- Login Card with Glassmorphism -->
-  <div class="login-card">
+  <div class="login-card modal-content">
     <!-- Logo Section -->
     <div class="text-center mb-8">
       <div class="logo-circle">

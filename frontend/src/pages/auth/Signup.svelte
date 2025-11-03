@@ -75,7 +75,7 @@
   <div class="blob blob-3"></div>
 
   <!-- Signup Card with Glassmorphism -->
-  <div class="signup-card">
+  <div class="signup-card modal-content">
     <!-- Logo Section -->
     <div class="text-center mb-8">
       <div class="logo-circle">
