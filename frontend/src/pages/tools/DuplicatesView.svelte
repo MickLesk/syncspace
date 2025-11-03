@@ -127,6 +127,7 @@
 </script>
 
 <PageWrapper>
+  <div class="page-fade-in">
   <PageHeader
     title="Duplicate File Finder"
     subtitle="Scan and remove duplicate files to free up storage space"
@@ -418,5 +419,6 @@
         </div>
       {/if}
     </div>
-  </div></PageWrapper
->
+  </div>
+  </div>
+</PageWrapper>

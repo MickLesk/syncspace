@@ -141,6 +141,7 @@
 </script>
 
 <PageWrapper gradient>
+  <div class="page-fade-in">
   <PageHeader
     title="Activity Timeline"
     subtitle="Track all file operations and changes"
@@ -366,4 +367,5 @@
       </div>
     {/each}
   {/if}
+  </div>
 </PageWrapper>

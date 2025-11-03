@@ -86,6 +86,7 @@
 </script>
 
 <PageWrapper gradient>
+  <div class="page-fade-in">
   <PageHeader
     title="Settings"
     subtitle="Configure your SyncSpace preferences and system settings"
@@ -169,4 +170,5 @@
       </div>
     </ModernCard>
   {/if}
+  </div>
 </PageWrapper>
