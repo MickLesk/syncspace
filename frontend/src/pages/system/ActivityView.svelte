@@ -244,6 +244,7 @@
           />
           <button
             class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50"
+            aria-label="Search activity logs"
           >
             <i class="bi bi-search"></i>
           </button>
