@@ -80,12 +80,12 @@
 >
   {#each $toasts as toast (toast.id)}
     <div
-      class="toast-item {getAlertClass(toast.type)} pointer-events-auto"
+      class="toast-item {getAlertClass(toast.type)} pointer-events-auto toast-slide-in"
       role="alert"
     >
       <div class="toast-content">
         <div class="toast-icon-wrapper">
-          <i class="bi bi-{getIcon(toast.type)} toast-icon"></i>
+          <i class="bi bi-{getIcon(toast.type)} toast-icon {toast.type === 'success' ? 'success-checkmark' : toast.type === 'error' ? 'error-shake' : ''}"></i>
         </div>
 
         <div class="toast-text-wrapper">

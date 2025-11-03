@@ -8,7 +8,7 @@
 </script>
 
 {#if items.length > 0}
-  <div class="context-menu" style="left: {x}px; top: {y}px;" onclick={(e) => e.stopPropagation()}>
+  <div class="context-menu scale-in" style="left: {x}px; top: {y}px;" onclick={(e) => e.stopPropagation()}>
     {#each items as item}
       {#if item.divider}
         <div class="divider my-0"></div>
