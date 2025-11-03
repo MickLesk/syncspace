@@ -88,7 +88,7 @@
 </script>
 
 {#if viewMode === "grid"}
-  <div class="file-card-wrapper relative">
+  <div class="file-card-wrapper relative hover-lift">
     <!-- Favorite Star Button -->
     <button
       type="button"
@@ -157,7 +157,7 @@
     </button>
   </div>
 {:else}
-  <div class="file-card-wrapper relative">
+  <div class="file-card-wrapper relative hover-lift">
     <button
       type="button"
       class="file-card-list p-3 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md text-left w-full transition-all border-2 flex items-center gap-4"

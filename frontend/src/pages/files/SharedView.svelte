@@ -138,206 +138,208 @@
 </script>
 
 <PageWrapper gradient>
-  <PageHeader
-    title="Shared Files"
-    subtitle="Manage file shares and collaboration"
-    icon="share-fill"
-  >
-    {#snippet actions()}
-      <ModernButton
-        variant="gradient"
-        icon="plus-circle"
-        onclick={() => (showCreateModal = true)}
-      >
-        Create Share
-      </ModernButton>
-    {/snippet}
-  </PageHeader>
+  <div class="page-fade-in">
+    <PageHeader
+      title="Shared Files"
+      subtitle="Manage file shares and collaboration"
+      icon="share-fill"
+    >
+      {#snippet actions()}
+        <ModernButton
+          variant="gradient"
+          icon="plus-circle"
+          onclick={() => (showCreateModal = true)}
+        >
+          Create Share
+        </ModernButton>
+      {/snippet}
+    </PageHeader>
 
-  {#if loading}
-    <div class="flex items-center justify-center py-16">
-      <div
-        class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"
-      ></div>
-    </div>
-  {:else}
-    <div class="space-y-6">
-      {#if errorMsg}
-        <ModernCard variant="glass" padding="normal">
-          {#snippet children()}
-            <div class="flex items-center gap-3 border-l-4 border-red-500 pl-4">
-              <i class="bi bi-exclamation-triangle text-red-500 text-2xl"></i>
-              <p class="font-semibold text-gray-900 dark:text-gray-100">
-                {errorMsg}
-              </p>
-            </div>
-          {/snippet}
-        </ModernCard>
-      {/if}
-      {#if shares.length === 0}
-        <ModernCard variant="glass" padding="large">
-          {#snippet children()}
-            <div class="text-center py-8 animate-fade-in">
-              <div class="text-8xl mb-6 opacity-30">
-                <i class="bi bi-share"></i>
+    {#if loading}
+      <div class="flex items-center justify-center py-16">
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"
+        ></div>
+      </div>
+    {:else}
+      <div class="space-y-6">
+        {#if errorMsg}
+          <ModernCard variant="glass" padding="normal">
+            {#snippet children()}
+              <div
+                class="flex items-center gap-3 border-l-4 border-red-500 pl-4"
+              >
+                <i class="bi bi-exclamation-triangle text-red-500 text-2xl"></i>
+                <p class="font-semibold text-gray-900 dark:text-gray-100">
+                  {errorMsg}
+                </p>
               </div>
-              <h2
-                class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100"
-              >
-                No shares yet
-              </h2>
-              <p class="text-gray-600 dark:text-gray-400 mb-6">
-                Create your first share to collaborate with others
-              </p>
-              <ModernButton
-                variant="gradient"
-                icon="plus-circle"
-                onclick={() => (showCreateModal = true)}
-              >
-                Create Share
-              </ModernButton>
-            </div>
-          {/snippet}
-        </ModernCard>
-      {:else}
-        <ModernCard variant="glass" padding="none">
-          {#snippet children()}
-            <div class="overflow-x-auto">
-              <table class="w-full">
-                <thead>
-                  <tr
-                    class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
-                  >
-                    <th
-                      class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
-                      >File Path</th
-                    >
-                    <th
-                      class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
-                      >Permissions</th
-                    >
-                    <th
-                      class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
-                      >Expires</th
-                    >
-                    <th
-                      class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
-                      >Created</th
-                    >
-                    <th
-                      class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
-                      >Protected</th
-                    >
-                    <th
-                      class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
-                      >Actions</th
-                    >
-                  </tr>
-                </thead>
-                <tbody>
-                  {#each shares as share, i (share.id)}
+            {/snippet}
+          </ModernCard>
+        {/if}
+        {#if shares.length === 0}
+          <ModernCard variant="glass" padding="large">
+            {#snippet children()}
+              <div class="text-center py-8 animate-fade-in">
+                <div class="text-8xl mb-6 opacity-30">
+                  <i class="bi bi-share"></i>
+                </div>
+                <h2
+                  class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100"
+                >
+                  No shares yet
+                </h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">
+                  Create your first share to collaborate with others
+                </p>
+                <ModernButton
+                  variant="gradient"
+                  icon="plus-circle"
+                  onclick={() => (showCreateModal = true)}
+                >
+                  Create Share
+                </ModernButton>
+              </div>
+            {/snippet}
+          </ModernCard>
+        {:else}
+          <ModernCard variant="glass" padding="none">
+            {#snippet children()}
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead>
                     <tr
-                      class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors animate-slide-up"
-                      class:opacity-50={isExpired(share.expires_at)}
-                      style="animation-delay: {i * 30}ms;"
+                      class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
                     >
-                      <td
-                        class="px-6 py-4 font-mono text-sm text-primary-600 dark:text-primary-400"
+                      <th
+                        class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
+                        >File Path</th
                       >
-                        {share.file_path}
-                      </td>
-                      <td class="px-6 py-4">
-                        <span
-                          class="badge-glass-{share.permissions === 'read'
-                            ? 'info'
-                            : 'warning'}"
-                        >
-                          {share.permissions}
-                        </span>
-                      </td>
-                      <td
-                        class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400"
+                      <th
+                        class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
+                        >Permissions</th
                       >
-                        {formatDate(share.expires_at)}
-                      </td>
-                      <td
-                        class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400"
+                      <th
+                        class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
+                        >Expires</th
                       >
-                        {formatDate(share.created_at)}
-                      </td>
-                      <td class="px-6 py-4">
-                        {#if share.password_hash}
-                          <i class="bi bi-lock-fill text-yellow-500 text-lg"
-                          ></i>
-                        {:else}
-                          <i class="bi bi-unlock text-gray-400 text-lg"></i>
-                        {/if}
-                      </td>
-                      <td class="px-6 py-4">
-                        <div class="flex gap-2">
-                          <ModernButton
-                            variant="ghost"
-                            size="sm"
-                            icon="clipboard"
-                            onclick={() => copyShareLink(share.id)}
-                          >
-                            Copy
-                          </ModernButton>
-                          <ModernButton
-                            variant="secondary"
-                            size="sm"
-                            icon="pencil"
-                            onclick={() => openEditModal(share)}
-                          >
-                            Edit
-                          </ModernButton>
-                          <ModernButton
-                            variant="danger"
-                            size="sm"
-                            icon="trash"
-                            onclick={() => openDeleteModal(share)}
-                          >
-                            Delete
-                          </ModernButton>
-                        </div>
-                      </td>
+                      <th
+                        class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
+                        >Created</th
+                      >
+                      <th
+                        class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
+                        >Protected</th
+                      >
+                      <th
+                        class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
+                        >Actions</th
+                      >
                     </tr>
-                  {/each}
-                </tbody>
-              </table>
-            </div>
-            <div
-              class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 px-6 py-4"
-            >
-              <div class="flex items-center justify-between text-sm">
-                <div class="text-gray-600 dark:text-gray-400">
-                  <span class="font-semibold">{shares.length}</span> total share{shares.length !==
-                  1
-                    ? "s"
-                    : ""}
-                </div>
-                <div class="flex gap-4 text-gray-600 dark:text-gray-400">
-                  <div class="flex items-center gap-2">
-                    <i class="bi bi-lock-fill text-yellow-500"></i>
-                    <span
-                      >{shares.filter((s) => s.password_hash).length} protected</span
-                    >
+                  </thead>
+                  <tbody>
+                    {#each shares as share, i (share.id)}
+                      <tr
+                        class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors animate-slide-up"
+                        class:opacity-50={isExpired(share.expires_at)}
+                        style="animation-delay: {i * 30}ms;"
+                      >
+                        <td
+                          class="px-6 py-4 font-mono text-sm text-primary-600 dark:text-primary-400"
+                        >
+                          {share.file_path}
+                        </td>
+                        <td class="px-6 py-4">
+                          <span
+                            class="badge-glass-{share.permissions === 'read'
+                              ? 'info'
+                              : 'warning'}"
+                          >
+                            {share.permissions}
+                          </span>
+                        </td>
+                        <td
+                          class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400"
+                        >
+                          {formatDate(share.expires_at)}
+                        </td>
+                        <td
+                          class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400"
+                        >
+                          {formatDate(share.created_at)}
+                        </td>
+                        <td class="px-6 py-4">
+                          {#if share.password_hash}
+                            <i class="bi bi-lock-fill text-yellow-500 text-lg"
+                            ></i>
+                          {:else}
+                            <i class="bi bi-unlock text-gray-400 text-lg"></i>
+                          {/if}
+                        </td>
+                        <td class="px-6 py-4">
+                          <div class="flex gap-2">
+                            <ModernButton
+                              variant="ghost"
+                              size="sm"
+                              icon="clipboard"
+                              onclick={() => copyShareLink(share.id)}
+                            >
+                              Copy
+                            </ModernButton>
+                            <ModernButton
+                              variant="secondary"
+                              size="sm"
+                              icon="pencil"
+                              onclick={() => openEditModal(share)}
+                            >
+                              Edit
+                            </ModernButton>
+                            <ModernButton
+                              variant="danger"
+                              size="sm"
+                              icon="trash"
+                              onclick={() => openDeleteModal(share)}
+                            >
+                              Delete
+                            </ModernButton>
+                          </div>
+                        </td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+              <div
+                class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 px-6 py-4"
+              >
+                <div class="flex items-center justify-between text-sm">
+                  <div class="text-gray-600 dark:text-gray-400">
+                    <span class="font-semibold">{shares.length}</span> total
+                    share{shares.length !== 1 ? "s" : ""}
                   </div>
-                  <div class="flex items-center gap-2">
-                    <i class="bi bi-exclamation-triangle text-red-500"></i>
-                    <span
-                      >{shares.filter((s) => isExpired(s.expires_at)).length} expired</span
-                    >
+                  <div class="flex gap-4 text-gray-600 dark:text-gray-400">
+                    <div class="flex items-center gap-2">
+                      <i class="bi bi-lock-fill text-yellow-500"></i>
+                      <span
+                        >{shares.filter((s) => s.password_hash).length} protected</span
+                      >
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <i class="bi bi-exclamation-triangle text-red-500"></i>
+                      <span
+                        >{shares.filter((s) => isExpired(s.expires_at)).length} expired</span
+                      >
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          {/snippet}
-        </ModernCard>
-      {/if}
-    </div>
-  {/if}
-</PageWrapper>
+            {/snippet}
+          </ModernCard>
+        {/if}
+      </div>
+    {/if}
+  </div></PageWrapper
+>
 
 {#if showCreateModal}
   <div
