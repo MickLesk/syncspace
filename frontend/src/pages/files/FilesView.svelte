@@ -190,12 +190,14 @@
       renameFile(file, newName);
     });
     const unsubDelete = modalEvents.on("deleteFile", deleteFile);
+    const unsubSearch = modalEvents.on("search", handleAdvancedSearch);
 
     return () => {
       unsubUpload();
       unsubCreateFolder();
       unsubRename();
       unsubDelete();
+      unsubSearch();
     };
   });
 
@@ -216,6 +218,11 @@
   }
 
   function navigateTo(pathOrEvent) {
+    // Exit search mode when navigating
+    if (isSearchMode) {
+      exitSearchMode();
+    }
+
     // Handle both direct path string and event object with {path: "..."}
     const path =
       typeof pathOrEvent === "string"
@@ -236,9 +243,90 @@
     selectedFiles = new Set();
   }
 
+  // Advanced Search Handler
+  async function handleAdvancedSearch(event) {
+    const {
+      query,
+      filters,
+      sortBy: searchSortBy,
+      sortOrder: searchSortOrder,
+    } = event.detail;
+
+    console.log("[FilesView] Advanced search triggered:", {
+      query,
+      filters,
+      searchSortBy,
+      searchSortOrder,
+    });
+
+    searchLoading = true;
+    isSearchMode = true;
+
+    try {
+      // Call backend search API
+      const results = await api.search.query(query, 100, true);
+
+      console.log("[FilesView] Search results:", results);
+
+      // Transform results to match file structure
+      searchResults = (results || []).map((file) => ({
+        id: file.id || file.path,
+        name: file.name || file.filename,
+        path: file.path || file.file_path,
+        is_directory: file.is_directory || false,
+        size_bytes: file.size_bytes || file.size || 0,
+        modified_at:
+          file.modified_at || file.last_modified || new Date().toISOString(),
+        mime_type: file.mime_type || "application/octet-stream",
+      }));
+
+      // Apply additional filters from advanced search
+      if (filters.fileType && filters.fileType !== "all") {
+        searchResults = searchResults.filter((file) => {
+          if (filters.fileType === "folder") return file.is_directory;
+          if (filters.fileType === "file") return !file.is_directory;
+          // Add more file type filters as needed
+          return true;
+        });
+      }
+
+      // Apply sort from search parameters
+      if (searchSortBy) {
+        sortBy = searchSortBy;
+        sortOrder = searchSortOrder || "asc";
+      }
+
+      success(`Found ${searchResults.length} result(s)`);
+
+      // Close the search modal
+      modals.close("advancedSearch");
+    } catch (err) {
+      console.error("[FilesView] Search failed:", err);
+      errorToast("Search failed: " + err.message);
+      searchResults = [];
+    } finally {
+      searchLoading = false;
+    }
+  }
+
+  // Exit search mode and return to normal file browsing
+  function exitSearchMode() {
+    isSearchMode = false;
+    searchResults = [];
+    searchQuery = "";
+  }
+
   function openFile(file) {
     if (file.is_directory) {
-      navigateTo($currentPath + file.name + "/");
+      // Exit search mode when navigating into a folder
+      if (isSearchMode) {
+        exitSearchMode();
+      }
+      // Navigate to the folder - use file.path for search results, construct path otherwise
+      const folderPath = isSearchMode
+        ? file.path
+        : $currentPath + file.name + "/";
+      navigateTo(folderPath);
     } else {
       modals.openPreview(file);
     }
@@ -475,10 +563,61 @@
     <!-- Header with Breadcrumbs -->
     <div class="mb-4">
       <Breadcrumbs
-        path={$currentPath}
+        path={isSearchMode ? "/Search Results" : $currentPath}
         on:navigate={(e) => navigateTo(e.detail)}
       />
     </div>
+
+    <!-- Search Mode Banner -->
+    {#if isSearchMode}
+      <div
+        class="mb-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <svg
+            class="w-5 h-5 text-blue-600 dark:text-blue-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <div>
+            <div class="text-sm font-medium text-blue-900 dark:text-blue-100">
+              Search Results
+            </div>
+            <div class="text-xs text-blue-700 dark:text-blue-300">
+              Found {searchResults.length}
+              {searchResults.length === 1 ? "item" : "items"} matching your search
+            </div>
+          </div>
+        </div>
+        <button
+          onclick={exitSearchMode}
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+          Exit Search
+        </button>
+      </div>
+    {/if}
 
     <!-- Unified Toolbar -->
     <FileToolbar
@@ -504,19 +643,28 @@
     {/if}
 
     <!-- File Grid/List -->
-    {#if loading}
-      <LoadingState variant={viewMode} count={8} message="Loading files..." />
+    {#if loading || searchLoading}
+      <LoadingState
+        variant={viewMode}
+        count={8}
+        message={searchLoading ? "Searching files..." : "Loading files..."}
+      />
     {:else if displayFiles().length === 0}
       <EmptyState
-        icon="📂"
-        title={searchQuery
+        icon={isSearchMode ? "🔍" : "📂"}
+        title={isSearchMode
           ? "No files match your search"
-          : "This folder is empty"}
-        description={searchQuery
-          ? "Try adjusting your search criteria"
-          : "Upload files or create a new folder to get started"}
-        actionText="Upload Files"
-        onAction={() => modals.openUpload()}
+          : searchQuery
+            ? "No files match your search"
+            : "This folder is empty"}
+        description={isSearchMode
+          ? "Try adjusting your search criteria or use different keywords"
+          : searchQuery
+            ? "Try adjusting your search criteria"
+            : "Upload files or create a new folder to get started"}
+        actionText={isSearchMode ? "New Search" : "Upload Files"}
+        onAction={() =>
+          isSearchMode ? modals.openAdvancedSearch() : modals.openUpload()}
       />
     {:else}
       <div
