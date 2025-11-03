@@ -28,12 +28,18 @@
 
   let recentFiles = $state([]);
   let editMode = $state(false);
-  let settingsTab = $state(false); // Toggle between Profile and Settings view
+  let activeTab = $state("profile"); // profile | settings | storage
+  let storage = $state({
+    used: 0,
+    quota: 10 * 1024 ** 3, // 10GB default
+    breakdown: [],
+  });
 
   onMount(async () => {
     await loadUserProfile();
     await loadUserSettings();
     await loadRecentFiles();
+    await loadStorageInfo();
   });
 
   async function loadUserProfile() {
@@ -88,6 +94,24 @@
       }));
     } catch (err) {
       console.error("[Profile] Failed to load recent files:", err);
+    }
+  }
+
+  async function loadStorageInfo() {
+    try {
+      const profile = await api.users.getProfile();
+      storage.used = profile.storage_used_bytes || 0;
+      storage.quota = profile.storage_quota_bytes || 10 * 1024 ** 3;
+
+      // Calculate file type breakdown (mock data - replace with real API)
+      storage.breakdown = [
+        { type: "Images", size: storage.used * 0.4, color: "#3b82f6" },
+        { type: "Videos", size: storage.used * 0.3, color: "#8b5cf6" },
+        { type: "Documents", size: storage.used * 0.2, color: "#10b981" },
+        { type: "Other", size: storage.used * 0.1, color: "#f59e0b" },
+      ];
+    } catch (err) {
+      console.error("[Profile] Failed to load storage info:", err);
     }
   }
 
@@ -157,6 +181,31 @@
       showToast("Failed to save settings", "error");
     }
   }
+
+  async function reindexSearch() {
+    try {
+      showToast("Rebuilding search index...", "info");
+      const response = await fetch("http://localhost:8080/api/search/reindex", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      showToast(
+        `Search index rebuilt: ${result.files_indexed} files indexed`,
+        "success"
+      );
+    } catch (err) {
+      console.error("[Profile] Failed to rebuild search index:", err);
+      showToast("Failed to rebuild search index", "error");
+    }
+  }
 </script>
 
 <PageWrapper>
@@ -166,13 +215,13 @@
       <button
         type="button"
         class="px-6 py-3 font-semibold transition-colors border-b-2 -mb-0.5"
-        class:border-primary-500={!settingsTab}
-        class:text-primary-600={!settingsTab}
-        class:dark:text-primary-400={!settingsTab}
-        class:border-transparent={settingsTab}
-        class:text-gray-600={settingsTab}
-        class:dark:text-gray-400={settingsTab}
-        onclick={() => (settingsTab = false)}
+        class:border-primary-500={activeTab === "profile"}
+        class:text-primary-600={activeTab === "profile"}
+        class:dark:text-primary-400={activeTab === "profile"}
+        class:border-transparent={activeTab !== "profile"}
+        class:text-gray-600={activeTab !== "profile"}
+        class:dark:text-gray-400={activeTab !== "profile"}
+        onclick={() => (activeTab = "profile")}
       >
         <i class="bi bi-person-circle mr-2"></i>
         Profile
@@ -180,20 +229,34 @@
       <button
         type="button"
         class="px-6 py-3 font-semibold transition-colors border-b-2 -mb-0.5"
-        class:border-primary-500={settingsTab}
-        class:text-primary-600={settingsTab}
-        class:dark:text-primary-400={settingsTab}
-        class:border-transparent={!settingsTab}
-        class:text-gray-600={!settingsTab}
-        class:dark:text-gray-400={!settingsTab}
-        onclick={() => (settingsTab = true)}
+        class:border-primary-500={activeTab === "settings"}
+        class:text-primary-600={activeTab === "settings"}
+        class:dark:text-primary-400={activeTab === "settings"}
+        class:border-transparent={activeTab !== "settings"}
+        class:text-gray-600={activeTab !== "settings"}
+        class:dark:text-gray-400={activeTab !== "settings"}
+        onclick={() => (activeTab = "settings")}
       >
         <i class="bi bi-gear-fill mr-2"></i>
         Settings
       </button>
+      <button
+        type="button"
+        class="px-6 py-3 font-semibold transition-colors border-b-2 -mb-0.5"
+        class:border-primary-500={activeTab === "storage"}
+        class:text-primary-600={activeTab === "storage"}
+        class:dark:text-primary-400={activeTab === "storage"}
+        class:border-transparent={activeTab !== "storage"}
+        class:text-gray-600={activeTab !== "storage"}
+        class:dark:text-gray-400={activeTab !== "storage"}
+        onclick={() => (activeTab = "storage")}
+      >
+        <i class="bi bi-hdd-fill mr-2"></i>
+        Storage
+      </button>
     </div>
 
-    {#if !settingsTab}
+    {#if activeTab === "profile"}
       <!-- Profile Tab -->
       <div class="space-y-6">
         <!-- Cover Photo & Profile -->
@@ -420,7 +483,7 @@
           </div>
         </ModernCard>
       </div>
-    {:else}
+    {:else if activeTab === "settings"}
       <!-- Settings Tab -->
       <div class="space-y-6">
         <ModernCard variant="glass">
@@ -488,6 +551,140 @@
                 Save Settings
               </ModernButton>
             </div>
+          </div>
+        </ModernCard>
+
+        <!-- Admin Tools -->
+        <ModernCard variant="glass">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            <i class="bi bi-tools mr-2"></i>
+            Admin Tools
+          </h2>
+
+          <div class="space-y-4">
+            <div
+              class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4"
+            >
+              <h3
+                class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2"
+              >
+                <i class="bi bi-search mr-2"></i>
+                Search Index
+              </h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Rebuild the search index to include all existing files. This may
+                take a few moments.
+              </p>
+              <ModernButton variant="outline" onclick={reindexSearch}>
+                <i class="bi bi-arrow-clockwise mr-2"></i>
+                Rebuild Search Index
+              </ModernButton>
+            </div>
+          </div>
+        </ModernCard>
+      </div>
+    {:else if activeTab === "storage"}
+      <!-- Storage Tab -->
+      <div class="space-y-6">
+        <!-- Storage Overview -->
+        <ModernCard variant="glass">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            <i class="bi bi-hdd-fill mr-2"></i>
+            Storage Usage
+          </h2>
+
+          <!-- Storage Bar -->
+          <div class="mb-6">
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-gray-700 dark:text-gray-300">
+                {formatBytes(storage.used)} used
+              </span>
+              <span class="text-gray-600 dark:text-gray-400">
+                {formatBytes(storage.quota)} total
+              </span>
+            </div>
+            <div
+              class="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"
+            >
+              <div
+                class="h-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-500"
+                style="width: {((storage.used / storage.quota) * 100).toFixed(
+                  1
+                )}%"
+              ></div>
+            </div>
+            <div class="mt-2 text-center">
+              <span class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {((storage.used / storage.quota) * 100).toFixed(1)}%
+              </span>
+              <span class="text-gray-600 dark:text-gray-400 ml-2">
+                of storage used
+              </span>
+            </div>
+          </div>
+
+          <!-- File Type Breakdown -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Storage Breakdown
+            </h3>
+            {#each storage.breakdown as item}
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-4 h-4 rounded-full"
+                  style="background-color: {item.color}"
+                ></div>
+                <div class="flex-1">
+                  <div class="flex justify-between mb-1">
+                    <span
+                      class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                    >
+                      {item.type}
+                    </span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">
+                      {formatBytes(item.size)}
+                    </span>
+                  </div>
+                  <div
+                    class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"
+                  >
+                    <div
+                      class="h-full transition-all duration-500"
+                      style="width: {((item.size / storage.used) * 100).toFixed(
+                        1
+                      )}%; background-color: {item.color}"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            {/each}
+          </div>
+        </ModernCard>
+
+        <!-- Quick Actions -->
+        <ModernCard variant="glass">
+          <h3
+            class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4"
+          >
+            Storage Management
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ModernButton variant="outline" class="justify-start">
+              <i class="bi bi-trash mr-2"></i>
+              Clear Trash
+            </ModernButton>
+            <ModernButton variant="outline" class="justify-start">
+              <i class="bi bi-arrow-clockwise mr-2"></i>
+              Optimize Storage
+            </ModernButton>
+            <ModernButton variant="outline" class="justify-start">
+              <i class="bi bi-download mr-2"></i>
+              Download All Files
+            </ModernButton>
+            <ModernButton variant="outline" class="justify-start">
+              <i class="bi bi-arrow-up-circle mr-2"></i>
+              Upgrade Storage
+            </ModernButton>
           </div>
         </ModernCard>
       </div>

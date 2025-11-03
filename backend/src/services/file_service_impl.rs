@@ -188,6 +188,18 @@ pub async fn upload_file(state: &AppState, user: &UserInfo, path: &str, data: Ve
     let _ = sqlx::query("INSERT INTO file_history (id, file_id, user_id, action, status, created_at) VALUES (?, ?, ?, 'created', 'success', datetime('now'))")
         .bind(&log_id).bind(&file_id).bind(&user.id).execute(&state.db_pool).await;
     
+    // AUTO-INDEX: Add file to search index
+    let content = crate::search::extract_content(&target).await;
+    let _ = state.search_index.index_file(
+        &file_id,
+        &filename,
+        path,
+        content,
+        Utc::now(),
+        size_bytes as u64,
+    ).await;
+    eprintln!("[upload_file] File indexed in search: {}", filename);
+    
     let _ = state.fs_tx.send(FileChangeEvent::new(path.to_string(), "create".to_string()));
     
     Ok(FileInfo {
@@ -254,6 +266,18 @@ pub async fn delete_file(state: &AppState, user: &UserInfo, path: &str) -> Resul
     let log_id = Uuid::new_v4().to_string();
     let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'deleted', ?, 'success', datetime('now'))")
         .bind(&log_id).bind(&user.id).bind(path).execute(&state.db_pool).await;
+    
+    // AUTO-INDEX: Remove file from search index (get file_id first)
+    if let Ok(row) = sqlx::query("SELECT id FROM files WHERE path = ?")
+        .bind(path)
+        .fetch_one(&state.db_pool)
+        .await 
+    {
+        if let Ok(file_id) = row.try_get::<String, _>("id") {
+            let _ = state.search_index.delete_from_index(&file_id).await;
+            eprintln!("[delete_file] File removed from search index: {}", path);
+        }
+    }
     
     let _ = state.fs_tx.send(FileChangeEvent::new(path.to_string(), "delete".to_string()));
     Ok(())
