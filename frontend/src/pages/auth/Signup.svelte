@@ -9,6 +9,8 @@
   let loading = $state(false);
   let errorMessage = $state("");
   let successMessage = $state("");
+  let showPassword = $state(false);
+  let showConfirmPassword = $state(false);
 
   async function handleSignup(e) {
     e.preventDefault();
@@ -173,15 +175,23 @@
         </label>
         <div class="relative">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             bind:value={password}
-            class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="Create a strong password"
             disabled={loading}
           />
           <i
             class="bi bi-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
           ></i>
+          <button
+            type="button"
+            onclick={() => (showPassword = !showPassword)}
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            aria-label="Toggle password visibility"
+          >
+            <i class="bi bi-{showPassword ? 'eye-slash' : 'eye'}"></i>
+          </button>
         </div>
         <p class="text-xs text-gray-500 dark:text-gray-400 ml-1">
           Minimum 8 characters
@@ -198,15 +208,23 @@
         </label>
         <div class="relative">
           <input
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             bind:value={confirmPassword}
-            class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="Confirm your password"
             disabled={loading}
           />
           <i
             class="bi bi-shield-check absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
           ></i>
+          <button
+            type="button"
+            onclick={() => (showConfirmPassword = !showConfirmPassword)}
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            aria-label="Toggle confirm password visibility"
+          >
+            <i class="bi bi-{showConfirmPassword ? 'eye-slash' : 'eye'}"></i>
+          </button>
         </div>
       </div>
 
