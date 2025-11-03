@@ -10,7 +10,7 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use chrono::Utc;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::collections::HashMap;
 use uuid::Uuid;
 

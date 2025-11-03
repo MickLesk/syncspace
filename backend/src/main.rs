@@ -22,7 +22,7 @@ mod status;
 mod websocket;
 
 use std::net::SocketAddr;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -33,7 +33,6 @@ use axum::{
     routing::get,
     Router,
 };
-use serde::{Deserialize, Serialize};
 use tokio::sync::{broadcast, Mutex};
 use tower_http::cors::{Any, CorsLayer};
 

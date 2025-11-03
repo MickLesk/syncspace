@@ -10,7 +10,6 @@ use axum::{
     response::{Html, IntoResponse, Json},
 };
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::AppState;

@@ -1,7 +1,7 @@
 //! User management API endpoints
 
-use axum::{extract::State, http::StatusCode, routing::{get, put}, Json, Router};
-use serde::{Deserialize, Serialize};
+use axum::{extract::State, http::StatusCode, routing::get, Json, Router};
+use serde::Deserialize;
 use crate::{auth::UserInfo, services, AppState, handlers};
 
 #[derive(Debug, Deserialize)]

@@ -5,17 +5,15 @@ use crate::auth;
 use crate::{AppState, FileChangeEvent};
 use axum::{
     body::Body,
-    extract::{Multipart, Path as AxumPath, Query, State},
+    extract::{Multipart, Path as AxumPath, State},
     http::{header, StatusCode},
-    response::{IntoResponse, Json, Response},
+    response::{Json, Response},
 };
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use tokio::fs;
 use tokio::io::AsyncWriteExt;
-use uuid::Uuid;
 
 const BASE_DIR: &str = "./data";
 

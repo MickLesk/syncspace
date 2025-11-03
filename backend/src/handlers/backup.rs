@@ -2,15 +2,17 @@
 //!
 //! Create, list, restore, and manage database/file backups with scheduling and verification.
 
+#![allow(dead_code)]  // Module still in development - handlers not yet integrated
+
 use axum::{
-    extract::{Path, State, Query},
+    extract::{Path, State},
     http::StatusCode,
     response::Json,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 use sqlx::FromRow;
-use chrono::{Utc, DateTime};
+use chrono::Utc;
 use uuid::Uuid;
 use std::path::PathBuf;
 use sha2::{Sha256, Digest};
@@ -18,7 +20,7 @@ use tokio::io::AsyncReadExt;
 
 use crate::auth::User;
 use crate::AppState;
-use crate::database::{BackupSchedule, BackupVerification, BackupFile, EnhancedBackup};
+use crate::database::{BackupSchedule, BackupVerification};
 
 const BACKUP_DIR: &str = "./data/backups";
 

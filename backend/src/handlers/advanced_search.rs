@@ -1,13 +1,5 @@
-/// Advanced search with filters and sorting
-use axum::{
-    extract::{Query, State},
-    http::StatusCode,
-    Json,
-};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
-use chrono::{DateTime, Utc, NaiveDateTime};
-use crate::auth::User;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct AdvancedSearchQuery {

@@ -5,7 +5,7 @@
 //! - GET/PUT /api/users/preferences - User preferences (view_mode, sort_by, sidebar state)
 
 use axum::{
-    extract::{State, Path},
+    extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
 };
@@ -289,7 +289,7 @@ pub async fn update_user_preferences(
     }
 
     // Build dynamic update
-    let mut updates: Vec<String> = Vec::new();
+    let updates: Vec<String> = Vec::new();
     
     if let Some(view_mode) = &payload.view_mode {
         sqlx::query("UPDATE user_preferences SET view_mode = ? WHERE user_id = ?")

@@ -2,7 +2,7 @@
 
 use crate::auth::UserInfo;
 
-use axum::{extract::State, http::StatusCode, routing::{get, post}, Json, Router};
+use axum::{extract::State, http::StatusCode, routing::get, Json, Router};
 use crate::{services, AppState};
 
 pub fn router() -> Router<AppState> {

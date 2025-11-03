@@ -96,6 +96,8 @@ fn scan_directory<'a>(
                 
                 count += 1;
                 println!("  📄 Synced: {} ({} bytes)", file_relative_path, size_bytes);
+            } else {
+                println!("  ⏭️  Skipped (already in DB): {}", file_relative_path);
             }
         }
     }

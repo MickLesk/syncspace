@@ -26,7 +26,6 @@ pub mod duplicates;
 
 use axum::{
     middleware,
-    routing::{delete, get, post, put},
     Router,
 };
 
