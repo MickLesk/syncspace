@@ -80,26 +80,31 @@
     }
   });
 
-  // Apply theme to document - SAUBERE Implementierung
+  // Apply theme to document - Tailwind v4 compatible
   $effect(() => {
     if (typeof document !== "undefined") {
       const isDark =
         $currentTheme === "dark" || $currentTheme === "syncspace-dark";
 
-      // Setze das data-theme Attribut
-      document.documentElement.setAttribute(
-        "data-theme",
-        isDark ? "dark" : "light"
-      );
+      const html = document.documentElement;
 
-      // Setze oder entferne die .dark Klasse für Tailwind
+      // Remove all theme classes first
+      html.classList.remove("dark", "light");
+
+      // Set the appropriate class for Tailwind v4
       if (isDark) {
-        document.documentElement.classList.add("dark");
+        html.classList.add("dark");
+        html.setAttribute("data-theme", "dark");
+        html.style.colorScheme = "dark";
       } else {
-        document.documentElement.classList.remove("dark");
+        html.classList.add("light");
+        html.setAttribute("data-theme", "light");
+        html.style.colorScheme = "light";
       }
 
-      console.log(`[App.svelte] Theme: ${$currentTheme}, isDark: ${isDark}`);
+      console.log(
+        `[App.svelte] Theme applied: ${isDark ? "dark" : "light"}, classes: ${html.className}`
+      );
     }
   });
 
@@ -111,6 +116,7 @@
   let showSignup = $state(false);
   let isMobileMenuOpen = $state(false);
   let isMobile = $state(false);
+  let showActivityFeed = $state(false); // Collapsible Activity Feed
 
   onMount(() => {
     const checkRoute = () => {
@@ -173,6 +179,65 @@
 
     <div class="main-wrapper">
       <AppHeader on:navigate={handleNavigate} />
+
+      <!-- Modern Activity Feed Toggle Button -->
+      <button
+        onclick={() => (showActivityFeed = !showActivityFeed)}
+        class="fixed top-20 right-6 z-40 group"
+        title={showActivityFeed ? "Hide Activity Feed" : "Show Activity Feed"}
+      >
+        <!-- Button Background with Gradient on Active -->
+        <div
+          class="relative p-4 rounded-2xl shadow-xl border-2 transition-all duration-300 transform"
+          class:bg-gradient-to-br={showActivityFeed}
+          class:from-primary-500={showActivityFeed}
+          class:to-secondary-500={showActivityFeed}
+          class:bg-white={!showActivityFeed}
+          class:dark:bg-gray-800={!showActivityFeed}
+          class:border-primary-500={showActivityFeed}
+          class:border-gray-200={!showActivityFeed}
+          class:dark:border-gray-700={!showActivityFeed}
+          class:scale-110={showActivityFeed}
+          class:group-hover:scale-110={!showActivityFeed}
+          class:rotate-12={showActivityFeed}
+        >
+          <i
+            class="bi bi-activity text-2xl transition-colors duration-300"
+            class:text-white={showActivityFeed}
+            class:text-primary-500={!showActivityFeed}
+            class:dark:text-primary-400={!showActivityFeed}
+          ></i>
+
+          <!-- Pulse Indicator when closed -->
+          {#if !showActivityFeed}
+            <span class="absolute -top-1 -right-1 flex h-4 w-4">
+              <span
+                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"
+              ></span>
+              <span
+                class="relative inline-flex rounded-full h-4 w-4 bg-primary-500"
+              ></span>
+            </span>
+          {/if}
+
+          <!-- Close Icon when open -->
+          {#if showActivityFeed}
+            <div
+              class="absolute -top-1 -right-1 bg-white dark:bg-gray-800 rounded-full p-1 shadow-md"
+            >
+              <i class="bi bi-x text-sm text-gray-600 dark:text-gray-400"></i>
+            </div>
+          {/if}
+        </div>
+
+        <!-- Tooltip -->
+        <div
+          class="absolute top-full right-0 mt-2 px-3 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap"
+        >
+          {showActivityFeed ? "Close" : "Activity"} Feed
+        </div>
+      </button>
+
       <div style="display: flex; height: 100%;">
         <div style="flex: 1; min-width: 0;">
           <ErrorBoundary>
@@ -209,7 +274,23 @@
             </main>
           </ErrorBoundary>
         </div>
-        <ActivityFeed />
+
+        <!-- Modern Activity Feed Slide-In Panel -->
+        {#if showActivityFeed}
+          <!-- Backdrop with blur -->
+          <div
+            class="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-[45] animate-fade-in"
+            onclick={() => (showActivityFeed = false)}
+          ></div>
+
+          <!-- Panel -->
+          <div
+            class="fixed top-16 right-0 h-[calc(100vh-4rem)] w-96 shadow-2xl z-[50] overflow-hidden"
+            style="animation: slideInRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);"
+          >
+            <ActivityFeed />
+          </div>
+        {/if}
       </div>
     </div>
   </div>
@@ -283,5 +364,30 @@
 
   .mobile-overlay {
     display: block;
+  }
+
+  /* Activity Feed Animations */
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
   }
 </style>

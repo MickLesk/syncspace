@@ -1,118 +1,195 @@
 <script>
   import { onMount } from "svelte";
   import { websocketManager } from "@stores/websocket.js";
+
   let activity = [];
-  let isCollapsed = $state(false);
 
   onMount(() => {
     websocketManager.on("file_change", (event) => {
       activity.unshift({
         ...event,
         time: new Date().toLocaleTimeString(),
+        id: Date.now() + Math.random(), // Unique ID for animations
       });
-      if (activity.length > 100) activity.pop();
+      if (activity.length > 50) activity.pop();
     });
-
-    // Auto-collapse on mobile
-    if (window.innerWidth < 768) {
-      isCollapsed = true;
-    }
   });
 
   function getEventIcon(kind) {
     const icons = {
-      create: "📄",
-      modify: "✏️",
-      delete: "🗑️",
-      rename: "✒️",
-      move: "📦",
+      create: "bi-file-plus",
+      modify: "bi-pencil",
+      delete: "bi-trash",
+      rename: "bi-cursor-text",
+      move: "bi-folder-symlink",
     };
-    return icons[kind] || "📁";
+    return icons[kind] || "bi-file-earmark";
+  }
+
+  function getEventColor(kind) {
+    const colors = {
+      create: "text-green-500 bg-green-500/10",
+      modify: "text-blue-500 bg-blue-500/10",
+      delete: "text-red-500 bg-red-500/10",
+      rename: "text-purple-500 bg-purple-500/10",
+      move: "text-orange-500 bg-orange-500/10",
+    };
+    return colors[kind] || "text-gray-500 bg-gray-500/10";
   }
 </script>
 
-<div
-  class="activity-feed bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 h-full overflow-hidden transition-all duration-300"
-  class:collapsed={isCollapsed}
->
+<div class="activity-feed-panel h-full flex flex-col">
+  <!-- Modern Header with Gradient -->
   <div
-    class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700"
+    class="feed-header px-6 py-4 bg-gradient-to-r from-primary-500 to-secondary-500 text-white"
   >
-    <h3 class="font-bold text-lg text-gray-900 dark:text-gray-100">
-      {#if !isCollapsed}Activity Feed{:else}Activity{/if}
-    </h3>
-    <button
-      onclick={() => (isCollapsed = !isCollapsed)}
-      class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-      aria-label={isCollapsed
-        ? "Expand activity feed"
-        : "Collapse activity feed"}
-    >
-      <span class="text-xl">{isCollapsed ? "◀" : "▶"}</span>
-    </button>
+    <div class="flex items-center gap-3">
+      <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+        <i class="bi bi-activity text-xl"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-lg">Activity Feed</h3>
+        <p class="text-xs text-white/80">Real-time file operations</p>
+      </div>
+    </div>
   </div>
 
-  {#if !isCollapsed}
-    <div class="overflow-y-auto p-4" style="max-height: calc(100% - 64px);">
-      {#if activity.length === 0}
-        <p class="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
+  <!-- Activity List with Smooth Scroll -->
+  <div class="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+    {#if activity.length === 0}
+      <div
+        class="flex flex-col items-center justify-center h-full text-center px-4"
+      >
+        <div
+          class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4"
+        >
+          <i
+            class="bi bi-clock-history text-3xl text-gray-400 dark:text-gray-500"
+          ></i>
+        </div>
+        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
           No recent activity
         </p>
-      {:else}
-        <ul class="space-y-3">
-          {#each activity as item}
-            <li
-              class="text-sm bg-gray-50 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700"
+        <p class="text-xs text-gray-500 dark:text-gray-500">
+          File operations will appear here
+        </p>
+      </div>
+    {:else}
+      {#each activity as item (item.id)}
+        <div
+          class="activity-item group hover:scale-[1.02] transition-all duration-200"
+          style="animation: slideInRight 0.3s ease-out;"
+        >
+          <div
+            class="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200"
+          >
+            <!-- Icon with colored background -->
+            <div
+              class="flex-shrink-0 w-10 h-10 rounded-lg {getEventColor(
+                item.kind
+              )} flex items-center justify-center"
             >
-              <div class="flex items-start gap-2">
-                <span class="text-xl">{getEventIcon(item.kind)}</span>
-                <div class="flex-1 min-w-0">
-                  <p
-                    class="font-semibold text-gray-900 dark:text-gray-100 text-xs mb-1"
-                  >
-                    {item.kind || "change"}
-                  </p>
-                  <p
-                    class="text-xs text-blue-600 dark:text-blue-400 truncate"
-                    title={item.path}
-                  >
-                    {item.path}
-                  </p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {item.time}
-                  </p>
-                </div>
+              <i class="{getEventIcon(item.kind)} text-lg"></i>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span
+                  class="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-gray-100"
+                >
+                  {item.kind || "change"}
+                </span>
+                <span class="text-xs text-gray-400 dark:text-gray-500">
+                  {item.time}
+                </span>
               </div>
-            </li>
-          {/each}
-        </ul>
+              <p
+                class="text-sm text-gray-700 dark:text-gray-300 truncate font-medium"
+                title={item.path}
+              >
+                {item.path?.split("/").pop() || item.path}
+              </p>
+              {#if item.path?.includes("/")}
+                <p
+                  class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5"
+                  title={item.path}
+                >
+                  {item.path}
+                </p>
+              {/if}
+            </div>
+          </div>
+        </div>
+      {/each}
+    {/if}
+  </div>
+
+  <!-- Footer with Stats -->
+  <div
+    class="feed-footer px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"
+  >
+    <div class="flex items-center justify-between text-xs">
+      <span class="text-gray-600 dark:text-gray-400">
+        <i class="bi bi-clock-history"></i>
+        {activity.length} recent events
+      </span>
+      {#if activity.length > 0}
+        <button
+          onclick={() => (activity = [])}
+          class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 font-medium transition-colors"
+        >
+          Clear all
+        </button>
       {/if}
     </div>
-  {/if}
+  </div>
 </div>
 
 <style>
-  .activity-feed {
-    width: 20rem;
+  .activity-feed-panel {
+    background: rgb(249 250 251);
   }
 
-  .activity-feed.collapsed {
-    width: 3rem;
+  :global(.dark) .activity-feed-panel {
+    background: rgb(17 24 39);
   }
 
-  @media (max-width: 768px) {
-    .activity-feed {
-      position: absolute;
-      right: 0;
-      top: 0;
-      z-index: 20;
-      width: 16rem;
-      box-shadow: -4px 0 6px rgba(0, 0, 0, 0.1);
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.3);
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.5);
+  }
+
+  :global(.dark) .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(.dark) .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Slide In Animation */
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
     }
-
-    .activity-feed.collapsed {
-      width: 0;
-      border: none;
+    to {
+      opacity: 1;
+      transform: translateX(0);
     }
   }
 </style>

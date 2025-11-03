@@ -39,8 +39,11 @@
           class="flex-1"
           onclick={() => {
             currentTheme.set("light");
-            document.documentElement.setAttribute("data-theme", "syncspace");
-            document.documentElement.classList.remove("dark");
+            const html = document.documentElement;
+            html.classList.remove("dark");
+            html.classList.add("light");
+            html.setAttribute("data-theme", "light");
+            html.style.colorScheme = "light";
           }}
         >
           <i class="bi bi-sun-fill mr-2"></i>
@@ -51,11 +54,11 @@
           class="flex-1"
           onclick={() => {
             currentTheme.set("dark");
-            document.documentElement.setAttribute(
-              "data-theme",
-              "syncspace-dark"
-            );
-            document.documentElement.classList.add("dark");
+            const html = document.documentElement;
+            html.classList.remove("light");
+            html.classList.add("dark");
+            html.setAttribute("data-theme", "dark");
+            html.style.colorScheme = "dark";
           }}
         >
           <i class="bi bi-moon-fill mr-2"></i>

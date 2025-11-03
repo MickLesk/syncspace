@@ -121,7 +121,7 @@
   {:else}
     <!-- No thumbnail placeholder -->
     <div
-      class="w-full h-full rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center"
+      class="w-full h-full rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center"
     >
       <span class="text-xs opacity-60">No preview</span>
     </div>

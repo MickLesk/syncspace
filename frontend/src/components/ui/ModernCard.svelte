@@ -14,17 +14,20 @@
     clickable = false,
     onclick = null,
     class: className = "",
+    style = "",
   } = $props();
 
   const baseClasses = "rounded-2xl transition-all duration-200";
 
   const variantClasses = {
     default:
-      "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg",
-    glass: "glass-card hover:shadow-glass-lg",
+      "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg dark:shadow-gray-900/50",
+    glass:
+      "glass-card hover:shadow-glass-lg dark:bg-gray-800/50 dark:backdrop-blur-xl dark:border-gray-700/50",
     gradient:
-      "gradient-bg-primary text-white shadow-lg hover:shadow-xl hover:scale-[1.02]",
-    elevated: "bg-white dark:bg-gray-800 shadow-xl hover:shadow-2xl border-0",
+      "gradient-bg-primary text-white shadow-lg hover:shadow-xl hover:scale-[1.02] dark:shadow-primary-500/30",
+    elevated:
+      "bg-white dark:bg-gray-800 shadow-xl hover:shadow-2xl dark:shadow-gray-900/80 border-0",
   };
 
   const paddingClasses = {
@@ -35,6 +38,7 @@
   };
 </script>
 
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
   class="{baseClasses} {variantClasses[variant]} {paddingClasses[
     padding
@@ -44,6 +48,7 @@
   role={clickable ? "button" : undefined}
   tabindex={clickable ? 0 : undefined}
   {onclick}
+  {style}
   onkeydown={(e) => {
     if (clickable && (e.key === "Enter" || e.key === " ")) {
       e.preventDefault();
