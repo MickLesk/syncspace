@@ -4,7 +4,7 @@ use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::{IntoResponse, Json},
-    routing::{get, post},
+    routing::{self, get, post},
     Router,
 };
 use serde::{Deserialize, Serialize};
@@ -204,8 +204,8 @@ async fn delete_comment(
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/comments", post(create_comment).get(list_comments))
-        .route("/comments/:comment_id", 
-            axum::routing::put(update_comment)
-            .delete(delete_comment)
+        .route("/comments/{comment_id}", 
+            routing::put(update_comment)
+            .delete(routing::delete(delete_comment))
         )
 }

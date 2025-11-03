@@ -485,15 +485,9 @@ export const activity = {
 // ============================================
 
 export const comments = {
-  async create(req) {
-    const response = await fetch(`${API_BASE}/comments`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(req),
-    });
-    return handleResponse(response);
-  },
-
+  /**
+   * List all comments for a file
+   */
   async list(file_path) {
     const params = new URLSearchParams({ file_path });
     const response = await fetch(`${API_BASE}/comments?${params}`, {
@@ -502,6 +496,33 @@ export const comments = {
     return handleResponse(response);
   },
 
+  /**
+   * Create a new comment
+   */
+  async create(file_path, content) {
+    const response = await fetch(`${API_BASE}/comments`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ file_path, content }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update an existing comment
+   */
+  async update(commentId, file_path, content) {
+    const response = await fetch(`${API_BASE}/comments/${encodeURIComponent(commentId)}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify({ file_path, content }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a comment
+   */
   async delete(id) {
     const response = await fetch(`${API_BASE}/comments/${encodeURIComponent(id)}`, {
       method: 'DELETE',
@@ -550,6 +571,52 @@ export const tags = {
     });
     return handleResponse(response);
   }
+};
+
+// ============================================
+// FOLDER COLORS ENDPOINTS
+// ============================================
+
+export const folderColors = {
+  /**
+   * Get folder color
+   */
+  async get(folderPath) {
+    const response = await fetch(
+      `${API_BASE}/folders/${encodeURIComponent(folderPath)}/color`,
+      { headers: getHeaders() }
+    );
+    return handleResponse(response);
+  },
+
+  /**
+   * Set folder color
+   */
+  async set(folderPath, color) {
+    const response = await fetch(
+      `${API_BASE}/folders/${encodeURIComponent(folderPath)}/color`,
+      {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify({ color }),
+      }
+    );
+    return handleResponse(response);
+  },
+
+  /**
+   * Remove folder color
+   */
+  async remove(folderPath) {
+    const response = await fetch(
+      `${API_BASE}/folders/${encodeURIComponent(folderPath)}/color/remove`,
+      {
+        method: "PUT",
+        headers: getHeaders(),
+      }
+    );
+    return handleResponse(response);
+  },
 };
 
 // ============================================

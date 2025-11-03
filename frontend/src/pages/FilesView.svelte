@@ -12,6 +12,7 @@
   import ShareModal from "../components/ui/ShareModal.svelte";
   import VersionHistoryModal from "../components/ui/VersionHistoryModal.svelte";
   import FilePreviewModal from "../components/files/FilePreviewModal.svelte";
+  import FolderColorPicker from "../components/files/FolderColorPicker.svelte";
   import api from "../lib/api";
   import {
     wsConnected,
@@ -57,6 +58,8 @@
   let fileToDelete = $state(null);
   let fileToShare = $state(null);
   let fileToViewVersions = $state(null);
+  let folderForColorPicker = $state(null);
+  let showFolderColorPicker = $state(false);
   let newFolderName = $state("");
   let newFileName = $state("");
 
@@ -773,6 +776,8 @@
 
     if (!contextMenuFile.is_directory) {
       items.push({ label: "Version History", icon: "clock-history" });
+    } else {
+      items.push({ label: "Set Folder Color", icon: "palette" });
     }
 
     items.push({ divider: true });
@@ -818,6 +823,10 @@
       case "Details":
         // TODO: Implement details panel (Item #8)
         success("Details panel coming soon");
+        break;
+      case "Set Folder Color":
+        folderForColorPicker = contextMenuFile;
+        showFolderColorPicker = true;
         break;
       case "Share":
         openShareModal(contextMenuFile);
