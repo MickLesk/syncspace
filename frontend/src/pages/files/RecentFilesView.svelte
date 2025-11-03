@@ -33,12 +33,28 @@
     try {
       loading = true;
       error = null;
+      console.log("[RecentFiles] Loading recent files, limit:", limit);
+
       // Use the new recent files API
       const data = await api.recent.list(limit);
-      recentFiles = data || [];
+      console.log("[RecentFiles] API response:", data);
+
+      // Transform the response to match expected structure
+      recentFiles = Array.isArray(data)
+        ? data.map((file) => ({
+            ...file,
+            filename: file.name || file.filename,
+            mime_type: file.mime_type || "application/octet-stream",
+            last_accessed_at: file.accessed_at || file.last_accessed_at,
+            access_count: file.access_count || 1,
+            access_type: file.action || file.access_type || "view",
+          }))
+        : [];
+
+      console.log("[RecentFiles] Transformed files:", recentFiles);
     } catch (err) {
-      console.error("Failed to load recent files:", err);
-      error = "Failed to load recent files";
+      console.error("[RecentFiles] Failed to load recent files:", err);
+      error = "Failed to load recent files: " + err.message;
       recentFiles = [];
     } finally {
       loading = false;
@@ -128,42 +144,35 @@
       </div>
     {:else if error}
       <ModernCard variant="glass" padding="large">
-        {#snippet children()}
-          <div class="text-center animate-fade-in">
-            <div class="mb-6">
-              <i class="bi bi-exclamation-triangle text-6xl text-red-500/30"
-              ></i>
-            </div>
-            <h3 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-3">
-              {error}
-            </h3>
-            <ModernButton
-              variant="gradient"
-              icon="arrow-clockwise"
-              onclick={loadRecentFiles}
-            >
-              Try Again
-            </ModernButton>
+        <div class="text-center animate-fade-in">
+          <div class="mb-6">
+            <i class="bi bi-exclamation-triangle text-6xl text-red-500/30"></i>
           </div>
-        {/snippet}
+          <h3 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-3">
+            {error}
+          </h3>
+          <ModernButton
+            variant="gradient"
+            icon="arrow-clockwise"
+            onclick={loadRecentFiles}
+          >
+            Try Again
+          </ModernButton>
+        </div>
       </ModernCard>
     {:else if recentFiles.length === 0}
       <ModernCard variant="glass" padding="large">
-        {#snippet children()}
-          <div class="text-center animate-fade-in">
-            <div class="mb-6">
-              <i class="bi bi-clock-history text-8xl opacity-20"></i>
-            </div>
-            <h3
-              class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100"
-            >
-              No recent files
-            </h3>
-            <p class="text-gray-600 dark:text-gray-400">
-              Files you access will appear here
-            </p>
+        <div class="text-center animate-fade-in">
+          <div class="mb-6">
+            <i class="bi bi-clock-history text-8xl opacity-20"></i>
           </div>
-        {/snippet}
+          <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">
+            No recent files
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            Files you access will appear here
+          </p>
+        </div>
       </ModernCard>
     {:else}
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -176,58 +185,58 @@
             class="animate-slide-up"
             style="animation-delay: {i * 30}ms"
           >
-            {#snippet children()}
-              <div class="flex gap-4">
-                <div class="text-5xl flex-shrink-0">
-                  {getFileIcon(file.mime_type)}
+            <div class="flex gap-4">
+              <div class="text-5xl flex-shrink-0">
+                {getFileIcon(file.mime_type)}
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <h3
+                  class="font-bold text-lg mb-2 truncate text-gray-900 dark:text-gray-100"
+                  title={file.filename}
+                >
+                  {file.filename}
+                </h3>
+
+                <div
+                  class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3"
+                >
+                  <span>{formatFileSize(file.size_bytes)}</span>
+                  <span>•</span>
+                  <span>{formatLastAccessed(file.last_accessed_at)}</span>
                 </div>
 
-                <div class="flex-1 min-w-0">
-                  <h3
-                    class="font-bold text-lg mb-2 truncate text-gray-900 dark:text-gray-100"
-                    title={file.filename}
-                  >
-                    {file.filename}
-                  </h3>
+                <div class="flex gap-2 flex-wrap items-center">
+                  <span class="badge-glass-info text-xs">
+                    <i class="bi bi-eye"></i>
+                    {file.access_count}
+                    {file.access_count === 1 ? "time" : "times"}
+                  </span>
 
-                  <div
-                    class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3"
-                  >
-                    <span>{formatFileSize(file.size_bytes)}</span>
-                    <span>•</span>
-                    <span>{formatLastAccessed(file.last_accessed_at)}</span>
-                  </div>
-
-                  <div class="flex gap-2 flex-wrap items-center">
-                    <span class="badge-glass-info text-xs">
-                      <i class="bi bi-eye"></i>
-                      {file.access_count}
-                      {file.access_count === 1 ? "time" : "times"}
+                  {#if file.access_type}
+                    {@const badge = getAccessTypeBadge(file.access_type)}
+                    <span class="badge-glass-{badge.color} text-xs">
+                      <i class="bi bi-{badge.icon}"></i>
+                      {badge.label}
                     </span>
-
-                    {#if file.access_type}
-                      {@const badge = getAccessTypeBadge(file.access_type)}
-                      <span class="badge-glass-{badge.color} text-xs">
-                        <i class="bi bi-{badge.icon}"></i>
-                        {badge.label}
-                      </span>
-                    {/if}
-                  </div>
-                </div>
-
-                <div class="flex-shrink-0">
-                  <ModernButton
-                    variant="ghost"
-                    size="sm"
-                    icon="eye"
-                    onclick={(e) => {
-                      e.stopPropagation();
-                      console.log("Quick preview");
-                    }}
-                  />
+                  {/if}
                 </div>
               </div>
-            {/snippet}
+
+              <div class="flex-shrink-0">
+                <ModernButton
+                  variant="ghost"
+                  size="sm"
+                  icon="eye"
+                  onclick={(e) => {
+                    e.stopPropagation();
+                    console.log("Quick preview");
+                  }}
+                >
+                  View
+                </ModernButton>
+              </div>
+            </div>
           </ModernCard>
         {/each}
       </div>

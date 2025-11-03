@@ -23,6 +23,9 @@ pub fn router() -> Router<AppState> {
 }
 
 async fn search_handler(State(state): State<AppState>, user: UserInfo, Query(query): Query<SearchQuery>) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    services::search(&state, &user, &query.q, query.limit, query.fuzzy)
+    // SECURITY: Validate search query to prevent SQL injection
+    let safe_query = crate::security::validate_search_query(&query.q)?;
+    
+    services::search(&state, &user, &safe_query, query.limit, query.fuzzy)
         .await.map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }

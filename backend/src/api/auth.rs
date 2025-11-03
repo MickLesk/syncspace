@@ -34,6 +34,7 @@ pub struct AuthResponse {
     pub user: UserInfo,
     pub refresh_token: Option<String>,
     pub requires_2fa: bool,
+    pub csrf_token: String,
 }
 
 #[derive(Debug, Deserialize)]

@@ -19,7 +19,7 @@
   import RecentFilesView from "./pages/files/RecentFilesView.svelte";
 
   // System Views
-  import TrashView from "./pages/system/TrashView.svelte";
+  import TrashView from "./pages/trash/TrashView.svelte";
   import ActivityView from "./pages/system/ActivityView.svelte";
   import NotificationsView from "./pages/system/NotificationsView.svelte";
   import BackupView from "./pages/system/BackupView.svelte";
@@ -141,7 +141,19 @@
   });
 </script>
 
-{#if !$auth.isLoggedIn}
+{#if $auth.isValidating}
+  <!-- Show nothing while validating token to prevent flash -->
+  <div
+    class="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900"
+  >
+    <div class="text-center">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"
+      ></div>
+      <p class="text-gray-600 dark:text-gray-400">Loading...</p>
+    </div>
+  </div>
+{:else if !$auth.isLoggedIn}
   {#if showSignup}
     <Signup />
   {:else}

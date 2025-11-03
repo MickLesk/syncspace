@@ -131,18 +131,44 @@
   });
 
   let unsubscribeFileEvent;
+  let ignorePopstate = false;
+  let handlePopstateRef = null;
 
   onMount(async () => {
-    await loadFiles();
+    // Initialize from URL hash or current path
+    const urlPath =
+      window.location.hash.replace("#/files", "").replace("#", "") || "/";
+    currentPath.set(urlPath);
+
+    await loadFiles(urlPath);
+
     unsubscribeFileEvent = websocketManager.on("file_change", (event) => {
       console.log("File event:", event);
       loadFiles();
     });
+
+    // Handle browser back/forward navigation
+    handlePopstateRef = () => {
+      if (ignorePopstate) {
+        ignorePopstate = false;
+        return;
+      }
+      const urlPath =
+        window.location.hash.replace("#/files", "").replace("#", "") || "/";
+      console.log("[FilesView] Popstate triggered, navigating to:", urlPath);
+      currentPath.set(urlPath);
+      loadFiles(urlPath);
+    };
+
     window.addEventListener("keydown", handleKeydown);
+    window.addEventListener("popstate", handlePopstateRef);
   });
 
   onDestroy(() => {
     if (unsubscribeFileEvent) unsubscribeFileEvent();
+    if (handlePopstateRef) {
+      window.removeEventListener("popstate", handlePopstateRef);
+    }
     window.removeEventListener("keydown", handleKeydown);
   });
 
@@ -179,7 +205,23 @@
     }
   }
 
-  function navigateTo(path) {
+  function navigateTo(pathOrEvent) {
+    // Handle both direct path string and event object with {path: "..."}
+    const path =
+      typeof pathOrEvent === "string"
+        ? pathOrEvent
+        : pathOrEvent?.path || pathOrEvent?.detail?.path || "/";
+
+    // Update browser history for back/forward navigation
+    const cleanPath = path.replace(/^\/+/, ""); // Remove leading slashes
+    const newHash = cleanPath ? `#/files/${cleanPath}` : "#/files";
+
+    // Update URL without triggering popstate
+    if (window.location.hash !== newHash) {
+      ignorePopstate = true;
+      window.history.pushState(null, "", newHash);
+    }
+
     loadFiles(path);
     selectedFiles = new Set();
   }

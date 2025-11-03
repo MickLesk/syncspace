@@ -44,6 +44,9 @@ async fn create_comment(
     user_info: UserInfo,
     Json(req): Json<CreateCommentRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
+    // SECURITY: Sanitize HTML content to prevent XSS attacks
+    let sanitized_content = crate::security::sanitize_html(&req.content);
+    
     let comment_id = Uuid::new_v4();
     let now = Utc::now().to_rfc3339();
     
@@ -57,7 +60,7 @@ async fn create_comment(
     .bind(&req.file_path)
     .bind(&user_info.id)
     .bind(&user_info.username)
-    .bind(&req.content)
+    .bind(&sanitized_content)
     .bind(&now)
     .execute(&state.db)
     .await
