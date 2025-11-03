@@ -3,7 +3,7 @@
   import api from "../../lib/api.js";
   import { success, error as errorToast } from "../../stores/toast.js";
 
-  /** @type {boolean} modal visibility */
+  /** @type {{visible?: boolean}} */
   let { visible = $bindable(false) } = $props();
 
   /** @type {Array} edit conflicts */
@@ -19,8 +19,8 @@
   async function loadConflicts() {
     try {
       loading = true;
-      const data = await api.collaboration.listConflicts("pending");
-      conflicts = data;
+      const response = await api.collaboration.listConflicts("pending");
+      conflicts = Array.isArray(response) ? response : (response?.data || []);
     } catch (err) {
       errorToast("Failed to load conflicts");
     } finally {

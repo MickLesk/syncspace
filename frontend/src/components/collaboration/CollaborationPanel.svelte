@@ -1,10 +1,10 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import api from "../../lib/api.js";
-  import { authUser } from "../../stores/auth.js";
+  import { auth } from "../../stores/auth.js";
   import { success, error as errorToast } from "../../stores/toast.js";
 
-  /** @type {string | null} current file path */
+  /** @type {{filePath?: string | null}} */
   let { filePath = null } = $props();
 
   /** @type {Array} active users viewing/editing */

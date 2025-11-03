@@ -6,7 +6,7 @@
   } from "../../stores/savedSearches.js";
   import { success, error as errorToast } from "../../stores/toast.js";
 
-  /** @type {Function} onSelectSearch - Callback when a search is selected */
+  /** @type {{onSelectSearch?: Function, visible?: boolean}} */
   let { onSelectSearch = () => {}, visible = $bindable(false) } = $props();
 
   /** @type {string} active tab */
@@ -33,7 +33,7 @@
     if (!dateStr) return "Never";
     const date = new Date(dateStr);
     const now = new Date();
-    const diffMs = now - date;
+    const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);

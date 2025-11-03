@@ -85,7 +85,7 @@
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-    onclick={onClose}
+    onclick={() => onClose()}
     role="presentation"
   >
     <div
@@ -128,7 +128,7 @@
           {/if}
 
           <button
-            onclick={onClose}
+            onclick={() => onClose()}
             class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             aria-label="Close notifications"
           >

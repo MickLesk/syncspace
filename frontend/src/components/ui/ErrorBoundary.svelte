@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  /** @type {Error | string | null} */
   export let error = null;
   const dispatch = createEventDispatcher();
 </script>
@@ -10,7 +11,11 @@
     role="alert"
   >
     <strong class="font-bold">Error:</strong>
-    <span class="block sm:inline">{error.message || error}</span>
+    <span class="block sm:inline"
+      >{typeof error === "object" && error?.message
+        ? error.message
+        : String(error)}</span
+    >
     <button
       class="absolute top-0 right-0 mt-2 mr-2 text-red-700 dark:text-red-200 hover:text-red-900"
       aria-label="Dismiss error"

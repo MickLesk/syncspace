@@ -16,8 +16,8 @@
   let deleteTarget = $state(null); // 'single', 'selected', 'all'
   let deleteTargetFile = $state(null);
 
-  onMount(async () => {
-    await loadTrash();
+  onMount(() => {
+    loadTrash();
 
     // Start auto-delete countdown
     startCountdown();

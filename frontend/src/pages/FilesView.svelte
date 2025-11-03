@@ -1192,45 +1192,6 @@
         </div>
       </div>
     {/if}
-    >
-      <div class="flex items-center gap-3">
-        <i class="bi bi-check-square text-2xl"></i>
-        <div class="flex-1">
-          <h3 class="font-bold text-lg">
-            {selectedFiles.length} file(s) selected
-          </h3>
-          <div class="text-sm opacity-70">
-            Ctrl+Click to select more, Shift+Click for range
-          </div>
-        </div>
-        <div class="flex gap-2">
-          <button class="btn btn-sm btn-success gap-2" onclick={selectAllFiles}>
-            <i class="bi bi-check-all"></i>
-            Select All
-          </button>
-          <button class="btn btn-sm btn-ghost gap-2" onclick={deselectAllFiles}>
-            <i class="bi bi-x-circle"></i>
-            Clear
-          </button>
-          <div class="divider divider-horizontal"></div>
-          <button
-            class="btn btn-sm btn-primary gap-2"
-            onclick={handleBatchDownload}
-          >
-            <i class="bi bi-download"></i>
-            Download
-          </button>
-          <button
-            class="btn btn-sm btn-error gap-2"
-            onclick={handleBatchDelete}
-          >
-            <i class="bi bi-trash3"></i>
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  {/if}
 
   <!-- Breadcrumb Navigation -->
   {#if !isSearchActive}
