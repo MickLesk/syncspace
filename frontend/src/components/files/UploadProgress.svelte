@@ -24,8 +24,8 @@
       {#each uploads as upload (upload.id)}
         <div class="upload-item">
           <div class="upload-icon">
-            {#if upload.status === "complete"}<i class="bi bi-check-circle-fill text-success"></i>
-            {:else if upload.status === "error"}<i class="bi bi-x-circle-fill text-error"></i>
+            {#if upload.status === "complete"}<i class="bi bi-check-circle-fill text-success success-checkmark"></i>
+            {:else if upload.status === "error"}<i class="bi bi-x-circle-fill text-error error-shake"></i>
             {:else if upload.status === "cancelled"}<i class="bi bi-dash-circle-fill text-warning"></i>
             {:else}<i class="bi bi-file-earmark-arrow-up text-primary"></i>{/if}
           </div>
