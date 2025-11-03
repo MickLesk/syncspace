@@ -344,9 +344,9 @@
 
 {#if showCreateModal}
   <div
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop"
   >
-    <ModernCard variant="glass" padding="large" class="max-w-md w-full">
+    <ModernCard variant="glass" padding="large" class="max-w-md w-full modal-content">
       {#snippet children()}
         <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
           Create Share
@@ -438,9 +438,9 @@
 
 {#if showEditModal}
   <div
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop"
   >
-    <ModernCard variant="glass" padding="large" class="max-w-md w-full">
+    <ModernCard variant="glass" padding="large" class="max-w-md w-full modal-content">
       {#snippet children()}
         <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
           Edit Share
@@ -534,9 +534,9 @@
 
 {#if showDeleteModal}
   <div
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop"
   >
-    <ModernCard variant="glass" padding="large" class="max-w-md w-full">
+    <ModernCard variant="glass" padding="large" class="max-w-md w-full modal-content">
       {#snippet children()}
         <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
           Delete Share
