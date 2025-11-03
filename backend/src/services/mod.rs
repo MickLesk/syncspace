@@ -11,6 +11,7 @@ mod user_service_impl;
 mod search_service_impl;
 mod all_services_impl;
 pub mod performance_service;
+pub mod sync_service;
 
 // Re-export auth service functions
 pub use auth_service::*;
