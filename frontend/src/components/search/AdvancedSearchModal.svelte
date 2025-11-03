@@ -211,7 +211,7 @@
     icon="funnel"
     size="lg"
     variant="primary"
-    on:close={close}
+    onclose={close}
   >
     <!-- Search Input -->
     <form onsubmit={handleFormSubmit} class="space-y-4">

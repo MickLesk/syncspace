@@ -247,7 +247,7 @@
     title={file?.name || "File Preview"}
     icon="eye"
     size="xl"
-    on:close={close}
+    onclose={close}
   >
     <div class="preview-container">
       {#if loading}

@@ -115,7 +115,7 @@
   icon="share"
   size="md"
   variant="primary"
-  on:close={close}
+  onclose={close}
 >
   {#if !showShareResult}
     <!-- Share Configuration -->
