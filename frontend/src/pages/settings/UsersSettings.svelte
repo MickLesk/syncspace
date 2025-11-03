@@ -243,7 +243,7 @@
 {#if showAddUserModal}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm modal-backdrop"
     onclick={() => (showAddUserModal = false)}
     onkeydown={(e) => e.key === "Escape" && (showAddUserModal = false)}
     role="button"
@@ -251,7 +251,7 @@
   >
     <ModernCard
       variant="glass"
-      class="max-w-md w-full mx-4 relative"
+      class="max-w-md w-full mx-4 relative modal-content"
       onclick={(e) => e.stopPropagation()}
     >
       <div class="p-6">
@@ -330,7 +330,7 @@
 {#if showDeleteUserModal}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm modal-backdrop"
     onclick={() => (showDeleteUserModal = false)}
     onkeydown={(e) => e.key === "Escape" && (showDeleteUserModal = false)}
     role="button"
@@ -338,7 +338,7 @@
   >
     <ModernCard
       variant="glass"
-      class="max-w-md w-full mx-4 text-center"
+      class="max-w-md w-full mx-4 text-center modal-content"
       onclick={(e) => e.stopPropagation()}
     >
       <div class="p-6">
