@@ -149,6 +149,7 @@
           variant="gradient"
           icon="plus-circle"
           onclick={() => (showCreateModal = true)}
+          class="btn-pulse"
         >
           Create Share
         </ModernButton>

@@ -150,8 +150,8 @@
 
   <!-- Stats -->
   {#if $activity.length > 0}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <ModernCard variant="glass" hoverable>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 grid-stagger">
+      <ModernCard variant="glass" hoverable class="hover-scale">
         {#snippet children()}
           <div class="text-center">
             <div class="text-primary-500 mb-3">
@@ -172,7 +172,7 @@
         {/snippet}
       </ModernCard>
 
-      <ModernCard variant="glass" hoverable>
+      <ModernCard variant="glass" hoverable class="hover-scale">
         {#snippet children()}
           <div class="text-center">
             <div class="text-green-500 mb-3">
@@ -195,7 +195,7 @@
         {/snippet}
       </ModernCard>
 
-      <ModernCard variant="glass" hoverable>
+      <ModernCard variant="glass" hoverable class="hover-scale">
         {#snippet children()}
           <div
             class="text-center flex flex-col items-center justify-center h-full"

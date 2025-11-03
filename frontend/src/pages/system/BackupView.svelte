@@ -231,6 +231,7 @@
               <ModernButton
                 variant="gradient"
                 onclick={() => createBackup("full")}
+                class="btn-pulse"
               >
                 <i class="bi bi-plus-lg mr-2"></i>
                 Full Backup

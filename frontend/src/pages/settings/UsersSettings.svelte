@@ -105,6 +105,7 @@
         variant="primary"
         size="sm"
         onclick={() => (showAddUserModal = true)}
+        class="btn-pulse"
       >
         <i class="bi bi-person-plus-fill mr-1"></i>
         Add User
