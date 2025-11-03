@@ -251,12 +251,11 @@
       </ModernCard>
 
       {#if loadingBackups}
-        <ModernCard variant="glass">
-          <div class="flex justify-center py-12">
-            <span class="loading loading-spinner loading-lg text-primary-600"
-            ></span>
-          </div>
-        </ModernCard>
+        <div class="space-y-4">
+          {#each Array(4) as _}
+            <div class="skeleton h-40 w-full rounded-xl"></div>
+          {/each}
+        </div>
       {:else if backups.length === 0}
         <ModernCard variant="glass">
           <div class="text-center py-12">
