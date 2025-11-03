@@ -147,6 +147,50 @@ async fn main() {
             .expect("Failed to initialize search index"),
     );
 
+    // Background reindex of all files on startup
+    {
+        let index = search_index.clone();
+        let pool = db_pool.clone();
+        tokio::spawn(async move {
+            println!("🔍 Starting background search index rebuild...");
+            
+            match sqlx::query("SELECT id, name, path, size_bytes, updated_at FROM files WHERE is_deleted = 0")
+                .fetch_all(&pool)
+                .await 
+            {
+                Ok(files) => {
+                    let mut count = 0;
+                    for row in files {
+                        if let (Ok(file_id), Ok(filename), Ok(path), Ok(size_bytes), Ok(updated_at)) = (
+                            row.try_get::<String, _>("id"),
+                            row.try_get::<String, _>("name"),
+                            row.try_get::<String, _>("path"),
+                            row.try_get::<i64, _>("size_bytes"),
+                            row.try_get::<String, _>("updated_at"),
+                        ) {
+                            let modified = chrono::DateTime::parse_from_rfc3339(&updated_at)
+                                .unwrap_or_else(|_| chrono::Utc::now().into())
+                                .with_timezone(&chrono::Utc);
+                            
+                            let file_path = std::path::Path::new("./data").join(&path);
+                            let content = if file_path.exists() {
+                                crate::search::extract_content(&file_path).await
+                            } else {
+                                None
+                            };
+                            
+                            if index.index_file(&file_id, &filename, &path, content, modified, size_bytes as u64).await.is_ok() {
+                                count += 1;
+                            }
+                        }
+                    }
+                    println!("✅ Background reindex complete: {} files indexed", count);
+                }
+                Err(e) => eprintln!("❌ Background reindex failed: {:?}", e),
+            }
+        });
+    }
+
     // Initialize performance monitoring
     let cache_config = performance::CacheConfig::default();
     let cache_manager = performance::CacheManager::new(cache_config.clone())

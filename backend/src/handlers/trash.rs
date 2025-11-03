@@ -154,6 +154,9 @@ pub async fn permanent_delete_handler(
         // Delete from database
         match item_type.as_str() {
             "file" => {
+                // REINDEX: Remove from search index before deleting
+                let _ = state.search_index.delete_from_index(&item_id).await;
+                
                 sqlx::query("DELETE FROM files WHERE id = ?")
                     .bind(&item_id)
                     .execute(pool)
@@ -235,6 +238,9 @@ pub async fn cleanup_trash_handler(
         // Delete from database
         match item_type.as_str() {
             "file" => {
+                // REINDEX: Remove from search index before deleting
+                let _ = state.search_index.delete_from_index(&item_id).await;
+                
                 // Get storage path
                 let storage_path: Option<String> = sqlx::query_scalar(
                     "SELECT storage_path FROM files WHERE id = ?"
@@ -302,6 +308,9 @@ pub async fn empty_trash_handler(
         // Delete from database
         match item_type.as_str() {
             "file" => {
+                // REINDEX: Remove from search index before deleting
+                let _ = state.search_index.delete_from_index(&item_id).await;
+                
                 let storage_path: Option<String> = sqlx::query_scalar(
                     "SELECT storage_path FROM files WHERE id = ?"
                 )
