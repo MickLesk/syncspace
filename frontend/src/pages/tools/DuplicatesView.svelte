@@ -294,9 +294,9 @@
 
       <!-- Duplicate Groups -->
       {#if !scanning && duplicateGroups.length > 0}
-        <div class="space-y-4">
+        <div class="space-y-4 list-stagger">
           {#each duplicateGroups as group, groupIndex}
-            <ModernCard variant="glass">
+            <ModernCard variant="glass" hoverable class="hover-lift">
               <!-- Group Header -->
               <div
                 class="flex flex-wrap items-center justify-between gap-3 mb-4"

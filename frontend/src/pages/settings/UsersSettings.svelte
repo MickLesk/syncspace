@@ -153,12 +153,12 @@
               >
             </tr>
           </thead>
-          <tbody>
+          <tbody class="list-stagger">
             {#each users as user, i}
               <tr
                 class="{i % 2 === 0
                   ? 'bg-white dark:bg-gray-900'
-                  : 'bg-gray-50 dark:bg-gray-800'} border-b border-gray-100 dark:border-gray-800 last:border-0"
+                  : 'bg-gray-50 dark:bg-gray-800'} border-b border-gray-100 dark:border-gray-800 last:border-0 hover-lift"
               >
                 <td class="p-3">
                   <div class="flex items-center gap-3">
