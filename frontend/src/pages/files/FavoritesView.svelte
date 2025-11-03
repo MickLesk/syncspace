@@ -110,7 +110,24 @@
 </script>
 
 {#if loading}
-  <Loading />
+  <!-- Skeleton Loading State -->
+  <div
+    class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6"
+  >
+    <div class="max-w-7xl mx-auto space-y-6">
+      <!-- Header Skeleton -->
+      <div class="skeleton h-24 w-full rounded-2xl"></div>
+
+      <!-- Grid Skeleton -->
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      >
+        {#each Array(8) as _}
+          <div class="skeleton h-64 w-full rounded-2xl"></div>
+        {/each}
+      </div>
+    </div>
+  </div>
 {:else}
   <!-- Main Container -->
   <div
@@ -263,6 +280,3 @@
     animation: slideUp 0.3s ease-out both;
   }
 </style>
-
-
-
