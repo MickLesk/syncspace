@@ -33,7 +33,7 @@ pub fn router() -> Router<AppState> {
         .route("/collaboration/conflicts/{conflict_id}/resolve", post(resolve_conflict))
 }
 
-async fn list_locks(State(state): State<AppState>, user: UserInfo, Query(query): Query<std::collections::HashMap<String, String>>) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
+async fn list_locks(State(state): State<AppState>, user: UserInfo, Query(_query): Query<std::collections::HashMap<String, String>>) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
     let locks = services::collaboration::list_locks(&state, &user).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     Ok(Json(locks.into_iter().map(|l| serde_json::to_value(l).unwrap_or_default()).collect()))
 }
