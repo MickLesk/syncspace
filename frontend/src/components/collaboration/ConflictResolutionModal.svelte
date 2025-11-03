@@ -20,7 +20,7 @@
     try {
       loading = true;
       const response = await api.collaboration.listConflicts("pending");
-      conflicts = Array.isArray(response) ? response : (response?.data || []);
+      conflicts = Array.isArray(response) ? response : response?.data || [];
     } catch (err) {
       errorToast("Failed to load conflicts");
     } finally {

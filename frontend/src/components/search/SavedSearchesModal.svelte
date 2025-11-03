@@ -223,7 +223,6 @@
                             if (e.key === "Escape") cancelRename();
                           }}
                           onclick={(e) => e.stopPropagation()}
-                          autofocus
                         />
                         <button
                           class="btn btn-sm btn-success"
