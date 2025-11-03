@@ -35,6 +35,7 @@ use axum::{
 };
 use tokio::sync::{broadcast, Mutex};
 use tower_http::cors::{Any, CorsLayer};
+use sqlx::Row;
 
 use auth::{RateLimiter, UserDB};
 use search::SearchIndex;

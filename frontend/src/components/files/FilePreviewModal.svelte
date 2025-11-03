@@ -246,7 +246,7 @@
     {visible}
     title={file?.name || "File Preview"}
     icon="eye"
-    size="xl"
+    size="m"
     onclose={close}
   >
     <div class="preview-container">
