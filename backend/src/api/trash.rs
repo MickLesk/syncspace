@@ -1,7 +1,7 @@
 //! Trash/Recycle Bin API Routes
 
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Path, State},
     http::StatusCode,
     response::{IntoResponse, Json},
     routing::{delete, get, post},

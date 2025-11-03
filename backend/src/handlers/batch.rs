@@ -1,12 +1,5 @@
-/// Batch operations for multiple files/folders
-use axum::{
-    extract::State,
-    http::StatusCode,
-    Json,
-};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
-use crate::auth::User;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct BatchDeleteRequest {

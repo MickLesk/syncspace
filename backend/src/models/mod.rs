@@ -34,6 +34,7 @@ pub struct FileInfo {
     pub id: Uuid,
     pub name: String,
     pub path: String,
+    #[serde(rename = "size_bytes")]
     pub size: i64,
     pub is_directory: bool,  // Changed from is_dir
     pub created_at: DateTime<Utc>,

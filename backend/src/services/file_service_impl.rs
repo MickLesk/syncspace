@@ -1,8 +1,6 @@
 //! File service - Full implementation
 use crate::{auth::UserInfo, models::FileInfo, AppState, FileChangeEvent};
 use anyhow::{anyhow, Result};
-use axum::extract::Multipart;
-use bytes::Bytes;
 use chrono::Utc;
 use std::path::Path;
 use tokio::fs;
@@ -12,7 +10,15 @@ use uuid::Uuid;
 const DATA_DIR: &str = "./data";
 
 pub async fn list_files(state: &AppState, user: &UserInfo, path: &str) -> Result<Vec<FileInfo>> {
-    let target = Path::new(DATA_DIR).join(path);
+    // SECURITY: Validate path (allow empty string for root)
+    let safe_path = if path.is_empty() {
+        String::new()
+    } else {
+        crate::security::validate_file_path(path)
+            .map_err(|_| anyhow!("Invalid directory path"))?
+    };
+    
+    let target = Path::new(DATA_DIR).join(&safe_path);
     let mut entries = Vec::new();
     let mut dir = fs::read_dir(&target).await.map_err(|_| anyhow!("Directory not found"))?;
     
@@ -50,6 +56,20 @@ pub async fn list_files(state: &AppState, user: &UserInfo, path: &str) -> Result
             .await
             .ok()
             .flatten();
+            
+            // Check if file is marked as deleted in DB (should be hidden)
+            let is_deleted: bool = sqlx::query_scalar(
+                "SELECT COUNT(*) > 0 FROM files WHERE path = ? AND is_deleted = 1"
+            )
+            .bind(&file_path)
+            .fetch_one(&state.db_pool)
+            .await
+            .unwrap_or(false);
+            
+            // Skip files that are marked as deleted
+            if is_deleted {
+                continue;
+            }
             
             // Debug log for troubleshooting
             if db_result.is_none() && !is_dir {
@@ -93,7 +113,11 @@ pub async fn list_files(state: &AppState, user: &UserInfo, path: &str) -> Result
 }
 
 pub async fn download_file(state: &AppState, user: &UserInfo, path: &str) -> Result<tokio::fs::File> {
-    let file_path = Path::new(DATA_DIR).join(path);
+    // SECURITY: Validate file path to prevent directory traversal
+    let safe_path = crate::security::validate_file_path(path)
+        .map_err(|_| anyhow!("Invalid file path"))?;
+    
+    let file_path = Path::new(DATA_DIR).join(&safe_path);
     let file = fs::File::open(&file_path).await.map_err(|_| anyhow!("File not found"))?;
     
     let log_id = Uuid::new_v4().to_string();
@@ -104,7 +128,20 @@ pub async fn download_file(state: &AppState, user: &UserInfo, path: &str) -> Res
 }
 
 pub async fn upload_file(state: &AppState, user: &UserInfo, path: &str, data: Vec<u8>) -> Result<FileInfo> {
-    let target = Path::new(DATA_DIR).join(path);
+    // SECURITY: Validate and sanitize file path
+    let safe_path = crate::security::validate_file_path(path)
+        .map_err(|_| anyhow!("Invalid file path"))?;
+    
+    // SECURITY: Validate filename
+    let filename = Path::new(&safe_path)
+        .file_name()
+        .and_then(|n| n.to_str())
+        .ok_or_else(|| anyhow!("Invalid filename"))?;
+    
+    let safe_filename = crate::security::validate_filename(filename)
+        .map_err(|_| anyhow!("Invalid filename"))?;
+    
+    let target = Path::new(DATA_DIR).join(&safe_path);
     if let Some(parent) = target.parent() { fs::create_dir_all(parent).await?; }
     
     let tmp_name = format!("{}.{}.tmp", target.file_name().and_then(|n| n.to_str()).unwrap_or("upload"), Uuid::new_v4());
@@ -167,6 +204,10 @@ pub async fn upload_file(state: &AppState, user: &UserInfo, path: &str, data: Ve
 }
 
 pub async fn delete_file(state: &AppState, user: &UserInfo, path: &str) -> Result<()> {
+    // SECURITY: Validate file path
+    let safe_path = crate::security::validate_file_path(path)
+        .map_err(|_| anyhow!("Invalid file path"))?;
+    
     // SOFT DELETE: Mark file as deleted in DB instead of actually deleting it
     let now = Utc::now().to_rfc3339();
     

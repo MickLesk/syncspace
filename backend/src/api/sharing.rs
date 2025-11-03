@@ -2,8 +2,8 @@
 
 use crate::auth::UserInfo;
 
-use axum::{extract::{Path, State}, http::StatusCode, routing::{delete, get, post, put}, Json, Router};
-use serde::{Deserialize, Serialize};
+use axum::{extract::{Path, State}, http::StatusCode, routing::{get, put}, Json, Router};
+use serde::Deserialize;
 use crate::{services, AppState};
 
 #[derive(Debug, Deserialize)]
