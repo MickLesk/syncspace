@@ -40,8 +40,8 @@ use crate::AppState;
 /// Build the complete API router
 pub fn build_api_router(state: AppState) -> Router<AppState> {
     Router::new()
-        // Auth routes (public)
-        .merge(auth::router())
+        // Public auth routes (login, register)
+        .merge(auth::public_router())
         
         // Setup routes (public - no auth required)
         .merge(setup::router())
@@ -49,6 +49,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
         // Protected routes
         .merge(
             Router::new()
+                .merge(auth::protected_router())  // Protected auth routes (2FA, change-password, etc.)
                 .merge(users::router())
                 .merge(groups::router())
                 .merge(quota::router())

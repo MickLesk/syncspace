@@ -62,16 +62,28 @@ pub struct Setup2FAResponse {
 
 // ==================== ROUTER ====================
 
-pub fn router() -> Router<AppState> {
+/// Public authentication routes (no auth required)
+pub fn public_router() -> Router<AppState> {
     Router::new()
         .route("/auth/register", post(register_handler))
         .route("/auth/login", post(login_handler))
+}
+
+/// Protected authentication routes (auth required)
+pub fn protected_router() -> Router<AppState> {
+    Router::new()
         .route("/auth/me", get(me_handler))
         .route("/auth/change-password", post(change_password_handler))
         .route("/auth/2fa/setup", post(setup_2fa_handler))
         .route("/auth/2fa/enable", post(enable_2fa_handler))
         .route("/auth/2fa/disable", post(disable_2fa_handler))
         .route("/auth/refresh", post(refresh_token_handler))
+}
+
+/// Legacy function for backward compatibility (only public routes)
+#[deprecated(note = "Use public_router() and protected_router() instead")]
+pub fn router() -> Router<AppState> {
+    public_router()
 }
 
 // ==================== HANDLERS ====================
