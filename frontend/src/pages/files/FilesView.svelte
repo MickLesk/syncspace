@@ -162,11 +162,20 @@
 
   onMount(async () => {
     // Load preferences and favorites
-    const prefs = await userPreferences.load();
-    if (prefs.view_mode) {
-      viewMode = prefs.view_mode;
+    try {
+      const prefs = await userPreferences.load();
+      if (prefs && prefs.view_mode) {
+        viewMode = prefs.view_mode;
+      }
+    } catch (err) {
+      console.error('Failed to load preferences:', err);
     }
-    await favorites.load();
+    
+    try {
+      await favorites.load();
+    } catch (err) {
+      console.error('Failed to load favorites:', err);
+    }
 
     // Initialize from URL hash or current path
     const urlPath =
