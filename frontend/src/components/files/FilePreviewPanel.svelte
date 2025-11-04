@@ -378,7 +378,7 @@
         <div class="file-details">
           <h3 class="file-name">{file.name}</h3>
           <p class="file-meta">
-            {file.size ? Math.round(file.size / 1024) : 0} KB
+            {Math.round((file.size_bytes || file.size || 0) / 1024)} KB
           </p>
         </div>
       </div>
