@@ -229,11 +229,11 @@
 
     <!-- Folder Color Selection -->
     <div>
-      <label
+      <div
         class="block text-sm font-medium mb-3 text-gray-700 dark:text-gray-300"
       >
         Folder Color
-      </label>
+      </div>
       <div class="grid grid-cols-5 gap-2">
         <!-- First row: 10 fixed colors -->
         {#each folderColors as color}
@@ -434,11 +434,11 @@
 
     <!-- Folder Color Selection (Identical to New Folder Modal) -->
     <div>
-      <label
+      <div
         class="block text-sm font-medium mb-3 text-gray-700 dark:text-gray-300"
       >
         Select Color
-      </label>
+      </div>
       <div class="grid grid-cols-5 gap-2">
         <!-- 8 fixed colors -->
         {#each folderColors as color}
@@ -615,11 +615,11 @@
 
     <!-- Folder Selection -->
     <div>
-      <label
+      <div
         class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
       >
         Select Destination Folder
-      </label>
+      </div>
 
       <!-- Filter Input -->
       <div class="relative mb-2">

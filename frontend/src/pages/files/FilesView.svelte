@@ -173,8 +173,9 @@
   onMount(async () => {
     // Load preferences and favorites
     try {
-      const prefs = await userPreferences.load();
-      if (prefs && prefs.view_mode) {
+      await userPreferences.load();
+      const prefs = userPreferences.getAll();
+      if (prefs && typeof prefs.view_mode === "string") {
         viewMode = prefs.view_mode;
       }
       preferencesLoaded = true; // Enable auto-save after loading
@@ -926,6 +927,9 @@
             onSelect={() => handleFileSelection(file)}
             onOpen={() => openFile(file)}
             onContextMenu={(f, e) => handleContextMenu(f, e)}
+            onDragStart={(f) =>
+              console.log("[FilesView] Drag started:", f.name)}
+            onDragEnd={(f) => console.log("[FilesView] Drag ended:", f.name)}
             onDrop={(draggedFile, targetFolder) =>
               handleFileDrop(draggedFile, targetFolder)}
           />
