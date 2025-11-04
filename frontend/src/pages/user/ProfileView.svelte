@@ -500,11 +500,13 @@
             <!-- Theme Setting -->
             <div>
               <label
+                for="theme-select"
                 class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
               >
                 Theme
               </label>
               <select
+                id="theme-select"
                 bind:value={settings.theme}
                 class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100"
               >
@@ -517,11 +519,13 @@
             <!-- Language Setting -->
             <div>
               <label
+                for="language-select"
                 class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
               >
                 Language
               </label>
               <select
+                id="language-select"
                 bind:value={settings.language}
                 class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100"
               >
@@ -535,11 +539,13 @@
             <!-- Default View Setting -->
             <div>
               <label
+                for="default-view-select"
                 class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
               >
                 Default File View
               </label>
               <select
+                id="default-view-select"
                 bind:value={settings.defaultView}
                 class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100"
               >

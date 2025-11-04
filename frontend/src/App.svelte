@@ -243,7 +243,10 @@
           <!-- Backdrop with blur -->
           <div
             class="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-[45] animate-fade-in"
+            role="button"
+            tabindex="0"
             onclick={() => (showActivityFeed = false)}
+            onkeydown={(e) => e.key === "Escape" && (showActivityFeed = false)}
           ></div>
 
           <!-- Panel -->

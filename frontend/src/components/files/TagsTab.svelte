@@ -146,10 +146,11 @@
           <!-- Create Tag Form -->
           <div class="bg-base-300 rounded-lg p-4 mb-4 space-y-3">
             <div class="form-control">
-              <label class="label">
+              <label for="tag-name-input" class="label">
                 <span class="label-text font-semibold">Tag Name</span>
               </label>
               <input
+                id="tag-name-input"
                 type="text"
                 bind:value={newTagName}
                 placeholder="e.g. Important, Work, Personal"
@@ -160,11 +161,12 @@
               />
             </div>
             <div class="form-control">
-              <label class="label">
+              <label for="tag-color-input" class="label">
                 <span class="label-text font-semibold">Color</span>
               </label>
               <div class="flex gap-2">
                 <input
+                  id="tag-color-input"
                   type="color"
                   bind:value={newTagColor}
                   class="input input-bordered w-20 h-10 cursor-pointer p-1"

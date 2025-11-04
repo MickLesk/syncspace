@@ -2288,6 +2288,7 @@
   bind:visible={showFolderColorPicker} 
   bind:folder={folderForColorPicker}
 />
+</PageWrapper>
 
 <style>
   /* Drag & Drop Zone Overlay */

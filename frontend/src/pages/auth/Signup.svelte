@@ -123,6 +123,7 @@
       <!-- Username Input -->
       <div class="space-y-2">
         <label
+          for="signup-username"
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <i class="bi bi-person-fill mr-2 text-blue-600 dark:text-blue-400"
@@ -130,6 +131,7 @@
         </label>
         <div class="relative">
           <input
+            id="signup-username"
             type="text"
             bind:value={username}
             class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -145,6 +147,7 @@
       <!-- Email Input -->
       <div class="space-y-2">
         <label
+          for="signup-email"
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <i class="bi bi-envelope-fill mr-2 text-blue-600 dark:text-blue-400"
@@ -152,6 +155,7 @@
         </label>
         <div class="relative">
           <input
+            id="signup-email"
             type="email"
             bind:value={email}
             class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -167,6 +171,7 @@
       <!-- Password Input -->
       <div class="space-y-2">
         <label
+          for="signup-password"
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <i
@@ -175,6 +180,7 @@
         </label>
         <div class="relative">
           <input
+            id="signup-password"
             type={showPassword ? "text" : "password"}
             bind:value={password}
             class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -201,6 +207,7 @@
       <!-- Confirm Password Input -->
       <div class="space-y-2">
         <label
+          for="signup-confirm-password"
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <i class="bi bi-shield-check mr-2 text-green-600 dark:text-green-400"
@@ -208,6 +215,7 @@
         </label>
         <div class="relative">
           <input
+            id="signup-confirm-password"
             type={showConfirmPassword ? "text" : "password"}
             bind:value={confirmPassword}
             class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"

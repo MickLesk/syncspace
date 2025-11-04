@@ -159,11 +159,10 @@
                 </div>
               </div>
               <div class="dropdown dropdown-end">
-                <button tabindex="0" class="btn btn-ghost btn-xs btn-square">
+                <button tabindex="0" class="btn btn-ghost btn-xs btn-square" aria-label="Comment options">
                   <i class="bi bi-three-dots-vertical"></i>
                 </button>
                 <ul
-                  tabindex="0"
                   class="dropdown-content menu p-2 shadow bg-base-200 rounded-box w-32"
                 >
                   <li>

@@ -589,6 +589,5 @@
       {/snippet}
     </ModernCard>
   </div>
-  </div>
 </PageWrapper>
 {/if}

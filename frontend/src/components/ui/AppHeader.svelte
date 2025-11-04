@@ -17,14 +17,15 @@
 
   let backendOnline = $state(false);
   let showBackendModal = $state(false);
-  let showActivityFeed = $state(false);
+  
+  let {
+    showActivityFeed = $bindable(false)
+  } = $props();
 
   function toggleActivityFeed() {
     showActivityFeed = !showActivityFeed;
     dispatch("toggleActivityFeed", { visible: showActivityFeed });
   }
-
-  export { showActivityFeed };
 
   // Check backend status periodically
   onMount(() => {

@@ -70,11 +70,11 @@
 
           <div class="upload-actions">
             {#if upload.status === "uploading"}
-              <button class="btn btn-ghost btn-xs btn-circle"
+              <button class="btn btn-ghost btn-xs btn-circle" aria-label="Cancel upload"
                 ><i class="bi bi-x-lg"></i></button
               >
             {:else if upload.status === "error"}
-              <button class="btn btn-ghost btn-xs gap-1"
+              <button class="btn btn-ghost btn-xs gap-1" aria-label="Retry upload"
                 ><i class="bi bi-arrow-clockwise"></i> Retry</button
               >
             {/if}

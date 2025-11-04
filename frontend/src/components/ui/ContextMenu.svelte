@@ -11,7 +11,9 @@
   <div
     class="context-menu scale-in"
     style="left: {x}px; top: {y}px;"
+    role="menu"
     onclick={(e) => e.stopPropagation()}
+    onkeydown={(e) => e.stopPropagation()}
   >
     {#each items as item}
       {#if item.divider}

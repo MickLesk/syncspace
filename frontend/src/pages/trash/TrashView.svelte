@@ -20,7 +20,7 @@
     .sort((a, b) => {
       const order = sortOrder === "asc" ? 1 : -1;
       if (sortBy === "deleted_at") {
-        return order * (new Date(a.deleted_at) - new Date(b.deleted_at));
+        return order * (new Date(a.deleted_at).getTime() - new Date(b.deleted_at).getTime());
       } else if (sortBy === "file_name") {
         return order * a.file_name.localeCompare(b.file_name);
       } else if (sortBy === "file_size") {
@@ -605,7 +605,6 @@
   }
 
   /* States */
-  .loading,
   .error,
   .empty {
     display: flex;
@@ -615,21 +614,6 @@
     height: 100%;
     gap: 1rem;
     color: var(--on-surface-variant);
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--outline-variant);
-    border-top-color: var(--primary);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
   }
 
   /* Trash List */

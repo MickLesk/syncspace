@@ -150,14 +150,17 @@
   <div
     class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
     onclick={close}
+    onkeydown={(e) => e.key === "Escape" && close()}
     role="button"
     tabindex="-1"
   >
     <div
       class="bg-base-100 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col"
       onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => e.stopPropagation()}
       role="dialog"
       aria-modal="true"
+      tabindex="0"
     >
       <div
         class="flex items-center justify-between gap-4 px-6 py-4 border-b border-base-300"
