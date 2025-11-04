@@ -31,7 +31,9 @@
 
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
-  import ProfileView from "./pages/user/ProfileView.svelte";
+  import UserProfileView from "./pages/user/UserProfileView.svelte";
+  import UserSettingsView from "./pages/user/UserSettingsView.svelte";
+  import SecurityView from "./pages/user/SecurityView.svelte";
 
   // Showcase (Development)
   import DesignShowcase from "./pages/showcase/DesignShowcase.svelte";
@@ -135,7 +137,12 @@
   });
 
   function handleNavigate(event) {
-    currentView.set(event.detail.view);
+    console.log("[App] handleNavigate event.detail:", event.detail);
+    // Support both event.detail.view and event.detail (string)
+    const view =
+      typeof event.detail === "string" ? event.detail : event.detail.view;
+    console.log("[App] Setting currentView to:", view);
+    currentView.set(view);
   }
 
   // Check for hash-based routing (login vs signup)
@@ -246,7 +253,11 @@
               {:else if $currentView === "settings"}
                 <SettingsView />
               {:else if $currentView === "profile"}
-                <ProfileView />
+                <UserProfileView />
+              {:else if $currentView === "user-settings"}
+                <UserSettingsView />
+              {:else if $currentView === "security"}
+                <SecurityView />
               {:else if $currentView === "storage"}
                 <StorageView />
               {:else if $currentView === "activity"}

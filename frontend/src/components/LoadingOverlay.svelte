@@ -10,6 +10,11 @@
   $: progressPercent = progress
     ? Math.round((progress.current / progress.total) * 100)
     : 0;
+
+  // DEBUG: Log when loading state changes
+  $: {
+    console.log("[LoadingOverlay] isLoading:", isLoading, "message:", message);
+  }
 </script>
 
 {#if isLoading}

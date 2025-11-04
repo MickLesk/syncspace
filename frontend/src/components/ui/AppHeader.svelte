@@ -83,6 +83,12 @@
 
   let showUserDropdown = $state(false);
 
+  // Navigate and close dropdown
+  function navigateAndClose(view) {
+    showUserDropdown = false;
+    dispatch("navigate", view);
+  }
+
   // Mock notifications data
   let notifications = $state([
     {
@@ -517,7 +523,7 @@
               <li>
                 <button
                   class="user-menu-item-new"
-                  onclick={() => dispatch("navigate", "profile")}
+                  onclick={() => navigateAndClose("profile")}
                 >
                   <i class="bi bi-person-circle"></i>
                   <div class="menu-item-content">
@@ -530,9 +536,9 @@
               <li>
                 <button
                   class="user-menu-item-new"
-                  onclick={() => dispatch("navigate", "settings")}
+                  onclick={() => navigateAndClose("user-settings")}
                 >
-                  <i class="bi bi-gear-fill"></i>
+                  <i class="bi bi-sliders"></i>
                   <div class="menu-item-content">
                     <span class="menu-item-label">Settings</span>
                     <span class="menu-item-desc">Preferences & options</span>
@@ -543,12 +549,25 @@
               <li>
                 <button
                   class="user-menu-item-new"
-                  onclick={() => dispatch("navigate", "storage")}
+                  onclick={() => navigateAndClose("security")}
+                >
+                  <i class="bi bi-shield-lock"></i>
+                  <div class="menu-item-content">
+                    <span class="menu-item-label">Security</span>
+                    <span class="menu-item-desc">2FA & password</span>
+                  </div>
+                  <i class="bi bi-chevron-right menu-item-arrow"></i>
+                </button>
+              </li>
+              <li>
+                <button
+                  class="user-menu-item-new"
+                  onclick={() => navigateAndClose("storage")}
                 >
                   <i class="bi bi-hdd-fill"></i>
                   <div class="menu-item-content">
                     <span class="menu-item-label">Storage</span>
-                    <span class="menu-item-desc">Manage your files</span>
+                    <span class="menu-item-desc">Usage & analytics</span>
                   </div>
                   <i class="bi bi-chevron-right menu-item-arrow"></i>
                 </button>
