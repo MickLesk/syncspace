@@ -22,6 +22,7 @@
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
+      });
 
       if (response.ok) {
         const user = await response.json();
