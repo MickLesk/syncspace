@@ -1,5 +1,6 @@
 <script>
   import GeneralSettings from "./GeneralSettings.svelte";
+  import SecuritySettings from "./SecuritySettings.svelte";
   import UsersSettings from "./UsersSettings.svelte";
   import StorageSettings from "./StorageSettings.svelte";
   import BackupSettings from "./BackupSettings.svelte";
@@ -19,6 +20,12 @@
       label: "General",
       icon: "sliders",
       keywords: ["language", "theme", "notifications", "general"],
+    },
+    {
+      id: "security",
+      label: "Security",
+      icon: "shield-lock-fill",
+      keywords: ["security", "2fa", "password", "authentication"],
     },
     {
       id: "users",
@@ -157,6 +164,8 @@
         <div class="p-6">
           {#if activeTab === "general"}
             <GeneralSettings />
+          {:else if activeTab === "security"}
+            <SecuritySettings />
           {:else if activeTab === "users"}
             <UsersSettings />
           {:else if activeTab === "storage"}
