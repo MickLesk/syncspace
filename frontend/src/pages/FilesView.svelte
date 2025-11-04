@@ -5,12 +5,12 @@
   import { success, error as errorToast } from "../stores/toast";
   import { getFileIcon, getFileIconColor } from "../utils/fileIcons";
   import ContextMenu from "../components/ui/ContextMenu.svelte";
-  import Breadcrumb from "../components/Breadcrumb.svelte";
+  import Breadcrumb from "../components/navigation/Breadcrumb.svelte";
   import Modal from "../components/ui/Modal.svelte";
-  import FileThumbnail from "../components/ui/FileThumbnail.svelte";
-  import AdvancedSearchModal from "../components/AdvancedSearchModal.svelte";
-  import ShareModal from "../components/ui/ShareModal.svelte";
-  import VersionHistoryModal from "../components/ui/VersionHistoryModal.svelte";
+  import FileThumbnail from "../components/files/FileThumbnail.svelte";
+  import AdvancedSearchModal from "../components/search/AdvancedSearchModal.svelte";
+  import ShareModal from "../components/sharing/ShareModal.svelte";
+  import VersionHistoryModal from "../components/files/VersionHistoryModal.svelte";
   import FilePreviewModal from "../components/files/FilePreviewModal.svelte";
   import FolderColorPicker from "../components/files/FolderColorPicker.svelte";
   import api from "../lib/api";
@@ -23,7 +23,6 @@
   import PageHeader from "../components/ui/PageHeader.svelte";
   import ModernCard from "../components/ui/ModernCard.svelte";
   import ModernButton from "../components/ui/ModernButton.svelte";
-  import Loading from "../components/Loading.svelte";
 
   let loading = $state(true);
   let uploading = $state(false);
@@ -2240,13 +2239,14 @@
 </Modal>
 
 <!-- Context Menu -->
+{#if contextMenuVisible}
 <ContextMenu
-  visible={contextMenuVisible}
   x={contextMenuX}
   y={contextMenuY}
   items={getContextMenuItems()}
-  on:select={handleContextAction}
+  onClose={() => (contextMenuVisible = false)}
 />
+{/if}
 
 <!-- Share Modal -->
 <ShareModal
