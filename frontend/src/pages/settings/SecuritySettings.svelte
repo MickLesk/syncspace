@@ -3,9 +3,11 @@
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import { auth } from "../../stores/auth.js";
+  import QRCode from "qrcode";
 
   let twoFAEnabled = $state(false);
   let twoFASetup = $state(null); // { secret, qr_code_url }
+  let qrCodeDataUrl = $state(""); // Generated QR code as data URL
   let showSetup = $state(false);
   let verificationCode = $state("");
   let loading = $state(false);
@@ -49,6 +51,23 @@
 
       if (response.ok) {
         twoFASetup = await response.json();
+
+        // Generate QR code from the otpauth URL
+        try {
+          qrCodeDataUrl = await QRCode.toDataURL(twoFASetup.qr_code_url, {
+            width: 256,
+            margin: 2,
+            color: {
+              dark: "#000000",
+              light: "#FFFFFF",
+            },
+          });
+        } catch (qrError) {
+          console.error("QR code generation error:", qrError);
+          error = "Failed to generate QR code";
+          return;
+        }
+
         showSetup = true;
       } else {
         error = "Failed to generate 2FA secret. Please try again.";
@@ -141,6 +160,7 @@
   function cancelSetup() {
     showSetup = false;
     twoFASetup = null;
+    qrCodeDataUrl = "";
     verificationCode = "";
     error = "";
   }
@@ -237,11 +257,15 @@
 
             <!-- QR Code -->
             <div class="bg-white p-6 rounded-xl inline-block shadow-lg mb-6">
-              <img
-                src={twoFASetup.qr_code_url}
-                alt="2FA QR Code"
-                class="w-64 h-64"
-              />
+              {#if qrCodeDataUrl}
+                <img src={qrCodeDataUrl} alt="2FA QR Code" class="w-64 h-64" />
+              {:else}
+                <div class="w-64 h-64 flex items-center justify-center">
+                  <div
+                    class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"
+                  ></div>
+                </div>
+              {/if}
             </div>
 
             <!-- Manual Entry -->
