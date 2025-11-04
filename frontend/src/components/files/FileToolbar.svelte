@@ -116,32 +116,6 @@
 
     <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 hidden lg:block"></div>
 
-    <!-- Folders Only Toggle - Modern Switch Style -->
-    <label class="flex items-center gap-2 cursor-pointer group">
-      <div class="relative">
-        <input
-          type="checkbox"
-          class="sr-only peer"
-          bind:checked={showFoldersOnly}
-        />
-        <div
-          class="w-10 h-6 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-checked:bg-primary-500 transition-all duration-200"
-        ></div>
-        <div
-          class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-4"
-        ></div>
-      </div>
-      <span
-        class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 hidden md:inline"
-      >
-        Folders Only
-      </span>
-      <i
-        class="bi bi-folder text-gray-600 dark:text-gray-400 md:hidden"
-        title="Folders Only"
-      ></i>
-    </label>
-
     <!-- Quick Filter Buttons -->
     <button
       type="button"

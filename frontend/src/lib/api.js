@@ -204,7 +204,7 @@ export const users = {
     const response = await fetch(`${API_BASE}/users/preferences`, {
       method: "PUT",
       headers: getHeaders(),
-      body: JSON.stringify(data),
+      body: JSON.stringify({ preferences: data }),
     });
     return handleResponse(response);
   },
