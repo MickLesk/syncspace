@@ -1,9 +1,5 @@
 <script>
-  import {
-    currentView,
-    sidebarCollapsed,
-    currentLang,
-  } from "../../stores/ui";
+  import { currentView, sidebarCollapsed, currentLang } from "../../stores/ui";
   import { auth } from "../../stores/auth";
   import { t } from "../../i18n";
   import FolderTree from "./FolderTree.svelte";
