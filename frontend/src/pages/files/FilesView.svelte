@@ -155,8 +155,8 @@
   // Save view mode to backend when it changes
   $effect(() => {
     if (viewMode) {
-      console.log('💾 Saving view mode to backend:', viewMode);
-      userPreferences.updatePreference('view_mode', viewMode);
+      console.log("💾 Saving view mode to backend:", viewMode);
+      userPreferences.updatePreference("view_mode", viewMode);
     }
   });
 
