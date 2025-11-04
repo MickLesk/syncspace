@@ -141,7 +141,6 @@
       class:bg-warning-500={showFavoritesOnly}
       class:text-white={showFavoritesOnly}
       class:shadow-lg={showFavoritesOnly}
-      class:shadow-warning-500/50={showFavoritesOnly}
       class:bg-gray-100={!showFavoritesOnly}
       class:dark:bg-gray-700={!showFavoritesOnly}
       class:hover:bg-warning-100={!showFavoritesOnly}
