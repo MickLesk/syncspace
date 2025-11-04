@@ -13,7 +13,7 @@
     disabled = false,
     fullWidth = false,
     onclick = null,
-    type = "button",
+    type = /** @type {"button" | "submit" | "reset"} */ ("button"),
     class: className = "",
     "aria-label": ariaLabel = "",
     ...restProps

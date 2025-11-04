@@ -207,7 +207,10 @@
             <div
               class="glass-card p-6 cursor-pointer hover:scale-105 transition-all duration-200 animate-slide-up"
               style="animation-delay: {i * 30}ms"
+              role="button"
+              tabindex="0"
               onclick={() => navigateToFile(file.fullPath)}
+              onkeydown={(e) => (e.key === "Enter" || e.key === " ") && navigateToFile(file.fullPath)}
             >
               <!-- File Icon -->
               <div class="text-center mb-4">

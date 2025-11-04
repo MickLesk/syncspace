@@ -92,14 +92,17 @@
   <div
     class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
     onclick={close}
+    onkeydown={(e) => e.key === "Escape" && close()}
     role="button"
     tabindex="-1"
   >
     <div
       class="bg-base-100 rounded-2xl shadow-2xl w-full max-w-md"
       onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => e.stopPropagation()}
       role="dialog"
       aria-modal="true"
+      tabindex="0"
     >
       <!-- Header -->
       <div
@@ -133,11 +136,12 @@
 
         <!-- Color Picker -->
         <div class="form-control">
-          <label class="label">
+          <label for="custom-color-picker" class="label">
             <span class="label-text font-semibold">Custom Color</span>
           </label>
           <div class="flex gap-2">
             <input
+              id="custom-color-picker"
               type="color"
               bind:value={selectedColor}
               class="input input-bordered w-20 h-12 cursor-pointer p-1"
