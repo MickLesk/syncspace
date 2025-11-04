@@ -8,6 +8,19 @@ use uuid::Uuid;
 pub struct AuthService;
 
 pub async fn register(state: &AppState, username: String, password: String) -> Result<AuthResponse, anyhow::Error> {
+    // Check if registration is enabled
+    let registration_enabled: Option<(i32,)> = sqlx::query_as(
+        "SELECT allow_registration FROM system_settings WHERE id = 1"
+    )
+    .fetch_optional(&state.db_pool)
+    .await
+    .ok()
+    .flatten();
+    
+    if registration_enabled.map(|(e,)| e == 0).unwrap_or(true) {
+        return Err(anyhow!("User registration is currently disabled"));
+    }
+    
     if username.is_empty() || password.is_empty() { return Err(anyhow!("Username and password required")); }
     if username.len() < 3 { return Err(anyhow!("Username must be at least 3 characters")); }
     if password.len() < 6 { return Err(anyhow!("Password must be at least 6 characters")); }

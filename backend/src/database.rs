@@ -118,153 +118,85 @@ async fn execute_migration_statements(pool: &SqlitePool, migration_sql: &str) ->
     Ok(())
 }
 
-/// Run SQL migrations from files - SIMPLIFIED VERSION for core tables only
+/// Run SQL migrations from files - DYNAMICALLY discovers and runs all migrations
 async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     println!("🔄 Running database migrations...");
 
-    // Check if migrations were already run by checking for user_preferences table
-    // (which is created in the last migration 015)
-    let table_exists: Option<(i64,)> = sqlx::query_as(
-        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='user_preferences'"
+    // Create migrations_tracker table if it doesn't exist
+    sqlx::query(
+        "CREATE TABLE IF NOT EXISTS migrations_tracker (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            migration_file TEXT NOT NULL UNIQUE,
+            executed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )"
     )
-    .fetch_optional(pool)
+    .execute(pool)
     .await?;
-    
-    let migrations_needed = if let Some((count,)) = table_exists {
-        count == 0  // If table doesn't exist (count=0), run migrations
-    } else {
-        true  // If query failed, definitely run migrations
-    };
 
-    if migrations_needed {
-        println!("📦 Database tables missing. Running all migrations...");
-        // Run initial schema migration
-        println!("📋 Running migration: 001_initial_schema.sql");
-        let migration_sql = include_str!("../migrations/001_initial_schema.sql");
+    // Define all migrations with their SQL content at compile time
+    // This allows us to track and skip already-executed migrations
+    let migrations = vec![
+        ("001_initial_schema.sql", include_str!("../migrations/001_initial_schema.sql")),
+        ("002_add_comments_tags.sql", include_str!("../migrations/002_add_comments_tags.sql")),
+        ("003_add_backups.sql", include_str!("../migrations/003_add_backups.sql")),
+        ("004_add_notifications_and_preferences.sql", include_str!("../migrations/004_add_notifications_and_preferences.sql")),
+        ("005_add_notifications.sql", include_str!("../migrations/005_add_notifications.sql")),
+        ("006_add_webhooks.sql", include_str!("../migrations/006_add_webhooks.sql")),
+        ("007_add_encryption.sql", include_str!("../migrations/007_add_encryption.sql")),
+        ("008_add_locking.sql", include_str!("../migrations/008_add_locking.sql")),
+        ("009_add_permissions.sql", include_str!("../migrations/009_add_permissions.sql")),
+        ("010_add_additional_features.sql", include_str!("../migrations/010_add_additional_features.sql")),
+        ("011_add_integration_features.sql", include_str!("../migrations/011_add_integration_features.sql")),
+        ("012_add_oauth.sql", include_str!("../migrations/012_add_oauth.sql")),
+        ("013_add_collaboration.sql", include_str!("../migrations/013_add_collaboration.sql")),
+        ("014_add_file_versioning.sql", include_str!("../migrations/014_add_file_versioning.sql")),
+        ("015_add_user_preferences.sql", include_str!("../migrations/015_add_user_preferences.sql")),
+        ("016_add_backup_scheduling.sql", include_str!("../migrations/016_add_backup_scheduling.sql")),
+        ("017_add_folder_colors.sql", include_str!("../migrations/017_add_folder_colors.sql")),
+        ("018_add_activity_tracking.sql", include_str!("../migrations/018_add_activity_tracking.sql")),
+        ("019_add_last_activity_visit.sql", include_str!("../migrations/019_add_last_activity_visit.sql")),
+        ("020_add_setup_wizard.sql", include_str!("../migrations/020_add_setup_wizard.sql")),
+        // Skip 021 - 2FA tables conflict with existing users.totp_* fields
+        ("022_add_user_groups_roles.sql", include_str!("../migrations/022_add_user_groups_roles.sql")),
+    ];
+
+    let mut executed_count = 0;
+    let mut skipped_count = 0;
+
+    for (filename, migration_sql) in migrations {
+        // Check if this migration was already executed
+        let already_run: Option<(i64,)> = sqlx::query_as(
+            "SELECT COUNT(*) FROM migrations_tracker WHERE migration_file = ?"
+        )
+        .bind(filename)
+        .fetch_optional(pool)
+        .await?;
+
+        if let Some((count,)) = already_run {
+            if count > 0 {
+                skipped_count += 1;
+                continue; // Skip already executed migrations
+            }
+        }
+
+        // Execute the migration
+        println!("📋 Running migration: {}", filename);
         execute_migration_statements(pool, migration_sql).await?;
+
+        // Record successful execution
+        sqlx::query("INSERT INTO migrations_tracker (migration_file) VALUES (?)")
+            .bind(filename)
+            .execute(pool)
+            .await?;
         
-        println!("📋 Running migration: 002_add_comments_tags.sql");
-        let migration_sql = include_str!("../migrations/002_add_comments_tags.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 003_add_backups.sql");
-        let migration_sql = include_str!("../migrations/003_add_backups.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 004_add_notifications_and_preferences.sql");
-        let migration_sql = include_str!("../migrations/004_add_notifications_and_preferences.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 005_add_notifications.sql");
-        let migration_sql = include_str!("../migrations/005_add_notifications.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 006_add_webhooks.sql");
-        let migration_sql = include_str!("../migrations/006_add_webhooks.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 007_add_encryption.sql");
-        let migration_sql = include_str!("../migrations/007_add_encryption.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 008_add_locking.sql");
-        let migration_sql = include_str!("../migrations/008_add_locking.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 009_add_permissions.sql");
-        let migration_sql = include_str!("../migrations/009_add_permissions.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 010_add_additional_features.sql");
-        let migration_sql = include_str!("../migrations/010_add_additional_features.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 011_add_integration_features.sql");
-        let migration_sql = include_str!("../migrations/011_add_integration_features.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 012_add_oauth.sql");
-        let migration_sql = include_str!("../migrations/012_add_oauth.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 013_add_collaboration.sql");
-        let migration_sql = include_str!("../migrations/013_add_collaboration.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 014_add_file_versioning.sql");
-        let migration_sql = include_str!("../migrations/014_add_file_versioning.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 015_add_user_preferences.sql");
-        let migration_sql = include_str!("../migrations/015_add_user_preferences.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 016_add_backup_scheduling.sql");
-        let migration_sql = include_str!("../migrations/016_add_backup_scheduling.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 017_add_folder_colors.sql");
-        let migration_sql = include_str!("../migrations/017_add_folder_colors.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 018_add_activity_tracking.sql");
-        let migration_sql = include_str!("../migrations/018_add_activity_tracking.sql");
-        execute_migration_statements(pool, migration_sql).await?;
-        
-        println!("📋 Running migration: 019_add_last_activity_visit.sql");
-        let migration_sql = include_str!("../migrations/019_add_last_activity_visit.sql");
-        execute_migration_statements(pool, migration_sql).await?;
+        executed_count += 1;
     }
 
-    println!("✅ All 19 migrations completed successfully!");
-    
-    // Always run migration 018 separately for existing databases (safe to run multiple times)
-    let activity_table_exists: Option<(i64,)> = sqlx::query_as(
-        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='activity_log'"
-    )
-    .fetch_optional(pool)
-    .await?;
-    
-    if let Some((count,)) = activity_table_exists {
-        if count == 0 {
-            println!("📊 Adding activity tracking to existing database...");
-            let migration_sql = include_str!("../migrations/018_add_activity_tracking.sql");
-            execute_migration_statements(pool, migration_sql).await?;
-            println!("✅ Activity tracking feature added!");
-        }
+    if executed_count > 0 {
+        println!("✅ Executed {} new migrations successfully!", executed_count);
     }
-    
-    // Always run migration 019 separately for existing databases (safe to run multiple times)
-    let last_visit_column_exists: Option<(i64,)> = sqlx::query_as(
-        "SELECT COUNT(*) FROM pragma_table_info('users') WHERE name='last_activity_visit'"
-    )
-    .fetch_optional(pool)
-    .await?;
-    
-    if let Some((count,)) = last_visit_column_exists {
-        if count == 0 {
-            println!("⏰ Adding last activity visit tracking to existing database...");
-            let migration_sql = include_str!("../migrations/019_add_last_activity_visit.sql");
-            execute_migration_statements(pool, migration_sql).await?;
-            println!("✅ Last activity visit tracking added!");
-        }
-    }
-    
-    // Always run migration 017 separately for existing databases (safe to run multiple times)
-    // Check if folder_color column exists
-    let column_exists: Option<(i64,)> = sqlx::query_as(
-        "SELECT COUNT(*) FROM pragma_table_info('files') WHERE name='folder_color'"
-    )
-    .fetch_optional(pool)
-    .await?;
-    
-    if let Some((count,)) = column_exists {
-        if count == 0 {
-            println!("🎨 Adding folder_color support to existing database...");
-            let migration_sql = include_str!("../migrations/017_add_folder_colors.sql");
-            execute_migration_statements(pool, migration_sql).await?;
-            println!("✅ Folder colors feature added!");
-        }
+    if skipped_count > 0 {
+        println!("⏭️  Skipped {} already executed migrations", skipped_count);
     }
     
     Ok(())
@@ -272,8 +204,21 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
 
 
 /// Ensure admin user exists (username: admin, password: admin)
-/// This user is never overwritten and always available for initial access
+/// ONLY creates default admin if setup has NOT been completed
+/// This provides backwards compatibility for existing installations
 async fn ensure_admin_user(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    // Check if setup has been completed
+    let setup_completed: Option<(bool,)> = sqlx::query_as(
+        "SELECT setup_completed FROM system_settings WHERE id = 1"
+    )
+    .fetch_optional(pool)
+    .await?;
+    
+    if setup_completed.map(|(c,)| c).unwrap_or(false) {
+        println!("✅ Setup completed - skipping default admin creation");
+        return Ok(());
+    }
+    
     // Check if admin user already exists
     let existing: Option<(String,)> = sqlx::query_as(
         "SELECT id FROM users WHERE username = 'admin'"

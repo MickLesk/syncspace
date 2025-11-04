@@ -2,6 +2,11 @@
 //! Centralizes all API route definitions
 
 pub mod auth;
+pub mod setup;
+// pub mod twofa; // TODO: Fix compilation errors
+pub mod groups;
+pub mod quota;
+pub mod file_versions;
 pub mod files;
 pub mod directories;
 pub mod users;
@@ -38,10 +43,17 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
         // Auth routes (public)
         .merge(auth::router())
         
+        // Setup routes (public - no auth required)
+        .merge(setup::router())
+        
         // Protected routes
         .merge(
             Router::new()
                 .merge(users::router())
+                .merge(groups::router())
+                .merge(quota::router())
+                .merge(file_versions::router())
+                // .merge(twofa::router()) // TODO: Fix compilation
                 .merge(files::router())
                 .merge(directories::router())
                 .merge(search::router())

@@ -4,7 +4,8 @@
   import { currentTheme, currentView, currentLang } from "./stores/ui";
   import { userPreferences } from "./stores/preferences";
 
-  // Auth Views
+  // Setup & Auth Views
+  import SetupWizard from "./pages/SetupWizard.svelte";
   import Login from "./pages/auth/Login.svelte";
   import Signup from "./pages/auth/Signup.svelte";
 
@@ -42,8 +43,33 @@
   import ActivityFeed from "./components/ActivityFeed.svelte";
   import ModalPortal from "./components/modals/ModalPortal.svelte";
 
+  // State für Setup-Check
+  let setupCompleted = $state(null); // null = loading, true = completed, false = needs setup
+  let setupCheckDone = $state(false);
+
+  // Check if setup is needed
+  async function checkSetupStatus() {
+    try {
+      const response = await fetch("http://localhost:8080/api/setup/status");
+      if (response.ok) {
+        const data = await response.json();
+        setupCompleted = data.setup_completed;
+      } else {
+        setupCompleted = true; // Assume setup done if error
+      }
+    } catch (e) {
+      console.error("Setup status check failed:", e);
+      setupCompleted = true; // Assume setup done if backend unreachable
+    } finally {
+      setupCheckDone = true;
+    }
+  }
+
   // FORCE LIGHT MODE ON APP START - aber erlaube später umschalten
-  onMount(() => {
+  onMount(async () => {
+    // Check setup status first
+    await checkSetupStatus();
+
     // Initialisiere mit Light-Mode
     if (!localStorage.getItem("theme")) {
       localStorage.setItem("theme", "light");
@@ -140,8 +166,8 @@
   });
 </script>
 
-{#if $auth.isValidating}
-  <!-- Show nothing while validating token to prevent flash -->
+{#if !setupCheckDone || $auth.isValidating}
+  <!-- Show loading while checking setup status or validating token -->
   <div
     class="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900"
   >
@@ -152,6 +178,9 @@
       <p class="text-gray-600 dark:text-gray-400">Loading...</p>
     </div>
   </div>
+{:else if setupCompleted === false}
+  <!-- Show Setup Wizard if setup not completed -->
+  <SetupWizard />
 {:else if !$auth.isLoggedIn}
   {#if showSignup}
     <Signup />
