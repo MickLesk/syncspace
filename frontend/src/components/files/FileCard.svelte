@@ -15,6 +15,30 @@
   let isFavorite = $state(false);
   let favoriteId = $state(null);
   let favoriteLoading = $state(false);
+  let folderColor = $state(null);
+
+  // Get folder color from backend
+  async function loadFolderColor() {
+    if (!file.is_directory) return;
+
+    // If color already in file object (from backend), use it
+    if (file.folder_color) {
+      folderColor = file.folder_color;
+      return;
+    }
+
+    // Otherwise fetch from API
+    try {
+      const response = await api.folderColors.get(file.file_path || file.name);
+      folderColor = response.color;
+      console.log("[FileCard] Loaded folder color from backend:", folderColor);
+    } catch (err) {
+      // 404 is ok - folder has no color set
+      if (err.message && !err.message.includes("404")) {
+        console.error("[FileCard] Error loading folder color:", err);
+      }
+    }
+  }
 
   // Check if file is favorited
   async function checkFavoriteStatus() {
@@ -60,6 +84,7 @@
 
   onMount(() => {
     checkFavoriteStatus();
+    loadFolderColor();
   });
 
   // getFileIcon returns just icon name like "folder-fill", need to add "bi bi-"
@@ -131,8 +156,23 @@
       }}
     >
       <div class="flex flex-col items-center gap-3 text-center">
-        <i class="{getIconClass(file)} text-5xl {getFileIconColor(file.name)}"
-        ></i>
+        <div class="relative">
+          <i
+            class="{getIconClass(file)} text-5xl {file.is_directory &&
+            folderColor
+              ? ''
+              : getFileIconColor(file.name)}"
+            style={file.is_directory && folderColor
+              ? `color: ${folderColor};`
+              : ""}
+          ></i>
+          {#if file.is_directory && folderColor}
+            <div
+              class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-gray-800"
+              style="background-color: {folderColor};"
+            ></div>
+          {/if}
+        </div>
         <div class="w-full min-w-0">
           <p
             class="font-medium truncate text-gray-900 dark:text-gray-100"
@@ -178,11 +218,22 @@
         onContextMenu?.(file, e);
       }}
     >
-      <i
-        class="{getIconClass(file)} text-3xl flex-shrink-0 {getFileIconColor(
-          file.name
-        )}"
-      ></i>
+      <div class="relative flex-shrink-0">
+        <i
+          class="{getIconClass(file)} text-3xl {file.is_directory && folderColor
+            ? ''
+            : getFileIconColor(file.name)}"
+          style={file.is_directory && folderColor
+            ? `color: ${folderColor};`
+            : ""}
+        ></i>
+        {#if file.is_directory && folderColor}
+          <div
+            class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800"
+            style="background-color: {folderColor};"
+          ></div>
+        {/if}
+      </div>
       <div class="flex-1 min-w-0">
         <p class="font-medium truncate text-gray-900 dark:text-gray-100">
           {file.name}

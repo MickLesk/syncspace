@@ -44,10 +44,11 @@ pub async fn list_files(state: &AppState, user: &UserInfo, path: &str) -> Result
                 owner_id: String,
                 created_at: String,
                 updated_at: String,
+                folder_color: Option<String>,
             }
             
             let db_result: Option<FileRow> = sqlx::query_as(
-                "SELECT id, name, size_bytes, owner_id, created_at, updated_at 
+                "SELECT id, name, size_bytes, owner_id, created_at, updated_at, folder_color 
                  FROM files 
                  WHERE path = ? AND is_deleted = 0 
                  LIMIT 1"
@@ -93,6 +94,7 @@ pub async fn list_files(state: &AppState, user: &UserInfo, path: &str) -> Result
                         .map(|dt| dt.with_timezone(&Utc))
                         .unwrap_or_else(|_| Utc::now()),
                     parent_id: None,
+                    folder_color: db_file.folder_color,
                 });
             } else {
                 // Fallback to filesystem metadata for directories or files not in DB
@@ -106,6 +108,7 @@ pub async fn list_files(state: &AppState, user: &UserInfo, path: &str) -> Result
                     created_at: Utc::now(),
                     modified_at: Utc::now(),
                     parent_id: None,
+                    folder_color: None,
                 });
             }
         }
@@ -213,6 +216,7 @@ pub async fn upload_file(state: &AppState, user: &UserInfo, path: &str, data: Ve
         created_at: Utc::now(), 
         modified_at: Utc::now(),
         parent_id: None,
+        folder_color: None,
     })
 }
 
@@ -363,6 +367,7 @@ pub async fn get_recent_files(state: &AppState, user: &UserInfo, limit: i64) -> 
                     .map(|dt| dt.with_timezone(&Utc))
                     .unwrap_or_else(|_| Utc::now()),
                 parent_id: None,
+                folder_color: None,
             });
         }
     }

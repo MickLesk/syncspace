@@ -17,6 +17,7 @@ const initialState = {
   preview: { visible: false, data: null },
   versionHistory: { visible: false, data: null },
   advancedSearch: { visible: false, data: null },
+  changeFolderColor: { visible: false, data: null },
 };
 
 /**
@@ -144,6 +145,13 @@ function createModalStore() {
       update(state => ({
         ...state,
         versionHistory: { visible: true, data: file }
+      }));
+    },
+    
+    openChangeFolderColor: (file) => {
+      update(state => ({
+        ...state,
+        changeFolderColor: { visible: true, data: file }
       }));
     },
   };

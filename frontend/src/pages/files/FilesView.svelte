@@ -230,6 +230,29 @@
     });
     const unsubDelete = modalEvents.on("deleteFile", deleteFile);
     const unsubSearch = modalEvents.on("search", handleAdvancedSearch);
+    const unsubChangeFolderColor = modalEvents.on(
+      "changeFolderColor",
+      async ({ file, color }) => {
+        console.log("[FilesView] Changing folder color:", {
+          file_path: file.file_path,
+          name: file.name,
+          color: color,
+        });
+
+        try {
+          // Save to backend database
+          await api.folderColors.set(file.file_path, color);
+          console.log("[FilesView] Folder color saved to backend");
+          success("Folder color updated");
+
+          // Refresh the file list to show new color
+          await loadFiles();
+        } catch (err) {
+          console.error("[FilesView] Failed to save folder color:", err);
+          errorToast("Failed to update folder color");
+        }
+      }
+    );
 
     // FilePreview event handlers
     const handleRenameFromPreview = (e) => {
@@ -264,6 +287,7 @@
       unsubRename();
       unsubDelete();
       unsubSearch();
+      unsubChangeFolderColor();
       window.removeEventListener("renameFile", handleRenameFromPreview);
       window.removeEventListener("copyFile", handleCopyFromPreview);
       window.removeEventListener(
@@ -459,7 +483,10 @@
     }, 3000);
   }
 
-  async function createNewFolder(folderName) {
+  async function createNewFolder(data) {
+    const folderName = typeof data === "string" ? data : data.name;
+    const folderColor = typeof data === "object" ? data.color : null;
+
     if (!folderName.trim()) return;
 
     try {
@@ -467,6 +494,22 @@
         ? `${$currentPath}${folderName}`
         : folderName;
       await api.files.createDir(fullPath);
+
+      // Save folder color to backend database
+      if (folderColor) {
+        try {
+          await api.folderColors.set(fullPath, folderColor);
+          console.log(
+            "[FilesView] Folder color saved to backend:",
+            fullPath,
+            folderColor
+          );
+        } catch (err) {
+          console.error("[FilesView] Failed to save folder color:", err);
+          // Continue anyway - folder was created
+        }
+      }
+
       success("Folder created");
       await loadFiles();
     } catch (error) {
@@ -803,6 +846,7 @@
     onDownload={() => downloadFile(currentFile)}
     onVersionHistory={() => modals.openVersionHistory(currentFile)}
     onPreview={() => openFile(currentFile)}
+    onChangeFolderColor={() => modals.openChangeFolderColor(currentFile)}
   />
 {/if}
 

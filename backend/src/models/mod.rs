@@ -41,6 +41,8 @@ pub struct FileInfo {
     pub modified_at: DateTime<Utc>,  // Changed from Option<DateTime<Utc>>
     pub owner_id: Uuid,
     pub parent_id: Option<Uuid>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub folder_color: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
