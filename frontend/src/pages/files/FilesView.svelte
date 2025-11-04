@@ -93,7 +93,7 @@
 
     // Apply favorites filter
     if (showFavoritesOnly) {
-      result = result.filter((f) => favorites.isFavorite(f.path));
+      result = result.filter((f) => favorites.isFavorite(f.id));
     }
 
     // Apply search filter

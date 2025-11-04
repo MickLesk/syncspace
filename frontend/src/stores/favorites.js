@@ -74,6 +74,15 @@ function createFavoritesStore() {
       })();
       return result;
     },
+
+    // Alias for has() - for backwards compatibility
+    isFavorite: (itemId) => {
+      let result = false;
+      subscribe(favorites => {
+        result = favorites.has(itemId);
+      })();
+      return result;
+    },
     
     // Toggle favorite (add if not exists, remove if exists)
     toggle: async (itemId, itemType = 'file') => {
