@@ -18,7 +18,8 @@
     previewType = $state(null),
     loading = $state(false),
     error = $state(null),
-    activeTab = $state("preview");
+    activeTab = $state("preview"),
+    isFullscreen = $state(false);
 
   $effect(() => {
     if (!visible) {
@@ -135,7 +136,61 @@
 
   function handleKeydown(e) {
     if (!visible) return;
-    if (e.key === "Escape") close();
+    if (e.key === "Escape") {
+      if (isFullscreen) {
+        isFullscreen = false;
+      } else {
+        close();
+      }
+    }
+    if (e.key === "ArrowLeft") navigatePrev();
+    if (e.key === "ArrowRight") navigateNext();
+    if (e.key === "f" && e.ctrlKey) {
+      e.preventDefault();
+      toggleFullscreen();
+    }
+  }
+
+  function navigatePrev() {
+    if (!allFiles || allFiles.length <= 1) return;
+    const newIndex = currentIndex > 0 ? currentIndex - 1 : allFiles.length - 1;
+    file = allFiles[newIndex];
+    currentIndex = newIndex;
+  }
+
+  function navigateNext() {
+    if (!allFiles || allFiles.length <= 1) return;
+    const newIndex = currentIndex < allFiles.length - 1 ? currentIndex + 1 : 0;
+    file = allFiles[newIndex];
+    currentIndex = newIndex;
+  }
+
+  function toggleFullscreen() {
+    isFullscreen = !isFullscreen;
+  }
+
+  function renameFile() {
+    const newName = prompt("Enter new name:", file?.name);
+    if (!newName || newName === file?.name) return;
+    window.dispatchEvent(
+      new CustomEvent("renameFile", { detail: { file, newName } })
+    );
+  }
+
+  function moveFile() {
+    window.dispatchEvent(
+      new CustomEvent("openMoveModal", { detail: { files: [file] } })
+    );
+  }
+
+  function copyFile() {
+    window.dispatchEvent(new CustomEvent("copyFile", { detail: { file } }));
+  }
+
+  function toggleFavorite() {
+    window.dispatchEvent(
+      new CustomEvent("toggleFavorite", { detail: { file } })
+    );
   }
   onMount(() => {
     window.addEventListener("keydown", handleKeydown);
@@ -148,14 +203,18 @@
 
 {#if visible}
   <div
-    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center {isFullscreen
+      ? 'p-0'
+      : 'p-4'}"
     onclick={close}
     onkeydown={(e) => e.key === "Escape" && close()}
     role="button"
     tabindex="-1"
   >
     <div
-      class="bg-base-100 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col"
+      class="bg-base-100 rounded-2xl shadow-2xl flex flex-col {isFullscreen
+        ? 'w-full h-full rounded-none'
+        : 'w-full max-w-5xl max-h-[90vh]'}"
       onclick={(e) => e.stopPropagation()}
       onkeydown={(e) => e.stopPropagation()}
       role="dialog"
@@ -178,10 +237,49 @@
           </div>
         </div>
         <div class="flex items-center gap-1">
+          <!-- Navigation -->
+          {#if allFiles && allFiles.length > 1}
+            <button
+              onclick={navigatePrev}
+              class="btn btn-sm btn-ghost btn-square"
+              title="Previous (←)"><i class="bi bi-chevron-left"></i></button
+            >
+            <span class="text-xs text-base-content/60 px-2"
+              >{currentIndex + 1} / {allFiles.length}</span
+            >
+            <button
+              onclick={navigateNext}
+              class="btn btn-sm btn-ghost btn-square"
+              title="Next (→)"><i class="bi bi-chevron-right"></i></button
+            >
+            <div class="divider divider-horizontal mx-1"></div>
+          {/if}
+
+          <!-- Actions -->
+          <button
+            onclick={toggleFavorite}
+            class="btn btn-sm btn-ghost btn-square"
+            title="Toggle Favorite"><i class="bi bi-star"></i></button
+          >
           <button
             onclick={downloadFile}
             class="btn btn-sm btn-ghost btn-square"
             title="Download"><i class="bi bi-download"></i></button
+          >
+          <button
+            onclick={renameFile}
+            class="btn btn-sm btn-ghost btn-square"
+            title="Rename"><i class="bi bi-pencil"></i></button
+          >
+          <button
+            onclick={moveFile}
+            class="btn btn-sm btn-ghost btn-square"
+            title="Move"><i class="bi bi-folder2-open"></i></button
+          >
+          <button
+            onclick={copyFile}
+            class="btn btn-sm btn-ghost btn-square"
+            title="Copy"><i class="bi bi-files"></i></button
           >
           <button
             onclick={shareFile}
@@ -192,6 +290,16 @@
             onclick={openVersionHistory}
             class="btn btn-sm btn-ghost btn-square"
             title="Version History"><i class="bi bi-clock-history"></i></button
+          >
+          <button
+            onclick={toggleFullscreen}
+            class="btn btn-sm btn-ghost btn-square"
+            title="Fullscreen (Ctrl+F)"
+            ><i
+              class="bi bi-{isFullscreen
+                ? 'fullscreen-exit'
+                : 'arrows-fullscreen'}"
+            ></i></button
           >
           <div class="divider divider-horizontal mx-1"></div>
           <button
@@ -244,8 +352,14 @@
       <div
         class="flex items-center justify-between px-6 py-3 border-t border-base-300 bg-base-200/30"
       >
-        <div class="text-xs text-base-content/60">
-          <kbd class="kbd kbd-xs">ESC</kbd> to close
+        <div class="text-xs text-base-content/60 flex gap-3">
+          <span><kbd class="kbd kbd-xs">ESC</kbd> to close</span>
+          {#if allFiles && allFiles.length > 1}
+            <span
+              ><kbd class="kbd kbd-xs">←</kbd><kbd class="kbd kbd-xs">→</kbd> navigate</span
+            >
+          {/if}
+          <span><kbd class="kbd kbd-xs">Ctrl+F</kbd> fullscreen</span>
         </div>
         <div class="text-xs text-base-content/60">
           File: {currentIndex + 1} of {allFiles.length}
