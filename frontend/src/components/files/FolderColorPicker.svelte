@@ -158,9 +158,9 @@
 
         <!-- Preset Colors -->
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text font-semibold">Preset Colors</span>
-          </label>
+          </div>
           <div class="grid grid-cols-9 gap-2">
             {#each presetColors as color}
               <button

@@ -12,6 +12,7 @@
     class="context-menu scale-in"
     style="left: {x}px; top: {y}px;"
     role="menu"
+    tabindex="0"
     onclick={(e) => e.stopPropagation()}
     onkeydown={(e) => e.stopPropagation()}
   >
