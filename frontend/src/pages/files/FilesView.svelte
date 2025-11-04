@@ -1,6 +1,8 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { files, currentPath } from "../../stores/ui";
+  import { favorites } from "../../stores/favorites";
+  import { userPreferences } from "../../stores/preferences";
   import { success, error as errorToast } from "../../stores/toast";
   import { modals, modalEvents } from "../../stores/modals";
   import PageWrapper from "../../components/PageWrapper.svelte";
@@ -22,6 +24,7 @@
   let sortBy = $state("name");
   let sortOrder = $state("asc");
   let showFoldersOnly = $state(false);
+  let showFavoritesOnly = $state(false);
   let selectedFiles = $state(new Set());
   let uploadProgress = $state([]);
   let selectionMode = $state(false);
@@ -88,6 +91,11 @@
       result = result.filter((f) => f.is_directory);
     }
 
+    // Apply favorites filter
+    if (showFavoritesOnly) {
+      result = result.filter((f) => favorites.isFavorite(f.path));
+    }
+
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -144,7 +152,22 @@
   let ignorePopstate = false;
   let handlePopstateRef = null;
 
+  // Save view mode to backend when it changes
+  $effect(() => {
+    if (viewMode) {
+      console.log('💾 Saving view mode to backend:', viewMode);
+      userPreferences.updatePreference('view_mode', viewMode);
+    }
+  });
+
   onMount(async () => {
+    // Load preferences and favorites
+    const prefs = await userPreferences.load();
+    if (prefs.view_mode) {
+      viewMode = prefs.view_mode;
+    }
+    await favorites.load();
+
     // Initialize from URL hash or current path
     const urlPath =
       window.location.hash.replace("#/files", "").replace("#", "") || "/";
@@ -625,6 +648,7 @@
       bind:sortBy
       bind:sortOrder
       bind:showFoldersOnly
+      bind:showFavoritesOnly
       {selectionMode}
       selectedCount={selectedFiles.size}
       onRefresh={loadFiles}

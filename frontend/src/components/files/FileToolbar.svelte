@@ -4,6 +4,7 @@
     sortBy = $bindable("name"),
     sortOrder = $bindable("asc"),
     showFoldersOnly = $bindable(false),
+    showFavoritesOnly = $bindable(false),
     onRefresh,
     onUpload,
     onNewFolder,
@@ -140,6 +141,43 @@
         title="Folders Only"
       ></i>
     </label>
+
+    <!-- Quick Filter Buttons -->
+    <button
+      type="button"
+      class="p-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-1.5"
+      class:bg-success-500={showFoldersOnly}
+      class:text-white={showFoldersOnly}
+      class:shadow-md={showFoldersOnly}
+      class:bg-gray-100={!showFoldersOnly}
+      class:dark:bg-gray-700={!showFoldersOnly}
+      class:text-gray-600={!showFoldersOnly}
+      class:dark:text-gray-400={!showFoldersOnly}
+      class:hover:bg-gray-200={!showFoldersOnly}
+      class:dark:hover:bg-gray-600={!showFoldersOnly}
+      onclick={() => (showFoldersOnly = !showFoldersOnly)}
+      title="Toggle Folders Only"
+    >
+      <i class="bi bi-folder"></i>
+    </button>
+
+    <button
+      type="button"
+      class="p-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-1.5"
+      class:bg-warning-500={showFavoritesOnly}
+      class:text-white={showFavoritesOnly}
+      class:shadow-md={showFavoritesOnly}
+      class:bg-gray-100={!showFavoritesOnly}
+      class:dark:bg-gray-700={!showFavoritesOnly}
+      class:text-gray-600={!showFavoritesOnly}
+      class:dark:text-gray-400={!showFavoritesOnly}
+      class:hover:bg-gray-200={!showFavoritesOnly}
+      class:dark:hover:bg-gray-600={!showFavoritesOnly}
+      onclick={() => (showFavoritesOnly = !showFavoritesOnly)}
+      title="Toggle Favorites Only"
+    >
+      <i class="bi bi-star-fill"></i>
+    </button>
 
     <div class="flex-1"></div>
 
