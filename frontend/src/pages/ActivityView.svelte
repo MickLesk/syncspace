@@ -155,7 +155,7 @@
           {#snippet children()}
             <div class="text-center">
               <div class="text-primary-500 mb-3">
-                <i class="bi bi-activity text-5xl"></i>
+                <i class="bi bi-activity text-5xl bounce-in"></i>
               </div>
               <div
                 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
@@ -178,7 +178,7 @@
           {#snippet children()}
             <div class="text-center">
               <div class="text-green-500 mb-3">
-                <i class="bi bi-calendar-check text-5xl"></i>
+                <i class="bi bi-calendar-check text-5xl bounce-in"></i>
               </div>
               <div
                 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
