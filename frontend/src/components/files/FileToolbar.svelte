@@ -138,18 +138,24 @@
     <button
       type="button"
       class="p-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-1.5"
-      class:bg-warning-500={showFavoritesOnly}
+      class:bg-yellow-500={showFavoritesOnly}
       class:text-white={showFavoritesOnly}
       class:shadow-lg={showFavoritesOnly}
       class:bg-gray-100={!showFavoritesOnly}
       class:dark:bg-gray-700={!showFavoritesOnly}
-      class:hover:bg-warning-100={!showFavoritesOnly}
-      class:dark:hover:bg-warning-900={!showFavoritesOnly}
+      class:text-gray-600={!showFavoritesOnly}
+      class:dark:text-gray-300={!showFavoritesOnly}
+      class:hover:bg-yellow-100={!showFavoritesOnly}
+      class:dark:hover:bg-yellow-900={!showFavoritesOnly}
+      class:hover:text-yellow-600={!showFavoritesOnly}
       onclick={() => (showFavoritesOnly = !showFavoritesOnly)}
       title="Toggle Favorites Only"
-      style={!showFavoritesOnly ? "color: #FFC107;" : ""}
     >
-      <i class="bi bi-star-fill"></i>
+      <i
+        class="bi"
+        class:bi-star={!showFavoritesOnly}
+        class:bi-star-fill={showFavoritesOnly}
+      ></i>
     </button>
 
     <div class="flex-1"></div>

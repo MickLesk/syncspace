@@ -15,6 +15,7 @@
   } = $props();
 
   let menuRef;
+  let adjustedPosition = $state({ x: position.x, y: position.y });
 
   function handleClickOutside(e) {
     if (menuRef && !menuRef.contains(e.target)) {
@@ -27,6 +28,41 @@
     onClose?.();
   }
 
+  // Adjust position to keep menu in viewport
+  $effect(() => {
+    if (menuRef) {
+      const rect = menuRef.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+
+      let { x, y } = position;
+
+      // Check if menu goes off bottom of screen
+      if (y + rect.height > viewportHeight) {
+        // Flip menu upward
+        y = Math.max(10, y - rect.height);
+      }
+
+      // Check if menu goes off right of screen
+      if (x + rect.width > viewportWidth) {
+        // Move menu to the left
+        x = Math.max(10, viewportWidth - rect.width - 10);
+      }
+
+      // Check if menu goes off top of screen
+      if (y < 10) {
+        y = 10;
+      }
+
+      // Check if menu goes off left of screen
+      if (x < 10) {
+        x = 10;
+      }
+
+      adjustedPosition = { x, y };
+    }
+  });
+
   $effect(() => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
@@ -35,8 +71,8 @@
 
 <div
   bind:this={menuRef}
-  class="context-menu fixed bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50 min-w-48"
-  style="top: {position.y}px; left: {position.x}px;"
+  class="context-menu fixed bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-[9999] min-w-48"
+  style="top: {adjustedPosition.y}px; left: {adjustedPosition.x}px;"
 >
   <div class="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
     <p class="font-semibold text-sm text-gray-700 dark:text-gray-200 truncate">

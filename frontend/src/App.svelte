@@ -292,11 +292,18 @@
 
   .main-content {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: auto; /* Allow scrolling for content - needed for infinite scroll */
     overflow-x: hidden;
     max-width: 100%;
     background: transparent !important;
     box-shadow: none !important;
+    /* Hide scrollbar but keep functionality */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .main-content::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Opera */
   }
 
   /* Mobile Sidebar Support */

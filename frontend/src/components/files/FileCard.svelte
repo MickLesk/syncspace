@@ -45,7 +45,9 @@
     try {
       const data = await api.favorites.list();
       const favoritesList = Array.isArray(data) ? data : data.value || [];
-      const favorite = favoritesList.find((fav) => fav.item_id === file.id);
+      // Use path as the consistent identifier for both files and folders
+      const itemId = file.path || file.file_path || file.name;
+      const favorite = favoritesList.find((fav) => fav.item_id === itemId);
       if (favorite) {
         isFavorite = true;
         favoriteId = favorite.id;
@@ -61,19 +63,24 @@
     favoriteLoading = true;
 
     try {
+      // Use path as the consistent identifier for both files and folders
+      const itemId = file.path || file.file_path || file.name;
+
       if (isFavorite && favoriteId) {
         // Remove from favorites
         await api.favorites.remove(favoriteId);
         isFavorite = false;
         favoriteId = null;
+        console.log("[FileCard] Removed from favorites:", itemId);
       } else {
         // Add to favorites
         const data = await api.favorites.add(
-          file.id, // itemId first
+          itemId, // Use path/file_path/name as itemId
           file.is_directory ? "folder" : "file" // itemType second
         );
         isFavorite = true;
         favoriteId = data.id;
+        console.log("[FileCard] Added to favorites:", itemId);
       }
     } catch (err) {
       console.error("[FileCard] Error toggling favorite:", err);

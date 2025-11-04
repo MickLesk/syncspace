@@ -99,7 +99,11 @@
 
     // Apply favorites filter
     if (showFavoritesOnly) {
-      result = result.filter((f) => favorites.isFavorite(f.id));
+      // Use path as consistent identifier (same as FileCard)
+      result = result.filter((f) => {
+        const itemId = f.path || f.file_path || f.name;
+        return favorites.isFavorite(itemId);
+      });
     }
 
     // Apply search filter
@@ -234,14 +238,14 @@
       "changeFolderColor",
       async ({ file, color }) => {
         console.log("[FilesView] Changing folder color:", {
-          file_path: file.file_path,
+          file_path: file.path,
           name: file.name,
           color: color,
         });
 
         try {
           // Save to backend database
-          await api.folderColors.set(file.file_path, color);
+          await api.folderColors.set(file.path, color);
           console.log("[FilesView] Folder color saved to backend");
           success("Folder color updated");
 
