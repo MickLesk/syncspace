@@ -399,7 +399,7 @@
             class="text-center p-6 hover-scale"
           >
             <i
-              class="bi bi-files text-4xl text-primary-600 dark:text-primary-400 mb-3 block"
+              class="bi bi-files text-4xl text-primary-600 dark:text-primary-400 mb-3 block bounce-in"
             ></i>
             <div
               class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1"
@@ -411,7 +411,7 @@
 
           <ModernCard variant="glass" hoverable class="text-center p-6 hover-scale">
             <i
-              class="bi bi-hdd text-4xl text-primary-600 dark:text-primary-400 mb-3 block"
+              class="bi bi-hdd text-4xl text-primary-600 dark:text-primary-400 mb-3 block bounce-in"
             ></i>
             <div
               class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1"
@@ -425,7 +425,7 @@
 
           <ModernCard variant="glass" hoverable class="text-center p-6 hover-scale">
             <i
-              class="bi bi-share text-4xl text-primary-600 dark:text-primary-400 mb-3 block"
+              class="bi bi-share text-4xl text-primary-600 dark:text-primary-400 mb-3 block bounce-in"
             ></i>
             <div
               class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1"
@@ -435,9 +435,9 @@
             <div class="text-sm text-gray-600 dark:text-gray-400">Shares</div>
           </ModernCard>
 
-          <ModernCard variant="glass" hoverable class="text-center p-6">
+          <ModernCard variant="glass" hoverable class="text-center p-6 hover-scale">
             <i
-              class="bi bi-upload text-4xl text-primary-600 dark:text-primary-400 mb-3 block"
+              class="bi bi-upload text-4xl text-primary-600 dark:text-primary-400 mb-3 block bounce-in"
             ></i>
             <div
               class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1"
