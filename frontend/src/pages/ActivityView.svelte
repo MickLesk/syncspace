@@ -47,12 +47,29 @@
     // Load initial activities
     await activity.load({ limit: 100 });
 
+    // Mark activity as visited - resets badge counter
+    await markActivityVisited();
+
     // Clean up old localStorage key
     const oldKey = "syncspace_activity";
     if (localStorage.getItem(oldKey)) {
       localStorage.removeItem(oldKey);
     }
   });
+
+  async function markActivityVisited() {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) return;
+
+      await fetch("http://localhost:8080/api/activity/mark-visited", {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (e) {
+      console.error("Failed to mark activity as visited:", e);
+    }
+  }
 
   onDestroy(() => {
     // Disconnect WebSocket when component unmounts

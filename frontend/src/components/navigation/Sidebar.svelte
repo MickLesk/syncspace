@@ -22,14 +22,14 @@
       // trashCount = await api.trash.count();
       trashCount = 5; // Placeholder
 
-      // Activity count from backend stats
+      // Activity unread count from backend stats (smart badge)
       const activityStats = await fetchActivityStats();
-      notificationCount = activityStats?.today || 0;
+      notificationCount = activityStats?.unread_count || 0;
 
       // Update activity count periodically (every 30 seconds)
       setInterval(async () => {
         const stats = await fetchActivityStats();
-        notificationCount = stats?.today || 0;
+        notificationCount = stats?.unread_count || 0;
       }, 30000);
     } catch (error) {
       console.error("Failed to load badge counts:", error);

@@ -210,9 +210,13 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         println!("📋 Running migration: 018_add_activity_tracking.sql");
         let migration_sql = include_str!("../migrations/018_add_activity_tracking.sql");
         execute_migration_statements(pool, migration_sql).await?;
+        
+        println!("📋 Running migration: 019_add_last_activity_visit.sql");
+        let migration_sql = include_str!("../migrations/019_add_last_activity_visit.sql");
+        execute_migration_statements(pool, migration_sql).await?;
     }
 
-    println!("✅ All 18 migrations completed successfully!");
+    println!("✅ All 19 migrations completed successfully!");
     
     // Always run migration 018 separately for existing databases (safe to run multiple times)
     let activity_table_exists: Option<(i64,)> = sqlx::query_as(
@@ -227,6 +231,22 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
             let migration_sql = include_str!("../migrations/018_add_activity_tracking.sql");
             execute_migration_statements(pool, migration_sql).await?;
             println!("✅ Activity tracking feature added!");
+        }
+    }
+    
+    // Always run migration 019 separately for existing databases (safe to run multiple times)
+    let last_visit_column_exists: Option<(i64,)> = sqlx::query_as(
+        "SELECT COUNT(*) FROM pragma_table_info('users') WHERE name='last_activity_visit'"
+    )
+    .fetch_optional(pool)
+    .await?;
+    
+    if let Some((count,)) = last_visit_column_exists {
+        if count == 0 {
+            println!("⏰ Adding last activity visit tracking to existing database...");
+            let migration_sql = include_str!("../migrations/019_add_last_activity_visit.sql");
+            execute_migration_statements(pool, migration_sql).await?;
+            println!("✅ Last activity visit tracking added!");
         }
     }
     

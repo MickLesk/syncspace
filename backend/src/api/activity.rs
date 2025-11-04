@@ -2,7 +2,7 @@
 
 use crate::auth::UserInfo;
 
-use axum::{extract::{Query, State}, http::StatusCode, routing::get, Json, Router};
+use axum::{extract::{Query, State}, http::StatusCode, routing::{get, put}, Json, Router};
 use serde::Deserialize;
 use crate::{services, AppState};
 
@@ -21,6 +21,7 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/activity", get(list_activity))
         .route("/activity/stats", get(get_stats))
+        .route("/activity/mark-visited", put(mark_visited))
 }
 
 async fn list_activity(State(state): State<AppState>, user: UserInfo, Query(query): Query<ActivityQuery>) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
@@ -30,4 +31,9 @@ async fn list_activity(State(state): State<AppState>, user: UserInfo, Query(quer
 
 async fn get_stats(State(state): State<AppState>, user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {
     services::activity::get_stats(&state, &user).await.map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn mark_visited(State(state): State<AppState>, user: UserInfo) -> Result<StatusCode, StatusCode> {
+    services::activity::mark_visited(&state, &user).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(StatusCode::OK)
 }

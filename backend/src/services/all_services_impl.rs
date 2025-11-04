@@ -175,8 +175,9 @@ pub mod activity {
         Ok(())
     }
     
-    /// List activities with pagination and optional filtering
-    pub async fn list(state: &AppState, _user: &UserInfo, limit: usize) -> Result<Vec<serde_json::Value>> {
+    /// List activities with pagination and permission filtering
+    /// Only shows activities for files/folders the user can access
+    pub async fn list(state: &AppState, user: &UserInfo, limit: usize) -> Result<Vec<serde_json::Value>> {
         #[derive(sqlx::FromRow)]
         struct ActivityRow {
             id: String,
@@ -192,32 +193,115 @@ pub mod activity {
             created_at: String,
         }
         
+        // Get all activities (we'll filter by permissions)
         let rows: Vec<ActivityRow> = sqlx::query_as(
             "SELECT * FROM activity_log ORDER BY created_at DESC LIMIT ?"
         )
-        .bind(limit as i64)
+        .bind((limit * 3) as i64) // Fetch more to ensure we have enough after filtering
         .fetch_all(&state.db_pool)
         .await?;
         
-        Ok(rows.iter().map(|r| {
-            serde_json::json!({
-                "id": &r.id,
-                "user_id": &r.user_id,
-                "action": &r.action,
-                "file_path": &r.file_path,
-                "file_name": &r.file_name,
-                "file_size": r.file_size,
-                "old_path": &r.old_path,
-                "status": &r.status,
-                "error_message": &r.error_message,
-                "metadata": r.metadata.as_ref().and_then(|m| serde_json::from_str::<serde_json::Value>(m).ok()),
-                "created_at": &r.created_at,
-            })
-        }).collect())
+        let mut filtered_activities = Vec::new();
+        
+        for row in rows {
+            // Check if user has permission to see this activity
+            let has_access = check_file_access(state, user, &row.file_path).await;
+            
+            if has_access {
+                filtered_activities.push(serde_json::json!({
+                    "id": &row.id,
+                    "user_id": &row.user_id,
+                    "action": &row.action,
+                    "file_path": &row.file_path,
+                    "file_name": &row.file_name,
+                    "file_size": row.file_size,
+                    "old_path": &row.old_path,
+                    "status": &row.status,
+                    "error_message": &row.error_message,
+                    "metadata": row.metadata.as_ref().and_then(|m| serde_json::from_str::<serde_json::Value>(m).ok()),
+                    "created_at": &row.created_at,
+                }));
+                
+                // Stop when we have enough filtered results
+                if filtered_activities.len() >= limit {
+                    break;
+                }
+            }
+        }
+        
+        Ok(filtered_activities)
     }
     
-    /// Get activity statistics
-    pub async fn get_stats(state: &AppState, _user: &UserInfo) -> Result<serde_json::Value> {
+    /// Check if user has access to a file based on ownership, permissions, or shares
+    async fn check_file_access(state: &AppState, user: &UserInfo, file_path: &str) -> bool {
+        let user_id = &user.user_id;
+        
+        // 1. Check if user is the owner of the file
+        let is_owner: Option<(i64,)> = sqlx::query_as(
+            "SELECT COUNT(*) FROM files WHERE file_path = ? AND owner_id = ?"
+        )
+        .bind(file_path)
+        .bind(user_id)
+        .fetch_optional(&state.db_pool)
+        .await
+        .ok()
+        .flatten();
+        
+        if let Some((count,)) = is_owner {
+            if count > 0 {
+                return true;
+            }
+        }
+        
+        // 2. Check if user has explicit permission via file_permissions table
+        let has_permission: Option<(i64,)> = sqlx::query_as(
+            "SELECT COUNT(*) FROM file_permissions fp 
+             JOIN files f ON (fp.item_type = 'file' AND fp.item_id = f.id)
+             WHERE f.file_path = ? AND fp.user_id = ? AND fp.can_read = 1 
+             AND (fp.expires_at IS NULL OR fp.expires_at > datetime('now'))"
+        )
+        .bind(file_path)
+        .bind(user_id)
+        .fetch_optional(&state.db_pool)
+        .await
+        .ok()
+        .flatten();
+        
+        if let Some((count,)) = has_permission {
+            if count > 0 {
+                return true;
+            }
+        }
+        
+        // 3. Check if file is shared with user via shares table
+        let is_shared: Option<(i64,)> = sqlx::query_as(
+            "SELECT COUNT(*) FROM shares s
+             JOIN files f ON s.file_id = f.id
+             WHERE f.file_path = ? AND s.shared_with_user_id = ?
+             AND (s.expires_at IS NULL OR s.expires_at > datetime('now'))"
+        )
+        .bind(file_path)
+        .bind(user_id)
+        .fetch_optional(&state.db_pool)
+        .await
+        .ok()
+        .flatten();
+        
+        if let Some((count,)) = is_shared {
+            if count > 0 {
+                return true;
+            }
+        }
+        
+        // No access found
+        false
+    }
+    
+    /// Get activity statistics with smart unread count
+    /// Returns count of activities since user's last visit to Activity page
+    pub async fn get_stats(state: &AppState, user: &UserInfo) -> Result<serde_json::Value> {
+        let user_id = &user.user_id;
+        
         let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM activity_log")
             .fetch_one(&state.db_pool)
             .await
@@ -229,6 +313,47 @@ pub mod activity {
         .fetch_one(&state.db_pool)
         .await
         .unwrap_or(0);
+        
+        // Get user's last activity visit timestamp
+        let last_visit: Option<(Option<String>,)> = sqlx::query_as(
+            "SELECT last_activity_visit FROM users WHERE id = ?"
+        )
+        .bind(user_id)
+        .fetch_optional(&state.db_pool)
+        .await
+        .ok()
+        .flatten();
+        
+        // Count unread activities (since last visit, with permission filter)
+        let unread_count = if let Some((Some(last_visit_time),)) = last_visit {
+            // Get activities since last visit
+            #[derive(sqlx::FromRow)]
+            struct ActivityPath {
+                file_path: String,
+            }
+            
+            let activities: Vec<ActivityPath> = sqlx::query_as(
+                "SELECT file_path FROM activity_log 
+                 WHERE created_at > ? 
+                 ORDER BY created_at DESC"
+            )
+            .bind(&last_visit_time)
+            .fetch_all(&state.db_pool)
+            .await
+            .unwrap_or_default();
+            
+            // Filter by permissions
+            let mut count = 0;
+            for activity in activities {
+                if check_file_access(state, user, &activity.file_path).await {
+                    count += 1;
+                }
+            }
+            count
+        } else {
+            // First visit - show today's activities
+            today
+        };
         
         let by_action: Vec<(String, i64)> = sqlx::query_as(
             "SELECT action, COUNT(*) as count FROM activity_log GROUP BY action ORDER BY count DESC"
@@ -242,11 +367,34 @@ pub mod activity {
             action_counts.insert(action, serde_json::json!(count));
         }
         
+        // Get last visit time for frontend display
+        let last_visit_str = last_visit
+            .and_then(|(v,)| v)
+            .unwrap_or_else(|| "never".to_string());
+        
         Ok(serde_json::json!({
             "total": total,
             "today": today,
+            "unread_count": unread_count,
+            "last_visit": last_visit_str,
             "by_action": action_counts,
         }))
+    }
+    
+    /// Mark activity page as visited - resets unread count
+    pub async fn mark_visited(state: &AppState, user: &UserInfo) -> Result<()> {
+        let user_id = &user.user_id;
+        let now = chrono::Utc::now().to_rfc3339();
+        
+        sqlx::query(
+            "UPDATE users SET last_activity_visit = ? WHERE id = ?"
+        )
+        .bind(&now)
+        .bind(user_id)
+        .execute(&state.db_pool)
+        .await?;
+        
+        Ok(())
     }
 }
 
