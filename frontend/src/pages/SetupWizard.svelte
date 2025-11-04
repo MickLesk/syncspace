@@ -579,9 +579,11 @@
 <style>
   .setup-wizard {
     min-height: 100vh;
+    max-height: 100vh;
+    overflow-y: auto;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     padding: 2rem;
   }
@@ -589,6 +591,7 @@
   .setup-container {
     max-width: 900px;
     width: 100%;
+    margin: auto;
   }
 
   .setup-header {
@@ -669,11 +672,13 @@
   }
 
   .step-content {
-    min-height: 500px;
+    max-height: calc(100vh - 350px);
+    overflow-y: auto;
   }
 
   .step-inner {
     padding: 2rem;
+    min-height: 400px;
   }
 
   .step-title {
