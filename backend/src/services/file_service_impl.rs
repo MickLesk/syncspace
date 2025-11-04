@@ -132,9 +132,24 @@ pub async fn download_file(state: &AppState, user: &UserInfo, path: &str) -> Res
     let file_path = Path::new(DATA_DIR).join(&safe_path);
     let file = fs::File::open(&file_path).await.map_err(|_| anyhow!("File not found"))?;
     
-    let log_id = Uuid::new_v4().to_string();
-    let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'downloaded', ?, 'success', datetime('now'))")
-        .bind(&log_id).bind(&user.id).bind(path).execute(&state.db_pool).await;
+    // Get file metadata for logging
+    let metadata = file.metadata().await.ok();
+    let filename = file_path.file_name().and_then(|n| n.to_str()).unwrap_or("unknown").to_string();
+    let file_size = metadata.map(|m| m.len() as i64);
+    
+    // Log activity
+    let _ = crate::services::activity::log(
+        state,
+        &user.id,
+        "download",
+        path,
+        &filename,
+        file_size,
+        None,
+        "success",
+        None,
+        None,
+    ).await;
     
     Ok(file)
 }
@@ -196,9 +211,19 @@ pub async fn upload_file(state: &AppState, user: &UserInfo, path: &str, data: Ve
     
     eprintln!("[upload_file] DB insert successful for: {}", path);
     
-    let log_id = Uuid::new_v4().to_string();
-    let _ = sqlx::query("INSERT INTO file_history (id, file_id, user_id, action, status, created_at) VALUES (?, ?, ?, 'created', 'success', datetime('now'))")
-        .bind(&log_id).bind(&file_id).bind(&user.id).execute(&state.db_pool).await;
+    // Log activity
+    let _ = crate::services::activity::log(
+        state,
+        &user.id,
+        "upload",
+        path,
+        &filename,
+        Some(size_bytes),
+        None,
+        "success",
+        None,
+        None,
+    ).await;
     
     // AUTO-INDEX: Add file to search index
     let content = crate::search::extract_content(&target).await;
@@ -276,9 +301,20 @@ pub async fn delete_file(state: &AppState, user: &UserInfo, path: &str) -> Resul
         .await?;
     }
     
-    let log_id = Uuid::new_v4().to_string();
-    let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'deleted', ?, 'success', datetime('now'))")
-        .bind(&log_id).bind(&user.id).bind(path).execute(&state.db_pool).await;
+    // Log activity
+    let filename = Path::new(path).file_name().and_then(|n| n.to_str()).unwrap_or("unknown").to_string();
+    let _ = crate::services::activity::log(
+        state,
+        &user.id,
+        "delete",
+        path,
+        &filename,
+        None,
+        None,
+        "success",
+        None,
+        None,
+    ).await;
     
     // AUTO-INDEX: Remove file from search index (get file_id first)
     if let Ok(row) = sqlx::query("SELECT id FROM files WHERE path = ?")
@@ -303,16 +339,49 @@ pub async fn rename_file(state: &AppState, user: &UserInfo, old_path: &str, new_
     
     fs::rename(old, new).await?;
     
-    let log_id = Uuid::new_v4().to_string();
-    let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'renamed', ?, 'success', datetime('now'))")
-        .bind(&log_id).bind(&user.id).bind(new_path).execute(&state.db_pool).await;
+    // Log activity
+    let filename = Path::new(new_path).file_name().and_then(|n| n.to_str()).unwrap_or("unknown").to_string();
+    let _ = crate::services::activity::log(
+        state,
+        &user.id,
+        "rename",
+        new_path,
+        &filename,
+        None,
+        Some(old_path),
+        "success",
+        None,
+        None,
+    ).await;
     
     let _ = state.fs_tx.send(FileChangeEvent::new(new_path.to_string(), "rename".to_string()));
     Ok(())
 }
 
 pub async fn move_file(state: &AppState, user: &UserInfo, old_path: &str, new_path: &str) -> Result<()> {
-    rename_file(state, user, old_path, new_path).await
+    let old = Path::new(DATA_DIR).join(old_path);
+    let new = Path::new(DATA_DIR).join(new_path);
+    if let Some(parent) = new.parent() { fs::create_dir_all(parent).await?; }
+    
+    fs::rename(old, new).await?;
+    
+    // Log activity
+    let filename = Path::new(new_path).file_name().and_then(|n| n.to_str()).unwrap_or("unknown").to_string();
+    let _ = crate::services::activity::log(
+        state,
+        &user.id,
+        "move",
+        new_path,
+        &filename,
+        None,
+        Some(old_path),
+        "success",
+        None,
+        None,
+    ).await;
+    
+    let _ = state.fs_tx.send(FileChangeEvent::new(new_path.to_string(), "move".to_string()));
+    Ok(())
 }
 
 pub async fn copy_file(state: &AppState, user: &UserInfo, source_path: &str, dest_path: &str) -> Result<()> {
@@ -320,11 +389,25 @@ pub async fn copy_file(state: &AppState, user: &UserInfo, source_path: &str, des
     let dst = Path::new(DATA_DIR).join(dest_path);
     if let Some(parent) = dst.parent() { fs::create_dir_all(parent).await?; }
     
-    fs::copy(src, dst).await?;
+    fs::copy(&src, &dst).await?;
     
-    let log_id = Uuid::new_v4().to_string();
-    let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'copied', ?, 'success', datetime('now'))")
-        .bind(&log_id).bind(&user.id).bind(dest_path).execute(&state.db_pool).await;
+    // Get file size for logging
+    let file_size = dst.metadata().ok().map(|m| m.len() as i64);
+    
+    // Log activity
+    let filename = dst.file_name().and_then(|n| n.to_str()).unwrap_or("unknown").to_string();
+    let _ = crate::services::activity::log(
+        state,
+        &user.id,
+        "copy",
+        dest_path,
+        &filename,
+        file_size,
+        Some(source_path),
+        "success",
+        None,
+        None,
+    ).await;
     
     let _ = state.fs_tx.send(FileChangeEvent::new(dest_path.to_string(), "copy".to_string()));
     Ok(())

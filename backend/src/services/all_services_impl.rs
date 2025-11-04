@@ -15,8 +15,24 @@ pub mod directory {
     pub async fn create_directory(state: &AppState, user: &UserInfo, path: &str) -> Result<DirectoryInfo> {
         let full = Path::new(DATA_DIR).join(path);
         fs::create_dir_all(&full).await?;
+        
+        // Log activity
+        let dirname = full.file_name().unwrap().to_string_lossy().to_string();
+        let _ = super::activity::log(
+            state,
+            &user.id,
+            "create",
+            path,
+            &dirname,
+            None,
+            None,
+            "success",
+            None,
+            None,
+        ).await;
+        
         let _ = state.fs_tx.send(crate::FileChangeEvent::new(path.to_string(), "mkdir".to_string()));
-        Ok(DirectoryInfo { id: Uuid::new_v4(), name: full.file_name().unwrap().to_string_lossy().to_string(), path: path.to_string(), parent_id: None, owner_id: Uuid::parse_str(&user.id).unwrap_or_default(), created_at: Utc::now() })
+        Ok(DirectoryInfo { id: Uuid::new_v4(), name: dirname, path: path.to_string(), parent_id: None, owner_id: Uuid::parse_str(&user.id).unwrap_or_default(), created_at: Utc::now() })
     }
     
     pub async fn delete_directory(state: &AppState, user: &UserInfo, dir_id: &str) -> Result<()> {
@@ -121,70 +137,116 @@ pub mod sharing {
 // ACTIVITY SERVICE
 pub mod activity {
     use super::*;
-    use crate::models::ActivityLog;
     
-    pub async fn get_activity(state: &AppState, user: &UserInfo, limit: usize) -> Result<Vec<ActivityLog>> {
-        // Query all activity with user info - don't filter by user_id to show all activity
+    /// Log an activity to the database
+    pub async fn log(
+        state: &AppState,
+        user_id: &str,
+        action: &str,
+        file_path: &str,
+        file_name: &str,
+        file_size: Option<i64>,
+        old_path: Option<&str>,
+        status: &str,
+        error_message: Option<&str>,
+        metadata: Option<serde_json::Value>,
+    ) -> Result<()> {
+        let id = Uuid::new_v4().to_string();
+        let now = Utc::now().to_rfc3339();
+        
+        sqlx::query(
+            "INSERT INTO activity_log (id, user_id, action, file_path, file_name, file_size, old_path, status, error_message, metadata, created_at) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        )
+        .bind(&id)
+        .bind(user_id)
+        .bind(action)
+        .bind(file_path)
+        .bind(file_name)
+        .bind(file_size)
+        .bind(old_path)
+        .bind(status)
+        .bind(error_message)
+        .bind(metadata.map(|m| m.to_string()))
+        .bind(&now)
+        .execute(&state.db_pool)
+        .await?;
+        
+        Ok(())
+    }
+    
+    /// List activities with pagination and optional filtering
+    pub async fn list(state: &AppState, _user: &UserInfo, limit: usize) -> Result<Vec<serde_json::Value>> {
         #[derive(sqlx::FromRow)]
         struct ActivityRow {
             id: String,
             user_id: String,
             action: String,
             file_path: String,
+            file_name: String,
+            file_size: Option<i64>,
+            old_path: Option<String>,
+            status: String,
+            error_message: Option<String>,
+            metadata: Option<String>,
             created_at: String,
-            username: Option<String>,
         }
         
         let rows: Vec<ActivityRow> = sqlx::query_as(
-            "SELECT fh.id, fh.user_id, fh.action, fh.file_path, fh.created_at, u.username
-             FROM file_history fh
-             LEFT JOIN users u ON u.id = fh.user_id
-             ORDER BY fh.created_at DESC
-             LIMIT ?"
+            "SELECT * FROM activity_log ORDER BY created_at DESC LIMIT ?"
         )
         .bind(limit as i64)
         .fetch_all(&state.db_pool)
         .await?;
         
         Ok(rows.iter().map(|r| {
-            let metadata = serde_json::json!({
-                "username": r.username.as_ref().unwrap_or(&"Unknown".to_string()),
-                "file_path": &r.file_path
-            });
-            
-            ActivityLog {
-                id: Uuid::parse_str(&r.id).unwrap_or_default(),
-                user_id: Uuid::parse_str(&r.user_id).unwrap_or_default(),
-                action: r.action.clone(),
-                resource_type: "file".to_string(),
-                resource_id: Some(r.file_path.clone()),
-                metadata: Some(metadata),
-                created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at)
-                    .unwrap_or_else(|_| Utc::now().into())
-                    .with_timezone(&Utc),
-            }
+            serde_json::json!({
+                "id": &r.id,
+                "user_id": &r.user_id,
+                "action": &r.action,
+                "file_path": &r.file_path,
+                "file_name": &r.file_name,
+                "file_size": r.file_size,
+                "old_path": &r.old_path,
+                "status": &r.status,
+                "error_message": &r.error_message,
+                "metadata": r.metadata.as_ref().and_then(|m| serde_json::from_str::<serde_json::Value>(m).ok()),
+                "created_at": &r.created_at,
+            })
         }).collect())
     }
     
-    // Alias for API compatibility
-    pub async fn list(state: &AppState, user: &UserInfo, limit: usize) -> Result<Vec<ActivityLog>> {
-        get_activity(state, user, limit).await
-    }
-    
-    pub async fn get_stats(state: &AppState, user: &UserInfo) -> Result<serde_json::Value> {
-        let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM file_history")
+    /// Get activity statistics
+    pub async fn get_stats(state: &AppState, _user: &UserInfo) -> Result<serde_json::Value> {
+        let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM activity_log")
             .fetch_one(&state.db_pool)
             .await
             .unwrap_or(0);
         
         let today: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM file_history WHERE DATE(created_at) = DATE('now')"
+            "SELECT COUNT(*) FROM activity_log WHERE DATE(created_at) = DATE('now')"
         )
         .fetch_one(&state.db_pool)
         .await
         .unwrap_or(0);
         
-        Ok(serde_json::json!({"total": total, "today": today}))
+        let by_action: Vec<(String, i64)> = sqlx::query_as(
+            "SELECT action, COUNT(*) as count FROM activity_log GROUP BY action ORDER BY count DESC"
+        )
+        .fetch_all(&state.db_pool)
+        .await
+        .unwrap_or_default();
+        
+        let mut action_counts = serde_json::Map::new();
+        for (action, count) in by_action {
+            action_counts.insert(action, serde_json::json!(count));
+        }
+        
+        Ok(serde_json::json!({
+            "total": total,
+            "today": today,
+            "by_action": action_counts,
+        }))
     }
 }
 
