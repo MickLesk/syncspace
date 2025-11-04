@@ -241,7 +241,7 @@
                       >
                         {notification.title}
                       </h3>
-                      <span class="badge-glass-info flex-shrink-0">
+                      <span class="badge-glass-info flex-shrink-0 bounce-in">
                         <i class="bi bi-clock mr-1"></i>
                         {formatRelativeTime(notification.time)}
                       </span>

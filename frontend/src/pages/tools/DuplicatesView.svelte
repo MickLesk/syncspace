@@ -277,7 +277,7 @@
             class="flex flex-col items-center justify-center py-16 text-center"
           >
             <i
-              class="bi bi-check-circle text-7xl text-green-500 dark:text-green-400 mb-4"
+              class="bi bi-check-circle text-7xl text-green-500 dark:text-green-400 mb-4 bounce-in"
             ></i>
             <h2
               class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2"

@@ -229,7 +229,7 @@
             {#each activityTypes as type}
               <button
                 role="tab"
-                class="px-3 py-2 text-sm rounded-md transition-all flex items-center gap-2 {selectedFilter ===
+                class="px-3 py-2 text-sm rounded-md transition-all flex items-center gap-2 hover-lift {selectedFilter ===
                 type.value
                   ? 'bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 font-semibold shadow-md scale-105'
                   : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300'}"
