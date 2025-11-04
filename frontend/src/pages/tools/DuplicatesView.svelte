@@ -304,7 +304,9 @@
                   class="flex flex-wrap items-center justify-between gap-3 mb-4"
                 >
                   <div class="flex items-center gap-3">
-                    <span class="badge-glass-warning flex items-center gap-2 bounce-in">
+                    <span
+                      class="badge-glass-warning flex items-center gap-2 bounce-in"
+                    >
                       <i class="bi bi-files"></i>
                       {group.count} copies
                     </span>

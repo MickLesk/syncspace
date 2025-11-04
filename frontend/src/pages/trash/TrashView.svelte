@@ -20,7 +20,10 @@
     .sort((a, b) => {
       const order = sortOrder === "asc" ? 1 : -1;
       if (sortBy === "deleted_at") {
-        return order * (new Date(a.deleted_at).getTime() - new Date(b.deleted_at).getTime());
+        return (
+          order *
+          (new Date(a.deleted_at).getTime() - new Date(b.deleted_at).getTime())
+        );
       } else if (sortBy === "file_name") {
         return order * a.file_name.localeCompare(b.file_name);
       } else if (sortBy === "file_size") {
