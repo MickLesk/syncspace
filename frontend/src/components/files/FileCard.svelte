@@ -45,8 +45,8 @@
       } else {
         // Add to favorites
         const data = await api.favorites.add(
-          file.is_directory ? "folder" : "file",
-          file.id
+          file.id,  // itemId first
+          file.is_directory ? "folder" : "file"  // itemType second
         );
         isFavorite = true;
         favoriteId = data.id;

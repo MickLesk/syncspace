@@ -152,12 +152,20 @@
     loadFiles();
   });
 
+  // Save view mode to backend when it changes
+  $effect(() => {
+    if (viewMode) {
+      console.log("💾 Saving view mode to backend:", viewMode);
+      userPreferences.updatePreference("view_mode", viewMode);
+    }
+  });
+
   onMount(async () => {
     await loadFiles();
 
     // Load favorites from backend
     await favorites.load();
-    
+
     // Load view mode from preferences
     const prefs = await userPreferences.load();
     if (prefs.view_mode) {
@@ -213,13 +221,6 @@
           loadFiles();
           // Don't show notifications for every file change - too spammy
         }, 1000);
-      }
-    });
-
-    // Save view mode when it changes
-    $effect(() => {
-      if (viewMode) {
-        userPreferences.updatePreference('view_mode', viewMode);
       }
     });
 
@@ -1198,6 +1199,27 @@
                 </label>
               </li>
             </ul>
+          </div>
+
+          <!-- Quick Filters -->
+          <div class="flex gap-2">
+            <!-- Folders Only -->
+            <ModernButton
+              variant={showFoldersOnly ? "success" : "ghost"}
+              size="sm"
+              icon="folder"
+              onclick={() => (showFoldersOnly = !showFoldersOnly)}
+              title="Toggle Folders Only"
+            />
+
+            <!-- Favorites Filter -->
+            <ModernButton
+              variant={showFavoritesOnly ? "warning" : "ghost"}
+              size="sm"
+              icon="star-fill"
+              onclick={() => (showFavoritesOnly = !showFavoritesOnly)}
+              title="Toggle Favorites Only"
+            />
           </div>
 
           <!-- View Mode -->
