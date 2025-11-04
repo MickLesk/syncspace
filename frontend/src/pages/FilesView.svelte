@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { files, currentPath } from "../stores/ui";
   import { favorites } from "../stores/favorites";
+  import { userPreferences } from "../stores/preferences";
   import { success, error as errorToast } from "../stores/toast";
   import { getFileIcon, getFileIconColor } from "../utils/fileIcons";
   import ContextMenu from "../components/ui/ContextMenu.svelte";
@@ -31,6 +32,7 @@
   let sortBy = $state("name"); // 'name', 'modified', 'size', 'type'
   let sortOrder = $state("asc"); // 'asc' or 'desc'
   let showFoldersOnly = $state(false);
+  let showFavoritesOnly = $state(false);
   let dragOver = $state(false);
   let searchResults = $state([]);
   let isSearchActive = $state(false);
@@ -94,9 +96,16 @@
 
   // Sort and filter files
   let sortedFiles = $derived.by(() => {
-    let result = showFoldersOnly
-      ? filteredFiles.filter((f) => f.is_dir)
-      : filteredFiles;
+    let result = filteredFiles;
+
+    // Apply filters
+    if (showFoldersOnly) {
+      result = result.filter((f) => f.is_dir);
+    }
+
+    if (showFavoritesOnly) {
+      result = result.filter((f) => favorites.isFavorite(f.path));
+    }
 
     // Sort the files
     result = [...result].sort((a, b) => {
@@ -148,6 +157,12 @@
 
     // Load favorites from backend
     await favorites.load();
+    
+    // Load view mode from preferences
+    const prefs = await userPreferences.load();
+    if (prefs.view_mode) {
+      viewMode = prefs.view_mode;
+    }
 
     // Initialize WebSocket connection for real-time file updates
     // Only connect if not already connected
@@ -198,6 +213,13 @@
           loadFiles();
           // Don't show notifications for every file change - too spammy
         }, 1000);
+      }
+    });
+
+    // Save view mode when it changes
+    $effect(() => {
+      if (viewMode) {
+        userPreferences.updatePreference('view_mode', viewMode);
       }
     });
 
@@ -1155,6 +1177,23 @@
                     class={showFoldersOnly ? "font-semibold text-success" : ""}
                   >
                     Folders Only {showFoldersOnly ? "(ON)" : ""}
+                  </span>
+                </label>
+              </li>
+              <li>
+                <label class="label cursor-pointer justify-start gap-2">
+                  <input
+                    type="checkbox"
+                    class="toggle toggle-sm toggle-warning"
+                    bind:checked={showFavoritesOnly}
+                  />
+                  <span
+                    class={showFavoritesOnly
+                      ? "font-semibold text-warning"
+                      : ""}
+                  >
+                    <i class="bi bi-star-fill mr-1"></i>
+                    Favorites Only {showFavoritesOnly ? "(ON)" : ""}
                   </span>
                 </label>
               </li>
