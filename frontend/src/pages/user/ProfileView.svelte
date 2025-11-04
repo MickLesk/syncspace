@@ -409,7 +409,11 @@
             <div class="text-sm text-gray-600 dark:text-gray-400">Files</div>
           </ModernCard>
 
-          <ModernCard variant="glass" hoverable class="text-center p-6 hover-scale">
+          <ModernCard
+            variant="glass"
+            hoverable
+            class="text-center p-6 hover-scale"
+          >
             <i
               class="bi bi-hdd text-4xl text-primary-600 dark:text-primary-400 mb-3 block bounce-in"
             ></i>
@@ -423,7 +427,11 @@
             </div>
           </ModernCard>
 
-          <ModernCard variant="glass" hoverable class="text-center p-6 hover-scale">
+          <ModernCard
+            variant="glass"
+            hoverable
+            class="text-center p-6 hover-scale"
+          >
             <i
               class="bi bi-share text-4xl text-primary-600 dark:text-primary-400 mb-3 block bounce-in"
             ></i>
@@ -435,7 +443,11 @@
             <div class="text-sm text-gray-600 dark:text-gray-400">Shares</div>
           </ModernCard>
 
-          <ModernCard variant="glass" hoverable class="text-center p-6 hover-scale">
+          <ModernCard
+            variant="glass"
+            hoverable
+            class="text-center p-6 hover-scale"
+          >
             <i
               class="bi bi-upload text-4xl text-primary-600 dark:text-primary-400 mb-3 block bounce-in"
             ></i>

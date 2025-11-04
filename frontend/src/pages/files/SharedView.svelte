@@ -339,8 +339,8 @@
         {/if}
       </div>
     {/if}
-  </div></PageWrapper
->
+  </div>
+</PageWrapper>
 
 {#if showCreateModal}
   <div

@@ -210,7 +210,9 @@
               role="button"
               tabindex="0"
               onclick={() => navigateToFile(file.fullPath)}
-              onkeydown={(e) => (e.key === "Enter" || e.key === " ") && navigateToFile(file.fullPath)}
+              onkeydown={(e) =>
+                (e.key === "Enter" || e.key === " ") &&
+                navigateToFile(file.fullPath)}
             >
               <!-- File Icon -->
               <div class="text-center mb-4">

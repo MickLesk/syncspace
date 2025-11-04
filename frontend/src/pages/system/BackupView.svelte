@@ -307,7 +307,9 @@
                             <span class="badge-glass-primary bounce-in">
                               {backup.backup_type}
                             </span>
-                            <span class="{getStatusBadge(backup.status)} bounce-in">
+                            <span
+                              class="{getStatusBadge(backup.status)} bounce-in"
+                            >
                               {backup.status}
                             </span>
                           </div>

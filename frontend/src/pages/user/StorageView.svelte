@@ -113,7 +113,9 @@
   {:else}
     <div class="space-y-6">
       <!-- Storage Overview -->
-      <div class="card bg-white dark:bg-gray-800 shadow-xl rounded-2xl hover-scale">
+      <div
+        class="card bg-white dark:bg-gray-800 shadow-xl rounded-2xl hover-scale"
+      >
         <div class="card-body">
           <h2 class="card-title text-xl mb-6">
             <i class="bi bi-pie-chart text-primary-600"></i>
@@ -153,7 +155,9 @@
       </div>
 
       <!-- Storage by Type -->
-      <div class="card bg-white dark:bg-gray-800 shadow-xl rounded-2xl hover-scale">
+      <div
+        class="card bg-white dark:bg-gray-800 shadow-xl rounded-2xl hover-scale"
+      >
         <div class="card-body">
           <h2 class="card-title text-xl mb-6">
             <i class="bi bi-list-ul text-primary-600"></i>
