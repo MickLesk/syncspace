@@ -304,10 +304,10 @@
                       <div class="flex justify-between items-start mb-3">
                         <div class="flex-1">
                           <div class="flex flex-wrap items-center gap-2 mb-2">
-                            <span class="badge-glass-primary">
+                            <span class="badge-glass-primary bounce-in">
                               {backup.backup_type}
                             </span>
-                            <span class={getStatusBadge(backup.status)}>
+                            <span class="{getStatusBadge(backup.status)} bounce-in">
                               {backup.status}
                             </span>
                           </div>
