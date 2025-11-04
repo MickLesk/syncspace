@@ -232,7 +232,8 @@
     };
     const handleCopyFromPreview = (e) => {
       const { file } = e.detail;
-      copyFiles([file]);
+      // Open copy modal for the file
+      modals.openCopy(file);
     };
     const handleToggleFavoriteFromPreview = async (e) => {
       const { file } = e.detail;
