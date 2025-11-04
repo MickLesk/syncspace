@@ -234,7 +234,7 @@ pub mod activity {
     
     /// Check if user has access to a file based on ownership, permissions, or shares
     async fn check_file_access(state: &AppState, user: &UserInfo, file_path: &str) -> bool {
-        let user_id = &user.user_id;
+        let user_id = user.user_id();
         
         // 1. Check if user is the owner of the file
         let is_owner: Option<(i64,)> = sqlx::query_as(
@@ -300,7 +300,7 @@ pub mod activity {
     /// Get activity statistics with smart unread count
     /// Returns count of activities since user's last visit to Activity page
     pub async fn get_stats(state: &AppState, user: &UserInfo) -> Result<serde_json::Value> {
-        let user_id = &user.user_id;
+        let user_id = user.user_id();
         
         let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM activity_log")
             .fetch_one(&state.db_pool)
@@ -323,6 +323,11 @@ pub mod activity {
         .await
         .ok()
         .flatten();
+        
+        // Clone for later use
+        let last_visit_str = last_visit.as_ref()
+            .and_then(|(v,)| v.clone())
+            .unwrap_or_else(|| "never".to_string());
         
         // Count unread activities (since last visit, with permission filter)
         let unread_count = if let Some((Some(last_visit_time),)) = last_visit {
@@ -367,11 +372,6 @@ pub mod activity {
             action_counts.insert(action, serde_json::json!(count));
         }
         
-        // Get last visit time for frontend display
-        let last_visit_str = last_visit
-            .and_then(|(v,)| v)
-            .unwrap_or_else(|| "never".to_string());
-        
         Ok(serde_json::json!({
             "total": total,
             "today": today,
@@ -383,7 +383,7 @@ pub mod activity {
     
     /// Mark activity page as visited - resets unread count
     pub async fn mark_visited(state: &AppState, user: &UserInfo) -> Result<()> {
-        let user_id = &user.user_id;
+        let user_id = user.user_id();
         let now = chrono::Utc::now().to_rfc3339();
         
         sqlx::query(
