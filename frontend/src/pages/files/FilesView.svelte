@@ -15,6 +15,7 @@
   import FileCard from "../../components/files/FileCard.svelte";
   import FileToolbar from "../../components/files/FileToolbar.svelte";
   import FileActionsMenu from "../../components/files/FileActionsMenu.svelte";
+  import FilePreviewPanel from "../../components/files/FilePreviewPanel.svelte";
   import api from "../../lib/api";
   import { websocketManager } from "@stores/websocket.js";
 
@@ -40,6 +41,11 @@
 
   // Operation State
   let currentFile = $state(null);
+
+  // Preview Panel State
+  let showPreviewPanel = $state(false);
+  let previewFile = $state(null);
+  let previewFileIndex = $state(0);
 
   let searchFilters = $state({
     type: "all",
@@ -394,10 +400,25 @@
         : $currentPath + file.name + "/";
       navigateTo(folderPath);
     } else {
-      // Pass all files and current index for navigation
-      const files = displayFiles();
-      const index = files.findIndex(f => f.id === file.id);
-      modals.openPreview(file, files, index >= 0 ? index : 0);
+      // Show preview panel instead of modal
+      const files = displayFiles().filter((f) => !f.is_directory);
+      const index = files.findIndex((f) => f.id === file.id);
+      previewFile = file;
+      previewFileIndex = index >= 0 ? index : 0;
+      showPreviewPanel = true;
+    }
+  }
+
+  function closePreviewPanel() {
+    showPreviewPanel = false;
+    previewFile = null;
+  }
+
+  function navigatePreview(newIndex) {
+    const files = displayFiles().filter((f) => !f.is_directory);
+    if (newIndex >= 0 && newIndex < files.length) {
+      previewFile = files[newIndex];
+      previewFileIndex = newIndex;
     }
   }
 
@@ -757,6 +778,17 @@
   </div>
 </PageWrapper>
 
+<!-- Preview Panel Overlay -->
+{#if showPreviewPanel && previewFile}
+  <FilePreviewPanel
+    file={previewFile}
+    allFiles={displayFiles().filter((f) => !f.is_directory)}
+    currentIndex={previewFileIndex}
+    onClose={closePreviewPanel}
+    onNavigate={navigatePreview}
+  />
+{/if}
+
 <!-- Context Menu -->
 {#if contextMenu}
   <FileActionsMenu
@@ -770,7 +802,7 @@
     onShare={() => modals.openShare(currentFile)}
     onDownload={() => downloadFile(currentFile)}
     onVersionHistory={() => modals.openVersionHistory(currentFile)}
-    onPreview={() => modals.openPreview(currentFile)}
+    onPreview={() => openFile(currentFile)}
   />
 {/if}
 
