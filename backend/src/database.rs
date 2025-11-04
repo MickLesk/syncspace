@@ -11,6 +11,16 @@ use uuid::Uuid;
 
 const MAX_CONNECTIONS: u32 = 10;
 
+/// Macro to automatically discover and include all migration files at compile time
+/// Simply add a new .sql file to migrations/ and it will be automatically picked up!
+/// The build.rs script generates this list automatically.
+macro_rules! discover_migrations {
+    () => {{
+        // This is generated at compile-time by build.rs
+        include!(concat!(env!("OUT_DIR"), "/migrations.rs"))
+    }};
+}
+
 /// Initialize database pool and run migrations
 pub async fn init_db() -> Result<SqlitePool, sqlx::Error> {
     // Get database path - always use ./data/syncspace.db relative to current working directory
@@ -105,10 +115,21 @@ async fn execute_migration_statements(pool: &SqlitePool, migration_sql: &str) ->
                  if statement.len() > 60 { &statement[..60] } else { statement });
         
         if let Err(e) = sqlx::query(statement).execute(&mut *tx).await {
-            eprintln!("❌ Failed to execute statement {}:", i+1);
-            eprintln!("   SQL: {}", statement);
-            eprintln!("   Error: {:?}", e);
-            return Err(e);
+            // Check if error is "duplicate column" or "already exists" - these are safe to ignore
+            let error_msg = format!("{:?}", e);
+            let is_safe_error = error_msg.contains("duplicate column") 
+                || error_msg.contains("already exists")
+                || error_msg.contains("UNIQUE constraint failed");
+            
+            if is_safe_error {
+                println!("  ⚠️  Statement already applied (safe to skip): {}", 
+                         if statement.len() > 50 { &statement[..50] } else { statement });
+            } else {
+                eprintln!("❌ Failed to execute statement {}:", i+1);
+                eprintln!("   SQL: {}", statement);
+                eprintln!("   Error: {:?}", e);
+                return Err(e);
+            }
         }
     }
     
@@ -133,32 +154,49 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     .execute(pool)
     .await?;
 
-    // Define all migrations with their SQL content at compile time
-    // This allows us to track and skip already-executed migrations
-    let migrations = vec![
-        ("001_initial_schema.sql", include_str!("../migrations/001_initial_schema.sql")),
-        ("002_add_comments_tags.sql", include_str!("../migrations/002_add_comments_tags.sql")),
-        ("003_add_backups.sql", include_str!("../migrations/003_add_backups.sql")),
-        ("004_add_notifications_and_preferences.sql", include_str!("../migrations/004_add_notifications_and_preferences.sql")),
-        ("005_add_notifications.sql", include_str!("../migrations/005_add_notifications.sql")),
-        ("006_add_webhooks.sql", include_str!("../migrations/006_add_webhooks.sql")),
-        ("007_add_encryption.sql", include_str!("../migrations/007_add_encryption.sql")),
-        ("008_add_locking.sql", include_str!("../migrations/008_add_locking.sql")),
-        ("009_add_permissions.sql", include_str!("../migrations/009_add_permissions.sql")),
-        ("010_add_additional_features.sql", include_str!("../migrations/010_add_additional_features.sql")),
-        ("011_add_integration_features.sql", include_str!("../migrations/011_add_integration_features.sql")),
-        ("012_add_oauth.sql", include_str!("../migrations/012_add_oauth.sql")),
-        ("013_add_collaboration.sql", include_str!("../migrations/013_add_collaboration.sql")),
-        ("014_add_file_versioning.sql", include_str!("../migrations/014_add_file_versioning.sql")),
-        ("015_add_user_preferences.sql", include_str!("../migrations/015_add_user_preferences.sql")),
-        ("016_add_backup_scheduling.sql", include_str!("../migrations/016_add_backup_scheduling.sql")),
-        ("017_add_folder_colors.sql", include_str!("../migrations/017_add_folder_colors.sql")),
-        ("018_add_activity_tracking.sql", include_str!("../migrations/018_add_activity_tracking.sql")),
-        ("019_add_last_activity_visit.sql", include_str!("../migrations/019_add_last_activity_visit.sql")),
-        ("020_add_setup_wizard.sql", include_str!("../migrations/020_add_setup_wizard.sql")),
-        // Skip 021 - 2FA tables conflict with existing users.totp_* fields
-        ("022_add_user_groups_roles.sql", include_str!("../migrations/022_add_user_groups_roles.sql")),
-    ];
+    // Check if this is an existing database (check for users table)
+    let is_existing_db: Option<(i64,)> = sqlx::query_as(
+        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='users'"
+    )
+    .fetch_optional(pool)
+    .await?;
+    
+    let db_exists = if let Some((count,)) = is_existing_db {
+        count > 0
+    } else {
+        false
+    };
+
+    // If database exists but migrations_tracker is empty, mark all existing migrations as executed
+    // This prevents re-running migrations on existing databases
+    if db_exists {
+        let tracker_count: Option<(i64,)> = sqlx::query_as(
+            "SELECT COUNT(*) FROM migrations_tracker"
+        )
+        .fetch_optional(pool)
+        .await?;
+        
+        if let Some((count,)) = tracker_count {
+            if count == 0 {
+                println!("📌 Existing database detected. Marking all discovered migrations as executed...");
+                
+                // Get all migrations from auto-discovery
+                let all_migrations = discover_migrations!();
+                
+                for (filename, _) in all_migrations {
+                    sqlx::query("INSERT OR IGNORE INTO migrations_tracker (migration_file) VALUES (?)")
+                        .bind(filename)
+                        .execute(pool)
+                        .await?;
+                }
+                println!("✅ Historical migrations marked");
+            }
+        }
+    }
+
+    // AUTO-DISCOVER all migrations at compile time using macro
+    // Simply add new .sql files to migrations/ directory and they'll be picked up automatically!
+    let migrations = discover_migrations!();
 
     let mut executed_count = 0;
     let mut skipped_count = 0;

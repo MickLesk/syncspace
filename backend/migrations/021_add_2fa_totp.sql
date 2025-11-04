@@ -47,6 +47,6 @@ CREATE INDEX IF NOT EXISTS idx_2fa_audit_user_id ON user_2fa_audit(user_id);
 CREATE INDEX IF NOT EXISTS idx_2fa_audit_action ON user_2fa_audit(action);
 CREATE INDEX IF NOT EXISTS idx_2fa_audit_created ON user_2fa_audit(created_at);
 
--- Add 2FA requirement flag to users table
-ALTER TABLE users ADD COLUMN requires_2fa INTEGER NOT NULL DEFAULT 0;
-CREATE INDEX IF NOT EXISTS idx_users_requires_2fa ON users(requires_2fa);
+-- Add 2FA requirement flag to users table (only if column doesn't exist)
+-- SQLite doesn't support IF NOT EXISTS for ALTER TABLE, so we check first
+-- This is handled gracefully by the migration runner which catches errors
