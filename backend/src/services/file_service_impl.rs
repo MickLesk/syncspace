@@ -35,6 +35,14 @@ pub async fn list_files(state: &AppState, user: &UserInfo, path: &str) -> Result
                 format!("{}/{}", path.trim_end_matches('/'), name)
             };
             
+            // Skip system files (database files and search index) - check BEFORE logging
+            if name == "syncspace.db" 
+                || name == "syncspace.db-shm" 
+                || name == "syncspace.db-wal" 
+                || name == "search_index" {
+                continue;
+            }
+            
             // Try to get file info from database first
             #[derive(sqlx::FromRow)]
             struct FileRow {
@@ -73,7 +81,7 @@ pub async fn list_files(state: &AppState, user: &UserInfo, path: &str) -> Result
                 continue;
             }
             
-            // Debug log for troubleshooting
+            // Debug log for troubleshooting (only for non-system files)
             if db_result.is_none() && !is_dir {
                 eprintln!("[list_files] File not in DB: {} (using filesystem size: {} bytes)", file_path, meta.len());
             }
