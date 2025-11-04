@@ -9,6 +9,7 @@ use axum::{
     Router,
 };
 use serde::{Deserialize, Serialize};
+use sqlx::Row;
 
 use crate::AppState;
 use crate::auth::UserInfo;
