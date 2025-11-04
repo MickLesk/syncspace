@@ -72,7 +72,19 @@ backend/*.sqlite
 backend/data/syncspace.db
 backend/data/syncspace.db-shm
 backend/data/syncspace.db-wal
+
+# Search Index Files (Tantivy)
 backend/data/search_index/
+data/search_index/
+**/search_index/*.fast
+**/search_index/*.fieldnorm
+**/search_index/*.idx
+**/search_index/*.pos
+**/search_index/*.store
+**/search_index/*.term
+**/search_index/*.json
+**/search_index/.managed.json
+**/search_index/managed.json
 
 # Database files
 *.db
@@ -80,6 +92,11 @@ backend/data/search_index/
 *.db-wal
 *.sqlite
 *.sqlite3
+
+# Backup files
+*.backup
+data/*.backup
+backend/data/*.backup
 
 # IDE / Editor
 .vscode/
