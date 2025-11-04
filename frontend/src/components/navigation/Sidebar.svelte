@@ -3,7 +3,6 @@
     currentView,
     sidebarCollapsed,
     currentLang,
-    favoritesEnabled,
   } from "../../stores/ui";
   import { auth } from "../../stores/auth";
   import { t } from "../../i18n";
@@ -57,17 +56,6 @@
       badgeClass:
         "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200",
     },
-    // Favorites nur anzeigen wenn enabled
-    ...($favoritesEnabled
-      ? [
-          {
-            id: "favorites",
-            icon: "star-fill",
-            label: t($currentLang, "favorites"),
-            category: "main",
-          },
-        ]
-      : []),
     {
       id: "activity",
       label: "Activity",

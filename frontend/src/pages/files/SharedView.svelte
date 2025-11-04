@@ -341,140 +341,52 @@
     {/if}
   </div>
 
-{#if showCreateModal}
-  <div
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop"
-  >
-    <ModernCard variant="glass" padding="large" class="max-w-md w-full modal-content">
-      {#snippet children()}
-        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          Create Share
-        </h2>
-        <form
-          onsubmit={(e) => {
-            e.preventDefault();
-            handleCreateShare();
-          }}
-          class="space-y-5"
-        >
-          <div>
-            <label
-              for="file_path"
-              class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
-            >
-              File Path
-            </label>
-            <input
-              id="file_path"
-              type="text"
-              bind:value={newShare.file_path}
-              placeholder="/path/to/file.txt"
-              class="glass-input w-full px-4 py-2.5 rounded-lg"
-              required
-            />
-          </div>
-          <div>
-            <label
-              for="permissions"
-              class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
-            >
-              Permissions
-            </label>
-            <select
-              id="permissions"
-              bind:value={newShare.permissions}
-              class="glass-input w-full px-4 py-2.5 rounded-lg"
-            >
-              <option value="read">Read Only</option>
-              <option value="write">Read & Write</option>
-            </select>
-          </div>
-          <div>
-            <label
-              for="expires_at"
-              class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
-            >
-              Expiration Date (Optional)
-            </label>
-            <input
-              id="expires_at"
-              type="datetime-local"
-              bind:value={newShare.expires_at}
-              class="glass-input w-full px-4 py-2.5 rounded-lg"
-            />
-          </div>
-          <div>
-            <label
-              for="password"
-              class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
-            >
-              Password (Optional)
-            </label>
-            <input
-              id="password"
-              type="password"
-              bind:value={newShare.password}
-              placeholder="Leave empty for no password"
-              class="glass-input w-full px-4 py-2.5 rounded-lg"
-            />
-          </div>
-          <div class="flex justify-end gap-3 pt-4">
-            <ModernButton
-              variant="ghost"
-              onclick={() => (showCreateModal = false)}
-            >
-              Cancel
-            </ModernButton>
-            <ModernButton type="submit" variant="gradient" icon="plus-circle">
-              Create Share
-            </ModernButton>
-          </div>
-        </form>
-      {/snippet}
-    </ModernCard>
-  </div>
-{/if}
-
-{#if showEditModal}
-  <div
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop"
-  >
-    <ModernCard variant="glass" padding="large" class="max-w-md w-full modal-content">
-      {#snippet children()}
-        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          Edit Share
-        </h2>
-        {#if selectedShare}
+  {#if showCreateModal}
+    <div
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop"
+    >
+      <ModernCard
+        variant="glass"
+        padding="large"
+        class="max-w-md w-full modal-content"
+      >
+        {#snippet children()}
+          <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+            Create Share
+          </h2>
           <form
             onsubmit={(e) => {
               e.preventDefault();
-              handleUpdateShare();
+              handleCreateShare();
             }}
             class="space-y-5"
           >
             <div>
               <label
+                for="file_path"
                 class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
               >
                 File Path
               </label>
               <input
+                id="file_path"
                 type="text"
-                value={selectedShare.file_path}
-                disabled
-                class="glass-input w-full px-4 py-2.5 rounded-lg opacity-60"
+                bind:value={newShare.file_path}
+                placeholder="/path/to/file.txt"
+                class="glass-input w-full px-4 py-2.5 rounded-lg"
+                required
               />
             </div>
             <div>
               <label
-                for="edit_permissions"
+                for="permissions"
                 class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
               >
                 Permissions
               </label>
               <select
-                id="edit_permissions"
-                bind:value={selectedShare.permissions}
+                id="permissions"
+                bind:value={newShare.permissions}
                 class="glass-input w-full px-4 py-2.5 rounded-lg"
               >
                 <option value="read">Read Only</option>
@@ -483,111 +395,211 @@
             </div>
             <div>
               <label
-                for="edit_expires_at"
+                for="expires_at"
                 class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
               >
                 Expiration Date (Optional)
               </label>
               <input
-                id="edit_expires_at"
+                id="expires_at"
                 type="datetime-local"
-                bind:value={selectedShare.expires_at}
+                bind:value={newShare.expires_at}
                 class="glass-input w-full px-4 py-2.5 rounded-lg"
               />
             </div>
             <div>
               <label
-                for="edit_password"
+                for="password"
                 class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
               >
-                Password (Leave empty to keep current)
+                Password (Optional)
               </label>
               <input
-                id="edit_password"
+                id="password"
                 type="password"
-                bind:value={selectedShare.password}
-                placeholder="Enter new password or leave empty"
+                bind:value={newShare.password}
+                placeholder="Leave empty for no password"
                 class="glass-input w-full px-4 py-2.5 rounded-lg"
               />
             </div>
             <div class="flex justify-end gap-3 pt-4">
               <ModernButton
                 variant="ghost"
-                onclick={() => {
-                  showEditModal = false;
-                  selectedShare = null;
-                }}
+                onclick={() => (showCreateModal = false)}
               >
                 Cancel
               </ModernButton>
-              <ModernButton type="submit" variant="gradient" icon="save">
-                Save Changes
+              <ModernButton type="submit" variant="gradient" icon="plus-circle">
+                Create Share
               </ModernButton>
             </div>
           </form>
-        {/if}
-      {/snippet}
-    </ModernCard>
-  </div>
-{/if}
+        {/snippet}
+      </ModernCard>
+    </div>
+  {/if}
 
-{#if showDeleteModal}
-  <div
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop"
-  >
-    <ModernCard variant="glass" padding="large" class="max-w-md w-full modal-content">
-      {#snippet children()}
-        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-          Delete Share
-        </h2>
-        {#if selectedShare}
-          <div class="space-y-4">
-            <div class="glass-card border-l-4 border-red-500 p-4">
-              <div class="flex items-start gap-3">
-                <i class="bi bi-exclamation-triangle-fill text-red-500 text-2xl"
-                ></i>
-                <div class="flex-1">
-                  <p
-                    class="font-semibold text-gray-900 dark:text-gray-100 mb-2"
-                  >
-                    Are you sure you want to delete this share?
-                  </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">
-                    File: <span
-                      class="font-mono font-semibold text-primary-600 dark:text-primary-400"
+  {#if showEditModal}
+    <div
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop"
+    >
+      <ModernCard
+        variant="glass"
+        padding="large"
+        class="max-w-md w-full modal-content"
+      >
+        {#snippet children()}
+          <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+            Edit Share
+          </h2>
+          {#if selectedShare}
+            <form
+              onsubmit={(e) => {
+                e.preventDefault();
+                handleUpdateShare();
+              }}
+              class="space-y-5"
+            >
+              <div>
+                <label
+                  class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+                >
+                  File Path
+                </label>
+                <input
+                  type="text"
+                  value={selectedShare.file_path}
+                  disabled
+                  class="glass-input w-full px-4 py-2.5 rounded-lg opacity-60"
+                />
+              </div>
+              <div>
+                <label
+                  for="edit_permissions"
+                  class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+                >
+                  Permissions
+                </label>
+                <select
+                  id="edit_permissions"
+                  bind:value={selectedShare.permissions}
+                  class="glass-input w-full px-4 py-2.5 rounded-lg"
+                >
+                  <option value="read">Read Only</option>
+                  <option value="write">Read & Write</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  for="edit_expires_at"
+                  class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+                >
+                  Expiration Date (Optional)
+                </label>
+                <input
+                  id="edit_expires_at"
+                  type="datetime-local"
+                  bind:value={selectedShare.expires_at}
+                  class="glass-input w-full px-4 py-2.5 rounded-lg"
+                />
+              </div>
+              <div>
+                <label
+                  for="edit_password"
+                  class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+                >
+                  Password (Leave empty to keep current)
+                </label>
+                <input
+                  id="edit_password"
+                  type="password"
+                  bind:value={selectedShare.password}
+                  placeholder="Enter new password or leave empty"
+                  class="glass-input w-full px-4 py-2.5 rounded-lg"
+                />
+              </div>
+              <div class="flex justify-end gap-3 pt-4">
+                <ModernButton
+                  variant="ghost"
+                  onclick={() => {
+                    showEditModal = false;
+                    selectedShare = null;
+                  }}
+                >
+                  Cancel
+                </ModernButton>
+                <ModernButton type="submit" variant="gradient" icon="save">
+                  Save Changes
+                </ModernButton>
+              </div>
+            </form>
+          {/if}
+        {/snippet}
+      </ModernCard>
+    </div>
+  {/if}
+
+  {#if showDeleteModal}
+    <div
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop"
+    >
+      <ModernCard
+        variant="glass"
+        padding="large"
+        class="max-w-md w-full modal-content"
+      >
+        {#snippet children()}
+          <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+            Delete Share
+          </h2>
+          {#if selectedShare}
+            <div class="space-y-4">
+              <div class="glass-card border-l-4 border-red-500 p-4">
+                <div class="flex items-start gap-3">
+                  <i
+                    class="bi bi-exclamation-triangle-fill text-red-500 text-2xl"
+                  ></i>
+                  <div class="flex-1">
+                    <p
+                      class="font-semibold text-gray-900 dark:text-gray-100 mb-2"
                     >
-                      {selectedShare.file_path}
-                    </span>
-                  </p>
-                  <p class="text-sm text-red-600 dark:text-red-400 mt-2">
-                    This action cannot be undone.
-                  </p>
+                      Are you sure you want to delete this share?
+                    </p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                      File: <span
+                        class="font-mono font-semibold text-primary-600 dark:text-primary-400"
+                      >
+                        {selectedShare.file_path}
+                      </span>
+                    </p>
+                    <p class="text-sm text-red-600 dark:text-red-400 mt-2">
+                      This action cannot be undone.
+                    </p>
+                  </div>
                 </div>
               </div>
+              <div class="flex justify-end gap-3 pt-2">
+                <ModernButton
+                  variant="ghost"
+                  onclick={() => {
+                    showDeleteModal = false;
+                    selectedShare = null;
+                  }}
+                >
+                  Cancel
+                </ModernButton>
+                <ModernButton
+                  variant="danger"
+                  icon="trash-fill"
+                  onclick={handleDeleteShare}
+                >
+                  Delete Share
+                </ModernButton>
+              </div>
             </div>
-            <div class="flex justify-end gap-3 pt-2">
-              <ModernButton
-                variant="ghost"
-                onclick={() => {
-                  showDeleteModal = false;
-                  selectedShare = null;
-                }}
-              >
-                Cancel
-              </ModernButton>
-              <ModernButton
-                variant="danger"
-                icon="trash-fill"
-                onclick={handleDeleteShare}
-              >
-                Delete Share
-              </ModernButton>
-            </div>
-          </div>
-        {/if}
-      {/snippet}
-    </ModernCard>
-  </div>
-{/if}
-
+          {/if}
+        {/snippet}
+      </ModernCard>
+    </div>
+  {/if}
 </PageWrapper>
