@@ -124,6 +124,7 @@
           <ModernButton
             variant={activeTab === tab.id ? "primary" : "ghost"}
             onclick={() => handleTabChange(tab.id)}
+            class="hover-lift"
           >
             <i class="bi bi-{tab.icon} mr-2"></i>
             {tab.label}
