@@ -206,9 +206,29 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         println!("📋 Running migration: 017_add_folder_colors.sql");
         let migration_sql = include_str!("../migrations/017_add_folder_colors.sql");
         execute_migration_statements(pool, migration_sql).await?;
+        
+        println!("📋 Running migration: 018_add_activity_tracking.sql");
+        let migration_sql = include_str!("../migrations/018_add_activity_tracking.sql");
+        execute_migration_statements(pool, migration_sql).await?;
     }
 
-    println!("✅ All 17 migrations completed successfully!");
+    println!("✅ All 18 migrations completed successfully!");
+    
+    // Always run migration 018 separately for existing databases (safe to run multiple times)
+    let activity_table_exists: Option<(i64,)> = sqlx::query_as(
+        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='activity_log'"
+    )
+    .fetch_optional(pool)
+    .await?;
+    
+    if let Some((count,)) = activity_table_exists {
+        if count == 0 {
+            println!("📊 Adding activity tracking to existing database...");
+            let migration_sql = include_str!("../migrations/018_add_activity_tracking.sql");
+            execute_migration_statements(pool, migration_sql).await?;
+            println!("✅ Activity tracking feature added!");
+        }
+    }
     
     // Always run migration 017 separately for existing databases (safe to run multiple times)
     // Check if folder_color column exists
