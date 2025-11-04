@@ -151,10 +151,11 @@
   let unsubscribeFileEvent;
   let ignorePopstate = false;
   let handlePopstateRef = null;
+  let preferencesLoaded = $state(false);
 
-  // Save view mode to backend when it changes
+  // Save view mode to backend when it changes (only after initial load)
   $effect(() => {
-    if (viewMode) {
+    if (viewMode && preferencesLoaded) {
       console.log("💾 Saving view mode to backend:", viewMode);
       userPreferences.updatePreference("view_mode", viewMode);
     }
@@ -167,17 +168,17 @@
       if (prefs && prefs.view_mode) {
         viewMode = prefs.view_mode;
       }
+      preferencesLoaded = true; // Enable auto-save after loading
     } catch (err) {
-      console.error('Failed to load preferences:', err);
+      console.error("Failed to load preferences:", err);
+      preferencesLoaded = true; // Enable even if load fails
     }
     
     try {
       await favorites.load();
     } catch (err) {
-      console.error('Failed to load favorites:', err);
-    }
-
-    // Initialize from URL hash or current path
+      console.error("Failed to load favorites:", err);
+    }    // Initialize from URL hash or current path
     const urlPath =
       window.location.hash.replace("#/files", "").replace("#", "") || "/";
     currentPath.set(urlPath);
