@@ -113,7 +113,7 @@
   {:else}
     <div class="space-y-6">
       <!-- Storage Overview -->
-      <div class="card bg-white dark:bg-gray-800 shadow-xl rounded-2xl">
+      <div class="card bg-white dark:bg-gray-800 shadow-xl rounded-2xl hover-scale">
         <div class="card-body">
           <h2 class="card-title text-xl mb-6">
             <i class="bi bi-pie-chart text-primary-600"></i>
@@ -122,7 +122,7 @@
 
           <div class="text-center mb-8">
             <div
-              class="radial-progress text-primary"
+              class="radial-progress text-primary bounce-in"
               style="--value:{storageStats.percentage}; --size:12rem; --thickness:1rem;"
             >
               <div class="text-center">
@@ -153,14 +153,14 @@
       </div>
 
       <!-- Storage by Type -->
-      <div class="card bg-white dark:bg-gray-800 shadow-xl rounded-2xl">
+      <div class="card bg-white dark:bg-gray-800 shadow-xl rounded-2xl hover-scale">
         <div class="card-body">
           <h2 class="card-title text-xl mb-6">
             <i class="bi bi-list-ul text-primary-600"></i>
             Storage by File Type
           </h2>
 
-          <div class="space-y-4">
+          <div class="space-y-4 list-stagger">
             {#each storageStats.byType as item}
               <div class="flex items-center gap-4">
                 <div class="flex-1">

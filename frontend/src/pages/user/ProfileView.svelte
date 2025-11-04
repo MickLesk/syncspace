@@ -392,8 +392,12 @@
         </div>
 
         <!-- Stats Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <ModernCard variant="glass" hoverable class="text-center p-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 grid-stagger">
+          <ModernCard
+            variant="glass"
+            hoverable
+            class="text-center p-6 hover-scale"
+          >
             <i
               class="bi bi-files text-4xl text-primary-600 dark:text-primary-400 mb-3 block"
             ></i>
@@ -405,7 +409,7 @@
             <div class="text-sm text-gray-600 dark:text-gray-400">Files</div>
           </ModernCard>
 
-          <ModernCard variant="glass" hoverable class="text-center p-6">
+          <ModernCard variant="glass" hoverable class="text-center p-6 hover-scale">
             <i
               class="bi bi-hdd text-4xl text-primary-600 dark:text-primary-400 mb-3 block"
             ></i>
@@ -419,7 +423,7 @@
             </div>
           </ModernCard>
 
-          <ModernCard variant="glass" hoverable class="text-center p-6">
+          <ModernCard variant="glass" hoverable class="text-center p-6 hover-scale">
             <i
               class="bi bi-share text-4xl text-primary-600 dark:text-primary-400 mb-3 block"
             ></i>

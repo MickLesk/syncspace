@@ -142,230 +142,234 @@
 
 <PageWrapper gradient>
   <div class="page-fade-in">
-  <PageHeader
-    title="Activity Timeline"
-    subtitle="Track all file operations and changes"
-    icon="activity"
-  />
+    <PageHeader
+      title="Activity Timeline"
+      subtitle="Track all file operations and changes"
+      icon="activity"
+    />
 
-  <!-- Stats -->
-  {#if $activity.length > 0}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 grid-stagger">
-      <ModernCard variant="glass" hoverable class="hover-scale">
-        {#snippet children()}
-          <div class="text-center">
-            <div class="text-primary-500 mb-3">
-              <i class="bi bi-activity text-5xl"></i>
+    <!-- Stats -->
+    {#if $activity.length > 0}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 grid-stagger">
+        <ModernCard variant="glass" hoverable class="hover-scale">
+          {#snippet children()}
+            <div class="text-center">
+              <div class="text-primary-500 mb-3">
+                <i class="bi bi-activity text-5xl"></i>
+              </div>
+              <div
+                class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
+              >
+                Total Events
+              </div>
+              <div
+                class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2"
+              >
+                {$activity.length}
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-500">
+                All time
+              </div>
             </div>
+          {/snippet}
+        </ModernCard>
+
+        <ModernCard variant="glass" hoverable class="hover-scale">
+          {#snippet children()}
+            <div class="text-center">
+              <div class="text-green-500 mb-3">
+                <i class="bi bi-calendar-check text-5xl"></i>
+              </div>
+              <div
+                class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
+              >
+                Today
+              </div>
+              <div
+                class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2"
+              >
+                {todayCount}
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-500">
+                Recent activity
+              </div>
+            </div>
+          {/snippet}
+        </ModernCard>
+
+        <ModernCard variant="glass" hoverable class="hover-scale">
+          {#snippet children()}
             <div
-              class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
+              class="text-center flex flex-col items-center justify-center h-full"
             >
-              Total Events
+              <ModernButton
+                variant="danger"
+                icon="trash-fill"
+                onclick={handleClearAll}
+                disabled={$activity.length === 0}
+                fullWidth
+              >
+                Clear All History
+              </ModernButton>
             </div>
-            <div
-              class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2"
-            >
-              {$activity.length}
-            </div>
-            <div class="text-xs text-gray-500 dark:text-gray-500">All time</div>
-          </div>
-        {/snippet}
-      </ModernCard>
-
-      <ModernCard variant="glass" hoverable class="hover-scale">
-        {#snippet children()}
-          <div class="text-center">
-            <div class="text-green-500 mb-3">
-              <i class="bi bi-calendar-check text-5xl"></i>
-            </div>
-            <div
-              class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
-            >
-              Today
-            </div>
-            <div
-              class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2"
-            >
-              {todayCount}
-            </div>
-            <div class="text-xs text-gray-500 dark:text-gray-500">
-              Recent activity
-            </div>
-          </div>
-        {/snippet}
-      </ModernCard>
-
-      <ModernCard variant="glass" hoverable class="hover-scale">
-        {#snippet children()}
-          <div
-            class="text-center flex flex-col items-center justify-center h-full"
-          >
-            <ModernButton
-              variant="danger"
-              icon="trash-fill"
-              onclick={handleClearAll}
-              disabled={$activity.length === 0}
-              fullWidth
-            >
-              Clear All History
-            </ModernButton>
-          </div>
-        {/snippet}
-      </ModernCard>
-    </div>
-  {/if}
-
-  <!-- Filters & Search -->
-  <ModernCard variant="glass" class="mb-6">
-    {#snippet children()}
-      <div class="flex flex-col md:flex-row gap-4">
-        <!-- Filter Tabs -->
-        <div
-          role="tablist"
-          class="flex flex-wrap gap-2 flex-1 glass-card p-2 rounded-lg"
-        >
-          {#each activityTypes as type}
-            <button
-              role="tab"
-              class="px-3 py-2 text-sm rounded-md transition-all flex items-center gap-2 {selectedFilter ===
-              type.value
-                ? 'bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 font-semibold shadow-md scale-105'
-                : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300'}"
-              on:click={() => (selectedFilter = type.value)}
-            >
-              <i class="bi bi-{type.icon}"></i>
-              {type.label}
-            </button>
-          {/each}
-        </div>
-
-        <!-- Search -->
-        <div class="relative">
-          <input
-            type="text"
-            placeholder="Search activities..."
-            class="glass-input w-full md:w-64 pr-10"
-            bind:value={searchQuery}
-          />
-          <button
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"
-          >
-            <i class="bi bi-search"></i>
-          </button>
-        </div>
+          {/snippet}
+        </ModernCard>
       </div>
-    {/snippet}
-  </ModernCard>
+    {/if}
 
-  <!-- Timeline -->
-  {#if Object.keys(groupedActivities).length === 0}
-    <ModernCard variant="glass" padding="large">
+    <!-- Filters & Search -->
+    <ModernCard variant="glass" class="mb-6">
       {#snippet children()}
-        <div class="text-center animate-fade-in">
-          <div class="text-primary-500/30 mb-6">
-            <i class="bi bi-clock-history text-8xl"></i>
+        <div class="flex flex-col md:flex-row gap-4">
+          <!-- Filter Tabs -->
+          <div
+            role="tablist"
+            class="flex flex-wrap gap-2 flex-1 glass-card p-2 rounded-lg"
+          >
+            {#each activityTypes as type}
+              <button
+                role="tab"
+                class="px-3 py-2 text-sm rounded-md transition-all flex items-center gap-2 {selectedFilter ===
+                type.value
+                  ? 'bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 font-semibold shadow-md scale-105'
+                  : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300'}"
+                on:click={() => (selectedFilter = type.value)}
+              >
+                <i class="bi bi-{type.icon}"></i>
+                {type.label}
+              </button>
+            {/each}
           </div>
-          <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">
-            No Activity Yet
-          </h3>
-          <p class="text-gray-600 dark:text-gray-400">
-            File operations will appear here
-          </p>
+
+          <!-- Search -->
+          <div class="relative">
+            <input
+              type="text"
+              placeholder="Search activities..."
+              class="glass-input w-full md:w-64 pr-10"
+              bind:value={searchQuery}
+            />
+            <button
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"
+            >
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
         </div>
       {/snippet}
     </ModernCard>
-  {:else}
-    {#each Object.entries(groupedActivities) as [dateLabel, activities], groupIndex}
-      <div
-        class="mb-8 animate-slide-up"
-        style="animation-delay: {groupIndex * 100}ms;"
-      >
-        <!-- Date Badge -->
-        <div class="flex items-center gap-3 mb-4">
-          <div class="badge-glass-primary text-base font-bold px-4 py-2">
-            {dateLabel}
-          </div>
-          <div
-            class="flex-1 h-px bg-gradient-to-r from-primary-500/50 to-transparent"
-          ></div>
-        </div>
 
-        <!-- Timeline -->
-        <div class="relative pl-8 border-l-2 border-primary-500/20 space-y-6">
-          {#each activities as act, i}
-            {@const config = typeConfig[act.type] || typeConfig.create}
-            {@const colorMap = {
-              success: "bg-green-500 text-white",
-              info: "bg-blue-500 text-white",
-              error: "bg-red-500 text-white",
-              warning: "bg-yellow-500 text-white",
-              primary: "bg-primary-500 text-white",
-              secondary: "bg-gray-500 text-white",
-              accent: "bg-purple-500 text-white",
-            }}
-            <div
-              class="relative animate-fade-in"
-              style="animation-delay: {i * 50}ms;"
+    <!-- Timeline -->
+    {#if Object.keys(groupedActivities).length === 0}
+      <ModernCard variant="glass" padding="large">
+        {#snippet children()}
+          <div class="text-center animate-fade-in">
+            <div class="text-primary-500/30 mb-6">
+              <i class="bi bi-clock-history text-8xl"></i>
+            </div>
+            <h3
+              class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100"
             >
-              <!-- Timeline Icon -->
-              <div
-                class="absolute -left-[2.25rem] top-2 w-10 h-10 rounded-full {colorMap[
-                  config.color
-                ] ||
-                  'bg-primary-500 text-white'} flex items-center justify-center shadow-lg"
-              >
-                <i class="bi bi-{config.icon} text-lg"></i>
-              </div>
+              No Activity Yet
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              File operations will appear here
+            </p>
+          </div>
+        {/snippet}
+      </ModernCard>
+    {:else}
+      {#each Object.entries(groupedActivities) as [dateLabel, activities], groupIndex}
+        <div
+          class="mb-8 animate-slide-up"
+          style="animation-delay: {groupIndex * 100}ms;"
+        >
+          <!-- Date Badge -->
+          <div class="flex items-center gap-3 mb-4">
+            <div class="badge-glass-primary text-base font-bold px-4 py-2">
+              {dateLabel}
+            </div>
+            <div
+              class="flex-1 h-px bg-gradient-to-r from-primary-500/50 to-transparent"
+            ></div>
+          </div>
 
-              <!-- Time Stamp -->
+          <!-- Timeline -->
+          <div class="relative pl-8 border-l-2 border-primary-500/20 space-y-6">
+            {#each activities as act, i}
+              {@const config = typeConfig[act.type] || typeConfig.create}
+              {@const colorMap = {
+                success: "bg-green-500 text-white",
+                info: "bg-blue-500 text-white",
+                error: "bg-red-500 text-white",
+                warning: "bg-yellow-500 text-white",
+                primary: "bg-primary-500 text-white",
+                secondary: "bg-gray-500 text-white",
+                accent: "bg-purple-500 text-white",
+              }}
               <div
-                class="absolute -left-[10.5rem] top-2 text-xs text-gray-500 dark:text-gray-500 text-right w-32 font-mono"
+                class="relative animate-fade-in"
+                style="animation-delay: {i * 50}ms;"
               >
-                {formatTime(act.timestamp)}
-              </div>
+                <!-- Timeline Icon -->
+                <div
+                  class="absolute -left-[2.25rem] top-2 w-10 h-10 rounded-full {colorMap[
+                    config.color
+                  ] ||
+                    'bg-primary-500 text-white'} flex items-center justify-center shadow-lg"
+                >
+                  <i class="bi bi-{config.icon} text-lg"></i>
+                </div>
 
-              <!-- Activity Card -->
-              <ModernCard variant="glass" hoverable class="ml-4">
-                {#snippet children()}
-                  <div class="flex items-start justify-between gap-2">
-                    <div class="flex-1">
-                      <div class="badge-glass-{config.color} mb-2">
-                        <i class="bi bi-{config.icon} mr-1"></i>
-                        {config.label}
-                      </div>
-                      <h3
-                        class="font-bold text-base text-gray-900 dark:text-gray-100"
-                      >
-                        {act.filename}
-                      </h3>
-                      {#if act.path}
-                        <p
-                          class="text-xs font-mono text-gray-500 dark:text-gray-500 mt-1"
+                <!-- Time Stamp -->
+                <div
+                  class="absolute -left-[10.5rem] top-2 text-xs text-gray-500 dark:text-gray-500 text-right w-32 font-mono"
+                >
+                  {formatTime(act.timestamp)}
+                </div>
+
+                <!-- Activity Card -->
+                <ModernCard variant="glass" hoverable class="ml-4">
+                  {#snippet children()}
+                    <div class="flex items-start justify-between gap-2">
+                      <div class="flex-1">
+                        <div class="badge-glass-{config.color} mb-2">
+                          <i class="bi bi-{config.icon} mr-1"></i>
+                          {config.label}
+                        </div>
+                        <h3
+                          class="font-bold text-base text-gray-900 dark:text-gray-100"
                         >
-                          {act.path}
-                        </p>
-                      {/if}
-                      {#if act.details}
-                        <p
-                          class="text-sm text-gray-700 dark:text-gray-300 mt-2"
+                          {act.filename}
+                        </h3>
+                        {#if act.path}
+                          <p
+                            class="text-xs font-mono text-gray-500 dark:text-gray-500 mt-1"
+                          >
+                            {act.path}
+                          </p>
+                        {/if}
+                        {#if act.details}
+                          <p
+                            class="text-sm text-gray-700 dark:text-gray-300 mt-2"
+                          >
+                            {act.details}
+                          </p>
+                        {/if}
+                        <div
+                          class="text-xs text-gray-400 dark:text-gray-600 mt-2 italic"
                         >
-                          {act.details}
-                        </p>
-                      {/if}
-                      <div
-                        class="text-xs text-gray-400 dark:text-gray-600 mt-2 italic"
-                      >
-                        {getRelativeTime(act.timestamp)}
+                          {getRelativeTime(act.timestamp)}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                {/snippet}
-              </ModernCard>
-            </div>
-          {/each}
+                  {/snippet}
+                </ModernCard>
+              </div>
+            {/each}
+          </div>
         </div>
-      </div>
-    {/each}
-  {/if}
+      {/each}
+    {/if}
   </div>
 </PageWrapper>
