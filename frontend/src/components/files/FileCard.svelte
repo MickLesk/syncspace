@@ -10,12 +10,19 @@
     onSelect,
     onOpen,
     onContextMenu,
+    onDragStart,
+    onDragEnd,
+    onDrop,
   } = $props();
 
   let isFavorite = $state(false);
   let favoriteId = $state(null);
   let favoriteLoading = $state(false);
   let folderColor = $state(null);
+
+  // Drag & Drop state
+  let isDragging = $state(false);
+  let isDropTarget = $state(false);
 
   // Get folder color from backend
   async function loadFolderColor() {
@@ -144,12 +151,56 @@
 
     <button
       type="button"
+      draggable="true"
       class="file-card-grid p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg dark:shadow-gray-900/50 text-left w-full transition-all border-2"
       class:border-blue-500={selected}
       class:dark:border-blue-400={selected}
-      class:border-transparent={!selected}
-      class:hover:border-blue-300={!selected}
-      class:dark:hover:border-blue-600={!selected}
+      class:border-transparent={!selected && !isDropTarget}
+      class:hover:border-blue-300={!selected && !isDragging}
+      class:dark:hover:border-blue-600={!selected && !isDragging}
+      class:opacity-50={isDragging}
+      class:border-green-500={isDropTarget}
+      class:bg-green-50={isDropTarget}
+      ondragstart={(e) => {
+        isDragging = true;
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", JSON.stringify(file));
+        onDragStart?.(file, e);
+      }}
+      ondragend={(e) => {
+        isDragging = false;
+        onDragEnd?.(file, e);
+      }}
+      ondragover={(e) => {
+        // Only allow drop on folders
+        if (file.is_directory) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+          isDropTarget = true;
+        }
+      }}
+      ondragleave={(e) => {
+        isDropTarget = false;
+      }}
+      ondrop={(e) => {
+        e.preventDefault();
+        isDropTarget = false;
+
+        // Only allow drop on folders
+        if (!file.is_directory) return;
+
+        try {
+          const draggedFileData = e.dataTransfer.getData("text/plain");
+          const draggedFile = JSON.parse(draggedFileData);
+
+          // Don't allow dropping a folder onto itself
+          if (draggedFile.path === file.path) return;
+
+          onDrop?.(draggedFile, file, e);
+        } catch (err) {
+          console.error("[FileCard] Error handling drop:", err);
+        }
+      }}
       onclick={(e) => {
         if (e.shiftKey || e.ctrlKey) {
           onSelect?.(file);
@@ -207,12 +258,53 @@
   <div class="file-card-wrapper relative hover-lift">
     <button
       type="button"
+      draggable="true"
       class="file-card-list p-3 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md text-left w-full transition-all border-2 flex items-center gap-4"
       class:border-blue-500={selected}
       class:dark:border-blue-400={selected}
-      class:border-transparent={!selected}
-      class:hover:border-blue-300={!selected}
-      class:dark:hover:border-blue-600={!selected}
+      class:border-transparent={!selected && !isDropTarget}
+      class:hover:border-blue-300={!selected && !isDragging}
+      class:dark:hover:border-blue-600={!selected && !isDragging}
+      class:opacity-50={isDragging}
+      class:border-green-500={isDropTarget}
+      class:bg-green-50={isDropTarget}
+      ondragstart={(e) => {
+        isDragging = true;
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", JSON.stringify(file));
+        onDragStart?.(file, e);
+      }}
+      ondragend={(e) => {
+        isDragging = false;
+        onDragEnd?.(file, e);
+      }}
+      ondragover={(e) => {
+        if (file.is_directory) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+          isDropTarget = true;
+        }
+      }}
+      ondragleave={(e) => {
+        isDropTarget = false;
+      }}
+      ondrop={(e) => {
+        e.preventDefault();
+        isDropTarget = false;
+
+        if (!file.is_directory) return;
+
+        try {
+          const draggedFileData = e.dataTransfer.getData("text/plain");
+          const draggedFile = JSON.parse(draggedFileData);
+
+          if (draggedFile.path === file.path) return;
+
+          onDrop?.(draggedFile, file, e);
+        } catch (err) {
+          console.error("[FileCard] Error handling drop:", err);
+        }
+      }}
       onclick={(e) => {
         if (e.shiftKey || e.ctrlKey) {
           onSelect?.(file);

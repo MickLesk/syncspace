@@ -7,6 +7,7 @@
    */
   import { modals, modalEvents } from "../../stores/modals.js";
   import { currentPath } from "../../stores/ui.js";
+  import api from "../../lib/api.js";
 
   // Modal Components
   import Modal from "../ui/Modal.svelte";
@@ -19,6 +20,11 @@
   let folderColor = $state("#3B82F6"); // Default to first color
   let randomButtonColor = $state("#3B82F6"); // Random button's own generated color
   let customColor = $state("#3B82F6"); // Custom picker's color
+
+  // Move Modal State
+  let selectedDestinationPath = $state("");
+  let folderFilter = $state("");
+  let allFolders = $state([]);
 
   // 8 fixed colors with good variety (total 10 with Random + Custom)
   const folderColors = [
@@ -41,6 +47,46 @@
     randomButtonColor = randomHex;
     folderColor = randomHex;
   }
+
+  // Filtered folders for Move Modal (excludes source file/folder and descendants)
+  const availableFolders = $derived.by(() => {
+    let filtered = allFolders.filter((folder) => {
+      // Filter by search term
+      if (
+        folderFilter &&
+        !folder.name.toLowerCase().includes(folderFilter.toLowerCase()) &&
+        !folder.path.toLowerCase().includes(folderFilter.toLowerCase())
+      ) {
+        return false;
+      }
+
+      // Exclude the file/folder being moved
+      if ($modals.move.data) {
+        const sourcePath =
+          $modals.move.data.path ||
+          $modals.move.data.file_path ||
+          $modals.move.data.name;
+
+        // Don't allow moving into itself
+        if (folder.path === sourcePath) {
+          return false;
+        }
+
+        // Don't allow moving folder into its own descendants
+        if (
+          $modals.move.data.is_directory &&
+          folder.path.startsWith(sourcePath + "/")
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    // Sort alphabetically
+    return filtered.sort((a, b) => a.path.localeCompare(b.path));
+  });
 
   // Initialize on New Folder modal open
   $effect(() => {
@@ -79,6 +125,58 @@
       }
     }
   });
+
+  // Load all folders when Move Modal opens
+  $effect(() => {
+    if ($modals.move.visible) {
+      loadAllFolders();
+    }
+  });
+
+  // Recursively load all folders from the file system
+  async function loadAllFolders() {
+    const folders = [];
+    const savedColors = JSON.parse(
+      localStorage.getItem("folderColors") || "{}"
+    );
+
+    // Helper function to recursively scan directories
+    async function scanDirectory(path = "") {
+      try {
+        const response = await api.files.list(path);
+        const files = response.files || [];
+
+        for (const file of files) {
+          if (file.is_directory) {
+            const folderPath =
+              file.path ||
+              file.file_path ||
+              (path ? `${path}/${file.name}` : file.name);
+            folders.push({
+              name: file.name,
+              path: folderPath,
+              color: savedColors[folderPath] || null,
+            });
+
+            // Recursively scan subdirectories
+            await scanDirectory(folderPath);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading folders:", error);
+      }
+    }
+
+    // Add root directory
+    folders.push({
+      name: "/ (Root)",
+      path: "",
+      color: null,
+    });
+
+    await scanDirectory("");
+    allFolders = folders;
+  }
 </script>
 
 <!-- Upload Modal -->
@@ -514,38 +612,113 @@
     <p class="text-gray-700 dark:text-gray-300">
       Move <strong>{$modals.move.data?.name}</strong> to:
     </p>
+
+    <!-- Folder Selection -->
     <div>
       <label
-        for="move-destination"
         class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
       >
-        Destination Path
+        Select Destination Folder
       </label>
-      <input
-        id="move-destination"
-        type="text"
-        placeholder="/path/to/destination"
-        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-      />
+
+      <!-- Filter Input -->
+      <div class="relative mb-2">
+        <i
+          class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+        ></i>
+        <input
+          type="text"
+          bind:value={folderFilter}
+          placeholder="Filter folders..."
+          class="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+        />
+      </div>
+
+      <!-- Folder List -->
+      <div
+        class="max-h-60 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900"
+      >
+        {#if availableFolders.length === 0}
+          <div class="p-4 text-center text-gray-500 dark:text-gray-400">
+            <i class="bi bi-folder-x text-2xl mb-2"></i>
+            <p class="text-sm">No folders available</p>
+          </div>
+        {:else}
+          {#each availableFolders as folder}
+            <button
+              type="button"
+              class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 last:border-0"
+              class:bg-primary-50={selectedDestinationPath === folder.path}
+              class:dark:bg-primary-900={selectedDestinationPath ===
+                folder.path}
+              class:text-primary-700={selectedDestinationPath === folder.path}
+              class:dark:text-primary-300={selectedDestinationPath ===
+                folder.path}
+              onclick={() => (selectedDestinationPath = folder.path)}
+            >
+              <i
+                class="bi bi-folder-fill text-xl"
+                style={folder.color ? `color: ${folder.color}` : ""}
+              ></i>
+              <span class="flex-1 truncate">{folder.name}</span>
+              <span
+                class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]"
+              >
+                {folder.path}
+              </span>
+            </button>
+          {/each}
+        {/if}
+      </div>
+
+      <!-- Selected Path Display -->
+      {#if selectedDestinationPath}
+        <div
+          class="mt-2 p-3 bg-primary-50 dark:bg-primary-900/30 rounded-lg border border-primary-200 dark:border-primary-800"
+        >
+          <div
+            class="text-xs font-medium text-primary-700 dark:text-primary-300 mb-1"
+          >
+            Selected Destination
+          </div>
+          <div class="text-sm font-mono text-gray-900 dark:text-gray-100">
+            {selectedDestinationPath}
+          </div>
+        </div>
+      {/if}
     </div>
-    <div class="flex justify-end gap-2">
+
+    <!-- Action Buttons -->
+    <div class="flex justify-end gap-2 pt-2">
       <button
         type="button"
-        class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-        onclick={() => modals.close("move")}
+        class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+        onclick={() => {
+          selectedDestinationPath = "";
+          folderFilter = "";
+          modals.close("move");
+        }}
       >
         Cancel
       </button>
       <button
         type="button"
-        class="px-4 py-2 bg-primary-500 text-white rounded font-medium"
+        class="px-4 py-2 bg-primary-500 text-white rounded-lg font-medium hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         onclick={() => {
-          console.log("Move file:", $modals.move.data);
-          modals.close("move");
+          if (selectedDestinationPath) {
+            modalEvents.emit("moveFile", {
+              file: $modals.move.data,
+              destinationPath: selectedDestinationPath,
+            });
+            selectedDestinationPath = "";
+            folderFilter = "";
+            modals.close("move");
+          }
         }}
+        disabled={!selectedDestinationPath}
       >
         <i class="bi bi-arrow-right"></i>
-        Move
+        Move Here
       </button>
     </div>
   </div>

@@ -159,7 +159,6 @@
   });
 
   let unsubscribeFileEvent;
-  let ignorePopstate = false;
   let handlePopstateRef = null;
   let preferencesLoaded = $state(false);
 
@@ -202,15 +201,20 @@
 
     // Handle browser back/forward navigation
     handlePopstateRef = () => {
-      if (ignorePopstate) {
-        ignorePopstate = false;
-        return;
-      }
       const urlPath =
-        window.location.hash.replace("#/files", "").replace("#", "") || "/";
+        window.location.hash
+          .replace("#/files/", "")
+          .replace("#/files", "")
+          .replace("#", "") || "/";
       console.log("[FilesView] Popstate triggered, navigating to:", urlPath);
-      currentPath.set(urlPath);
+
+      // Update currentPath store
+      const cleanPath = urlPath.replace(/^\/+|\/+$/g, "");
+      currentPath.set(cleanPath ? `/${cleanPath}` : "/");
+
+      // Load files for the new path
       loadFiles(urlPath);
+      selectedFiles = new Set();
     };
 
     window.addEventListener("keydown", handleKeydown);
@@ -257,6 +261,31 @@
         }
       }
     );
+    const unsubMove = modalEvents.on(
+      "moveFile",
+      async ({ file, destinationPath }) => {
+        console.log("[FilesView] Moving file:", {
+          file_path: file.path || file.file_path || file.name,
+          destination: destinationPath,
+        });
+
+        try {
+          const sourcePath = file.path || file.file_path || file.name;
+          const destPath = destinationPath
+            ? `${destinationPath}/${file.name}`
+            : file.name;
+
+          await api.files.move(sourcePath, destPath);
+          success(`Moved ${file.name} to ${destinationPath || "root"}`);
+
+          // Refresh the file list
+          await loadFiles();
+        } catch (err) {
+          console.error("[FilesView] Failed to move file:", err);
+          errorToast(err.message || "Failed to move file");
+        }
+      }
+    );
 
     // FilePreview event handlers
     const handleRenameFromPreview = (e) => {
@@ -292,6 +321,7 @@
       unsubDelete();
       unsubSearch();
       unsubChangeFolderColor();
+      unsubMove();
       window.removeEventListener("renameFile", handleRenameFromPreview);
       window.removeEventListener("copyFile", handleCopyFromPreview);
       window.removeEventListener(
@@ -330,14 +360,16 @@
         : pathOrEvent?.path || pathOrEvent?.detail?.path || "/";
 
     // Update browser history for back/forward navigation
-    const cleanPath = path.replace(/^\/+/, ""); // Remove leading slashes
+    const cleanPath = path.replace(/^\/+|\/+$/g, ""); // Remove leading/trailing slashes
     const newHash = cleanPath ? `#/files/${cleanPath}` : "#/files";
 
-    // Update URL without triggering popstate
+    // Update URL and add to history (allows browser back/forward)
     if (window.location.hash !== newHash) {
-      ignorePopstate = true;
-      window.history.pushState(null, "", newHash);
+      window.history.pushState({ path: cleanPath }, "", newHash);
     }
+
+    // Update currentPath store
+    currentPath.set(cleanPath ? `/${cleanPath}` : "/");
 
     loadFiles(path);
     selectedFiles = new Set();
@@ -570,6 +602,77 @@
     await loadFiles();
   }
 
+  // Drag & Drop Handler
+  // Handle drop on breadcrumb items
+  async function handleBreadcrumbDrop(draggedFile, destinationPath) {
+    try {
+      console.log(
+        "[FilesView] Dropping file on breadcrumb:",
+        draggedFile.name,
+        "to",
+        destinationPath
+      );
+
+      // Build source path
+      const sourcePath =
+        draggedFile.path || draggedFile.file_path || draggedFile.name;
+
+      // Build destination path
+      const cleanDestPath = destinationPath.replace(/^\/+|\/+$/g, "");
+      const destPath = cleanDestPath
+        ? `${cleanDestPath}/${draggedFile.name}`
+        : draggedFile.name;
+
+      console.log("[FilesView] Moving:", sourcePath, "to", destPath);
+
+      // Call backend move API
+      await api.files.move(sourcePath, destPath);
+      success(`Moved ${draggedFile.name} to ${destinationPath || "root"}`);
+
+      // Refresh file list
+      await loadFiles();
+    } catch (err) {
+      console.error("[FilesView] Failed to move file:", err);
+      errorToast(err.message || "Failed to move file");
+    }
+  }
+
+  async function handleFileDrop(draggedFile, targetFolder) {
+    try {
+      console.log(
+        "[FilesView] Dropping file:",
+        draggedFile.name,
+        "into",
+        targetFolder.name
+      );
+
+      // Get current path components
+      const currentDir = $currentPath.replace(/^\/+|\/+$/g, "");
+
+      // Build source path
+      const sourcePath =
+        draggedFile.path || draggedFile.file_path || draggedFile.name;
+
+      // Build destination path (inside target folder)
+      const targetFolderPath =
+        targetFolder.path || targetFolder.file_path || targetFolder.name;
+      const destPath = targetFolderPath
+        ? `${targetFolderPath}/${draggedFile.name}`
+        : draggedFile.name;
+
+      console.log("[FilesView] Moving:", sourcePath, "to", destPath);
+
+      // Call backend move API
+      await api.files.move(sourcePath, destPath);
+
+      success(`Moved ${draggedFile.name} to ${targetFolder.name}`);
+      await loadFiles();
+    } catch (err) {
+      console.error("[FilesView] Failed to move file:", err);
+      errorToast(`Failed to move ${draggedFile.name}`);
+    }
+  }
+
   async function downloadFile(file) {
     const filePath = file.file_path || file.path || file.name;
     const encodedPath = filePath
@@ -697,14 +800,6 @@
 
 <PageWrapper>
   <div class="p-4 md:p-6">
-    <!-- Header with Breadcrumbs -->
-    <div class="mb-4">
-      <Breadcrumbs
-        path={isSearchMode ? "/Search Results" : $currentPath}
-        on:navigate={(e) => navigateTo(e.detail)}
-      />
-    </div>
-
     <!-- Search Mode Banner -->
     {#if isSearchMode}
       <div
@@ -773,6 +868,19 @@
       onBatchDelete={batchDelete}
     />
 
+    <!-- Breadcrumbs (below toolbar) -->
+    {#if !isSearchMode}
+      <div
+        class="mb-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 px-2"
+      >
+        <Breadcrumbs
+          path={$currentPath}
+          on:navigate={(e) => navigateTo(e.detail.path)}
+          onDrop={handleBreadcrumbDrop}
+        />
+      </div>
+    {/if}
+
     <!-- Upload Progress -->
     {#if uploadProgress.length > 0}
       <div class="mb-4">
@@ -818,6 +926,8 @@
             onSelect={() => handleFileSelection(file)}
             onOpen={() => openFile(file)}
             onContextMenu={(f, e) => handleContextMenu(f, e)}
+            onDrop={(draggedFile, targetFolder) =>
+              handleFileDrop(draggedFile, targetFolder)}
           />
         {/each}
       </div>
