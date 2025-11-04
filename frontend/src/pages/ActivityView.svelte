@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { activity } from "../stores/activity";
   import { error as errorToast } from "../stores/toast";
   import PageWrapper from "../components/PageWrapper.svelte";
@@ -41,11 +41,22 @@
   };
 
   onMount(async () => {
+    // Initialize WebSocket for real-time updates
+    activity.init();
+
+    // Load initial activities
     await activity.load({ limit: 100 });
+
+    // Clean up old localStorage key
     const oldKey = "syncspace_activity";
     if (localStorage.getItem(oldKey)) {
       localStorage.removeItem(oldKey);
     }
+  });
+
+  onDestroy(() => {
+    // Disconnect WebSocket when component unmounts
+    activity.disconnect();
   });
 
   function filterActivities(activities, filter, search) {

@@ -22,12 +22,38 @@
       // trashCount = await api.trash.count();
       trashCount = 5; // Placeholder
 
-      // Notifications (simulated)
-      notificationCount = 3; // Placeholder
+      // Activity count from backend stats
+      const activityStats = await fetchActivityStats();
+      notificationCount = activityStats?.today || 0;
+
+      // Update activity count periodically (every 30 seconds)
+      setInterval(async () => {
+        const stats = await fetchActivityStats();
+        notificationCount = stats?.today || 0;
+      }, 30000);
     } catch (error) {
       console.error("Failed to load badge counts:", error);
     }
   });
+
+  // Fetch activity statistics
+  async function fetchActivityStats() {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) return null;
+
+      const response = await fetch("http://localhost:8080/api/activity/stats", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (e) {
+      console.error("Failed to fetch activity stats:", e);
+    }
+    return null;
+  }
 
   // Navigation items - Storage & Backup sind jetzt in Settings-Tabs
   let navItems = $derived([

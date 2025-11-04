@@ -25,73 +25,181 @@ function getToken() {
 function createActivityStore() {
   const { subscribe, set, update } = writable([]);
   const loading = writable(false);
+  let websocket = null;
+  let reconnectTimeout = null;
 
   // Icon mapping for display
   const icons = {
     created: '⬆️',
+    upload: '⬆️',
     uploaded: '⬆️',
     downloaded: '⬇️',
+    download: '⬇️',
     deleted: '🗑️',
+    delete: '🗑️',
     renamed: '✏️',
+    rename: '✏️',
     moved: '📦',
+    move: '📦',
+    copy: '📋',
+    create: '📁',
     shared: '🔗'
   };
+
+  // Connect to WebSocket for real-time updates
+  function connectWebSocket() {
+    if (websocket) return;
+    
+    try {
+      websocket = new WebSocket('ws://localhost:8080/api/ws');
+      
+      websocket.onopen = () => {
+        console.log('[Activity] WebSocket connected for real-time updates');
+      };
+      
+      websocket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          
+          // Reload activities when file operations occur
+          if (data.path && data.kind) {
+            console.log('[Activity] File operation detected, reloading...', data);
+            // Reload activities after a short delay to ensure DB write completed
+            setTimeout(() => {
+              loadActivities({ limit: 100 });
+            }, 500);
+          }
+        } catch (e) {
+          console.error('[Activity] WebSocket message parse error:', e);
+        }
+      };
+      
+      websocket.onerror = (error) => {
+        console.error('[Activity] WebSocket error:', error);
+      };
+      
+      websocket.onclose = () => {
+        console.log('[Activity] WebSocket disconnected, reconnecting in 5s...');
+        websocket = null;
+        
+        // Auto-reconnect after 5 seconds
+        reconnectTimeout = setTimeout(() => {
+          connectWebSocket();
+        }, 5000);
+      };
+    } catch (e) {
+      console.error('[Activity] WebSocket connection failed:', e);
+    }
+  }
+  
+  // Load activities function (can be called externally or internally)
+  async function loadActivities(params = {}) {
+    loading.set(true);
+    
+    try {
+      const token = getToken();
+      if (!token) {
+        console.warn('Not authenticated - cannot load activities');
+        set([]);
+        loading.set(false);
+        return;
+      }
+      
+      const queryParams = new URLSearchParams();
+      if (params.limit) queryParams.set('limit', params.limit.toString());
+      if (params.offset) queryParams.set('offset', params.offset.toString());
+      if (params.action) queryParams.set('action', params.action);
+      
+      const url = `http://localhost:8080/api/activity?${queryParams.toString()}`;
+      
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const activities = await response.json();
+        
+        // Transform to frontend format with rich details
+        const transformed = activities.map(a => {
+          let details = a.error_message || '';
+          
+          // Generate detailed descriptions for rename/move operations
+          if ((a.action === 'rename' || a.action === 'move') && a.old_path) {
+            const oldName = a.old_path.split('/').pop() || a.old_path;
+            const newName = a.file_name;
+            
+            if (a.action === 'rename') {
+              details = `Renamed from "${oldName}" to "${newName}"`;
+            } else {
+              const oldDir = a.old_path.substring(0, a.old_path.lastIndexOf('/')) || '/';
+              const newDir = a.file_path.substring(0, a.file_path.lastIndexOf('/')) || '/';
+              details = `Moved from "${oldDir}" to "${newDir}"`;
+            }
+          } else if (a.action === 'copy' && a.old_path) {
+            details = `Copied from "${a.old_path}"`;
+          } else if (a.action === 'upload') {
+            const sizeKB = a.file_size ? Math.round(a.file_size / 1024) : 0;
+            details = `Uploaded (${sizeKB} KB)`;
+          } else if (a.action === 'download') {
+            details = `Downloaded`;
+          } else if (a.action === 'delete') {
+            details = `Deleted permanently`;
+          } else if (a.action === 'create') {
+            details = `Created new folder`;
+          }
+          
+          return {
+            ...a,
+            type: a.action,
+            filename: a.file_name || a.file_path.split('/').pop() || a.file_path,
+            path: a.file_path,
+            timestamp: new Date(a.created_at).getTime(),
+            details: details,
+            icon: icons[a.action] || '📄'
+          };
+        });
+        
+        set(transformed);
+      } else {
+        console.error('Failed to load activities:', response.status);
+        set([]);
+      }
+    } catch (err) {
+      console.error('Failed to load activities from API:', err);
+      set([]);
+    } finally {
+      loading.set(false);
+    }
+  }
 
   return {
     subscribe,
     
     /**
-     * Load activities from backend API
+     * Initialize WebSocket connection for real-time updates
      */
-    load: async (params = {}) => {
-      loading.set(true);
-      
-      try {
-        const token = getToken();
-        if (!token) {
-          console.warn('Not authenticated - cannot load activities');
-          set([]);
-          loading.set(false);
-          return;
-        }
-        
-        const queryParams = new URLSearchParams();
-        if (params.limit) queryParams.set('limit', params.limit.toString());
-        if (params.offset) queryParams.set('offset', params.offset.toString());
-        if (params.action) queryParams.set('action', params.action);
-        
-        const url = `http://localhost:8080/api/activity?${queryParams.toString()}`;
-        
-        const response = await fetch(url, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        if (response.ok) {
-          const activities = await response.json();
-          
-          // Transform to frontend format
-          const transformed = activities.map(a => ({
-            ...a,
-            type: a.action,
-            filename: a.file_path.split('/').pop() || a.file_path,
-            path: a.file_path,
-            timestamp: new Date(a.created_at).getTime(),
-            details: a.error_message || '',
-            icon: icons[a.action] || '📄'
-          }));
-          
-          set(transformed);
-        } else {
-          console.error('Failed to load activities:', response.status);
-          set([]);
-        }
-      } catch (err) {
-        console.error('Failed to load activities from API:', err);
-        set([]);
-      } finally {
-        loading.set(false);
+    init: () => {
+      connectWebSocket();
+    },
+    
+    /**
+     * Disconnect WebSocket
+     */
+    disconnect: () => {
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+        reconnectTimeout = null;
+      }
+      if (websocket) {
+        websocket.close();
+        websocket = null;
       }
     },
+    
+    /**
+     * Load activities from backend API
+     */
+    load: loadActivities,
     
     /**
      * Get activity statistics from backend
