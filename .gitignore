@@ -31,6 +31,8 @@ backend/*.d
 **/dep-bin-syncbackend
 
 # Node.js / Frontend
+node_modules/
+**/node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/build/
@@ -38,6 +40,9 @@ frontend/.vite/
 frontend/package-lock.json
 frontend/yarn.lock
 frontend/pnpm-lock.yaml
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
 # Vite build artifacts
 frontend/dist-ssr/
