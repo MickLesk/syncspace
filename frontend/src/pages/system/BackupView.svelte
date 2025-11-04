@@ -164,7 +164,7 @@
         <ModernButton
           variant={activeTab === "backups" ? "primary" : "ghost"}
           onclick={() => (activeTab = "backups")}
-          class="flex-1"
+          class="flex-1 hover-lift"
         >
           <i class="bi bi-archive mr-2"></i>
           Backups
@@ -173,7 +173,7 @@
         <ModernButton
           variant={activeTab === "schedules" ? "primary" : "ghost"}
           onclick={() => (activeTab = "schedules")}
-          class="flex-1"
+          class="flex-1 hover-lift"
         >
           <i class="bi bi-clock-history mr-2"></i>
           Schedules
@@ -182,7 +182,7 @@
         <ModernButton
           variant={activeTab === "export" ? "primary" : "ghost"}
           onclick={() => (activeTab = "export")}
-          class="flex-1"
+          class="flex-1 hover-lift"
         >
           <i class="bi bi-cloud-arrow-down mr-2"></i>
           Export/Import
