@@ -3,6 +3,27 @@
   import { getFileIcon, getFileIconColor } from "../../utils/fileIcons";
   import api from "../../lib/api";
   import { success, error as errorToast } from "../../stores/toast";
+  import * as XLSX from "xlsx";
+  import mammoth from "mammoth";
+  import Prism from "prismjs";
+
+  // Import Prism languages
+  import "prismjs/components/prism-javascript";
+  import "prismjs/components/prism-typescript";
+  import "prismjs/components/prism-json";
+  import "prismjs/components/prism-python";
+  import "prismjs/components/prism-java";
+  import "prismjs/components/prism-c";
+  import "prismjs/components/prism-cpp";
+  import "prismjs/components/prism-rust";
+  import "prismjs/components/prism-go";
+  import "prismjs/components/prism-bash";
+  import "prismjs/components/prism-yaml";
+  import "prismjs/components/prism-css";
+  import "prismjs/components/prism-markup"; // HTML/XML
+
+  // Import Prism theme
+  import "prismjs/themes/prism-tomorrow.css";
 
   let {
     file = $bindable(null),
@@ -19,6 +40,10 @@
   let activeMetadataTab = $state("details");
   let showMetadata = $state(false);
   let isFullscreen = $state(false);
+  let excelData = $state(null);
+  let activeSheet = $state(0);
+  let nutrientContainer = $state(null);
+  let nutrientInstance = $state(null);
 
   // Comments & Tags State
   let comments = $state([]);
@@ -81,11 +106,90 @@
           "sh",
           "yaml",
           "yml",
+          "jsx",
+          "tsx",
+          "vue",
+          "svelte",
         ].includes(ext)
       ) {
-        previewType = "text";
+        previewType = "code";
         const text = await blob.text();
-        previewUrl = text.substring(0, 50000);
+        let truncatedText = text.substring(0, 50000);
+
+        // Detect language for syntax highlighting
+        const languageMap = {
+          js: "javascript",
+          jsx: "javascript",
+          ts: "typescript",
+          tsx: "typescript",
+          json: "json",
+          py: "python",
+          java: "java",
+          c: "c",
+          cpp: "cpp",
+          rs: "rust",
+          go: "go",
+          sh: "bash",
+          yaml: "yaml",
+          yml: "yaml",
+          css: "css",
+          html: "markup",
+          xml: "markup",
+          svg: "markup",
+          vue: "markup",
+          svelte: "markup",
+          md: "markdown",
+          txt: "plaintext",
+          log: "plaintext",
+          csv: "plaintext",
+        };
+
+        const language = languageMap[ext] || "plaintext";
+
+        // Format JSON with proper indentation
+        if (ext === "json") {
+          try {
+            const jsonObj = JSON.parse(truncatedText);
+            truncatedText = JSON.stringify(jsonObj, null, 2);
+          } catch (e) {
+            // If parsing fails, use original text
+            console.warn("Failed to parse JSON:", e);
+          }
+        }
+
+        // Apply syntax highlighting
+        if (language !== "plaintext" && Prism.languages[language]) {
+          previewUrl = Prism.highlight(
+            truncatedText,
+            Prism.languages[language],
+            language
+          );
+        } else {
+          previewUrl = truncatedText;
+        }
+      } else if (["xlsx", "xls", "xlsm", "xlsb", "ods"].includes(ext)) {
+        // Excel files with Sheet.js
+        previewType = "excel";
+        const arrayBuffer = await blob.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: "array" });
+
+        excelData = {
+          workbook: workbook,
+          sheetNames: workbook.SheetNames,
+        };
+        activeSheet = 0; // Reset to first sheet
+        renderExcelSheet(0);
+        previewUrl = "excel-rendered";
+      } else if (["docx", "doc"].includes(ext)) {
+        // Word files with Mammoth.js
+        previewType = "word";
+        const arrayBuffer = await blob.arrayBuffer();
+        const result = await mammoth.convertToHtml({ arrayBuffer });
+        previewUrl = result.value; // HTML string
+      } else if (["pptx", "ppt"].includes(ext)) {
+        // PowerPoint files with Microsoft Office Viewer
+        previewType = "office-viewer";
+        previewUrl = URL.createObjectURL(blob);
       } else {
         previewType = "unsupported";
       }
@@ -94,6 +198,39 @@
       error = err.message || "Failed to load preview";
     } finally {
       loading = false;
+    }
+  }
+
+  function renderExcelSheet(sheetIndex) {
+    if (!excelData || !excelData.workbook) return;
+
+    const sheetName = excelData.sheetNames[sheetIndex];
+    const sheet = excelData.workbook.Sheets[sheetName];
+    const htmlTable = XLSX.utils.sheet_to_html(sheet, {
+      id: "excel-table",
+      editable: false,
+    });
+
+    excelData = {
+      ...excelData,
+      html: htmlTable,
+      currentSheet: sheetName,
+    };
+    activeSheet = sheetIndex;
+  }
+
+  function switchSheet(index) {
+    renderExcelSheet(index);
+  }
+
+  async function copyToClipboard(text) {
+    try {
+      // Remove HTML tags for plain text copy
+      const plainText = text.replace(/<[^>]*>/g, "");
+      await navigator.clipboard.writeText(plainText);
+      success("Code copied to clipboard!");
+    } catch (err) {
+      errorToast("Failed to copy code");
     }
   }
 
@@ -205,7 +342,15 @@
   }
 
   onDestroy(() => {
-    if (previewUrl && previewType !== "text") URL.revokeObjectURL(previewUrl);
+    if (
+      previewUrl &&
+      !["text", "excel", "word", "excel-rendered"].includes(previewType)
+    ) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    if (nutrientInstance) {
+      nutrientInstance.unload(nutrientContainer);
+    }
   });
 </script>
 
@@ -361,9 +506,100 @@
             <iframe src={previewUrl} title={file.name} class="preview-pdf"
             ></iframe>
           </div>
-        {:else if previewType === "text"}
-          <div class="preview-text-container">
-            <pre class="preview-text"><code>{previewUrl}</code></pre>
+        {:else if previewType === "code"}
+          <div class="preview-code-container">
+            <div class="code-header">
+              <div class="code-language">
+                <i class="bi bi-code-slash"></i>
+                <span
+                  >{file.name.split(".").pop()?.toUpperCase() || "TEXT"}</span
+                >
+              </div>
+              <div class="code-actions">
+                <button
+                  class="code-action-btn"
+                  onclick={() => copyToClipboard(previewUrl)}
+                  title="Copy Code"
+                >
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <pre class="preview-code"><code
+                class="language-{file.name.split('.').pop()?.toLowerCase()}"
+                >{@html previewUrl}</code
+              ></pre>
+          </div>
+        {:else if previewType === "excel"}
+          <div class="preview-excel-container">
+            {#if excelData}
+              <div class="excel-content">
+                {@html excelData.html}
+              </div>
+            {/if}
+
+            <!-- Sheet Tabs at Bottom (like Excel) -->
+            {#if excelData && excelData.sheetNames.length > 0}
+              <div class="excel-sheet-bar">
+                <div class="sheet-navigation">
+                  <button
+                    class="nav-arrow"
+                    disabled={activeSheet === 0}
+                    onclick={() => switchSheet(activeSheet - 1)}
+                    title="Previous Sheet"
+                  >
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                  <button
+                    class="nav-arrow"
+                    disabled={activeSheet === excelData.sheetNames.length - 1}
+                    onclick={() => switchSheet(activeSheet + 1)}
+                    title="Next Sheet"
+                  >
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </div>
+                <div class="excel-sheet-tabs">
+                  {#each excelData.sheetNames as sheetName, index}
+                    <button
+                      class="sheet-tab {activeSheet === index ? 'active' : ''}"
+                      onclick={() => switchSheet(index)}
+                      title={sheetName}
+                    >
+                      <i class="bi bi-file-earmark-spreadsheet"></i>
+                      {sheetName}
+                    </button>
+                  {/each}
+                </div>
+                <div class="sheet-info">
+                  Sheet {activeSheet + 1} of {excelData.sheetNames.length}
+                </div>
+              </div>
+            {/if}
+          </div>
+        {:else if previewType === "word"}
+          <div class="preview-word-container">
+            <div class="word-toolbar">
+              <i class="bi bi-file-earmark-word text-2xl text-blue-600"></i>
+              <span class="font-semibold">Word Document</span>
+            </div>
+            <div class="word-content">
+              {@html previewUrl}
+            </div>
+          </div>
+        {:else if previewType === "office-viewer"}
+          <div class="preview-office-container">
+            <div class="office-toolbar">
+              <i class="bi bi-file-earmark-slides text-2xl text-orange-600"></i>
+              <span class="font-semibold">PowerPoint Presentation</span>
+            </div>
+            <iframe
+              src="https://view.officeapps.live.com/op/embed.aspx?src={encodeURIComponent(
+                previewUrl
+              )}"
+              class="office-iframe"
+              title={file.name}
+            ></iframe>
           </div>
         {:else}
           <div class="preview-unsupported">
@@ -837,23 +1073,427 @@
     border-radius: 0.5rem;
   }
 
-  .preview-text-container {
+  /* Code Preview with Syntax Highlighting */
+  .preview-code-container {
     width: 100%;
     height: 100%;
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #2d2d2d;
   }
 
-  .preview-text {
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+    background: #1e1e1e;
+    border-bottom: 1px solid #3d3d3d;
+  }
+
+  .code-language {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #569cd6;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .code-language i {
+    font-size: 1.125rem;
+  }
+
+  .code-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .code-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: 1px solid #3d3d3d;
+    border-radius: 0.25rem;
+    color: #cccccc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .code-action-btn:hover {
+    background: #3d3d3d;
+    border-color: #569cd6;
+    color: #569cd6;
+  }
+
+  .preview-code {
     margin: 0;
     padding: 1.5rem;
-    background: var(--md-sys-color-surface-container);
-    border-radius: 0.5rem;
+    flex: 1;
+    overflow: auto;
+    background: #1e1e1e;
     font-family: "Consolas", "Monaco", "Courier New", monospace;
     font-size: 0.875rem;
     line-height: 1.6;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+    color: #d4d4d4;
+  }
+
+  .preview-code code {
+    background: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    display: block;
+  }
+
+  /* Prism theme overrides for better dark mode */
+  .preview-code :global(.token.comment),
+  .preview-code :global(.token.prolog),
+  .preview-code :global(.token.doctype),
+  .preview-code :global(.token.cdata) {
+    color: #6a9955;
+  }
+
+  .preview-code :global(.token.punctuation) {
+    color: #d4d4d4;
+  }
+
+  .preview-code :global(.token.property),
+  .preview-code :global(.token.tag),
+  .preview-code :global(.token.boolean),
+  .preview-code :global(.token.number),
+  .preview-code :global(.token.constant),
+  .preview-code :global(.token.symbol),
+  .preview-code :global(.token.deleted) {
+    color: #b5cea8;
+  }
+
+  .preview-code :global(.token.selector),
+  .preview-code :global(.token.attr-name),
+  .preview-code :global(.token.string),
+  .preview-code :global(.token.char),
+  .preview-code :global(.token.builtin),
+  .preview-code :global(.token.inserted) {
+    color: #ce9178;
+  }
+
+  .preview-code :global(.token.operator),
+  .preview-code :global(.token.entity),
+  .preview-code :global(.token.url),
+  .preview-code :global(.language-css .token.string),
+  .preview-code :global(.style .token.string) {
+    color: #d4d4d4;
+  }
+
+  .preview-code :global(.token.atrule),
+  .preview-code :global(.token.attr-value),
+  .preview-code :global(.token.keyword) {
+    color: #569cd6;
+  }
+
+  .preview-code :global(.token.function),
+  .preview-code :global(.token.class-name) {
+    color: #dcdcaa;
+  }
+
+  .preview-code :global(.token.regex),
+  .preview-code :global(.token.important),
+  .preview-code :global(.token.variable) {
+    color: #9cdcfe;
+  }
+
+  /* Excel Preview */
+  .preview-excel-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Excel Sheet Bar (Bottom) */
+  .excel-sheet-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--md-sys-color-surface-container-low);
+    border-top: 1px solid var(--md-sys-color-outline-variant);
+    min-height: 48px;
+  }
+
+  .sheet-navigation {
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  .nav-arrow {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: 0.25rem;
+    color: var(--md-sys-color-on-surface-variant);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .nav-arrow:hover:not(:disabled) {
+    background: var(--md-sys-color-surface-container-high);
+    border-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-primary);
+  }
+
+  .nav-arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .excel-sheet-tabs {
+    display: flex;
+    gap: 0.125rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex: 1;
+    padding: 0 0.25rem;
+    /* Custom scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: var(--md-sys-color-outline-variant) transparent;
+  }
+
+  .excel-sheet-tabs::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .excel-sheet-tabs::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .excel-sheet-tabs::-webkit-scrollbar-thumb {
+    background: var(--md-sys-color-outline-variant);
+    border-radius: 3px;
+  }
+
+  .excel-sheet-tabs::-webkit-scrollbar-thumb:hover {
+    background: var(--md-sys-color-outline);
+  }
+
+  .sheet-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.875rem;
+    background: var(--md-sys-color-surface);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: 0.375rem;
+    font-size: 0.8125rem;
+    color: var(--md-sys-color-on-surface-variant);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+
+  .sheet-tab i {
+    font-size: 0.875rem;
+    opacity: 0.7;
+  }
+
+  .sheet-tab:hover {
+    background: var(--md-sys-color-surface-container-highest);
+    border-color: var(--md-sys-color-primary);
     color: var(--md-sys-color-on-surface);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .sheet-tab:hover i {
+    opacity: 1;
+  }
+
+  .sheet-tab.active {
+    background: linear-gradient(
+      135deg,
+      var(--md-sys-color-primary),
+      var(--md-sys-color-tertiary)
+    );
+    border-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(103, 80, 164, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .sheet-tab.active i {
+    opacity: 1;
+  }
+
+  .sheet-tab.active:hover {
+    background: linear-gradient(
+      135deg,
+      var(--md-sys-color-primary),
+      var(--md-sys-color-secondary)
+    );
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(103, 80, 164, 0.5);
+  }
+
+  .sheet-info {
+    display: flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    background: var(--md-sys-color-surface-container);
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--md-sys-color-on-surface-variant);
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+
+  .excel-content {
+    flex: 1;
+    overflow: auto;
+    padding: 1rem;
+    background: var(--md-sys-color-surface);
+  }
+
+  .excel-content :global(table) {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.875rem;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: #000 !important;
+  }
+
+  .excel-content :global(th),
+  .excel-content :global(td) {
+    border: 1px solid #e0e0e0;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    color: #000 !important;
+    background: white;
+  }
+
+  .excel-content :global(th) {
+    background: #f5f5f5 !important;
+    color: #000 !important;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .excel-content :global(tr:hover td) {
+    background: #f9f9f9 !important;
+  }
+
+  /* Override any inline styles from Sheet.js */
+  .excel-content :global(table *) {
+    color: #000 !important;
+  }
+
+  .excel-content :global(a) {
+    color: #1976d2 !important;
+    text-decoration: underline;
+  }
+
+  /* Word Preview */
+  .preview-word-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .word-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--md-sys-color-surface-container);
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  }
+
+  .word-content {
+    flex: 1;
+    overflow: auto;
+    padding: 2rem;
+    background: white;
+    color: #000;
+    font-family: "Calibri", "Arial", sans-serif;
+    line-height: 1.6;
+  }
+
+  :global(.dark) .word-content {
+    background: #1e1e1e;
+    color: #e0e0e0;
+  }
+
+  .word-content :global(p) {
+    margin-bottom: 1rem;
+  }
+
+  .word-content :global(h1),
+  .word-content :global(h2),
+  .word-content :global(h3) {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+
+  .word-content :global(img) {
+    max-width: 100%;
+    height: auto;
+    margin: 1rem 0;
+  }
+
+  .word-content :global(table) {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+  }
+
+  .word-content :global(table td),
+  .word-content :global(table th) {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+  }
+
+  /* Office Viewer (PowerPoint) */
+  .preview-office-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .office-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--md-sys-color-surface-container);
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  }
+
+  .office-iframe {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    border: none;
   }
 
   .btn-download {
