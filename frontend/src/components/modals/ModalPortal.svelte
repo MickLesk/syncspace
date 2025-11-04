@@ -16,11 +16,67 @@
 
   let newFolderName = $state("");
   let newFileName = $state("");
+  let folderColor = $state("#3B82F6"); // Default to first color
+  let randomButtonColor = $state("#3B82F6"); // Random button's own generated color
+  let customColor = $state("#3B82F6"); // Custom picker's color
+
+  // 8 fixed colors with good variety (total 10 with Random + Custom)
+  const folderColors = [
+    { name: "Blue", value: "#3B82F6", emoji: "💙" },
+    { name: "Green", value: "#10B981", emoji: "💚" },
+    { name: "Purple", value: "#8B5CF6", emoji: "💜" },
+    { name: "Orange", value: "#F59E0B", emoji: "🧡" },
+    { name: "Pink", value: "#EC4899", emoji: "🩷" },
+    { name: "Red", value: "#EF4444", emoji: "❤️" },
+    { name: "Yellow", value: "#EAB308", emoji: "💛" },
+    { name: "Cyan", value: "#06B6D4", emoji: "🩵" },
+  ];
+
+  // Generate completely random color (not from palette)
+  function generateRandomColor() {
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    const randomHex = `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+    randomButtonColor = randomHex;
+    folderColor = randomHex;
+  }
+
+  // Initialize on New Folder modal open
+  $effect(() => {
+    if ($modals.newFolder.visible) {
+      folderColor = folderColors[0].value;
+      randomButtonColor = folderColors[0].value;
+      customColor = folderColors[0].value;
+    }
+  });
 
   // Auto-populate rename field with current filename
   $effect(() => {
     if ($modals.rename.visible && $modals.rename.data) {
       newFileName = $modals.rename.data.name || "";
+    }
+  });
+
+  // Load current folder color when changeFolderColor modal opens
+  $effect(() => {
+    if ($modals.changeFolderColor.visible && $modals.changeFolderColor.data) {
+      const savedColors = JSON.parse(
+        localStorage.getItem("folderColors") || "{}"
+      );
+      const currentColor =
+        savedColors[$modals.changeFolderColor.data?.file_path];
+
+      // Set to current color if exists, otherwise default
+      if (currentColor) {
+        folderColor = currentColor;
+        customColor = currentColor;
+        randomButtonColor = currentColor;
+      } else {
+        folderColor = folderColors[0].value;
+        randomButtonColor = folderColors[0].value;
+        customColor = folderColors[0].value;
+      }
     }
   });
 </script>
@@ -59,30 +115,130 @@
         type="text"
         bind:value={newFolderName}
         placeholder="Enter folder name"
-        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
         onkeydown={(e) => {
           if (e.key === "Enter" && newFolderName.trim()) {
-            modalEvents.emit("createFolder", newFolderName);
+            modalEvents.emit("createFolder", {
+              name: newFolderName,
+              color: folderColor,
+            });
             newFolderName = "";
             modals.close("newFolder");
           }
         }}
       />
     </div>
-    <div class="flex justify-end gap-2">
+
+    <!-- Folder Color Selection -->
+    <div>
+      <label
+        class="block text-sm font-medium mb-3 text-gray-700 dark:text-gray-300"
+      >
+        Folder Color
+      </label>
+      <div class="grid grid-cols-5 gap-2">
+        <!-- First row: 10 fixed colors -->
+        {#each folderColors as color}
+          <button
+            type="button"
+            class="aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center gap-0.5 p-1.5"
+            class:border-gray-300={folderColor !== color.value}
+            class:dark:border-gray-600={folderColor !== color.value}
+            class:border-primary-500={folderColor === color.value}
+            class:ring-2={folderColor === color.value}
+            class:ring-primary-500={folderColor === color.value}
+            style="background-color: {color.value}20;"
+            onclick={() => (folderColor = color.value)}
+            title={color.name}
+          >
+            <span class="text-xl">{color.emoji}</span>
+            <span
+              class="text-[9px] font-medium text-gray-700 dark:text-gray-300"
+              >{color.name}</span
+            >
+          </button>
+        {/each}
+
+        <!-- Random Button - Shows its own randomized color -->
+        <button
+          type="button"
+          class="aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center gap-0.5 p-1.5"
+          class:border-gray-300={folderColor !== randomButtonColor}
+          class:dark:border-gray-600={folderColor !== randomButtonColor}
+          class:border-primary-500={folderColor === randomButtonColor}
+          class:ring-2={folderColor === randomButtonColor}
+          class:ring-primary-500={folderColor === randomButtonColor}
+          style="background-color: {randomButtonColor}20;"
+          onclick={generateRandomColor}
+          title="Random Color"
+        >
+          <span class="text-xl">🎲</span>
+          <span class="text-[9px] font-medium text-gray-700 dark:text-gray-300"
+            >Random</span
+          >
+        </button>
+
+        <!-- Custom Color Button - Shows user's selected color -->
+        <label
+          class="aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center gap-0.5 p-1.5 cursor-pointer"
+          class:border-gray-300={folderColor !== customColor}
+          class:dark:border-gray-600={folderColor !== customColor}
+          class:border-primary-500={folderColor === customColor}
+          class:ring-2={folderColor === customColor}
+          class:ring-primary-500={folderColor === customColor}
+          style="background-color: {customColor}20;"
+          title="Custom Color"
+        >
+          <input
+            type="color"
+            bind:value={customColor}
+            onchange={() => (folderColor = customColor)}
+            class="opacity-0 absolute pointer-events-none"
+          />
+          <span class="text-xl">🎨</span>
+          <span class="text-[9px] font-medium text-gray-700 dark:text-gray-300"
+            >Custom</span
+          >
+        </label>
+      </div>
+
+      <!-- Color Preview -->
+      <div
+        class="mt-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center gap-3"
+      >
+        <div
+          class="w-10 h-10 rounded-lg border-2 border-gray-300 dark:border-gray-600 shadow-sm"
+          style="background-color: {folderColor};"
+        ></div>
+        <div class="flex-1">
+          <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
+            Selected Color
+          </div>
+          <div class="text-sm font-mono text-gray-900 dark:text-gray-100">
+            {folderColor}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-2 pt-2">
       <button
         type="button"
-        class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+        class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
         onclick={() => modals.close("newFolder")}
       >
         Cancel
       </button>
       <button
         type="button"
-        class="px-4 py-2 bg-gradient-to-r from-primary-500 to-secondary-500 text-white rounded font-medium"
+        class="px-4 py-2 rounded-lg font-medium text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        style="background-color: {folderColor};"
         onclick={() => {
           if (newFolderName.trim()) {
-            modalEvents.emit("createFolder", newFolderName);
+            modalEvents.emit("createFolder", {
+              name: newFolderName,
+              color: folderColor,
+            });
             newFolderName = "";
             modals.close("newFolder");
           }
@@ -90,7 +246,7 @@
         disabled={!newFolderName.trim()}
       >
         <i class="bi bi-folder-plus"></i>
-        Create
+        Create Folder
       </button>
     </div>
   </div>
@@ -153,6 +309,146 @@
       >
         <i class="bi bi-pencil"></i>
         Rename
+      </button>
+    </div>
+  </div>
+</Modal>
+
+<!-- Change Folder Color Modal -->
+<Modal
+  visible={$modals.changeFolderColor.visible}
+  title="Change Folder Color"
+  onclose={() => modals.close("changeFolderColor")}
+>
+  <div class="space-y-4">
+    <!-- Current Folder Info -->
+    <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+      <div class="flex items-center gap-2">
+        <i
+          class="bi bi-folder text-xl"
+          style={folderColor ? `color: ${folderColor}` : ""}
+        ></i>
+        <span class="font-medium text-gray-900 dark:text-gray-100">
+          {$modals.changeFolderColor.data?.name || "Folder"}
+        </span>
+      </div>
+    </div>
+
+    <!-- Folder Color Selection (Identical to New Folder Modal) -->
+    <div>
+      <label
+        class="block text-sm font-medium mb-3 text-gray-700 dark:text-gray-300"
+      >
+        Select Color
+      </label>
+      <div class="grid grid-cols-5 gap-2">
+        <!-- 8 fixed colors -->
+        {#each folderColors as color}
+          <button
+            type="button"
+            class="aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center gap-0.5 p-1.5"
+            class:border-gray-300={folderColor !== color.value}
+            class:dark:border-gray-600={folderColor !== color.value}
+            class:border-primary-500={folderColor === color.value}
+            class:ring-2={folderColor === color.value}
+            class:ring-primary-500={folderColor === color.value}
+            style="background-color: {color.value}20;"
+            onclick={() => (folderColor = color.value)}
+            title={color.name}
+          >
+            <span class="text-xl">{color.emoji}</span>
+            <span
+              class="text-[9px] font-medium text-gray-700 dark:text-gray-300"
+              >{color.name}</span
+            >
+          </button>
+        {/each}
+
+        <!-- Random Button - Shows its own randomized color -->
+        <button
+          type="button"
+          class="aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center gap-0.5 p-1.5"
+          class:border-gray-300={folderColor !== randomButtonColor}
+          class:dark:border-gray-600={folderColor !== randomButtonColor}
+          class:border-primary-500={folderColor === randomButtonColor}
+          class:ring-2={folderColor === randomButtonColor}
+          class:ring-primary-500={folderColor === randomButtonColor}
+          style="background-color: {randomButtonColor}20;"
+          onclick={generateRandomColor}
+          title="Random Color"
+        >
+          <span class="text-xl">🎲</span>
+          <span class="text-[9px] font-medium text-gray-700 dark:text-gray-300"
+            >Random</span
+          >
+        </button>
+
+        <!-- Custom Color Button - Shows user's selected color -->
+        <label
+          class="aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center gap-0.5 p-1.5 cursor-pointer"
+          class:border-gray-300={folderColor !== customColor}
+          class:dark:border-gray-600={folderColor !== customColor}
+          class:border-primary-500={folderColor === customColor}
+          class:ring-2={folderColor === customColor}
+          class:ring-primary-500={folderColor === customColor}
+          style="background-color: {customColor}20;"
+          title="Custom Color"
+        >
+          <input
+            type="color"
+            bind:value={customColor}
+            onchange={() => (folderColor = customColor)}
+            class="opacity-0 absolute pointer-events-none"
+          />
+          <span class="text-xl">🎨</span>
+          <span class="text-[9px] font-medium text-gray-700 dark:text-gray-300"
+            >Custom</span
+          >
+        </label>
+      </div>
+
+      <!-- Color Preview -->
+      <div
+        class="mt-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center gap-3"
+      >
+        <div
+          class="w-10 h-10 rounded-lg border-2 border-gray-300 dark:border-gray-600 shadow-sm"
+          style="background-color: {folderColor};"
+        ></div>
+        <div class="flex-1">
+          <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
+            Selected Color
+          </div>
+          <div class="text-sm font-mono text-gray-900 dark:text-gray-100">
+            {folderColor}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons (Identical to New Folder Modal) -->
+    <div class="flex justify-end gap-2 pt-2">
+      <button
+        type="button"
+        class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+        onclick={() => modals.close("changeFolderColor")}
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="px-4 py-2 rounded-lg font-medium text-white transition-all duration-200"
+        style="background-color: {folderColor};"
+        onclick={() => {
+          modalEvents.emit("changeFolderColor", {
+            file: $modals.changeFolderColor.data,
+            color: folderColor,
+          });
+          modals.close("changeFolderColor");
+        }}
+      >
+        <i class="bi bi-palette"></i>
+        Save Color
       </button>
     </div>
   </div>

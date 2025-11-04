@@ -51,6 +51,20 @@
   let newComment = $state("");
   let newTag = $state("");
 
+  // Helper function to format file size
+  function formatFileSize(bytes) {
+    if (!bytes || bytes === 0) return "0 KB";
+
+    const kb = bytes / 1024;
+    if (kb < 1024) return `${Math.round(kb)} KB`;
+
+    const mb = kb / 1024;
+    if (mb < 1024) return `${mb.toFixed(2)} MB`;
+
+    const gb = mb / 1024;
+    return `${gb.toFixed(2)} GB`;
+  }
+
   $effect(() => {
     if (!file) {
       if (previewUrl && previewType !== "text") URL.revokeObjectURL(previewUrl);
@@ -378,7 +392,7 @@
         <div class="file-details">
           <h3 class="file-name">{file.name}</h3>
           <p class="file-meta">
-            {Math.round((file.size_bytes || file.size || 0) / 1024)} KB
+            {formatFileSize(file.size_bytes || file.size || 0)}
           </p>
         </div>
       </div>
@@ -660,7 +674,7 @@
                 <div class="detail-row">
                   <span class="detail-label">Size</span>
                   <span class="detail-value">
-                    {file.size ? Math.round(file.size / 1024) : 0} KB
+                    {formatFileSize(file.size_bytes || file.size || 0)}
                   </span>
                 </div>
                 <div class="detail-row">

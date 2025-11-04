@@ -875,6 +875,7 @@ export default {
   batch,
   performance,
   favorites,  // Add favorites to default export
+  folderColors,  // Add folder colors to default export
   
   // Recent files endpoints
   recent: {

@@ -42,13 +42,13 @@ async fn set_folder_color(
         r#"
         UPDATE files
         SET folder_color = ?
-        WHERE file_path = ? AND is_dir = 1 AND owner_id = ?
+        WHERE path = ? AND is_dir = 1 AND owner_id = ?
         "#,
     )
     .bind(&req.color)
     .bind(&file_path)
     .bind(&user_info.id)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|e| {
         eprintln!("Failed to set folder color: {}", e);
@@ -73,13 +73,13 @@ async fn get_folder_color(
 ) -> Result<impl IntoResponse, StatusCode> {
     let row = sqlx::query(
         r#"
-        SELECT file_path, folder_color
+        SELECT path, folder_color
         FROM files
-        WHERE file_path = ? AND is_dir = 1
+        WHERE path = ? AND is_dir = 1
         "#,
     )
     .bind(&file_path)
-    .fetch_optional(&state.db)
+    .fetch_optional(&state.db_pool)
     .await
     .map_err(|e| {
         eprintln!("Failed to get folder color: {}", e);
@@ -89,7 +89,7 @@ async fn get_folder_color(
     if let Some(row) = row {
         let color: Option<String> = row.get("folder_color");
         Ok(Json(FolderColorResponse {
-            file_path: row.get("file_path"),
+            file_path: row.get("path"),
             color,
         }))
     } else {
@@ -107,12 +107,12 @@ async fn remove_folder_color(
         r#"
         UPDATE files
         SET folder_color = NULL
-        WHERE file_path = ? AND is_dir = 1 AND owner_id = ?
+        WHERE path = ? AND is_dir = 1 AND owner_id = ?
         "#,
     )
     .bind(&file_path)
     .bind(&user_info.id)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|e| {
         eprintln!("Failed to remove folder color: {}", e);

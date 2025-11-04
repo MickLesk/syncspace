@@ -11,6 +11,7 @@
     onDownload,
     onVersionHistory,
     onPreview,
+    onChangeFolderColor,
   } = $props();
 
   let menuRef;
@@ -99,6 +100,17 @@
       >
         <i class="bi bi-files text-cyan-500"></i>
         <span>Copy</span>
+      </button>
+    {/if}
+
+    {#if file.is_directory && onChangeFolderColor}
+      <button
+        type="button"
+        class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
+        onclick={() => handleAction(onChangeFolderColor)}
+      >
+        <i class="bi bi-palette text-pink-500"></i>
+        <span>Change Folder Color</span>
       </button>
     {/if}
 
