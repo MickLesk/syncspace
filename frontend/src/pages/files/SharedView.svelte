@@ -340,7 +340,6 @@
       </div>
     {/if}
   </div>
-</PageWrapper>
 
 {#if showCreateModal}
   <div
@@ -589,4 +588,6 @@
       {/snippet}
     </ModernCard>
   </div>
+{/if}
+
 </PageWrapper>
