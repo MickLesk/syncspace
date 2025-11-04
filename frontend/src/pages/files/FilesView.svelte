@@ -173,12 +173,12 @@
       console.error("Failed to load preferences:", err);
       preferencesLoaded = true; // Enable even if load fails
     }
-    
+
     try {
       await favorites.load();
     } catch (err) {
       console.error("Failed to load favorites:", err);
-    }    // Initialize from URL hash or current path
+    } // Initialize from URL hash or current path
     const urlPath =
       window.location.hash.replace("#/files", "").replace("#", "") || "/";
     currentPath.set(urlPath);
@@ -225,12 +225,44 @@
     const unsubDelete = modalEvents.on("deleteFile", deleteFile);
     const unsubSearch = modalEvents.on("search", handleAdvancedSearch);
 
+    // FilePreview event handlers
+    const handleRenameFromPreview = (e) => {
+      const { file, newName } = e.detail;
+      renameFile(file, newName);
+    };
+    const handleCopyFromPreview = (e) => {
+      const { file } = e.detail;
+      copyFiles([file]);
+    };
+    const handleToggleFavoriteFromPreview = async (e) => {
+      const { file } = e.detail;
+      try {
+        if (favorites.has(file.id)) {
+          await favorites.remove(file.id);
+        } else {
+          await favorites.add(file.id, "file");
+        }
+      } catch (err) {
+        errorToast("Failed to toggle favorite");
+      }
+    };
+
+    window.addEventListener("renameFile", handleRenameFromPreview);
+    window.addEventListener("copyFile", handleCopyFromPreview);
+    window.addEventListener("toggleFavorite", handleToggleFavoriteFromPreview);
+
     return () => {
       unsubUpload();
       unsubCreateFolder();
       unsubRename();
       unsubDelete();
       unsubSearch();
+      window.removeEventListener("renameFile", handleRenameFromPreview);
+      window.removeEventListener("copyFile", handleCopyFromPreview);
+      window.removeEventListener(
+        "toggleFavorite",
+        handleToggleFavoriteFromPreview
+      );
     };
   });
 
@@ -361,7 +393,10 @@
         : $currentPath + file.name + "/";
       navigateTo(folderPath);
     } else {
-      modals.openPreview(file);
+      // Pass all files and current index for navigation
+      const files = displayFiles();
+      const index = files.findIndex(f => f.id === file.id);
+      modals.openPreview(file, files, index >= 0 ? index : 0);
     }
   }
 

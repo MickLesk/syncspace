@@ -147,7 +147,7 @@
       class:dark:hover:bg-warning-900={!showFavoritesOnly}
       onclick={() => (showFavoritesOnly = !showFavoritesOnly)}
       title="Toggle Favorites Only"
-      style={!showFavoritesOnly ? 'color: #FFC107;' : ''}
+      style={!showFavoritesOnly ? "color: #FFC107;" : ""}
     >
       <i class="bi bi-star-fill"></i>
     </button>

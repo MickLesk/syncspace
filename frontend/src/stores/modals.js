@@ -105,10 +105,10 @@ function createModalStore() {
       }));
     },
     
-    openPreview: (file) => {
+    openPreview: (file, allFiles = [], currentIndex = 0) => {
       update(state => ({
         ...state,
-        preview: { visible: true, data: file }
+        preview: { visible: true, data: file, allFiles, currentIndex }
       }));
     },
     
