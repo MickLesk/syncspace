@@ -39,6 +39,12 @@ frontend/package-lock.json
 frontend/yarn.lock
 frontend/pnpm-lock.yaml
 
+# Vite build artifacts
+frontend/dist-ssr/
+frontend/.rollup.cache/
+**/chunk-*.js
+**/chunk-*.css
+
 # Desktop App (Tauri)
 desktop-app/node_modules/
 desktop-app/target/
