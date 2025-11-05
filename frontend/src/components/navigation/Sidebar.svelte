@@ -66,7 +66,7 @@
     {
       id: "recent",
       icon: "clock-history",
-      label: "Recent Files",
+      label: t($currentLang, "recentFiles"),
       category: "main",
     },
     {
@@ -80,14 +80,19 @@
     },
     {
       id: "activity",
-      label: "Activity",
+      label: t($currentLang, "activity"),
       category: "tools",
       icon: "activity",
       badge: notificationCount,
       badgeClass:
         "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200",
     },
-    { id: "duplicates", icon: "files", label: "Duplicates", category: "tools" },
+    {
+      id: "duplicates",
+      icon: "files",
+      label: t($currentLang, "duplicates"),
+      category: "tools",
+    },
     {
       id: "trash",
       icon: "trash-fill",
@@ -148,7 +153,7 @@
           </svg>
           <div class="brand-text">
             <h1 class="brand-name">SyncSpace</h1>
-            <p class="brand-tagline">Cloud Storage</p>
+            <p class="brand-tagline">{t($currentLang, "cloudStorage")}</p>
           </div>
         </div>
       {:else}
@@ -192,7 +197,7 @@
   <nav class="sidebar-nav">
     <!-- Main Section -->
     {#if !$sidebarCollapsed}
-      <div class="menu-category">MAIN</div>
+      <div class="menu-category">{t($currentLang, "main")}</div>
     {/if}
     <ul class="menu menu-sm p-0 gap-1">
       {#each mainItems as item}
@@ -233,7 +238,7 @@
     <!-- Tools Section -->
     <div class="h-px bg-gray-200 dark:bg-gray-700 my-2"></div>
     {#if !$sidebarCollapsed}
-      <div class="menu-category">TOOLS</div>
+      <div class="menu-category">{t($currentLang, "tools")}</div>
     {/if}
     <ul class="menu menu-sm p-0 gap-1">
       {#each toolsItems as item}
@@ -269,7 +274,7 @@
     <!-- System Section -->
     <div class="h-px bg-gray-200 dark:bg-gray-700 my-2"></div>
     {#if !$sidebarCollapsed}
-      <div class="menu-category">SYSTEM</div>
+      <div class="menu-category">{t($currentLang, "system")}</div>
     {/if}
     <ul class="menu menu-sm p-0 gap-1">
       {#each systemItems as item}

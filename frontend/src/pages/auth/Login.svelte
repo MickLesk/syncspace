@@ -1,8 +1,11 @@
 <script>
   import { auth } from "../../stores/auth.js";
-  import { loading } from "../../stores/ui.js";
+  import { loading, currentLanguage } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import api from "../../lib/api.js";
   import { onMount } from "svelte";
+
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
 
   let username = $state("");
   let password = $state("");
@@ -44,12 +47,12 @@
     e.preventDefault();
 
     if (!username || !password) {
-      errorMessage = "Please fill in all fields";
+      errorMessage = tr("pleaseFillinAllFields");
       return;
     }
 
     loginInProgress = true;
-    loading.show("Logging in...");
+    loading.show(tr("loggingIn"));
     errorMessage = "";
 
     try {
@@ -73,13 +76,13 @@
         // Check if 2FA is required
         if (data.requires_2fa === true) {
           showTwoFactor = true;
-          errorMessage = "Please enter your 2FA code";
+          errorMessage = tr("pleaseEnter2FACode");
           loginInProgress = false;
           loading.hide();
           return;
         }
 
-        throw new Error(data.error || "Login failed");
+        throw new Error(data.error || tr("loginFailed"));
       }
 
       // Login successful - store token and update auth store
@@ -93,7 +96,7 @@
           id: data.user?.id || null,
         });
 
-        loading.show("Login successful! Redirecting...");
+        loading.show(tr("loginSuccessfulRedirecting"));
 
         // Redirect to main app
         window.location.hash = "#/files";
@@ -104,7 +107,7 @@
       }
     } catch (err) {
       console.error("Login error:", err);
-      errorMessage = err.message || "Login failed. Please try again.";
+      errorMessage = err.message || tr("loginFailed");
       loginInProgress = false;
       loading.hide();
     }
@@ -121,11 +124,17 @@
     </div>
     <div class="status-text">
       {#if checkingBackend}
-        <span class="text-white/90 text-xs font-medium">Checking...</span>
+        <span class="text-white/90 text-xs font-medium"
+          >{tr("checkingBackend")}</span
+        >
       {:else if backendOnline}
-        <span class="text-green-300 text-xs font-semibold">Backend Online</span>
+        <span class="text-green-300 text-xs font-semibold"
+          >{tr("backendConnecting")}</span
+        >
       {:else}
-        <span class="text-red-300 text-xs font-semibold">Backend Offline</span>
+        <span class="text-red-300 text-xs font-semibold"
+          >{tr("backendOffline")}</span
+        >
       {/if}
     </div>
   </div>
@@ -149,7 +158,7 @@
         SyncSpace
       </h1>
       <p class="text-gray-600 dark:text-gray-400 font-medium">
-        Welcome back! Please login to continue
+        {tr("loginSubtitle")}
       </p>
     </div>
 
@@ -174,7 +183,7 @@
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <i class="bi bi-person-fill mr-2 text-blue-600 dark:text-blue-400"
-          ></i>Username
+          ></i>{tr("username")}
         </label>
         <div class="relative">
           <input
@@ -182,7 +191,7 @@
             type="text"
             bind:value={username}
             class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder="Enter your username"
+            placeholder={tr("enterUsername")}
             disabled={loginInProgress}
           />
           <i
@@ -199,7 +208,7 @@
         >
           <i
             class="bi bi-shield-lock-fill mr-2 text-blue-600 dark:text-blue-400"
-          ></i>Password
+          ></i>{tr("password")}
         </label>
         <div class="relative">
           <input
@@ -207,7 +216,7 @@
             type={showPassword ? "text" : "password"}
             bind:value={password}
             class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder="Enter your password"
+            placeholder={tr("enterPassword")}
             disabled={loginInProgress}
           />
           <i
@@ -233,7 +242,7 @@
           >
             <i
               class="bi bi-shield-check mr-2 text-green-600 dark:text-green-400"
-            ></i>2FA Code
+            ></i>{tr("enter2FACode")}
           </label>
           <div class="relative">
             <input
@@ -241,7 +250,7 @@
               type="text"
               bind:value={twoFactorCode}
               class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed tracking-widest text-center text-lg font-mono"
-              placeholder="000000"
+              placeholder={tr("enter2FACode")}
               maxlength="6"
               disabled={loginInProgress}
             />
@@ -262,7 +271,7 @@
           />
           <span
             class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
-            >Remember me</span
+            >{tr("rememberMe")}</span
           >
         </label>
       </div>
@@ -299,7 +308,7 @@
             class="bi bi-box-arrow-in-right group-hover:translate-x-1 transition-transform"
           ></i>
         {/if}
-        <span>{showTwoFactor ? "Verify & Login" : "Login to Account"}</span>
+        <span>{showTwoFactor ? tr("verifyAndLogin") : tr("login")}</span>
       </button>
     </form>
   </div>

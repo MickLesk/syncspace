@@ -1,12 +1,16 @@
 <script>
   import { onMount } from "svelte";
   import { showToast } from "../../stores/toast.js";
+  import { currentLanguage } from "../../stores/ui";
+  import { t } from "../../i18n.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import EmptyState from "../../components/ui/EmptyState.svelte";
   import LoadingState from "../../components/ui/LoadingState.svelte";
+  
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
 
   let users = $state([]);
   let loading = $state(true);
@@ -68,8 +72,8 @@
 
   function getStatusIndicator(status) {
     return status === "online"
-      ? { color: "bg-green-500", text: "Online" }
-      : { color: "bg-gray-400 dark:bg-gray-600", text: "Offline" };
+      ? { color: "bg-green-500", text: tr("online") }
+      : { color: "bg-gray-400 dark:bg-gray-600", text: tr("offline") };
   }
 
   function getUserInitials(username) {
@@ -84,7 +88,7 @@
     const diff = Date.now() - date;
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
-    if (minutes < 1) return "Just now";
+    if (minutes < 1) return tr("justNow");
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;
     return date.toLocaleDateString();
@@ -111,16 +115,16 @@
 
 <PageWrapper gradient>
   <PageHeader
-    title="Users"
-    subtitle="{filteredUsers.length} user{filteredUsers.length !== 1
-      ? 's'
-      : ''}"
+    title={tr("users")}
+    subtitle="{filteredUsers.length} {filteredUsers.length !== 1
+      ? tr('usersPlural')
+      : tr('userSingular')}"
     icon="people-fill"
   >
     {#snippet actions()}
       <ModernButton variant="gradient">
         <i class="bi bi-plus-lg mr-2"></i>
-        Add User
+        {tr("addUser")}
       </ModernButton>
     {/snippet}
   </PageHeader>
@@ -138,7 +142,7 @@
             class="px-3 py-2 text-sm transition-colors {viewMode === 'table'
               ? 'bg-primary-600 text-white'
               : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
-            aria-label="Table view"
+            aria-label={tr("tableView")}
           >
             <i class="bi bi-table"></i>
           </button>
@@ -148,7 +152,7 @@
             'cards'
               ? 'bg-primary-600 text-white'
               : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
-            aria-label="Cards view"
+            aria-label={tr("cardsView")}
           >
             <i class="bi bi-grid-3x3-gap"></i>
           </button>
@@ -165,21 +169,21 @@
             onclick={() => (filterRole = "all")}
             class="rounded-none"
           >
-            All
+            {tr("all")}
           </ModernButton>
           <ModernButton
             variant={filterRole === "admin" ? "primary" : "ghost"}
             onclick={() => (filterRole = "admin")}
             class="rounded-none border-l-2 border-gray-200 dark:border-gray-700"
           >
-            Admins
+            {tr("admins")}
           </ModernButton>
           <ModernButton
             variant={filterRole === "user" ? "primary" : "ghost"}
             onclick={() => (filterRole = "user")}
             class="rounded-none border-l-2 border-gray-200 dark:border-gray-700"
           >
-            Users
+            {tr("users")}
           </ModernButton>
         </div>
 
@@ -189,11 +193,11 @@
               <span
                 class="text-sm font-medium text-gray-900 dark:text-gray-100"
               >
-                {selectedUsers.size} selected
+                {tr("selectedCount", selectedUsers.size)}
               </span>
               <ModernButton variant="danger" size="sm">
                 <i class="bi bi-trash mr-1"></i>
-                Delete
+                {tr("delete")}
               </ModernButton>
             </div>
           </ModernCard>
@@ -326,14 +330,14 @@
                     <ModernButton
                       variant="ghost"
                       size="sm"
-                      aria-label="Edit user"
+                      aria-label={tr("editUser")}
                     >
                       <i class="bi bi-pencil"></i>
                     </ModernButton>
                     <ModernButton
                       variant="danger"
                       size="sm"
-                      aria-label="Delete user"
+                      aria-label={tr("deleteUser")}
                     >
                       <i class="bi bi-trash"></i>
                     </ModernButton>
@@ -429,13 +433,13 @@
                 {formatLastActive(user.lastActive)}
               </span>
               <div class="flex gap-2">
-                <ModernButton variant="ghost" size="sm" aria-label="Edit user">
+                <ModernButton variant="ghost" size="sm" aria-label={tr("editUser")}>
                   <i class="bi bi-pencil"></i>
                 </ModernButton>
                 <ModernButton
                   variant="danger"
                   size="sm"
-                  aria-label="Delete user"
+                  aria-label={tr("deleteUser")}
                 >
                   <i class="bi bi-trash"></i>
                 </ModernButton>

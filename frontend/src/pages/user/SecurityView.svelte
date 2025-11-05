@@ -5,7 +5,11 @@
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import { auth } from "../../stores/auth.js";
+  import { currentLanguage } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import QRCode from "qrcode";
+
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
 
   let twoFAEnabled = $state(false);
   let twoFASetup = $state(null); // { secret, qr_code_url }
@@ -66,7 +70,7 @@
           });
         } catch (qrError) {
           console.error("QR code generation error:", qrError);
-          error = "Failed to generate QR code";
+          error = tr("failedToGenerateQRCode");
           return;
         }
 
@@ -115,14 +119,14 @@
       } else {
         try {
           const data = await response.json();
-          error = data.error || "Invalid verification code";
+          error = data.error || tr("invalidVerificationCode");
         } catch {
-          error = "Invalid verification code";
+          error = tr("invalidVerificationCode");
         }
       }
     } catch (e) {
       console.error("2FA enable error:", e);
-      error = "Failed to enable 2FA. Please try again.";
+      error = tr("failedToLoadProfile");
     } finally {
       loading = false;
     }
@@ -174,8 +178,8 @@
 
 <PageWrapper>
   <PageHeader
-    title="Security"
-    subtitle="Manage your account security and authentication settings"
+    title={tr("security")}
+    subtitle={tr("securitySettings")}
     icon="shield-lock"
   />
 
@@ -191,10 +195,10 @@
               ></i>
               <div>
                 <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-                  Two-Factor Authentication (2FA)
+                  {tr("twoFactorAuthentication")}
                 </h2>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                  Add an extra layer of security to your account
+                  {tr("addExtraLayerSecurity")}
                 </p>
               </div>
             </div>
@@ -203,7 +207,7 @@
                 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                 : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'}"
             >
-              {twoFAEnabled ? "Enabled" : "Disabled"}
+              {twoFAEnabled ? tr("enabled") : tr("disabled")}
             </div>
           </div>
 
@@ -235,7 +239,7 @@
                   class="flex-1"
                 >
                   <i class="bi bi-shield-plus mr-2"></i>
-                  {loading ? "Loading..." : "Enable 2FA"}
+                  {loading ? tr("loading") : tr("enable2FA")}
                 </ModernButton>
               {:else}
                 <ModernButton
@@ -245,7 +249,7 @@
                   class="flex-1"
                 >
                   <i class="bi bi-shield-x mr-2"></i>
-                  {loading ? "Disabling..." : "Disable 2FA"}
+                  {loading ? tr("disabling") : tr("disable2FA")}
                 </ModernButton>
               {/if}
             </div>
@@ -263,11 +267,10 @@
               <h3
                 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2"
               >
-                Scan QR Code
+                {tr("scanQRCode")}
               </h3>
               <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                Use an authenticator app like Google Authenticator, Authy, or
-                Microsoft Authenticator to scan this QR code
+                {tr("useAuthenticatorApp")}
               </p>
 
               <!-- QR Code -->
@@ -292,13 +295,13 @@
                 <summary
                   class="cursor-pointer text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
                 >
-                  Can't scan? Enter manually
+                  {tr("manualEntry")}
                 </summary>
                 <div
                   class="mt-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
                 >
                   <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                    Secret Key:
+                    {tr("verificationCode")}:
                   </p>
                   <code
                     class="block p-3 bg-white dark:bg-gray-900 rounded font-mono text-sm break-all border border-gray-300 dark:border-gray-600"
@@ -316,7 +319,7 @@
                   for="verification-code"
                   class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                 >
-                  Enter 6-digit code from your authenticator app
+                  {tr("enterVerificationCode")}
                 </label>
                 <input
                   id="verification-code"
@@ -339,7 +342,7 @@
                   onclick={cancelSetup}
                   class="flex-1"
                 >
-                  Cancel
+                  {tr("cancel")}
                 </ModernButton>
                 <ModernButton
                   variant="primary"
@@ -347,7 +350,7 @@
                   disabled={loading || verificationCode.length !== 6}
                   class="flex-1"
                 >
-                  {loading ? "Verifying..." : "Verify & Enable"}
+                  {loading ? tr("verifying") : tr("verifyCode")}
                 </ModernButton>
               </div>
             </div>

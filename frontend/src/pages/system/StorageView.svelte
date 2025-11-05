@@ -1,11 +1,15 @@
 <script>
   import { onMount } from "svelte";
   import { error as errorToast, success } from "../../stores/toast";
+  import { currentLanguage } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import api from "../../lib/api";
   import Chart from "../../components/ui/Chart.svelte";
   import Loading from "../../components/ui/Loading.svelte";
   import LoadingState from "../../components/ui/LoadingState.svelte";
   import EmptyState from "../../components/ui/EmptyState.svelte";
+
+  $: $t = (key, ...args) => t($currentLanguage, key, ...args);
 
   let loading = true;
   let loadingDisk = true;
@@ -34,12 +38,12 @@
   // Chart data for disk usage
   $: diskChartData = [
     {
-      label: "Used",
+      label: $t("used"),
       value: diskStats.used_bytes,
       color: "rgb(239, 68, 68)",
     },
     {
-      label: "Available",
+      label: $t("available"),
       value: diskStats.available_bytes,
       color: "rgb(34, 197, 94)",
     },
@@ -59,15 +63,15 @@
     .sort((a, b) => b.value - a.value);
 
   // File type categories
-  const typeCategories = {
+  const getTypeCategories = () => ({
     images: {
-      label: "Images",
+      label: $t("images"),
       icon: "image",
       color: "purple",
       extensions: [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg"],
     },
     documents: {
-      label: "Documents",
+      label: $t("documents"),
       icon: "file-text",
       color: "blue",
       extensions: [
@@ -84,30 +88,32 @@
       ],
     },
     videos: {
-      label: "Videos",
+      label: $t("videos"),
       icon: "film",
       color: "red",
       extensions: [".mp4", ".avi", ".mov", ".mkv", ".webm", ".flv"],
     },
     audio: {
-      label: "Audio",
+      label: $t("audio"),
       icon: "music-note-beamed",
       color: "green",
       extensions: [".mp3", ".wav", ".ogg", ".m4a", ".flac", ".aac"],
     },
     archives: {
-      label: "Archives",
+      label: $t("archives"),
       icon: "file-zip",
       color: "yellow",
       extensions: [".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"],
     },
     other: {
-      label: "Other",
+      label: $t("file"),
       icon: "file-earmark",
       color: "gray",
       extensions: [],
     },
-  };
+  });
+
+  $: typeCategories = getTypeCategories();
 
   onMount(async () => {
     await Promise.all([loadStats(), loadDiskStats()]);
@@ -118,7 +124,7 @@
     try {
       diskStats = await api.system.storage();
     } catch (err) {
-      errorToast(err.message || "Failed to load disk statistics");
+      errorToast(err.message || $t("failedToLoadDiskStatistics"));
     } finally {
       loadingDisk = false;
     }
@@ -139,7 +145,7 @@
       };
     } catch (err) {
       console.error("Failed to load storage statistics:", err);
-      errorToast(err.message || "Failed to load storage statistics");
+      errorToast(err.message || $t("failedToLoadStorageStatistics"));
     } finally {
       loading = false;
     }

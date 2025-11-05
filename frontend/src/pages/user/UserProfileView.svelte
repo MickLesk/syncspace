@@ -1,12 +1,16 @@
 <script>
   import { onMount } from "svelte";
   import { showToast } from "../../stores/toast.js";
+  import { currentLanguage } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import api from "../../lib/api.js";
 
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+
   let user = $state({
-    username: "Loading...",
+    username: "@Loading...",
     email: "",
     displayName: "",
     bio: "",
@@ -43,7 +47,7 @@
       };
     } catch (err) {
       console.error("[Profile] Failed to load profile:", err);
-      showToast("Failed to load profile", "error");
+      showToast(tr("failedToLoadProfile"), "error");
     } finally {
       loading = false;
     }
@@ -91,10 +95,10 @@
       });
       editMode = false;
       await loadUserProfile(); // Reload to get updated data
-      showToast("Profile saved successfully", "success");
+      showToast(tr("profileSavedSuccessfully"), "success");
     } catch (err) {
       console.error("[Profile] Failed to save profile:", err);
-      showToast("Failed to save profile", "error");
+      showToast(tr("failedToSaveProfile"), "error");
     }
   }
 </script>
@@ -145,19 +149,19 @@
                   type="text"
                   bind:value={user.displayName}
                   class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition text-sm"
-                  placeholder="Display Name"
+                  placeholder={tr("displayName")}
                 />
                 <input
                   type="email"
                   bind:value={user.email}
                   class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition text-sm"
-                  placeholder="Email"
+                  placeholder={tr("email")}
                 />
                 <textarea
                   bind:value={user.bio}
                   class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition text-sm resize-none"
                   rows="2"
-                  placeholder="Bio"
+                  placeholder={tr("bio")}
                 ></textarea>
               </div>
             {:else}
@@ -170,7 +174,7 @@
                 @{user.username}
               </p>
               <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                {user.bio || "No bio yet"}
+                {user.bio || tr("noBioYet")}
               </p>
             {/if}
 
@@ -179,11 +183,12 @@
             >
               <span class="flex items-center gap-1">
                 <i class="bi bi-envelope"></i>
-                {user.email || "No email"}
+                {user.email || tr("noEmail")}
               </span>
               <span class="flex items-center gap-1">
                 <i class="bi bi-calendar"></i>
-                Joined {formatDate(user.joinedDate)}
+                {tr("memberSince")}
+                {formatDate(user.joinedDate)}
               </span>
             </div>
 
@@ -195,14 +200,14 @@
                   onclick={saveProfile}
                 >
                   <i class="bi bi-check-lg mr-1"></i>
-                  Save
+                  {tr("save")}
                 </ModernButton>
                 <ModernButton
                   variant="ghost"
                   size="sm"
                   onclick={() => (editMode = false)}
                 >
-                  Cancel
+                  {tr("cancel")}
                 </ModernButton>
               {:else}
                 <ModernButton
@@ -211,7 +216,7 @@
                   onclick={() => (editMode = true)}
                 >
                   <i class="bi bi-pencil mr-1"></i>
-                  Edit Profile
+                  {tr("editProfile")}
                 </ModernButton>
               {/if}
             </div>
