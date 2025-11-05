@@ -6,8 +6,9 @@
    * Communicates with pages via event dispatching
    */
   import { modals, modalEvents } from "../../stores/modals.js";
-  import { currentPath } from "../../stores/ui.js";
+  import { currentPath, currentLang } from "../../stores/ui.js";
   import api from "../../lib/api.js";
+  import { t } from "../../i18n.js";
 
   // Modal Components
   import Modal from "../ui/Modal.svelte";
@@ -26,16 +27,18 @@
   let folderFilter = $state("");
   let allFolders = $state([]);
 
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+
   // 8 fixed colors with good variety (total 10 with Random + Custom)
   const folderColors = [
-    { name: "Blue", value: "#3B82F6", emoji: "💙" },
-    { name: "Green", value: "#10B981", emoji: "💚" },
-    { name: "Purple", value: "#8B5CF6", emoji: "💜" },
-    { name: "Orange", value: "#F59E0B", emoji: "🧡" },
-    { name: "Pink", value: "#EC4899", emoji: "🩷" },
-    { name: "Red", value: "#EF4444", emoji: "❤️" },
-    { name: "Yellow", value: "#EAB308", emoji: "💛" },
-    { name: "Cyan", value: "#06B6D4", emoji: "🩵" },
+    { nameKey: "colorBlue", value: "#3B82F6", emoji: "💙" },
+    { nameKey: "colorGreen", value: "#10B981", emoji: "💚" },
+    { nameKey: "colorPurple", value: "#8B5CF6", emoji: "💜" },
+    { nameKey: "colorOrange", value: "#F59E0B", emoji: "🧡" },
+    { nameKey: "colorPink", value: "#EC4899", emoji: "🩷" },
+    { nameKey: "colorRed", value: "#EF4444", emoji: "❤️" },
+    { nameKey: "colorYellow", value: "#EAB308", emoji: "💛" },
+    { nameKey: "colorCyan", value: "#06B6D4", emoji: "🩵" },
   ];
 
   // Generate completely random color (not from palette)
@@ -182,7 +185,7 @@
 <!-- Upload Modal -->
 <Modal
   visible={$modals.upload.visible}
-  title="Upload Files"
+  title={tr("uploadFilesTitle")}
   onclose={() => modals.close("upload")}
 >
   <FileUploadZone
@@ -197,7 +200,7 @@
 <!-- New Folder Modal -->
 <Modal
   visible={$modals.newFolder.visible}
-  title="Create New Folder"
+  title={tr("createNewFolder")}
   onclose={() => modals.close("newFolder")}
 >
   <div class="space-y-4">
@@ -206,13 +209,13 @@
         for="folder-name"
         class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
       >
-        Folder Name
+        {tr("folderName")}
       </label>
       <input
         id="folder-name"
         type="text"
         bind:value={newFolderName}
-        placeholder="Enter folder name"
+  placeholder={tr("enterFolderName")}
         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
         onkeydown={(e) => {
           if (e.key === "Enter" && newFolderName.trim()) {
@@ -232,7 +235,7 @@
       <div
         class="block text-sm font-medium mb-3 text-gray-700 dark:text-gray-300"
       >
-        Folder Color
+        {tr("folderColor")}
       </div>
       <div class="grid grid-cols-5 gap-2">
         <!-- First row: 10 fixed colors -->
@@ -247,12 +250,12 @@
             class:ring-primary-500={folderColor === color.value}
             style="background-color: {color.value}20;"
             onclick={() => (folderColor = color.value)}
-            title={color.name}
+            title={tr(color.nameKey)}
           >
             <span class="text-xl">{color.emoji}</span>
             <span
               class="text-[9px] font-medium text-gray-700 dark:text-gray-300"
-              >{color.name}</span
+              >{tr(color.nameKey)}</span
             >
           </button>
         {/each}
@@ -268,11 +271,11 @@
           class:ring-primary-500={folderColor === randomButtonColor}
           style="background-color: {randomButtonColor}20;"
           onclick={generateRandomColor}
-          title="Random Color"
+          title={tr("randomColor")}
         >
           <span class="text-xl">🎲</span>
           <span class="text-[9px] font-medium text-gray-700 dark:text-gray-300"
-            >Random</span
+            >{tr("random")}</span
           >
         </button>
 
@@ -285,7 +288,7 @@
           class:ring-2={folderColor === customColor}
           class:ring-primary-500={folderColor === customColor}
           style="background-color: {customColor}20;"
-          title="Custom Color"
+          title={tr("customColor")}
         >
           <input
             type="color"
@@ -295,7 +298,7 @@
           />
           <span class="text-xl">🎨</span>
           <span class="text-[9px] font-medium text-gray-700 dark:text-gray-300"
-            >Custom</span
+            >{tr("custom")}</span
           >
         </label>
       </div>
@@ -310,7 +313,7 @@
         ></div>
         <div class="flex-1">
           <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Selected Color
+            {tr("selectedColor")}
           </div>
           <div class="text-sm font-mono text-gray-900 dark:text-gray-100">
             {folderColor}
@@ -325,7 +328,7 @@
         class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
         onclick={() => modals.close("newFolder")}
       >
-        Cancel
+        {tr("cancel")}
       </button>
       <button
         type="button"
@@ -344,7 +347,7 @@
         disabled={!newFolderName.trim()}
       >
         <i class="bi bi-folder-plus"></i>
-        Create Folder
+        {tr("create")}
       </button>
     </div>
   </div>
@@ -353,7 +356,7 @@
 <!-- Rename Modal -->
 <Modal
   visible={$modals.rename.visible}
-  title="Rename File"
+  title={tr("renameFile")}
   onclose={() => modals.close("rename")}
 >
   <div class="space-y-4">
@@ -362,13 +365,13 @@
         for="new-name"
         class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
       >
-        New Name
+        {tr("newName")}
       </label>
       <input
         id="new-name"
         type="text"
         bind:value={newFileName}
-        placeholder="Enter new name"
+        placeholder={tr("enterNewName")}
         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
         onkeydown={(e) => {
           if (e.key === "Enter" && newFileName.trim()) {
@@ -388,7 +391,7 @@
         class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
         onclick={() => modals.close("rename")}
       >
-        Cancel
+        {tr("cancel")}
       </button>
       <button
         type="button"
@@ -406,7 +409,7 @@
         disabled={!newFileName.trim()}
       >
         <i class="bi bi-pencil"></i>
-        Rename
+        {tr("rename")}
       </button>
     </div>
   </div>
@@ -415,7 +418,7 @@
 <!-- Change Folder Color Modal -->
 <Modal
   visible={$modals.changeFolderColor.visible}
-  title="Change Folder Color"
+  title={tr("changeFolderColor")}
   onclose={() => modals.close("changeFolderColor")}
 >
   <div class="space-y-4">
@@ -427,7 +430,7 @@
           style={folderColor ? `color: ${folderColor}` : ""}
         ></i>
         <span class="font-medium text-gray-900 dark:text-gray-100">
-          {$modals.changeFolderColor.data?.name || "Folder"}
+          {$modals.changeFolderColor.data?.name || tr("folder")}
         </span>
       </div>
     </div>
@@ -437,7 +440,7 @@
       <div
         class="block text-sm font-medium mb-3 text-gray-700 dark:text-gray-300"
       >
-        Select Color
+        {tr("selectColor")}
       </div>
       <div class="grid grid-cols-5 gap-2">
         <!-- 8 fixed colors -->
@@ -452,12 +455,12 @@
             class:ring-primary-500={folderColor === color.value}
             style="background-color: {color.value}20;"
             onclick={() => (folderColor = color.value)}
-            title={color.name}
+            title={tr(color.nameKey)}
           >
             <span class="text-xl">{color.emoji}</span>
             <span
               class="text-[9px] font-medium text-gray-700 dark:text-gray-300"
-              >{color.name}</span
+              >{tr(color.nameKey)}</span
             >
           </button>
         {/each}
@@ -473,11 +476,11 @@
           class:ring-primary-500={folderColor === randomButtonColor}
           style="background-color: {randomButtonColor}20;"
           onclick={generateRandomColor}
-          title="Random Color"
+          title={tr("randomColor")}
         >
           <span class="text-xl">🎲</span>
           <span class="text-[9px] font-medium text-gray-700 dark:text-gray-300"
-            >Random</span
+            >{tr("random")}</span
           >
         </button>
 
@@ -490,7 +493,7 @@
           class:ring-2={folderColor === customColor}
           class:ring-primary-500={folderColor === customColor}
           style="background-color: {customColor}20;"
-          title="Custom Color"
+          title={tr("customColor")}
         >
           <input
             type="color"
@@ -500,7 +503,7 @@
           />
           <span class="text-xl">🎨</span>
           <span class="text-[9px] font-medium text-gray-700 dark:text-gray-300"
-            >Custom</span
+            >{tr("custom")}</span
           >
         </label>
       </div>
@@ -515,7 +518,7 @@
         ></div>
         <div class="flex-1">
           <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Selected Color
+            {tr("selectedColor")}
           </div>
           <div class="text-sm font-mono text-gray-900 dark:text-gray-100">
             {folderColor}
@@ -531,7 +534,7 @@
         class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
         onclick={() => modals.close("changeFolderColor")}
       >
-        Cancel
+        {tr("cancel")}
       </button>
       <button
         type="button"
@@ -546,7 +549,7 @@
         }}
       >
         <i class="bi bi-palette"></i>
-        Save Color
+        {tr("saveColor")}
       </button>
     </div>
   </div>
