@@ -3,7 +3,6 @@
   import {
     currentTheme,
     currentLang,
-    currentLanguage,
     favoritesEnabled,
   } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
@@ -11,7 +10,7 @@
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
 
-  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   const languageOptions = [
     { value: "de", label: "🇩🇪 Deutsch" },

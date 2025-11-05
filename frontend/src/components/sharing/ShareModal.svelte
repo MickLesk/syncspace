@@ -10,9 +10,7 @@
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   // Props
-  export let isOpen = false;
-  export let file = null;
-  export let onClose = () => {};
+  let { isOpen = $bindable(false), file = null, onClose = () => {} } = $props();
 
   // Share state
   let shareType = "public"; // 'public' or 'private'
@@ -40,8 +38,8 @@
     { value: 365, label: tr("oneYear") },
   ]);
 
-  $: isFile = file && !file.is_dir;
-  $: isFolder = file && file.is_dir;
+  const isFile = $derived(file && !file.is_dir);
+  const isFolder = $derived(file && file.is_dir);
 
   async function handleCreateShare() {
     if (!file) return;

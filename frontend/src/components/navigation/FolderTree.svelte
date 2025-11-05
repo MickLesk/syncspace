@@ -6,6 +6,8 @@
   import { success, error as errorToast } from "../../stores/toast";
   import { t } from "../../i18n.js";
 
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+
   let folders = $state([]);
   let expandedFolders = $state(new Set());
   let loading = $state(false);
@@ -81,59 +83,50 @@
 
   async function handleRename(folder) {
     hideContextMenu();
-    const newName = prompt(
-      t($currentLanguage, "renameFolderPrompt"),
-      folder.name
-    );
+    const newName = prompt(tr("renameFolderPrompt"), folder.name);
     if (newName && newName !== folder.name) {
       try {
         await api.files.rename(folder.path, newName);
-        success(t($currentLanguage, "folderRenamedSuccessfully"));
+        success(tr("folderRenamedSuccessfully"));
         // Reload folders
         folders = await loadFolders("/");
       } catch (err) {
-        errorToast(
-          t($currentLanguage, "failedToRenameFolder") + ": " + err.message
-        );
+        errorToast(tr("failedToRenameFolder") + ": " + err.message);
       }
     }
   }
 
   async function handleDelete(folder) {
     hideContextMenu();
-    if (confirm(t($currentLanguage, "deleteFolderConfirm", folder.name))) {
+    if (confirm(tr("deleteFolderConfirm", folder.name))) {
       try {
         await api.files.delete(folder.path);
-        success(t($currentLanguage, "folderDeletedSuccessfully"));
+        success(tr("folderDeletedSuccessfully"));
         folders = await loadFolders("/");
       } catch (err) {
-        errorToast(
-          t($currentLanguage, "failedToDeleteFolder") + ": " + err.message
-        );
+        errorToast(tr("failedToDeleteFolder") + ": " + err.message);
       }
     }
   }
 
   async function handleShare(folder) {
     hideContextMenu();
-    success(t($currentLanguage, "shareFunctionalityComingSoon", folder.name));
+    success(tr("shareFunctionalityComingSoon", folder.name));
   }
 
   async function handleFavorite(folder) {
     hideContextMenu();
-    success(
-      t($currentLanguage, "favoriteFunctionalityComingSoon", folder.name)
-    );
+    success(tr("favoriteFunctionalityComingSoon", folder.name));
   }
 
   async function handleNewSubfolder(folder) {
     hideContextMenu();
-    const name = prompt(t($currentLanguage, "newSubfolderName"));
+    const name = prompt(tr("newSubfolderName"));
     if (name) {
       try {
         const newPath = `${folder.path}/${name}`;
         await api.files.createDir(newPath);
-        success(t($currentLanguage, "subfolderCreatedSuccessfully"));
+        success(tr("subfolderCreatedSuccessfully"));
         // Expand parent and reload
         if (!expandedFolders.has(folder.path)) {
           folder.children = await loadFolders(folder.path);
@@ -143,9 +136,7 @@
           folder.children = await loadFolders(folder.path);
         }
       } catch (err) {
-        errorToast(
-          t($currentLanguage, "failedToCreateSubfolder") + ": " + err.message
-        );
+        errorToast(tr("failedToCreateSubfolder") + ": " + err.message);
       }
     }
   }
@@ -295,20 +286,18 @@
 <div class="folder-tree">
   <div class="folder-tree-header">
     <i class="bi bi-folder-fill text-warning"></i>
-    <span class="font-semibold">{t($currentLanguage, "folders")}</span>
+    <span class="font-semibold">{tr("folders")}</span>
   </div>
 
   {#if loading}
     <div class="loading-state">
       <span class="loading loading-spinner loading-sm"></span>
-      <span class="text-sm">{t($currentLanguage, "loadingFolders")}</span>
+      <span class="text-sm">{tr("loadingFolders")}</span>
     </div>
   {:else if flatFolders.length === 0}
     <div class="empty-state">
       <i class="bi bi-folder-x text-base-content/40"></i>
-      <span class="text-sm text-base-content/60"
-        >{t($currentLanguage, "noFolders")}</span
-      >
+      <span class="text-sm text-base-content/60">{tr("noFolders")}</span>
     </div>
   {:else}
     <div class="folder-list">
@@ -321,7 +310,7 @@
           <button
             class="folder-toggle"
             onclick={() => toggleFolder(folder)}
-            aria-label={t($currentLanguage, "toggleFolder")}
+            aria-label={tr("toggleFolder")}
           >
             <i class="bi bi-chevron-{isExpanded ? 'down' : 'right'} text-xs"
             ></i>
@@ -353,7 +342,7 @@
       onclick={() => handleNewSubfolder(contextMenu.folder)}
     >
       <i class="bi bi-folder-plus"></i>
-      <span>{t($currentLanguage, "newSubfolder")}</span>
+      <span>{tr("newSubfolder")}</span>
       <kbd class="kbd kbd-xs ml-auto">N</kbd>
     </button>
 
@@ -364,7 +353,7 @@
       onclick={() => handleRename(contextMenu.folder)}
     >
       <i class="bi bi-pencil"></i>
-      <span>{t($currentLanguage, "rename")}</span>
+      <span>{tr("rename")}</span>
       <kbd class="kbd kbd-xs ml-auto">F2</kbd>
     </button>
 
@@ -373,7 +362,7 @@
       onclick={() => handleShare(contextMenu.folder)}
     >
       <i class="bi bi-share"></i>
-      <span>{t($currentLanguage, "share")}</span>
+      <span>{tr("share")}</span>
     </button>
 
     <button
@@ -381,7 +370,7 @@
       onclick={() => handleFavorite(contextMenu.folder)}
     >
       <i class="bi bi-star"></i>
-      <span>{t($currentLanguage, "addToFavorites")}</span>
+      <span>{tr("addToFavorites")}</span>
       <kbd class="kbd kbd-xs ml-auto">⭐</kbd>
     </button>
 
@@ -392,7 +381,7 @@
       onclick={() => handleDelete(contextMenu.folder)}
     >
       <i class="bi bi-trash"></i>
-      <span>{t($currentLanguage, "delete")}</span>
+      <span>{tr("delete")}</span>
       <kbd class="kbd kbd-xs ml-auto">Del</kbd>
     </button>
   </div>
