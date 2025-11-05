@@ -1,12 +1,12 @@
-<div align="center"><div align="center"><div align="center"><div align="center">
+<div align="center"><div align="center"><div align="center"><div align="center"><div align="center">
 
-# 🚀 SyncSpace# 🚀 SyncSpace <img src=".github/images/logo-banner.png" alt="SyncSpace Logo" width="600" />
+# 🚀 SyncSpace# 🚀 SyncSpace# 🚀 SyncSpace <img src=".github/images/logo-banner.png" alt="SyncSpace Logo" width="600" />
 
-**Modern Self-Hosted File Synchronization\*\***Modern Self-Hosted File Synchronization\*\*# 🚀 SyncSpace
+**Modern Self-Hosted File Synchronization\*\***Modern Self-Hosted File Synchronization\*\*\*\*Modern Self-Hosted File Synchronization\*\*# 🚀 SyncSpace
 
-Fast, secure, and beautiful file sync built with Rust + Svelte 5.Fast, secure, and beautiful file sync built with Rust + Svelte 5. # SyncSpace
+Fast, secure, and beautiful file sync built with Rust + Svelte 5.Fast, secure, and beautiful file sync built with Rust + Svelte 5.Fast, secure, and beautiful file sync built with Rust + Svelte 5. # SyncSpace
 
-[![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace)[![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace)**Modern Self-Hosted File Synchronization Service**
+[![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace)[![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace)[![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace)**Modern Self-Hosted File Synchronization Service**
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
@@ -14,23 +14,23 @@ Fast, secure, and beautiful file sync built with Rust + Svelte 5.Fast, secure, a
 
 [![Svelte](https://img.shields.io/badge/Svelte-5-red)](https://svelte.dev)
 
-[![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)[![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)](https://github.com/tokio-rs/axum) **Modern Material 3 File Synchronization Service**
+[![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)[![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)](https://github.com/tokio-rs/axum)[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
 </div>[![Svelte](https://img.shields.io/badge/Svelte-5-red)](https://svelte.dev)
 
----[![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)A beautiful, fast, and secure file sync solution built with Rust + Svelte 5.
+---[![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)[![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)](https://github.com/tokio-rs/axum) **Modern Material 3 File Synchronization Service**
 
-## ⚡ Quick Start</div> A self-hosted, cross-platform file sync solution with a beautiful Material Design 3 Expressive interface.
+## ⚡ Quick Start</div>[![Svelte](https://img.shields.io/badge/Svelte-5-red)](https://svelte.dev)
 
-`````bash---[![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace) Built with Rust (backend) and Svelte 5 (frontend).
+``````bash---[![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)A beautiful, fast, and secure file sync solution built with Rust + Svelte 5.
 
 # Backend
 
-cd backend && cargo run --release## ⚡ Quick Start[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)</div>
+cd backend && cargo run --release## ⚡ Quick Start</div> A self-hosted, cross-platform file sync solution with a beautiful Material Design 3 Expressive interface.
 
 
 
-# Frontend (new terminal)````bash[![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)](https://github.com/tokio-rs/axum)
+# Frontend (new terminal)`````bash---[![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace) Built with Rust (backend) and Svelte 5 (frontend).
 
 cd frontend && npm install && npm run dev
 
@@ -38,7 +38,7 @@ cd frontend && npm install && npm run dev
 
 
 
-**Access**: `http://localhost:5173`  cd backend && cargo run --release[![Svelte](https://img.shields.io/badge/Svelte-5-red)](https://svelte.dev)<div align="center">
+**Access**: `http://localhost:5173`  cd backend && cargo run --release## ⚡ Quick Start[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)</div>
 
 **Login**: `admin` / `admin` _(change immediately!)_
 
@@ -46,7 +46,7 @@ cd frontend && npm install && npm run dev
 
 ---
 
-# Frontend (new terminal)[![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)
+# Frontend (new terminal)````bash[![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)](https://github.com/tokio-rs/axum)
 
 ## ✨ Features
 
@@ -54,7 +54,7 @@ cd frontend && npm install && npm run dev
 
 - 🎨 **Modern UI** - Tailwind CSS v4, responsive design
 
-- 🔐 **Secure** - JWT + 2FA (TOTP), Argon2 hashing```![Version](https://img.shields.io/badge/version-0.3.0-blue)
+- 🔐 **Secure** - JWT + 2FA (TOTP), Argon2 hashing```# Backend
 
 - 📁 **File Management** - Drag & drop, preview, multi-select
 
@@ -62,7 +62,7 @@ cd frontend && npm install && npm run dev
 
 - 🌐 **Real-Time** - WebSocket updates
 
-- 🌍 **i18n** - English & German**Access**: `http://localhost:5173`  </div>![License](https://img.shields.io/badge/license-Apache--2.0-green)
+- 🌍 **i18n** - English & German**Access**: `http://localhost:5173`  cd backend && cargo run --release[![Svelte](https://img.shields.io/badge/Svelte-5-red)](https://svelte.dev)<div align="center">
 
 - 📱 **Responsive** - Desktop, tablet, mobile
 
@@ -70,7 +70,7 @@ cd frontend && npm install && npm run dev
 
 ---
 
-![Material 3](https://img.shields.io/badge/Material-3%20Expressive-purple)
+
 
 ## 🏗️ Tech Stack
 
@@ -78,7 +78,7 @@ cd frontend && npm install && npm run dev
 
 **Backend**: Rust + axum 0.8 + SQLite (SQLx) + Tantivy 0.25
 
-**Frontend**: Svelte 5 + Vite (Rolldown) + Tailwind v4 + Bootstrap Icons  ---![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)
+**Frontend**: Svelte 5 + Vite (Rolldown) + Tailwind v4 + Bootstrap Icons  # Frontend (new terminal)[![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)
 
 **Search**: Tantivy with BM25 ranking, fuzzy matching
 
@@ -86,7 +86,7 @@ cd frontend && npm install && npm run dev
 
 
 
----![Svelte](https://img.shields.io/badge/Svelte-5-red)
+---cd frontend && npm install && npm run dev
 
 
 
@@ -94,7 +94,7 @@ cd frontend && npm install && npm run dev
 
 
 
-```- 🔐 **Secure** - JWT + 2FA (TOTP), Argon2 hashing## ⚡ Quick Start
+```- 🔐 **Secure** - JWT + 2FA (TOTP), Argon2 hashing```![Version](https://img.shields.io/badge/version-0.3.0-blue)
 
 syncspace/
 
@@ -102,7 +102,7 @@ syncspace/
 
 │   ├── src/          # Source code
 
-│   ├── migrations/   # SQLite migrations (23+)- 🔍 **Search** - Tantivy full-text search with fuzzy matching</div>
+│   ├── migrations/   # SQLite migrations (23+)- 🔍 **Search** - Tantivy full-text search with fuzzy matching
 
 │   └── data/         # Files + database
 
@@ -110,7 +110,7 @@ syncspace/
 
 │   ├── src/          # Components + pages
 
-│   └── public/       # Static assets- 🌍 **i18n** - English & German```bash
+│   └── public/       # Static assets- 🌍 **i18n** - English & German**Access**: `http://localhost:5173`  </div>![License](https://img.shields.io/badge/license-Apache--2.0-green)
 
 └── docs/             # Documentation
 
@@ -118,7 +118,7 @@ syncspace/
 
 
 
----# Clone the repository---
+---**Login**: `admin` / `admin` _(change immediately!)_
 
 
 
@@ -126,7 +126,7 @@ syncspace/
 
 
 
-- JWT authentication (24h expiration)git clone https://github.com/MickLesk/syncspace.git
+- JWT authentication (24h expiration)![Material 3](https://img.shields.io/badge/Material-3%20Expressive-purple)
 
 - Two-factor authentication (TOTP)
 
@@ -134,7 +134,7 @@ syncspace/
 
 - Rate limiting (5 attempts/min)
 
-- CORS protectioncd syncspace## 📂 Directory Structure
+- CORS protection---
 
 
 
@@ -142,7 +142,136 @@ syncspace/
 
 
 
-## 🌐 API Highlights**Frontend**: Svelte 5 + Vite (Rolldown) + Tailwind v4 + Bootstrap Icons
+## 🌐 API Highlights**Frontend**: Svelte 5 + Vite (Rolldown) + Tailwind v4 + Bootstrap Icons  ---![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)
+
+
+
+**Auth**: `POST /api/auth/login`, `POST /api/auth/setup-2fa`  **Search**: Tantivy with BM25 ranking, fuzzy matching
+
+**Files**: `GET /api/files/{path}`, `POST /api/upload/{path}`, `DELETE /api/files/{path}`
+
+**Search**: `GET /api/search?q={query}`  **Real-time**: WebSocket with `notify` file system watching## ✨ Features
+
+**WebSocket**: `GET /api/ws` (real-time updates)
+
+
+
+---
+
+---![Svelte](https://img.shields.io/badge/Svelte-5-red)
+
+## 🎨 UI Features
+
+
+
+- Drag & drop upload with progress
+
+- File preview (images, PDFs, videos, text, DOCX, Excel)## 📁 Structure- 🎨 **Modern UI** - Tailwind CSS v4, responsive design
+
+- Multi-select bulk operations
+
+- Breadcrumb navigation
+
+- Dark/Light theme
+
+- Keyboard shortcuts```- 🔐 **Secure** - JWT + 2FA (TOTP), Argon2 hashing## ⚡ Quick Start
+
+
+
+---syncspace/
+
+
+
+## 📚 Documentation├── backend/          # Rust API + WebSocket- 📁 **File Management** - Drag & drop, preview, multi-select
+
+
+
+- [QUICKSTART.md](docs/QUICKSTART.md) - 5-minute setup│   ├── src/          # Source code
+
+- [FEATURES.md](docs/FEATURES.md) - Complete features
+
+- [DATABASE.md](docs/DATABASE.md) - Schema & migrations│   ├── migrations/   # SQLite migrations (23+)- 🔍 **Search** - Tantivy full-text search with fuzzy matching</div>
+
+- [SEARCH_FEATURE.md](docs/SEARCH_FEATURE.md) - Search details
+
+- [AUTH_README.md](docs/AUTH_README.md) - Authentication│   └── data/         # Files + database
+
+
+
+---├── frontend/         # Svelte 5 UI- 🌐 **Real-Time** - WebSocket updates
+
+
+
+## 🚧 Roadmap│   ├── src/          # Components + pages
+
+
+
+- [x] Core file management│   └── public/       # Static assets- 🌍 **i18n** - English & German```bash
+
+- [x] JWT + 2FA authentication
+
+- [x] Full-text search (Tantivy)└── docs/             # Documentation
+
+- [x] Tailwind v4 migration
+
+- [ ] Peer-to-peer sync```- 📱 **Responsive** - Desktop, tablet, mobile
+
+- [ ] File versioning
+
+- [ ] Mobile/Desktop apps
+
+
+
+------# Clone the repository---
+
+
+
+## 🤝 Contributing
+
+
+
+Contributions welcome! Follow [Conventional Commits](https://www.conventionalcommits.org/):## 🔐 Security---
+
+
+
+```bash
+
+feat: add feature
+
+fix: bug fix- JWT authentication (24h expiration)git clone https://github.com/MickLesk/syncspace.git
+
+docs: documentation
+
+```- Two-factor authentication (TOTP)
+
+
+
+---- Argon2 password hashing## 🏗️ Tech Stack
+
+
+
+## 📄 License- Rate limiting (5 attempts/min)
+
+
+
+Apache License 2.0 - see [LICENSE](LICENSE)- CORS protectioncd syncspace## 📂 Directory Structure
+
+
+
+---
+
+
+
+## 🙏 Credits---**Backend**: Rust + axum 0.8 + SQLite (SQLx) + Tantivy 0.25
+
+
+
+[Svelte](https://svelte.dev) • [axum](https://github.com/tokio-rs/axum) • [Tantivy](https://github.com/quickwit-oss/tantivy) • [Tailwind](https://tailwindcss.com)
+
+
+
+**Made with ❤️ by [MickLesk](https://github.com/MickLesk)**## 🌐 API Highlights**Frontend**: Svelte 5 + Vite (Rolldown) + Tailwind v4 + Bootstrap Icons
+
 
 
 
@@ -661,7 +790,7 @@ Apache License 2.0 - see [LICENSE](LICENSE) file.- Search results with file path
 
 # Batch (with auto-browser)
 start.bat
-`````
+``````
 
 This will:
 
