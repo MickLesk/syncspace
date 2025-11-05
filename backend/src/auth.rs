@@ -1,6 +1,7 @@
 //! Authentication module for SyncSpace
 //! 
 //! Provides user management, JWT tokens, password hashing, and TOTP 2FA.
+//! All data stored in SQLite database - NO JSON files.
 
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
@@ -13,181 +14,105 @@ use axum::{
 use chrono::{DateTime, Duration, Utc};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
+use sqlx::SqlitePool;
 use std::collections::HashMap;
-use std::fs;
 use std::sync::{Arc, Mutex};
 use totp_lite::{totp_custom, Sha1};
 use uuid::Uuid;
 
-const USERS_FILE: &str = "./users.json";
 // TODO: Move to environment variable
 const JWT_SECRET: &str = "your-secret-key-change-in-production";
 const TOKEN_EXPIRATION_HOURS: i64 = 24;
 const REFRESH_TOKEN_EXPIRATION_DAYS: i64 = 7;
 
-/// User account structure (database model)
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct UserAccount {
-    pub id: Uuid,
-    pub username: String,
-    pub password_hash: String,
-    pub totp_secret: Option<String>,
-    pub totp_enabled: bool,
-    pub created_at: DateTime<Utc>,
-    pub last_login: Option<DateTime<Utc>>,
+// ============================================================================
+// SQLite-based Auth Functions (NO JSON files)
+// ============================================================================
+
+/// Get user by username from SQLite
+pub async fn get_user_by_username(pool: &SqlitePool, username: &str) -> Result<Option<crate::database::User>, sqlx::Error> {
+    sqlx::query_as::<_, crate::database::User>("SELECT * FROM users WHERE username = ?")
+        .bind(username)
+        .fetch_optional(pool)
+        .await
 }
 
-/// In-memory user database with persistent JSON storage
-#[derive(Clone)]
-pub struct UserDB {
-    users: Arc<Mutex<HashMap<Uuid, UserAccount>>>,
+/// Get user by ID from SQLite
+pub async fn get_user_by_id(pool: &SqlitePool, user_id: &str) -> Result<Option<crate::database::User>, sqlx::Error> {
+    sqlx::query_as::<_, crate::database::User>("SELECT * FROM users WHERE id = ?")
+        .bind(user_id)
+        .fetch_optional(pool)
+        .await
 }
 
-impl UserDB {
-    pub fn new() -> Self {
-        let db = UserDB {
-            users: Arc::new(Mutex::new(HashMap::new())),
-        };
-        db.load_from_disk();
-        db
-    }
+/// Verify password for user
+pub async fn verify_password(pool: &SqlitePool, username: &str, password: &str) -> Result<crate::database::User, String> {
+    let user = get_user_by_username(pool, username)
+        .await
+        .map_err(|e| format!("Database error: {}", e))?
+        .ok_or("Invalid username or password")?;
 
-    fn load_from_disk(&self) {
-        if let Ok(data) = fs::read_to_string(USERS_FILE) {
-            if let Ok(users_vec) = serde_json::from_str::<Vec<UserAccount>>(&data) {
-                let mut users = self.users.lock().unwrap();
-                for user in users_vec {
-                    users.insert(user.id, user);
-                }
-                println!("Loaded {} users from disk", users.len());
-            }
-        } else {
-            println!("No users file found, starting fresh");
-        }
-    }
+    let parsed_hash = PasswordHash::new(&user.password_hash)
+        .map_err(|_| "Invalid password hash".to_string())?;
 
-    fn save_to_disk(&self) {
-        let users = self.users.lock().unwrap();
-        let users_vec: Vec<UserAccount> = users.values().cloned().collect();
-        if let Ok(json) = serde_json::to_string_pretty(&users_vec) {
-            let _ = fs::write(USERS_FILE, json);
-        }
-    }
+    Argon2::default()
+        .verify_password(password.as_bytes(), &parsed_hash)
+        .map_err(|_| "Invalid username or password".to_string())?;
 
-    pub fn create_user(&self, username: String, password: String) -> Result<UserAccount, String> {
-        let mut users = self.users.lock().unwrap();
+    Ok(user)
+}
 
-        // Validate username
-        crate::security::validate_username(&username)
-            .map_err(|_| "Invalid username format (3-32 alphanumeric, underscore, hyphen only)".to_string())?;
+/// Change user password in SQLite
+pub async fn change_user_password(pool: &SqlitePool, user_id: &str, old_password: &str, new_password: &str) -> Result<(), String> {
+    let user = get_user_by_id(pool, user_id)
+        .await
+        .map_err(|e| format!("Database error: {}", e))?
+        .ok_or("User not found")?;
 
-        // Check if username exists
-        if users.values().any(|u| u.username == username) {
-            return Err("Username already exists".to_string());
-        }
+    // Verify old password
+    let parsed_hash = PasswordHash::new(&user.password_hash)
+        .map_err(|_| "Invalid password hash".to_string())?;
 
-        // Validate password strength
-        crate::security::validate_password_strength(&password)?;
+    Argon2::default()
+        .verify_password(old_password.as_bytes(), &parsed_hash)
+        .map_err(|_| "Current password is incorrect".to_string())?;
 
-        // Hash password
-        let salt = SaltString::generate(&mut OsRng);
-        let argon2 = Argon2::default();
-        let password_hash = argon2
-            .hash_password(password.as_bytes(), &salt)
-            .map_err(|e| format!("Password hashing failed: {}", e))?
-            .to_string();
+    // Hash new password
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+    let new_hash = argon2
+        .hash_password(new_password.as_bytes(), &salt)
+        .map_err(|e| format!("Password hashing failed: {}", e))?
+        .to_string();
 
-        let user = UserAccount {
-            id: Uuid::new_v4(),
-            username,
-            password_hash,
-            totp_secret: None,
-            totp_enabled: false,
-            created_at: Utc::now(),
-            last_login: None,
-        };
+    // Update in database
+    let now = Utc::now().to_rfc3339();
+    sqlx::query("UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?")
+        .bind(&new_hash)
+        .bind(&now)
+        .bind(user_id)
+        .execute(pool)
+        .await
+        .map_err(|e| format!("Failed to update password: {}", e))?;
 
-        users.insert(user.id, user.clone());
-        drop(users);
-        self.save_to_disk();
+    Ok(())
+}
 
-        Ok(user)
-    }
-
-    pub fn get_by_username(&self, username: &str) -> Option<UserAccount> {
-        let users = self.users.lock().unwrap();
-        users.values().find(|u| u.username == username).cloned()
-    }
-
-    pub fn get_by_id(&self, id: &Uuid) -> Option<UserAccount> {
-        let users = self.users.lock().unwrap();
-        users.get(id).cloned()
-    }
-
-    pub fn update_user(&self, user: UserAccount) {
-        let mut users = self.users.lock().unwrap();
-        users.insert(user.id, user);
-        drop(users);
-        self.save_to_disk();
-    }
-
-    pub fn verify_password(&self, username: &str, password: &str) -> Result<UserAccount, String> {
-        let user = self
-            .get_by_username(username)
-            .ok_or("Invalid username or password")?;
-
-        let parsed_hash = PasswordHash::new(&user.password_hash)
-            .map_err(|_| "Invalid password hash".to_string())?;
-
-        Argon2::default()
-            .verify_password(password.as_bytes(), &parsed_hash)
-            .map_err(|_| "Invalid username or password".to_string())?;
-
-        Ok(user)
-    }
-
-    pub fn change_password(&self, user_id: Uuid, old_password: &str, new_password: &str) -> Result<(), String> {
-        let mut user = self.get_by_id(&user_id).ok_or("User not found")?;
-
-        // Verify old password
-        let parsed_hash = PasswordHash::new(&user.password_hash)
-            .map_err(|_| "Invalid password hash".to_string())?;
-
-        Argon2::default()
-            .verify_password(old_password.as_bytes(), &parsed_hash)
-            .map_err(|_| "Current password is incorrect".to_string())?;
-
-        // Hash new password
-        let salt = SaltString::generate(&mut OsRng);
-        let argon2 = Argon2::default();
-        user.password_hash = argon2
-            .hash_password(new_password.as_bytes(), &salt)
-            .map_err(|e| format!("Password hashing failed: {}", e))?
-            .to_string();
-
-        self.update_user(user);
-        Ok(())
-    }
-
-    pub fn list_users(&self) -> Vec<UserAccount> {
-        let users = self.users.lock().unwrap();
-        users.values().cloned().collect()
-    }
-
-    pub fn validate_token(&self, token: &str) -> Result<UserInfo, String> {
-        let claims = verify_token(token)?;
-        let user_id = Uuid::parse_str(&claims.sub).map_err(|_| "Invalid user ID".to_string())?;
-        
-        // Get user from database to ensure they still exist
-        let users = self.users.lock().unwrap();
-        let user = users.get(&user_id).ok_or("User not found")?;
-        
-        Ok(UserInfo {
-            id: user.id.to_string(),
-            username: user.username.clone(),
-            totp_enabled: user.totp_enabled,
-        })
-    }
+/// Validate JWT token against SQLite database
+pub async fn validate_token_against_db(pool: &SqlitePool, token: &str) -> Result<UserInfo, String> {
+    let claims = verify_token(token)?;
+    
+    // Get user from SQLite to ensure they still exist
+    let user = get_user_by_id(pool, &claims.sub)
+        .await
+        .map_err(|e| format!("Database error: {}", e))?
+        .ok_or("User not found")?;
+    
+    Ok(UserInfo {
+        id: user.id,
+        username: user.username,
+        totp_enabled: user.totp_enabled,
+    })
 }
 
 /// JWT Claims structure
@@ -209,15 +134,15 @@ pub struct RefreshTokenClaims {
     pub token_version: u32, // For token rotation/invalidation
 }
 
-/// Generate JWT token for authenticated user
-pub fn generate_token(user: &UserAccount) -> Result<String, String> {
+/// Generate JWT token for authenticated user (works with database::User)
+pub fn generate_token(user: &crate::database::User) -> Result<String, String> {
     let expiration = Utc::now()
         .checked_add_signed(Duration::hours(TOKEN_EXPIRATION_HOURS))
         .expect("valid timestamp")
         .timestamp();
 
     let claims = Claims {
-        sub: user.id.to_string(),
+        sub: user.id.clone(), // Already a String in database::User
         username: user.username.clone(),
         exp: expiration as usize,
         iat: Utc::now().timestamp() as usize,
@@ -232,14 +157,14 @@ pub fn generate_token(user: &UserAccount) -> Result<String, String> {
 }
 
 /// Generate refresh token (7 day expiration)
-pub fn generate_refresh_token(user: &UserAccount) -> Result<String, String> {
+pub fn generate_refresh_token(user: &crate::database::User) -> Result<String, String> {
     let expiration = Utc::now()
         .checked_add_signed(Duration::days(REFRESH_TOKEN_EXPIRATION_DAYS))
         .ok_or("Invalid timestamp")?
         .timestamp();
 
     let claims = RefreshTokenClaims {
-        sub: user.id.to_string(),
+        sub: user.id.clone(), // Already a String in database::User
         username: user.username.clone(),
         exp: expiration as usize,
         iat: Utc::now().timestamp() as usize,
