@@ -18,59 +18,39 @@ Fast, secure, and beautiful file sync built with Rust + Svelte 5.[![Version](htt
 
 [![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)</div>
 
-</div>---
-
----## Quick Start
-
-## ⚡ Quick Start```bash
-
-cd backend && cargo run --release # Terminal 1
-
-````bashcd frontend && npm install && npm run dev  # Terminal 2
-
-# Start backend```
-
-cd backend
-
-cargo run --release**Open**: http://localhost:5173 | **Login**: admin/admin
-
-
-
-# Start frontend (new terminal)---
-
-cd frontend
-
-npm install##  Features
-
-npm run dev
-
-``` Tailwind v4 UI   JWT + 2FA   Drag & Drop   Tantivy Search   WebSocket   i18n (EN/DE)
-
-
-
-**Access**: http://localhost:5173  ---
-
-**Default Login**: `admin` / `admin` _(change immediately!)_
-
-##  Stack
+</div>
 
 ---
 
-**Backend**: Rust + axum 0.8 + SQLite + Tantivy
+## Quick Start
 
-## ✨ Features**Frontend**: Svelte 5 + Vite + Tailwind v4 + Bootstrap Icons
+## ⚡ Quick Start
 
+### Backend:
 
+```bash
+cd backend && cargo run --release # Terminal 1
+```
 
-### Core---
+### Frontend:
+
+```bash
+cd frontend && npm install && npm run dev  # Terminal 2
+```
+
+**Open**: http://localhost:5173 | **Login**: admin/admin
+
+---
+
+### Core
 
 - 🎨 **Modern UI** - Tailwind CSS v4, responsive design
 
-- 🔐 **Secure Auth** - JWT authentication + 2FA (TOTP)##  Docs
+- 🔐 **Secure Auth** - JWT authentication + 2FA (TOTP)## Docs
 
 - 📁 **File Management** - Upload, download, rename, delete, preview
 
-- 🔍 **Full-Text Search** - Tantivy search engine with fuzzy matching[QUICKSTART](docs/QUICKSTART.md)  [FEATURES](docs/FEATURES.md)  [DATABASE](docs/DATABASE.md)  [SEARCH](docs/SEARCH_FEATURE.md)  [AUTH](docs/AUTH_README.md)
+- 🔍 **Full-Text Search** - Tantivy search engine with fuzzy matching
 
 - 🌐 **Real-Time Sync** - WebSocket updates across all clients
 
@@ -78,7 +58,7 @@ npm run dev
 
 ### User Experience
 
-- 📤 **Drag & Drop** - Upload files with visual feedback##  License
+- 📤 **Drag & Drop** - Upload files with visual feedback## License
 
 - 👁️ **File Preview** - Images, PDFs, videos, text, DOCX, Excel
 
@@ -86,7 +66,7 @@ npm run dev
 
 - 🗂️ **Breadcrumbs** - Easy folder navigation
 
-- 🌍 **Internationalization** - English & German**Made with  by [MickLesk](https://github.com/MickLesk)**
+- 🌍 **Internationalization** - English & German**Made with by [MickLesk](https://github.com/MickLesk)**
 - 🌓 **Dark/Light Theme** - Auto-switching
 
 ---
@@ -94,6 +74,7 @@ npm run dev
 ## 🏗️ Tech Stack
 
 **Backend**
+
 - Rust + axum 0.8
 - SQLite (SQLx) with 23+ migrations
 - Tantivy 0.25 full-text search
@@ -101,6 +82,7 @@ npm run dev
 - WebSocket with `notify` crate
 
 **Frontend**
+
 - Svelte 5 (runes: `$state`, `$derived`)
 - Vite (Rolldown variant)
 - Tailwind CSS v4 (pure utility-first)
@@ -111,7 +93,7 @@ npm run dev
 
 ## 📁 Project Structure
 
-````
+```
 
 syncspace/
 ├── backend/ # Rust API + WebSocket
@@ -127,7 +109,7 @@ syncspace/
 │ └── public/ # Static assets
 └── docs/ # Documentation
 
-````
+```
 
 ---
 
@@ -146,11 +128,13 @@ syncspace/
 ## 🌐 API Highlights
 
 ### Authentication
+
 - `POST /api/auth/login` - Login with optional 2FA
 - `POST /api/auth/setup-2fa` - Generate 2FA QR code
 - `POST /api/auth/change-password` - Change password
 
 ### Files
+
 - `GET /api/files/{path}` - List directory
 - `POST /api/upload/{path}` - Upload file
 - `DELETE /api/files/{path}` - Delete file/folder
@@ -158,6 +142,7 @@ syncspace/
 - `POST /api/dirs/{path}` - Create directory
 
 ### Search & Real-Time
+
 - `GET /api/search?q={query}` - Full-text search
 - `GET /api/ws` - WebSocket connection for live updates
 
@@ -195,7 +180,7 @@ Contributions welcome! Follow [Conventional Commits](https://www.conventionalcom
 feat: add new feature
 fix: bug fix
 docs: update documentation
-````
+```
 
 ---
 
