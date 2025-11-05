@@ -287,11 +287,13 @@
               filteredItems.length > 0}
             on:change={toggleSelectAll}
           />
-          <span>Select All</span>
+          <span>{tr("selectAll")}</span>
         </label>
 
         {#if selectedItems.size > 0}
-          <span class="selected-count">{selectedItems.size} selected</span>
+          <span class="selected-count"
+            >{selectedItems.size} {tr("selected")}</span
+          >
           <button class="btn btn-sm btn-success" on:click={restoreSelected}>
             <svg
               class="icon-sm"
@@ -307,7 +309,7 @@
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
-            Restore
+            {tr("restoreFile")}
           </button>
           <button
             class="btn btn-sm btn-danger"
@@ -327,7 +329,7 @@
                 d="M6 18L18 6M6 6l12 12"
               />
             </svg>
-            Delete Forever
+            {tr("deleteForever")}
           </button>
         {/if}
       </div>
@@ -341,9 +343,9 @@
         />
 
         <select class="sort-select" bind:value={sortBy}>
-          <option value="deleted_at">Date Deleted</option>
-          <option value="file_name">Name</option>
-          <option value="file_size">Size</option>
+          <option value="deleted_at">{tr("dateDeleted")}</option>
+          <option value="file_name">{tr("name")}</option>
+          <option value="file_size">{tr("size")}</option>
         </select>
 
         <button

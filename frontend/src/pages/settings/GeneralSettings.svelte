@@ -161,11 +161,11 @@
             class="bi bi-palette-fill text-2xl text-primary-600 dark:text-primary-400"
           ></i>
           <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            Theme
+            {tr("theme")}
           </h2>
         </div>
         <p class="text-sm text-gray-600 dark:text-gray-400">
-          Choose your preferred color scheme. Auto follows your system settings.
+          {tr("themeDescription")}
         </p>
         <div class="flex gap-3">
           {#each themeOptions as option}
@@ -197,18 +197,18 @@
             class="bi bi-translate text-2xl text-secondary-600 dark:text-secondary-400"
           ></i>
           <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            Language
+            {tr("language")}
           </h2>
         </div>
         <p class="text-sm text-gray-600 dark:text-gray-400">
-          Select your preferred language
+          {tr("selectDefaultView")}
         </p>
         <div class="w-full">
           <label
             for="language-select"
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
-            Interface Language
+            {tr("interfaceLanguage")}
           </label>
           <select
             id="language-select"
@@ -233,18 +233,18 @@
             class="bi bi-grid-fill text-2xl text-purple-600 dark:text-purple-400"
           ></i>
           <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            Default View
+            {tr("defaultView")}
           </h2>
         </div>
         <p class="text-sm text-gray-600 dark:text-gray-400">
-          Choose how files are displayed by default
+          {tr("defaultViewDescription")}
         </p>
         <div class="w-full">
           <label
             for="view-select"
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
-            File Display Mode
+            {tr("defaultView")}
           </label>
           <select
             id="view-select"
@@ -271,7 +271,7 @@
             class="bi bi-bell-fill text-2xl text-purple-600 dark:text-purple-400"
           ></i>
           <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            Notifications
+            {tr("notifications")}
           </h2>
         </div>
         <div class="space-y-3">
@@ -280,10 +280,10 @@
           >
             <label for="enable-notifications" class="flex-1 cursor-pointer">
               <span class="block font-medium text-gray-900 dark:text-gray-100"
-                >Enable Notifications</span
+                >{tr("emailNotifications")}</span
               >
               <p class="text-sm text-gray-600 dark:text-gray-400">
-                Receive desktop notifications for important events
+                {tr("receiveEmailNotifications")}
               </p>
             </label>
             <div class="flex items-center gap-2">
@@ -315,10 +315,10 @@
           >
             <label for="auto-backup" class="flex-1 cursor-pointer">
               <span class="block font-medium text-gray-900 dark:text-gray-100"
-                >Auto Backup Notifications</span
+                >{tr("autoBackupNotifications")}</span
               >
               <p class="text-sm text-gray-600 dark:text-gray-400">
-                Get notified when automatic backups complete
+                {tr("getNotifiedWhenBackupsComplete")}
               </p>
             </label>
             <div class="flex items-center gap-2">

@@ -11,24 +11,24 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  let loading = true;
-  let loadingDisk = true;
-  let stats = {
+  let loading = $state(true);
+  let loadingDisk = $state(true);
+  let stats = $state({
     totalFiles: 0,
     totalSize: 0,
     byType: {},
     largestFiles: [],
-  };
+  });
 
   // System disk usage stats
-  let diskStats = {
+  let diskStats = $state({
     total_bytes: 0,
     available_bytes: 0,
     used_bytes: 0,
     usage_percent: 0,
     mount_point: "",
     filesystem: "",
-  };
+  });
 
   const totalSizeFormatted = $derived(formatSize(stats.totalSize));
   const diskTotalFormatted = $derived(formatSize(diskStats.total_bytes));
@@ -631,15 +631,15 @@
                   >
                   <th
                     class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
-                    >Name</th
+                    >{$t("name")}</th
                   >
                   <th
                     class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
-                    >Size</th
+                    >{$t("size")}</th
                   >
                   <th
                     class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
-                    >% of Total</th
+                    >% {$t("total")}</th
                   >
                 </tr>
               </thead>
