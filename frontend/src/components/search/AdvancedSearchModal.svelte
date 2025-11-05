@@ -1,9 +1,9 @@
 <script>
   import { createEventDispatcher, onMount } from "svelte";
-  import { currentLanguage } from "../../stores/ui.js";
+  import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
-  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import Input from "../ui/Input.svelte";
   import FilterBar from "./FilterBar.svelte";
   import Modal from "../ui/Modal.svelte";

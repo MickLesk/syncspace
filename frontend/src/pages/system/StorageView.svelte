@@ -9,7 +9,10 @@
   import LoadingState from "../../components/ui/LoadingState.svelte";
   import EmptyState from "../../components/ui/EmptyState.svelte";
 
-  $: $t = (key, ...args) => t($currentLanguage, key, ...args);
+    import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let loading = true;
   let loadingDisk = true;

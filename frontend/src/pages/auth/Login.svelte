@@ -1,11 +1,11 @@
 <script>
   import { auth } from "../../stores/auth.js";
-  import { loading, currentLanguage } from "../../stores/ui.js";
+  import { loading, currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import api from "../../lib/api.js";
   import { onMount } from "svelte";
 
-  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let username = $state("");
   let password = $state("");

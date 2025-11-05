@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { currentPath, currentLanguage } from "../../stores/ui";
+  import { currentPath, currentLang } from "../../stores/ui";
   import { onFileEvent } from "@stores/websocket.js";
   import api from "../../lib/api";
   import { success, error as errorToast } from "../../stores/toast";

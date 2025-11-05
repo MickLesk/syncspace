@@ -2,10 +2,10 @@
   import { getFileIcon, getFileIconColor } from "../../utils/fileIcons.js";
   import api from "../../lib/api.js";
   import { onMount } from "svelte";
-  import { currentLanguage } from "../../stores/ui";
+  import { currentLang } from "../../stores/ui";
   import { t } from "../../i18n.js";
 
-  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let {
     file,

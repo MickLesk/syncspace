@@ -5,11 +5,11 @@
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import { auth } from "../../stores/auth.js";
-  import { currentLanguage } from "../../stores/ui.js";
+  import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import QRCode from "qrcode";
 
-  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let twoFAEnabled = $state(false);
   let twoFASetup = $state(null); // { secret, qr_code_url }
