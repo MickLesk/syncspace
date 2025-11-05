@@ -12,12 +12,16 @@
   import { files } from "../../stores/ui";
   import { success, error as errorToast } from "../../stores/toast";
   import api from "../../lib/api";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
 
   let scanning = false;
   let scanProgress = { phase: "", current: 0, total: 0 };
   let duplicateGroups = [];
   let totalWastedSpace = 0;
   let selectedDuplicates = new Set();
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   $: totalDuplicates = duplicateGroups.reduce((sum, g) => sum + g.count - 1, 0);
 
@@ -30,7 +34,7 @@
     scanProgress = { phase: "scanning", current: 0, total: 100 };
 
     try {
-      success("Scanning for duplicates...");
+      success(tr("duplicateFinderScanningToast"));
 
       // Use backend API to find duplicates
       const groups = await api.duplicates.find(0); // min_size_bytes = 0 to find all
@@ -56,14 +60,18 @@
 
       if (groups.length > 0) {
         success(
-          `Found ${groups.length} duplicate groups (${formatBytes(totalWastedSpace)} wasted)`
+          tr(
+            "duplicateFinderScanResult",
+            groups.length,
+            formatBytes(totalWastedSpace)
+          )
         );
       } else {
-        success("No duplicates found!");
+        success(tr("duplicateFinderNoDuplicatesToast"));
       }
     } catch (e) {
       console.error("Failed to scan for duplicates:", e);
-      errorToast("Failed to scan for duplicates");
+      errorToast(tr("duplicateFinderScanFailed"));
     } finally {
       scanning = false;
       scanProgress = { phase: "", current: 0, total: 0 };
@@ -91,12 +99,12 @@
 
   async function deleteDuplicates() {
     if (selectedDuplicates.size === 0) {
-      errorToast("No duplicates selected");
+      errorToast(tr("duplicateFinderNoSelection"));
       return;
     }
 
     const confirmed = confirm(
-      `Delete ${selectedDuplicates.size} duplicate files?`
+      tr("duplicateFinderDeleteConfirm", selectedDuplicates.size)
     );
     if (!confirmed) return;
 
@@ -114,14 +122,14 @@
     }
 
     if (successCount > 0) {
-      success(`Deleted ${successCount} duplicate files`);
+      success(tr("duplicateFinderDeleteSuccess", successCount));
       selectedDuplicates.clear();
       selectedDuplicates = selectedDuplicates;
       scanCurrentFolder();
     }
 
     if (failCount > 0) {
-      errorToast(`Failed to delete ${failCount} files`);
+      errorToast(tr("duplicateFinderDeleteFailed", failCount));
     }
   }
 </script>
@@ -129,8 +137,8 @@
 <PageWrapper>
   <div class="page-fade-in">
     <PageHeader
-      title="Duplicate File Finder"
-      subtitle="Scan and remove duplicate files to free up storage space"
+      title={tr("duplicateFinderTitle")}
+      subtitle={tr("duplicateFinderSubtitle")}
       icon="bi-files"
     >
       <svelte:fragment slot="actions">
@@ -143,17 +151,17 @@
             <div
               class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"
             ></div>
-            Scanning...
+            {tr("duplicateFinderScanInProgress")}
           {:else}
             <i class="bi bi-search mr-2"></i>
-            Scan Current Folder
+            {tr("duplicateFinderScanCurrentFolder")}
           {/if}
         </ModernButton>
 
         {#if selectedDuplicates.size > 0}
           <ModernButton variant="danger" onclick={deleteDuplicates}>
             <i class="bi bi-trash mr-2"></i>
-            Delete {selectedDuplicates.size} Selected
+            {tr("duplicateFinderDeleteSelected", selectedDuplicates.size)}
           </ModernButton>
         {/if}
       </svelte:fragment>
@@ -167,13 +175,13 @@
             <div class="flex justify-between items-center mb-3">
               <span class="font-semibold text-gray-900 dark:text-gray-100">
                 {#if scanProgress.phase === "quick-scan"}
-                  Quick scanning files...
+                  {tr("duplicateFinderQuickScan")}
                 {:else if scanProgress.phase === "full-scan"}
-                  Deep scanning potential duplicates...
+                  {tr("duplicateFinderDeepScan")}
                 {:else if scanProgress.phase === "scanning"}
-                  Scanning files...
+                  {tr("duplicateFinderScanningFiles")}
                 {:else}
-                  Initializing...
+                  {tr("duplicateFinderInitializing")}
                 {/if}
               </span>
               <span class="text-sm text-gray-500 dark:text-gray-400">
@@ -204,7 +212,7 @@
                 <div
                   class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1"
                 >
-                  Duplicate Groups
+                  {tr("duplicateFinderStatsGroups")}
                 </div>
                 <div
                   class="text-3xl font-bold text-amber-600 dark:text-amber-500"
@@ -212,7 +220,7 @@
                   {duplicateGroups.length}
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {totalDuplicates} duplicate files
+                  {tr("duplicateFinderStatsFiles", totalDuplicates)}
                 </div>
               </div>
               <i
@@ -229,13 +237,13 @@
                 <div
                   class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1"
                 >
-                  Wasted Space
+                  {tr("duplicateFinderStatsWasted")}
                 </div>
                 <div class="text-3xl font-bold text-red-600 dark:text-red-500">
                   {formatBytes(totalWastedSpace)}
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Can be reclaimed
+                  {tr("duplicateFinderStatsReclaim")}
                 </div>
               </div>
               <i
@@ -252,7 +260,7 @@
                 <div
                   class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1"
                 >
-                  Selected
+                  {tr("duplicateFinderStatsSelected")}
                 </div>
                 <div
                   class="text-3xl font-bold text-primary-600 dark:text-primary-500"
@@ -260,7 +268,7 @@
                   {selectedDuplicates.size}
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Files to delete
+                  {tr("duplicateFinderStatsToDelete")}
                 </div>
               </div>
               <i
@@ -282,14 +290,17 @@
             <h2
               class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2"
             >
-              No Duplicates Found
+              {tr("duplicateFinderEmptyTitle")}
             </h2>
             <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
-              Click "Scan Current Folder" to search for duplicate files
+              {tr(
+                "duplicateFinderEmptyDescription",
+                tr("duplicateFinderScanCurrentFolder")
+              )}
             </p>
             <ModernButton variant="primary" onclick={scanCurrentFolder}>
               <i class="bi bi-search mr-2"></i>
-              Start Scanning
+              {tr("duplicateFinderStartScanning")}
             </ModernButton>
           </ModernCard>
         {/if}
@@ -308,13 +319,19 @@
                       class="badge-glass-warning flex items-center gap-2 bounce-in"
                     >
                       <i class="bi bi-files"></i>
-                      {group.count} copies
+                      {tr("duplicateFinderCopiesBadge", group.count)}
                     </span>
                     <span class="badge-glass-info bounce-in">
-                      {formatBytes(group.size)} each
+                      {tr(
+                        "duplicateFinderEachBadge",
+                        formatBytes(group.files?.[0]?.size || 0)
+                      )}
                     </span>
                     <span class="badge-glass-error bounce-in">
-                      {formatBytes(group.wastedSpace)} wasted
+                      {tr(
+                        "duplicateFinderWastedBadge",
+                        formatBytes(group.wastedSpace)
+                      )}
                     </span>
                   </div>
                   <div class="flex gap-2">
@@ -324,7 +341,7 @@
                       onclick={() => selectAllInGroup(group)}
                     >
                       <i class="bi bi-check-all mr-1"></i>
-                      Select All
+                      {tr("selectAll")}
                     </ModernButton>
                     <ModernButton
                       variant="ghost"
@@ -332,7 +349,7 @@
                       onclick={() => deselectGroup(group)}
                     >
                       <i class="bi bi-x mr-1"></i>
-                      Deselect
+                      {tr("deselect")}
                     </ModernButton>
                   </div>
                 </div>
@@ -347,15 +364,15 @@
                         <th class="p-3 w-12"></th>
                         <th
                           class="p-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
-                          >Filename</th
+                          >{tr("name")}</th
                         >
                         <th
                           class="p-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
-                          >Size</th
+                          >{tr("size")}</th
                         >
                         <th
                           class="p-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
-                          >Modified</th
+                          >{tr("modified")}</th
                         >
                         <th class="p-3 w-32"></th>
                       </tr>
@@ -391,7 +408,7 @@
                                 </div>
                                 {#if fileIndex === 0}
                                   <span class="badge-glass-success mt-1">
-                                    Original (keep)
+                                    {tr("duplicateFinderOriginalBadge")}
                                   </span>
                                 {/if}
                               </div>
@@ -413,7 +430,9 @@
                           </td>
                           <td class="p-3">
                             {#if fileIndex > 0 && selectedDuplicates.has(file.name)}
-                              <span class="badge-glass-error">Will delete</span>
+                              <span class="badge-glass-error">
+                                {tr("duplicateFinderWillDeleteBadge")}
+                              </span>
                             {/if}
                           </td>
                         </tr>

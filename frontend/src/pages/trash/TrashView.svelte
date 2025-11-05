@@ -87,7 +87,7 @@
       }
     } catch (err) {
       console.error("[TrashView] Error restoring item:", err);
-      alert(`Failed to restore: ${err.message}`);
+      alert(`${tr("trashRestoreFailed")}: ${err.message}`);
     }
   }
 
@@ -110,13 +110,13 @@
     await loadTrash();
     selectedItems.clear();
     selectedItems = selectedItems;
-    alert(`Restored ${successCount} of ${itemsToRestore.length} items`);
+    alert(tr("trashRestoreSummary", successCount, itemsToRestore.length));
   }
 
   // Permanently delete single item
   async function deleteItemPermanently(item) {
     if (
-      !confirm(`Permanently delete "${item.file_name}"? This cannot be undone!`)
+      !confirm(tr("trashConfirmDeleteSingle", item.file_name))
     )
       return;
 
@@ -129,7 +129,7 @@
       }
     } catch (err) {
       console.error("[TrashView] Error deleting item:", err);
-      alert(`Failed to delete: ${err.message}`);
+      alert(`${tr("trashDeleteFailed")}: ${err.message}`);
     }
   }
 
@@ -139,9 +139,7 @@
       selectedItems.has(item.id)
     );
     if (
-      !confirm(
-        `Permanently delete ${itemsToDelete.length} items? This cannot be undone!`
-      )
+      !confirm(tr("trashConfirmDeleteMultiple", itemsToDelete.length))
     )
       return;
 
@@ -159,17 +157,13 @@
     await loadTrash();
     selectedItems.clear();
     selectedItems = selectedItems;
-    alert(
-      `Permanently deleted ${successCount} of ${itemsToDelete.length} items`
-    );
+    alert(tr("trashDeleteSummary", successCount, itemsToDelete.length));
   }
 
   // Empty entire trash
   async function emptyTrash() {
     if (
-      !confirm(
-        `Empty trash (${trashItems.length} items)? This cannot be undone!`
-      )
+      !confirm(tr("trashConfirmEmpty", trashItems.length))
     )
       return;
 
@@ -182,13 +176,13 @@
       }
     } catch (err) {
       console.error("[TrashView] Error emptying trash:", err);
-      alert(`Failed to empty trash: ${err.message}`);
+      alert(`${tr("trashEmptyFailed")}: ${err.message}`);
     }
   }
 
   // Cleanup old items (>30 days)
   async function cleanupOldItems() {
-    if (!confirm("Delete items older than 30 days?")) return;
+    if (!confirm(tr("trashConfirmCleanup"))) return;
 
     try {
       const response = await api.trash.cleanup();
@@ -197,7 +191,7 @@
       }
     } catch (err) {
       console.error("[TrashView] Error cleaning up trash:", err);
-      alert(`Failed to cleanup: ${err.message}`);
+      alert(`${tr("trashCleanupFailed")}: ${err.message}`);
     }
   }
 
@@ -225,9 +219,13 @@
             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
           />
         </svg>
-        Trash
+        {tr("trash")}
       </h1>
-      <span class="item-count">{trashItems.length} items</span>
+      <span class="item-count">
+        {trashItems.length}
+        {" "}
+        {tr(trashItems.length === 1 ? "item" : "items")}
+      </span>
     </div>
 
     <div class="header-actions">
@@ -250,7 +248,7 @@
             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        Cleanup Old
+        {tr("trashCleanupOld")}
       </button>
       <button
         class="btn btn-sm btn-danger"
@@ -271,7 +269,7 @@
             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
           />
         </svg>
-        Empty Trash
+        {tr("emptyTrash")}
       </button>
     </div>
   </div>
@@ -337,7 +335,7 @@
       <div class="toolbar-right">
         <input
           type="text"
-          placeholder="Search trash..."
+          placeholder={tr("trashSearchPlaceholder")}
           class="search-input"
           bind:value={searchQuery}
         />
@@ -404,9 +402,9 @@
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
           />
         </svg>
-        <h3>{$t("errorOccurred")}</h3>
+  <h3>{tr("errorOccurred")}</h3>
         <p>{error}</p>
-        <button class="btn" on:click={loadTrash}>{$t("tryAgain")}</button>
+  <button class="btn" on:click={loadTrash}>{tr("tryAgain")}</button>
       </div>
     {:else if filteredItems.length === 0}
       <div class="empty">
@@ -424,11 +422,11 @@
             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
           />
         </svg>
-        <h3>{searchQuery ? $t("noItemsFound") : $t("trashIsEmpty")}</h3>
+        <h3>{searchQuery ? tr("noItemsFound") : tr("trashIsEmpty")}</h3>
         <p>
           {searchQuery
-            ? $t("tryDifferentSearch")
-            : $t("deletedFilesAppearHere")}
+            ? tr("tryDifferentSearch")
+            : tr("deletedFilesAppearHere")}
         </p>
       </div>
     {:else}
@@ -464,14 +462,14 @@
               <div class="file-meta">
                 <span>{formatFileSize(item.file_size)}</span>
                 <span class="separator">•</span>
-                <span>Deleted {formatDate(item.deleted_at)}</span>
+                <span>{tr("deletedOn")} {formatDate(item.deleted_at)}</span>
               </div>
             </div>
 
             <div class="actions">
               <button
                 class="btn-icon"
-                title={$t("restoreFile")}
+                title={tr("restoreFile")}
                 on:click={() => restoreItem(item)}
               >
                 <svg
@@ -490,7 +488,7 @@
               </button>
               <button
                 class="btn-icon btn-danger"
-                title={$t("deleteForever")}
+                title={tr("deleteForever")}
                 on:click={() => deleteItemPermanently(item)}
               >
                 <svg
