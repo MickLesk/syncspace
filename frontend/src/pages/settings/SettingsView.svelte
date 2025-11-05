@@ -10,54 +10,65 @@
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let activeTab = $state("general");
   let searchQuery = $state("");
 
-  const tabs = [
+  const tabsConfig = [
     {
       id: "general",
-      label: "General",
+      labelKey: "general",
       icon: "sliders",
       keywords: ["language", "theme", "notifications", "general"],
     },
     {
       id: "security",
-      label: "Security",
+      labelKey: "security",
       icon: "shield-lock-fill",
       keywords: ["security", "2fa", "password", "authentication"],
     },
     {
       id: "users",
-      label: "Users",
+      labelKey: "users",
       icon: "people-fill",
       keywords: ["users", "accounts", "permissions", "roles"],
     },
     {
       id: "storage",
-      label: "Storage",
+      labelKey: "storage",
       icon: "hdd-fill",
       keywords: ["storage", "quota", "disk", "space"],
     },
     {
       id: "backup",
-      label: "Backup",
+      labelKey: "backup",
       icon: "cloud-arrow-up-fill",
       keywords: ["backup", "restore", "schedule", "retention"],
     },
     {
       id: "performance",
-      label: "Performance",
+      labelKey: "performance",
       icon: "speedometer2",
       keywords: ["performance", "cache", "optimization", "speed"],
     },
     {
       id: "about",
-      label: "About",
+      labelKey: "about",
       icon: "info-circle",
       keywords: ["about", "version", "info", "credits"],
     },
   ];
+
+  const tabs = $derived(
+    tabsConfig.map((tab) => ({
+      ...tab,
+      label: tr(tab.labelKey),
+    }))
+  );
 
   // Filter tabs based on search query
   let filteredTabs = $derived(
@@ -95,8 +106,8 @@
 <PageWrapper gradient>
   <div class="page-fade-in">
     <PageHeader
-      title="Settings"
-      subtitle="Configure your SyncSpace preferences and system settings"
+      title={tr("settings")}
+      subtitle={tr("manageFiles")}
       icon="gear-fill"
     >
       {#snippet actions()}
@@ -108,7 +119,7 @@
           <input
             type="text"
             bind:value={searchQuery}
-            placeholder="Search settings..."
+            placeholder={tr("searchPlaceholder")}
             class="glass-input w-full pl-10 pr-10"
           />
           {#if searchQuery.length > 0}
@@ -147,14 +158,14 @@
           <i class="bi bi-search text-8xl text-gray-300 dark:text-gray-600 mb-6"
           ></i>
           <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">
-            No settings found
+            {tr("noFilesFound")}
           </h3>
           <p class="text-gray-600 dark:text-gray-400 mb-6">
-            Try searching for something else
+            {tr("tryDifferentSearch")}
           </p>
           <ModernButton variant="gradient" onclick={clearSearch}>
             <i class="bi bi-x-lg mr-2"></i>
-            Clear Search
+            {tr("clearFilters")}
           </ModernButton>
         </div>
       </ModernCard>
