@@ -116,7 +116,7 @@
   async function loadDiskStats() {
     loadingDisk = true;
     try {
-      diskStats = await api.system.getStorageInfo();
+      diskStats = await api.system.storage();
     } catch (err) {
       errorToast(err.message || "Failed to load disk statistics");
     } finally {
@@ -128,7 +128,7 @@
     loading = true;
     try {
       // Use backend stats endpoint
-      const basicStats = await api.system.getStats();
+      const basicStats = await api.system.stats();
       const files = await api.files.list("");
 
       stats = {

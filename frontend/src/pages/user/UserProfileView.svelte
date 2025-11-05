@@ -86,7 +86,7 @@
       await api.users.updateProfile({
         display_name: user.displayName,
         bio: user.bio,
-        email: user.email,
+        email: user.email || null, // Send null instead of empty string
         avatar_base64: user.avatar,
       });
       editMode = false;

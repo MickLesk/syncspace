@@ -72,6 +72,9 @@
     // Check setup status first
     await checkSetupStatus();
 
+    // Validate auth token
+    await auth.validateToken();
+
     // Initialisiere mit Light-Mode
     if (!localStorage.getItem("theme")) {
       localStorage.setItem("theme", "light");
