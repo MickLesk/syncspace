@@ -351,6 +351,7 @@ pub struct User {
     pub password_hash: String,
     pub email: Option<String>,
     pub display_name: Option<String>,
+    pub bio: Option<String>,
     pub avatar_base64: Option<String>,
     
     // Security
