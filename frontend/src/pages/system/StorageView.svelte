@@ -1,16 +1,13 @@
 <script>
   import { onMount } from "svelte";
   import { error as errorToast, success } from "../../stores/toast";
-  import { currentLanguage } from "../../stores/ui.js";
+  import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import api from "../../lib/api";
   import Chart from "../../components/ui/Chart.svelte";
   import Loading from "../../components/ui/Loading.svelte";
   import LoadingState from "../../components/ui/LoadingState.svelte";
   import EmptyState from "../../components/ui/EmptyState.svelte";
-
-    import { currentLang } from "../../stores/ui.js";
-  import { t } from "../../i18n.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -33,13 +30,15 @@
     filesystem: "",
   };
 
-  $: totalSizeFormatted = formatSize(stats.totalSize);
-  $: diskTotalFormatted = formatSize(diskStats.total_bytes);
-  $: diskUsedFormatted = formatSize(diskStats.used_bytes);
-  $: diskAvailableFormatted = formatSize(diskStats.available_bytes);
+  const totalSizeFormatted = $derived(formatSize(stats.totalSize));
+  const diskTotalFormatted = $derived(formatSize(diskStats.total_bytes));
+  const diskUsedFormatted = $derived(formatSize(diskStats.used_bytes));
+  const diskAvailableFormatted = $derived(
+    formatSize(diskStats.available_bytes)
+  );
 
   // Chart data for disk usage
-  $: diskChartData = [
+  const diskChartData = $derived([
     {
       label: $t("used"),
       value: diskStats.used_bytes,
@@ -50,20 +49,22 @@
       value: diskStats.available_bytes,
       color: "rgb(34, 197, 94)",
     },
-  ];
+  ]);
 
   // Chart data for file types
-  $: fileTypeChartData = Object.entries(stats.byType || {})
-    .map(([type, data]) => {
-      const category = typeCategories[type] || typeCategories.other;
-      return {
-        label: category.label,
-        value: data.totalSize || 0,
-        color: getCategoryColor(category.color),
-      };
-    })
-    .filter((item) => item.value > 0)
-    .sort((a, b) => b.value - a.value);
+  const fileTypeChartData = $derived(
+    Object.entries(stats.byType || {})
+      .map(([type, data]) => {
+        const category = typeCategories[type] || typeCategories.other;
+        return {
+          label: category.label,
+          value: data.totalSize || 0,
+          color: getCategoryColor(category.color),
+        };
+      })
+      .filter((item) => item.value > 0)
+      .sort((a, b) => b.value - a.value)
+  );
 
   // File type categories
   const getTypeCategories = () => ({
@@ -116,7 +117,7 @@
     },
   });
 
-  $: typeCategories = getTypeCategories();
+  const typeCategories = $derived(getTypeCategories());
 
   onMount(async () => {
     await Promise.all([loadStats(), loadDiskStats()]);

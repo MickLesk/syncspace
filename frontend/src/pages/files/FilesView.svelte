@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { files, currentPath, currentLanguage } from "../../stores/ui";
+  import { files, currentPath, currentLang } from "../../stores/ui";
   import { favorites } from "../../stores/favorites";
   import { userPreferences } from "../../stores/preferences";
   import { success, error as errorToast } from "../../stores/toast";
@@ -19,9 +19,6 @@
   import FilePreviewPanel from "../../components/files/FilePreviewPanel.svelte";
   import api from "../../lib/api";
   import { websocketManager } from "@stores/websocket.js";
-
-  import { files, currentPath, currentLang } from "../../stores/ui";
-  import { t } from "../../i18n.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 

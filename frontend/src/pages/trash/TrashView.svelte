@@ -1,12 +1,9 @@
 <script>
   import { onMount } from "svelte";
-  import { currentLanguage } from "../../stores/ui.js";
+  import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import api from "../../lib/api.js";
   import { formatFileSize, formatDate } from "../../lib/utils.js";
-
-    import { currentLang } from "../../stores/ui.js";
-  import { t } from "../../i18n.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -19,25 +16,28 @@
   let sortOrder = "desc";
 
   // Filter and sort trash items
-  $: filteredItems = trashItems
-    .filter((item) => {
-      if (!searchQuery) return true;
-      return item.file_name.toLowerCase().includes(searchQuery.toLowerCase());
-    })
-    .sort((a, b) => {
-      const order = sortOrder === "asc" ? 1 : -1;
-      if (sortBy === "deleted_at") {
-        return (
-          order *
-          (new Date(a.deleted_at).getTime() - new Date(b.deleted_at).getTime())
-        );
-      } else if (sortBy === "file_name") {
-        return order * a.file_name.localeCompare(b.file_name);
-      } else if (sortBy === "file_size") {
-        return order * (a.file_size - b.file_size);
-      }
-      return 0;
-    });
+  const filteredItems = $derived(
+    trashItems
+      .filter((item) => {
+        if (!searchQuery) return true;
+        return item.file_name.toLowerCase().includes(searchQuery.toLowerCase());
+      })
+      .sort((a, b) => {
+        const order = sortOrder === "asc" ? 1 : -1;
+        if (sortBy === "deleted_at") {
+          return (
+            order *
+            (new Date(a.deleted_at).getTime() -
+              new Date(b.deleted_at).getTime())
+          );
+        } else if (sortBy === "file_name") {
+          return order * a.file_name.localeCompare(b.file_name);
+        } else if (sortBy === "file_size") {
+          return order * (a.file_size - b.file_size);
+        }
+        return 0;
+      })
+  );
 
   // Select all filtered items
   function toggleSelectAll() {
