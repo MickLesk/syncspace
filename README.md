@@ -1,4 +1,4 @@
-﻿<div align="center"><div align="center">
+﻿<div align="center">
 
 # 🚀 SyncSpace
 
@@ -8,10 +8,9 @@ Fast, secure, and beautiful file sync built with Rust + Svelte 5.
 
 [![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace) [![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)](https://github.com/tokio-rs/axum) [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)[![Svelte](https://img.shields.io/badge/Svelte-5-red)](https://svelte.dev) [![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)
 
+</div>
+
 ---
-
-## Quick Start
-
 ## ⚡ Quick Start
 
 ### Backend:
@@ -33,13 +32,9 @@ cd frontend && npm install && npm run dev  # Terminal 2
 ### Core
 
 - 🎨 **Modern UI** - Tailwind CSS v4, responsive design
-
 - 🔐 **Secure Auth** - JWT authentication + 2FA (TOTP)## Docs
-
 - 📁 **File Management** - Upload, download, rename, delete, preview
-
 - 🔍 **Full-Text Search** - Tantivy search engine with fuzzy matching
-
 - 🌐 **Real-Time Sync** - WebSocket updates across all clients
 
 ---
