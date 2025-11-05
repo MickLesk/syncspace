@@ -1,37 +1,38 @@
 <script>
+  import { currentLanguage } from "../../stores/ui";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+
   let searchQuery = $state("");
 
-  const faqItems = [
+  const faqItems = $derived([
     {
-      question: "How do I upload files?",
-      answer:
-        'Click the "Upload" button in the toolbar, or drag and drop files directly into the file list.',
-      category: "Files",
+      question: tr("faqUploadQuestion"),
+      answer: tr("faqUploadAnswer"),
+      category: tr("files"),
     },
     {
-      question: "How do I share files with others?",
-      answer:
-        'Right-click on a file and select "Share" to create a shareable link.',
-      category: "Sharing",
+      question: tr("faqShareQuestion"),
+      answer: tr("faqShareAnswer"),
+      category: tr("sharing"),
     },
     {
-      question: "How do I change my password?",
-      answer: 'Go to Settings > Security and use the "Change Password" option.',
-      category: "Account",
+      question: tr("faqPasswordQuestion"),
+      answer: tr("faqPasswordAnswer"),
+      category: tr("account"),
     },
     {
-      question: "What file types are supported?",
-      answer:
-        "SyncSpace supports all file types. Preview is available for images, PDFs, and text files.",
-      category: "Files",
+      question: tr("faqFileTypesQuestion"),
+      answer: tr("faqFileTypesAnswer"),
+      category: tr("files"),
     },
     {
-      question: "How do I recover deleted files?",
-      answer:
-        "Check the Trash section. Files are kept for 30 days before permanent deletion.",
-      category: "Files",
+      question: tr("faqRecoverQuestion"),
+      answer: tr("faqRecoverAnswer"),
+      category: tr("files"),
     },
-  ];
+  ]);
 
   let filteredFAQ = $derived(
     searchQuery.trim() === ""
@@ -51,10 +52,10 @@
     >
       <i class="bi bi-question-circle text-primary-600 dark:text-primary-400"
       ></i>
-      Help & Support
+      {tr("helpAndSupport")}
     </h1>
     <p class="text-gray-600 dark:text-gray-400 mt-2">
-      Find answers to common questions and get support
+      {tr("findAnswersToCommonQuestions")}
     </p>
   </div>
 
@@ -64,7 +65,7 @@
       <div class="relative">
         <input
           type="text"
-          placeholder="Search help articles..."
+          placeholder={tr("searchHelpArticles")}
           class="input input-bordered w-full rounded-xl pl-12"
           bind:value={searchQuery}
         />
@@ -82,9 +83,9 @@
       >
         <div class="card-body items-center text-center">
           <i class="bi bi-rocket text-4xl text-primary-600"></i>
-          <h3 class="card-title text-lg">Getting Started</h3>
+          <h3 class="card-title text-lg">{tr("gettingStarted")}</h3>
           <p class="text-sm text-gray-600 dark:text-gray-400">
-            Quick start guide
+            {tr("quickStartGuide")}
           </p>
         </div>
       </a>
@@ -95,9 +96,9 @@
       >
         <div class="card-body items-center text-center">
           <i class="bi bi-book text-4xl text-secondary-600"></i>
-          <h3 class="card-title text-lg">Documentation</h3>
+          <h3 class="card-title text-lg">{tr("documentation")}</h3>
           <p class="text-sm text-gray-600 dark:text-gray-400">
-            Full documentation
+            {tr("fullDocumentation")}
           </p>
         </div>
       </a>
@@ -108,8 +109,10 @@
       >
         <div class="card-body items-center text-center">
           <i class="bi bi-envelope text-4xl text-accent-600"></i>
-          <h3 class="card-title text-lg">Contact Us</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Get in touch</p>
+          <h3 class="card-title text-lg">{tr("contactUs")}</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            {tr("getInTouch")}
+          </p>
         </div>
       </a>
     </div>
@@ -119,7 +122,7 @@
       <div class="card-body">
         <h2 class="card-title text-xl mb-6">
           <i class="bi bi-chat-question text-primary-600"></i>
-          Frequently Asked Questions
+          {tr("frequentlyAskedQuestions")}
         </h2>
 
         <div class="space-y-2">
@@ -145,7 +148,7 @@
           <div class="text-center py-8">
             <i class="bi bi-search text-4xl text-gray-400 mb-4"></i>
             <p class="text-gray-600 dark:text-gray-400">
-              No results found for "{searchQuery}"
+              {tr("noResultsFoundFor", searchQuery)}
             </p>
           </div>
         {/if}
@@ -159,15 +162,15 @@
       <div class="card-body">
         <h2 class="card-title text-xl">
           <i class="bi bi-headset"></i>
-          Need More Help?
+          {tr("needMoreHelp")}
         </h2>
         <p class="opacity-90">
-          Can't find what you're looking for? Our support team is here to help!
+          {tr("cantFindWhatYoureLookingFor")}
         </p>
         <div class="card-actions justify-end mt-4">
           <button class="btn btn-white rounded-xl">
             <i class="bi bi-envelope"></i>
-            Contact Support
+            {tr("contactSupport")}
           </button>
         </div>
       </div>
@@ -182,7 +185,7 @@
           target="_blank"
           class="link link-primary"
         >
-          View on GitHub
+          {tr("viewOnGitHub")}
         </a>
       </p>
     </div>

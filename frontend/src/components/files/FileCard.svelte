@@ -2,6 +2,10 @@
   import { getFileIcon, getFileIconColor } from "../../utils/fileIcons.js";
   import api from "../../lib/api.js";
   import { onMount } from "svelte";
+  import { currentLanguage } from "../../stores/ui";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
 
   let {
     file,
@@ -120,7 +124,7 @@
   }
 
   function formatDate(dateString) {
-    if (!dateString) return "Unknown";
+    if (!dateString) return tr("unknown");
     const date = new Date(dateString);
     return date.toLocaleDateString() + " " + date.toLocaleTimeString();
   }
@@ -137,7 +141,7 @@
       class:hover:opacity-100={true}
       onclick={toggleFavorite}
       disabled={favoriteLoading}
-      title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+      title={isFavorite ? tr("removeFromFavorites") : tr("addToFavorites")}
     >
       <i
         class="bi text-xl transition-colors"
@@ -243,7 +247,9 @@
               {formatFileSize(file.size_bytes)}
             </p>
           {:else}
-            <p class="text-sm text-gray-500 dark:text-gray-400">Folder</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              {tr("folder")}
+            </p>
           {/if}
           {#if file.modified_at}
             <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
@@ -341,7 +347,7 @@
           {#if !file.is_directory}
             {formatFileSize(file.size_bytes)} • {formatDate(file.modified_at)}
           {:else}
-            Folder • {formatDate(file.modified_at)}
+            {tr("folder")} • {formatDate(file.modified_at)}
           {/if}
         </p>
       </div>
@@ -359,7 +365,7 @@
       class="favorite-btn-list absolute right-12 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all z-10"
       onclick={toggleFavorite}
       disabled={favoriteLoading}
-      title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+      title={isFavorite ? tr("removeFromFavorites") : tr("addToFavorites")}
     >
       <i
         class="bi text-xl transition-colors"

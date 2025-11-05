@@ -8,13 +8,15 @@
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import EmptyState from "../../components/ui/EmptyState.svelte";
 
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+
   // Mock notifications data (should be from API in production)
   let notifications = $state([
     {
       id: 1,
       type: "success",
       icon: "check-circle-fill",
-      title: "File uploaded successfully",
+      title: "fileUploadedSuccessfully",
       message: "Document.pdf has been uploaded to /documents/",
       time: new Date(Date.now() - 2 * 60 * 1000),
       read: false,
@@ -24,7 +26,7 @@
       id: 2,
       type: "info",
       icon: "share-fill",
-      title: "New share request",
+      title: "newShareRequest",
       message: 'John Doe shared "Project Files" with you',
       time: new Date(Date.now() - 60 * 60 * 1000),
       read: false,
@@ -34,7 +36,7 @@
       id: 3,
       type: "warning",
       icon: "exclamation-triangle-fill",
-      title: "Storage almost full",
+      title: "storageAlmostFull",
       message: "85% of storage capacity used. Consider cleaning up old files.",
       time: new Date(Date.now() - 3 * 60 * 60 * 1000),
       read: true,
@@ -44,7 +46,7 @@
       id: 4,
       type: "error",
       icon: "x-circle-fill",
-      title: "Upload failed",
+      title: "uploadFailed",
       message: "Failed to upload large-file.zip. File exceeds size limit.",
       time: new Date(Date.now() - 6 * 60 * 60 * 1000),
       read: true,
@@ -54,7 +56,7 @@
       id: 5,
       type: "info",
       icon: "people-fill",
-      title: "New user added",
+      title: "newUserAdded",
       message: "Jane Smith was added to your workspace",
       time: new Date(Date.now() - 24 * 60 * 60 * 1000),
       read: true,
@@ -91,7 +93,7 @@
   }
 
   function clearAll() {
-    if (confirm("Are you sure you want to delete all notifications?")) {
+    if (confirm(tr("deleteAllNotificationsConfirm"))) {
       notifications = [];
     }
   }
@@ -239,7 +241,7 @@
                           ? 'text-base'
                           : 'text-sm'}"
                       >
-                        {notification.title}
+                        {tr(notification.title)}
                       </h3>
                       <span class="badge-glass-info flex-shrink-0 bounce-in">
                         <i class="bi bi-clock mr-1"></i>

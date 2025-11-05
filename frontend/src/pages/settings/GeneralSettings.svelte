@@ -28,14 +28,14 @@
   // View options will use tr() directly in template
   const defaultViewOptions = [{ value: "grid" }, { value: "list" }];
 
-  let loading = true;
-  let saving = false;
-  let selectedTheme = "auto";
-  let selectedLanguage = "en";
-  let selectedDefaultView = "grid";
-  let enableNotifications = true;
-  let autoBackup = true;
-  let saveMessage = "";
+  let loading = $state(true);
+  let saving = $state(false);
+  let selectedTheme = $state("auto");
+  let selectedLanguage = $state("en");
+  let selectedDefaultView = $state("grid");
+  let enableNotifications = $state(true);
+  let autoBackup = $state(true);
+  let saveMessage = $state("");
 
   onMount(async () => {
     await loadSettings();

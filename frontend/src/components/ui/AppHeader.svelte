@@ -225,7 +225,8 @@
 
   function handleLogout() {
     // Show confirmation modal
-    if (confirm("Are you sure you want to log out?")) {
+    const tr = (key, ...args) => t($currentLang, key, ...args);
+    if (confirm(tr("areYouSureLogout"))) {
       auth.logout();
       window.location.href = "/";
     }

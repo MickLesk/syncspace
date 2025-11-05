@@ -9,7 +9,7 @@
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import EmptyState from "../../components/ui/EmptyState.svelte";
   import LoadingState from "../../components/ui/LoadingState.svelte";
-  
+
   const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
 
   let users = $state([]);
@@ -433,7 +433,11 @@
                 {formatLastActive(user.lastActive)}
               </span>
               <div class="flex gap-2">
-                <ModernButton variant="ghost" size="sm" aria-label={tr("editUser")}>
+                <ModernButton
+                  variant="ghost"
+                  size="sm"
+                  aria-label={tr("editUser")}
+                >
                   <i class="bi bi-pencil"></i>
                 </ModernButton>
                 <ModernButton

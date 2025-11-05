@@ -2,10 +2,14 @@
   import { onMount } from "svelte";
   import api from "../../lib/api";
   import { success, error as errorToast } from "../../stores/toast";
+  import { currentLanguage } from "../../stores/ui";
+  import { t } from "../../i18n.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
+
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
 
   let shares = $state([]);
   let loading = $state(true);
@@ -34,8 +38,8 @@
       shares = response || [];
     } catch (err) {
       console.error("Failed to load shares:", err);
-      errorMsg = "Failed to load shares";
-      errorToast("Failed to load shares");
+      errorMsg = tr("failedToLoadShares");
+      errorToast(tr("failedToLoadShares"));
       shares = [];
     } finally {
       loading = false;
@@ -52,13 +56,13 @@
       };
 
       await api.shares.create(shareData);
-      success("Share created successfully");
+      success(tr("shareCreatedSuccessfully"));
       showCreateModal = false;
       resetForm();
       await loadShares();
     } catch (err) {
       console.error("Failed to create share:", err);
-      errorToast("Failed to create share");
+      errorToast(tr("failedToCreateShare"));
     }
   }
 
@@ -72,13 +76,13 @@
       };
 
       await api.shares.update(selectedShare.id, updates);
-      success("Share updated successfully");
+      success(tr("shareUpdatedSuccessfully"));
       showEditModal = false;
       selectedShare = null;
       await loadShares();
     } catch (err) {
       console.error("Failed to update share:", err);
-      errorToast("Failed to update share");
+      errorToast(tr("failedToUpdateShare"));
     }
   }
 
@@ -87,13 +91,13 @@
 
     try {
       await api.shares.delete(selectedShare.id);
-      success("Share deleted successfully");
+      success(tr("shareDeletedSuccessfully"));
       showDeleteModal = false;
       selectedShare = null;
       await loadShares();
     } catch (err) {
       console.error("Failed to delete share:", err);
-      errorToast("Failed to delete share");
+      errorToast(tr("failedToDeleteShare"));
     }
   }
 
@@ -117,7 +121,7 @@
   }
 
   function formatDate(dateString) {
-    if (!dateString) return "Never";
+    if (!dateString) return tr("never");
     return new Date(dateString).toLocaleDateString();
   }
 
@@ -125,9 +129,9 @@
     const link = `${window.location.origin}/share/${shareId}`;
     try {
       await navigator.clipboard.writeText(link);
-      success("Share link copied to clipboard");
+      success(tr("shareLinkCopiedToClipboard"));
     } catch (err) {
-      errorToast("Failed to copy link");
+      errorToast(tr("failedToCopyLink"));
     }
   }
 
@@ -140,8 +144,8 @@
 <PageWrapper gradient>
   <div class="page-fade-in">
     <PageHeader
-      title="Shared Files"
-      subtitle="Manage file shares and collaboration"
+      title={tr("sharedFiles")}
+      subtitle={tr("manageFileSharesAndCollaboration")}
       icon="share-fill"
     >
       {#snippet actions()}
@@ -151,7 +155,7 @@
           onclick={() => (showCreateModal = true)}
           class="btn-pulse"
         >
-          Create Share
+          {tr("createShare")}
         </ModernButton>
       {/snippet}
     </PageHeader>
@@ -188,17 +192,17 @@
                 <h2
                   class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100"
                 >
-                  No shares yet
+                  {tr("noSharesYet")}
                 </h2>
                 <p class="text-gray-600 dark:text-gray-400 mb-6">
-                  Create your first share to collaborate with others
+                  {tr("createFirstShareToCollaborate")}
                 </p>
                 <ModernButton
                   variant="gradient"
                   icon="plus-circle"
                   onclick={() => (showCreateModal = true)}
                 >
-                  Create Share
+                  {tr("createShare")}
                 </ModernButton>
               </div>
             {/snippet}
@@ -214,27 +218,27 @@
                     >
                       <th
                         class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
-                        >File Path</th
+                        >{tr("filePath")}</th
                       >
                       <th
                         class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
-                        >Permissions</th
+                        >{tr("permissions")}</th
                       >
                       <th
                         class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
-                        >Expires</th
+                        >{tr("expires")}</th
                       >
                       <th
                         class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
-                        >Created</th
+                        >{tr("created")}</th
                       >
                       <th
                         class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
-                        >Protected</th
+                        >{tr("protected")}</th
                       >
                       <th
                         class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100"
-                        >Actions</th
+                        >{tr("actions")}</th
                       >
                     </tr>
                   </thead>
@@ -285,7 +289,7 @@
                               icon="clipboard"
                               onclick={() => copyShareLink(share.id)}
                             >
-                              Copy
+                              {tr("copy")}
                             </ModernButton>
                             <ModernButton
                               variant="secondary"
@@ -293,7 +297,7 @@
                               icon="pencil"
                               onclick={() => openEditModal(share)}
                             >
-                              Edit
+                              {tr("edit")}
                             </ModernButton>
                             <ModernButton
                               variant="danger"
@@ -301,7 +305,7 @@
                               icon="trash"
                               onclick={() => openDeleteModal(share)}
                             >
-                              Delete
+                              {tr("delete")}
                             </ModernButton>
                           </div>
                         </td>
@@ -315,20 +319,22 @@
               >
                 <div class="flex items-center justify-between text-sm">
                   <div class="text-gray-600 dark:text-gray-400">
-                    <span class="font-semibold">{shares.length}</span> total
-                    share{shares.length !== 1 ? "s" : ""}
+                    <span class="font-semibold">{shares.length}</span>
+                    {tr("totalShares", shares.length)}
                   </div>
                   <div class="flex gap-4 text-gray-600 dark:text-gray-400">
                     <div class="flex items-center gap-2">
                       <i class="bi bi-lock-fill text-yellow-500"></i>
                       <span
-                        >{shares.filter((s) => s.password_hash).length} protected</span
+                        >{shares.filter((s) => s.password_hash).length}
+                        {tr("protected")}</span
                       >
                     </div>
                     <div class="flex items-center gap-2">
                       <i class="bi bi-exclamation-triangle text-red-500"></i>
                       <span
-                        >{shares.filter((s) => isExpired(s.expires_at)).length} expired</span
+                        >{shares.filter((s) => isExpired(s.expires_at)).length}
+                        {tr("expired")}</span
                       >
                     </div>
                   </div>
@@ -352,7 +358,7 @@
       >
         {#snippet children()}
           <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-            Create Share
+            {tr("createShare")}
           </h2>
           <form
             onsubmit={(e) => {
@@ -366,13 +372,13 @@
                 for="file_path"
                 class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
               >
-                File Path
+                {tr("filePath")}
               </label>
               <input
                 id="file_path"
                 type="text"
                 bind:value={newShare.file_path}
-                placeholder="/path/to/file.txt"
+                placeholder={tr("filePathPlaceholder")}
                 class="glass-input w-full px-4 py-2.5 rounded-lg"
                 required
               />
@@ -382,15 +388,15 @@
                 for="permissions"
                 class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
               >
-                Permissions
+                {tr("permissions")}
               </label>
               <select
                 id="permissions"
                 bind:value={newShare.permissions}
                 class="glass-input w-full px-4 py-2.5 rounded-lg"
               >
-                <option value="read">Read Only</option>
-                <option value="write">Read & Write</option>
+                <option value="read">{tr("readOnly")}</option>
+                <option value="write">{tr("readAndWrite")}</option>
               </select>
             </div>
             <div>
@@ -398,7 +404,7 @@
                 for="expires_at"
                 class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
               >
-                Expiration Date (Optional)
+                {tr("expirationDateOptional")}
               </label>
               <input
                 id="expires_at"
@@ -412,13 +418,13 @@
                 for="password"
                 class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
               >
-                Password (Optional)
+                {tr("passwordOptional")}
               </label>
               <input
                 id="password"
                 type="password"
                 bind:value={newShare.password}
-                placeholder="Leave empty for no password"
+                placeholder={tr("leaveEmptyForNoPassword")}
                 class="glass-input w-full px-4 py-2.5 rounded-lg"
               />
             </div>
@@ -427,10 +433,10 @@
                 variant="ghost"
                 onclick={() => (showCreateModal = false)}
               >
-                Cancel
+                {tr("cancel")}
               </ModernButton>
               <ModernButton type="submit" variant="gradient" icon="plus-circle">
-                Create Share
+                {tr("createShare")}
               </ModernButton>
             </div>
           </form>
@@ -450,7 +456,7 @@
       >
         {#snippet children()}
           <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-            Edit Share
+            {tr("editShare")}
           </h2>
           {#if selectedShare}
             <form
@@ -464,7 +470,7 @@
                 <label
                   class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
                 >
-                  File Path
+                  {tr("filePath")}
                 </label>
                 <input
                   type="text"
@@ -478,15 +484,15 @@
                   for="edit_permissions"
                   class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
                 >
-                  Permissions
+                  {tr("permissions")}
                 </label>
                 <select
                   id="edit_permissions"
                   bind:value={selectedShare.permissions}
                   class="glass-input w-full px-4 py-2.5 rounded-lg"
                 >
-                  <option value="read">Read Only</option>
-                  <option value="write">Read & Write</option>
+                  <option value="read">{tr("readOnly")}</option>
+                  <option value="write">{tr("readAndWrite")}</option>
                 </select>
               </div>
               <div>
@@ -494,7 +500,7 @@
                   for="edit_expires_at"
                   class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
                 >
-                  Expiration Date (Optional)
+                  {tr("expirationDateOptional")}
                 </label>
                 <input
                   id="edit_expires_at"
@@ -508,13 +514,13 @@
                   for="edit_password"
                   class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
                 >
-                  Password (Leave empty to keep current)
+                  {tr("passwordLeaveEmptyToKeepCurrent")}
                 </label>
                 <input
                   id="edit_password"
                   type="password"
                   bind:value={selectedShare.password}
-                  placeholder="Enter new password or leave empty"
+                  placeholder={tr("enterNewPasswordOrLeaveEmpty")}
                   class="glass-input w-full px-4 py-2.5 rounded-lg"
                 />
               </div>
@@ -526,10 +532,10 @@
                     selectedShare = null;
                   }}
                 >
-                  Cancel
+                  {tr("cancel")}
                 </ModernButton>
                 <ModernButton type="submit" variant="gradient" icon="save">
-                  Save Changes
+                  {tr("saveChanges")}
                 </ModernButton>
               </div>
             </form>
@@ -550,7 +556,7 @@
       >
         {#snippet children()}
           <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-            Delete Share
+            {tr("deleteShare")}
           </h2>
           {#if selectedShare}
             <div class="space-y-4">
@@ -563,17 +569,18 @@
                     <p
                       class="font-semibold text-gray-900 dark:text-gray-100 mb-2"
                     >
-                      Are you sure you want to delete this share?
+                      {tr("areYouSureDeleteShare")}
                     </p>
                     <p class="text-sm text-gray-600 dark:text-gray-400">
-                      File: <span
+                      {tr("file")}:
+                      <span
                         class="font-mono font-semibold text-primary-600 dark:text-primary-400"
                       >
                         {selectedShare.file_path}
                       </span>
                     </p>
                     <p class="text-sm text-red-600 dark:text-red-400 mt-2">
-                      This action cannot be undone.
+                      {tr("thisActionCannotBeUndone")}
                     </p>
                   </div>
                 </div>
@@ -586,14 +593,14 @@
                     selectedShare = null;
                   }}
                 >
-                  Cancel
+                  {tr("cancel")}
                 </ModernButton>
                 <ModernButton
                   variant="danger"
                   icon="trash-fill"
                   onclick={handleDeleteShare}
                 >
-                  Delete Share
+                  {tr("deleteShare")}
                 </ModernButton>
               </div>
             </div>
