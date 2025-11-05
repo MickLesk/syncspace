@@ -1,9 +1,9 @@
 <script>
   import { auth } from "../../stores/auth.js";
-  import { currentLanguage } from "../../stores/ui.js";
+  import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
-  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let username = $state("");
   let email = $state("");

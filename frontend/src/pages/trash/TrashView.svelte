@@ -5,7 +5,10 @@
   import api from "../../lib/api.js";
   import { formatFileSize, formatDate } from "../../lib/utils.js";
 
-  $: $t = (key, ...args) => t($currentLanguage, key, ...args);
+    import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let trashItems = [];
   let loading = true;

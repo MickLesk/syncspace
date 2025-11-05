@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { showToast } from "../../stores/toast.js";
-  import { currentLanguage } from "../../stores/ui";
+  import { currentLang } from "../../stores/ui";
   import { t } from "../../i18n.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import PageHeader from "../../components/ui/PageHeader.svelte";
@@ -10,7 +10,7 @@
   import EmptyState from "../../components/ui/EmptyState.svelte";
   import LoadingState from "../../components/ui/LoadingState.svelte";
 
-  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let users = $state([]);
   let loading = $state(true);

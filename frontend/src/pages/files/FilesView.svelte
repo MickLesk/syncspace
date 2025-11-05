@@ -20,7 +20,10 @@
   import api from "../../lib/api";
   import { websocketManager } from "@stores/websocket.js";
 
-  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+  import { files, currentPath, currentLang } from "../../stores/ui";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let loading = $state(true);
   let searchQuery = $state("");

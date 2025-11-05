@@ -1,12 +1,12 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { currentLanguage } from "../../stores/ui";
+  import { currentLang } from "../../stores/ui";
   import { t } from "../../i18n.js";
   import ModernCard from "./ModernCard.svelte";
   import ModernButton from "./ModernButton.svelte";
 
   const dispatch = createEventDispatcher();
-  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let { open = $bindable(false) } = $props();
 

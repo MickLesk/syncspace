@@ -2,14 +2,14 @@
   import { onMount } from "svelte";
   import api from "../../lib/api";
   import { success, error as errorToast } from "../../stores/toast";
-  import { currentLanguage } from "../../stores/ui";
+  import { currentLang } from "../../stores/ui";
   import { t } from "../../i18n.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
 
-  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let shares = $state([]);
   let loading = $state(true);

@@ -1,13 +1,13 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import { success, error as errorToast } from "../../stores/toast.js";
-  import { currentLanguage } from "../../stores/ui";
+  import { currentLang } from "../../stores/ui";
   import { t } from "../../i18n.js";
   import Modal from "../ui/Modal.svelte";
   import api from "../../lib/api.js";
 
   const dispatch = createEventDispatcher();
-  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   // Props
   export let isOpen = false;

@@ -1,13 +1,13 @@
 <script>
   import { onMount } from "svelte";
   import { showToast } from "../../stores/toast.js";
-  import { currentLanguage } from "../../stores/ui.js";
+  import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import api from "../../lib/api.js";
 
-  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let user = $state({
     username: "@Loading...",

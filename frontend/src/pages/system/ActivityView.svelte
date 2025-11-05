@@ -2,14 +2,14 @@
   import { onMount } from "svelte";
   import { activity } from "../../stores/activity";
   import { error as errorToast } from "../../stores/toast";
-  import { currentLanguage } from "../../stores/ui";
+  import { currentLang } from "../../stores/ui";
   import { t } from "../../i18n.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import EmptyState from "../../components/ui/EmptyState.svelte";
 
-  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let selectedFilter = $state("all");
   let searchQuery = $state("");
