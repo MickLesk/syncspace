@@ -8,6 +8,7 @@
   import Modal from "./Modal.svelte";
   import ThemeSwitcher from "./ThemeSwitcher.svelte";
   import NotificationBell from "./NotificationBell.svelte";
+  import HelpDialog from "./HelpDialog.svelte";
   import { userPreferences } from "../../stores/preferences.js";
   import { wsConnected } from "@stores/websocket.js";
   import api from "../../lib/api.js";
@@ -17,6 +18,7 @@
 
   let backendOnline = $state(false);
   let showBackendModal = $state(false);
+  let showHelpDialog = $state(false);
 
   let { showActivityFeed = $bindable(false) } = $props();
 
@@ -473,6 +475,17 @@
         {/if}
       </button>
 
+      <!-- Help & Support Button -->
+      <button
+        onclick={() => (showHelpDialog = true)}
+        class="p-2 rounded-lg transition-all duration-300 hover:scale-110 hover:bg-gray-100 dark:hover:bg-gray-800"
+        title="Help & Support"
+      >
+        <i
+          class="bi bi-question-circle text-xl text-gray-600 dark:text-gray-400"
+        ></i>
+      </button>
+
       <!-- Theme Toggle -->
       <ThemeSwitcher />
 
@@ -601,6 +614,9 @@
     </div>
   </div>
 </header>
+
+<!-- Help & Support Dialog -->
+<HelpDialog bind:open={showHelpDialog} />
 
 <!-- Material 3 Quick Search Modal -->
 <Modal

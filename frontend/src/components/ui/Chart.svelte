@@ -104,7 +104,9 @@
           <div class="legend-content">
             <div class="legend-label">{item.label}</div>
             <div class="legend-value">
-              {item.value.toLocaleString()} ({item.percentage.toFixed(1)}%)
+              {item.value ? item.value.toLocaleString() : "0"} ({item.percentage?.toFixed(
+                1
+              ) || "0"}%)
             </div>
           </div>
         </div>
@@ -338,4 +340,3 @@
     }
   }
 </style>
-

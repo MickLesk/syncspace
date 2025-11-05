@@ -113,8 +113,12 @@
         twoFASetup = null;
         verificationCode = "";
       } else {
-        const data = await response.json();
-        error = data.error || "Invalid verification code";
+        try {
+          const data = await response.json();
+          error = data.error || "Invalid verification code";
+        } catch {
+          error = "Invalid verification code";
+        }
       }
     } catch (e) {
       console.error("2FA enable error:", e);
