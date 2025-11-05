@@ -90,7 +90,7 @@
   function addToFavorites(index) {
     const segmentPath = "/" + segments.slice(0, index + 1).join("/") + "/";
     dispatch("addToFavorites", { path: segmentPath });
-    success("Added to favorites");
+    success(t($currentLang, "addedToFavorites"));
     activeActionMenu = null;
   }
 
@@ -141,7 +141,7 @@
                 e.stopPropagation();
                 toggleActionMenu("home");
               }}
-              title="Quick actions"
+              title={t($currentLang, "quickActions")}
             >
               <i class="bi bi-three-dots-vertical"></i>
             </button>
@@ -149,12 +149,12 @@
               <div class="breadcrumb-action-menu">
                 <button onclick={() => copySegmentPath(-1)}>
                   <i class="bi bi-clipboard"></i>
-                  <span>Copy Path</span>
+                  <span>{t($currentLang, "copyPath")}</span>
                   <kbd class="kbd kbd-xs">Ctrl+C</kbd>
                 </button>
                 <button onclick={() => addToFavorites(-1)}>
                   <i class="bi bi-star"></i>
-                  <span>Add to Favorites</span>
+                  <span>{t($currentLang, "addToFavorites")}</span>
                   <kbd class="kbd kbd-xs">F</kbd>
                 </button>
               </div>
@@ -187,7 +187,7 @@
                   e.stopPropagation();
                   dropdownOpen = !dropdownOpen;
                 }}
-                aria-label="Show hidden path segments"
+                aria-label={t($currentLang, "showHiddenPathSegments")}
               >
                 <i class="bi bi-three-dots"></i>
               </button>
@@ -197,7 +197,7 @@
                   class="dropdown-content menu p-2 shadow bg-white dark:bg-slate-900 rounded-box w-52 z-50"
                   onclick={(e) => e.stopPropagation()}
                   onkeydown={(e) => {
-                    if (e.key === 'Escape') dropdownOpen = false;
+                    if (e.key === "Escape") dropdownOpen = false;
                   }}
                 >
                   {#each hiddenSegments as segment, i}
@@ -233,7 +233,7 @@
                       e.stopPropagation();
                       toggleActionMenu(i);
                     }}
-                    title="Quick actions"
+                    title={t($currentLang, "quickActions")}
                   >
                     <i class="bi bi-three-dots-vertical"></i>
                   </button>
@@ -241,17 +241,17 @@
                     <div class="breadcrumb-action-menu">
                       <button onclick={() => copySegmentPath(i)}>
                         <i class="bi bi-clipboard"></i>
-                        <span>Copy Path</span>
+                        <span>{t($currentLang, "copyPath")}</span>
                         <kbd class="kbd kbd-xs">Ctrl+C</kbd>
                       </button>
                       <button onclick={() => openInNewTab(i)}>
                         <i class="bi bi-box-arrow-up-right"></i>
-                        <span>Open in New Tab</span>
+                        <span>{t($currentLang, "openInNewTab")}</span>
                         <kbd class="kbd kbd-xs">Ctrl+T</kbd>
                       </button>
                       <button onclick={() => addToFavorites(i)}>
                         <i class="bi bi-star"></i>
-                        <span>Add to Favorites</span>
+                        <span>{t($currentLang, "addToFavorites")}</span>
                         <kbd class="kbd kbd-xs">F</kbd>
                       </button>
                     </div>
@@ -282,7 +282,7 @@
                       e.stopPropagation();
                       toggleActionMenu(`last-${i}`);
                     }}
-                    title="Quick actions"
+                    title={t($currentLang, "quickActions")}
                   >
                     <i class="bi bi-three-dots-vertical"></i>
                   </button>
@@ -295,7 +295,7 @@
                           )}
                       >
                         <i class="bi bi-clipboard"></i>
-                        <span>Copy Path</span>
+                        <span>{t($currentLang, "copyPath")}</span>
                         <kbd class="kbd kbd-xs">Ctrl+C</kbd>
                       </button>
                       <button
@@ -305,7 +305,7 @@
                           )}
                       >
                         <i class="bi bi-box-arrow-up-right"></i>
-                        <span>Open in New Tab</span>
+                        <span>{t($currentLang, "openInNewTab")}</span>
                         <kbd class="kbd kbd-xs">Ctrl+T</kbd>
                       </button>
                       <button
@@ -315,7 +315,7 @@
                           )}
                       >
                         <i class="bi bi-star"></i>
-                        <span>Add to Favorites</span>
+                        <span>{t($currentLang, "addToFavorites")}</span>
                         <kbd class="kbd kbd-xs">F</kbd>
                       </button>
                     </div>
@@ -484,5 +484,3 @@
     margin-left: auto;
   }
 </style>
-
-

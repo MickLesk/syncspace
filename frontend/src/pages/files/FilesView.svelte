@@ -1,10 +1,11 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { files, currentPath } from "../../stores/ui";
+  import { files, currentPath, currentLanguage } from "../../stores/ui";
   import { favorites } from "../../stores/favorites";
   import { userPreferences } from "../../stores/preferences";
   import { success, error as errorToast } from "../../stores/toast";
   import { modals, modalEvents } from "../../stores/modals";
+  import { t } from "../../i18n.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import Breadcrumbs from "../../components/Breadcrumbs.svelte";
   import SearchFilters from "../../components/search/SearchFilters.svelte";
@@ -18,6 +19,8 @@
   import FilePreviewPanel from "../../components/files/FilePreviewPanel.svelte";
   import api from "../../lib/api";
   import { websocketManager } from "@stores/websocket.js";
+
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
 
   let loading = $state(true);
   let searchQuery = $state("");
@@ -252,13 +255,13 @@
           // Save to backend database
           await api.folderColors.set(file.path, color);
           console.log("[FilesView] Folder color saved to backend");
-          success("Folder color updated");
+          success(tr("folderColorUpdated"));
 
           // Refresh the file list to show new color
           await loadFiles();
         } catch (err) {
           console.error("[FilesView] Failed to save folder color:", err);
-          errorToast("Failed to update folder color");
+          errorToast(tr("failedToUpdateFolderColor"));
         }
       }
     );
@@ -277,13 +280,15 @@
             : file.name;
 
           await api.files.move(sourcePath, destPath);
-          success(`Moved ${file.name} to ${destinationPath || "root"}`);
+          success(
+            `${tr("movedTo")} ${file.name} ${tr("movedTo")} ${destinationPath || tr("root")}`
+          );
 
           // Refresh the file list
           await loadFiles();
         } catch (err) {
           console.error("[FilesView] Failed to move file:", err);
-          errorToast(err.message || "Failed to move file");
+          errorToast(err.message || tr("failedToMoveFile"));
         }
       }
     );
@@ -307,7 +312,7 @@
           await favorites.add(file.id, "file");
         }
       } catch (err) {
-        errorToast("Failed to toggle favorite");
+        errorToast(tr("failedToToggleFavorite"));
       }
     };
 
@@ -341,7 +346,7 @@
       files.set(fileList);
       if (path) currentPath.set(path);
     } catch (err) {
-      errorToast("Failed to load files");
+      errorToast(tr("failedToLoadFiles"));
       console.error(err);
     } finally {
       loading = false;
@@ -429,13 +434,15 @@
         sortOrder = searchSortOrder || "asc";
       }
 
-      success(`Found ${searchResults.length} result(s)`);
+      success(
+        `${tr("found")} ${searchResults.length} ${searchResults.length === 1 ? tr("item") : tr("items")}`
+      );
 
       // Close the search modal
       modals.close("advancedSearch");
     } catch (err) {
       console.error("[FilesView] Search failed:", err);
-      errorToast("Search failed: " + err.message);
+      errorToast(`${tr("searchFailed")}: ${err.message}`);
       searchResults = [];
     } finally {
       searchLoading = false;
@@ -547,10 +554,10 @@
         }
       }
 
-      success("Folder created");
+      success(tr("folderCreated"));
       await loadFiles();
     } catch (error) {
-      errorToast("Failed to create folder");
+      errorToast(tr("failedToCreateFolder"));
       console.error(error);
     }
   }
@@ -562,10 +569,10 @@
       const dir = file.file_path?.split("/").slice(0, -1).join("/") || "";
       const newPath = dir ? `${dir}/${newName}` : newName;
       await api.files.rename(file.file_path || file.name, newPath);
-      success("File renamed");
+      success(tr("fileRenamed"));
       await loadFiles();
     } catch (error) {
-      errorToast("Failed to rename file");
+      errorToast(tr("failedToRenameFile"));
       console.error(error);
     }
   }
@@ -576,10 +583,10 @@
     try {
       await api.files.delete(file.file_path || file.name);
       currentFile = null;
-      success("File deleted");
+      success(tr("fileDeleted"));
       await loadFiles();
     } catch (error) {
-      errorToast("Failed to delete file");
+      errorToast(tr("failedToDeleteFile"));
       console.error(error);
     }
   }
@@ -599,7 +606,7 @@
     }
 
     selectedFiles = new Set();
-    success("Files deleted");
+    success(tr("filesDeleted"));
     await loadFiles();
   }
 
@@ -628,13 +635,15 @@
 
       // Call backend move API
       await api.files.move(sourcePath, destPath);
-      success(`Moved ${draggedFile.name} to ${destinationPath || "root"}`);
+      success(
+        `${tr("movedTo")} ${draggedFile.name} ${tr("movedTo")} ${destinationPath || tr("root")}`
+      );
 
       // Refresh file list
       await loadFiles();
     } catch (err) {
       console.error("[FilesView] Failed to move file:", err);
-      errorToast(err.message || "Failed to move file");
+      errorToast(err.message || tr("failedToMoveFile"));
     }
   }
 
@@ -708,9 +717,9 @@
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      success("File downloaded");
+      success(tr("fileDownloaded"));
     } catch (err) {
-      errorToast("Download failed: " + err.message);
+      errorToast(`${tr("downloadFailed")}: ${err.message}`);
     }
   }
 
@@ -822,11 +831,13 @@
           </svg>
           <div>
             <div class="text-sm font-medium text-blue-900 dark:text-blue-100">
-              Search Results
+              {tr("searchResults")}
             </div>
             <div class="text-xs text-blue-700 dark:text-blue-300">
-              Found {searchResults.length}
-              {searchResults.length === 1 ? "item" : "items"} matching your search
+              {tr("found")}
+              {searchResults.length}
+              {searchResults.length === 1 ? tr("item") : tr("items")}
+              {tr("matchingYourSearch")}
             </div>
           </div>
         </div>
@@ -847,7 +858,7 @@
               d="M6 18L18 6M6 6l12 12"
             />
           </svg>
-          Exit Search
+          {tr("exitSearch")}
         </button>
       </div>
     {/if}
@@ -894,7 +905,7 @@
       <LoadingState
         variant={viewMode}
         count={8}
-        message={searchLoading ? "Searching files..." : "Loading files..."}
+        message={searchLoading ? tr("searchingFiles") : tr("loadingFiles")}
       />
     {:else if displayFiles().length === 0}
       <EmptyState

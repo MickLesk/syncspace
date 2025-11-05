@@ -1,5 +1,9 @@
 <script>
   import { auth } from "../../stores/auth.js";
+  import { currentLanguage } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
 
   let username = $state("");
   let email = $state("");
@@ -17,22 +21,22 @@
 
     // Validation
     if (!username || !email || !password || !confirmPassword) {
-      errorMessage = "Please fill in all fields";
+      errorMessage = tr("pleaseFillinAllFields");
       return;
     }
 
     if (password !== confirmPassword) {
-      errorMessage = "Passwords do not match";
+      errorMessage = tr("passwordsDoNotMatch");
       return;
     }
 
     if (password.length < 8) {
-      errorMessage = "Password must be at least 8 characters";
+      errorMessage = tr("passwordChanged"); // Using existing key for now
       return;
     }
 
     if (!agreedToTerms) {
-      errorMessage = "Please accept the terms and conditions";
+      errorMessage = tr("pleaseAcceptTerms");
       return;
     }
 
@@ -50,10 +54,10 @@
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Registration failed");
+        throw new Error(data.error || tr("registrationFailed"));
       }
 
-      successMessage = "Account created successfully! Redirecting to login...";
+      successMessage = tr("profileSavedSuccessfully");
 
       // Redirect to login after 2 seconds
       setTimeout(() => {
@@ -127,7 +131,7 @@
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <i class="bi bi-person-fill mr-2 text-blue-600 dark:text-blue-400"
-          ></i>Username
+          ></i>{tr("username")}
         </label>
         <div class="relative">
           <input
@@ -135,7 +139,7 @@
             type="text"
             bind:value={username}
             class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder="Choose a username"
+            placeholder={tr("chooseUsername")}
             disabled={loading}
           />
           <i
@@ -151,7 +155,7 @@
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <i class="bi bi-envelope-fill mr-2 text-blue-600 dark:text-blue-400"
-          ></i>Email
+          ></i>{tr("email")}
         </label>
         <div class="relative">
           <input
@@ -159,7 +163,7 @@
             type="email"
             bind:value={email}
             class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder="your.email@example.com"
+            placeholder={tr("email")}
             disabled={loading}
           />
           <i
@@ -176,7 +180,7 @@
         >
           <i
             class="bi bi-shield-lock-fill mr-2 text-blue-600 dark:text-blue-400"
-          ></i>Password
+          ></i>{tr("password")}
         </label>
         <div class="relative">
           <input
@@ -184,7 +188,7 @@
             type={showPassword ? "text" : "password"}
             bind:value={password}
             class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder="Create a strong password"
+            placeholder={tr("createStrongPassword")}
             disabled={loading}
           />
           <i
@@ -211,15 +215,15 @@
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <i class="bi bi-shield-check mr-2 text-green-600 dark:text-green-400"
-          ></i>Confirm Password
+          ></i>{tr("confirmPassword")}
         </label>
         <div class="relative">
           <input
             id="signup-confirm-password"
             type={showConfirmPassword ? "text" : "password"}
             bind:value={confirmPassword}
-            class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder="Confirm your password"
+            class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            placeholder={tr("confirmYourPassword")}
             disabled={loading}
           />
           <i
@@ -245,16 +249,17 @@
           class="w-4 h-4 mt-1 text-blue-600 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 accent-blue-600"
         />
         <label for="terms" class="text-sm text-gray-700 dark:text-gray-300">
-          I agree to the <a
+          {tr("iAcceptTerms")}
+          <a
             href="#/terms"
             class="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
-            >Terms and Conditions</a
+            >{tr("termsAndConditions")}</a
           >
-          and
+          {tr("and")}
           <a
             href="#/privacy"
             class="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
-            >Privacy Policy</a
+            >{tr("privacyPolicy")}</a
           >
         </label>
       </div>
@@ -291,18 +296,18 @@
             class="bi bi-person-plus-fill group-hover:scale-110 transition-transform"
           ></i>
         {/if}
-        <span>{loading ? "Creating Account..." : "Create Account"}</span>
+        <span>{loading ? tr("creatingAccount") : tr("createAccount")}</span>
       </button>
     </form>
 
     <!-- Login Link -->
     <p class="text-center mt-8 text-sm text-gray-600 dark:text-gray-400">
-      Already have an account?
+      {tr("alreadyHaveAccount")}
       <a
         href="#/login"
         class="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition-colors"
       >
-        Sign in
+        {tr("signInHere")}
       </a>
     </p>
   </div>

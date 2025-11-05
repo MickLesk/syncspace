@@ -2,43 +2,46 @@
   import { onMount } from "svelte";
   import { activity } from "../../stores/activity";
   import { error as errorToast } from "../../stores/toast";
+  import { currentLanguage } from "../../stores/ui";
+  import { t } from "../../i18n.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import EmptyState from "../../components/ui/EmptyState.svelte";
 
-  let groupedActivities = {};
-  let selectedFilter = "all";
-  let searchQuery = "";
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
 
-  $: filteredActivities = filterActivities(
+  let selectedFilter = $state("all");
+  let searchQuery = $state("");
+
+  let filteredActivities = $derived(filterActivities(
     $activity,
     selectedFilter,
     searchQuery
-  );
-  $: groupedActivities = groupByDate(filteredActivities);
-  $: todayCount = activity.getToday().length;
+  ));
+  let groupedActivities = $derived(groupByDate(filteredActivities));
+  let todayCount = $derived(activity.getToday().length);
 
-  const activityTypes = [
-    { value: "all", label: "All", icon: "list-ul" },
-    { value: "upload", label: "Uploads", icon: "upload" },
-    { value: "download", label: "Downloads", icon: "download" },
-    { value: "delete", label: "Deletes", icon: "trash" },
-    { value: "rename", label: "Renames", icon: "pencil" },
-    { value: "move", label: "Moves", icon: "arrow-right" },
-  ];
+  let activityTypes = $derived([
+    { value: "all", label: tr("all"), icon: "list-ul" },
+    { value: "upload", label: tr("uploads"), icon: "upload" },
+    { value: "download", label: tr("downloads"), icon: "download" },
+    { value: "delete", label: tr("deletes"), icon: "trash" },
+    { value: "rename", label: tr("renames"), icon: "pencil" },
+    { value: "move", label: tr("moves"), icon: "arrow-right" },
+  ]);
 
-  const typeConfig = {
-    upload: { label: "Uploaded", color: "success", icon: "upload" },
-    download: { label: "Downloaded", color: "info", icon: "download" },
-    delete: { label: "Deleted", color: "error", icon: "trash" },
-    rename: { label: "Renamed", color: "warning", icon: "pencil" },
-    create: { label: "Created", color: "primary", icon: "plus-circle" },
-    move: { label: "Moved", color: "secondary", icon: "arrow-right" },
-    share: { label: "Shared", color: "accent", icon: "share" },
-    favorite: { label: "Favorited", color: "warning", icon: "star-fill" },
-    unfavorite: { label: "Unfavorited", color: "neutral", icon: "star" },
-  };
+  let typeConfig = $derived({
+    upload: { label: tr("uploaded"), color: "success", icon: "upload" },
+    download: { label: tr("downloaded"), color: "info", icon: "download" },
+    delete: { label: tr("deleted"), color: "error", icon: "trash" },
+    rename: { label: tr("renamed"), color: "warning", icon: "pencil" },
+    create: { label: tr("created"), color: "primary", icon: "plus-circle" },
+    move: { label: tr("moved"), color: "secondary", icon: "arrow-right" },
+    share: { label: tr("shared"), color: "accent", icon: "share" },
+    favorite: { label: tr("favorited"), color: "warning", icon: "star-fill" },
+    unfavorite: { label: tr("unfavorited"), color: "neutral", icon: "star" },
+  });
 
   onMount(async () => {
     await activity.load({ limit: 100 });
@@ -85,9 +88,9 @@
 
       let label;
       if (dateKey.getTime() === today.getTime()) {
-        label = "Today";
+        label = tr("today");
       } else if (dateKey.getTime() === yesterday.getTime()) {
-        label = "Yesterday";
+        label = tr("yesterday");
       } else {
         label = formatDate(date);
       }
@@ -126,15 +129,15 @@
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
+    if (minutes < 1) return tr("justNow");
+    if (minutes < 60) return tr("minutesAgo", minutes);
+    if (hours < 24) return tr("hoursAgo", hours);
+    if (days < 7) return tr("daysAgo", days);
     return formatDate(new Date(timestamp));
   }
 
   function handleClearAll() {
-    if (confirm("Clear all activity history?")) {
+    if (confirm(tr("clearAllActivityHistoryConfirm"))) {
       activity.clear();
     }
   }
@@ -152,9 +155,9 @@
       class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3"
     >
       <i class="bi bi-activity"></i>
-      Activity Timeline
+      {tr("activityTimeline")}
     </h1>
-    <p class="text-base-content/70">Track all file operations and changes</p>
+    <p class="text-base-content/70">{tr("trackAllFileOperations")}</p>
   </div>
 
   <!-- Stats -->
@@ -167,10 +170,10 @@
               <i class="bi bi-activity text-5xl"></i>
             </div>
             <div class="text-sm font-semibold text-base-content/60 mb-1">
-              Total Events
+              {tr("totalEvents")}
             </div>
             <div class="text-4xl font-bold mb-2">{$activity.length}</div>
-            <div class="text-xs text-base-content/50">All time</div>
+            <div class="text-xs text-base-content/50">{tr("allTime")}</div>
           </div>
         {/snippet}
       </ModernCard>
@@ -182,10 +185,12 @@
               <i class="bi bi-calendar-check text-5xl"></i>
             </div>
             <div class="text-sm font-semibold text-base-content/60 mb-1">
-              Today
+              {tr("today")}
             </div>
             <div class="text-4xl font-bold mb-2">{todayCount}</div>
-            <div class="text-xs text-base-content/50">Recent activity</div>
+            <div class="text-xs text-base-content/50">
+              {tr("recentActivity")}
+            </div>
           </div>
         {/snippet}
       </ModernCard>
@@ -202,7 +207,7 @@
               disabled={$activity.length === 0}
               fullWidth
             >
-              Clear All History
+              {tr("clearAllHistory")}
             </ModernButton>
           </div>
         {/snippet}
@@ -238,13 +243,13 @@
         <div class="relative">
           <input
             type="text"
-            placeholder="Search activities..."
+            placeholder={tr("searchActivities")}
             class="input input-bordered glass-input w-full md:w-64 pr-10"
             bind:value={searchQuery}
           />
           <button
             class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50"
-            aria-label="Search activity logs"
+            aria-label={tr("searchActivityLogs")}
           >
             <i class="bi bi-search"></i>
           </button>
@@ -261,8 +266,10 @@
           <div class="text-primary/30 mb-6">
             <i class="bi bi-clock-history text-8xl"></i>
           </div>
-          <h3 class="text-2xl font-bold mb-3">No Activity Yet</h3>
-          <p class="text-base-content/60">File operations will appear here</p>
+          <h3 class="text-2xl font-bold mb-3">{tr("noActivityYet")}</h3>
+          <p class="text-base-content/60">
+            {tr("fileOperationsWillAppearHere")}
+          </p>
         </div>
       {/snippet}
     </ModernCard>

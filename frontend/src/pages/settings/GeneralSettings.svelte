@@ -3,27 +3,30 @@
   import {
     currentTheme,
     currentLang,
+    currentLanguage,
     favoritesEnabled,
   } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import api from "../../lib/api.js";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
+
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
 
   const languageOptions = [
     { value: "de", label: "🇩🇪 Deutsch" },
     { value: "en", label: "🇬🇧 English" },
   ];
 
+  // Theme options will use tr() directly in template
   const themeOptions = [
-    { value: "light", label: "Light", icon: "sun-fill" },
-    { value: "dark", label: "Dark", icon: "moon-fill" },
-    { value: "auto", label: "Auto", icon: "circle-half" },
+    { value: "light", icon: "sun-fill" },
+    { value: "dark", icon: "moon-fill" },
+    { value: "auto", icon: "circle-half" },
   ];
 
-  const viewOptions = [
-    { value: "grid", label: "Grid View" },
-    { value: "list", label: "List View" },
-  ];
+  // View options will use tr() directly in template
+  const defaultViewOptions = [{ value: "grid" }, { value: "list" }];
 
   let loading = true;
   let saving = false;
@@ -174,7 +177,13 @@
               onclick={() => handleThemeChange(option.value)}
             >
               <i class="bi bi-{option.icon} mr-2"></i>
-              {option.label}
+              {tr(
+                option.value === "light"
+                  ? "light"
+                  : option.value === "dark"
+                    ? "dark"
+                    : "auto"
+              )}
             </ModernButton>
           {/each}
         </div>
@@ -245,8 +254,10 @@
             bind:value={selectedDefaultView}
             onchange={handleDefaultViewChange}
           >
-            {#each viewOptions as option}
-              <option value={option.value}>{option.label}</option>
+            {#each defaultViewOptions as option}
+              <option value={option.value}
+                >{tr(option.value === "grid" ? "gridView" : "listView")}</option
+              >
             {/each}
           </select>
         </div>
@@ -280,7 +291,7 @@
               <span
                 class="badge-glass-{enableNotifications ? 'success' : 'error'}"
               >
-                {enableNotifications ? "ON" : "OFF"}
+                {enableNotifications ? tr("on") : tr("off")}
               </span>
               <button
                 id="enable-notifications"
@@ -313,7 +324,7 @@
             </label>
             <div class="flex items-center gap-2">
               <span class="badge-glass-{autoBackup ? 'success' : 'error'}">
-                {autoBackup ? "ON" : "OFF"}
+                {autoBackup ? tr("on") : tr("off")}
               </span>
               <button
                 id="auto-backup"
@@ -364,7 +375,7 @@
               <span
                 class="badge-glass-{$favoritesEnabled ? 'warning' : 'error'}"
               >
-                {$favoritesEnabled ? "ON" : "OFF"}
+                {$favoritesEnabled ? tr("on") : tr("off")}
               </span>
               <button
                 id="favorites-enabled"
