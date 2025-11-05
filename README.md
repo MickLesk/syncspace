@@ -1,191 +1,508 @@
-<div align="center">
-  <img src=".github/images/logo-banner.png" alt="SyncSpace Logo" width="600" />
-  
-  # SyncSpace
-  
-  **Modern Material 3 File Synchronization Service**
-  
-  A self-hosted, cross-platform file sync solution with a beautiful Material Design 3 Expressive interface.  
-  Built with Rust (backend) and Svelte 5 (frontend).
-</div>
+<div align="center"><div align="center"><div align="center">
 
-<div align="center">
+# 🚀 SyncSpace <img src=".github/images/logo-banner.png" alt="SyncSpace Logo" width="600" />
 
-![Version](https://img.shields.io/badge/version-0.3.0-blue)
-![License](https://img.shields.io/badge/license-Apache--2.0-green)
+**Modern Self-Hosted File Synchronization**# 🚀 SyncSpace
+
+Fast, secure, and beautiful file sync built with Rust + Svelte 5. # SyncSpace
+
+[![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace)**Modern Self-Hosted File Synchronization Service**
+
+[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
+
+[![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)](https://github.com/tokio-rs/axum) **Modern Material 3 File Synchronization Service**
+
+[![Svelte](https://img.shields.io/badge/Svelte-5-red)](https://svelte.dev)
+
+[![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)A beautiful, fast, and secure file sync solution built with Rust + Svelte 5.
+
+</div>  A self-hosted, cross-platform file sync solution with a beautiful Material Design 3 Expressive interface.
+
+---[![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace) Built with Rust (backend) and Svelte 5 (frontend).
+
+## ⚡ Quick Start[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)</div>
+
+````bash[![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)](https://github.com/tokio-rs/axum)
+
+# Backend
+
+cd backend && cargo run --release[![Svelte](https://img.shields.io/badge/Svelte-5-red)](https://svelte.dev)<div align="center">
+
+
+
+# Frontend (new terminal)[![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)
+
+cd frontend && npm install && npm run dev
+
+```![Version](https://img.shields.io/badge/version-0.3.0-blue)
+
+
+
+**Access**: `http://localhost:5173`  </div>![License](https://img.shields.io/badge/license-Apache--2.0-green)
+
+**Login**: `admin` / `admin` _(change immediately!)_
+
 ![Material 3](https://img.shields.io/badge/Material-3%20Expressive-purple)
-![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)
-![Svelte](https://img.shields.io/badge/Svelte-5-red)
-
-</div>
 
 ---
 
-## 📂 Directory Structure
-
-- `backend/` – Rust backend with REST API + WebSocket (migrating to **axum 0.7**)
-- `frontend/` – Svelte 5 + Vite frontend with Material 3 styling
-- `data/` – File storage (created automatically)
-- `docs/` – Comprehensive documentation
-- `scripts/` – Testing and utility scripts
-- `start.ps1` / `start.bat` – One-command startup scripts
-
----
-
-## ⚡ Quick Start
-
-**One-Command Startup** (Windows):
-
-```powershell
-.\start.ps1   # PowerShell with process monitoring
-```
-
-```batch
-start.bat     # Batch with auto-browser
-```
-
-**Manual Startup**:
-
-1. **Backend:**
-
-   ```bash
-   cd backend
-   cargo run --release
-   ```
-
-   Backend runs on `http://localhost:8080`
-
-2. **Frontend:**
-
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-
-   Frontend runs on `http://localhost:5173`
-
-3. **Login:**
-   - Username: `admin`
-   - Password: `admin`
-   - _(Change immediately in Settings!)_
-
----
+---![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)
 
 ## ✨ Features
 
-### 🎨 **Material 3 Expressive Design**
+![Svelte](https://img.shields.io/badge/Svelte-5-red)
 
-- Beautiful gradient app bar with smooth animations
-- Adaptive dark/light theme with system integration
-- Elevated cards with proper shadows and depth
-- Material Design 3 color tokens and typography
-- Responsive layout for desktop and mobile
+- 🎨 **Modern UI** - Tailwind CSS v4, responsive design
 
-### 🌍 **Internationalization**
+- 🔐 **Secure** - JWT + 2FA (TOTP), Argon2 hashing## ⚡ Quick Start
 
-- **English** and **German** translations
-- Easy language switcher in app bar
-- LocalStorage persistence
-- Extensible translation system
+- 📁 **File Management** - Drag & drop, preview, multi-select
 
-### 📁 **File Management**
+- 🔍 **Search** - Tantivy full-text search with fuzzy matching</div>
 
-- **Drag & drop upload** with visual feedback
+- 🌐 **Real-Time** - WebSocket updates
+
+- 🌍 **i18n** - English & German```bash
+
+- 📱 **Responsive** - Desktop, tablet, mobile
+
+# Clone the repository---
+
+---
+
+git clone https://github.com/MickLesk/syncspace.git
+
+## 🏗️ Tech Stack
+
+cd syncspace## 📂 Directory Structure
+
+**Backend**: Rust + axum 0.8 + SQLite (SQLx) + Tantivy 0.25
+
+**Frontend**: Svelte 5 + Vite (Rolldown) + Tailwind v4 + Bootstrap Icons
+
+**Search**: Tantivy with BM25 ranking, fuzzy matching
+
+**Real-time**: WebSocket with `notify` file system watching# Start backend (Terminal 1)- `backend/` – Rust backend with REST API + WebSocket (migrating to **axum 0.7**)
+
+
+
+---cd backend && cargo run --release- `frontend/` – Svelte 5 + Vite frontend with Material 3 styling
+
+
+
+## 📁 Structure- `data/` – File storage (created automatically)
+
+
+
+```# Start frontend (Terminal 2)- `docs/` – Comprehensive documentation
+
+syncspace/
+
+├── backend/          # Rust API + WebSocketcd frontend && npm install && npm run dev- `scripts/` – Testing and utility scripts
+
+│   ├── src/          # Source code
+
+│   ├── migrations/   # SQLite migrations (23+)```- `start.ps1` / `start.bat` – One-command startup scripts
+
+│   └── data/         # Files + database
+
+├── frontend/         # Svelte 5 UI
+
+│   ├── src/          # Components + pages
+
+│   └── public/       # Static assets**Access**: Open `http://localhost:5173` in your browser  ---
+
+└── docs/             # Documentation
+
+```**Login**: `admin` / `admin` _(change immediately!)_
+
+
+
+---## ⚡ Quick Start
+
+
+
+## 🔐 Security---
+
+
+
+- JWT authentication (24h expiration)**One-Command Startup** (Windows):
+
+- Two-factor authentication (TOTP)
+
+- Argon2 password hashing## ✨ Key Features
+
+- Rate limiting (5 attempts/min)
+
+- CORS protection```powershell
+
+
+
+---- 🎨 **Modern UI** - Tailwind CSS v4 with DaisyUI components.\start.ps1   # PowerShell with process monitoring
+
+
+
+## 🌐 API Highlights- 🔐 **Secure Auth** - JWT + 2FA (TOTP) with Argon2 hashing```
+
+
+
+**Auth**: `POST /api/auth/login`, `POST /api/auth/setup-2fa`  - 📁 **File Management** - Drag & drop, preview, multi-select, batch operations
+
+**Files**: `GET /api/files/{path}`, `POST /api/upload/{path}`, `DELETE /api/files/{path}`
+
+**Search**: `GET /api/search?q={query}`  - 🔍 **Full-Text Search** - Tantivy-powered search with fuzzy matching```batch
+
+**WebSocket**: `GET /api/ws` (real-time updates)
+
+- 🌐 **Real-Time Sync** - WebSocket updates across all clientsstart.bat     # Batch with auto-browser
+
+---
+
+- 🌍 **i18n** - English and German translations```
+
+## 🎨 UI Features
+
+- 📱 **Responsive** - Works on desktop, tablet, and mobile
+
+- Drag & drop upload with progress
+
+- File preview (images, PDFs, videos, text, DOCX, Excel)- 🗄️ **SQLite Backend** - Lightweight, embedded database with migrations**Manual Startup**:
+
+- Multi-select bulk operations
+
+- Breadcrumb navigation
+
+- Dark/Light theme
+
+- Keyboard shortcuts---1. **Backend:**
+
+
+
+---
+
+
+
+## 📚 Documentation## 🏗️ Tech Stack   ```bash
+
+
+
+- [QUICKSTART.md](docs/QUICKSTART.md) - 5-minute setup   cd backend
+
+- [FEATURES.md](docs/FEATURES.md) - Complete features
+
+- [DATABASE.md](docs/DATABASE.md) - Schema & migrations### Backend (Rust)   cargo run --release
+
+- [SEARCH_FEATURE.md](docs/SEARCH_FEATURE.md) - Search details
+
+- [AUTH_README.md](docs/AUTH_README.md) - Authentication- **Framework**: axum 0.8 + Tower middleware   ```
+
+
+
+---- **Database**: SQLite with SQLx (async queries)
+
+
+
+## 🚧 Roadmap- **Search**: Tantivy 0.25 (full-text search engine)   Backend runs on `http://localhost:8080`
+
+
+
+- [x] Core file management- **Auth**: JWT + Argon2 + TOTP
+
+- [x] JWT + 2FA authentication
+
+- [x] Full-text search (Tantivy)- **Real-time**: WebSocket with `notify` file system watching2. **Frontend:**
+
+- [x] Tailwind v4 migration
+
+- [ ] Peer-to-peer sync
+
+- [ ] File versioning
+
+- [ ] Mobile/Desktop apps### Frontend (Svelte 5)   ```bash
+
+
+
+---- **Framework**: Svelte 5 with runes (`$state`, `$derived`)   cd frontend
+
+
+
+## 🤝 Contributing- **Build Tool**: Vite (Rolldown variant for faster builds)   npm install
+
+
+
+Contributions welcome! Follow [Conventional Commits](https://www.conventionalcommits.org/):- **Styling**: Tailwind CSS v4 + DaisyUI + Bootstrap Icons   npm run dev
+
+
+
+```bash- **Preview**: Mammoth (DOCX), PrismJS (code), SheetJS (Excel)   ```
+
+feat: add feature
+
+fix: bug fix
+
+docs: documentation
+
+```---   Frontend runs on `http://localhost:5173`
+
+
+
+---
+
+
+
+## 📄 License## 📁 Project Structure3. **Login:**
+
+
+
+Apache License 2.0 - see [LICENSE](LICENSE)   - Username: `admin`
+
+
+
+---```   - Password: `admin`
+
+
+
+## 🙏 Creditssyncspace/   - _(Change immediately in Settings!)_
+
+
+
+[Svelte](https://svelte.dev) • [axum](https://github.com/tokio-rs/axum) • [Tantivy](https://github.com/quickwit-oss/tantivy) • [Tailwind](https://tailwindcss.com)├── backend/
+
+
+
+**Made with ❤️ by [MickLesk](https://github.com/MickLesk)**│   ├── src/---
+
+
+│   │   ├── main.rs              # Server setup, routing
+
+│   │   ├── auth.rs              # JWT, 2FA, rate limiting## ✨ Features
+
+│   │   ├── database.rs          # SQLite models, pool
+
+│   │   ├── search.rs            # Tantivy search### 🎨 **Material 3 Expressive Design**
+
+│   │   └── api/                 # Route handlers
+
+│   ├── migrations/              # Database migrations (23+)- Beautiful gradient app bar with smooth animations
+
+│   └── data/                    # Files + SQLite DB- Adaptive dark/light theme with system integration
+
+├── frontend/- Elevated cards with proper shadows and depth
+
+│   ├── src/- Material Design 3 color tokens and typography
+
+│   │   ├── App.svelte           # Main app shell- Responsive layout for desktop and mobile
+
+│   │   ├── pages/               # View components
+
+│   │   ├── components/          # Reusable UI components### 🌍 **Internationalization**
+
+│   │   ├── stores/              # Global state management
+
+│   │   └── lib/- **English** and **German** translations
+
+│   │       ├── api.js           # HTTP client- Easy language switcher in app bar
+
+│   │       └── i18n.js          # Translations- LocalStorage persistence
+
+│   └── tailwind.config.js       # Tailwind v4 config- Extensible translation system
+
+└── docs/                        # Comprehensive documentation
+
+```### 📁 **File Management**
+
+
+
+---- **Drag & drop upload** with visual feedback
+
 - **Breadcrumb navigation** for folder hierarchy
-- **File operations**: Rename, Delete, Download
+
+## 🔐 Security Features- **File operations**: Rename, Delete, Download
+
 - **File Preview Modal** - Images, videos, PDFs, text files
-- **Multi-Select Mode** - Bulk operations with checkboxes
-- **Upload Progress Tracking** - Per-file progress bars
-- Directory navigation with keyboard shortcuts
-- File size display with proper formatting
-- Icon-based file type indicators
-- **Universal system file filtering** - Hides .git, .DS_Store, database files, etc.
 
-A self-hosted, cross-platform file sync solution with a beautiful Material Design 3 Expressive interface. Built with Rust (backend) and Web Components (frontend).## Directory structure
+- **JWT Authentication** with 24h expiration- **Multi-Select Mode** - Bulk operations with checkboxes
 
-![Version](https://img.shields.io/badge/version-0.2.0-blue)- `backend` – Rust backend exposing a REST API and WebSocket for file operations, peer management, search, rename and stats.
+- **Two-Factor Authentication** (TOTP with QR codes)- **Upload Progress Tracking** - Per-file progress bars
 
-![License](https://img.shields.io/badge/license-Apache--2.0-green)- `frontend` – Material‑inspired web UI built with Lit. You can run it directly in a browser or embed it in Tauri or Electron.
+- **Argon2** memory-hard password hashing- Directory navigation with keyboard shortcuts
 
-![Material 3](https://img.shields.io/badge/Material-3%20Expressive-purple)- `desktop-app` – Placeholder for a Tauri configuration. A desktop app can embed the frontend here.
+- **Rate Limiting** (5 attempts/minute)- File size display with proper formatting
+
+- **CORS** protection- Icon-based file type indicators
+
+- **Input validation** & path sanitization- **Universal system file filtering** - Hides .git, .DS_Store, database files, etc.
+
+
+
+---A self-hosted, cross-platform file sync solution with a beautiful Material Design 3 Expressive interface. Built with Rust (backend) and Web Components (frontend).## Directory structure
+
+
+
+## 🌐 API Highlights![Version](https://img.shields.io/badge/version-0.2.0-blue)- `backend` – Rust backend exposing a REST API and WebSocket for file operations, peer management, search, rename and stats.
+
+
+
+### Authentication![License](https://img.shields.io/badge/license-Apache--2.0-green)- `frontend` – Material‑inspired web UI built with Lit. You can run it directly in a browser or embed it in Tauri or Electron.
+
+- `POST /api/auth/login` - Login (with optional 2FA)
+
+- `POST /api/auth/setup-2fa` - Generate 2FA QR code![Material 3](https://img.shields.io/badge/Material-3%20Expressive-purple)- `desktop-app` – Placeholder for a Tauri configuration. A desktop app can embed the frontend here.
+
+- `POST /api/auth/change-password` - Change password
 
 - `mobile-app` – Placeholder for a Flutter app. Use `flutter create` to generate the mobile client.
 
----
+### Files (All protected by JWT)
 
-## Running locally
+- `GET /api/files/{path}` - List directory---
 
-## ✨ Features
+- `POST /api/upload/{path}` - Upload file
 
-1. **Backend:** Navigate to `backend` and run the server with Cargo (requires Rust and Cargo installed):
+- `DELETE /api/files/{path}` - Delete file/folder## Running locally
 
-### 🎨 **Material 3 Expressive Design**
+- `PUT /api/rename/{path}` - Rename/move
 
-- Beautiful gradient app bar with smooth animations ```bash
+- `POST /api/dirs/{path}` - Create directory## ✨ Features
 
-- Adaptive dark/light theme with system integration cd backend
 
-- Elevated cards with proper shadows and depth cargo run
 
-- Material Design 3 color tokens and typography ```
+### Advanced1. **Backend:** Navigate to `backend` and run the server with Cargo (requires Rust and Cargo installed):
 
-- Responsive layout for desktop and mobile
+- `GET /api/search?q={query}` - Full-text search
 
-  The backend listens on `http://localhost:8080`. It automatically creates a `data` folder for synchronised files and a `config.json` for peers and settings.
+- `GET /api/ws` - WebSocket for real-time updates### 🎨 **Material 3 Expressive Design**
 
-### 🌍 **Internationalization**
+- `GET /api/users/profile` - User profile management
 
-- **English** and **German** translations2. **Frontend:** Open `frontend/index.html` in a browser or serve the `frontend` folder with a static file server (e.g. using `python -m http.server`). The UI connects to the backend at `http://localhost:8080` and `ws://localhost:8080`.
+- `GET /api/users/settings` - User settings (theme, language)- Beautiful gradient app bar with smooth animations ```bash
 
-- Easy language switcher in app bar
 
-- LocalStorage persistence## Features
 
-- Extensible translation system
+---- Adaptive dark/light theme with system integration cd backend
 
-- **File browsing:** Navigate through directories, download files, rename or delete entries and create new folders.
 
-### 📁 **File Management**- **Upload:** Upload files to any subfolder using the upload widget.
 
-- **Drag & drop upload** with visual feedback- **Search:** Perform case‑insensitive searches across all files and directories.
+## 🎨 UI Features- Elevated cards with proper shadows and depth cargo run
 
-- **Breadcrumb navigation** for folder hierarchy- **Stats:** View the total number of files and their combined size.
 
-- **File operations**: Rename, Delete, Download, Preview- **Peers:** Add peers via the API; peer information is persisted in `config.json`.
 
-- Directory navigation- **Live updates:** The backend emits file system events via WebSocket. The UI automatically refreshes on changes.
+- **Drag & Drop Upload** with progress tracking- Material Design 3 color tokens and typography ```
 
-- File size display with proper formatting
+- **File Preview** (images, PDFs, videos, text, DOCX, Excel)
 
-- Icon-based file type indicators
+- **Multi-Select Mode** for bulk operations- Responsive layout for desktop and mobile
 
-### 🔐 **Security & Authentication**
+- **Breadcrumb Navigation** with folder hierarchy
 
-- JWT-based authentication with Argon2 password hashing
+- **Dark/Light Theme** with auto-detection  The backend listens on `http://localhost:8080`. It automatically creates a `data` folder for synchronised files and a `config.json` for peers and settings.
+
+- **Keyboard Shortcuts** (arrow keys in preview, ESC to close)
+
+- **Search Highlighting** with fuzzy matching### 🌍 **Internationalization**
+
+
+
+---- **English** and **German** translations2. **Frontend:** Open `frontend/index.html` in a browser or serve the `frontend` folder with a static file server (e.g. using `python -m http.server`). The UI connects to the backend at `http://localhost:8080` and `ws://localhost:8080`.
+
+
+
+## 📚 Documentation- Easy language switcher in app bar
+
+
+
+- **[QUICKSTART.md](docs/QUICKSTART.md)** - 5-minute setup guide- LocalStorage persistence## Features
+
+- **[FEATURES.md](docs/FEATURES.md)** - Complete feature list
+
+- **[DATABASE.md](docs/DATABASE.md)** - SQLite schema & migrations- Extensible translation system
+
+- **[SEARCH_FEATURE.md](docs/SEARCH_FEATURE.md)** - Tantivy implementation
+
+- **[AUTH_README.md](docs/AUTH_README.md)** - Authentication details- **File browsing:** Navigate through directories, download files, rename or delete entries and create new folders.
+
+
+
+---### 📁 **File Management**- **Upload:** Upload files to any subfolder using the upload widget.
+
+
+
+## 🚧 Roadmap- **Drag & drop upload** with visual feedback- **Search:** Perform case‑insensitive searches across all files and directories.
+
+
+
+- [x] Core file management & authentication- **Breadcrumb navigation** for folder hierarchy- **Stats:** View the total number of files and their combined size.
+
+- [x] Full-text search with Tantivy
+
+- [x] Tailwind v4 migration- **File operations**: Rename, Delete, Download, Preview- **Peers:** Add peers via the API; peer information is persisted in `config.json`.
+
+- [x] User profile & settings
+
+- [ ] Peer-to-peer synchronization- Directory navigation- **Live updates:** The backend emits file system events via WebSocket. The UI automatically refreshes on changes.
+
+- [ ] File versioning & conflict resolution
+
+- [ ] Mobile apps (Flutter)- File size display with proper formatting
+
+- [ ] Desktop app (Tauri)
+
+- [ ] End-to-end encryption- Icon-based file type indicators
+
+
+
+---### 🔐 **Security & Authentication**
+
+
+
+## 🤝 Contributing- JWT-based authentication with Argon2 password hashing
+
 - **Two-Factor Authentication (2FA)** with TOTP
-- Rate limiting (5 attempts/minute)
+
+Contributions are welcome! Please follow [Conventional Commits](https://www.conventionalcommits.org/):- Rate limiting (5 attempts/minute)
+
 - Secure password change
-- Default admin account (admin/admin)
 
-### 🔍 **Search & Organization**
+```bash- Default admin account (admin/admin)
 
-- **Full-text search** powered by Tantivy (Rust search engine)
-- **Fuzzy matching** - Find files even with typos (2-edit distance)
+feat: add new feature
+
+fix: bug fix### 🔍 **Search & Organization**
+
+docs: documentation
+
+refactor: code restructuring- **Full-text search** powered by Tantivy (Rust search engine)
+
+```- **Fuzzy matching** - Find files even with typos (2-edit distance)
+
 - **Content indexing** - Search inside text files, code, and PDFs
-- **BM25 ranking** - Results sorted by relevance
+
+---- **BM25 ranking** - Results sorted by relevance
+
 - **Background indexing** - Non-blocking automatic indexing on upload/delete
-- **Debounced search** - 300ms delay for smooth UX
+
+## 📄 License- **Debounced search** - 300ms delay for smooth UX
+
 - **40+ file types** supported (text, code, documents)
-- Search results with file paths and metadata
 
-### ⚡ **Real-Time Updates**
+Apache License 2.0 - see [LICENSE](LICENSE) file.- Search results with file paths and metadata
 
-- WebSocket connections for live file events
+
+
+---### ⚡ **Real-Time Updates**
+
+
+
+## 🙏 Acknowledgments- WebSocket connections for live file events
+
 - Automatic UI refresh on file changes
-- File system monitoring with `notify` crate
 
-### 🎯 **Modern Tech Stack**
+[Svelte](https://svelte.dev) • [axum](https://github.com/tokio-rs/axum) • [Tantivy](https://github.com/quickwit-oss/tantivy) • [Tailwind CSS](https://tailwindcss.com)- File system monitoring with `notify` crate
+
+
+
+**Made with ❤️ by [MickLesk](https://github.com/MickLesk)**### 🎯 **Modern Tech Stack**
+
 
 - **Backend**: Rust with **axum 0.7** (migrating from warp), Tokio, async/await, SQLx (SQLite), Tantivy (search)
 - **Frontend**: **Svelte 5** + Vite with TypeScript
@@ -215,7 +532,7 @@ A self-hosted, cross-platform file sync solution with a beautiful Material Desig
 
 # Batch (with auto-browser)
 start.bat
-```
+````
 
 This will:
 

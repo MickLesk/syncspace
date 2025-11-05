@@ -11,7 +11,7 @@ pub async fn get_profile(state: &AppState, user: &UserInfo) -> Result<serde_json
     match db_user {
         Some(u) => Ok(serde_json::json!({
             "id": u.id, "username": u.username, "email": u.email, "display_name": u.display_name,
-            "avatar_base64": u.avatar_base64, "storage_quota_bytes": u.storage_quota_bytes,
+            "bio": u.bio, "avatar_base64": u.avatar_base64, "storage_quota_bytes": u.storage_quota_bytes,
             "storage_used_bytes": u.storage_used_bytes, "created_at": u.created_at,
         })),
         None => Err(anyhow!("User not found")),
@@ -23,6 +23,10 @@ pub async fn update_profile(state: &AppState, user: &UserInfo, req: UpdateProfil
     if let Some(display_name) = req.display_name {
         sqlx::query("UPDATE users SET display_name = ?, updated_at = ? WHERE id = ?")
             .bind(display_name).bind(&now).bind(&user.id).execute(&state.db_pool).await?;
+    }
+    if let Some(bio) = req.bio {
+        sqlx::query("UPDATE users SET bio = ?, updated_at = ? WHERE id = ?")
+            .bind(bio).bind(&now).bind(&user.id).execute(&state.db_pool).await?;
     }
     if let Some(email) = req.email {
         sqlx::query("UPDATE users SET email = ?, updated_at = ? WHERE id = ?")

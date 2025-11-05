@@ -2,14 +2,15 @@
 
 ## Project Architecture
 
-**SyncSpace** is a modern self-hosted file synchronization service with a **Rust backend** (axum 0.8) and **Svelte 5 frontend** (Vite). The architecture follows a strict **Backend-First** pattern where ALL operations must go through the backend API to ensure multi-platform consistency.
+**SyncSpace** is a modern self-hosted file synchronization service with a **Rust backend** (axum 0.8) and **Svelte 5 frontend** (Vite + Tailwind v4). The architecture follows a strict **Backend-First** pattern where ALL operations must go through the backend API to ensure multi-platform consistency.
 
 **Core Stack**:
 
-- **Backend**: Rust + axum 0.8 + SQLite + JWT auth (`backend/src/`)
-- **Frontend**: Svelte 5 + Vite + TailwindCSS + DaisyUI (`frontend/src/`)
-- **Database**: SQLite with comprehensive migrations (`backend/migrations/`)
-- **Real-time**: WebSocket file system events (`ws://localhost:8080/api/ws`)
+- **Backend**: Rust + axum 0.8 + SQLite (SQLx) + JWT auth + Tantivy search (`backend/src/`)
+- **Frontend**: Svelte 5 (runes) + Vite (Rolldown) + Tailwind CSS v4 (pure utility-first) + Bootstrap Icons (`frontend/src/`)
+- **Database**: SQLite with 23+ migrations, WAL mode, connection pooling (`backend/migrations/`, `backend/src/database.rs`)
+- **Real-time**: WebSocket file system events with `notify` crate (`ws://localhost:8080/api/ws`)
+- **Search**: Tantivy 0.25 full-text search with fuzzy matching, BM25 ranking (`backend/src/search.rs`)
 
 **Backend-First Philosophy**:
 
@@ -47,19 +48,24 @@ cd frontend && npm run dev
 
 **Backend API Endpoint**:
 
-1. Add route in `backend/src/main.rs` router: `.route("/api/feature", get(handler))`
-2. Create handler function returning `Result<impl IntoResponse, StatusCode>`
-3. Use `State<AppState>` for database pool, auth, rate limiting
-4. For mutations: broadcast `FileChangeEvent` via `state.fs_tx.send()`
-5. Add database model in `backend/src/database.rs` with SQLx derives
+1. Add module in `backend/src/api/` directory (e.g., `my_feature.rs`)
+2. Create `pub fn router() -> Router<AppState>` with routes
+3. Create handler functions returning `Result<impl IntoResponse, StatusCode>`
+4. Use `State<AppState>` for database pool, auth, rate limiting
+5. Use `UserInfo` extractor for authenticated routes
+6. For mutations: broadcast `FileChangeEvent` via `state.fs_tx.send()`
+7. Register router in `backend/src/api/mod.rs` with `.merge(my_feature::router())`
+8. Add database models in `backend/src/database.rs` with `#[derive(FromRow, Serialize, Deserialize)]`
 
 **Frontend Component**:
 
 1. Create `.svelte` file in `frontend/src/components/` or `frontend/src/pages/`
-2. Import and register in `frontend/src/App.svelte` routing
+2. Import and register in `frontend/src/App.svelte` routing (hash-based)
 3. Use `frontend/src/lib/api.js` for HTTP calls with automatic JWT headers
-4. Follow Material 3 design tokens in `frontend/src/styles/design-tokens.css`
-5. Use stores from `frontend/src/stores/` for global state
+4. Use Tailwind v4 utilities + DaisyUI components for styling
+5. Use Bootstrap Icons for icon elements: `<i class="bi bi-icon-name"></i>`
+6. Use stores from `frontend/src/stores/` for global state
+7. Follow Svelte 5 patterns: `$state()`, `$derived()`, `$effect()` for reactivity
 
 ## Backend-First API Patterns
 
@@ -121,44 +127,62 @@ cd frontend && npm run dev
 
 ## Database Patterns
 
-**Model Structure** (`backend/src/database.rs`):
+**SQLite Database** (`backend/src/database.rs`):
 
-```rust
-#[derive(FromRow, Serialize, Deserialize)]
-pub struct File {
-    pub id: Uuid,
-    pub filename: String,
-    pub file_path: String,
-    pub size_bytes: i64,
-    pub created_at: DateTime<Utc>,
-    pub owner_id: Uuid,
-}
-```
+The `database.rs` file contains **ALL database models and connection setup**. It's the single source of truth for database schema.
+
+**Key Models**:
+
+- `User` - User accounts with UUID, username, password_hash, email, display_name, bio, avatar_base64, theme, language, default_view, 2FA settings
+- `File` - File metadata with UUID, filename, file_path, size_bytes, mime_type, owner_id, timestamps
+- `FileVersion` - File versioning with version_number, file_hash, size_bytes, created_by
+- `Share` - File sharing with share_id, file_path, permission (read/write), expires_at, password
+- `FileLock` - Collaboration file locking with locked_by, locked_at, expires_at
+- `UserPreferences` - Client preferences (view_mode, sort_by, sort_order, sidebar_collapsed, recent_searches)
+- `Activity` - Activity log with user_id, action, file_path, metadata
+- `Notification` - User notifications with type, title, message, read status
+- `Webhook` - Webhook integrations with URL, events, secret
 
 **Query Patterns**:
 
-- Use `sqlx::query_as!()` for type-safe queries
+- Use `sqlx::query_as!()` for compile-time verified queries
+- Use `sqlx::query_as::<_, ModelName>()` for runtime queries
 - Transactions: `pool.begin().await?` for multi-table operations
-- Pagination: `LIMIT ? OFFSET ?` with `Query<PaginationParams>`
-- Search: Full-text search via `tantivy` crate integration
+- Pagination: `LIMIT ? OFFSET ?` for large result sets
+- Migrations: Auto-run on startup from `backend/migrations/*.sql` (23+ migrations)
+
+**Database Connection**:
+
+- Pool size: 10 connections with WAL mode for concurrency
+- Path: `./data/syncspace.db` (relative to backend directory)
+- Auto-creates database file if missing
+- Runs migrations on every startup (idempotent)
 
 ## Frontend Architecture
 
 **Svelte 5 Patterns**:
 
-- **Runes**: Use `$state()`, `$derived()` for reactive state
-- **Stores**: Global state in `frontend/src/stores/` (auth, ui, files)
-- **API Integration**: `frontend/src/lib/api.js` exports categorized endpoints
+- **Runes**: Use `$state()`, `$derived()`, `$effect()` for reactive state
+- **Stores**: Global state in `frontend/src/stores/` (auth, ui, files, preferences, collaboration)
+- **API Integration**: `frontend/src/lib/api.js` exports categorized endpoints (files, auth, users, search, etc.)
 - **Components**: Self-contained with props, events, and local state
-- **Routing**: Hash-based routing in `App.svelte` with view switching
+- **Routing**: Hash-based routing in `App.svelte` with view switching (Files, Search, Settings, Profile, Users)
 
-**Material 3 Design System**:
+**Tailwind CSS v4**:
 
-- **Tokens**: CSS custom properties in `design-tokens.css`
-- **Colors**: Dynamic theme switching (light/dark) via `data-theme`
-- **Typography**: Roboto font with proper scale and weights
-- **Elevation**: Box shadows and surface colors for depth
-- **Components**: Follow Material 3 specs with DaisyUI utility classes
+- **Framework**: Tailwind CSS v4 with `@tailwindcss/postcss` plugin (pure utility-first, no component library)
+- **Icons**: Bootstrap Icons via npm package (`bootstrap-icons`)
+- **Dark Mode**: CSS custom properties with `data-theme` attribute switching
+- **Utility-First**: Pure Tailwind utilities for all styling (spacing, colors, typography, flexbox, grid)
+- **Custom Classes**: Minimal custom CSS in component `<style>` blocks, prefer Tailwind utilities
+
+**Advanced Frontend Features**:
+
+- **File Preview**: Mammoth.js (DOCX), PrismJS (code highlighting), SheetJS (Excel), PDF.js, native video/image
+- **Drag & Drop**: Native HTML5 Drag and Drop API with visual feedback
+- **Multi-Select**: Checkbox-based selection with bulk operations (delete, move, copy)
+- **Upload Progress**: XMLHttpRequest with progress events, real-time progress bars
+- **Internationalization**: `frontend/src/lib/i18n.js` with EN/DE translations, localStorage persistence
 
 ## WebSocket Events & Real-time Updates
 
@@ -201,6 +225,27 @@ pub struct File {
 - Compression, bulk copy/move operations
 - Use `api.batch.*` methods for bulk actions
 
+**File Preview System**:
+
+- **Universal Preview Modal**: Single component for all file types
+- **Supported Formats**:
+  - Images: JPG, PNG, GIF, WebP, SVG, BMP (native `<img>`)
+  - Videos: MP4, WebM, OGG (native `<video>`)
+  - PDFs: Inline viewer with PDF.js
+  - Text: TXT, MD, JSON, JS, CSS, HTML, XML, CSV (syntax highlighting with PrismJS)
+  - Documents: DOCX (Mammoth.js conversion to HTML)
+  - Spreadsheets: XLSX, XLS (SheetJS with table rendering)
+- **Keyboard Navigation**: Arrow keys for previous/next file, ESC to close
+- **Automatic Format Detection**: Based on file extension
+
+**Internationalization (i18n)**:
+
+- **Languages**: English (default), German
+- **Translation System**: `frontend/src/lib/i18n.js` with reactive stores
+- **Storage**: Language preference saved in localStorage
+- **Coverage**: All UI elements, error messages, tooltips
+- **Usage**: `$t('key.path')` in components, `t()` in JavaScript
+
 **Backend-First Migration Patterns**:
 
 ```javascript
@@ -218,23 +263,64 @@ pub struct File {
 
 **Backend Modules** (`backend/src/`):
 
-- `main.rs` - Server setup, routing, middleware, core handlers (3000+ lines)
-- `auth.rs` - JWT, password hashing, 2FA, rate limiting
-- `database.rs` - SQLite models, connection pool, migrations runner
-- `search.rs` - Full-text search with tantivy indexing
-- `handlers/` - Feature-specific route handlers (sharing, backup, versioning)
+- `main.rs` - Server setup, routing, middleware, AppState configuration
+- `auth.rs` - JWT, password hashing, 2FA (TOTP), rate limiting, UserInfo extractor
+- `database.rs` - **CENTRAL FILE**: All SQLite models, connection pool, migrations (User, File, FileVersion, Share, FileLock, UserPreferences, Activity, Notification, Webhook)
+- `search.rs` - Tantivy full-text search with fuzzy matching, BM25 ranking, PDF extraction
+- `api/` - **Modular route handlers** (30+ modules):
+  - `mod.rs` - Router aggregation and auth middleware application
+  - `auth.rs` - Login, 2FA, password change (public + protected routes)
+  - `users.rs` - User profile, settings, preferences (all with UserInfo)
+  - `files.rs` - Upload, download, delete, list files
+  - `directories.rs` - Create, navigate directories
+  - `search.rs` - Full-text search endpoint
+  - `sharing.rs` - File sharing with passwords and expiration
+  - `activity.rs` - Activity logging and retrieval
+  - `notifications.rs` - User notification management
+  - `collaboration.rs` - File locking, presence, collaborative editing
+  - `batch.rs` - Bulk operations (copy, compress, etc.)
+  - `versions.rs` - File versioning and history
+  - And 20+ more specialized modules...
+- `services/` - Business logic layer:
+  - `user_service_impl.rs` - User operations (get_profile, update_profile, get_settings, update_settings, get_preferences, update_preferences)
+  - `file_service_impl.rs` - File operations
+  - `search_service_impl.rs` - Search indexing and querying
+  - `all_services_impl.rs` - Additional service implementations
+- `middleware/` - Custom middleware (auth, rate limiting)
+- `websocket/` - WebSocket event broadcasting with `notify` crate
+- `performance.rs` - Caching, background jobs, performance monitoring
 
 **Frontend Structure** (`frontend/src/`):
 
-- `App.svelte` - Main app shell with routing and authentication guard
-- `lib/api.js` - HTTP client with JWT auth and error handling
-- `stores/` - Reactive global state (auth, UI, file browser)
+- `App.svelte` - Main app shell with hash-based routing, authentication guard, theme management
+- `lib/` - Core utilities:
+  - `api.js` - **CENTRAL HTTP CLIENT**: Categorized API methods (auth, files, users, search, batch, etc.) with automatic JWT headers
+  - `i18n.js` - Internationalization with EN/DE translations
+  - `utils.js` - Helper functions
+- `stores/` - Svelte stores for global state:
+  - `auth.js` - Authentication state (token, user info, login/logout)
+  - `ui.js` - UI state (theme, language, sidebar)
+  - `files.js` - File browser state (current directory, file list)
   - `preferences.js` - Backend-synchronized user preferences
   - `collaboration.js` - Real-time collaboration features
   - `conflictResolution.js` - Intelligent conflict resolution
-- `components/` - Reusable UI components with Material 3 styling
-- `pages/` - Full-page views (Files, Settings, Users, etc.)
-- `utils/` - Helper utilities and migration tools
+- `pages/` - Full-page views:
+  - `Login.svelte` - Login form with 2FA support
+  - `FilesView.svelte` - File browser with drag & drop, multi-select, preview
+  - `SearchView.svelte` - Search interface with fuzzy matching
+  - `user/` - User management pages:
+    - `UserSettingsView.svelte` - Settings (theme, language, default_view, notifications)
+    - `UserProfileView.svelte` - Profile (display_name, bio, email, avatar)
+    - `UsersView.svelte` - User list (admin only)
+  - `ActivityView.svelte` - Activity log
+  - `SecurityView.svelte` - 2FA setup, password change
+- `components/` - Reusable UI components:
+  - `ui/` - Generic UI components (AppBar, Sidebar, Modal, Toast)
+  - `files/` - File-specific components (FileItem, FilePreview, UploadZone)
+  - `search/` - Search components (SearchBar, SearchResult)
+- `styles/` - Global styles:
+  - `app.css` - Main stylesheet with Tailwind v4 imports
+  - **NO** design-tokens.css (Tailwind handles everything)
 
 ## Performance & Optimization
 
