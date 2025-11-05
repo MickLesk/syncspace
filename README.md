@@ -1,24 +1,12 @@
 ﻿<div align="center"><div align="center">
 
-# 🚀 SyncSpace# SyncSpace
+# 🚀 SyncSpace
 
-**Modern Self-Hosted File Synchronization\*\***Modern Self-Hosted File Sync\*\*
+**Modern Self-Hosted File Sync**
 
-Fast, secure, and beautiful file sync built with Rust + Svelte 5.[![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace)
+Fast, secure, and beautiful file sync built with Rust + Svelte 5.
 
-[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
-
-[![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace)[![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)](https://github.com/tokio-rs/axum)
-
-[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)[![Svelte](https://img.shields.io/badge/Svelte-5-red)](https://svelte.dev)
-
-[![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)](https://github.com/tokio-rs/axum)[![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)
-
-[![Svelte](https://img.shields.io/badge/Svelte-5-red)](https://svelte.dev)
-
-[![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)</div>
-
-</div>
+[![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace) [![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)](https://github.com/tokio-rs/axum) [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)[![Svelte](https://img.shields.io/badge/Svelte-5-red)](https://svelte.dev) [![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)
 
 ---
 
