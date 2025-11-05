@@ -5,25 +5,15 @@
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
+  import { currentLang } from "../../stores/ui.js";
+  import { t, formatRelativeTime, formatFileSize } from "../../i18n.js";
 
   let recentFiles = $state([]);
   let loading = $state(true);
   let error = $state(null);
   let limit = $state(20);
 
-  function formatFileSize(bytes) {
-    if (!bytes || bytes === 0) return "0 B";
-    const k = 1024;
-    const sizes = ["B", "KB", "MB", "GB", "TB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
-  }
-
-  function formatDate(dateString) {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-  }
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   onMount(async () => {
     await loadRecentFiles();
@@ -54,7 +44,7 @@
       console.log("[RecentFiles] Transformed files:", recentFiles);
     } catch (err) {
       console.error("[RecentFiles] Failed to load recent files:", err);
-      error = "Failed to load recent files: " + err.message;
+      error = `${tr("recentLoadFailed")}: ${err.message}`;
       recentFiles = [];
     } finally {
       loading = false;
@@ -74,29 +64,23 @@
 
   function getAccessTypeBadge(accessType) {
     const badges = {
-      view: { icon: "eye", label: "Viewed", color: "info" },
-      edit: { icon: "pencil", label: "Edited", color: "warning" },
-      download: { icon: "download", label: "Downloaded", color: "success" },
-      upload: { icon: "upload", label: "Uploaded", color: "primary" },
+      view: { icon: "eye", labelKey: "recentBadgeViewed", color: "info" },
+      edit: { icon: "pencil", labelKey: "recentBadgeEdited", color: "warning" },
+      download: { icon: "download", labelKey: "recentBadgeDownloaded", color: "success" },
+      upload: { icon: "upload", labelKey: "recentBadgeUploaded", color: "primary" },
     };
-    return (
+    const badge =
       badges[accessType] || {
         icon: "file-earmark",
-        label: "Accessed",
+        labelKey: "recentBadgeAccessed",
         color: "info",
-      }
-    );
+      };
+
+    return { ...badge, label: tr(badge.labelKey) };
   }
 
   function formatLastAccessed(timestamp) {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} minutes ago`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)} hours ago`;
-    if (diff < 604800000) return `${Math.floor(diff / 86400000)} days ago`;
-    return date.toLocaleDateString();
+    return formatRelativeTime($currentLang, timestamp);
   }
 
   async function openFile(file) {
@@ -108,8 +92,8 @@
 
 <PageWrapper gradient>
   <PageHeader
-    title="Recent Files"
-    subtitle="Files you've recently accessed"
+    title={tr("recentFiles")}
+    subtitle={tr("recentFilesSubtitle")}
     icon="clock-history"
   >
     {#snippet actions()}
@@ -118,10 +102,10 @@
         bind:value={limit}
         onchange={loadRecentFiles}
       >
-        <option value={10}>Last 10</option>
-        <option value={20}>Last 20</option>
-        <option value={50}>Last 50</option>
-        <option value={100}>Last 100</option>
+        <option value={10}>{tr("recentLastCount", 10)}</option>
+        <option value={20}>{tr("recentLastCount", 20)}</option>
+        <option value={50}>{tr("recentLastCount", 50)}</option>
+        <option value={100}>{tr("recentLastCount", 100)}</option>
       </select>
 
       <ModernButton
@@ -130,7 +114,7 @@
         onclick={loadRecentFiles}
         disabled={loading}
       >
-        Refresh
+        {tr("refresh")}
       </ModernButton>
     {/snippet}
   </PageHeader>
@@ -157,7 +141,7 @@
             icon="arrow-clockwise"
             onclick={loadRecentFiles}
           >
-            Try Again
+            {tr("tryAgain")}
           </ModernButton>
         </div>
       </ModernCard>
@@ -168,10 +152,10 @@
             <i class="bi bi-clock-history text-8xl opacity-20"></i>
           </div>
           <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">
-            No recent files
+            {tr("recentNoFilesTitle")}
           </h3>
           <p class="text-gray-600 dark:text-gray-400">
-            Files you access will appear here
+            {tr("recentNoFilesDescription")}
           </p>
         </div>
       </ModernCard>
@@ -202,7 +186,7 @@
                 <div
                   class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3"
                 >
-                  <span>{formatFileSize(file.size_bytes)}</span>
+                  <span>{formatFileSize(file.size_bytes, $currentLang)}</span>
                   <span>•</span>
                   <span>{formatLastAccessed(file.last_accessed_at)}</span>
                 </div>
@@ -210,8 +194,12 @@
                 <div class="flex gap-2 flex-wrap items-center">
                   <span class="badge-glass-info text-xs">
                     <i class="bi bi-eye"></i>
-                    {file.access_count}
-                    {file.access_count === 1 ? "time" : "times"}
+                    {tr(
+                      file.access_count === 1
+                        ? "recentAccessCountSingular"
+                        : "recentAccessCountPlural",
+                      file.access_count
+                    )}
                   </span>
 
                   {#if file.access_type}
@@ -234,7 +222,7 @@
                     console.log("Quick preview");
                   }}
                 >
-                  View
+                  {tr("view")}
                 </ModernButton>
               </div>
             </div>
