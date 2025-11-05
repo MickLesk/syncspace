@@ -23,18 +23,69 @@
 
 ## Critical Development Workflows
 
+### Terminal Management Rules
+
+**CRITICAL: Only 2 Persistent Terminals Allowed**:
+
+1. **Backend Terminal** (`powershell` named "Backend"):
+
+   - Purpose: Run backend server only
+   - If Rust code changed: `cd backend ; cargo run --release`
+   - If NO Rust changes: `cd backend ; ./target/release/syncbackend.exe` (faster startup)
+   - Never use for other commands (file operations, git, etc.)
+   - Keep running during development
+
+2. **Frontend Terminal** (`node` named "Frontend"):
+
+   - Purpose: Run frontend dev server only
+   - Command: `cd frontend ; npm run dev`
+   - Never use for other commands (npm installs, file operations, etc.)
+   - Keep running during development
+
+3. **Temporary Terminals** (for all other operations):
+   - File operations (move, copy, delete): Create NEW terminal, execute, then close
+   - Git commands: Create NEW terminal, execute, then close
+   - Database operations: Create NEW terminal, execute, then close
+   - Package installs: Create NEW terminal, execute, then close
+   - Always close after command completes (not background)
+
+**Example Terminal Workflow**:
+
+```bash
+# WRONG: Using backend terminal for file operations
+# (backend terminal) mv file.txt newfile.txt
+
+# CORRECT: Create temporary terminal
+# (new temporary terminal) mv file.txt newfile.txt ; exit
+
+# WRONG: Using frontend terminal for npm install
+# (frontend terminal) npm install new-package
+
+# CORRECT: Create temporary terminal
+# (new temporary terminal) cd frontend ; npm install new-package ; exit
+```
+
+**Backend Startup Decision Tree**:
+
+- Rust files modified (\*.rs in backend/src/)? → `cargo run --release` (compiles + runs)
+- No Rust changes, only frontend/config? → `./target/release/syncbackend.exe` (instant start)
+- Uncertain if changed? → Check git status or use instant start (safer)
+
 ### Running the Application
 
 ```bash
-# Backend (Terminal 1)
+# Backend (Terminal 1 - persistent)
 cd backend && cargo run --release
+# Or if no Rust changes: cd backend && ./target/release/syncbackend.exe
 # Serves on http://localhost:8080
 
-# Frontend (Terminal 2)
+# Frontend (Terminal 2 - persistent)
 cd frontend && npm run dev
 # Serves on http://localhost:5173
 
 # Default login: admin/admin (change in Settings!)
+
+# All other operations use temporary terminals that are closed after completion
 ```
 
 ### Database Setup

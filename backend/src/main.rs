@@ -36,7 +36,7 @@ use tokio::sync::{broadcast, Mutex};
 use tower_http::cors::{Any, CorsLayer};
 use sqlx::Row;
 
-use auth::{RateLimiter, UserDB};
+use auth::RateLimiter; // UserDB removed - using SQLite directly
 use search::SearchIndex;
 use websocket::FileChangeEvent;
 
@@ -52,7 +52,7 @@ const DATA_DIR: &str = "./data";
 pub struct AppState {
     config: Arc<Mutex<Config>>,
     fs_tx: broadcast::Sender<FileChangeEvent>,
-    user_db: UserDB,
+    // user_db removed - now using SQLite db_pool directly
     rate_limiter: Arc<RateLimiter>,
     search_index: Arc<SearchIndex>,
     db_pool: sqlx::SqlitePool,
@@ -106,29 +106,29 @@ async fn main() {
 
     println!("✅ Database connection established");
 
-    // Initialize auth system
-    let user_db = UserDB::new();
+    // Initialize rate limiter
     let rate_limiter = Arc::new(RateLimiter::new());
 
-    // Create default admin user if no users exist
-    let admin_user_id_string = if user_db.get_by_username("admin").is_none() {
-        println!("📝 Creating default admin user (username: admin, password: admin)");
-        println!("⚠️  WARNING: Change the default password after first login!");
-        if let Err(e) = user_db.create_user("admin".to_string(), "admin".to_string()) {
-            eprintln!("❌ Failed to create admin user: {}", e);
-            "00000000-0000-0000-0000-000000000000".to_string()
-        } else {
-            println!("✅ Default admin user created successfully");
-            // Get the admin user ID from the user_db
-            user_db.get_by_username("admin")
-                .map(|u| u.id.to_string())
+    // Check if admin user exists in SQLite database
+    let admin_user_id_string = match auth::get_user_by_username(&db_pool, "admin").await {
+        Ok(Some(user)) => {
+            println!("✅ Admin user already exists");
+            user.id
+        }
+        Ok(None) => {
+            println!("⚠️  No admin user found in database");
+            println!("✅ Setup completed - skipping default admin creation");
+            // Use first user or a placeholder
+            sqlx::query_scalar::<_, String>("SELECT id FROM users LIMIT 1")
+                .fetch_optional(&db_pool)
+                .await
+                .unwrap_or(None)
                 .unwrap_or_else(|| "00000000-0000-0000-0000-000000000000".to_string())
         }
-    } else {
-        println!("✅ Admin user already exists");
-        user_db.get_by_username("admin")
-            .map(|u| u.id.to_string())
-            .unwrap_or_else(|| "00000000-0000-0000-0000-000000000000".to_string())
+        Err(e) => {
+            eprintln!("❌ Failed to check for admin user: {}", e);
+            "00000000-0000-0000-0000-000000000000".to_string()
+        }
     };
 
     // Sync filesystem to database with admin user ownership
@@ -212,7 +212,7 @@ async fn main() {
     let app_state = AppState {
         config,
         fs_tx,
-        user_db,
+        // user_db removed - now using SQLite db_pool directly
         rate_limiter,
         search_index,
         db_pool: db_pool.clone(),

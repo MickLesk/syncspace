@@ -29,10 +29,9 @@ pub async fn auth_middleware(
 
     let token = &auth_header[7..];
 
-    // Decode and validate JWT
-    let user_info: UserInfo = state
-        .user_db
-        .validate_token(token)
+    // Decode and validate JWT against SQLite database
+    let user_info: UserInfo = crate::auth::validate_token_against_db(&state.db_pool, token)
+        .await
         .map_err(|_| StatusCode::UNAUTHORIZED)?;
 
     // Insert user info into request extensions
