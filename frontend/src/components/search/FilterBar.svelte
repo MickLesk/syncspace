@@ -1,37 +1,45 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { currentLang } from "../../stores/ui.js";
+  import { currentLanguage } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
 
   const dispatch = createEventDispatcher();
 
-  export let filters = {};
+  let { filters = {} } = $props();
 
   // Get filter labels
   function getFilterLabel(key, value) {
     switch (key) {
       case "fileType":
         if (value === "all") return null;
-        return `${t($currentLang, "fileType")}: ${t($currentLang, value)}`;
+        return `${tr("fileType")}: ${tr(value)}`;
       case "sizeMin":
-        return `${t($currentLang, "minSize")}: ${value} MB`;
+        return `${tr("minSize")}: ${value} MB`;
       case "sizeMax":
-        return `${t($currentLang, "maxSize")}: ${value} MB`;
+        return `${tr("maxSize")}: ${value} MB`;
       case "dateFrom":
-        return `${t($currentLang, "from")}: ${new Date(value).toLocaleDateString()}`;
+        return `${tr("from")}: ${new Date(value).toLocaleDateString()}`;
       case "dateTo":
-        return `${t($currentLang, "to")}: ${new Date(value).toLocaleDateString()}`;
+        return `${tr("to")}: ${new Date(value).toLocaleDateString()}`;
       case "modifiedBy":
-        return `${t($currentLang, "modifiedBy")}: ${value}`;
+        return `${tr("modifiedBy")}: ${value}`;
       default:
         return null;
     }
   }
 
   // Get active filters as array
-  $: activeFilters = Object.entries(filters)
-    .map(([key, value]) => ({ key, value, label: getFilterLabel(key, value) }))
-    .filter((f) => f.label !== null);
+  const activeFilters = $derived(
+    Object.entries(filters)
+      .map(([key, value]) => ({
+        key,
+        value,
+        label: getFilterLabel(key, value),
+      }))
+      .filter((f) => f.label !== null)
+  );
 
   function handleRemove(key) {
     dispatch("removeFilter", { key });
@@ -47,7 +55,7 @@
     <div class="filter-bar-content">
       <span class="filter-bar-title">
         <i class="bi bi-funnel"></i>
-        {t($currentLang, "activeFilters")}:
+        {tr("activeFilters")}:
       </span>
 
       <div class="filter-chips">
@@ -57,7 +65,7 @@
             <button
               class="chip-remove"
               onclick={() => handleRemove(filter.key)}
-              title={t($currentLang, "removeFilter")}
+              title={tr("removeFilter")}
             >
               <i class="bi bi-x"></i>
             </button>
@@ -70,7 +78,7 @@
         onclick={handleClearAll}
       >
         <i class="bi bi-x-circle"></i>
-        {t($currentLang, "clearAll")}
+        {tr("clearAll")}
       </button>
     </div>
   </div>
@@ -150,5 +158,3 @@
     font-size: 0.75rem;
   }
 </style>
-
-

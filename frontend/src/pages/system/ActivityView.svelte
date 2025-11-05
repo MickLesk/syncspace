@@ -14,11 +14,9 @@
   let selectedFilter = $state("all");
   let searchQuery = $state("");
 
-  let filteredActivities = $derived(filterActivities(
-    $activity,
-    selectedFilter,
-    searchQuery
-  ));
+  let filteredActivities = $derived(
+    filterActivities($activity, selectedFilter, searchQuery)
+  );
   let groupedActivities = $derived(groupByDate(filteredActivities));
   let todayCount = $derived(activity.getToday().length);
 

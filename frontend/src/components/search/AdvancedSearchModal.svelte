@@ -1,7 +1,9 @@
 <script>
   import { createEventDispatcher, onMount } from "svelte";
-  import { currentLang } from "../../stores/ui.js";
+  import { currentLanguage } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
   import Input from "../ui/Input.svelte";
   import FilterBar from "./FilterBar.svelte";
   import Modal from "../ui/Modal.svelte";
@@ -39,25 +41,25 @@
   let recentSearches = $derived($userPreferences.recent_searches || []);
 
   // File type options
-  const fileTypeOptions = [
-    { value: "all", label: t($currentLang, "allFileTypes") },
-    { value: "image", label: t($currentLang, "images") },
-    { value: "video", label: t($currentLang, "videos") },
-    { value: "audio", label: t($currentLang, "audio") },
-    { value: "document", label: t($currentLang, "documents") },
-    { value: "archive", label: t($currentLang, "archives") },
-    { value: "code", label: t($currentLang, "code") },
+  const fileTypeOptions = $derived([
+    { value: "all", label: tr("allFileTypes") },
+    { value: "image", label: tr("images") },
+    { value: "video", label: tr("videos") },
+    { value: "audio", label: tr("audio") },
+    { value: "document", label: tr("documents") },
+    { value: "archive", label: tr("archives") },
+    { value: "code", label: tr("code") },
     { value: "pdf", label: "PDF" },
-    { value: "text", label: t($currentLang, "text") },
-  ];
+    { value: "text", label: tr("text") },
+  ]);
 
   // Sort options
-  const sortOptions = [
-    { value: "name", label: t($currentLang, "name") },
-    { value: "date", label: t($currentLang, "dateModified") },
-    { value: "size", label: t($currentLang, "size") },
-    { value: "type", label: t($currentLang, "type") },
-  ];
+  const sortOptions = $derived([
+    { value: "name", label: tr("name") },
+    { value: "date", label: tr("dateModified") },
+    { value: "size", label: tr("size") },
+    { value: "type", label: tr("type") },
+  ]);
 
   // Save search to recent searches via backend
   async function saveRecentSearch(query) {
@@ -207,7 +209,7 @@
 {#if visible}
   <Modal
     {visible}
-    title={t($currentLang, "advancedSearch")}
+    title={tr("advancedSearch")}
     icon="funnel"
     size="lg"
     variant="primary"
@@ -226,7 +228,7 @@
           </span>
           <input
             type="text"
-            placeholder={t($currentLang, "searchPlaceholder")}
+            placeholder={tr("searchPlaceholder")}
             class="flex-1 px-4 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 outline-none"
             bind:value={searchQuery}
           />
@@ -245,7 +247,7 @@
       <!-- Filters Section -->
       <hr class="my-6 border-gray-200 dark:border-gray-700" />
       <div class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-4">
-        {t($currentLang, "filters")}
+        {tr("filters")}
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -257,14 +259,14 @@
           >
             <i class="bi bi-file-earmark text-blue-600 dark:text-blue-400 mr-2"
             ></i>
-            {t($currentLang, "fileType")}
+            {tr("fileType")}
           </label>
           <select
             id="fileTypeFilter"
             class="w-full px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100"
             bind:value={activeFilters.fileType}
           >
-            <option value="">{t($currentLang, "selectFileType")}</option>
+            <option value="">{tr("selectFileType")}</option>
             {#each fileTypeOptions as option}
               <option value={option.value}>{option.label}</option>
             {/each}
@@ -277,21 +279,21 @@
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             <i class="bi bi-calendar text-blue-600 dark:text-blue-400 mr-2"></i>
-            {t($currentLang, "dateModified")}
+            {tr("dateModified")}
           </div>
           <div class="flex gap-2">
             <input
               type="date"
               class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
               bind:value={activeFilters.dateFrom}
-              placeholder={t($currentLang, "from")}
+              placeholder={tr("from")}
               aria-label="From date"
             />
             <input
               type="date"
               class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
               bind:value={activeFilters.dateTo}
-              placeholder={t($currentLang, "to")}
+              placeholder={tr("to")}
               aria-label="To date"
             />
           </div>
@@ -303,14 +305,14 @@
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             <i class="bi bi-hdd text-blue-600 dark:text-blue-400 mr-2"></i>
-            {t($currentLang, "fileSize")}
+            {tr("fileSize")}
           </div>
           <div class="flex gap-2">
             <input
               type="number"
               class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
               bind:value={activeFilters.sizeMin}
-              placeholder={t($currentLang, "minSizeMB")}
+              placeholder={tr("minSizeMB")}
               min="0"
               aria-label="Minimum file size"
             />
@@ -318,7 +320,7 @@
               type="number"
               class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
               bind:value={activeFilters.sizeMax}
-              placeholder={t($currentLang, "maxSizeMB")}
+              placeholder={tr("maxSizeMB")}
               min="0"
               aria-label="Maximum file size"
             />
@@ -332,14 +334,14 @@
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             <i class="bi bi-person text-blue-600 dark:text-blue-400 mr-2"></i>
-            {t($currentLang, "modifiedBy")}
+            {tr("modifiedBy")}
           </label>
           <input
             id="modifiedByFilter"
             type="text"
             class="w-full px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
             bind:value={activeFilters.modifiedBy}
-            placeholder={t($currentLang, "username")}
+            placeholder={tr("username")}
           />
         </div>
       </div>
@@ -347,7 +349,7 @@
       <!-- Sort Options -->
       <hr class="my-6 border-gray-200 dark:border-gray-700" />
       <div class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-4">
-        {t($currentLang, "sortOptions")}
+        {tr("sortOptions")}
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -359,7 +361,7 @@
           >
             <i class="bi bi-sort-down text-blue-600 dark:text-blue-400 mr-2"
             ></i>
-            {t($currentLang, "sortBy")}
+            {tr("sortBy")}
           </label>
           <select
             id="sortByFilter"
@@ -379,7 +381,7 @@
           >
             <i class="bi bi-arrow-down-up text-blue-600 dark:text-blue-400 mr-2"
             ></i>
-            {t($currentLang, "sortOrder")}
+            {tr("sortOrder")}
           </div>
           <div
             class="flex rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700"
@@ -395,7 +397,7 @@
               onclick={() => (sortOrder = "asc")}
             >
               <i class="bi bi-sort-alpha-down mr-2"></i>
-              {t($currentLang, "ascending")}
+              {tr("ascending")}
             </button>
             <button
               type="button"
@@ -406,7 +408,7 @@
               onclick={() => (sortOrder = "desc")}
             >
               <i class="bi bi-sort-alpha-down-alt mr-2"></i>
-              {t($currentLang, "descending")}
+              {tr("descending")}
             </button>
           </div>
         </div>
@@ -418,7 +420,7 @@
         <div
           class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-4"
         >
-          {t($currentLang, "recentSearches")}
+          {tr("recentSearches")}
         </div>
 
         <div class="flex flex-wrap gap-2">
@@ -446,7 +448,7 @@
           disabled={activeFilterCount === 0}
         >
           <i class="bi bi-x-circle"></i>
-          {t($currentLang, "clearFilters")}
+          {tr("clearFilters")}
         </button>
 
         <button
@@ -476,7 +478,7 @@
           class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
           onclick={close}
         >
-          {t($currentLang, "cancel")}
+          {tr("cancel")}
         </button>
         <button
           type="button"
@@ -484,7 +486,7 @@
           onclick={handleSearch}
         >
           <i class="bi bi-search"></i>
-          {t($currentLang, "search")}
+          {tr("search")}
           {#if activeFilterCount > 0}
             <span
               class="px-2 py-0.5 bg-white/20 rounded-full text-xs font-medium"

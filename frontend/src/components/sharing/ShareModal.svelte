@@ -1,10 +1,13 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import { success, error as errorToast } from "../../stores/toast.js";
+  import { currentLanguage } from "../../stores/ui";
+  import { t } from "../../i18n.js";
   import Modal from "../ui/Modal.svelte";
   import api from "../../lib/api.js";
 
   const dispatch = createEventDispatcher();
+  const tr = $derived((key, ...args) => t($currentLanguage, key, ...args));
 
   // Props
   export let isOpen = false;
@@ -28,14 +31,14 @@
   let showShareResult = false;
 
   // Expiration options
-  const expirationOptions = [
-    { value: null, label: "Never expires" },
-    { value: 1, label: "1 day" },
-    { value: 7, label: "1 week" },
-    { value: 30, label: "1 month" },
-    { value: 90, label: "3 months" },
-    { value: 365, label: "1 year" },
-  ];
+  const expirationOptions = $derived([
+    { value: null, label: tr("neverExpires") },
+    { value: 1, label: tr("oneDay") },
+    { value: 7, label: tr("oneWeek") },
+    { value: 30, label: tr("oneMonth") },
+    { value: 90, label: tr("threeMonths") },
+    { value: 365, label: tr("oneYear") },
+  ]);
 
   $: isFile = file && !file.is_dir;
   $: isFolder = file && file.is_dir;
@@ -64,11 +67,9 @@
       shareUrl = `${window.location.origin}/share/${share.share.share_link}`;
       showShareResult = true;
 
-      success(
-        `${shareType === "public" ? "Public" : "Private"} share created successfully`
-      );
+      success(tr("shareCreatedSuccessfully"));
     } catch (err) {
-      errorToast(err.message || "Failed to create share");
+      errorToast(err.message || tr("failedToCreateShare"));
     } finally {
       loading = false;
     }
@@ -77,9 +78,9 @@
   async function copyShareUrl() {
     try {
       await navigator.clipboard.writeText(shareUrl);
-      success("Share URL copied to clipboard");
+      success(tr("shareUrlCopiedToClipboard"));
     } catch (err) {
-      errorToast("Failed to copy URL");
+      errorToast(tr("failedToCopyUrl"));
     }
   }
 
@@ -111,7 +112,7 @@
 
 <Modal
   visible={isOpen}
-  title="Share {file?.name || ''}"
+  title={tr("shareFileName", file?.name || "")}
   icon="share"
   size="md"
   variant="primary"
@@ -123,7 +124,7 @@
       <!-- Share Type -->
       <div class="form-control">
         <label class="label">
-          <span class="label-text font-semibold">Share Type</span>
+          <span class="label-text font-semibold">{tr("shareType")}</span>
         </label>
         <div class="grid grid-cols-2 gap-3">
           <label class="cursor-pointer">
@@ -134,9 +135,9 @@
               class="radio radio-primary"
             />
             <div class="ml-3">
-              <div class="font-medium">Public Link</div>
+              <div class="font-medium">{tr("publicLink")}</div>
               <div class="text-sm opacity-60">
-                Anyone with the link can access
+                {tr("anyoneWithLinkCanAccess")}
               </div>
             </div>
           </label>
@@ -149,8 +150,10 @@
               class="radio radio-primary"
             />
             <div class="ml-3">
-              <div class="font-medium">Specific User</div>
-              <div class="text-sm opacity-60">Share with a specific person</div>
+              <div class="font-medium">{tr("specificUser")}</div>
+              <div class="text-sm opacity-60">
+                {tr("shareWithSpecificPerson")}
+              </div>
             </div>
           </label>
         </div>
@@ -160,11 +163,11 @@
       {#if shareType === "private"}
         <div class="form-control">
           <label class="label">
-            <span class="label-text font-semibold">User Email</span>
+            <span class="label-text font-semibold">{tr("userEmail")}</span>
           </label>
           <input
             type="email"
-            placeholder="Enter user email address"
+            placeholder={tr("enterUserEmailAddress")}
             class="input input-bordered"
             bind:value={userEmail}
             required
@@ -175,7 +178,7 @@
       <!-- Expiration -->
       <div class="form-control">
         <label class="label">
-          <span class="label-text font-semibold">Expiration</span>
+          <span class="label-text font-semibold">{tr("expiration")}</span>
         </label>
         <select class="select select-bordered" bind:value={expiresInDays}>
           {#each expirationOptions as option}
@@ -187,7 +190,7 @@
       <!-- Permissions -->
       <div class="form-control">
         <label class="label">
-          <span class="label-text font-semibold">Permissions</span>
+          <span class="label-text font-semibold">{tr("permissions")}</span>
         </label>
         <div class="space-y-3">
           <label class="cursor-pointer flex items-center gap-3">
@@ -198,8 +201,10 @@
               disabled
             />
             <div>
-              <div class="font-medium">View</div>
-              <div class="text-sm opacity-60">Can view and download files</div>
+              <div class="font-medium">{tr("view")}</div>
+              <div class="text-sm opacity-60">
+                {tr("canViewAndDownloadFiles")}
+              </div>
             </div>
           </label>
 
@@ -210,8 +215,10 @@
               class="checkbox checkbox-primary"
             />
             <div>
-              <div class="font-medium">Edit</div>
-              <div class="text-sm opacity-60">Can upload and modify files</div>
+              <div class="font-medium">{tr("edit")}</div>
+              <div class="text-sm opacity-60">
+                {tr("canUploadAndModifyFiles")}
+              </div>
             </div>
           </label>
 
@@ -222,8 +229,10 @@
               class="checkbox checkbox-primary"
             />
             <div>
-              <div class="font-medium">Delete</div>
-              <div class="text-sm opacity-60">Can delete files and folders</div>
+              <div class="font-medium">{tr("delete")}</div>
+              <div class="text-sm opacity-60">
+                {tr("canDeleteFilesAndFolders")}
+              </div>
             </div>
           </label>
 
@@ -234,8 +243,10 @@
               class="checkbox checkbox-primary"
             />
             <div>
-              <div class="font-medium">Share</div>
-              <div class="text-sm opacity-60">Can create additional shares</div>
+              <div class="font-medium">{tr("share")}</div>
+              <div class="text-sm opacity-60">
+                {tr("canCreateAdditionalShares")}
+              </div>
             </div>
           </label>
         </div>
@@ -248,15 +259,20 @@
       <div class="alert alert-success rounded-xl">
         <i class="bi bi-check-circle-fill text-2xl"></i>
         <div>
-          <h3 class="font-bold">Share Created Successfully!</h3>
-          <div class="text-sm">Your {shareType} share is ready to use.</div>
+          <h3 class="font-bold">{tr("shareCreatedSuccessfully")}!</h3>
+          <div class="text-sm">
+            {tr(
+              "yourShareIsReadyToUse",
+              shareType === "public" ? tr("public") : tr("private")
+            )}
+          </div>
         </div>
       </div>
 
       <!-- Share URL -->
       <div class="form-control">
         <label class="label">
-          <span class="label-text font-semibold">Share URL</span>
+          <span class="label-text font-semibold">{tr("shareUrl")}</span>
         </label>
         <div class="join w-full">
           <input
@@ -270,7 +286,7 @@
             onclick={copyShareUrl}
           >
             <i class="bi bi-clipboard"></i>
-            Copy
+            {tr("copy")}
           </button>
         </div>
       </div>
@@ -278,15 +294,15 @@
       <!-- Share Details -->
       <div class="grid grid-cols-2 gap-4">
         <div class="stat bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
-          <div class="stat-title">Type</div>
+          <div class="stat-title">{tr("type")}</div>
           <div class="stat-value text-lg">
-            {shareType === "public" ? "Public" : "Private"}
+            {shareType === "public" ? tr("public") : tr("private")}
           </div>
         </div>
         <div class="stat bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
-          <div class="stat-title">Expires</div>
+          <div class="stat-title">{tr("expires")}</div>
           <div class="stat-value text-lg">
-            {expiresInDays ? `${expiresInDays} days` : "Never"}
+            {expiresInDays ? tr("daysCount", expiresInDays) : tr("never")}
           </div>
         </div>
       </div>
@@ -294,31 +310,31 @@
       <!-- Permissions Summary -->
       <div class="form-control">
         <label class="label">
-          <span class="label-text font-semibold">Permissions</span>
+          <span class="label-text font-semibold">{tr("permissions")}</span>
         </label>
         <div class="flex flex-wrap gap-2">
           {#if permissions.canRead}
             <div class="badge badge-success gap-1">
               <i class="bi bi-eye"></i>
-              View
+              {tr("view")}
             </div>
           {/if}
           {#if permissions.canWrite}
             <div class="badge badge-warning gap-1">
               <i class="bi bi-pencil"></i>
-              Edit
+              {tr("edit")}
             </div>
           {/if}
           {#if permissions.canDelete}
             <div class="badge badge-error gap-1">
               <i class="bi bi-trash"></i>
-              Delete
+              {tr("delete")}
             </div>
           {/if}
           {#if permissions.canShare}
             <div class="badge badge-info gap-1">
               <i class="bi bi-share"></i>
-              Share
+              {tr("share")}
             </div>
           {/if}
         </div>
@@ -331,7 +347,7 @@
     {#if !showShareResult}
       <button class="btn btn-ghost" onclick={close}>
         <i class="bi bi-x-lg"></i>
-        Cancel
+        {tr("cancel")}
       </button>
       <button
         class="btn btn-primary gap-2"
@@ -343,16 +359,16 @@
         {:else}
           <i class="bi bi-share"></i>
         {/if}
-        Create Share
+        {tr("createShare")}
       </button>
     {:else}
       <button class="btn btn-primary gap-2" onclick={copyShareUrl}>
         <i class="bi bi-clipboard"></i>
-        Copy URL
+        {tr("copyUrl")}
       </button>
       <button class="btn btn-ghost" onclick={close}>
         <i class="bi bi-check-lg"></i>
-        Done
+        {tr("done")}
       </button>
     {/if}
   </div>
