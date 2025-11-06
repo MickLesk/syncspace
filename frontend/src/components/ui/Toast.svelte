@@ -57,7 +57,7 @@
   }
 
   // Auto-dismiss toasts
-  $: {
+  $effect(() => {
     $toasts.forEach((toast) => {
       if (!toast.dismissed && !progressIntervals.has(toast.id)) {
         const duration = toast.duration || 5000;
@@ -68,7 +68,7 @@
         }, duration);
       }
     });
-  }
+  });
 
   onMount(() => {
     return () => {

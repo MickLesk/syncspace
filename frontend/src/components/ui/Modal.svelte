@@ -13,7 +13,7 @@
     closeOnBackdrop = true,
     closeOnEscape = true,
     onclose = () => {},
-    children
+    children,
   } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
@@ -94,12 +94,14 @@
     document.body.style.overflow = "";
   });
 
-  $: if (visible && modalElement) {
-    const cleanup = trapFocus(modalElement);
-    document.body.style.overflow = "hidden";
-  } else if (!visible) {
-    document.body.style.overflow = "";
-  }
+  $effect(() => {
+    if (visible && modalElement) {
+      const cleanup = trapFocus(modalElement);
+      document.body.style.overflow = "hidden";
+    } else if (!visible) {
+      document.body.style.overflow = "";
+    }
+  });
 </script>
 
 {#if visible}
