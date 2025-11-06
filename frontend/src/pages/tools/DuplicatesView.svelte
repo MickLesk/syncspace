@@ -15,15 +15,17 @@
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
-  let scanning = false;
-  let scanProgress = { phase: "", current: 0, total: 0 };
-  let duplicateGroups = [];
-  let totalWastedSpace = 0;
-  let selectedDuplicates = new Set();
+  let scanning = $state(false);
+  let scanProgress = $state({ phase: "", current: 0, total: 0 });
+  let duplicateGroups = $state([]);
+  let totalWastedSpace = $state(0);
+  let selectedDuplicates = $state(new Set());
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  $: totalDuplicates = duplicateGroups.reduce((sum, g) => sum + g.count - 1, 0);
+  const totalDuplicates = $derived(
+    duplicateGroups.reduce((sum, g) => sum + g.count - 1, 0)
+  );
 
   async function scanCurrentFolder() {
     if (scanning) return;

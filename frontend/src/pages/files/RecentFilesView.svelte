@@ -66,15 +66,22 @@
     const badges = {
       view: { icon: "eye", labelKey: "recentBadgeViewed", color: "info" },
       edit: { icon: "pencil", labelKey: "recentBadgeEdited", color: "warning" },
-      download: { icon: "download", labelKey: "recentBadgeDownloaded", color: "success" },
-      upload: { icon: "upload", labelKey: "recentBadgeUploaded", color: "primary" },
+      download: {
+        icon: "download",
+        labelKey: "recentBadgeDownloaded",
+        color: "success",
+      },
+      upload: {
+        icon: "upload",
+        labelKey: "recentBadgeUploaded",
+        color: "primary",
+      },
     };
-    const badge =
-      badges[accessType] || {
-        icon: "file-earmark",
-        labelKey: "recentBadgeAccessed",
-        color: "info",
-      };
+    const badge = badges[accessType] || {
+      icon: "file-earmark",
+      labelKey: "recentBadgeAccessed",
+      color: "info",
+    };
 
     return { ...badge, label: tr(badge.labelKey) };
   }

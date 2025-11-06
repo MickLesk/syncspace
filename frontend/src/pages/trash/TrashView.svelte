@@ -7,13 +7,13 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  let trashItems = [];
-  let loading = true;
-  let error = null;
-  let selectedItems = new Set();
-  let searchQuery = "";
-  let sortBy = "deleted_at";
-  let sortOrder = "desc";
+  let trashItems = $state([]);
+  let loading = $state(true);
+  let error = $state(null);
+  let selectedItems = $state(new Set());
+  let searchQuery = $state("");
+  let sortBy = $state("deleted_at");
+  let sortOrder = $state("desc");
 
   // Filter and sort trash items
   const filteredItems = $derived(
@@ -115,10 +115,7 @@
 
   // Permanently delete single item
   async function deleteItemPermanently(item) {
-    if (
-      !confirm(tr("trashConfirmDeleteSingle", item.file_name))
-    )
-      return;
+    if (!confirm(tr("trashConfirmDeleteSingle", item.file_name))) return;
 
     try {
       const response = await api.trash.permanentDelete(item.original_path);
@@ -138,9 +135,7 @@
     const itemsToDelete = trashItems.filter((item) =>
       selectedItems.has(item.id)
     );
-    if (
-      !confirm(tr("trashConfirmDeleteMultiple", itemsToDelete.length))
-    )
+    if (!confirm(tr("trashConfirmDeleteMultiple", itemsToDelete.length)))
       return;
 
     let successCount = 0;
@@ -162,10 +157,7 @@
 
   // Empty entire trash
   async function emptyTrash() {
-    if (
-      !confirm(tr("trashConfirmEmpty", trashItems.length))
-    )
-      return;
+    if (!confirm(tr("trashConfirmEmpty", trashItems.length))) return;
 
     try {
       const response = await api.trash.empty();
@@ -231,7 +223,7 @@
     <div class="header-actions">
       <button
         class="btn btn-sm"
-        on:click={cleanupOldItems}
+        onclick={cleanupOldItems}
         disabled={trashItems.length === 0}
       >
         <svg
@@ -252,7 +244,7 @@
       </button>
       <button
         class="btn btn-sm btn-danger"
-        on:click={emptyTrash}
+        onclick={emptyTrash}
         disabled={trashItems.length === 0}
       >
         <svg
@@ -283,7 +275,7 @@
             type="checkbox"
             checked={selectedItems.size === filteredItems.length &&
               filteredItems.length > 0}
-            on:change={toggleSelectAll}
+            onchange={toggleSelectAll}
           />
           <span>{tr("selectAll")}</span>
         </label>
@@ -292,7 +284,7 @@
           <span class="selected-count"
             >{selectedItems.size} {tr("selected")}</span
           >
-          <button class="btn btn-sm btn-success" on:click={restoreSelected}>
+          <button class="btn btn-sm btn-success" onclick={restoreSelected}>
             <svg
               class="icon-sm"
               xmlns="http://www.w3.org/2000/svg"
@@ -311,7 +303,7 @@
           </button>
           <button
             class="btn btn-sm btn-danger"
-            on:click={deleteSelectedPermanently}
+            onclick={deleteSelectedPermanently}
           >
             <svg
               class="icon-sm"
@@ -348,7 +340,7 @@
 
         <button
           class="btn-icon"
-          on:click={() => (sortOrder = sortOrder === "asc" ? "desc" : "asc")}
+          onclick={() => (sortOrder = sortOrder === "asc" ? "desc" : "asc")}
         >
           <svg
             class="icon-sm"
@@ -402,9 +394,9 @@
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
           />
         </svg>
-  <h3>{tr("errorOccurred")}</h3>
+        <h3>{tr("errorOccurred")}</h3>
         <p>{error}</p>
-  <button class="btn" on:click={loadTrash}>{tr("tryAgain")}</button>
+        <button class="btn" onclick={loadTrash}>{tr("tryAgain")}</button>
       </div>
     {:else if filteredItems.length === 0}
       <div class="empty">
@@ -437,7 +429,7 @@
               <input
                 type="checkbox"
                 checked={selectedItems.has(item.id)}
-                on:change={() => toggleSelect(item.id)}
+                onchange={() => toggleSelect(item.id)}
               />
             </label>
 
@@ -470,7 +462,7 @@
               <button
                 class="btn-icon"
                 title={tr("restoreFile")}
-                on:click={() => restoreItem(item)}
+                onclick={() => restoreItem(item)}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -489,7 +481,7 @@
               <button
                 class="btn-icon btn-danger"
                 title={tr("deleteForever")}
-                on:click={() => deleteItemPermanently(item)}
+                onclick={() => deleteItemPermanently(item)}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
