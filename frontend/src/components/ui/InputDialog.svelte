@@ -16,7 +16,7 @@
     type = "text",
     required = true,
     confirmText = "OK",
-    cancelText = "Abbrechen"
+    cancelText = "Abbrechen",
   } = $props();
 
   const dispatch = createEventDispatcher();

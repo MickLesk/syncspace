@@ -10,7 +10,7 @@
     placeholder = "",
     fullWidth = false,
     oninput = null,
-    onclear = null
+    onclear = null,
   } = $props();
 
   const defaultPlaceholder = $derived(placeholder || tr("search"));

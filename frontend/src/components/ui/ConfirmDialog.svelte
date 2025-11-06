@@ -37,7 +37,7 @@
     variant = "default",
     icon = "",
     loading = false,
-    content
+    content,
   } = $props();
 
   // Derived default texts
@@ -115,7 +115,9 @@
       <!-- Content -->
       <div class="dialog-content">
         <h2 id="confirm-dialog-title" class="dialog-title">{defaultTitle}</h2>
-        <p id="confirm-dialog-message" class="dialog-message">{defaultMessage}</p>
+        <p id="confirm-dialog-message" class="dialog-message">
+          {defaultMessage}
+        </p>
 
         {@render content?.()}
       </div>

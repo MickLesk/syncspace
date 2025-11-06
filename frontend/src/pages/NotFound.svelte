@@ -22,8 +22,12 @@
         {#snippet children()}
           <!-- 404 Icon -->
           <div class="mb-8">
-            <div class="inline-flex items-center justify-center w-32 h-32 rounded-full bg-primary-100 dark:bg-primary-900/30 mb-4">
-              <i class="bi bi-file-earmark-x-fill text-6xl text-primary-600 dark:text-primary-400"></i>
+            <div
+              class="inline-flex items-center justify-center w-32 h-32 rounded-full bg-primary-100 dark:bg-primary-900/30 mb-4"
+            >
+              <i
+                class="bi bi-file-earmark-x-fill text-6xl text-primary-600 dark:text-primary-400"
+              ></i>
             </div>
             <div class="text-8xl font-bold gradient-text-primary">404</div>
           </div>
@@ -32,7 +36,9 @@
           <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">
             {tr("pageNotFound")}
           </h1>
-          <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+          <p
+            class="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto"
+          >
             {tr("pageNotFoundDescription")}
           </p>
 
@@ -52,21 +58,53 @@
               {tr("quickLinks")}
             </p>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <a href="#/files" class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group">
-                <i class="bi bi-folder-fill text-2xl text-blue-500 group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{tr("files")}</span>
+              <a
+                href="#/files"
+                class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group"
+              >
+                <i
+                  class="bi bi-folder-fill text-2xl text-blue-500 group-hover:scale-110 transition-transform"
+                ></i>
+                <span
+                  class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >{tr("files")}</span
+                >
               </a>
-              <a href="#/favorites" class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group">
-                <i class="bi bi-star-fill text-2xl text-yellow-500 group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{tr("favorites")}</span>
+              <a
+                href="#/favorites"
+                class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group"
+              >
+                <i
+                  class="bi bi-star-fill text-2xl text-yellow-500 group-hover:scale-110 transition-transform"
+                ></i>
+                <span
+                  class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >{tr("favorites")}</span
+                >
               </a>
-              <a href="#/recent" class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group">
-                <i class="bi bi-clock-fill text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{tr("recent")}</span>
+              <a
+                href="#/recent"
+                class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group"
+              >
+                <i
+                  class="bi bi-clock-fill text-2xl text-green-500 group-hover:scale-110 transition-transform"
+                ></i>
+                <span
+                  class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >{tr("recent")}</span
+                >
               </a>
-              <a href="#/settings" class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group">
-                <i class="bi bi-gear-fill text-2xl text-purple-500 group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{tr("settings")}</span>
+              <a
+                href="#/settings"
+                class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group"
+              >
+                <i
+                  class="bi bi-gear-fill text-2xl text-purple-500 group-hover:scale-110 transition-transform"
+                ></i>
+                <span
+                  class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >{tr("settings")}</span
+                >
               </a>
             </div>
           </div>
@@ -280,4 +318,3 @@
     }
   }
 </style>
-
