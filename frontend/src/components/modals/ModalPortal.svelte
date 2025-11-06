@@ -215,7 +215,7 @@
         id="folder-name"
         type="text"
         bind:value={newFolderName}
-  placeholder={tr("enterFolderName")}
+        placeholder={tr("enterFolderName")}
         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
         onkeydown={(e) => {
           if (e.key === "Enter" && newFolderName.trim()) {
@@ -558,15 +558,13 @@
 <!-- Delete Confirmation Modal -->
 <Modal
   visible={$modals.delete.visible}
-  title="Delete File"
+  title={tr("deleteConfirmTitle")}
   onclose={() => modals.close("delete")}
   variant="danger"
 >
   <div class="space-y-4">
     <p class="text-gray-700 dark:text-gray-300">
-      Are you sure you want to delete <strong
-        >{$modals.delete.data?.name}</strong
-      >? This action cannot be undone.
+      {tr("sureDeleteFile", $modals.delete.data?.name)}
     </p>
     <div class="flex justify-end gap-2">
       <button
@@ -574,7 +572,7 @@
         class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
         onclick={() => modals.close("delete")}
       >
-        Cancel
+        {tr("cancel")}
       </button>
       <button
         type="button"
@@ -585,7 +583,7 @@
         }}
       >
         <i class="bi bi-trash"></i>
-        Delete
+        {tr("delete")}
       </button>
     </div>
   </div>
@@ -608,12 +606,13 @@
 <!-- Move File Modal -->
 <Modal
   visible={$modals.move.visible}
-  title="Move File"
+  title={tr("moveFile")}
   onclose={() => modals.close("move")}
 >
   <div class="space-y-4">
     <p class="text-gray-700 dark:text-gray-300">
-      Move <strong>{$modals.move.data?.name}</strong> to:
+      {tr("moveFile")} <strong>{$modals.move.data?.name}</strong>
+      {tr("to")}:
     </p>
 
     <!-- Folder Selection -->
@@ -621,7 +620,7 @@
       <div
         class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
       >
-        Select Destination Folder
+        {tr("selectDestinationFolder")}
       </div>
 
       <!-- Filter Input -->
@@ -632,7 +631,7 @@
         <input
           type="text"
           bind:value={folderFilter}
-          placeholder="Filter folders..."
+          placeholder={tr("filterFolders")}
           class="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
         />
       </div>
@@ -644,7 +643,7 @@
         {#if availableFolders.length === 0}
           <div class="p-4 text-center text-gray-500 dark:text-gray-400">
             <i class="bi bi-folder-x text-2xl mb-2"></i>
-            <p class="text-sm">No folders available</p>
+            <p class="text-sm">{tr("noFoldersAvailable")}</p>
           </div>
         {:else}
           {#each availableFolders as folder}
@@ -682,7 +681,7 @@
           <div
             class="text-xs font-medium text-primary-700 dark:text-primary-300 mb-1"
           >
-            Selected Destination
+            {tr("selectedDestination")}
           </div>
           <div class="text-sm font-mono text-gray-900 dark:text-gray-100">
             {selectedDestinationPath}
@@ -702,7 +701,7 @@
           modals.close("move");
         }}
       >
-        Cancel
+        {tr("cancel")}
       </button>
       <button
         type="button"
@@ -721,7 +720,7 @@
         disabled={!selectedDestinationPath}
       >
         <i class="bi bi-arrow-right"></i>
-        Move Here
+        {tr("moveHere")}
       </button>
     </div>
   </div>
@@ -730,24 +729,25 @@
 <!-- Copy File Modal -->
 <Modal
   visible={$modals.copy.visible}
-  title="Copy File"
+  title={tr("copyFile")}
   onclose={() => modals.close("copy")}
 >
   <div class="space-y-4">
     <p class="text-gray-700 dark:text-gray-300">
-      Copy <strong>{$modals.copy.data?.name}</strong> to:
+      {tr("copyFile")} <strong>{$modals.copy.data?.name}</strong>
+      {tr("to")}:
     </p>
     <div>
       <label
         for="copy-destination"
         class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
       >
-        Destination Path
+        {tr("destinationPath")}
       </label>
       <input
         id="copy-destination"
         type="text"
-        placeholder="/path/to/destination"
+        placeholder={tr("pathToDestination")}
         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
       />
     </div>
@@ -757,7 +757,7 @@
         class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
         onclick={() => modals.close("copy")}
       >
-        Cancel
+        {tr("cancel")}
       </button>
       <button
         type="button"
@@ -768,7 +768,7 @@
         }}
       >
         <i class="bi bi-files"></i>
-        Copy
+        {tr("copy")}
       </button>
     </div>
   </div>
@@ -777,19 +777,19 @@
 <!-- Share File Modal -->
 <Modal
   visible={$modals.share.visible}
-  title="Share File"
+  title={tr("shareFile")}
   onclose={() => modals.close("share")}
 >
   <div class="space-y-4">
     <p class="text-gray-700 dark:text-gray-300">
-      Share <strong>{$modals.share.data?.name}</strong>
+      {tr("shareFile")} <strong>{$modals.share.data?.name}</strong>
     </p>
     <div>
       <label
         for="share-link"
         class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
       >
-        Share Link (will be generated)
+        {tr("shareLinkGenerated")}
       </label>
       <input
         id="share-link"
@@ -806,7 +806,7 @@
         for="share-password"
         class="text-sm text-gray-700 dark:text-gray-300"
       >
-        Password protect
+        {tr("protectWithPassword")}
       </label>
     </div>
     <div class="flex justify-end gap-2">
@@ -815,7 +815,7 @@
         class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
         onclick={() => modals.close("share")}
       >
-        Cancel
+        {tr("cancel")}
       </button>
       <button
         type="button"
@@ -826,7 +826,7 @@
         }}
       >
         <i class="bi bi-share"></i>
-        Create Link
+        {tr("createLink")}
       </button>
     </div>
   </div>
@@ -835,23 +835,25 @@
 <!-- Version History Modal -->
 <Modal
   visible={$modals.versionHistory.visible}
-  title="Version History"
+  title={tr("versionHistory")}
   onclose={() => modals.close("versionHistory")}
   size="large"
 >
   <div class="space-y-4">
     <p class="text-gray-700 dark:text-gray-300">
-      History for <strong>{$modals.versionHistory.data?.name}</strong>
+      {tr("versionHistory")}
+      <strong>{$modals.versionHistory.data?.name}</strong>
     </p>
     <div class="space-y-2">
       <div class="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
         <div class="flex justify-between items-center">
           <div>
             <p class="font-medium text-gray-900 dark:text-gray-100">
-              Version 1.0 (Current)
+              {tr("currentVersion")}
             </p>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              Modified: {new Date().toLocaleString()}
+              {tr("modifiedBy")}
+              {new Date().toLocaleString()}
             </p>
           </div>
           <button
@@ -859,13 +861,13 @@
             class="px-3 py-1 text-sm bg-primary-500 text-white rounded"
           >
             <i class="bi bi-download"></i>
-            Download
+            {tr("download")}
           </button>
         </div>
       </div>
       <div class="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
         <p class="text-gray-500 dark:text-gray-400 text-center">
-          No previous versions available
+          {tr("noPreviousVersions")}
         </p>
       </div>
     </div>
@@ -875,7 +877,7 @@
         class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
         onclick={() => modals.close("versionHistory")}
       >
-        Close
+        {tr("close")}
       </button>
     </div>
   </div>
