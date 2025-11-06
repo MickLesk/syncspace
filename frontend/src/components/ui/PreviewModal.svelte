@@ -6,29 +6,31 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  export let file = null;
-  export let files = [];
-  export let currentPath = "";
-
-  // Action callbacks (optional)
-  export let onDownload = null;
-  export let onShare = null;
-  export let onCopy = null;
-  export let onMove = null;
-  export let onDelete = null;
+  let {
+    file = null,
+    files = [],
+    currentPath = "",
+    onDownload = null,
+    onShare = null,
+    onCopy = null,
+    onMove = null,
+    onDelete = null,
+  } = $props();
 
   const dispatch = createEventDispatcher();
 
-  let currentIndex = 0;
-  let previewUrl = null;
-  let previewType = null;
-  let loading = true;
-  let error = null;
+  let currentIndex = $state(0);
+  let previewUrl = $state(null);
+  let previewType = $state(null);
+  let loading = $state(true);
+  let error = $state(null);
 
-  $: if (file) {
-    currentIndex = files.findIndex((f) => f.name === file.name);
-    loadPreview();
-  }
+  $effect(() => {
+    if (file) {
+      currentIndex = files.findIndex((f) => f.name === file.name);
+      loadPreview();
+    }
+  });
 
   async function loadPreview() {
     loading = true;
@@ -180,8 +182,17 @@
 <svelte:window onkeydown={handleKeydown} />
 
 {#if file}
-  <div class="preview-overlay" onclick={close}>
-    <div class="preview-modal" onclick={(e) => e.stopPropagation()}>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="preview-overlay" onclick={close} role="presentation">
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+      class="preview-modal"
+      onclick={(e) => e.stopPropagation()}
+      role="dialog"
+      tabindex="-1"
+    >
       <div class="preview-header">
         <div class="preview-title">
           <Icon name="file-earmark" size={20} />
@@ -273,7 +284,8 @@
         {:else if previewType === "image"}
           <img src={previewUrl} alt={file.name} />
         {:else if previewType === "video"}
-          <video src={previewUrl} controls />
+          <!-- svelte-ignore a11y_media_has_caption -->
+          <video src={previewUrl} controls></video>
         {:else if previewType === "pdf"}
           <iframe src={previewUrl} title={file.name}></iframe>
         {:else if previewType === "text"}

@@ -2,14 +2,15 @@
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
-  export let label = "";
-  export let icon = "";
-  export let selected = false;
-  export let variant = "filter"; // filter, tag, removable
-  export let size = "medium"; // small, medium, large
-  /** @type {(() => void) | undefined} */
-  export let onRemove = undefined;
-  export let onClick = () => {};
+  let {
+    label = "",
+    icon = "",
+    selected = false,
+    variant = "filter", // filter, tag, removable
+    size = "medium", // small, medium, large
+    onRemove = undefined,
+    onClick = () => {},
+  } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>

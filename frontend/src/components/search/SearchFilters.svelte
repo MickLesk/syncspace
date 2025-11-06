@@ -31,49 +31,47 @@
 
 <div class="filter-panel">
   <div class="filter-group">
-    <label class="block mb-1"
-      ><span class="text-sm font-semibold text-gray-700 dark:text-gray-200"
+    <label class="block mb-1">
+      <span class="text-sm font-semibold text-gray-700 dark:text-gray-200"
         >File Type</span
-      ></label
-    >
-    <select
-      bind:value={filters.fileType}
-      class="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-      onchange={updateFilters}
-    >
-      {#each fileTypes as type}
-        <option value={type}
-          >{type.charAt(0).toUpperCase() + type.slice(1)}</option
-        >
-      {/each}
-    </select>
+      >
+      <select
+        bind:value={filters.fileType}
+        class="mt-1 w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+        onchange={updateFilters}
+      >
+        {#each fileTypes as type}
+          <option value={type}
+            >{type.charAt(0).toUpperCase() + type.slice(1)}</option
+          >
+        {/each}
+      </select>
+    </label>
   </div>
 
   <div class="filter-group">
-    <label class="block mb-1"
-      ><span class="text-sm font-semibold text-gray-700 dark:text-gray-200"
+    <label class="block mb-1">
+      <span class="text-sm font-semibold text-gray-700 dark:text-gray-200"
         >Date Modified</span
-      ></label
-    >
-    <select
-      bind:value={filters.dateRange}
-      class="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-      onchange={updateFilters}
-    >
-      {#each dateRanges as range}
-        <option value={range}
-          >{range.charAt(0).toUpperCase() + range.slice(1)}</option
-        >
-      {/each}
-    </select>
+      >
+      <select
+        bind:value={filters.dateRange}
+        class="mt-1 w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+        onchange={updateFilters}
+      >
+        {#each dateRanges as range}
+          <option value={range}
+            >{range.charAt(0).toUpperCase() + range.slice(1)}</option
+          >
+        {/each}
+      </select>
+    </label>
   </div>
 
   <div class="filter-group">
-    <label class="block mb-1"
-      ><span class="text-sm font-semibold text-gray-700 dark:text-gray-200"
-        >File Size</span
-      ></label
-    >
+    <div class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
+      File Size
+    </div>
     <div class="flex gap-2">
       <input
         type="number"

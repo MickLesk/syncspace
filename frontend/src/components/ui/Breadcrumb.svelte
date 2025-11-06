@@ -20,20 +20,13 @@
 
   import Icon from "./Icon.svelte";
 
-  /** @type {Array<{name: string, path: string}>} - Breadcrumb items */
-  export let items = [];
-
-  /** @type {Function} - Callback wenn auf Breadcrumb geklickt wird */
-  export let onNavigate = null;
-
-  /** @type {string} - Separator zwischen Items */
-  export let separator = "/";
-
-  /** @type {boolean} - Zeigt Home-Icon für erstes Element */
-  export let showHomeIcon = true;
-
-  /** @type {"small" | "medium" | "large"} - Größe der Breadcrumbs */
-  export let size = "medium";
+  let {
+    items = [],
+    onNavigate = null,
+    separator = "/",
+    showHomeIcon = true,
+    size = "medium",
+  } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 

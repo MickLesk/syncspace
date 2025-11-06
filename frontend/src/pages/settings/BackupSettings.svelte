@@ -48,6 +48,7 @@
             <button
               role="switch"
               aria-checked={autoBackup}
+              aria-label="Toggle automatic backup"
               class="relative inline-flex h-7 w-12 rounded-full transition-colors {autoBackup
                 ? 'bg-primary-600'
                 : 'bg-gray-300 dark:bg-gray-700'}"

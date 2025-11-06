@@ -2,13 +2,15 @@
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
-  export let title = "";
-  export let description = "";
-  export let variant = "default"; // default, bordered, glass, gradient
-  export let hoverable = false;
-  export let clickable = false;
-  export let padding = "medium"; // small, medium, large
-  export let onClick = () => {};
+  let {
+    title = "",
+    description = "",
+    variant = "default", // default, bordered, glass, gradient
+    hoverable = false,
+    clickable = false,
+    padding = "medium", // small, medium, large
+    onClick = () => {},
+  } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>

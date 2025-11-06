@@ -23,7 +23,7 @@
     <button
       class="absolute top-0 right-0 mt-2 mr-2 text-red-700 dark:text-red-200 hover:text-red-900"
       aria-label="Dismiss error"
-      on:click={() => dispatch("dismiss")}
+      onclick={() => dispatch("dismiss")}
     >
       <i class="bi bi-x"></i>
     </button>

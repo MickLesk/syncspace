@@ -7,20 +7,13 @@
    * @component
    */
 
-  /** @type {string} */
-  export let icon = "";
-
-  /** @type {string} */
-  export let label = "";
-
-  /** @type {string|number} */
-  export let value = "";
-
-  /** @type {string} */
-  export let gradient = "linear-gradient(135deg, #6366f1, #8b5cf6)";
-
-  /** @type {number} */
-  export let iconSize = 28;
+  let {
+    icon = "",
+    label = "",
+    value = "",
+    gradient = "linear-gradient(135deg, #6366f1, #8b5cf6)",
+    iconSize = 28,
+  } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>

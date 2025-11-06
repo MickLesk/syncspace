@@ -438,14 +438,14 @@
               <span class="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >Schedule Name</span
               >
+              <input
+                type="text"
+                class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+                bind:value={formData.name}
+                placeholder="e.g., Daily Full Backup"
+                required
+              />
             </label>
-            <input
-              type="text"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
-              bind:value={formData.name}
-              placeholder="e.g., Daily Full Backup"
-              required
-            />
           </div>
 
           <div class="mb-4">
@@ -453,15 +453,15 @@
               <span class="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >Schedule</span
               >
+              <select
+                class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+                bind:value={formData.cron_expression}
+              >
+                {#each cronPresets as preset}
+                  <option value={preset.value}>{preset.label}</option>
+                {/each}
+              </select>
             </label>
-            <select
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
-              bind:value={formData.cron_expression}
-            >
-              {#each cronPresets as preset}
-                <option value={preset.value}>{preset.label}</option>
-              {/each}
-            </select>
             {#if formData.cron_expression === ""}
               <input
                 type="text"
@@ -485,15 +485,15 @@
                   class="text-sm font-medium text-gray-700 dark:text-gray-200"
                   >Backup Type</span
                 >
+                <select
+                  class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+                  bind:value={formData.backup_type}
+                >
+                  <option value="full">Full Backup</option>
+                  <option value="database">Database Only</option>
+                  <option value="files">Files Only</option>
+                </select>
               </label>
-              <select
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
-                bind:value={formData.backup_type}
-              >
-                <option value="full">Full Backup</option>
-                <option value="database">Database Only</option>
-                <option value="files">Files Only</option>
-              </select>
             </div>
 
             <div>
@@ -502,15 +502,15 @@
                   class="text-sm font-medium text-gray-700 dark:text-gray-200"
                   >Destination</span
                 >
+                <select
+                  class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+                  bind:value={formData.destination_type}
+                >
+                  <option value="local">Local Storage</option>
+                  <option value="s3">Amazon S3</option>
+                  <option value="webdav">WebDAV</option>
+                </select>
               </label>
-              <select
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
-                bind:value={formData.destination_type}
-              >
-                <option value="local">Local Storage</option>
-                <option value="s3">Amazon S3</option>
-                <option value="webdav">WebDAV</option>
-              </select>
             </div>
           </div>
 
@@ -519,15 +519,15 @@
               <span class="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >Retention Period (days)</span
               >
+              <input
+                type="number"
+                class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+                bind:value={formData.retention_days}
+                min="1"
+                max="365"
+                required
+              />
             </label>
-            <input
-              type="number"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
-              bind:value={formData.retention_days}
-              min="1"
-              max="365"
-              required
-            />
             <div class="mt-1">
               <span class="text-xs text-gray-500 dark:text-gray-400"
                 >Backups older than this will be automatically deleted</span
@@ -569,8 +569,11 @@
         </form>
       </div>
     </div>
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       class="fixed inset-0 -z-10"
+      role="presentation"
       onclick={() => {
         showCreateModal = false;
         resetForm();

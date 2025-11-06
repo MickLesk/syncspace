@@ -162,9 +162,9 @@
                 minlength="3"
                 disabled={loading}
               />
-              <label class="label">
+              <div class="label">
                 <span class="label-text-alt">Minimum 3 characters</span>
-              </label>
+              </div>
             </div>
 
             <!-- Email (optional) -->
@@ -197,9 +197,9 @@
                 minlength="8"
                 disabled={loading}
               />
-              <label class="label">
+              <div class="label">
                 <span class="label-text-alt">Minimum 8 characters</span>
-              </label>
+              </div>
             </div>
 
             <!-- Password Confirmation -->

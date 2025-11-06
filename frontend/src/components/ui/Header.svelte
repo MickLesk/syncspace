@@ -1,8 +1,7 @@
 <script>
-  import { currentLang } from "../../stores/ui.js";
+  import { currentLang, currentTheme } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import { auth } from "../stores/auth";
-  import { currentTheme, currentLang } from "../stores/ui";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -26,10 +25,10 @@
     auth.logout();
   }
 
-  $: langFlag = $currentLang === "de" ? "🇩🇪" : "🇬🇧";
-  $: langText = $currentLang === "de" ? "Deutsch" : "English";
-  $: themeIcon = $currentTheme === "dark" ? "☀️" : "🌙";
-  $: themeText = $currentTheme === "dark" ? "Light" : "Dark";
+  const langFlag = $derived($currentLang === "de" ? "🇩🇪" : "🇬🇧");
+  const langText = $derived($currentLang === "de" ? "Deutsch" : "English");
+  const themeIcon = $derived($currentTheme === "dark" ? "☀️" : "🌙");
+  const themeText = $derived($currentTheme === "dark" ? "Light" : "Dark");
 </script>
 
 <header class="header">
