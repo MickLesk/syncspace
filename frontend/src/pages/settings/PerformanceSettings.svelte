@@ -16,6 +16,7 @@
   } from "../../stores/performance.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+</script>
 
 <PageWrapper>
   <PageHeader

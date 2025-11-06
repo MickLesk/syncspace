@@ -8,10 +8,7 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  let {
-    file = null,
-    visible = false
-  } = $props();
+  let { file = null, visible = false } = $props();
 
   let newComment = $state("");
   let newTag = $state("");

@@ -10,7 +10,7 @@
   let {
     file = $bindable(null),
     isOpen = $bindable(false),
-    onClose = () => {}
+    onClose = () => {},
   } = $props();
 
   let versions = $state([]);

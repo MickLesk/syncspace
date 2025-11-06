@@ -3,19 +3,22 @@
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
-  export let visible = false;
-  export let title = "";
-  export let icon = "";
-  export let size = "md"; // sm, md, lg, xl, full
-  export let variant = "default"; // default, primary, success, warning, danger
-  export let showCloseButton = true;
-  export let closeOnBackdrop = true;
-  export let closeOnEscape = true;
-  export let onclose = () => {}; // Svelte 5 callback
+  let {
+    visible = $bindable(false),
+    title = "",
+    icon = "",
+    size = "md",
+    variant = "default",
+    showCloseButton = true,
+    closeOnBackdrop = true,
+    closeOnEscape = true,
+    onclose = () => {},
+    children
+  } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  let modalElement;
+  let modalElement = $state(undefined);
 
   const sizeClasses = {
     sm: "max-w-sm",
