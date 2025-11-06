@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   export let value = 0;
   export let max = 100;
   export let variant = "primary"; // primary, success, warning, error, glass
@@ -6,6 +9,7 @@
   export let showLabel = true;
   export let animated = true;
 
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   $: percentage = Math.min((value / max) * 100, 100);
 </script>
 

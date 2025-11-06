@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   /**
    * Modern Button Component v2 - Tailwind v4
    * Unified button with dark/light mode support
@@ -18,6 +21,8 @@
     "aria-label": ariaLabel = "",
     ...restProps
   } = $props();
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   const baseClasses =
     "inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2";

@@ -3,6 +3,10 @@
   import { wsEvents } from "@stores/websocket.js";
   import ModernCard from "./ModernCard.svelte";
   import ModernButton from "./ModernButton.svelte";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let { visible = false, onClose = () => {} } = $props();
 
@@ -44,11 +48,11 @@
       const fileName = event.path.split("/").pop();
       switch (event.kind) {
         case "created":
-          return `File created: ${fileName}`;
+          return tr("fileCreated", fileName);
         case "modified":
-          return `File modified: ${fileName}`;
+          return tr("fileModified", fileName);
         case "deleted":
-          return `File deleted: ${fileName}`;
+          return tr("fileDeleted", fileName);
         case "renamed":
           return `File renamed: ${fileName}`;
         default:

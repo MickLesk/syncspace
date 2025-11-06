@@ -3,6 +3,9 @@
    * Component Gallery - Tailwind v4 + HyperUI Showcase
    * Updated: October 27, 2025
    */
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import Card from "../../components/ui/Card.svelte";
 
   let showModal = false;
@@ -14,16 +17,18 @@
     <h1
       class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
     >
-      Component Gallery
+      {tr("componentGallery")}
     </h1>
     <p class="text-lg text-gray-600 dark:text-gray-400">
-      Tailwind CSS v4 + HyperUI Components Showcase
+      {tr("tailwindComponentsShowcase")}
     </p>
   </div>
 
   <!-- Cards Section -->
   <section class="space-y-6">
-    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Cards</h2>
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
+      {tr("cards")}
+    </h2>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <Card>

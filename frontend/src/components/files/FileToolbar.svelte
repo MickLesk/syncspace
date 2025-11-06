@@ -1,4 +1,8 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+
   let {
     viewMode = $bindable("grid"),
     sortBy = $bindable("name"),
@@ -16,10 +20,10 @@
   } = $props();
 
   const sortOptions = [
-    { value: "name", label: "Name", icon: "bi-text-left" },
-    { value: "modified", label: "Modified", icon: "bi-calendar" },
-    { value: "size", label: "Size", icon: "bi-hdd" },
-    { value: "type", label: "Type", icon: "bi-file-earmark" },
+    { value: "name", label: tr("name"), icon: "bi-text-left" },
+    { value: "modified", label: tr("modified"), icon: "bi-calendar" },
+    { value: "size", label: tr("size"), icon: "bi-hdd" },
+    { value: "type", label: tr("type"), icon: "bi-file-earmark" },
   ];
 </script>
 

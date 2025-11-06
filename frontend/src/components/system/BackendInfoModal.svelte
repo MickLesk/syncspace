@@ -1,9 +1,13 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import { onMount } from "svelte";
   import Modal from "../ui/Modal.svelte";
   import api from "../../lib/api.js";
 
   let { visible = $bindable(false) } = $props();
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let serverInfo = $state(null);
   let backendOnline = $state(false);

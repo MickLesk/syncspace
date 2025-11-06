@@ -1,5 +1,8 @@
 <script>
   import { onMount } from "svelte";
+  import { currentLang } from "../stores/ui.js";
+  import { t } from "../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import { showToast } from "../stores/toast.js";
   import PageWrapper from "../components/PageWrapper.svelte";
   import ModernCard from "../components/ui/ModernCard.svelte";

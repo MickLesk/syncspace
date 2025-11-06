@@ -1,8 +1,13 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+
   let { file } = $props();
 
   function formatBytes(bytes) {
-    if (!bytes) return "0 Bytes";
+    if (!bytes) return tr("zeroBytes");
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -10,7 +15,7 @@
   }
 
   function formatDate(dateString) {
-    if (!dateString) return "Unknown";
+    if (!dateString) return tr("unknown");
     return new Date(dateString).toLocaleString();
   }
 </script>
@@ -22,15 +27,17 @@
       <div class="stat-figure text-primary">
         <i class="bi bi-file-earmark text-3xl"></i>
       </div>
-      <div class="stat-title">File Name</div>
-      <div class="stat-value text-lg break-all">{file?.name || "Unknown"}</div>
+      <div class="stat-title">{tr("fileName")}</div>
+      <div class="stat-value text-lg break-all">
+        {file?.name || tr("unknown")}
+      </div>
     </div>
 
     <div class="stat">
       <div class="stat-figure text-secondary">
         <i class="bi bi-hdd text-3xl"></i>
       </div>
-      <div class="stat-title">File Size</div>
+      <div class="stat-title">{tr("fileSize")}</div>
       <div class="stat-value text-lg">{formatBytes(file?.size)}</div>
       <div class="stat-desc">
         {file?.size ? Math.round(file.size / 1024) : 0} KB
@@ -41,7 +48,7 @@
       <div class="stat-figure text-accent">
         <i class="bi bi-filetype-txt text-3xl"></i>
       </div>
-      <div class="stat-title">File Type</div>
+      <div class="stat-title">{tr("fileType")}</div>
       <div class="stat-value text-lg">
         .{file?.name.split(".").pop()?.toUpperCase() || "?"}
       </div>

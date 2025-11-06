@@ -1,5 +1,8 @@
 <script>
   import { onMount, onDestroy } from "svelte";
+  import { currentLang } from "../stores/ui.js";
+  import { t } from "../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import { activity } from "../stores/activity";
   import { error as errorToast } from "../stores/toast";
   import PageWrapper from "../components/PageWrapper.svelte";

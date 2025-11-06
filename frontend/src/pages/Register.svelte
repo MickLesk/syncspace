@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../stores/ui.js";
+  import { t } from "../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import { auth } from "../stores/auth";
   import ModernCard from "../components/ui/ModernCard.svelte";
   import ModernButton from "../components/ui/ModernButton.svelte";

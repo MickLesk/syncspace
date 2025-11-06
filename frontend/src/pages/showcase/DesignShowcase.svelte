@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import PageWrapper from "../../components/PageWrapper.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
@@ -23,10 +26,10 @@
         </div>
         <div>
           <h1 class="text-4xl font-bold gradient-text mb-2">
-            Design System Showcase
+            {tr("designSystemShowcase")}
           </h1>
           <p class="text-gray-600 dark:text-gray-400 text-lg">
-            Moderne UI-Komponenten mit Glassmorphism-Design
+            {tr("modernUIComponentsDescription")}
           </p>
         </div>
       </div>

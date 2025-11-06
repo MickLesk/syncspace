@@ -1,10 +1,14 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import {
     batchOperations,
     currentJobId,
   } from "../../stores/batchOperations.js";
   import BatchProgressDialog from "./BatchProgressDialog.svelte";
   import { success, error as errorToast } from "../../stores/toast.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   /** @type {{selectedFiles?: any[], onClearSelection?: Function}} */
   let { selectedFiles = $bindable([]), onClearSelection = () => {} } = $props();

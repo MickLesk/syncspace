@@ -1,6 +1,11 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   export let count = 6; // Number of skeleton items to show
   export let type = "grid"; // 'grid' or 'list'
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>
 
 <div class="skeleton-container" class:list={type === "list"}>
@@ -110,4 +115,3 @@
     animation-delay: 0.5s;
   }
 </style>
-

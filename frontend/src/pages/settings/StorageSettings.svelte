@@ -1,13 +1,17 @@
 <script>
   import { success } from "../../stores/toast";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let storageLocation = "./data";
   let maxFileSize = "100";
 
   function handleClearCache() {
-    success("Cache cleared successfully!");
+    success(tr("cacheCleared"));
   }
 </script>
 
@@ -19,7 +23,7 @@
         class="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900 dark:text-gray-100"
       >
         <i class="bi bi-hdd-fill text-primary-600 dark:text-primary-400"></i>
-        Storage Configuration
+        {tr("manageBucketsDescription")}
       </h2>
 
       <div class="space-y-6">
@@ -28,7 +32,7 @@
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             for="storage-location"
           >
-            Storage Location
+            {tr("totalStorage")}
           </label>
           <div
             class="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl"

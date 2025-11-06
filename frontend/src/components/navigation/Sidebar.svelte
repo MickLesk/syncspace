@@ -6,6 +6,8 @@
   import { onMount } from "svelte";
   import api from "../../lib/api.js";
 
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+
   // Badge counts (reactive)
   let sharedCount = $state(0);
   let trashCount = $state(0);

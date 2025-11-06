@@ -20,6 +20,10 @@
   import { createEventDispatcher } from "svelte";
   import Icon from "./Icon.svelte";
   import Button from "./Button.svelte";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   const dispatch = createEventDispatcher();
 
@@ -27,16 +31,16 @@
   export let open = false;
 
   /** @type {string} - Titel des Dialogs */
-  export let title = "Confirm Action";
+  export let title = tr("confirmAction");
 
   /** @type {string} - Nachricht/Beschreibung */
-  export let message = "Are you sure you want to proceed?";
+  export let message = tr("areYouSure");
 
   /** @type {string} - Text für Bestätigungs-Button */
-  export let confirmText = "Confirm";
+  export let confirmText = tr("confirm");
 
   /** @type {string} - Text für Abbrechen-Button */
-  export let cancelText = "Cancel";
+  export let cancelText = tr("cancel");
 
   /** @type {"default" | "danger" | "warning" | "success"} - Dialog-Variante */
   export let variant = "default";
@@ -319,4 +323,3 @@
     }
   }
 </style>
-

@@ -14,6 +14,7 @@
   import api from "../../lib/api";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let scanning = $state(false);
   let scanProgress = $state({ phase: "", current: 0, total: 0 });

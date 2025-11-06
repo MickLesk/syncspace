@@ -5,6 +5,10 @@
     mostUsedSearches,
   } from "../../stores/savedSearches.js";
   import { success, error as errorToast } from "../../stores/toast.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   /** @type {{onSelectSearch?: Function, visible?: boolean}} */
   let { onSelectSearch = () => {}, visible = $bindable(false) } = $props();
@@ -30,7 +34,7 @@
 
   // Format date
   function formatDate(dateStr) {
-    if (!dateStr) return "Never";
+    if (!dateStr) return tr("never");
     const date = new Date(dateStr);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -38,11 +42,10 @@
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins} min ago`;
-    if (diffHours < 24)
-      return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
-    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+    if (diffMins < 1) return tr("justNow");
+    if (diffMins < 60) return tr("minutesAgo", diffMins);
+    if (diffHours < 24) return tr("hoursAgo", diffHours);
+    if (diffDays < 7) return tr("daysAgo", diffDays);
     return date.toLocaleDateString();
   }
 

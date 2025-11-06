@@ -1,6 +1,10 @@
 <script>
   import { onMount } from "svelte";
   import { backupSchedules } from "../../lib/api.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let schedules = $state([]);
   let loading = $state(true);
@@ -18,13 +22,13 @@
   });
 
   // Cron presets
-  const cronPresets = [
-    { label: "Daily at 2am", value: "0 2 * * *" },
-    { label: "Weekly (Sunday 3am)", value: "0 3 * * 0" },
-    { label: "Monthly (1st at 4am)", value: "0 4 1 * *" },
-    { label: "Every 6 hours", value: "0 */6 * * *" },
-    { label: "Custom", value: "" },
-  ];
+  let cronPresets = $derived([
+    { label: tr("dailyAt2am"), value: "0 2 * * *" },
+    { label: tr("weeklySunday3am"), value: "0 3 * * 0" },
+    { label: tr("monthlyFirstAt4am"), value: "0 4 1 * *" },
+    { label: tr("every6hours"), value: "0 */6 * * *" },
+    { label: tr("custom"), value: "" },
+  ]);
 
   onMount(() => {
     loadSchedules();
@@ -581,5 +585,3 @@
     margin: 0 auto;
   }
 </style>
-
-

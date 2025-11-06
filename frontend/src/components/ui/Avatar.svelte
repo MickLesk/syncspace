@@ -1,7 +1,12 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   export let name = "";
   export let imageUrl = "";
   export let size = "medium"; // small, medium, large, xlarge
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   const sizes = {
     small: 32,
@@ -105,4 +110,3 @@
     font-size: 32px;
   }
 </style>
-

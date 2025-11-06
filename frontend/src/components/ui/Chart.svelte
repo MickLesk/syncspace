@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   // Props
   let {
     data = [],
@@ -6,6 +9,8 @@
     type = "doughnut", // doughnut, bar
     size = "md", // sm, md, lg
   } = $props();
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   // Calculate total for percentages
   let total = $derived(data.reduce((sum, item) => sum + item.value, 0));

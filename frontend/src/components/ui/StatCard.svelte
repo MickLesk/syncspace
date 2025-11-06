@@ -1,23 +1,28 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   /**
    * Crystal Glass Stat Card Component
    * @component
    */
-  
+
   /** @type {string} */
   export let icon = "";
-  
+
   /** @type {string} */
   export let label = "";
-  
+
   /** @type {string|number} */
   export let value = "";
-  
+
   /** @type {string} */
   export let gradient = "linear-gradient(135deg, #6366f1, #8b5cf6)";
-  
+
   /** @type {number} */
   export let iconSize = 28;
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>
 
 <div class="stat-card glass-card">
@@ -51,7 +56,7 @@
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 
+    box-shadow:
       0 8px 24px rgba(0, 0, 0, 0.15),
       inset 0 1px 1px rgba(255, 255, 255, 0.2);
     flex-shrink: 0;
@@ -97,4 +102,3 @@
     }
   }
 </style>
-

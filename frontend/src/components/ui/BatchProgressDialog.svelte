@@ -1,6 +1,10 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import api from "../../lib/api.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   /** @type {{jobId?: string | null, onClose?: Function}} */
   let { jobId = $bindable(null), onClose = () => {} } = $props();

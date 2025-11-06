@@ -1,6 +1,10 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import { toasts, removeToast } from "../../stores/toast.js";
   import { onMount } from "svelte";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let progressIntervals = new Map();
 

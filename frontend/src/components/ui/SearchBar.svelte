@@ -1,8 +1,12 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   export let value = "";
-  export let placeholder = "Suchen...";
+  export let placeholder = tr("search");
   export let fullWidth = false;
   // Svelte 5: allow passing callback props like `oninput` / `onclear`
   export let oninput = null;
@@ -105,4 +109,3 @@
     background: var(--md-sys-color-on-surface);
   }
 </style>
-

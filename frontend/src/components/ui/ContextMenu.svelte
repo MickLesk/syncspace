@@ -1,5 +1,10 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   let { x = 0, y = 0, items = [], onClose = () => {} } = $props();
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   function handleClick(item) {
     if (item.action) item.action();

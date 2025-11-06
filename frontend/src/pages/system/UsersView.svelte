@@ -89,8 +89,8 @@
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     if (minutes < 1) return tr("justNow");
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
+    if (minutes < 60) return tr("minutesAgo", minutes);
+    if (hours < 24) return tr("hoursAgo", hours);
     return date.toLocaleDateString();
   }
 
@@ -207,13 +207,13 @@
   </ModernCard>
 
   {#if loading}
-    <LoadingState variant="table" count={5} message="Loading users..." />
+    <LoadingState variant="table" count={5} message={tr("loadingUsers")} />
   {:else if filteredUsers.length === 0}
     <EmptyState
       icon="👥"
-      title="No users found"
+      title={tr("noUsersFound")}
       description={filterRole === "all"
-        ? "No users in the system yet"
+        ? tr("noUsersInSystem")
         : `No ${filterRole}s found`}
     />
   {:else if viewMode === "table"}
@@ -235,31 +235,31 @@
               </th>
               <th
                 class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
-                >User</th
+                >{tr("userTableUser")}</th
               >
               <th
                 class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
-                >Role</th
+                >{tr("userTableRole")}</th
               >
               <th
                 class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
-                >Status</th
+                >{tr("userTableStatus")}</th
               >
               <th
                 class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
-                >Files</th
+                >{tr("userTableFiles")}</th
               >
               <th
                 class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
-                >Storage</th
+                >{tr("userTableStorage")}</th
               >
               <th
                 class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
-                >Last Active</th
+                >{tr("userTableLastActive")}</th
               >
               <th
                 class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
-                >Actions</th
+                >{tr("userTableActions")}</th
               >
             </tr>
           </thead>
@@ -402,7 +402,9 @@
                   class="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400 mb-1"
                 >
                   <i class="bi bi-files"></i>
-                  <span class="text-xs uppercase tracking-wider">Files</span>
+                  <span class="text-xs uppercase tracking-wider"
+                    >{tr("userTableFiles")}</span
+                  >
                 </div>
                 <div
                   class="text-lg font-semibold text-gray-900 dark:text-gray-100"
@@ -415,7 +417,9 @@
                   class="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400 mb-1"
                 >
                   <i class="bi bi-hdd"></i>
-                  <span class="text-xs uppercase tracking-wider">Storage</span>
+                  <span class="text-xs uppercase tracking-wider"
+                    >{tr("userTableStorage")}</span
+                  >
                 </div>
                 <div
                   class="text-lg font-semibold text-gray-900 dark:text-gray-100"

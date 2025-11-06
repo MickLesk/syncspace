@@ -1,5 +1,7 @@
 <script>
   import { onMount, onDestroy } from "svelte";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
 
   export let visible = false;
   export let title = "";
@@ -10,6 +12,8 @@
   export let closeOnBackdrop = true;
   export let closeOnEscape = true;
   export let onclose = () => {}; // Svelte 5 callback
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let modalElement;
 

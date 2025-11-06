@@ -1,14 +1,19 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   /**
    * Crystal Glass Chart Container Component
    * @component
    */
-  
+
   /** @type {string} */
   export let title = "";
-  
+
   /** @type {string} */
   export let icon = "";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>
 
 <div class="chart-container glass-card">
@@ -69,4 +74,3 @@
     min-height: 200px;
   }
 </style>
-

@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   /**
    * Page Header Component v2 - Tailwind v4
    * Unified header for all pages with dark/light mode
@@ -11,6 +14,8 @@
     actions = null,
     stats = null,
   } = $props();
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>
 
 <div class="mb-8 animate-slide-up">

@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   /**
    * Breadcrumb Component
    * Wiederverwendbare Navigation für hierarchische Strukturen
@@ -31,6 +34,8 @@
 
   /** @type {"small" | "medium" | "large"} - Größe der Breadcrumbs */
   export let size = "medium";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   function handleClick(item, index) {
     if (index === items.length - 1) return; // Aktives Element nicht klickbar
@@ -233,4 +238,3 @@
     }
   }
 </style>
-

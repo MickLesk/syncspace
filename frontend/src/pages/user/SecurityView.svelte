@@ -76,11 +76,11 @@
 
         showSetup = true;
       } else {
-        error = "Failed to generate 2FA secret. Please try again.";
+        error = tr("failedToGenerateQRCode");
       }
     } catch (e) {
       console.error("2FA setup error:", e);
-      error = "Connection error. Is the backend running?";
+      error = tr("connectionError");
     } finally {
       loading = false;
     }
@@ -88,7 +88,7 @@
 
   async function enable2FA() {
     if (!verificationCode || verificationCode.length !== 6) {
-      error = "Please enter a valid 6-digit code";
+      error = tr("enterValid6DigitCode");
       return;
     }
 
@@ -111,7 +111,7 @@
       );
 
       if (response.ok) {
-        success = "2FA enabled successfully!";
+        success = tr("twoFAEnabledSuccess");
         twoFAEnabled = true;
         showSetup = false;
         twoFASetup = null;
@@ -133,7 +133,7 @@
   }
 
   async function disable2FA() {
-    if (!confirm("Are you sure you want to disable 2FA?")) {
+    if (!confirm(tr("confirmDisable2FA"))) {
       return;
     }
 
@@ -152,16 +152,16 @@
       );
 
       if (response.ok) {
-        success = "2FA disabled successfully";
+        success = tr("twoFADisabledSuccess");
         twoFAEnabled = false;
         showSetup = false;
         twoFASetup = null;
       } else {
-        error = "Failed to disable 2FA";
+        error = tr("failedToDisable2FA");
       }
     } catch (e) {
       console.error("2FA disable error:", e);
-      error = "Failed to disable 2FA. Please try again.";
+      error = tr("failedToDisable2FARetry");
     } finally {
       loading = false;
     }
@@ -368,30 +368,26 @@
               class="bi bi-info-circle-fill text-2xl text-blue-600 dark:text-blue-400"
             ></i>
             <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
-              Security Tips
+              {tr("securityTips")}
             </h3>
           </div>
 
           <ul class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
             <li class="flex gap-3">
               <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
-              <span
-                >Use a strong, unique password with at least 12 characters</span
-              >
+              <span>{tr("useStrongPassword")}</span>
             </li>
             <li class="flex gap-3">
               <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
-              <span>Enable 2FA for enhanced account security</span>
+              <span>{tr("enable2FAEnhanced")}</span>
             </li>
             <li class="flex gap-3">
               <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
-              <span
-                >Save your 2FA backup codes in a secure location (coming soon)</span
-              >
+              <span>{tr("saveBackupCodes")}</span>
             </li>
             <li class="flex gap-3">
               <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
-              <span>Regularly review your active sessions and devices</span>
+              <span>{tr("reviewActiveSessions")}</span>
             </li>
           </ul>
         </div>
@@ -408,17 +404,17 @@
             ></i>
             <div>
               <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
-                Change Password
+                {tr("changePassword")}
               </h3>
               <p class="text-sm text-gray-600 dark:text-gray-400">
-                Update your account password
+                {tr("updateAccountPassword")}
               </p>
             </div>
           </div>
 
           <ModernButton variant="secondary" class="w-full">
             <i class="bi bi-arrow-clockwise mr-2"></i>
-            Change Password
+            {tr("changePassword")}
           </ModernButton>
         </div>
       {/snippet}

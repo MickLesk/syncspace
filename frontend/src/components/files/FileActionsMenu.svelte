@@ -1,4 +1,8 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+
   let {
     file,
     position = { x: 0, y: 0 },
@@ -90,8 +94,8 @@
         class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onPreview)}
       >
-        <i class="bi bi-eye text-blue-500"></i>
-        <span>Preview</span>
+        <i class="bi bi-eye text-green-500"></i>
+        <span>{tr("preview")}</span>
       </button>
     {/if}
 
@@ -101,8 +105,8 @@
         class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onDownload)}
       >
-        <i class="bi bi-download text-green-500"></i>
-        <span>Download</span>
+        <i class="bi bi-download text-green-600"></i>
+        <span>{tr("download")}</span>
       </button>
     {/if}
 
@@ -113,7 +117,7 @@
         onclick={() => handleAction(onRename)}
       >
         <i class="bi bi-pencil text-yellow-500"></i>
-        <span>Rename</span>
+        <span>{tr("rename")}</span>
       </button>
     {/if}
 
@@ -124,7 +128,7 @@
         onclick={() => handleAction(onMove)}
       >
         <i class="bi bi-arrow-right-square text-purple-500"></i>
-        <span>Move</span>
+        <span>{tr("move")}</span>
       </button>
     {/if}
 
@@ -135,7 +139,7 @@
         onclick={() => handleAction(onCopy)}
       >
         <i class="bi bi-files text-cyan-500"></i>
-        <span>Copy</span>
+        <span>{tr("copy")}</span>
       </button>
     {/if}
 
@@ -146,7 +150,7 @@
         onclick={() => handleAction(onChangeFolderColor)}
       >
         <i class="bi bi-palette text-pink-500"></i>
-        <span>Change Folder Color</span>
+        <span>{tr("changeFolderColor")}</span>
       </button>
     {/if}
 
@@ -159,7 +163,7 @@
         onclick={() => handleAction(onShare)}
       >
         <i class="bi bi-share text-indigo-500"></i>
-        <span>Share</span>
+        <span>{tr("share")}</span>
       </button>
     {/if}
 
@@ -183,7 +187,7 @@
         onclick={() => handleAction(onDelete)}
       >
         <i class="bi bi-trash"></i>
-        <span>Delete</span>
+        <span>{tr("delete")}</span>
       </button>
     {/if}
   </div>

@@ -1,10 +1,13 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import { createEventDispatcher } from "svelte";
   import Icon from "./Icon.svelte";
 
   export let visible = false;
 
   const dispatch = createEventDispatcher();
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   // Filter state
   let fileTypes = {
@@ -427,4 +430,3 @@
     box-shadow: var(--md-elevation-2);
   }
 </style>
-

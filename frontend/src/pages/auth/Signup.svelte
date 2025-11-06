@@ -90,10 +90,10 @@
       <h1
         class="text-4xl font-bold mt-6 mb-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
       >
-        Join SyncSpace
+        {tr("joinSyncSpace")}
       </h1>
       <p class="text-gray-600 dark:text-gray-400 font-medium">
-        Create your free account
+        {tr("createFreeAccount")}
       </p>
     </div>
 
@@ -204,7 +204,7 @@
           </button>
         </div>
         <p class="text-xs text-gray-500 dark:text-gray-400 ml-1">
-          Minimum 8 characters
+          {tr("passwordMinimum8Chars")}
         </p>
       </div>
 

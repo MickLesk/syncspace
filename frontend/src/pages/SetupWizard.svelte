@@ -1,8 +1,12 @@
 <script>
   import { onMount } from "svelte";
   import { auth } from "../stores/auth";
+  import { currentLang } from "../stores/ui.js";
+  import { t } from "../i18n.js";
   import ModernCard from "../components/ui/ModernCard.svelte";
   import ModernButton from "../components/ui/ModernButton.svelte";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let currentStep = $state(1);
   let totalSteps = 6;
@@ -41,69 +45,69 @@
   let errors = $state({});
   let loading = $state(false);
 
-  const steps = [
+  const getSteps = $derived([
     {
       id: 1,
-      title: "Admin Account",
+      titleKey: "adminAccount",
       icon: "person-circle",
-      description: "Create your administrator account",
+      descriptionKey: "createAdminAccount",
     },
     {
       id: 2,
-      title: "Server Info",
+      titleKey: "serverInfo",
       icon: "server",
-      description: "Configure server settings",
+      descriptionKey: "configureServer",
     },
     {
       id: 3,
-      title: "Language",
+      titleKey: "language",
       icon: "translate",
-      description: "Choose default language",
+      descriptionKey: "chooseDefaultLanguage",
     },
     {
       id: 4,
-      title: "Storage",
+      titleKey: "storage",
       icon: "hdd-fill",
-      description: "Configure storage settings",
+      descriptionKey: "configureStorageSettings",
     },
     {
       id: 5,
-      title: "Security",
+      titleKey: "security",
       icon: "shield-lock-fill",
-      description: "Security and registration settings",
+      descriptionKey: "securityRegistrationSettings",
     },
     {
       id: 6,
-      title: "Complete",
+      titleKey: "complete",
       icon: "check-circle-fill",
-      description: "Finish setup",
+      descriptionKey: "finishSetup",
     },
-  ];
+  ]);
 
   function validateStep(step) {
     errors = {};
 
     if (step === 1) {
       if (!formData.admin_username || formData.admin_username.length < 3) {
-        errors.admin_username = "Username must be at least 3 characters";
+        errors.admin_username = tr("usernameAtLeast3");
       }
       if (!formData.admin_password || formData.admin_password.length < 8) {
-        errors.admin_password = "Password must be at least 8 characters";
+        errors.admin_password = tr("passwordAtLeast8");
       }
       if (formData.admin_password !== formData.admin_password_confirm) {
-        errors.admin_password_confirm = "Passwords do not match";
+        errors.admin_password_confirm = tr("passwordsDoNotMatch");
       }
       if (!formData.admin_email || !formData.admin_email.includes("@")) {
-        errors.admin_email = "Valid email required";
+        errors.admin_email = tr("validEmailRequired");
       }
       if (!formData.admin_display_name) {
-        errors.admin_display_name = "Display name required";
+        errors.admin_display_name = tr("displayNameRequired");
       }
     }
 
     if (step === 2) {
       if (!formData.server_name) {
-        errors.server_name = "Server name required";
+        errors.server_name = tr("serverNameRequired");
       }
     }
 
@@ -148,11 +152,11 @@
         window.location.href = "/"; // Redirect to main app
       } else {
         const error = await response.text();
-        errors.general = error || "Setup failed. Please try again.";
+        errors.general = error || tr("error");
       }
     } catch (e) {
       console.error("Setup error:", e);
-      errors.general = "Setup failed. Is the backend running?";
+      errors.general = tr("backendOffline");
     } finally {
       loading = false;
     }
@@ -174,7 +178,7 @@
         Welcome to SyncSpace
       </h1>
       <p class="text-gray-600 dark:text-gray-400 mt-2">
-        Let's get your cloud storage set up in a few easy steps
+        {tr("setupWizard")}
       </p>
     </div>
 
@@ -184,7 +188,7 @@
         <div class="progress-fill" style="width: {progress}%"></div>
       </div>
       <div class="progress-steps">
-        {#each steps as step}
+        {#each getSteps as step}
           <div
             class="progress-step"
             class:active={currentStep === step.id}
@@ -193,7 +197,7 @@
             <div class="step-circle">
               <i class="bi bi-{step.icon}"></i>
             </div>
-            <div class="step-label">{step.title}</div>
+            <div class="step-label">{tr(step.titleKey)}</div>
           </div>
         {/each}
       </div>
@@ -207,15 +211,15 @@
           {#if currentStep === 1}
             <h2 class="step-title">
               <i class="bi bi-person-circle"></i>
-              Create Admin Account
+              {tr("adminAccount")}
             </h2>
             <p class="step-description">
-              This will be your primary administrator account
+              {tr("createAdminAccount")}
             </p>
 
             <div class="form-grid">
               <div class="form-group">
-                <label for="admin_username">Username *</label>
+                <label for="admin_username">{tr("username")} *</label>
                 <input
                   id="admin_username"
                   type="text"
@@ -229,7 +233,9 @@
               </div>
 
               <div class="form-group">
-                <label for="admin_display_name">Display Name *</label>
+                <label for="admin_display_name"
+                  >{tr("adminDisplayName")} *</label
+                >
                 <input
                   id="admin_display_name"
                   type="text"
@@ -243,7 +249,7 @@
               </div>
 
               <div class="form-group col-span-2">
-                <label for="admin_email">Email *</label>
+                <label for="admin_email">{tr("adminEmail")} *</label>
                 <input
                   id="admin_email"
                   type="email"
@@ -257,7 +263,7 @@
               </div>
 
               <div class="form-group">
-                <label for="admin_password">Password *</label>
+                <label for="admin_password">{tr("adminPassword")} *</label>
                 <input
                   id="admin_password"
                   type="password"
@@ -271,7 +277,9 @@
               </div>
 
               <div class="form-group">
-                <label for="admin_password_confirm">Confirm Password *</label>
+                <label for="admin_password_confirm"
+                  >{tr("confirmPassword")} *</label
+                >
                 <input
                   id="admin_password_confirm"
                   type="password"
@@ -290,15 +298,15 @@
           {#if currentStep === 2}
             <h2 class="step-title">
               <i class="bi bi-server"></i>
-              Server Information
+              {tr("serverInfo")}
             </h2>
             <p class="step-description">
-              Configure your server name and description
+              {tr("configureServer")}
             </p>
 
             <div class="form-grid">
               <div class="form-group col-span-2">
-                <label for="server_name">Server Name *</label>
+                <label for="server_name">{tr("serverName")} *</label>
                 <input
                   id="server_name"
                   type="text"
@@ -312,7 +320,7 @@
               </div>
 
               <div class="form-group col-span-2">
-                <label for="server_description">Description</label>
+                <label for="server_description">{tr("description")}</label>
                 <textarea
                   id="server_description"
                   bind:value={formData.server_description}
@@ -328,10 +336,10 @@
           {#if currentStep === 3}
             <h2 class="step-title">
               <i class="bi bi-translate"></i>
-              Default Language
+              {tr("language")}
             </h2>
             <p class="step-description">
-              Choose the default language for new users
+              {tr("chooseDefaultLanguage")}
             </p>
 
             <div class="language-selector">
@@ -358,15 +366,15 @@
           {#if currentStep === 4}
             <h2 class="step-title">
               <i class="bi bi-hdd-fill"></i>
-              Storage Configuration
+              {tr("storage")}
             </h2>
             <p class="step-description">
-              Set default storage quota for new users
+              {tr("configureStorageSettings")}
             </p>
 
             <div class="form-grid">
               <div class="form-group col-span-2">
-                <label for="default_quota">Default Quota (GB) *</label>
+                <label for="default_quota">{tr("storageQuota")} (GB) *</label>
                 <input
                   id="default_quota"
                   type="number"
@@ -376,7 +384,7 @@
                   max="1000"
                 />
                 <small class="text-gray-500">
-                  Each new user will receive {formData.default_quota_gb} GB of storage
+                  {tr("eachNewUserReceives", formData.default_quota_gb, "GB")}
                 </small>
                 {#if errors.default_quota_gb}
                   <span class="error">{errors.default_quota_gb}</span>
@@ -389,10 +397,10 @@
           {#if currentStep === 5}
             <h2 class="step-title">
               <i class="bi bi-shield-lock-fill"></i>
-              Security & Registration
+              {tr("securitySettings")}
             </h2>
             <p class="step-description">
-              Configure security policies and user registration
+              {tr("securityRegistrationSettings")}
             </p>
 
             <div class="form-grid">
@@ -402,10 +410,10 @@
                     type="checkbox"
                     bind:checked={formData.allow_registration}
                   />
-                  <span>Allow user self-registration</span>
+                  <span>{tr("allowUserSelfRegistration")}</span>
                 </label>
                 <small class="text-gray-500">
-                  Users can create accounts without admin approval
+                  {tr("userCanCreateAccountsWithout")}
                 </small>
               </div>
 
@@ -416,7 +424,7 @@
                       type="checkbox"
                       bind:checked={formData.require_email_verification}
                     />
-                    <span>Require email verification</span>
+                    <span>{tr("requireEmailVerification")}</span>
                   </label>
                 </div>
               {/if}
@@ -427,12 +435,14 @@
                     type="checkbox"
                     bind:checked={formData.enable_2fa_requirement}
                   />
-                  <span>Require 2FA for all users</span>
+                  <span>{tr("twoFactorAuthRequired")}</span>
                 </label>
               </div>
 
               <div class="form-group">
-                <label for="password_min_length">Min. Password Length</label>
+                <label for="password_min_length"
+                  >{tr("passwordMinimumLength")}</label
+                >
                 <input
                   id="password_min_length"
                   type="number"
@@ -444,7 +454,9 @@
               </div>
 
               <div class="form-group">
-                <label for="session_timeout">Session Timeout (minutes)</label>
+                <label for="session_timeout"
+                  >{tr("sessionTimeoutMinutes")}</label
+                >
                 <input
                   id="session_timeout"
                   type="number"
@@ -456,35 +468,35 @@
               </div>
 
               <div class="form-group col-span-2">
-                <label>Password Requirements</label>
+                <label>{tr("passwordRequirements")}</label>
                 <div class="checkbox-grid">
                   <label class="checkbox-label">
                     <input
                       type="checkbox"
                       bind:checked={formData.password_require_uppercase}
                     />
-                    <span>Uppercase letters</span>
+                    <span>{tr("uppercaseLetters")}</span>
                   </label>
                   <label class="checkbox-label">
                     <input
                       type="checkbox"
                       bind:checked={formData.password_require_lowercase}
                     />
-                    <span>Lowercase letters</span>
+                    <span>{tr("lowercaseLetters")}</span>
                   </label>
                   <label class="checkbox-label">
                     <input
                       type="checkbox"
                       bind:checked={formData.password_require_numbers}
                     />
-                    <span>Numbers</span>
+                    <span>{tr("numbers")}</span>
                   </label>
                   <label class="checkbox-label">
                     <input
                       type="checkbox"
                       bind:checked={formData.password_require_special}
                     />
-                    <span>Special characters</span>
+                    <span>{tr("specialCharacters")}</span>
                   </label>
                 </div>
               </div>
@@ -497,36 +509,38 @@
               <div class="success-icon">
                 <i class="bi bi-check-circle-fill text-8xl text-green-500"></i>
               </div>
-              <h2 class="text-3xl font-bold mb-4">Ready to Go!</h2>
+              <h2 class="text-3xl font-bold mb-4">
+                {tr("setupWizardComplete")}
+              </h2>
               <p class="text-gray-600 dark:text-gray-400 mb-6">
-                Your SyncSpace instance is configured and ready to use.
+                {tr("yourSyncSpaceInstanceIsConfigured")}
               </p>
               <div class="summary-card">
-                <h3 class="font-bold mb-4">Setup Summary:</h3>
+                <h3 class="font-bold mb-4">{tr("setupSummary")}:</h3>
                 <ul class="summary-list">
                   <li>
                     <i class="bi bi-person-check"></i>
-                    Admin: {formData.admin_username}
+                    {tr("admin")}: {formData.admin_username}
                   </li>
                   <li>
                     <i class="bi bi-server"></i>
-                    Server: {formData.server_name}
+                    {tr("server")}: {formData.server_name}
                   </li>
                   <li>
                     <i class="bi bi-translate"></i>
-                    Language: {formData.default_language === "en"
+                    {tr("language")}: {formData.default_language === "en"
                       ? "English"
                       : "Deutsch"}
                   </li>
                   <li>
                     <i class="bi bi-hdd"></i>
-                    Default Quota: {formData.default_quota_gb} GB
+                    {tr("defaultQuota")}: {formData.default_quota_gb} GB
                   </li>
                   <li>
                     <i class="bi bi-shield"></i>
-                    Registration: {formData.allow_registration
-                      ? "Enabled"
-                      : "Disabled"}
+                    {tr("registration")}: {formData.allow_registration
+                      ? tr("enabled")
+                      : tr("disabled")}
                   </li>
                 </ul>
               </div>
@@ -546,7 +560,7 @@
               icon="arrow-left"
               onclick={prevStep}
             >
-              Back
+              {tr("back")}
             </ModernButton>
           {/if}
 
@@ -558,7 +572,7 @@
               icon="arrow-right"
               onclick={nextStep}
             >
-              Next
+              {tr("next")}
             </ModernButton>
           {:else}
             <ModernButton
@@ -567,7 +581,7 @@
               onclick={completeSetup}
               disabled={loading}
             >
-              {loading ? "Setting up..." : "Complete Setup"}
+              {loading ? tr("settingUp") : tr("completeSetup")}
             </ModernButton>
           {/if}
         </div>
