@@ -10,6 +10,13 @@
   export let files = [];
   export let currentPath = "";
 
+  // Action callbacks (optional)
+  export let onDownload = null;
+  export let onShare = null;
+  export let onCopy = null;
+  export let onMove = null;
+  export let onDelete = null;
+
   const dispatch = createEventDispatcher();
 
   let currentIndex = 0;
@@ -145,6 +152,28 @@
     if (e.key === "Escape") close();
     if (e.key === "ArrowLeft") navigate(-1);
     if (e.key === "ArrowRight") navigate(1);
+
+    // Keyboard shortcuts for actions
+    if (e.key === "c" && onCopy) {
+      e.preventDefault();
+      onCopy(file);
+    }
+    if (e.key === "m" && onMove) {
+      e.preventDefault();
+      onMove(file);
+    }
+    if (e.key === "s" && onShare) {
+      e.preventDefault();
+      onShare(file);
+    }
+    if (e.key === "d" && onDownload) {
+      e.preventDefault();
+      onDownload(file);
+    }
+    if (e.key === "Delete" && onDelete) {
+      e.preventDefault();
+      onDelete(file);
+    }
   }
 </script>
 
@@ -169,6 +198,65 @@
             <Icon name="x" size={24} />
           </button>
         </div>
+      </div>
+
+      <!-- Action Toolbar -->
+      <div class="action-toolbar">
+        {#if onCopy}
+          <button
+            class="action-btn"
+            onclick={() => onCopy(file)}
+            title="{tr('copyFile')} (C)"
+          >
+            <i class="bi bi-files"></i>
+            <span>{tr("copy")}</span>
+            <kbd>C</kbd>
+          </button>
+        {/if}
+        {#if onMove}
+          <button
+            class="action-btn"
+            onclick={() => onMove(file)}
+            title="{tr('moveFile')} (M)"
+          >
+            <i class="bi bi-folder-symlink"></i>
+            <span>{tr("move")}</span>
+            <kbd>M</kbd>
+          </button>
+        {/if}
+        {#if onShare}
+          <button
+            class="action-btn"
+            onclick={() => onShare(file)}
+            title="{tr('share')} (S)"
+          >
+            <i class="bi bi-share"></i>
+            <span>{tr("share")}</span>
+            <kbd>S</kbd>
+          </button>
+        {/if}
+        {#if onDownload}
+          <button
+            class="action-btn"
+            onclick={() => onDownload(file)}
+            title="{tr('download')} (D)"
+          >
+            <i class="bi bi-download"></i>
+            <span>{tr("download")}</span>
+            <kbd>D</kbd>
+          </button>
+        {/if}
+        {#if onDelete}
+          <button
+            class="action-btn action-btn-danger"
+            onclick={() => onDelete(file)}
+            title="{tr('delete')} (Del)"
+          >
+            <i class="bi bi-trash"></i>
+            <span>{tr("delete")}</span>
+            <kbd>Del</kbd>
+          </button>
+        {/if}
       </div>
 
       <div class="preview-content">
@@ -251,6 +339,66 @@
   .preview-actions {
     display: flex;
     gap: 8px;
+  }
+
+  .action-toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 24px;
+    background: var(--md-sys-color-surface-container-low);
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    overflow-x: auto;
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--md-sys-color-surface-container-highest);
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: 20px;
+    color: var(--md-sys-color-on-surface);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .action-btn:hover {
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .action-btn-danger:hover {
+    background: var(--md-sys-color-error-container);
+    color: var(--md-sys-color-on-error-container);
+    border-color: var(--md-sys-color-error);
+  }
+
+  .action-btn i {
+    font-size: 16px;
+  }
+
+  .action-btn kbd {
+    background: var(--md-sys-color-surface-container-low);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-family: monospace;
+    font-weight: 600;
+    color: var(--md-sys-color-on-surface-variant);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    margin-left: 4px;
+  }
+
+  .action-btn:hover kbd {
+    background: var(--md-sys-color-surface);
+    border-color: var(--md-sys-color-outline);
   }
 
   .btn-nav,
