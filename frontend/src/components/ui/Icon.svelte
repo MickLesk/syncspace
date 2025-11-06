@@ -11,7 +11,7 @@
     name = "file-earmark",
     size = 16,
     color = "currentColor",
-    className = ""
+    className = "",
   } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
