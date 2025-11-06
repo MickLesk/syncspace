@@ -7,34 +7,40 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  export let file = null;
-  export let isOpen = false;
-  export let onClose = () => {};
+  let {
+    file = $bindable(null),
+    isOpen = $bindable(false),
+    onClose = () => {}
+  } = $props();
 
-  let versions = [];
-  let loading = false;
-  let selectedVersions = { from: null, to: null };
-  let diffContent = null;
-  let showDiff = false;
-  let restoreComment = "";
-  let showRestoreModal = false;
-  let versionToRestore = null;
-  let lastFileId = null;
+  let versions = $state([]);
+  let loading = $state(false);
+  let selectedVersions = $state({ from: null, to: null });
+  let diffContent = $state(null);
+  let showDiff = $state(false);
+  let restoreComment = $state("");
+  let showRestoreModal = $state(false);
+  let versionToRestore = $state(null);
+  let lastFileId = $state(null);
 
   // Only reload when file ID changes or modal opens
-  $: if (isOpen && file?.id && file.id !== lastFileId) {
-    lastFileId = file.id;
-    loadVersions();
-  }
+  $effect(() => {
+    if (isOpen && file?.id && file.id !== lastFileId) {
+      lastFileId = file.id;
+      loadVersions();
+    }
+  });
 
   // Reset when modal closes
-  $: if (!isOpen) {
-    lastFileId = null;
-    versions = [];
-    selectedVersions = { from: null, to: null };
-    diffContent = null;
-    showDiff = false;
-  }
+  $effect(() => {
+    if (!isOpen) {
+      lastFileId = null;
+      versions = [];
+      selectedVersions = { from: null, to: null };
+      diffContent = null;
+      showDiff = false;
+    }
+  });
 
   async function loadVersions() {
     if (!file?.id) return;

@@ -428,45 +428,61 @@
         <div class="info-grid">
           <!-- OS Information -->
           <div class="info-section">
-            <h5 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            <h5
+              class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
+            >
               <i class="bi bi-laptop mr-2"></i>Operating System
             </h5>
             <div class="space-y-2">
               <div class="info-item">
                 <span class="info-label">OS Type:</span>
-                <span class="info-value font-semibold text-blue-600 dark:text-blue-400">
-                  {$systemInfo.os_type || $systemInfo.os_name || 'Unknown'}
+                <span
+                  class="info-value font-semibold text-blue-600 dark:text-blue-400"
+                >
+                  {$systemInfo.os_type || $systemInfo.os_name || "Unknown"}
                 </span>
               </div>
               <div class="info-item">
                 <span class="info-label">Version:</span>
-                <span class="info-value">{$systemInfo.os_version || 'Unknown'}</span>
+                <span class="info-value"
+                  >{$systemInfo.os_version || "Unknown"}</span
+                >
               </div>
               <div class="info-item">
                 <span class="info-label">Kernel:</span>
-                <span class="info-value">{$systemInfo.kernel_version || 'Unknown'}</span>
+                <span class="info-value"
+                  >{$systemInfo.kernel_version || "Unknown"}</span
+                >
               </div>
             </div>
           </div>
 
           <!-- CPU Information -->
           <div class="info-section">
-            <h5 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            <h5
+              class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
+            >
               <i class="bi bi-cpu mr-2"></i>Processor
             </h5>
             <div class="space-y-2">
               <div class="info-item">
                 <span class="info-label">Cores:</span>
-                <span class="info-value font-semibold">{$systemInfo.cpu_cores || 0}</span>
+                <span class="info-value font-semibold"
+                  >{$systemInfo.cpu_cores || 0}</span
+                >
               </div>
               <div class="info-item">
                 <span class="info-label">Brand:</span>
-                <span class="info-value">{$systemInfo.cpu_brand || 'Unknown'}</span>
+                <span class="info-value"
+                  >{$systemInfo.cpu_brand || "Unknown"}</span
+                >
               </div>
               <div class="info-item">
                 <span class="info-label">Usage:</span>
                 <span class="info-value">
-                  {$systemInfo.cpu_usage ? $systemInfo.cpu_usage.toFixed(1) : 0}%
+                  {$systemInfo.cpu_usage
+                    ? $systemInfo.cpu_usage.toFixed(1)
+                    : 0}%
                 </span>
               </div>
             </div>
@@ -474,28 +490,36 @@
 
           <!-- Memory Information -->
           <div class="info-section">
-            <h5 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            <h5
+              class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
+            >
               <i class="bi bi-memory mr-2"></i>Memory
             </h5>
             <div class="space-y-2">
               <div class="info-item">
                 <span class="info-label">Total:</span>
-                <span class="info-value font-semibold">{$systemInfo.memory_total || 'Unknown'}</span>
+                <span class="info-value font-semibold"
+                  >{$systemInfo.memory_total || "Unknown"}</span
+                >
               </div>
               <div class="info-item">
                 <span class="info-label">Used:</span>
-                <span class="info-value">{$systemInfo.memory_used || 'Unknown'}</span>
+                <span class="info-value"
+                  >{$systemInfo.memory_used || "Unknown"}</span
+                >
               </div>
               <div class="info-item">
                 <span class="info-label">Available:</span>
                 <span class="info-value text-green-600 dark:text-green-400">
-                  {$systemInfo.memory_available || 'Unknown'}
+                  {$systemInfo.memory_available || "Unknown"}
                 </span>
               </div>
               {#if $systemInfo.memory_usage_percent}
                 <div class="info-item">
                   <span class="info-label">Usage:</span>
-                  <span class="info-value">{$systemInfo.memory_usage_percent.toFixed(1)}%</span>
+                  <span class="info-value"
+                    >{$systemInfo.memory_usage_percent.toFixed(1)}%</span
+                  >
                 </div>
                 <div class="mt-2">
                   <progress
@@ -510,28 +534,36 @@
 
           <!-- Storage Information -->
           <div class="info-section">
-            <h5 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            <h5
+              class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
+            >
               <i class="bi bi-hdd mr-2"></i>Storage
             </h5>
             <div class="space-y-2">
               <div class="info-item">
                 <span class="info-label">Total Space:</span>
-                <span class="info-value font-semibold">{$systemInfo.disk_space || 'Unknown'}</span>
+                <span class="info-value font-semibold"
+                  >{$systemInfo.disk_space || "Unknown"}</span
+                >
               </div>
               <div class="info-item">
                 <span class="info-label">Used:</span>
-                <span class="info-value">{$systemInfo.disk_used || 'Unknown'}</span>
+                <span class="info-value"
+                  >{$systemInfo.disk_used || "Unknown"}</span
+                >
               </div>
               <div class="info-item">
                 <span class="info-label">Available:</span>
                 <span class="info-value text-green-600 dark:text-green-400">
-                  {$systemInfo.disk_available || 'Unknown'}
+                  {$systemInfo.disk_available || "Unknown"}
                 </span>
               </div>
               {#if $systemInfo.disk_usage_percent}
                 <div class="info-item">
                   <span class="info-label">Usage:</span>
-                  <span class="info-value">{$systemInfo.disk_usage_percent.toFixed(1)}%</span>
+                  <span class="info-value"
+                    >{$systemInfo.disk_usage_percent.toFixed(1)}%</span
+                  >
                 </div>
                 <div class="mt-2">
                   <progress
@@ -546,22 +578,28 @@
 
           <!-- Application Info -->
           <div class="info-section">
-            <h5 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            <h5
+              class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
+            >
               <i class="bi bi-info-circle mr-2"></i>Application
             </h5>
             <div class="space-y-2">
               <div class="info-item">
                 <span class="info-label">Version:</span>
-                <span class="info-value font-semibold">{$systemInfo.version || '0.3.0'}</span>
+                <span class="info-value font-semibold"
+                  >{$systemInfo.version || "0.3.0"}</span
+                >
               </div>
               <div class="info-item">
                 <span class="info-label">Rust Version:</span>
-                <span class="info-value">{$systemInfo.rust_version || 'Unknown'}</span>
+                <span class="info-value"
+                  >{$systemInfo.rust_version || "Unknown"}</span
+                >
               </div>
               <div class="info-item">
                 <span class="info-label">Uptime:</span>
                 <span class="info-value text-blue-600 dark:text-blue-400">
-                  {$systemInfo.uptime || 'Unknown'}
+                  {$systemInfo.uptime || "Unknown"}
                 </span>
               </div>
             </div>
@@ -571,12 +609,16 @@
         <!-- Disk Details Section -->
         {#if $systemInfo.disks && $systemInfo.disks.length > 0}
           <div class="disk-details mt-6">
-            <h5 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            <h5
+              class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
+            >
               <i class="bi bi-hdd-stack mr-2"></i>Disk Details
             </h5>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               {#each $systemInfo.disks as disk}
-                <div class="disk-card bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                <div
+                  class="disk-card bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+                >
                   <div class="flex items-start justify-between mb-3">
                     <div>
                       <div class="font-semibold text-gray-900 dark:text-white">
@@ -586,28 +628,41 @@
                         {disk.mount_point}
                       </div>
                     </div>
-                    <span class="px-2 py-1 text-xs font-medium rounded-full {
-                      disk.type.includes('NVMe') ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' :
-                      disk.type.includes('SSD') ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                      disk.type.includes('Removable') ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                      'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-                    }">
+                    <span
+                      class="px-2 py-1 text-xs font-medium rounded-full {disk.type.includes(
+                        'NVMe'
+                      )
+                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                        : disk.type.includes('SSD')
+                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                          : disk.type.includes('Removable')
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'}"
+                    >
                       {disk.type}
                     </span>
                   </div>
                   <div class="space-y-2 text-sm">
                     <div class="flex justify-between">
-                      <span class="text-gray-600 dark:text-gray-400">File System:</span>
-                      <span class="text-gray-900 dark:text-white">{disk.file_system}</span>
+                      <span class="text-gray-600 dark:text-gray-400"
+                        >File System:</span
+                      >
+                      <span class="text-gray-900 dark:text-white"
+                        >{disk.file_system}</span
+                      >
                     </div>
                     <div class="flex justify-between">
-                      <span class="text-gray-600 dark:text-gray-400">Total:</span>
+                      <span class="text-gray-600 dark:text-gray-400"
+                        >Total:</span
+                      >
                       <span class="text-gray-900 dark:text-white">
                         {performanceUtils.formatBytes(disk.total_space)}
                       </span>
                     </div>
                     <div class="flex justify-between">
-                      <span class="text-gray-600 dark:text-gray-400">Available:</span>
+                      <span class="text-gray-600 dark:text-gray-400"
+                        >Available:</span
+                      >
                       <span class="text-green-600 dark:text-green-400">
                         {performanceUtils.formatBytes(disk.available_space)}
                       </span>
@@ -629,17 +684,23 @@
         <!-- Features Section -->
         {#if $systemInfo.features}
           <div class="features-section mt-6">
-            <h5 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            <h5
+              class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
+            >
               <i class="bi bi-toggles mr-2"></i>Features
             </h5>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {#each Object.entries($systemInfo.features) as [feature, enabled]}
-                <div class="feature-item bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                  <span class="text-sm text-gray-700 dark:text-gray-300 capitalize">
-                    {feature.replace(/_/g, ' ')}
+                <div
+                  class="feature-item bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700 flex items-center justify-between"
+                >
+                  <span
+                    class="text-sm text-gray-700 dark:text-gray-300 capitalize"
+                  >
+                    {feature.replace(/_/g, " ")}
                   </span>
                   <span class="text-lg">
-                    {enabled ? '✅' : '❌'}
+                    {enabled ? "✅" : "❌"}
                   </span>
                 </div>
               {/each}
@@ -654,7 +715,7 @@
 <style>
   .performance-monitor {
     background: white;
-    dark:bg-gray-900;
+    dark: bg-gray-900;
     border-radius: 16px;
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -913,4 +974,3 @@
     }
   }
 </style>
-

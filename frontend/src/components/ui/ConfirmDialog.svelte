@@ -28,40 +28,36 @@
   const dispatch = createEventDispatcher();
 
   /** @type {boolean} - Ob Dialog geöffnet ist */
-  export let open = false;
+  let {
+    open = $bindable(false),
+    title = "",
+    message = "",
+    confirmText = "",
+    cancelText = "",
+    variant = "default",
+    icon = "",
+    loading = false,
+    content
+  } = $props();
 
-  /** @type {string} - Titel des Dialogs */
-  export let title = tr("confirmAction");
-
-  /** @type {string} - Nachricht/Beschreibung */
-  export let message = tr("areYouSure");
-
-  /** @type {string} - Text für Bestätigungs-Button */
-  export let confirmText = tr("confirm");
-
-  /** @type {string} - Text für Abbrechen-Button */
-  export let cancelText = tr("cancel");
-
-  /** @type {"default" | "danger" | "warning" | "success"} - Dialog-Variante */
-  export let variant = "default";
-
-  /** @type {string} - Optional: Icon-Name (Bootstrap) */
-  export let icon = "";
-
-  /** @type {boolean} - Zeigt Loading-State auf Confirm-Button */
-  export let loading = false;
+  // Derived default texts
+  const defaultTitle = $derived(title || tr("confirmAction"));
+  const defaultMessage = $derived(message || tr("areYouSure"));
+  const defaultConfirmText = $derived(confirmText || tr("confirm"));
+  const defaultCancelText = $derived(cancelText || tr("cancel"));
 
   // Auto-Icons basierend auf Variant
-  $: defaultIcon =
+  const defaultIcon = $derived(
     variant === "danger"
       ? "exclamation-triangle-fill"
       : variant === "warning"
         ? "exclamation-circle-fill"
         : variant === "success"
           ? "check-circle-fill"
-          : "question-circle-fill";
+          : "question-circle-fill"
+  );
 
-  $: displayIcon = icon || defaultIcon;
+  const displayIcon = $derived(icon || defaultIcon);
 
   function handleConfirm() {
     if (loading) return;
@@ -90,8 +86,8 @@
 </script>
 
 {#if open}
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     class="confirm-dialog-backdrop"
     onclick={handleBackdropClick}
@@ -104,10 +100,12 @@
       class:variant-warning={variant === "warning"}
       class:variant-success={variant === "success"}
       onclick={(e) => e.stopPropagation()}
+      onkeydown={handleKeydown}
       role="alertdialog"
       aria-labelledby="confirm-dialog-title"
       aria-describedby="confirm-dialog-message"
       aria-modal="true"
+      tabindex="-1"
     >
       <!-- Icon Circle -->
       <div class="dialog-icon-circle">
@@ -116,10 +114,10 @@
 
       <!-- Content -->
       <div class="dialog-content">
-        <h2 id="confirm-dialog-title" class="dialog-title">{title}</h2>
-        <p id="confirm-dialog-message" class="dialog-message">{message}</p>
+        <h2 id="confirm-dialog-title" class="dialog-title">{defaultTitle}</h2>
+        <p id="confirm-dialog-message" class="dialog-message">{defaultMessage}</p>
 
-        <slot name="content" />
+        {@render content?.()}
       </div>
 
       <!-- Actions -->
@@ -130,7 +128,7 @@
           size="medium"
           disabled={loading}
         >
-          {cancelText}
+          {defaultCancelText}
         </Button>
         <Button
           onClick={handleConfirm}
@@ -145,7 +143,7 @@
           {#if loading}
             <div class="spinner"></div>
           {/if}
-          {confirmText}
+          {defaultConfirmText}
         </Button>
       </div>
     </div>

@@ -5,15 +5,18 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  export let value = "";
-  export let placeholder = tr("search");
-  export let fullWidth = false;
-  // Svelte 5: allow passing callback props like `oninput` / `onclear`
-  export let oninput = null;
-  export let onclear = null;
+  let {
+    value = $bindable(""),
+    placeholder = "",
+    fullWidth = false,
+    oninput = null,
+    onclear = null
+  } = $props();
+
+  const defaultPlaceholder = $derived(placeholder || tr("search"));
 
   const dispatch = createEventDispatcher();
-  let focused = false;
+  let focused = $state(false);
 
   function handleInput(e) {
     value = e.target.value;

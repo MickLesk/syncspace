@@ -19,12 +19,12 @@
     onBatchDelete,
   } = $props();
 
-  const sortOptions = [
+  const sortOptions = $derived([
     { value: "name", label: tr("name"), icon: "bi-text-left" },
     { value: "modified", label: tr("modified"), icon: "bi-calendar" },
     { value: "size", label: tr("size"), icon: "bi-hdd" },
     { value: "type", label: tr("type"), icon: "bi-file-earmark" },
-  ];
+  ]);
 </script>
 
 <div
