@@ -266,7 +266,7 @@
                 type.value
                   ? 'bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 font-semibold shadow-md scale-105'
                   : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300'}"
-                on:click={() => (selectedFilter = type.value)}
+                onclick={() => (selectedFilter = type.value)}
               >
                 <i class="bi bi-{type.icon}"></i>
                 {type.label}

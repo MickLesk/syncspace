@@ -2,13 +2,14 @@
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
-  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
-
   let {
     variant = "grid", // grid, list, table, spinner
     count = 6,
-    message = tr("loading"),
+    message = "",
   } = $props();
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+  const displayMessage = $derived(message || tr("loading"));
 </script>
 
 {#if variant === "spinner"}
@@ -18,8 +19,8 @@
     <div
       class="loading loading-spinner loading-lg text-blue-500 dark:text-blue-400"
     ></div>
-    {#if message}
-      <p class="mt-4 text-gray-600 dark:text-gray-400">{message}</p>
+    {#if displayMessage}
+      <p class="mt-4 text-gray-600 dark:text-gray-400">{displayMessage}</p>
     {/if}
   </div>
 {:else if variant === "grid"}

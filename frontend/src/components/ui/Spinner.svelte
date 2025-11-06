@@ -2,8 +2,10 @@
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
-  export let size = "medium"; // small, medium, large
-  export let variant = "circular"; // circular, dots, bars
+  let {
+    size = "medium", // small, medium, large
+    variant = "circular", // circular, dots, bars
+  } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>

@@ -715,7 +715,6 @@
 <style>
   .performance-monitor {
     background: white;
-    dark: bg-gray-900;
     border-radius: 16px;
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);

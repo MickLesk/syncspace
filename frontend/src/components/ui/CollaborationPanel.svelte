@@ -11,26 +11,30 @@
   import { t } from "../../i18n.js";
   import { success, error as errorToast } from "../../stores/toast.js";
 
-  export let filePath = null;
-  export let compact = false;
+  let { filePath = null, compact = false } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  let currentLock = null;
-  let filePresence = [];
-  let showActivity = false;
+  let showActivity = $state(false);
   let pollingInterval = null;
 
-  $: if (filePath) {
-    loadCollaborationData();
-  }
+  $effect(() => {
+    if (filePath) {
+      loadCollaborationData();
+    }
+  });
 
-  $: filePresence = $presence.filter((p) => p.file_path === filePath);
-  $: currentLock = $locks.find((l) => l.file_path === filePath);
-  $: isLockedByMe =
-    currentLock && currentLock.locked_by === $auth.user?.username;
-  $: isLockedByOther = currentLock && !isLockedByMe;
-  $: editingUsers = filePresence.filter((p) => p.activity_type === "editing");
+  const filePresence = $derived(
+    $presence.filter((p) => p.file_path === filePath)
+  );
+  const currentLock = $derived($locks.find((l) => l.file_path === filePath));
+  const isLockedByMe = $derived(
+    currentLock && currentLock.locked_by === $auth.user?.username
+  );
+  const isLockedByOther = $derived(currentLock && !isLockedByMe);
+  const editingUsers = $derived(
+    filePresence.filter((p) => p.activity_type === "editing")
+  );
 
   onMount(() => {
     if (filePath) {

@@ -110,12 +110,14 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby={title ? "modal-title" : undefined}
+    tabindex="-1"
     onclick={handleBackdropClick}
     onkeydown={(e) => e.key === "Enter" && handleBackdropClick(e)}
   >
     <!-- Enhanced backdrop with blur -->
     <div class="modal-backdrop-enhanced"></div>
 
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div
       bind:this={modalElement}
       class="relative {sizeClasses[size]} w-full material-modal"

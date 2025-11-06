@@ -468,7 +468,9 @@
               </div>
 
               <div class="form-group col-span-2">
-                <label>{tr("passwordRequirements")}</label>
+                <div class="font-medium text-sm mb-2">
+                  {tr("passwordRequirements")}
+                </div>
                 <div class="checkbox-grid">
                   <label class="checkbox-label">
                     <input

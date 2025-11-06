@@ -2,10 +2,12 @@
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
-  export let tabs = []; // Array of { id, label, icon? }
-  export let activeTab = "";
-  export let onChange = (id) => {};
-  export let variant = "pills"; // pills, underline, glass
+  let {
+    tabs = [], // Array of { id, label, icon? }
+    activeTab = $bindable(""),
+    onChange = (id) => {},
+    variant = "pills", // pills, underline, glass
+  } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>

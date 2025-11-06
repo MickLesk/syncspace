@@ -139,18 +139,18 @@
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
             {tr("selectDestination")}
+            <select
+              bind:value={destinationPath}
+              class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+            >
+              <option value="">{tr("rootDirectory")}</option>
+              {#each availableFolders as folder}
+                <option value={folder.path || folder.file_path}>
+                  📁 {folder.name}
+                </option>
+              {/each}
+            </select>
           </label>
-          <select
-            bind:value={destinationPath}
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
-          >
-            <option value="">{tr("rootDirectory")}</option>
-            {#each availableFolders as folder}
-              <option value={folder.path || folder.file_path}>
-                📁 {folder.name}
-              </option>
-            {/each}
-          </select>
         {/if}
       </div>
 

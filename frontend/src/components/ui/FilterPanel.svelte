@@ -4,27 +4,27 @@
   import { createEventDispatcher } from "svelte";
   import Icon from "./Icon.svelte";
 
-  export let visible = false;
+  let { visible = $bindable(false) } = $props();
 
   const dispatch = createEventDispatcher();
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   // Filter state
-  let fileTypes = {
+  let fileTypes = $state({
     images: false,
     documents: false,
     videos: false,
     audio: false,
     archives: false,
     other: false,
-  };
+  });
 
   let sizeRange = { min: 0, max: Infinity };
-  let customSizeMin = "";
-  let customSizeMax = "";
-  let sizeUnit = "MB"; // KB, MB, GB
+  let customSizeMin = $state("");
+  let customSizeMax = $state("");
+  let sizeUnit = $state("MB"); // KB, MB, GB
 
-  let dateRange = { from: "", to: "" };
+  let dateRange = $state({ from: "", to: "" });
 
   /**
    * Apply filters and emit event
@@ -95,7 +95,9 @@
 </script>
 
 {#if visible}
-  <div class="filter-overlay" onclick={handleBackdropClick}>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="filter-overlay" onclick={handleBackdropClick} role="presentation">
     <div class="filter-panel">
       <div class="filter-header">
         <h3>Advanced Filters</h3>
@@ -146,25 +148,25 @@
         <div class="filter-section">
           <h4>File Size</h4>
           <div class="size-inputs">
-            <div class="input-group">
-              <label>Min</label>
+            <label class="input-group">
+              <span>Min</span>
               <input
                 type="number"
                 bind:value={customSizeMin}
                 placeholder="0"
                 min="0"
               />
-            </div>
+            </label>
             <span class="input-separator">—</span>
-            <div class="input-group">
-              <label>Max</label>
+            <label class="input-group">
+              <span>Max</span>
               <input
                 type="number"
                 bind:value={customSizeMax}
                 placeholder="∞"
                 min="0"
               />
-            </div>
+            </label>
             <select bind:value={sizeUnit} class="unit-select">
               <option value="KB">KB</option>
               <option value="MB">MB</option>
@@ -177,14 +179,14 @@
         <div class="filter-section">
           <h4>Modified Date</h4>
           <div class="date-inputs">
-            <div class="input-group">
-              <label>From</label>
+            <label class="input-group">
+              <span>From</span>
               <input type="date" bind:value={dateRange.from} />
-            </div>
-            <div class="input-group">
-              <label>To</label>
+            </label>
+            <label class="input-group">
+              <span>To</span>
               <input type="date" bind:value={dateRange.to} />
-            </div>
+            </label>
           </div>
         </div>
       </div>
@@ -345,7 +347,7 @@
     flex: 1;
   }
 
-  .input-group label {
+  .input-group span {
     font-size: 12px;
     color: var(--md-sys-color-on-surface-variant);
     font-weight: 500;

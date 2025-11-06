@@ -180,8 +180,18 @@
 </script>
 
 {#if visible && file}
-  <div class="comments-panel-overlay" onclick={handleClose}>
-    <div class="comments-panel" onclick={(e) => e.stopPropagation()}>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="comments-panel-overlay" onclick={handleClose} role="presentation">
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+      class="comments-panel"
+      onclick={(e) => e.stopPropagation()}
+      role="dialog"
+      aria-modal="true"
+      tabindex="-1"
+    >
       <div class="panel-header">
         <div class="panel-title">
           <Icon name="💬" size="20px" />
@@ -244,7 +254,7 @@
             />
             <datalist id="tag-suggestions">
               {#each allTagNames as tagName}
-                <option value={tagName} />
+                <option value={tagName}></option>
               {/each}
             </datalist>
             <button
@@ -279,13 +289,14 @@
 
                 {#if editingCommentId === comment.id}
                   <div class="comment-edit">
+                    <!-- svelte-ignore a11y_autofocus -->
                     <textarea
                       class="textarea-edit"
                       bind:value={editText}
                       onkeydown={handleKeydown}
                       rows="3"
                       autofocus
-                    />
+                    ></textarea>
                     <div class="edit-actions">
                       <button
                         class="btn-save"
@@ -338,7 +349,7 @@
               bind:value={newComment}
               onkeydown={handleKeydown}
               rows="3"
-            />
+            ></textarea>
             <button
               class="btn-add-comment"
               onclick={handleAddComment}

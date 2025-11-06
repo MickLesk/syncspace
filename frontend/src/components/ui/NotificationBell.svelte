@@ -104,10 +104,11 @@
           </div>
         {:else}
           {#each recentNotifications as notif}
-            <div
+            <button
               class="notification-item"
               class:unread={!notif.is_read}
               onclick={() => markAsRead(notif.id)}
+              type="button"
             >
               <div class="notif-icon">
                 {getNotificationIcon(notif.notification_type)}
@@ -120,7 +121,7 @@
               {#if !notif.is_read}
                 <div class="unread-dot"></div>
               {/if}
-            </div>
+            </button>
           {/each}
         {/if}
       </div>

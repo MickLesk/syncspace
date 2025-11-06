@@ -7,11 +7,7 @@
    * @component
    */
 
-  /** @type {string} */
-  export let title = "";
-
-  /** @type {string} */
-  export let icon = "";
+  let { title = "", icon = "" } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>

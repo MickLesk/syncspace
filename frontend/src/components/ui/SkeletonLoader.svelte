@@ -2,8 +2,10 @@
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
-  export let count = 6; // Number of skeleton items to show
-  export let type = "grid"; // 'grid' or 'list'
+  let {
+    count = 6, // Number of skeleton items to show
+    type = "grid", // 'grid' or 'list'
+  } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>

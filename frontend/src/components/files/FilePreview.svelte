@@ -22,8 +22,17 @@
 </script>
 
 {#if file}
-  <div class="preview-overlay" onclick={onClose}>
-    <div class="preview-container" onclick={(e) => e.stopPropagation()}>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="preview-overlay" onclick={onClose} role="presentation">
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+      class="preview-container"
+      onclick={(e) => e.stopPropagation()}
+      role="dialog"
+      tabindex="-1"
+    >
       <div class="preview-header">
         <div class="preview-title">
           <i class="bi bi-file-earmark"></i>
@@ -40,6 +49,7 @@
         {#if previewType === "image"}
           <img src={file.url} alt={file.name} class="preview-image" />
         {:else if previewType === "video"}
+          <!-- svelte-ignore a11y_media_has_caption -->
           <video src={file.url} controls class="preview-video"></video>
         {:else if previewType === "audio"}
           <audio src={file.url} controls class="preview-audio"></audio>

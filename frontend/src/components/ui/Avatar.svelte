@@ -2,9 +2,11 @@
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
-  export let name = "";
-  export let imageUrl = "";
-  export let size = "medium"; // small, medium, large, xlarge
+  let {
+    name = "",
+    imageUrl = "",
+    size = "medium", // small, medium, large, xlarge
+  } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -50,8 +52,8 @@
     return colors[Math.abs(hash) % colors.length];
   }
 
-  $: bgColor = imageUrl ? "transparent" : getAvatarColor(name);
-  $: initials = getInitials(name);
+  const bgColor = $derived(imageUrl ? "transparent" : getAvatarColor(name));
+  const initials = $derived(getInitials(name));
 </script>
 
 <div

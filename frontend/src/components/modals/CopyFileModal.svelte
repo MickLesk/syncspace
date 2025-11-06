@@ -109,15 +109,13 @@
       </div>
 
       <!-- Destination folder -->
-      <div>
-        <label
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-        >
-          {tr("destinationFolder")}
-        </label>
+      <label
+        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+      >
+        {tr("destinationFolder")}
         <select
           bind:value={destinationPath}
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+          class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
         >
           <option value="">{tr("rootDirectory")}</option>
           {#each availableFolders as folder}
@@ -126,25 +124,23 @@
             </option>
           {/each}
         </select>
-      </div>
+      </label>
 
       <!-- New file name (optional) -->
-      <div>
-        <label
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-        >
-          {tr("newFileName")} ({tr("optional")})
-        </label>
+      <label
+        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+      >
+        {tr("newFileName")} ({tr("optional")})
         <input
           type="text"
           bind:value={newName}
           placeholder={file.name}
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+          class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
         />
         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
           {tr("leaveEmptyToKeepOriginalName")}
         </p>
-      </div>
+      </label>
 
       {#if error}
         <div
