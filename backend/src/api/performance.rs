@@ -31,24 +31,20 @@ async fn get_metrics(
     State(state): State<AppState>,
     _user: UserInfo,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    // TODO: Implement actual metrics collection
-    Ok(Json(serde_json::json!({
-        "cpu_usage": 25.5,
-        "memory_usage": 60.2,
-        "disk_usage": 45.0,
-        "network_in": 1024,
-        "network_out": 512
-    })))
+    services::performance::get_metrics(&state)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 async fn get_metrics_history(
     State(state): State<AppState>,
     _user: UserInfo,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    // TODO: Implement metrics history
-    Ok(Json(serde_json::json!({
-        "metrics": []
-    })))
+    services::performance::get_metrics_history(&state)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 async fn get_cache_stats(
@@ -65,10 +61,10 @@ async fn clear_cache(
     State(state): State<AppState>,
     _user: UserInfo,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    // TODO: Implement cache clearing
-    Ok(Json(serde_json::json!({
-        "message": "Cache cleared successfully"
-    })))
+    services::performance::clear_cache(&state)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 async fn list_jobs(

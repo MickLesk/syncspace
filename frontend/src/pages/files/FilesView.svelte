@@ -17,6 +17,8 @@
   import FileToolbar from "../../components/files/FileToolbar.svelte";
   import FileActionsMenu from "../../components/files/FileActionsMenu.svelte";
   import FilePreviewPanel from "../../components/files/FilePreviewPanel.svelte";
+  import CopyFileModal from "../../components/modals/CopyFileModal.svelte";
+  import MoveFileModal from "../../components/modals/MoveFileModal.svelte";
   import api from "../../lib/api";
   import { websocketManager } from "@stores/websocket.js";
 
@@ -49,6 +51,12 @@
   let showPreviewPanel = $state(false);
   let previewFile = $state(null);
   let previewFileIndex = $state(0);
+
+  // Copy/Move Modal State
+  let showCopyModal = $state(false);
+  let selectedFileForCopy = $state(null);
+  let showMoveModal = $state(false);
+  let selectedFileForMove = $state(null);
 
   let searchFilters = $state({
     type: "all",
@@ -965,8 +973,16 @@
     onClose={closeContextMenu}
     onRename={() => modals.openRename(currentFile)}
     onDelete={() => modals.openDelete(currentFile)}
-    onMove={() => modals.openMove(currentFile)}
-    onCopy={() => modals.openCopy(currentFile)}
+    onMove={() => {
+      selectedFileForMove = currentFile;
+      showMoveModal = true;
+      closeContextMenu();
+    }}
+    onCopy={() => {
+      selectedFileForCopy = currentFile;
+      showCopyModal = true;
+      closeContextMenu();
+    }}
     onShare={() => modals.openShare(currentFile)}
     onDownload={() => downloadFile(currentFile)}
     onVersionHistory={() => modals.openVersionHistory(currentFile)}
@@ -974,6 +990,36 @@
     onChangeFolderColor={() => modals.openChangeFolderColor(currentFile)}
   />
 {/if}
+
+<!-- Copy File Modal -->
+<CopyFileModal
+  bind:visible={showCopyModal}
+  file={selectedFileForCopy}
+  onClose={() => {
+    showCopyModal = false;
+    selectedFileForCopy = null;
+  }}
+  onSuccess={async () => {
+    await loadFiles();
+    showCopyModal = false;
+    selectedFileForCopy = null;
+  }}
+/>
+
+<!-- Move File Modal -->
+<MoveFileModal
+  bind:visible={showMoveModal}
+  file={selectedFileForMove}
+  onClose={() => {
+    showMoveModal = false;
+    selectedFileForMove = null;
+  }}
+  onSuccess={async () => {
+    await loadFiles();
+    showMoveModal = false;
+    selectedFileForMove = null;
+  }}
+/>
 
 <!-- All modals now rendered globally in ModalPortal.svelte -->
 
