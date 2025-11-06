@@ -2,6 +2,10 @@
   import Dialog from "./Dialog.svelte";
   import Input from "./Input.svelte";
   import { createEventDispatcher } from "svelte";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   export let open = false;
   export let title = "";
@@ -24,7 +28,7 @@
 
   function handleConfirm() {
     if (required && !value.trim()) {
-      error = "Dieses Feld ist erforderlich";
+      error = tr("fieldRequired");
       return;
     }
     dispatch("confirm", value);
@@ -55,4 +59,3 @@
     oninput={() => (error = "")}
   />
 </Dialog>
-

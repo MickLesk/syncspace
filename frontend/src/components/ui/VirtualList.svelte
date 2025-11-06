@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   /**
    * Virtual List Component
    * Renders only visible items for better performance with large datasets
@@ -10,6 +13,8 @@
     children,
     ...restProps
   } = $props();
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let scrollTop = $state(0);
   let containerHeight = $state(0);

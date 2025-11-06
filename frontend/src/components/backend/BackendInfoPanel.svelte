@@ -1,6 +1,10 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import Modal from "../ui/Modal.svelte";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let { visible = false, onClose = () => {} } = $props();
 
@@ -294,10 +298,10 @@
         <div class="text-center">
           <i class="bi bi-exclamation-triangle text-5xl text-red-500 mb-4"></i>
           <p class="text-gray-900 dark:text-gray-100 font-semibold">
-            Failed to connect to backend
+            {tr("failedToConnectBackend")}
           </p>
           <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">
-            Please check if the server is running
+            {tr("pleaseCheckIfServerRunning")}
           </p>
         </div>
       </div>
@@ -311,7 +315,7 @@
       onclick={handleClose}
     >
       <i class="bi bi-check-lg"></i>
-      Close
+      {tr("close")}
     </button>
   </div>
 </Modal>

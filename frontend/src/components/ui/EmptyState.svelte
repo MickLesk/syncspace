@@ -16,6 +16,10 @@
 
   import Icon from "./Icon.svelte";
   import Button from "./Button.svelte";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   /** @type {string} - Bootstrap Icon name oder Emoji */
   export let icon = "";
@@ -24,7 +28,7 @@
   export let isBootstrapIcon = false;
 
   /** @type {string} - Hauptüberschrift */
-  export let title = "No items found";
+  export let title = tr("noItemsFound");
 
   /** @type {string} - Beschreibungstext */
   export let description = "";
@@ -192,4 +196,3 @@
     }
   }
 </style>
-

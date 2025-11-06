@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   export let variant = "filled"; // filled, outlined, text, glass, glass-primary, danger
   export let size = "medium"; // small, medium, large
   export let disabled = false;
@@ -6,6 +9,8 @@
   export let fullWidth = false;
   export let onClick = () => {};
   export let onclick = undefined; // Support both for compatibility
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>
 
 <button

@@ -1,5 +1,7 @@
 <script>
   import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import { auth } from "../../stores/auth.js";
   import { success, error as errorToast } from "../../stores/toast";
   import { onMount } from "svelte";
@@ -54,7 +56,7 @@
 
   function handleAddUser() {
     if (!newUsername || !newUserPassword) {
-      errorToast("Please fill all fields");
+      errorToast(tr("fillAllFields"));
       return;
     }
 
@@ -71,7 +73,7 @@
       },
     ];
 
-    success(`User "${newUsername}" created`);
+    success(tr("userCreated", newUsername));
     newUsername = "";
     newUserPassword = "";
     showAddUserModal = false;
@@ -81,7 +83,7 @@
     if (!userToDelete) return;
 
     users = users.filter((u) => u.id !== userToDelete.id);
-    success(`User "${userToDelete.username}" deleted`);
+    success(tr("userDeleted", userToDelete.username));
     userToDelete = null;
     showDeleteUserModal = false;
   }
@@ -99,7 +101,7 @@
         class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2"
       >
         <i class="bi bi-people-fill text-primary-600 dark:text-primary-400"></i>
-        User Management
+        {tr("manageUsers")}
       </h2>
       <ModernButton
         variant="primary"
@@ -108,7 +110,7 @@
         class="btn-pulse"
       >
         <i class="bi bi-person-plus-fill mr-1"></i>
-        Add User
+        {tr("addUser")}
       </ModernButton>
     </div>
 

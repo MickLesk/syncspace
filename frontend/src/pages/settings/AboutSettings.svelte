@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
 </script>
@@ -16,7 +19,7 @@
 
         <h1 class="text-4xl font-bold mb-2 gradient-text">SyncSpace</h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 font-medium">
-          Secure Cloud Storage Platform
+          {tr("secureCloudStorage")}
         </p>
       </div>
 
@@ -28,13 +31,13 @@
           <div
             class="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-1"
           >
-            Version
+            {tr("version")}
           </div>
           <div class="text-2xl font-bold text-blue-700 dark:text-blue-300">
             1.0.0
           </div>
           <div class="text-xs text-blue-600/70 dark:text-blue-400/70 mt-1">
-            Latest Release
+            {tr("latestRelease")}
           </div>
         </div>
 
@@ -44,13 +47,13 @@
           <div
             class="text-sm font-semibold text-purple-600 dark:text-purple-400 mb-1"
           >
-            License
+            {tr("license")}
           </div>
           <div class="text-2xl font-bold text-purple-700 dark:text-purple-300">
             MIT
           </div>
           <div class="text-xs text-purple-600/70 dark:text-purple-400/70 mt-1">
-            Open Source
+            {tr("openSource")}
           </div>
         </div>
 
@@ -60,13 +63,13 @@
           <div
             class="text-sm font-semibold text-pink-600 dark:text-pink-400 mb-1"
           >
-            Build
+            {tr("build")}
           </div>
           <div class="text-2xl font-bold text-pink-700 dark:text-pink-300">
             2025.10
           </div>
           <div class="text-xs text-pink-600/70 dark:text-pink-400/70 mt-1">
-            October 2025
+            {tr("october2025")}
           </div>
         </div>
       </div>
@@ -74,10 +77,10 @@
       <!-- Tech Stack -->
       <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mb-6">
         <p class="text-center text-sm text-gray-600 dark:text-gray-400 mb-2">
-          Built with Rust, Svelte, and Tailwind CSS
+          {tr("builtWith")}
         </p>
         <p class="text-center text-xs text-gray-500 dark:text-gray-500">
-          © 2025 SyncSpace. All rights reserved.
+          {tr("copyright")}
         </p>
       </div>
 

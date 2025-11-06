@@ -3,19 +3,29 @@
    * Mobile Bottom Navigation Bar
    * Shows primary navigation items at bottom of screen
    */
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+
   let {
     activeView = "files",
     onNavigate = () => {},
     unreadNotifications = 0,
   } = $props();
 
-  const navItems = [
-    { id: "files", icon: "folder", label: "Files" },
-    { id: "recent", icon: "clock-history", label: "Recent" },
-    { id: "favorites", icon: "star", label: "Favorites" },
-    { id: "notifications", icon: "bell", label: "Alerts", badge: true },
-    { id: "more", icon: "three-dots", label: "More" },
-  ];
+  let navItems = $derived([
+    { id: "files", icon: "folder", label: tr("files") },
+    { id: "recent", icon: "clock-history", label: tr("recentFiles") },
+    { id: "favorites", icon: "star", label: tr("favorites") },
+    {
+      id: "notifications",
+      icon: "bell",
+      label: tr("notifications"),
+      badge: true,
+    },
+    { id: "more", icon: "three-dots", label: tr("more") },
+  ]);
 
   function handleNavClick(itemId) {
     onNavigate(itemId);

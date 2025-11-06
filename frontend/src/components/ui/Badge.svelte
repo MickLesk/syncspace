@@ -1,7 +1,12 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   export let variant = "default"; // default, success, warning, error, info, glass
   export let size = "medium"; // small, medium, large
   export let icon = "";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>
 
 <span class="crystal-badge {variant} {size}">

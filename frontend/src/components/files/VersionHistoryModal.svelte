@@ -2,6 +2,10 @@
   import { onMount } from "svelte";
   import api from "../../lib/api.js";
   import { success, error } from "../../stores/toast.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   export let file = null;
   export let isOpen = false;
@@ -40,7 +44,7 @@
       const response = await api.versions.list(file.id);
       versions = response.data || [];
     } catch (err) {
-      error("Failed to load version history");
+      error(tr("failedToLoadVersionHistory"));
       console.error(err);
     } finally {
       loading = false;
@@ -55,7 +59,7 @@
       diffContent = response.data;
       showDiff = true;
     } catch (err) {
-      error("Failed to load diff");
+      error(tr("failedToLoadDiff"));
       console.error(err);
     }
   }

@@ -1,6 +1,10 @@
 <script>
   import { success, error as errorToast } from "../../stores/toast";
   import api from "../../lib/api";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let { visible = $bindable(false), folder = $bindable(null) } = $props();
 
@@ -53,13 +57,13 @@
     try {
       const folderPath = folder.path || folder.name;
       await api.folderColors.set(folderPath, selectedColor);
-      success("🎨 Folder color updated!");
+      success(tr("folderColorUpdated"));
       visible = false;
       // Trigger refresh of file list
       window.location.reload();
     } catch (err) {
       console.error("Failed to set folder color:", err);
-      errorToast("Failed to set folder color");
+      errorToast(tr("failedToSetFolderColor"));
     } finally {
       loading = false;
     }
@@ -67,17 +71,17 @@
 
   async function removeColor() {
     if (!folder?.path && !folder?.name) return;
-    if (!confirm("Remove folder color?")) return;
+    if (!confirm(tr("removeFolderColor"))) return;
     loading = true;
     try {
       const folderPath = folder.path || folder.name;
       await api.folderColors.remove(folderPath);
-      success("🗑️ Folder color removed!");
+      success(tr("folderColorRemoved"));
       visible = false;
       window.location.reload();
     } catch (err) {
       console.error("Failed to remove folder color:", err);
-      errorToast("Failed to remove folder color");
+      errorToast(tr("failedToRemoveFolderColor"));
     } finally {
       loading = false;
     }

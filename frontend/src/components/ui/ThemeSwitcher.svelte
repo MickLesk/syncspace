@@ -2,14 +2,18 @@
   import { onMount } from "svelte";
   import api from "../../lib/api.js";
   import { auth } from "../../stores/auth.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let currentTheme = $state("syncspace");
   let loading = $state(false);
 
-  const themes = [
-    { id: "syncspace", name: "Light", icon: "bi-sun-fill" },
-    { id: "syncspace-dark", name: "Dark", icon: "bi-moon-fill" },
-  ];
+  let themes = $derived([
+    { id: "syncspace", name: tr("light"), icon: "bi-sun-fill" },
+    { id: "syncspace-dark", name: tr("dark"), icon: "bi-moon-fill" },
+  ]);
 
   // Map backend theme names to frontend theme names
   function backendToFrontendTheme(backendTheme) {

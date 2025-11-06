@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   export let value = "";
   export let label = "";
   export let type = "text";
@@ -11,9 +14,10 @@
 
   let focused = false;
   let filled = value.length > 0;
-  
+
   // Generate unique ID if not provided
   const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   $: filled = value.length > 0 || focused;
 </script>
@@ -139,4 +143,3 @@
     color: var(--md-sys-color-error);
   }
 </style>
-

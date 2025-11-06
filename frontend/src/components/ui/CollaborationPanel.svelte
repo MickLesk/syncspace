@@ -7,10 +7,14 @@
     conflicts,
   } from "../../stores/collaboration.js";
   import { auth } from "../../stores/auth.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import { success, error as errorToast } from "../../stores/toast.js";
 
   export let filePath = null;
   export let compact = false;
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let currentLock = null;
   let filePresence = [];
@@ -71,10 +75,10 @@
 
     try {
       await locks.acquire(filePath, "exclusive", 300);
-      success("File locked successfully");
+      success(tr("fileLockedSuccessfully"));
       await loadCollaborationData();
     } catch (err) {
-      errorToast(err.message || "Failed to lock file");
+      errorToast(err.message || tr("failedToLockFile"));
     }
   }
 
@@ -83,10 +87,10 @@
 
     try {
       await locks.release(currentLock.id);
-      success("File unlocked successfully");
+      success(tr("fileUnlockedSuccessfully"));
       await loadCollaborationData();
     } catch (err) {
-      errorToast("Failed to unlock file");
+      errorToast(tr("failedToUnlockFile"));
     }
   }
 
@@ -107,7 +111,7 @@
       await activity.loadForFile(filePath);
       showActivity = true;
     } catch (err) {
-      errorToast("Failed to load activity");
+      errorToast(tr("failedToLoadActivity"));
     }
   }
 
@@ -325,4 +329,3 @@
   {/if}
 </div>
 }
-

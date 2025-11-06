@@ -1,6 +1,10 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import Icon from "./Icon.svelte";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   export let file = null;
   export let files = [];
@@ -61,7 +65,7 @@
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: Failed to load file`);
+        throw new Error(tr("failedToLoadFile", response.status));
       }
 
       const blob = await response.blob();
@@ -88,7 +92,7 @@
       loading = false;
     } catch (err) {
       console.error("Preview error:", err);
-      error = err.message;
+      error = tr("previewError", err.message);
       loading = false;
     }
   }
@@ -155,11 +159,7 @@
           <span>{file.name}</span>
         </div>
         <div class="preview-actions">
-          <button
-            class="btn-nav"
-            onclick={() => navigate(-1)}
-            title="Previous"
-          >
+          <button class="btn-nav" onclick={() => navigate(-1)} title="Previous">
             <Icon name="chevron-left" size={20} />
           </button>
           <button class="btn-nav" onclick={() => navigate(1)} title="Next">
@@ -350,4 +350,3 @@
     font-size: 13px;
   }
 </style>
-

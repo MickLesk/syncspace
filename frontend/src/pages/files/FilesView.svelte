@@ -280,9 +280,7 @@
             : file.name;
 
           await api.files.move(sourcePath, destPath);
-          success(
-            `${tr("movedTo")} ${file.name} ${tr("movedTo")} ${destinationPath || tr("root")}`
-          );
+          success(tr("moved", file.name, destinationPath || tr("root")));
 
           // Refresh the file list
           await loadFiles();
@@ -511,12 +509,12 @@
           up.id === uploadId ? { ...up, status: "complete", progress: 100 } : up
         );
 
-        success(`Uploaded: ${file.name}`);
+        success(tr("uploadedFile", file.name));
       } catch (err) {
         uploadProgress = uploadProgress.map((up) =>
           up.id === uploadId ? { ...up, status: "error" } : up
         );
-        errorToast(`Failed to upload: ${file.name}`);
+        errorToast(tr("failedToUploadFile", file.name));
       }
     }
 
@@ -594,7 +592,7 @@
   async function batchDelete() {
     if (selectedFiles.size === 0) return;
 
-    if (!confirm(`Delete ${selectedFiles.size} files?`)) return;
+    if (!confirm(tr("deleteFilesConfirm", selectedFiles.size))) return;
 
     for (const filePath of selectedFiles) {
       try {
@@ -635,9 +633,7 @@
 
       // Call backend move API
       await api.files.move(sourcePath, destPath);
-      success(
-        `${tr("movedTo")} ${draggedFile.name} ${tr("movedTo")} ${destinationPath || tr("root")}`
-      );
+      success(tr("moved", draggedFile.name, destinationPath || tr("root")));
 
       // Refresh file list
       await loadFiles();
@@ -675,7 +671,7 @@
       // Call backend move API
       await api.files.move(sourcePath, destPath);
 
-      success(`Moved ${draggedFile.name} to ${targetFolder.name}`);
+      success(tr("moved", draggedFile.name, targetFolder.name));
       await loadFiles();
     } catch (err) {
       console.error("[FilesView] Failed to move file:", err);
@@ -911,16 +907,16 @@
       <EmptyState
         icon={isSearchMode ? "🔍" : "📂"}
         title={isSearchMode
-          ? "No files match your search"
+          ? tr("noFilesMatch")
           : searchQuery
-            ? "No files match your search"
-            : "This folder is empty"}
+            ? tr("noFilesMatch")
+            : tr("folderIsEmpty")}
         description={isSearchMode
-          ? "Try adjusting your search criteria or use different keywords"
+          ? tr("tryAdjustingSearch")
           : searchQuery
-            ? "Try adjusting your search criteria"
-            : "Upload files or create a new folder to get started"}
-        actionText={isSearchMode ? "New Search" : "Upload Files"}
+            ? tr("tryAdjustingSearch")
+            : tr("uploadFilesOrCreate")}
+        actionText={isSearchMode ? tr("newSearch") : tr("uploadFiles")}
         onAction={() =>
           isSearchMode ? modals.openAdvancedSearch() : modals.openUpload()}
       />

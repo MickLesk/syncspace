@@ -1,5 +1,8 @@
 <script>
   import { onMount } from "svelte";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import { favorites } from "../../stores/favorites";
   import { currentPath } from "../../stores/ui.js";
   import { success, error } from "../../stores/toast";

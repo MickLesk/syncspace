@@ -1,5 +1,8 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { currentLang } from "../stores/ui.js";
+  import { t } from "../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   const dispatch = createEventDispatcher();
 
   let { path = "", onDrop = null } = $props(); // Svelte 5 runes syntax

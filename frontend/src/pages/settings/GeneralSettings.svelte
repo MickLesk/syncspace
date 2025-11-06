@@ -83,11 +83,11 @@
       applyTheme(selectedTheme);
       currentLang.set(selectedLanguage);
 
-      saveMessage = "✅ Settings saved successfully!";
+      saveMessage = tr("settingsSavedSuccess");
       setTimeout(() => (saveMessage = ""), 3000);
     } catch (error) {
       console.error("Failed to save settings:", error);
-      saveMessage = "❌ Failed to save settings";
+      saveMessage = tr("failedToSaveSettings");
       setTimeout(() => (saveMessage = ""), 3000);
     } finally {
       saving = false;
@@ -138,7 +138,9 @@
       <div
         class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"
       ></div>
-      <span class="text-gray-600 dark:text-gray-400">Loading settings...</span>
+      <span class="text-gray-600 dark:text-gray-400"
+        >{tr("loadingSettings")}</span
+      >
     </div>
   </div>
 {:else}
@@ -354,7 +356,7 @@
           <i class="bi bi-toggles text-2xl text-yellow-600 dark:text-yellow-400"
           ></i>
           <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            Features
+            {tr("features")}
           </h2>
         </div>
         <div class="space-y-3">
@@ -363,11 +365,10 @@
           >
             <label for="favorites-enabled" class="flex-1 cursor-pointer">
               <span class="block font-medium text-gray-900 dark:text-gray-100"
-                >Enable Favorites System</span
+                >{tr("enableFavoritesSystem")}</span
               >
               <p class="text-sm text-gray-600 dark:text-gray-400">
-                Show favorites in sidebar and enable favorite markers on
-                files/folders
+                {tr("showFavoritesInSidebar")}
               </p>
             </label>
             <div class="flex items-center gap-2">

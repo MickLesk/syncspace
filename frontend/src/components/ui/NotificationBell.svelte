@@ -1,6 +1,10 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { notifications, unreadCount } from "../../stores/notifications.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let showDropdown = false;
   let recentNotifications = [];

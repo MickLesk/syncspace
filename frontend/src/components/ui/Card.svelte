@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   /**
    * Modern Card Component - HyperUI Style
    * @param {boolean} hoverable - Adds hover effects
@@ -13,6 +16,8 @@
     class: className = "",
     children,
   } = $props();
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   const paddingClasses = {
     none: "",
@@ -31,4 +36,3 @@
 >
   {@render children?.()}
 </div>
-

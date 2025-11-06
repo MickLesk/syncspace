@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   /**
    * Modern Card Component v2 - Tailwind v4
    * Unified card with dark/light mode support
@@ -16,6 +19,8 @@
     class: className = "",
     style = "",
   } = $props();
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   const baseClasses = "rounded-2xl transition-all duration-200";
 

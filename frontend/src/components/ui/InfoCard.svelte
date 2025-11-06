@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   export let title = "";
   export let description = "";
   export let variant = "default"; // default, bordered, glass, gradient
@@ -6,6 +9,8 @@
   export let clickable = false;
   export let padding = "medium"; // small, medium, large
   export let onClick = () => {};
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>
 
 {#if clickable}

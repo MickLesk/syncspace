@@ -1,7 +1,11 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import { onMount } from "svelte";
 
   let { backupId } = $props();
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let verifications = $state([]);
   let loading = $state(true);
@@ -248,7 +252,9 @@
                   {#if verification.details}
                     <div class="mt-2 text-sm">
                       {#if verification.verification_type === "checksum"}
-                        <div class="font-mono text-xs bg-slate-100 dark:bg-slate-700 p-2 rounded">
+                        <div
+                          class="font-mono text-xs bg-slate-100 dark:bg-slate-700 p-2 rounded"
+                        >
                           {JSON.parse(verification.details).checksum ||
                             verification.details}
                         </div>
@@ -260,7 +266,9 @@
                           >
                         </div>
                       {:else}
-                        <div class="bg-slate-100 dark:bg-slate-700 p-2 rounded text-xs">
+                        <div
+                          class="bg-slate-100 dark:bg-slate-700 p-2 rounded text-xs"
+                        >
                           {verification.details}
                         </div>
                       {/if}
@@ -315,5 +323,3 @@
     padding: 1.5rem;
   }
 </style>
-
-

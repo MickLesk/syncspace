@@ -1,13 +1,17 @@
 <script>
   import { success } from "../../stores/toast";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let autoBackup = true;
   let backupFrequency = "daily";
 
   function handleBackupNow() {
-    success("Backup started successfully!");
+    success(tr("backupInProgress"));
   }
 </script>
 

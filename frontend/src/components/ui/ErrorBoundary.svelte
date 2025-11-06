@@ -1,8 +1,11 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import { createEventDispatcher } from "svelte";
   /** @type {Error | string | null} */
   export let error = null;
   const dispatch = createEventDispatcher();
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>
 
 {#if error}

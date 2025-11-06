@@ -1,11 +1,15 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import Button from "./Button.svelte";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   export let open = false;
   export let title = "";
-  export let confirmText = "OK";
-  export let cancelText = "Abbrechen";
+  export let confirmText = tr("ok");
+  export let cancelText = tr("cancel");
   export let confirmVariant = "filled";
   export let showCancel = true;
   export let danger = false;

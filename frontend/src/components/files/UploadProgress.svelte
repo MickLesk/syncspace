@@ -1,4 +1,9 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+
   let { uploads = [] } = $props();
 
   function formatBytes(bytes) {
@@ -23,9 +28,10 @@
   <div class="upload-panel">
     <div class="upload-header">
       <h3 class="upload-title">
-        <i class="bi bi-cloud-upload"></i> Uploads ({uploads.length})
+        <i class="bi bi-cloud-upload"></i>
+        {tr("uploads")} ({uploads.length})
       </h3>
-      <button class="btn btn-ghost btn-sm">Clear All</button>
+      <button class="btn btn-ghost btn-sm">{tr("clearAll")}</button>
     </div>
 
     <div class="upload-list">

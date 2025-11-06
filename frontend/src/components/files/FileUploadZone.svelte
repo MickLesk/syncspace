@@ -1,4 +1,8 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+
   let {
     onFilesSelected,
     accept = "*",

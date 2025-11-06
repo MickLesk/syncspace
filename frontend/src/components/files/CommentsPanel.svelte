@@ -2,8 +2,11 @@
   import { onMount } from "svelte";
   import { comments, tags } from "../../stores/comments";
   import { auth } from "../../stores/auth";
+  import { currentLang } from "../../stores/ui.js";
   import Icon from "./ui/Icon.svelte";
   import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   export let file = null;
   export let visible = false;
@@ -15,9 +18,6 @@
   let loading = false;
   let errorMessage = "";
   let lastFilePath = null;
-
-  // Get current language (default to 'de' for now)
-  const lang = localStorage.getItem("language") || "de";
 
   $: filePath = file ? `${file.path || ""}${file.name}` : "";
   $: fileComments = $comments[filePath] || [];
@@ -46,7 +46,7 @@
       await Promise.all([comments.loadForFile(filePath), tags.loadAll()]);
     } catch (e) {
       console.error("Failed to load data:", e);
-      errorMessage = t(lang, "failedToLoadComments");
+      errorMessage = tr("failedToLoadComments");
     } finally {
       loading = false;
     }
@@ -819,5 +819,3 @@
     }
   }
 </style>
-
-

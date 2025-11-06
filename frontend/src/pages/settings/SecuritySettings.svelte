@@ -3,7 +3,11 @@
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import { auth } from "../../stores/auth.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import QRCode from "qrcode";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let twoFAEnabled = $state(false);
   let twoFASetup = $state(null); // { secret, qr_code_url }
@@ -64,17 +68,17 @@
           });
         } catch (qrError) {
           console.error("QR code generation error:", qrError);
-          error = "Failed to generate QR code";
+          error = tr("failedToGenerateQRCode2");
           return;
         }
 
         showSetup = true;
       } else {
-        error = "Failed to generate 2FA secret. Please try again.";
+        error = tr("failedToGenerate2FASecret");
       }
     } catch (e) {
       console.error("2FA setup error:", e);
-      error = "Connection error. Is the backend running?";
+      error = tr("connectionErrorBackendRunning");
     } finally {
       loading = false;
     }
@@ -82,7 +86,7 @@
 
   async function enable2FA() {
     if (!verificationCode || verificationCode.length !== 6) {
-      error = "Please enter a valid 6-digit code";
+      error = tr("enterValid6DigitCode2");
       return;
     }
 
@@ -105,25 +109,25 @@
       );
 
       if (response.ok) {
-        success = "2FA enabled successfully!";
+        success = tr("twoFAEnabledSuccess2");
         twoFAEnabled = true;
         showSetup = false;
         twoFASetup = null;
         verificationCode = "";
       } else {
         const data = await response.json();
-        error = data.error || "Invalid verification code";
+        error = data.error || tr("invalidVerificationCode2");
       }
     } catch (e) {
       console.error("2FA enable error:", e);
-      error = "Failed to enable 2FA. Please try again.";
+      error = tr("failedToEnable2FA");
     } finally {
       loading = false;
     }
   }
 
   async function disable2FA() {
-    if (!confirm("Are you sure you want to disable 2FA?")) {
+    if (!confirm(tr("areSureDisable2FA"))) {
       return;
     }
 
@@ -142,12 +146,12 @@
       );
 
       if (response.ok) {
-        success = "2FA disabled successfully";
+        success = tr("twoFADisabledSuccess2");
         twoFAEnabled = false;
         showSetup = false;
         twoFASetup = null;
       } else {
-        error = "Failed to disable 2FA";
+        error = tr("failedToDisable2FA2");
       }
     } catch (e) {
       console.error("2FA disable error:", e);

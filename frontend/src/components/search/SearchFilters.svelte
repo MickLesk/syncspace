@@ -1,5 +1,10 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   let { onFilterChange = () => {} } = $props();
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let filters = $state({
     fileType: "all",
@@ -120,5 +125,3 @@
     gap: 0.25rem;
   }
 </style>
-
-

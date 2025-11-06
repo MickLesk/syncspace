@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
   export let label = "";
   export let icon = "";
   export let selected = false;
@@ -7,6 +10,8 @@
   /** @type {(() => void) | undefined} */
   export let onRemove = undefined;
   export let onClick = () => {};
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>
 
 {#if variant === "removable" && onRemove}

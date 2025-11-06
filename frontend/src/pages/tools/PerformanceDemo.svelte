@@ -3,6 +3,9 @@
    * Performance Demo - Test page for performance monitoring components
    * Created: October 25, 2025
    */
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import PerformanceMonitor from "../../components/tools/PerformanceMonitor.svelte";
   import {
     performanceMonitor,

@@ -3,6 +3,8 @@
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import PerformanceMonitor from "../../components/tools/PerformanceMonitor.svelte";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import {
     performanceMetrics,
     performanceHistory,
@@ -12,13 +14,14 @@
     performanceScore,
     performanceStatus,
   } from "../../stores/performance.js";
-</script>
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
 <PageWrapper>
   <PageHeader
-    title="Performance Dashboard"
-    subtitle="Monitor system performance, cache statistics, and background job processing"
-    icon="bi-speedometer2"
+    title={tr("settings")}
+    subtitle={tr("optimizePerformanceDescription")}
+    icon="speedometer2"
   />
 
   <div class="space-y-6">
@@ -48,13 +51,13 @@
         <div class="text-4xl">🖥️</div>
         <div class="flex-1">
           <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">
-            CPU Usage
+            {tr("cpuUsage")}
           </div>
           <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {$performanceMetrics.cpu_usage.toFixed(1)}%
           </div>
           <div class="text-xs text-gray-500 dark:text-gray-500">
-            System Load
+            {tr("systemLoad")}
           </div>
         </div>
       </ModernCard>

@@ -1,4 +1,7 @@
 <script>
+  import { currentLang } from "../stores/ui.js";
+  import { t } from "../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import PageWrapper from "../components/PageWrapper.svelte";
   import ModernCard from "../components/ui/ModernCard.svelte";
   import ModernButton from "../components/ui/ModernButton.svelte";
@@ -27,43 +30,43 @@
 
           <!-- Error Message -->
           <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">
-            Page Not Found
+            {tr("pageNotFound")}
           </h1>
           <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
-            Oops! The page you're looking for doesn't exist. It might have been moved or deleted.
+            {tr("pageNotFoundDescription")}
           </p>
 
           <!-- Action Buttons -->
           <div class="flex gap-4 flex-wrap justify-center mb-12">
             <ModernButton variant="gradient" icon="house-fill" onclick={goHome}>
-              Go Home
+              {tr("goHome")}
             </ModernButton>
             <ModernButton variant="ghost" icon="arrow-left" onclick={goBack}>
-              Go Back
+              {tr("goBack")}
             </ModernButton>
           </div>
 
           <!-- Quick Links -->
           <div class="pt-8 border-t border-gray-200 dark:border-gray-700">
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              Quick Links
+              {tr("quickLinks")}
             </p>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <a href="#/files" class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group">
                 <i class="bi bi-folder-fill text-2xl text-blue-500 group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Files</span>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{tr("files")}</span>
               </a>
               <a href="#/favorites" class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group">
                 <i class="bi bi-star-fill text-2xl text-yellow-500 group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Favorites</span>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{tr("favorites")}</span>
               </a>
               <a href="#/recent" class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group">
                 <i class="bi bi-clock-fill text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Recent</span>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{tr("recent")}</span>
               </a>
               <a href="#/settings" class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group">
                 <i class="bi bi-gear-fill text-2xl text-purple-500 group-hover:scale-110 transition-transform"></i>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Settings</span>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{tr("settings")}</span>
               </a>
             </div>
           </div>

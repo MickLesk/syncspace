@@ -1,4 +1,8 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+
   let { file = null, onClose = () => {} } = $props();
 
   function getPreviewType() {
@@ -43,11 +47,11 @@
           <iframe src={file.url} class="preview-iframe" title={file.name}
           ></iframe>
         {:else if previewType === "text"}
-          <pre class="preview-text">{file.content || "Loading..."}</pre>
+          <pre class="preview-text">{file.content || tr("loading")}</pre>
         {:else}
           <div class="preview-unsupported">
             <i class="bi bi-file-earmark-x text-6xl opacity-30"></i>
-            <p>Preview not available for this file type</p>
+            <p>{tr("previewNotAvailable")}</p>
             <button
               class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
               ><i class="bi bi-download"></i> Download</button
@@ -184,5 +188,3 @@
     }
   }
 </style>
-
-

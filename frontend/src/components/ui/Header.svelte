@@ -1,6 +1,10 @@
 <script>
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import { auth } from "../stores/auth";
   import { currentTheme, currentLang } from "../stores/ui";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   function toggleTheme() {
     currentTheme.update((t) => {
@@ -185,4 +189,3 @@
     background: rgba(179, 38, 30, 0.1);
   }
 </style>
-

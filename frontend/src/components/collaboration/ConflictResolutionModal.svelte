@@ -2,6 +2,10 @@
   import { onMount } from "svelte";
   import api from "../../lib/api.js";
   import { success, error as errorToast } from "../../stores/toast.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   /** @type {{visible?: boolean}} */
   let { visible = $bindable(false) } = $props();
@@ -22,7 +26,7 @@
       const response = await api.collaboration.listConflicts("pending");
       conflicts = Array.isArray(response) ? response : response?.data || [];
     } catch (err) {
-      errorToast("Failed to load conflicts");
+      errorToast(tr("failedToLoadConflicts"));
     } finally {
       loading = false;
     }
@@ -45,7 +49,7 @@
         resolutionStrategy
       );
 
-      success("Conflict resolved");
+      success(tr("conflictResolved"));
 
       // Remove from list
       conflicts = conflicts.filter((c) => c.id !== selectedConflict.id);
@@ -55,7 +59,7 @@
         visible = false;
       }
     } catch (err) {
-      errorToast("Failed to resolve conflict");
+      errorToast(tr("failedToResolveConflict"));
     } finally {
       loading = false;
     }
