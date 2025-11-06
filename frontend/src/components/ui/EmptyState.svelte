@@ -21,26 +21,20 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  /** @type {string} - Bootstrap Icon name oder Emoji */
-  export let icon = "";
+  let {
+    icon = "",
+    isBootstrapIcon = false,
+    title = "",
+    description = "",
+    actionText = "",
+    onAction = null,
+    size = "medium",
+    content,
+    actions,
+  } = $props();
 
-  /** @type {boolean} - Ob Icon ein Bootstrap-Icon ist (true) oder Emoji (false) */
-  export let isBootstrapIcon = false;
-
-  /** @type {string} - Hauptüberschrift */
-  export let title = tr("noItemsFound");
-
-  /** @type {string} - Beschreibungstext */
-  export let description = "";
-
-  /** @type {string} - Text für Action-Button (optional) */
-  export let actionText = "";
-
-  /** @type {Function} - Callback für Action-Button */
-  export let onAction = null;
-
-  /** @type {"small" | "medium" | "large"} - Größe des EmptyState */
-  export let size = "medium";
+  // Derived default title
+  const displayTitle = $derived(title || tr("noItemsFound"));
 </script>
 
 <div
@@ -61,13 +55,13 @@
     </div>
   {/if}
 
-  <h3 class="empty-title">{title}</h3>
+  <h3 class="empty-title">{displayTitle}</h3>
 
   {#if description}
     <p class="empty-description">{description}</p>
   {/if}
 
-  <slot name="content" />
+  {@render content?.()}
 
   {#if actionText && onAction}
     <div class="empty-action">
@@ -77,7 +71,7 @@
     </div>
   {/if}
 
-  <slot name="actions" />
+  {@render actions?.()}
 </div>
 
 <style>

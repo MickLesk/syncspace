@@ -22,8 +22,6 @@
   let totalWastedSpace = $state(0);
   let selectedDuplicates = $state(new Set());
 
-  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
-
   const totalDuplicates = $derived(
     duplicateGroups.reduce((sum, g) => sum + g.count - 1, 0)
   );

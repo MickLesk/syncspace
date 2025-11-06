@@ -10,13 +10,13 @@
   import EmptyState from "../../components/ui/EmptyState.svelte";
   import LoadingState from "../../components/ui/LoadingState.svelte";
 
-  let users = [];
-  let loadingUsers = false;
-  let showAddUserModal = false;
-  let showDeleteUserModal = false;
-  let newUsername = "";
-  let newUserPassword = "";
-  let userToDelete = null;
+  let users = $state([]);
+  let loadingUsers = $state(false);
+  let showAddUserModal = $state(false);
+  let showDeleteUserModal = $state(false);
+  let newUsername = $state("");
+  let newUserPassword = $state("");
+  let userToDelete = $state(null);
 
   onMount(() => {
     loadUsers();

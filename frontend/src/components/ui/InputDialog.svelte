@@ -7,24 +7,28 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  export let open = false;
-  export let title = "";
-  export let label = "";
-  export let placeholder = "";
-  export let initialValue = "";
-  export let type = "text";
-  export let required = true;
-  export let confirmText = "OK";
-  export let cancelText = "Abbrechen";
+  let {
+    open = $bindable(false),
+    title = "",
+    label = "",
+    placeholder = "",
+    initialValue = "",
+    type = "text",
+    required = true,
+    confirmText = "OK",
+    cancelText = "Abbrechen"
+  } = $props();
 
   const dispatch = createEventDispatcher();
-  let value = initialValue;
-  let error = "";
+  let value = $state(initialValue);
+  let error = $state("");
 
-  $: if (open) {
-    value = initialValue;
-    error = "";
-  }
+  $effect(() => {
+    if (open) {
+      value = initialValue;
+      error = "";
+    }
+  });
 
   function handleConfirm() {
     if (required && !value.trim()) {

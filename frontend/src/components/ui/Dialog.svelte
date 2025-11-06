@@ -6,13 +6,20 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  export let open = false;
-  export let title = "";
-  export let confirmText = tr("ok");
-  export let cancelText = tr("cancel");
-  export let confirmVariant = "filled";
-  export let showCancel = true;
-  export let danger = false;
+  let {
+    open = $bindable(false),
+    title = "",
+    confirmText = "",
+    cancelText = "",
+    confirmVariant = "filled",
+    showCancel = true,
+    danger = false,
+    children,
+  } = $props();
+
+  // Derived values for default text
+  const defaultConfirmText = $derived(confirmText || tr("ok"));
+  const defaultCancelText = $derived(cancelText || tr("cancel"));
 
   const dispatch = createEventDispatcher();
 
@@ -47,17 +54,17 @@
       {/if}
 
       <div class="dialog-content">
-        <slot />
+        {@render children?.()}
       </div>
 
       <div class="dialog-actions">
         {#if showCancel}
           <Button variant="text" onClick={handleCancel}>
-            {cancelText}
+            {defaultCancelText}
           </Button>
         {/if}
         <Button variant={confirmVariant} onClick={handleConfirm}>
-          {confirmText}
+          {defaultConfirmText}
         </Button>
       </div>
     </div>

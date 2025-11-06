@@ -7,8 +7,8 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  let autoBackup = true;
-  let backupFrequency = "daily";
+  let autoBackup = $state(true);
+  let backupFrequency = $state("daily");
 
   function handleBackupNow() {
     success(tr("backupInProgress"));

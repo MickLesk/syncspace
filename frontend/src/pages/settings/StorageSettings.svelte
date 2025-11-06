@@ -7,8 +7,8 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  let storageLocation = "./data";
-  let maxFileSize = "100";
+  let storageLocation = $state("./data");
+  let maxFileSize = $state("100");
 
   function handleClearCache() {
     success(tr("cacheCleared"));

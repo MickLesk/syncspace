@@ -6,8 +6,8 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  let showDropdown = false;
-  let recentNotifications = [];
+  let showDropdown = $state(false);
+  let recentNotifications = $state([]);
 
   // Subscribe to notifications
   const unsubscribe = notifications.subscribe((value) => {

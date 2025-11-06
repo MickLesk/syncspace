@@ -8,33 +8,39 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  export let file = null;
-  export let visible = false;
+  let {
+    file = null,
+    visible = false
+  } = $props();
 
-  let newComment = "";
-  let newTag = "";
-  let editingCommentId = null;
-  let editText = "";
-  let loading = false;
-  let errorMessage = "";
-  let lastFilePath = null;
+  let newComment = $state("");
+  let newTag = $state("");
+  let editingCommentId = $state(null);
+  let editText = $state("");
+  let loading = $state(false);
+  let errorMessage = $state("");
+  let lastFilePath = $state(null);
 
-  $: filePath = file ? `${file.path || ""}${file.name}` : "";
-  $: fileComments = $comments[filePath] || [];
-  $: fileTags = tags.getTags(filePath, $tags);
-  $: allTagNames = tags.getAllTagNames($tags);
-  $: currentUser = $auth.user?.username || "Anonymous";
+  const filePath = $derived(file ? `${file.path || ""}${file.name}` : "");
+  const fileComments = $derived($comments[filePath] || []);
+  const fileTags = $derived(tags.getTags(filePath, $tags));
+  const allTagNames = $derived(tags.getAllTagNames($tags));
+  const currentUser = $derived($auth.user?.username || "Anonymous");
 
   // Load data only when file path changes and is visible
-  $: if (filePath && filePath !== lastFilePath && visible) {
-    lastFilePath = filePath;
-    loadData();
-  }
+  $effect(() => {
+    if (filePath && filePath !== lastFilePath && visible) {
+      lastFilePath = filePath;
+      loadData();
+    }
+  });
 
   // Reset when visibility changes
-  $: if (!visible) {
-    lastFilePath = null;
-  }
+  $effect(() => {
+    if (!visible) {
+      lastFilePath = null;
+    }
+  });
 
   async function loadData() {
     if (!file) return;

@@ -14,7 +14,7 @@
     backgroundJobs,
   } from "../../stores/performance.js";
 
-  let testResults = [];
+  let testResults = $state([]);
 
   async function testPerformanceAPI() {
     testResults = [];

@@ -10,17 +10,19 @@
   import ModernCard from "../components/ui/ModernCard.svelte";
   import ModernButton from "../components/ui/ModernButton.svelte";
 
-  let groupedActivities = {};
-  let selectedFilter = "all";
-  let searchQuery = "";
+  let groupedActivities = $state({});
+  let selectedFilter = $state("all");
+  let searchQuery = $state("");
 
-  $: filteredActivities = filterActivities(
-    $activity,
-    selectedFilter,
-    searchQuery
+  const filteredActivities = $derived(
+    filterActivities($activity, selectedFilter, searchQuery)
   );
-  $: groupedActivities = groupByDate(filteredActivities);
-  $: todayCount = activity.getToday().length;
+  const groupedActivitiesDerived = $derived(groupByDate(filteredActivities));
+  const todayCount = $derived(activity.getToday().length);
+
+  $effect(() => {
+    groupedActivities = groupedActivitiesDerived;
+  });
 
   const activityTypes = [
     { value: "all", label: "All", icon: "list-ul" },

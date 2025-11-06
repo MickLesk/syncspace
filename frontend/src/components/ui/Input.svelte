@@ -2,24 +2,24 @@
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
-  export let value = "";
-  export let label = "";
-  export let type = "text";
-  export let placeholder = "";
-  export let disabled = false;
-  export let error = "";
-  export let required = false;
-  export let icon = "";
-  export let id = ""; // Added for compatibility
+  let {
+    value = $bindable(""),
+    label = "",
+    type = "text",
+    placeholder = "",
+    disabled = false,
+    error = "",
+    required = false,
+    icon = "",
+    id = "",
+  } = $props();
 
-  let focused = false;
-  let filled = value.length > 0;
+  let focused = $state(false);
+  let filled = $derived(value.length > 0 || focused);
 
   // Generate unique ID if not provided
   const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
-
-  $: filled = value.length > 0 || focused;
 </script>
 
 <div
