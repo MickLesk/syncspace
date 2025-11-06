@@ -134,7 +134,7 @@ pub async fn get_system_info(state: &AppState) -> Result<Value> {
         disk_details.push(json!({
             "name": disk.name().to_string_lossy(),
             "mount_point": disk.mount_point().to_string_lossy(),
-            "file_system": String::from_utf8_lossy(disk.file_system()).to_string(),
+            "file_system": disk.file_system().to_string_lossy(),
             "total_space": disk.total_space(),
             "available_space": disk.available_space(),
             "is_removable": disk.is_removable(),
@@ -211,7 +211,7 @@ fn detect_disk_type(disk: &Disk) -> String {
     // On Windows, check if it's an SSD via mount point characteristics
     // This is a heuristic - proper detection would require WMI queries
     let mount_point = disk.mount_point().to_string_lossy();
-    let file_system = String::from_utf8_lossy(disk.file_system());
+    let file_system = disk.file_system().to_string_lossy();
     
     // Check for NVMe in name (fast indicator of SSD)
     if mount_point.to_lowercase().contains("nvme") {
