@@ -4,6 +4,7 @@
   import { currentTheme, currentView, currentLang } from "./stores/ui";
   import { userPreferences } from "./stores/preferences";
   import { initErrorReporting } from "./lib/errorReporting";
+  import { websocketManager } from "./stores/websocket.js";
 
   // Setup & Auth Views
   import SetupWizard from "./pages/SetupWizard.svelte";
@@ -48,6 +49,7 @@
   import ErrorBoundary from "./components/ui/ErrorBoundary.svelte";
   import ActivityFeed from "./components/ActivityFeed.svelte";
   import ModalPortal from "./components/modals/ModalPortal.svelte";
+  import WebSocketStatus from "./components/system/WebSocketStatus.svelte";
 
   // State für Setup-Check
   let setupCompleted = $state(null); // null = loading, true = completed, false = needs setup
@@ -244,6 +246,11 @@
         on:toggleActivityFeed={(e) => (showActivityFeed = e.detail.visible)}
         bind:showActivityFeed
       />
+      
+      <!-- WebSocket Status Indicator (Top Right) -->
+      <div class="fixed top-4 right-4 z-50">
+        <WebSocketStatus />
+      </div>
 
       <div style="display: flex; height: 100%; overflow-x: hidden;">
         <div style="flex: 1; min-width: 0; overflow-x: hidden;">
