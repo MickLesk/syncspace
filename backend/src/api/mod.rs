@@ -29,6 +29,8 @@ pub mod peers;
 pub mod recent;
 pub mod duplicates;
 pub mod folder_colors;
+pub mod errors;
+pub mod jobs;
 
 use axum::{
     middleware,
@@ -76,6 +78,8 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(recent::router())
                 .merge(duplicates::router())
                 .merge(folder_colors::router())
+                .merge(errors::router())  // Error reporting endpoint
+                .merge(jobs::router())    // Background jobs management
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

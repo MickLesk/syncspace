@@ -1,5 +1,10 @@
 <script>
-  import { wsState, wsReconnectAttempts, WS_STATES, websocketManager } from "@stores/websocket.js";
+  import {
+    wsState,
+    wsReconnectAttempts,
+    WS_STATES,
+    websocketManager,
+  } from "@stores/websocket.js";
   import { fade, fly } from "svelte/transition";
 
   let { compact = false } = $props();

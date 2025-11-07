@@ -12,6 +12,7 @@
 mod api;
 mod auth;
 mod database;
+mod jobs;
 mod middleware;
 mod models;
 mod search;
@@ -19,6 +20,7 @@ mod security;
 mod services;
 mod status;
 mod websocket;
+mod workers;
 
 use std::net::SocketAddr;
 use std::sync::atomic::AtomicUsize;
@@ -45,6 +47,46 @@ mod performance;
 use performance::{CacheManager, JobProcessor, PerformanceMonitor};
 
 const DATA_DIR: &str = "./data";
+
+// ==================== LOGGING SETUP ====================
+
+/// Initialize structured logging with environment-based configuration
+/// 
+/// Set RUST_LOG environment variable to control log levels:
+/// - RUST_LOG=debug    - Show all debug messages
+/// - RUST_LOG=info     - Show info and above (default)
+/// - RUST_LOG=warn     - Show warnings and errors only
+/// - RUST_LOG=error    - Show errors only
+/// - RUST_LOG=syncbackend=debug,tower_http=debug - Module-specific levels
+fn init_tracing() {
+    use tracing_subscriber::{
+        fmt,
+        layer::SubscriberExt,
+        util::SubscriberInitExt,
+        EnvFilter,
+    };
+
+    // Default log level: INFO for our app, WARN for dependencies
+    let default_filter = "syncbackend=info,tower_http=info,axum=info,sqlx=warn";
+    
+    let env_filter = EnvFilter::try_from_default_env()
+        .or_else(|_| EnvFilter::try_new(default_filter))
+        .expect("Failed to create env filter");
+
+    tracing_subscriber::registry()
+        .with(env_filter)
+        .with(
+            fmt::layer()
+                .with_target(true)
+                .with_thread_ids(true)
+                .with_thread_names(true)
+                .with_file(true)
+                .with_line_number(true)
+                .with_level(true)
+                .compact() // Compact format for better readability
+        )
+        .init();
+}
 
 // ==================== SHARED STATE ====================
 
@@ -86,10 +128,14 @@ impl Default for Config {
 
 #[tokio::main]
 async fn main() {
-    // Initialize tracing
-    tracing_subscriber::fmt::init();
+    // Initialize structured logging with tracing
+    init_tracing();
 
-    println!("🚀 SyncSpace Backend Starting...");
+    tracing::info!("🚀 SyncSpace Backend Starting...");
+    tracing::info!("📊 Build: {} @ {}", 
+        option_env!("CARGO_PKG_VERSION").unwrap_or("unknown"),
+        option_env!("BUILD_TIME").unwrap_or("unknown")
+    );
 
     // Ensure data directory exists
     tokio::fs::create_dir_all(DATA_DIR)
@@ -233,6 +279,12 @@ async fn main() {
     println!("📡 WebSocket available at ws://{}/api/ws", addr);
     println!("✨ Ready to accept connections!");
 
+    // Start background job worker pool
+    let worker_pool = workers::WorkerPool::new(pool.clone(), 4);
+    let worker_handle = tokio::spawn(async move {
+        worker_pool.start().await;
+    });
+
     let listener = tokio::net::TcpListener::bind(addr)
         .await
         .expect("Failed to bind address");
@@ -240,6 +292,9 @@ async fn main() {
     axum::serve(listener, app)
         .await
         .expect("Server error");
+    
+    // Wait for workers to finish (won't reach here normally)
+    let _ = worker_handle.await;
 }
 
 // ==================== ROUTER BUILDER ====================

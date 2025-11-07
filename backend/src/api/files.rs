@@ -71,29 +71,48 @@ pub fn router() -> Router<AppState> {
 // ==================== HANDLERS ====================
 
 /// List files in root directory
+#[tracing::instrument(skip(state, user), fields(user_id = %user.id))]
 async fn list_files_root(
     State(state): State<AppState>,
     user: UserInfo,
 ) -> Result<Json<Vec<FileInfo>>, StatusCode> {
+    tracing::debug!("Listing files in root directory");
+    
     services::list_files(&state, &user, "")
         .await
-        .map(Json)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+        .map(|files| {
+            tracing::info!("Successfully listed {} files", files.len());
+            Json(files)
+        })
+        .map_err(|e| {
+            tracing::error!("Failed to list files: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })
 }
 
 /// List files in a directory
+#[tracing::instrument(skip(state, user), fields(user_id = %user.id, path = %path))]
 async fn list_files_handler(
     State(state): State<AppState>,
     user: UserInfo,
     Path(path): Path<String>,
 ) -> Result<Json<Vec<FileInfo>>, StatusCode> {
+    tracing::debug!("Listing files in directory: {}", path);
+    
     services::list_files(&state, &user, &path)
         .await
-        .map(Json)
-        .map_err(|_| StatusCode::NOT_FOUND)
+        .map(|files| {
+            tracing::info!("Listed {} files from {}", files.len(), path);
+            Json(files)
+        })
+        .map_err(|e| {
+            tracing::error!("Failed to list files in {}: {}", path, e);
+            StatusCode::NOT_FOUND
+        })
 }
 
 /// Download a file
+#[tracing::instrument(skip(state, user), fields(user_id = %user.id, file_path = %path))]
 async fn download_file_handler(
     State(state): State<AppState>,
     user: UserInfo,

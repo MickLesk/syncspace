@@ -506,18 +506,18 @@
       const uploadId = Date.now() + Math.random();
       let retryCount = 0;
       let uploadSuccess = false;
-      
+
       // Initialize upload progress entry
       uploadProgress = [
         ...uploadProgress,
-        { 
-          id: uploadId, 
-          name: file.name, 
-          progress: 0, 
+        {
+          id: uploadId,
+          name: file.name,
+          progress: 0,
           status: "uploading",
           retries: 0,
           error: null,
-          size: file.size
+          size: file.size,
         },
       ];
 
@@ -526,38 +526,47 @@
           // Update retry count in UI if retrying
           if (retryCount > 0) {
             uploadProgress = uploadProgress.map((up) =>
-              up.id === uploadId 
-                ? { ...up, status: "retrying", retries: retryCount, progress: 0 } 
+              up.id === uploadId
+                ? {
+                    ...up,
+                    status: "retrying",
+                    retries: retryCount,
+                    progress: 0,
+                  }
                 : up
             );
-            
+
             // Wait before retry with exponential backoff
-            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * retryCount));
+            await new Promise((resolve) =>
+              setTimeout(resolve, RETRY_DELAY_MS * retryCount)
+            );
           }
 
           // Perform upload with progress tracking
           await api.files.uploadWithProgress($currentPath, file, (percent) => {
             uploadProgress = uploadProgress.map((up) =>
-              up.id === uploadId 
-                ? { ...up, progress: percent, status: "uploading" } 
+              up.id === uploadId
+                ? { ...up, progress: percent, status: "uploading" }
                 : up
             );
           });
 
           // Upload successful
           uploadProgress = uploadProgress.map((up) =>
-            up.id === uploadId 
-              ? { ...up, status: "complete", progress: 100, error: null } 
+            up.id === uploadId
+              ? { ...up, status: "complete", progress: 100, error: null }
               : up
           );
 
           success(tr("uploadedFile", file.name));
           uploadSuccess = true;
-
         } catch (err) {
           retryCount++;
-          console.error(`[Upload] Failed to upload ${file.name} (attempt ${retryCount}/${MAX_RETRIES + 1}):`, err);
-          
+          console.error(
+            `[Upload] Failed to upload ${file.name} (attempt ${retryCount}/${MAX_RETRIES + 1}):`,
+            err
+          );
+
           // Parse error message
           let errorMessage = "Unknown error";
           if (err.message) {
@@ -567,22 +576,34 @@
           }
 
           // Check if we should retry
-          const isNetworkError = errorMessage.includes("network") || errorMessage.includes("timeout") || errorMessage.includes("Failed to fetch");
+          const isNetworkError =
+            errorMessage.includes("network") ||
+            errorMessage.includes("timeout") ||
+            errorMessage.includes("Failed to fetch");
           const shouldRetry = isNetworkError && retryCount <= MAX_RETRIES;
 
           if (!shouldRetry) {
             // Final failure - update UI with error
             uploadProgress = uploadProgress.map((up) =>
-              up.id === uploadId 
-                ? { ...up, status: "error", error: errorMessage, retries: retryCount } 
+              up.id === uploadId
+                ? {
+                    ...up,
+                    status: "error",
+                    error: errorMessage,
+                    retries: retryCount,
+                  }
                 : up
             );
-            
+
             // Show detailed error toast
             if (retryCount > MAX_RETRIES) {
-              errorToast(`${tr("failedToUploadFile", file.name)} - Max retries (${MAX_RETRIES}) reached. ${errorMessage}`);
+              errorToast(
+                `${tr("failedToUploadFile", file.name)} - Max retries (${MAX_RETRIES}) reached. ${errorMessage}`
+              );
             } else {
-              errorToast(`${tr("failedToUploadFile", file.name)} - ${errorMessage}`);
+              errorToast(
+                `${tr("failedToUploadFile", file.name)} - ${errorMessage}`
+              );
             }
             break;
           }
@@ -595,8 +616,8 @@
 
     // Clean up completed uploads after 5 seconds (increased from 3s)
     setTimeout(() => {
-      uploadProgress = uploadProgress.filter((up) => 
-        up.status === "uploading" || up.status === "retrying"
+      uploadProgress = uploadProgress.filter(
+        (up) => up.status === "uploading" || up.status === "retrying"
       );
     }, 5000);
   }
@@ -1005,11 +1026,7 @@
             itemHeight={viewMode === "grid" ? 160 : 72}
           >
             {#snippet children(file, index)}
-              <div
-                class={viewMode === "grid"
-                  ? "px-2"
-                  : ""}
-              >
+              <div class={viewMode === "grid" ? "px-2" : ""}>
                 <FileCard
                   {file}
                   {viewMode}
@@ -1019,7 +1036,8 @@
                   onContextMenu={(f, e) => handleContextMenu(f, e)}
                   onDragStart={(f) =>
                     console.log("[FilesView] Drag started:", f.name)}
-                  onDragEnd={(f) => console.log("[FilesView] Drag ended:", f.name)}
+                  onDragEnd={(f) =>
+                    console.log("[FilesView] Drag ended:", f.name)}
                   onDrop={(draggedFile, targetFolder) =>
                     handleFileDrop(draggedFile, targetFolder)}
                 />

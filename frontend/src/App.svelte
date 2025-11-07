@@ -3,6 +3,7 @@
   import { auth } from "./stores/auth";
   import { currentTheme, currentView, currentLang } from "./stores/ui";
   import { userPreferences } from "./stores/preferences";
+  import { initErrorReporting } from "./lib/errorReporting";
 
   // Setup & Auth Views
   import SetupWizard from "./pages/SetupWizard.svelte";
@@ -69,6 +70,10 @@
 
   // FORCE LIGHT MODE ON APP START - aber erlaube später umschalten
   onMount(async () => {
+    // Initialize error reporting
+    initErrorReporting();
+    console.log("✅ Error reporting initialized");
+
     // Check setup status first
     await checkSetupStatus();
 
