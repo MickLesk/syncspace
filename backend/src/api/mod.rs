@@ -32,6 +32,7 @@ pub mod folder_colors;
 pub mod errors;
 pub mod jobs;
 pub mod cron;
+pub mod db_health;
 
 use axum::{
     middleware,
@@ -82,6 +83,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(errors::router())  // Error reporting endpoint
                 .merge(jobs::router())    // Background jobs management
                 .merge(cron::router())    // Cron scheduler management
+                .merge(db_health::router()) // Database health and monitoring
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,
