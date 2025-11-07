@@ -13,6 +13,7 @@ mod api;
 mod auth;
 mod cron;
 mod database;
+mod db_monitor;
 mod jobs;
 mod middleware;
 mod models;
@@ -101,6 +102,7 @@ pub struct AppState {
     rate_limiter: Arc<RateLimiter>,
     search_index: Arc<SearchIndex>,
     db_pool: sqlx::SqlitePool,
+    db_monitor: Arc<db_monitor::DatabaseMonitor>,
     cache_manager: CacheManager,
     job_processor: JobProcessor,
     performance_monitor: Arc<PerformanceMonitor>,
@@ -257,6 +259,10 @@ async fn main() {
         .unwrap()
         .as_secs();
 
+    // Initialize database monitor for connection pool monitoring
+    let db_monitor = Arc::new(db_monitor::DatabaseMonitor::new(20, 2));
+    tracing::info!("📊 Database monitor initialized");
+
     // Build application state
     let app_state = AppState {
         config,
@@ -265,13 +271,48 @@ async fn main() {
         rate_limiter,
         search_index,
         db_pool: db_pool.clone(),
+        db_monitor: db_monitor.clone(),
         cache_manager,
         job_processor,
         performance_monitor,
         start_time,
         active_ws_connections: Arc::new(AtomicUsize::new(0)),
-        db: db_pool, // Alias for status page compatibility
+        db: db_pool.clone(), // Alias for status page compatibility
     };
+
+    // Start pool monitoring task
+    let monitor_pool = db_pool.clone();
+    let monitor_db_monitor = db_monitor.clone();
+    tokio::spawn(async move {
+        loop {
+            tokio::time::sleep(tokio::time::Duration::from_secs(30)).await;
+            
+            // Update pool stats (SQLx doesn't expose these directly, so we estimate)
+            let total = monitor_pool.size() as u32;
+            let idle = monitor_pool.num_idle() as u32;
+            let active = total.saturating_sub(idle);
+            
+            monitor_db_monitor.update_pool_stats(active, idle, total).await;
+            
+            // Check for connection leaks
+            let leaks = monitor_db_monitor.detect_leaks().await;
+            if !leaks.is_empty() {
+                for leak in leaks {
+                    tracing::warn!("{}", leak);
+                }
+            }
+            
+            // Log pool health
+            let health = monitor_db_monitor.health_status().await;
+            tracing::debug!(
+                "Pool health: {} - {:.1}% utilized ({}/{} connections)",
+                health.status,
+                health.pool_utilization * 100.0,
+                health.active_connections,
+                health.max_connections
+            );
+        }
+    });
 
     // Build router
     let app = build_router(app_state.clone());

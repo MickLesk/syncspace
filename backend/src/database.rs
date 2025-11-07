@@ -4,7 +4,7 @@
 
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use sqlx::sqlite::{SqlitePool, SqlitePoolOptions, SqliteConnectOptions};
+use sqlx::sqlite::{SqlitePool, SqlitePoolOptions};
 use sqlx::FromRow;
 use std::path::PathBuf;
 use std::time::Duration;
