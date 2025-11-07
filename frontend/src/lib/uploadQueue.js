@@ -29,7 +29,7 @@
  */
 
 import { writable, derived, get } from 'svelte/store';
-import { api } from './api';
+import * as api from './api';
 import { success, warning, error as toastError } from '../stores/toast';
 
 // Upload priorities

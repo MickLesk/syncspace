@@ -1,7 +1,9 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import * as api from "../lib/api.js";
-  import { createWebSocket } from "../lib/websocket.js";
+
+  // Import createWebSocket from api
+  const { createWebSocket } = api;
 
   // ========================================================================
   // State
