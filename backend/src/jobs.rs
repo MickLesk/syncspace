@@ -326,9 +326,14 @@ async fn archive_job(pool: &SqlitePool, job_id: &str) -> Result<(), sqlx::Error>
     .await?;
     
     let duration_ms = if let (Some(started), Some(completed)) = (&job.started_at, &job.completed_at) {
-        let start = DateTime::parse_from_rfc3339(started).ok()?;
-        let end = DateTime::parse_from_rfc3339(completed).ok()?;
-        Some((end.timestamp_millis() - start.timestamp_millis()) as i32)
+        if let (Ok(start), Ok(end)) = (
+            DateTime::parse_from_rfc3339(started),
+            DateTime::parse_from_rfc3339(completed)
+        ) {
+            Some((end.timestamp_millis() - start.timestamp_millis()) as i32)
+        } else {
+            None
+        }
     } else {
         None
     };

@@ -88,7 +88,7 @@ async fn enqueue_job_handler(
         .map(|dt| dt.with_timezone(&chrono::Utc));
     
     let job_id = jobs::enqueue_job(
-        &state.pool,
+        &state.db_pool,
         job_type,
         req.payload,
         req.priority,
@@ -117,7 +117,7 @@ async fn list_jobs_handler(
     let job_type = query.job_type.map(|s| JobType::from_str(&s));
     
     let jobs_list = jobs::list_jobs(
-        &state.pool,
+        &state.db_pool,
         status,
         job_type,
         query.limit,
@@ -139,7 +139,7 @@ async fn get_job_handler(
     _user: UserInfo,
     Path(job_id): Path<String>,
 ) -> Result<Json<jobs::BackgroundJob>, StatusCode> {
-    let job = jobs::get_job(&state.pool, &job_id)
+    let job = jobs::get_job(&state.db_pool, &job_id)
         .await
         .map_err(|e| {
             tracing::error!("Failed to get job: {}", e);
@@ -157,7 +157,7 @@ async fn cancel_job_handler(
     _user: UserInfo,
     Path(job_id): Path<String>,
 ) -> Result<StatusCode, StatusCode> {
-    jobs::cancel_job(&state.pool, &job_id)
+    jobs::cancel_job(&state.db_pool, &job_id)
         .await
         .map_err(|e| {
             tracing::error!("Failed to cancel job: {}", e);
@@ -173,7 +173,7 @@ async fn cleanup_jobs_handler(
     State(state): State<AppState>,
     _user: UserInfo,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    let deleted = jobs::cleanup_old_jobs(&state.pool, 30)
+    let deleted = jobs::cleanup_old_jobs(&state.db_pool, 30)
         .await
         .map_err(|e| {
             tracing::error!("Failed to cleanup jobs: {}", e);
@@ -194,28 +194,28 @@ async fn get_job_stats_handler(
     let pending: (i64,) = sqlx::query_as(
         "SELECT COUNT(*) FROM background_jobs WHERE status = 'pending'"
     )
-    .fetch_one(&state.pool)
+    .fetch_one(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
     let running: (i64,) = sqlx::query_as(
         "SELECT COUNT(*) FROM background_jobs WHERE status = 'running'"
     )
-    .fetch_one(&state.pool)
+    .fetch_one(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
     let completed: (i64,) = sqlx::query_as(
         "SELECT COUNT(*) FROM background_jobs WHERE status = 'completed'"
     )
-    .fetch_one(&state.pool)
+    .fetch_one(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
     let failed: (i64,) = sqlx::query_as(
         "SELECT COUNT(*) FROM background_jobs WHERE status = 'failed'"
     )
-    .fetch_one(&state.pool)
+    .fetch_one(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
