@@ -34,6 +34,8 @@ use axum::{
     middleware as axum_middleware,
     routing::get,
     Router,
+    extract::{WebSocketUpgrade, State as AxumState},
+    response::Response,
 };
 use tokio::sync::{broadcast, Mutex};
 use tower_http::cors::{Any, CorsLayer};
@@ -281,7 +283,7 @@ async fn main() {
     println!("✨ Ready to accept connections!");
 
     // Start background job worker pool
-    let worker_pool = workers::WorkerPool::new(app_state.db_pool.clone(), 4);
+    let worker_pool = workers::WorkerPool::new(app_state.db_pool.clone(), app_state.fs_tx.clone(), 4);
     let worker_handle = tokio::spawn(async move {
         worker_pool.start().await;
     });
@@ -306,6 +308,17 @@ async fn main() {
 
 // ==================== ROUTER BUILDER ====================
 
+/// WebSocket handler for main app (with AppState)
+async fn ws_handler(
+    ws: WebSocketUpgrade,
+    AxumState(state): AxumState<AppState>,
+) -> Response {
+    let fs_tx = state.fs_tx.clone();
+    ws.on_upgrade(|socket| async move {
+        websocket::handle_socket(socket, fs_tx).await
+    })
+}
+
 fn build_router(state: AppState) -> Router {
     // CORS configuration
     let cors = CorsLayer::new()
@@ -318,7 +331,7 @@ fn build_router(state: AppState) -> Router {
         .route("/", get(status::get_status_html))
         
         // WebSocket endpoint
-        .route("/api/ws", get(websocket::ws_handler))
+        .route("/api/ws", get(ws_handler))
         
         // Public status endpoints (no auth required)
         .route("/status", get(status::get_status_html))
