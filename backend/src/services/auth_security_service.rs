@@ -42,6 +42,8 @@ impl std::fmt::Display for PasswordPolicyError {
     }
 }
 
+impl std::error::Error for PasswordPolicyError {}
+
 /// Validate password against policy
 pub fn validate_password_policy(password: &str) -> Result<(), PasswordPolicyError> {
     // Check minimum length
@@ -239,8 +241,13 @@ pub async fn validate_password_change(
     // Validate against policy
     validate_password_policy(new_password)?;
     
-    // Hash the password to check against history
-    let password_hash = bcrypt::hash(new_password, bcrypt::DEFAULT_COST)?;
+    // Hash the password using argon2 to check against history
+    use argon2::{password_hash::{rand_core::OsRng, PasswordHasher, SaltString}, Argon2};
+    let salt = SaltString::generate(&mut OsRng);
+    let password_hash = Argon2::default()
+        .hash_password(new_password.as_bytes(), &salt)
+        .map_err(|e| format!("Password hashing failed: {}", e))?
+        .to_string();
     
     // Check if used recently
     if PasswordHistory::was_used_recently(pool, user_id, &password_hash).await? {

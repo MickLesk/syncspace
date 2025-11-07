@@ -6,6 +6,8 @@
 
 // Service implementations
 pub mod auth_service;
+pub mod auth_security_service;
+pub mod version_storage_service;
 mod file_service_impl;
 mod user_service_impl;
 mod search_service_impl;

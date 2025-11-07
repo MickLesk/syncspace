@@ -95,20 +95,65 @@ pub async fn register(state: &AppState, username: String, password: String) -> R
 }
 
 pub async fn login(state: &AppState, username: String, password: String, totp_code: Option<String>) -> Result<AuthResponse, anyhow::Error> {
+    // Rate limiting
     if !state.rate_limiter.check_rate_limit(&username, 5, 60) { 
         return Err(anyhow!("Too many login attempts. Please try again later.")); 
     }
     
+    // Check if account is locked
+    if let Some(lockout) = crate::services::auth_security_service::is_account_locked(&state.db_pool, &username).await? {
+        // Log failed attempt with lockout reason
+        let _ = crate::services::auth_security_service::log_login_attempt(
+            &state.db_pool,
+            &username,
+            "0.0.0.0", // TODO: Extract IP from request
+            None,
+            false,
+            Some("account_locked"),
+        ).await;
+        
+        return Err(anyhow!(
+            "Account is locked due to too many failed login attempts. Please try again after {}",
+            lockout.locked_until
+        ));
+    }
+    
     // Verify password against SQLite database
-    let user = auth::verify_password(&state.db_pool, &username, &password)
-        .await
-        .map_err(|e| anyhow!("Invalid credentials: {}", e))?;
+    let user = match auth::verify_password(&state.db_pool, &username, &password).await {
+        Ok(user) => user,
+        Err(e) => {
+            // Log failed login attempt
+            let _ = crate::services::auth_security_service::log_login_attempt(
+                &state.db_pool,
+                &username,
+                "0.0.0.0", // TODO: Extract IP from request
+                None,
+                false,
+                Some("invalid_password"),
+            ).await;
+            
+            // Check if account should be locked
+            let _ = crate::services::auth_security_service::check_and_lock_account(&state.db_pool, &username).await;
+            
+            return Err(anyhow!("Invalid credentials: {}", e));
+        }
+    };
     
     // Check 2FA if enabled
     if user.totp_enabled {
         if let Some(code) = totp_code {
             if let Some(ref secret) = user.totp_secret {
-                if !auth::verify_totp_code(secret, &code) { 
+                if !auth::verify_totp_code(secret, &code) {
+                    // Log failed 2FA attempt
+                    let _ = crate::services::auth_security_service::log_login_attempt(
+                        &state.db_pool,
+                        &username,
+                        "0.0.0.0", // TODO: Extract IP from request
+                        None,
+                        false,
+                        Some("2fa_failed"),
+                    ).await;
+                    
                     return Err(anyhow!("Invalid 2FA code")); 
                 }
             } else { 
@@ -118,6 +163,19 @@ pub async fn login(state: &AppState, username: String, password: String, totp_co
             return Err(anyhow!("2FA code required")); 
         }
     }
+    
+    // Login successful - log it
+    let _ = crate::services::auth_security_service::log_login_attempt(
+        &state.db_pool,
+        &username,
+        "0.0.0.0", // TODO: Extract IP from request
+        None,
+        true,
+        None,
+    ).await;
+    
+    // Reset failed login attempts counter
+    let _ = crate::services::auth_security_service::reset_failed_attempts(&state.db_pool, &user.id).await;
     
     // Update last_login in database
     let now = Utc::now().to_rfc3339();
@@ -140,6 +198,17 @@ pub async fn login(state: &AppState, username: String, password: String, totp_co
     auth::store_refresh_token(&state.db_pool, &user.id, &refresh_token, None, None)
         .await
         .map_err(|e| anyhow!("Failed to store refresh token: {}", e))?;
+    
+    // Create session record
+    let expires_at = Utc::now() + chrono::Duration::days(7);
+    let _ = crate::services::auth_security_service::create_session(
+        &state.db_pool,
+        &user.id,
+        &token, // Using JWT token as session token
+        "0.0.0.0", // TODO: Extract IP from request
+        None, // TODO: Extract user agent
+        expires_at,
+    ).await;
     
     Ok(AuthResponse { 
         token, 
