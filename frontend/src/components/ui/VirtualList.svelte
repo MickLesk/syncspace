@@ -123,7 +123,7 @@
   // Optimized scroll handler with requestAnimationFrame
   function handleScroll(e) {
     if (rafId) cancelAnimationFrame(rafId);
-    
+
     rafId = requestAnimationFrame(() => {
       scrollTop = e.target.scrollTop;
       rafId = null;

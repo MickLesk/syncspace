@@ -1020,7 +1020,10 @@
     {:else}
       <!-- Use VirtualList for medium-large file lists (>50 items) for better performance -->
       {#if displayFiles().length > 50}
-        <div class="virtual-list-wrapper" style="height: calc(100vh - 280px); min-height: 400px;">
+        <div
+          class="virtual-list-wrapper"
+          style="height: calc(100vh - 280px); min-height: 400px;"
+        >
           <VirtualList
             items={displayFiles()}
             itemHeight={viewMode === "grid" ? 220 : 72}
