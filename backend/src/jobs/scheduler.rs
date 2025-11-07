@@ -6,6 +6,7 @@ use sqlx::SqlitePool;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::time::sleep;
+use chrono::{Datelike, Timelike};  // Import traits for hour(), minute(), weekday()
 
 pub struct JobScheduler {
     queue: Arc<JobQueue>,

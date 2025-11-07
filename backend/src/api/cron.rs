@@ -1,3 +1,4 @@
+/* // TODO: Re-enable after job system refactor
 //! Cron Jobs API Endpoints
 
 use axum::{
@@ -180,4 +181,12 @@ async fn disable_cron_job_handler(
         })?;
     
     Ok(StatusCode::OK)
+}
+*/  // End of commented cron API
+
+use axum::Router;
+
+pub fn router() -> Router<crate::AppState> {
+    Router::new()
+    // TODO: Add new job scheduler routes
 }

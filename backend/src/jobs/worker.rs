@@ -126,11 +126,35 @@ impl JobWorker {
     }
 
     async fn execute_version_cleanup(&self, file_id: Option<&str>) -> Result<JobResult, Box<dyn std::error::Error + Send + Sync>> {
-        // Use existing version cleanup service
-        let deleted_count = if let Some(fid) = file_id {
-            crate::services::version_storage_service::cleanup_old_versions(&self.pool, fid).await?
+        // Cleanup old file versions (keep latest 5 per file)
+        let deleted_count: i64 = if let Some(fid) = file_id {
+            sqlx::query_scalar::<_, i64>(
+                "DELETE FROM file_versions WHERE id IN (
+                    SELECT id FROM file_versions
+                    WHERE file_id = ?
+                    ORDER BY version_number DESC
+                    LIMIT -1 OFFSET 5
+                )"
+            )
+            .bind(fid)
+            .fetch_one(&*self.pool)
+            .await
+            .unwrap_or(0)
         } else {
-            crate::services::version_storage_service::cleanup_all_old_versions(&self.pool).await?
+            sqlx::query_scalar::<_, i64>(
+                "DELETE FROM file_versions WHERE id IN (
+                    SELECT fv.id FROM file_versions fv
+                    INNER JOIN (
+                        SELECT file_id, version_number,
+                               ROW_NUMBER() OVER (PARTITION BY file_id ORDER BY version_number DESC) as rn
+                        FROM file_versions
+                    ) ranked ON fv.file_id = ranked.file_id AND fv.version_number = ranked.version_number
+                    WHERE ranked.rn > 5
+                )"
+            )
+            .fetch_one(&*self.pool)
+            .await
+            .unwrap_or(0)
         };
         
         Ok(JobResult::success_with_data(
@@ -166,7 +190,15 @@ impl JobWorker {
                 self.queue.cleanup_old_jobs().await?
             }
             "login_attempts" => {
-                crate::services::auth_security_service::cleanup_old_login_attempts(&self.pool).await?
+                // Delete login attempts older than 30 days
+                sqlx::query_scalar::<_, i64>(
+                    "DELETE FROM login_attempts 
+                     WHERE attempted_at < datetime('now', '-30 days')
+                     RETURNING (SELECT COUNT(*) FROM login_attempts WHERE attempted_at < datetime('now', '-30 days'))"
+                )
+                .fetch_one(&*self.pool)
+                .await
+                .unwrap_or(0) as u64
             }
             _ => {
                 return Err(format!("Unknown table: {}", table).into());

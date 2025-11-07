@@ -1,7 +1,10 @@
 //! Background Jobs API Endpoints
 //! 
 //! Provides REST API for job management and monitoring.
+//! 
+//! TODO: Re-implement with new job system
 
+/*
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
@@ -228,4 +231,14 @@ async fn get_job_stats_handler(
         failed: failed.0,
         total,
     }))
+}
+*/  // End of commented old jobs API
+
+// Placeholder router until new system is ready
+use axum::Router;
+use crate::AppState;
+
+pub fn router() -> Router<AppState> {
+    Router::new()
+    // TODO: Add new job system routes
 }

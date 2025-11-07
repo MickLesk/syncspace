@@ -10,5 +10,7 @@ pub mod workers;
 pub mod websocket;
 
 // Re-export commonly used types
-pub use jobs::{JobType, JobStatus, BackgroundJob};
+// TODO: Re-enable after job system refactor
+// pub use jobs::{JobType, JobStatus, BackgroundJob};
+pub use jobs::{JobType, JobStatus, Job};
 pub use websocket::FileChangeEvent;

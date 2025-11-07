@@ -222,8 +222,11 @@ fn matches_field(expr: &str, value: u32, min: u32, max: u32) -> bool {
 }
 
 // ============================================================================
-// Database Operations
+// Database Operations  
 // ============================================================================
+
+/*
+// TODO: Re-enable after job system refactor
 
 /// Create new cron job
 pub async fn create_cron_job(
@@ -349,6 +352,7 @@ pub async fn update_cron_job(
     
     Ok(())
 }
+*/  // End of commented database operations
 
 #[cfg(test)]
 mod tests {
