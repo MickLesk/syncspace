@@ -1,12 +1,12 @@
 <script>
-  import { createVirtualizer } from '@tanstack/svelte-virtual';
+  import { createVirtualizer } from "@tanstack/svelte-virtual";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
   /**
    * Advanced Virtual List using @tanstack/svelte-virtual
    * Optimized for 100,000+ items with dynamic heights
-   * 
+   *
    * Features:
    * - Dynamic item heights (auto-measured)
    * - Smooth scrolling with momentum
@@ -14,7 +14,7 @@
    * - Horizontal scrolling support
    * - Sticky headers support
    * - Better performance than custom implementation
-   * 
+   *
    * @props items - Array of items to render
    * @props estimateSize - Function to estimate item size (default: 60px)
    * @props isGrid - Enable grid layout (default: false)
@@ -26,7 +26,7 @@
     items = [],
     estimateSize = () => 60,
     isGrid = false,
-    columns = 'auto',
+    columns = "auto",
     persistKey = null,
     children,
     ...restProps
@@ -40,25 +40,26 @@
 
   // Calculate responsive columns for grid
   let responsiveColumns = $derived(() => {
-    if (!isGrid || columns !== 'auto') return columns;
+    if (!isGrid || columns !== "auto") return columns;
 
     if (containerWidth >= 1536) return 5; // 2xl
     if (containerWidth >= 1280) return 4; // xl
     if (containerWidth >= 1024) return 3; // lg
-    if (containerWidth >= 640) return 2;  // sm
+    if (containerWidth >= 640) return 2; // sm
     return 1;
   });
 
   // For grid layout, group items into rows
   let rowItems = $derived(() => {
-    if (!isGrid) return items.map((item, i) => ({ items: [item], rowIndex: i }));
-    
+    if (!isGrid)
+      return items.map((item, i) => ({ items: [item], rowIndex: i }));
+
     const cols = responsiveColumns();
     const rows = [];
     for (let i = 0; i < items.length; i += cols) {
       rows.push({
         items: items.slice(i, i + cols),
-        rowIndex: Math.floor(i / cols)
+        rowIndex: Math.floor(i / cols),
       });
     }
     return rows;
@@ -113,7 +114,10 @@
     saveTimeout = setTimeout(() => {
       const position = scrollElement?.scrollTop || 0;
       if (position > 0) {
-        localStorage.setItem(`vscroll_tanstack_${persistKey}`, position.toString());
+        localStorage.setItem(
+          `vscroll_tanstack_${persistKey}`,
+          position.toString()
+        );
       }
     }, 300);
   }
@@ -159,14 +163,16 @@
     {#if virtualItems.length > 0}
       <div
         class="tanstack-virtual-content"
-        style="position: absolute; top: 0; left: 0; right: 0; transform: translateY({virtualItems[0]?.start || 0}px); will-change: transform;"
+        style="position: absolute; top: 0; left: 0; right: 0; transform: translateY({virtualItems[0]
+          ?.start || 0}px); will-change: transform;"
       >
         {#each virtualItems as virtualRow (virtualRow.key)}
           {@const row = rowItems()[virtualRow.index]}
           {#if row}
             <div
               data-index={virtualRow.index}
-              style="position: absolute; top: 0; left: 0; right: 0; transform: translateY({virtualRow.start - (virtualItems[0]?.start || 0)}px);"
+              style="position: absolute; top: 0; left: 0; right: 0; transform: translateY({virtualRow.start -
+                (virtualItems[0]?.start || 0)}px);"
             >
               {#if isGrid}
                 <!-- Grid layout -->
@@ -175,7 +181,8 @@
                   style="display: grid; grid-template-columns: repeat({responsiveColumns()}, 1fr); gap: 1rem; padding: 0.5rem;"
                 >
                   {#each row.items as item, colIndex}
-                    {@const itemIndex = virtualRow.index * responsiveColumns() + colIndex}
+                    {@const itemIndex =
+                      virtualRow.index * responsiveColumns() + colIndex}
                     {#if itemIndex < items.length}
                       {@render children(item, itemIndex)}
                     {/if}

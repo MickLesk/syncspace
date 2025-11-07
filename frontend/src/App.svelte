@@ -50,6 +50,7 @@
   import ActivityFeed from "./components/ActivityFeed.svelte";
   import ModalPortal from "./components/modals/ModalPortal.svelte";
   import WebSocketStatus from "./components/system/WebSocketStatus.svelte";
+  import UploadQueue from "./components/ui/UploadQueue.svelte";
 
   // State für Setup-Check
   let setupCompleted = $state(null); // null = loading, true = completed, false = needs setup
@@ -102,6 +103,10 @@
           currentTheme.loadFromBackend?.(),
           currentLang.loadFromBackend?.(),
         ]);
+
+        // Connect WebSocket after user is authenticated
+        console.log("🔌 Connecting WebSocket...");
+        websocketManager.connect();
       } catch (err) {
         console.error("Failed to load user data:", err);
       }
@@ -115,9 +120,19 @@
         userPreferences.load(),
         currentTheme.loadFromBackend?.(),
         currentLang.loadFromBackend?.(),
-      ]).catch((err) => {
-        console.error("Failed to load user data:", err);
-      });
+      ])
+        .then(() => {
+          // Connect WebSocket when user logs in
+          console.log("🔌 User logged in, connecting WebSocket...");
+          websocketManager.connect();
+        })
+        .catch((err) => {
+          console.error("Failed to load user data:", err);
+        });
+    } else {
+      // Disconnect WebSocket when user logs out
+      console.log("🔌 User logged out, disconnecting WebSocket...");
+      websocketManager.disconnect();
     }
   });
 
@@ -246,7 +261,7 @@
         on:toggleActivityFeed={(e) => (showActivityFeed = e.detail.visible)}
         bind:showActivityFeed
       />
-      
+
       <!-- WebSocket Status Indicator (Top Right) -->
       <div class="fixed top-4 right-4 z-50">
         <WebSocketStatus />
@@ -327,6 +342,9 @@
 {#if $auth.isLoggedIn}
   <ModalPortal />
 {/if}
+
+<!-- Global Upload Queue UI -->
+<UploadQueue />
 
 <style>
   /* Bootstrap Icons loaded from CDN in index.html */

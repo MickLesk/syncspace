@@ -13,6 +13,7 @@ mod api;
 mod auth;
 mod cron;
 mod database;
+mod database_monitor;
 mod db_monitor;
 mod jobs;
 mod middleware;
@@ -103,6 +104,7 @@ pub struct AppState {
     search_index: Arc<SearchIndex>,
     db_pool: sqlx::SqlitePool,
     db_monitor: Arc<db_monitor::DatabaseMonitor>,
+    db_health_monitor: Arc<database_monitor::DatabaseMonitor>, // New: Advanced monitoring
     cache_manager: CacheManager,
     job_processor: JobProcessor,
     performance_monitor: Arc<PerformanceMonitor>,
@@ -268,6 +270,17 @@ async fn main() {
     // Initialize database monitor for connection pool monitoring
     let db_monitor = Arc::new(db_monitor::DatabaseMonitor::new(20, 2));
     tracing::info!("📊 Database monitor initialized");
+    
+    // Initialize advanced database health monitor
+    let db_health_monitor = Arc::new(database_monitor::DatabaseMonitor::new());
+    tracing::info!("🏥 Database health monitor initialized");
+    
+    // Start background monitoring task
+    let monitor_pool_clone = db_pool.clone();
+    let monitor_health_clone = db_health_monitor.clone();
+    tokio::spawn(async move {
+        database_monitor::monitor_background(monitor_pool_clone, monitor_health_clone).await;
+    });
 
     // Build application state
     let app_state = AppState {
@@ -278,6 +291,7 @@ async fn main() {
         search_index,
         db_pool: db_pool.clone(),
         db_monitor: db_monitor.clone(),
+        db_health_monitor: db_health_monitor.clone(),
         cache_manager,
         job_processor,
         performance_monitor,
