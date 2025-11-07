@@ -76,6 +76,11 @@ pub async fn register(state: &AppState, username: String, password: String) -> R
         .map_err(|e| anyhow!("Refresh token generation failed: {}", e))?;
     let csrf_token = crate::security::generate_csrf_token();
     
+    // Store refresh token in database
+    auth::store_refresh_token(&state.db_pool, &user.id, &refresh_token, None, None)
+        .await
+        .map_err(|e| anyhow!("Failed to store refresh token: {}", e))?;
+    
     Ok(AuthResponse { 
         token, 
         refresh_token: Some(refresh_token), 
@@ -131,6 +136,11 @@ pub async fn login(state: &AppState, username: String, password: String, totp_co
         .map_err(|e| anyhow!("Refresh token generation failed: {}", e))?;
     let csrf_token = crate::security::generate_csrf_token();
     
+    // Store refresh token in database
+    auth::store_refresh_token(&state.db_pool, &user.id, &refresh_token, None, None)
+        .await
+        .map_err(|e| anyhow!("Failed to store refresh token: {}", e))?;
+    
     Ok(AuthResponse { 
         token, 
         refresh_token: Some(refresh_token), 
@@ -157,6 +167,11 @@ pub async fn change_password(state: &AppState, user: &UserInfo, old_password: St
     auth::change_user_password(&state.db_pool, &user.id, &old_password, &new_password)
         .await
         .map_err(|e| anyhow!("Password change failed: {}", e))?;
+    
+    // Revoke all refresh tokens on password change (security best practice)
+    auth::revoke_all_user_tokens(&state.db_pool, &user.id)
+        .await
+        .map_err(|e| anyhow!("Failed to revoke tokens: {}", e))?;
     
     Ok(())
 }
@@ -217,17 +232,28 @@ pub async fn disable_2fa(state: &AppState, user: &UserInfo, password: String) ->
 }
 
 pub async fn refresh_token(state: &AppState, user: &UserInfo) -> Result<AuthResponse, anyhow::Error> {
-    // Get user from SQLite
+    // Note: This endpoint is called with an access token, but in production you'd want
+    // to accept the refresh token in the request body instead
+    
+    // Get user from SQLite to ensure latest data and token_version
     let db_user = auth::get_user_by_id(&state.db_pool, &user.id)
         .await
         .map_err(|e| anyhow!("Database error: {}", e))?
         .ok_or_else(|| anyhow!("User not found"))?;
     
+    // Generate new tokens
     let token = auth::generate_token(&db_user)
         .map_err(|e| anyhow!("Token generation failed: {}", e))?;
     let new_refresh_token = auth::generate_refresh_token(&db_user)
         .map_err(|e| anyhow!("Refresh token generation failed: {}", e))?;
     let csrf_token = crate::security::generate_csrf_token();
+    
+    // Store new refresh token in database (token rotation)
+    auth::store_refresh_token(&state.db_pool, &db_user.id, &new_refresh_token, None, None)
+        .await
+        .map_err(|e| anyhow!("Failed to store refresh token: {}", e))?;
+    
+    // Note: In production, you'd also revoke the old refresh token here
     
     Ok(AuthResponse { 
         token, 
@@ -241,3 +267,13 @@ pub async fn refresh_token(state: &AppState, user: &UserInfo) -> Result<AuthResp
         csrf_token 
     })
 }
+
+pub async fn logout(state: &AppState, user: &UserInfo) -> Result<(), anyhow::Error> {
+    // Revoke all refresh tokens for this user (logs out from all devices)
+    auth::revoke_all_user_tokens(&state.db_pool, &user.id)
+        .await
+        .map_err(|e| anyhow!("Failed to revoke tokens: {}", e))?;
+    
+    Ok(())
+}
+

@@ -22,8 +22,8 @@ use uuid::Uuid;
 
 // TODO: Move to environment variable
 const JWT_SECRET: &str = "your-secret-key-change-in-production";
-const TOKEN_EXPIRATION_HOURS: i64 = 24;
-const REFRESH_TOKEN_EXPIRATION_DAYS: i64 = 7;
+const ACCESS_TOKEN_EXPIRATION_MINUTES: i64 = 15;  // Short-lived access token
+const REFRESH_TOKEN_EXPIRATION_DAYS: i64 = 7;     // Long-lived refresh token
 
 // ============================================================================
 // SQLite-based Auth Functions (NO JSON files)
@@ -131,13 +131,13 @@ pub struct RefreshTokenClaims {
     pub username: String,  // Username for convenience
     pub exp: usize,        // Expiration time (7 days)
     pub iat: usize,        // Issued at
-    pub token_version: u32, // For token rotation/invalidation
+    pub token_version: i32, // For token rotation/invalidation (changed from u32 to i32)
 }
 
-/// Generate JWT token for authenticated user (works with database::User)
+/// Generate JWT access token for authenticated user (15 minute expiration)
 pub fn generate_token(user: &crate::database::User) -> Result<String, String> {
     let expiration = Utc::now()
-        .checked_add_signed(Duration::hours(TOKEN_EXPIRATION_HOURS))
+        .checked_add_signed(Duration::minutes(ACCESS_TOKEN_EXPIRATION_MINUTES))
         .expect("valid timestamp")
         .timestamp();
 
@@ -156,7 +156,7 @@ pub fn generate_token(user: &crate::database::User) -> Result<String, String> {
     .map_err(|e| format!("Token generation failed: {}", e))
 }
 
-/// Generate refresh token (7 day expiration)
+/// Generate refresh token (7 day expiration) with token version
 pub fn generate_refresh_token(user: &crate::database::User) -> Result<String, String> {
     let expiration = Utc::now()
         .checked_add_signed(Duration::days(REFRESH_TOKEN_EXPIRATION_DAYS))
@@ -168,7 +168,7 @@ pub fn generate_refresh_token(user: &crate::database::User) -> Result<String, St
         username: user.username.clone(),
         exp: expiration as usize,
         iat: Utc::now().timestamp() as usize,
-        token_version: 1, // TODO: Store version in User struct for rotation
+        token_version: user.token_version, // Use user's current token version
     };
 
     encode(
@@ -367,6 +367,167 @@ pub struct Setup2FAResponse {
 pub struct ChangePasswordRequest {
     pub old_password: String,
     pub new_password: String,
+}
+
+// ============================================================================
+// Refresh Token Database Functions
+// ============================================================================
+
+/// Store refresh token in database
+pub async fn store_refresh_token(
+    pool: &SqlitePool,
+    user_id: &str,
+    refresh_token: &str,
+    user_agent: Option<String>,
+    ip_address: Option<String>,
+) -> Result<(), String> {
+    use sha2::{Sha256, Digest};
+    
+    // Hash the refresh token for storage
+    let mut hasher = Sha256::new();
+    hasher.update(refresh_token.as_bytes());
+    let token_hash = format!("{:x}", hasher.finalize());
+    
+    // Get user's token version
+    let user = get_user_by_id(pool, user_id)
+        .await
+        .map_err(|e| format!("Database error: {}", e))?
+        .ok_or("User not found")?;
+    
+    let id = Uuid::new_v4().to_string();
+    let now = Utc::now().to_rfc3339();
+    let expires_at = Utc::now()
+        .checked_add_signed(Duration::days(REFRESH_TOKEN_EXPIRATION_DAYS))
+        .ok_or("Invalid timestamp")?
+        .to_rfc3339();
+    
+    sqlx::query(
+        "INSERT INTO refresh_tokens (id, user_id, token_hash, token_version, expires_at, created_at, user_agent, ip_address) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    )
+    .bind(&id)
+    .bind(user_id)
+    .bind(&token_hash)
+    .bind(user.token_version)
+    .bind(&expires_at)
+    .bind(&now)
+    .bind(user_agent)
+    .bind(ip_address)
+    .execute(pool)
+    .await
+    .map_err(|e| format!("Failed to store refresh token: {}", e))?;
+    
+    Ok(())
+}
+
+/// Validate refresh token against database
+pub async fn validate_refresh_token(
+    pool: &SqlitePool,
+    refresh_token: &str,
+) -> Result<crate::database::User, String> {
+    use sha2::{Sha256, Digest};
+    
+    // Verify token signature and extract claims
+    let claims = verify_refresh_token(refresh_token)?;
+    
+    // Hash the refresh token for lookup
+    let mut hasher = Sha256::new();
+    hasher.update(refresh_token.as_bytes());
+    let token_hash = format!("{:x}", hasher.finalize());
+    
+    // Check if token exists in database and is not revoked
+    let token_record: Option<crate::database::RefreshToken> = sqlx::query_as(
+        "SELECT * FROM refresh_tokens 
+         WHERE token_hash = ? AND user_id = ? AND revoked_at IS NULL 
+         AND datetime(expires_at) > datetime('now')"
+    )
+    .bind(&token_hash)
+    .bind(&claims.sub)
+    .fetch_optional(pool)
+    .await
+    .map_err(|e| format!("Database error: {}", e))?;
+    
+    let token_record = token_record.ok_or("Invalid or expired refresh token")?;
+    
+    // Get user and check token version
+    let user = get_user_by_id(pool, &claims.sub)
+        .await
+        .map_err(|e| format!("Database error: {}", e))?
+        .ok_or("User not found")?;
+    
+    // Verify token version matches (for global invalidation)
+    if token_record.token_version != user.token_version {
+        return Err("Refresh token has been invalidated".to_string());
+    }
+    
+    // Update last_used_at
+    let now = Utc::now().to_rfc3339();
+    sqlx::query("UPDATE refresh_tokens SET last_used_at = ? WHERE id = ?")
+        .bind(&now)
+        .bind(&token_record.id)
+        .execute(pool)
+        .await
+        .map_err(|e| format!("Failed to update token usage: {}", e))?;
+    
+    Ok(user)
+}
+
+/// Revoke specific refresh token
+pub async fn revoke_refresh_token(
+    pool: &SqlitePool,
+    refresh_token: &str,
+) -> Result<(), String> {
+    use sha2::{Sha256, Digest};
+    
+    let mut hasher = Sha256::new();
+    hasher.update(refresh_token.as_bytes());
+    let token_hash = format!("{:x}", hasher.finalize());
+    
+    let now = Utc::now().to_rfc3339();
+    sqlx::query("UPDATE refresh_tokens SET revoked_at = ? WHERE token_hash = ?")
+        .bind(&now)
+        .bind(&token_hash)
+        .execute(pool)
+        .await
+        .map_err(|e| format!("Failed to revoke token: {}", e))?;
+    
+    Ok(())
+}
+
+/// Revoke all refresh tokens for a user (e.g., on password change, logout all devices)
+pub async fn revoke_all_user_tokens(
+    pool: &SqlitePool,
+    user_id: &str,
+) -> Result<(), String> {
+    let now = Utc::now().to_rfc3339();
+    
+    // Revoke all tokens
+    sqlx::query("UPDATE refresh_tokens SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL")
+        .bind(&now)
+        .bind(user_id)
+        .execute(pool)
+        .await
+        .map_err(|e| format!("Failed to revoke tokens: {}", e))?;
+    
+    // Increment user's token version to invalidate all tokens globally
+    sqlx::query("UPDATE users SET token_version = token_version + 1, updated_at = ? WHERE id = ?")
+        .bind(&now)
+        .bind(user_id)
+        .execute(pool)
+        .await
+        .map_err(|e| format!("Failed to increment token version: {}", e))?;
+    
+    Ok(())
+}
+
+/// Clean up expired refresh tokens (call this periodically)
+pub async fn cleanup_expired_tokens(pool: &SqlitePool) -> Result<u64, String> {
+    let result = sqlx::query("DELETE FROM refresh_tokens WHERE datetime(expires_at) < datetime('now')")
+        .execute(pool)
+        .await
+        .map_err(|e| format!("Failed to clean up expired tokens: {}", e))?;
+    
+    Ok(result.rows_affected())
 }
 
 // Rate limiting structure (simple in-memory)

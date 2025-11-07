@@ -74,6 +74,7 @@ pub fn protected_router() -> Router<AppState> {
     Router::new()
         .route("/auth/me", get(me_handler))
         .route("/auth/change-password", post(change_password_handler))
+        .route("/auth/logout", post(logout_handler))
         .route("/auth/2fa/setup", post(setup_2fa_handler))
         .route("/auth/2fa/enable", post(enable_2fa_handler))
         .route("/auth/2fa/disable", post(disable_2fa_handler))
@@ -211,3 +212,24 @@ async fn refresh_token_handler(
         .map(Json)
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
+
+/// Logout user (revoke all refresh tokens)
+#[tracing::instrument(skip(state, user), fields(user_id = %user.id))]
+async fn logout_handler(
+    State(state): State<AppState>,
+    user: UserInfo,
+) -> Result<StatusCode, StatusCode> {
+    tracing::info!("Logout attempt");
+    
+    services::logout(&state, &user)
+        .await
+        .map(|_| {
+            tracing::info!("Logout successful");
+            StatusCode::OK
+        })
+        .map_err(|e| {
+            tracing::warn!("Logout failed: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })
+}
+
