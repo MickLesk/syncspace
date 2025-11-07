@@ -7,7 +7,7 @@
    * @component
    */
 
-  let { title = "", icon = "" } = $props();
+  let { title = "", icon = "", children } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>
@@ -24,7 +24,7 @@
     </div>
   {/if}
   <div class="chart-content">
-    <slot />
+    {@render children?.()}
   </div>
 </div>
 

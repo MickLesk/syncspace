@@ -10,6 +10,7 @@
     fullWidth = false,
     onClick = () => {},
     onclick = undefined,
+    children,
   } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
@@ -26,7 +27,7 @@
     <span class="icon">{icon}</span>
   {/if}
   <span class="label">
-    <slot />
+    {@render children?.()}
   </span>
 </button>
 

@@ -47,6 +47,9 @@
             {:else if upload.status === "cancelled"}<i
                 class="bi bi-dash-circle-fill text-warning"
               ></i>
+            {:else if upload.status === "retrying"}<i
+                class="bi bi-arrow-clockwise text-warning spinning"
+              ></i>
             {:else}<i class="bi bi-file-earmark-arrow-up text-primary"></i>{/if}
           </div>
 
@@ -54,21 +57,28 @@
             <div class="upload-name">{upload.name}</div>
             <div class="upload-meta">
               {#if upload.status === "uploading"}
-                {formatBytes(upload.progress * upload.size)} / {formatBytes(
+                {formatBytes((upload.progress / 100) * upload.size)} / {formatBytes(
                   upload.size
-                )} • {Math.round(upload.progress * 100)}%
+                )} • {Math.round(upload.progress)}%
+              {:else if upload.status === "retrying"}
+                Retrying... (Attempt {upload.retries + 1}/{3}) • {formatBytes(
+                  upload.size
+                )}
               {:else if upload.status === "complete"}
                 {formatBytes(upload.size)} • Complete
               {:else if upload.status === "error"}
                 {upload.error || "Upload failed"}
+                {#if upload.retries > 0}
+                  • Failed after {upload.retries} retries
+                {/if}
               {:else}
                 {formatBytes(upload.size)} • Cancelled
               {/if}
             </div>
-            {#if upload.status === "uploading"}
+            {#if upload.status === "uploading" || upload.status === "retrying"}
               <progress
                 class="progress progress-{getStatusClass(upload.status)} w-full"
-                value={upload.progress * 100}
+                value={upload.progress}
                 max="100"
               ></progress>
             {/if}
@@ -170,5 +180,41 @@
       transform: translateY(0);
       opacity: 1;
     }
+  }
+
+  .spinning {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .success-checkmark {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  @keyframes scaleIn {
+    from {
+      transform: scale(0);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  .error-shake {
+    animation: shake 0.5s;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
   }
 </style>

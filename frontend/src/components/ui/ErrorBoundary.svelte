@@ -3,7 +3,7 @@
   import { t } from "../../i18n.js";
   import { createEventDispatcher } from "svelte";
 
-  let { error = null } = $props();
+  let { error = null, children } = $props();
 
   const dispatch = createEventDispatcher();
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
@@ -29,4 +29,4 @@
     </button>
   </div>
 {/if}
-<slot />
+{@render children?.()}

@@ -42,6 +42,9 @@ pub struct SearchIndex {
     modified_field: Field,
     size_field: Field,
     file_type_field: Field,
+    // Batch operation tracking
+    pending_operations: Arc<Mutex<usize>>,
+    last_commit: Arc<Mutex<std::time::Instant>>,
 }
 
 impl SearchIndex {
@@ -94,7 +97,7 @@ impl SearchIndex {
         
         println!("✅ Search index initialized");
         
-        Ok(Self {
+        let search_index = Self {
             index,
             reader,
             writer: Arc::new(Mutex::new(writer)),
@@ -106,7 +109,46 @@ impl SearchIndex {
             modified_field,
             size_field,
             file_type_field,
-        })
+            pending_operations: Arc::new(Mutex::new(0)),
+            last_commit: Arc::new(Mutex::new(std::time::Instant::now())),
+        };
+        
+        // Start background commit task
+        search_index.start_auto_commit();
+        
+        Ok(search_index)
+    }
+    
+    /// Start background task that commits every 30 seconds or when 100 operations pending
+    fn start_auto_commit(&self) {
+        let writer = self.writer.clone();
+        let pending = self.pending_operations.clone();
+        let last_commit = self.last_commit.clone();
+        
+        tokio::spawn(async move {
+            let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(30));
+            
+            loop {
+                interval.tick().await;
+                
+                let pending_count = *pending.lock().await;
+                let time_since_last = last_commit.lock().await.elapsed();
+                
+                // Commit if: 100+ pending operations OR 30+ seconds since last commit
+                if pending_count > 0 && (pending_count >= 100 || time_since_last.as_secs() >= 30) {
+                    println!("🔍 Auto-committing search index ({} pending operations)", pending_count);
+                    
+                    let mut w = writer.lock().await;
+                    if let Err(e) = w.commit() {
+                        eprintln!("❌ Search index commit failed: {}", e);
+                    } else {
+                        *pending.lock().await = 0;
+                        *last_commit.lock().await = std::time::Instant::now();
+                        println!("✅ Search index committed");
+                    }
+                }
+            }
+        });
     }
     
     /// Index a file with optional content
@@ -140,8 +182,18 @@ impl SearchIndex {
         // Add new document
         writer.add_document(doc)?;
         
-        // Commit (in production, batch commits for performance)
-        writer.commit()?;
+        // Increment pending operations counter
+        *self.pending_operations.lock().await += 1;
+        
+        // Don't commit immediately - let auto-commit handle it
+        // Only force commit if many operations pending (>100)
+        let pending_count = *self.pending_operations.lock().await;
+        if pending_count >= 100 {
+            println!("🔍 Force committing search index ({} operations)", pending_count);
+            writer.commit()?;
+            *self.pending_operations.lock().await = 0;
+            *self.last_commit.lock().await = std::time::Instant::now();
+        }
         
         Ok(())
     }
@@ -151,7 +203,72 @@ impl SearchIndex {
         let term = Term::from_field_text(self.file_id_field, file_id);
         let mut writer = self.writer.lock().await;
         writer.delete_term(term);
+        
+        // Increment pending operations counter
+        *self.pending_operations.lock().await += 1;
+        
+        // Don't commit immediately - let auto-commit handle it
+        let pending_count = *self.pending_operations.lock().await;
+        if pending_count >= 100 {
+            println!("🔍 Force committing search index ({} operations)", pending_count);
+            writer.commit()?;
+            *self.pending_operations.lock().await = 0;
+            *self.last_commit.lock().await = std::time::Instant::now();
+        }
+        
+        Ok(())
+    }
+    
+    /// Batch index multiple files (more efficient than individual calls)
+    pub async fn batch_index_files(
+        &self,
+        files: Vec<(String, String, String, Option<String>, chrono::DateTime<chrono::Utc>, u64)>,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        println!("🔍 Batch indexing {} files", files.len());
+        
+        let mut writer = self.writer.lock().await;
+        
+        for (file_id, filename, path, content, modified, size) in files {
+            let file_type = Self::detect_file_type(&filename);
+            
+            // Create document
+            let doc = doc!(
+                self.file_id_field => file_id.as_str(),
+                self.filename_field => filename.as_str(),
+                self.path_field => path.as_str(),
+                self.content_field => content.unwrap_or_default(),
+                self.modified_field => tantivy::DateTime::from_timestamp_secs(modified.timestamp()),
+                self.size_field => size,
+                self.file_type_field => file_type,
+            );
+            
+            // Delete old document if exists
+            let term = Term::from_field_text(self.file_id_field, &file_id);
+            writer.delete_term(term);
+            
+            // Add new document
+            writer.add_document(doc)?;
+        }
+        
+        // Commit batch
         writer.commit()?;
+        *self.last_commit.lock().await = std::time::Instant::now();
+        println!("✅ Batch index committed");
+        
+        Ok(())
+    }
+    
+    /// Force commit pending operations immediately
+    pub async fn force_commit(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        let pending_count = *self.pending_operations.lock().await;
+        if pending_count > 0 {
+            println!("🔍 Force committing {} pending operations", pending_count);
+            let mut writer = self.writer.lock().await;
+            writer.commit()?;
+            *self.pending_operations.lock().await = 0;
+            *self.last_commit.lock().await = std::time::Instant::now();
+            println!("✅ Force commit completed");
+        }
         Ok(())
     }
     

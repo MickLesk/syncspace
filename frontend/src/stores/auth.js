@@ -7,19 +7,24 @@ const getCurrentLanguage = () => localStorage.getItem('language') || 'de';
 function createAuthStore() {
   // Clean up old demo tokens
   const storedToken = localStorage.getItem('authToken');
+  const storedRefreshToken = localStorage.getItem('refreshToken');
+  
   if (storedToken && storedToken.startsWith('demo-token-')) {
     console.warn('🧹 Cleaning up old demo token, please login again');
     localStorage.removeItem('authToken');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('username');
     localStorage.removeItem('userId');
   }
 
   // Auto-refresh timer
   let refreshTimer = null;
+  let refreshTokenExpiryCheck = null;
 
   const { subscribe, set, update } = writable({
     isLoggedIn: false, // Start als ausgeloggt
-    token: localStorage.getItem('authToken'),
+    token: storedToken,
+    refreshToken: storedRefreshToken,
     username: localStorage.getItem('username'),
     userId: localStorage.getItem('userId'),
     isValidating: true // Flag um zu wissen dass wir noch validieren
@@ -30,6 +35,7 @@ function createAuthStore() {
     // Refresh token function
     refreshToken: async () => {
       const token = localStorage.getItem('authToken');
+      
       if (!token) {
         console.warn('⚠️ No token to refresh');
         return false;
@@ -48,49 +54,67 @@ function createAuthStore() {
         if (response.ok) {
           const data = await response.json();
           
-          // Update tokens
+          // Update both access token and refresh token
           localStorage.setItem('authToken', data.token);
+          if (data.refresh_token) {
+            localStorage.setItem('refreshToken', data.refresh_token);
+          }
           
           update(state => ({
             ...state,
-            token: data.token
+            token: data.token,
+            refreshToken: data.refresh_token || state.refreshToken
           }));
           
           console.log('✅ Token refreshed successfully');
           
-          // Schedule next refresh (10 minutes before 24h expiry = refresh after 23h50m)
+          // Schedule next refresh
           authStore.scheduleTokenRefresh();
           
           return true;
         } else {
-          console.warn('❌ Token refresh failed, logging out');
+          console.warn('❌ Token refresh failed (status:', response.status, '), logging out');
           authStore.logout();
           return false;
         }
       } catch (error) {
         console.error('❌ Token refresh error:', error);
-        authStore.logout();
+        // Don't logout immediately on network errors, retry later
+        console.log('⏰ Will retry token refresh in 1 minute...');
+        setTimeout(() => authStore.refreshToken(), 60000);
         return false;
       }
     },
     // Schedule automatic token refresh
     scheduleTokenRefresh: () => {
-      // Clear existing timer
+      // Clear existing timers
       if (refreshTimer) {
         clearInterval(refreshTimer);
         refreshTimer = null;
       }
+      if (refreshTokenExpiryCheck) {
+        clearInterval(refreshTokenExpiryCheck);
+        refreshTokenExpiryCheck = null;
+      }
 
-      // Refresh token 10 minutes before expiry
-      // JWT expires after 24 hours, so refresh after 23h 50m = 85800000ms
-      const refreshInterval = 23 * 60 * 60 * 1000 + 50 * 60 * 1000; // 23h 50m
+      // Refresh access token 5 minutes before its 24h expiry
+      // JWT expires after 24 hours, so refresh after 23h 55m = 86100000ms
+      const ACCESS_TOKEN_REFRESH_INTERVAL = 23 * 60 * 60 * 1000 + 55 * 60 * 1000; // 23h 55m
       
       refreshTimer = setInterval(() => {
-        console.log('⏰ Auto-refresh triggered');
+        console.log('⏰ Auto-refresh triggered for access token');
         authStore.refreshToken();
-      }, refreshInterval);
+      }, ACCESS_TOKEN_REFRESH_INTERVAL);
       
-      console.log(`⏰ Token auto-refresh scheduled (every ${(refreshInterval / 1000 / 60 / 60).toFixed(2)}h)`);
+      // Also check refresh token expiry daily (refresh token expires after 7 days)
+      // If refresh token expires in less than 1 day, force re-login
+      const REFRESH_TOKEN_EXPIRY_CHECK_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
+      refreshTokenExpiryCheck = setInterval(() => {
+        console.log('⏰ Checking refresh token validity...');
+        authStore.validateToken();
+      }, REFRESH_TOKEN_EXPIRY_CHECK_INTERVAL);
+      
+      console.log(`⏰ Token auto-refresh scheduled (access: every ${(ACCESS_TOKEN_REFRESH_INTERVAL / 1000 / 60 / 60).toFixed(2)}h, refresh check: every 24h)`);
     },
     // Validate token on app start
     validateToken: async () => {
@@ -154,9 +178,15 @@ function createAuthStore() {
           localStorage.setItem('username', data.user.username);
           localStorage.setItem('userId', data.user.id);
           
+          // Store refresh token if provided
+          if (data.refresh_token) {
+            localStorage.setItem('refreshToken', data.refresh_token);
+          }
+          
           set({
             isLoggedIn: true,
             token: data.token,
+            refreshToken: data.refresh_token,
             username: data.user.username,
             userId: data.user.id,
             isValidating: false
@@ -177,19 +207,25 @@ function createAuthStore() {
       }
     },
     logout: () => {
-      // Clear auto-refresh timer
+      // Clear auto-refresh timers
       if (refreshTimer) {
         clearInterval(refreshTimer);
         refreshTimer = null;
-        console.log('⏰ Token auto-refresh stopped');
       }
+      if (refreshTokenExpiryCheck) {
+        clearInterval(refreshTokenExpiryCheck);
+        refreshTokenExpiryCheck = null;
+      }
+      console.log('⏰ Token auto-refresh stopped');
       
       localStorage.removeItem('authToken');
+      localStorage.removeItem('refreshToken');
       localStorage.removeItem('username');
       localStorage.removeItem('userId');
       set({
         isLoggedIn: false,
         token: null,
+        refreshToken: null,
         username: null,
         userId: null,
         isValidating: false
