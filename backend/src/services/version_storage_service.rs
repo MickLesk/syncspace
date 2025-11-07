@@ -177,8 +177,8 @@ pub async fn restore_version(
     // Apply diff if needed
     if version.is_differential {
         if let Some(base_id) = version.base_version_id {
-            // Recursively restore base version
-            let base_content = restore_version(pool, &base_id).await?;
+            // Recursively restore base version - requires boxing for async recursion
+            let base_content = Box::pin(restore_version(pool, &base_id)).await?;
             // Apply diff
             stored_content = apply_diff(&base_content, &stored_content)?;
         }
@@ -319,8 +319,9 @@ fn compress_data(data: &[u8]) -> Result<Vec<u8>, std::io::Error> {
 }
 
 fn decompress_data(data: &[u8]) -> Result<Vec<u8>, std::io::Error> {
-    let mut decoder = GzDecoder::new(Vec::new());
-    decoder.write_all(data)?;
+    use std::io::Cursor;
+    let cursor = Cursor::new(data);
+    let mut decoder = flate2::read::GzDecoder::new(cursor);
     let mut result = Vec::new();
     decoder.read_to_end(&mut result)?;
     Ok(result)

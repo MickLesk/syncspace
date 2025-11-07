@@ -156,6 +156,12 @@ async fn main() {
         .expect("Failed to initialize database");
 
     println!("✅ Database connection established");
+    
+    // Initialize version storage directory
+    services::version_storage_service::init_version_storage()
+        .expect("Failed to initialize version storage");
+    
+    println!("✅ Version storage initialized");
 
     // Initialize rate limiter
     let rate_limiter = Arc::new(RateLimiter::new());

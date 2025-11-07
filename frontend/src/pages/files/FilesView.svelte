@@ -1018,14 +1018,15 @@
           isSearchMode ? modals.openAdvancedSearch() : modals.openUpload()}
       />
     {:else}
-      <!-- Use VirtualList for large file lists (>100 items) for performance -->
-      {#if displayFiles().length > 100}
-        <div class="virtual-list-wrapper" style="height: 70vh;">
+      <!-- Use VirtualList for medium-large file lists (>50 items) for better performance -->
+      {#if displayFiles().length > 50}
+        <div class="virtual-list-wrapper" style="height: calc(100vh - 280px); min-height: 400px;">
           <VirtualList
             items={displayFiles()}
-            itemHeight={viewMode === "grid" ? 200 : 72}
+            itemHeight={viewMode === "grid" ? 220 : 72}
             isGrid={viewMode === "grid"}
-            persistKey={currentPath}
+            persistKey={$currentPath}
+            overscan={5}
           >
             {#snippet children(file, index)}
               <FileCard
@@ -1046,7 +1047,7 @@
           </VirtualList>
         </div>
       {:else}
-        <!-- Regular rendering for small file lists (<100 items) -->
+        <!-- Regular rendering for small file lists (≤50 items) -->
         <div
           class={viewMode === "grid"
             ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 grid-stagger"
