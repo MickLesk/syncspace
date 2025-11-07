@@ -106,9 +106,8 @@ impl CronScheduler {
         
         Ok(())
     }
-}
-
-*/  // End of commented old cron system
+    */  // End of commented process_cron_jobs
+}  // End of impl CronScheduler
 
 // ============================================================================
 // Cron Expression Parser (Simplified)
