@@ -4,12 +4,18 @@
 
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use sqlx::sqlite::{SqlitePool, SqlitePoolOptions};
+use sqlx::sqlite::{SqlitePool, SqlitePoolOptions, SqliteConnectOptions};
 use sqlx::FromRow;
 use std::path::PathBuf;
+use std::time::Duration;
 use uuid::Uuid;
 
-const MAX_CONNECTIONS: u32 = 10;
+// Connection pool settings
+const MAX_CONNECTIONS: u32 = 20; // Increased from 10 for better concurrency
+const MIN_CONNECTIONS: u32 = 2; // Keep minimum connections alive
+const ACQUIRE_TIMEOUT_SECS: u64 = 30; // Timeout when acquiring connection from pool
+const IDLE_TIMEOUT_SECS: u64 = 600; // Close idle connections after 10 minutes
+const MAX_LIFETIME_SECS: u64 = 3600; // Recycle connections after 1 hour
 
 /// Macro to automatically discover and include all migration files at compile time
 /// Simply add a new .sql file to migrations/ and it will be automatically picked up!
@@ -51,26 +57,42 @@ pub async fn init_db() -> Result<SqlitePool, sqlx::Error> {
     
     println!("🔗 Connecting to database...");
 
-    // Create connection pool with pragma settings for performance
+    // Create optimized connection pool
     let pool = SqlitePoolOptions::new()
         .max_connections(MAX_CONNECTIONS)
+        .min_connections(MIN_CONNECTIONS)
+        .acquire_timeout(Duration::from_secs(ACQUIRE_TIMEOUT_SECS))
+        .idle_timeout(Some(Duration::from_secs(IDLE_TIMEOUT_SECS)))
+        .max_lifetime(Some(Duration::from_secs(MAX_LIFETIME_SECS)))
+        .test_before_acquire(true) // Test connection health before use
         .after_connect(|conn, _meta| {
             Box::pin(async move {
                 // Enable WAL mode for better concurrency
                 sqlx::query("PRAGMA journal_mode=WAL;").execute(&mut *conn).await?;
+                
                 // TEMPORARILY DISABLE foreign keys due to InMemory vs SQLite user_id mismatch
                 sqlx::query("PRAGMA foreign_keys=OFF;").execute(&mut *conn).await?;
-                // Optimize for performance
-                sqlx::query("PRAGMA synchronous=NORMAL;").execute(&mut *conn).await?;
-                sqlx::query("PRAGMA temp_store=MEMORY;").execute(&mut *conn).await?;
-                sqlx::query("PRAGMA cache_size=-64000;").execute(&mut *conn).await?; // 64MB cache
+                
+                // Performance optimizations
+                sqlx::query("PRAGMA synchronous=NORMAL;").execute(&mut *conn).await?; // Faster than FULL, still safe with WAL
+                sqlx::query("PRAGMA temp_store=MEMORY;").execute(&mut *conn).await?; // Store temp tables in memory
+                sqlx::query("PRAGMA cache_size=-64000;").execute(&mut *conn).await?; // 64MB cache (negative = KB)
+                sqlx::query("PRAGMA mmap_size=268435456;").execute(&mut *conn).await?; // 256MB memory-mapped I/O
+                sqlx::query("PRAGMA page_size=4096;").execute(&mut *conn).await?; // Optimal page size
+                
+                // WAL checkpointing settings
+                sqlx::query("PRAGMA wal_autocheckpoint=1000;").execute(&mut *conn).await?; // Checkpoint every 1000 pages
+                sqlx::query("PRAGMA busy_timeout=5000;").execute(&mut *conn).await?; // 5 second busy timeout
+                
+                println!("✅ Connection configured with optimized settings");
                 Ok(())
             })
         })
         .connect(&db_url)
         .await?;
 
-    println!("✅ Database pool created");
+    println!("✅ Database pool created (max: {}, min: {}, timeout: {}s)", 
+             MAX_CONNECTIONS, MIN_CONNECTIONS, ACQUIRE_TIMEOUT_SECS);
 
     // Run migrations
     run_migrations(&pool).await?;

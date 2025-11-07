@@ -6,6 +6,7 @@
     variant = "default", // default, success, warning, error, info, glass
     size = "medium", // small, medium, large
     icon = "",
+    children,
   } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
@@ -15,7 +16,7 @@
   {#if icon}
     <i class="bi {icon}"></i>
   {/if}
-  <slot />
+  {@render children?.()}
 </span>
 
 <style>

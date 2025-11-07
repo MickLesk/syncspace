@@ -1,44 +1,104 @@
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 import { createWebSocket } from '../lib/api.js';
-import { success, info, warning } from './toast.js';
+import { success, info, warning, error as toastError } from './toast.js';
+
+// WebSocket connection states
+export const WS_STATES = {
+  DISCONNECTED: 'disconnected',
+  CONNECTING: 'connecting',
+  CONNECTED: 'connected',
+  RECONNECTING: 'reconnecting',
+  ERROR: 'error',
+  MAX_RETRIES_REACHED: 'max_retries_reached'
+};
 
 // WebSocket connection state
-export const wsConnected = writable(false);
+export const wsState = writable(WS_STATES.DISCONNECTED);
+export const wsConnected = derived(wsState, $state => $state === WS_STATES.CONNECTED);
 export const wsEvents = writable([]);
 export const lastFileEvent = writable(null);
+export const wsReconnectAttempts = writable(0);
 
 class WebSocketManager {
   constructor() {
     this.ws = null;
     this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = 10; // Increased from 5 to 10
-    this.reconnectDelay = 1000; // Start with 1 second
+    this.maxReconnectAttempts = 10;
+    this.baseReconnectDelay = 1000; // Start with 1 second
     this.maxReconnectDelay = 30000; // Max 30 seconds
     this.eventHandlers = new Map();
-    this.isConnecting = false;
+    this.reconnectTimeout = null;
+    this.heartbeatInterval = null;
+    this.heartbeatIntervalMs = 30000; // Send heartbeat every 30 seconds
+    this.heartbeatTimeout = null;
+    this.heartbeatTimeoutMs = 5000; // Expect pong within 5 seconds
+    this.missedHeartbeats = 0;
+    this.maxMissedHeartbeats = 3;
+    this.manualDisconnect = false;
     
     // Don't auto-connect! Let components decide when to connect.
     // Call websocketManager.connect() explicitly when needed.
   }
 
   connect() {
+    // Prevent multiple simultaneous connection attempts
+    if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
+      console.log('⚠️ WebSocket already connecting or connected');
+      return;
+    }
+
+    // Clear any existing reconnect timeout
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+
+    this.manualDisconnect = false;
+    
     try {
-      console.log('🔌 Connecting to WebSocket...');
+      const isReconnecting = this.reconnectAttempts > 0;
+      wsState.set(isReconnecting ? WS_STATES.RECONNECTING : WS_STATES.CONNECTING);
+      
+      console.log(`🔌 ${isReconnecting ? 'Reconnecting' : 'Connecting'} to WebSocket... (attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})`);
+      
       this.ws = createWebSocket();
       
       this.ws.onopen = () => {
         console.log('✅ WebSocket connected');
-        wsConnected.set(true);
+        wsState.set(WS_STATES.CONNECTED);
         this.reconnectAttempts = 0;
-        this.reconnectDelay = 1000;
+        wsReconnectAttempts.set(0);
+        this.missedHeartbeats = 0;
+        
+        // Show success notification only on reconnect (not initial connect)
+        if (isReconnecting) {
+          success('Reconnected to server', 3000);
+        }
+        
+        // Start heartbeat mechanism
+        this.startHeartbeat();
+        
+        // Emit connection event
+        this.emit('connected', { timestamp: new Date().toISOString() });
       };
 
       this.ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
+          
+          // Handle heartbeat pong
+          if (data.type === 'pong') {
+            this.missedHeartbeats = 0;
+            if (this.heartbeatTimeout) {
+              clearTimeout(this.heartbeatTimeout);
+              this.heartbeatTimeout = null;
+            }
+            return;
+          }
+          
           console.log('📨 WebSocket message received:', data);
           
-          // Add to events store
+          // Add to events store (keep last 50 events)
           wsEvents.update(events => [...events.slice(-49), data]);
           
           // Handle file system events
@@ -48,12 +108,13 @@ class WebSocketManager {
           }
           
           // Trigger specific event handlers
-          if (this.eventHandlers.has(data.type || 'file_change')) {
-            this.eventHandlers.get(data.type || 'file_change').forEach(handler => {
+          const eventType = data.type || 'file_change';
+          if (this.eventHandlers.has(eventType)) {
+            this.eventHandlers.get(eventType).forEach(handler => {
               try {
                 handler(data);
               } catch (error) {
-                console.error('Error in event handler:', error);
+                console.error(`Error in ${eventType} handler:`, error);
               }
             });
           }
@@ -64,37 +125,112 @@ class WebSocketManager {
 
       this.ws.onclose = (event) => {
         console.log('🔌 WebSocket disconnected:', event.code, event.reason);
-        wsConnected.set(false);
         
-        if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
+        // Clean up heartbeat
+        this.stopHeartbeat();
+        
+        // Don't reconnect if it was a manual disconnect (code 1000) or max retries reached
+        if (this.manualDisconnect || event.code === 1000) {
+          wsState.set(WS_STATES.DISCONNECTED);
+          return;
+        }
+        
+        wsState.set(WS_STATES.DISCONNECTED);
+        
+        // Attempt reconnection
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
           this.scheduleReconnect();
+        } else {
+          wsState.set(WS_STATES.MAX_RETRIES_REACHED);
+          toastError('Connection lost. Please refresh the page.', 10000);
+          console.error('❌ Max reconnection attempts reached');
+          wsReconnectAttempts.set(this.reconnectAttempts);
         }
       };
 
       this.ws.onerror = (error) => {
         console.error('❌ WebSocket error:', error);
-        wsConnected.set(false);
+        wsState.set(WS_STATES.ERROR);
       };
       
     } catch (error) {
       console.error('❌ Failed to create WebSocket:', error);
+      wsState.set(WS_STATES.ERROR);
       this.scheduleReconnect();
     }
   }
 
   scheduleReconnect() {
+    // Clear any existing reconnect timeout
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+
     this.reconnectAttempts++;
-    const delay = Math.min(this.reconnectDelay * Math.pow(2, this.reconnectAttempts), this.maxReconnectDelay);
+    wsReconnectAttempts.set(this.reconnectAttempts);
+    
+    // Exponential backoff: 1s, 2s, 4s, 8s, 16s, 30s (max)
+    const delay = Math.min(
+      this.baseReconnectDelay * Math.pow(2, this.reconnectAttempts - 1),
+      this.maxReconnectDelay
+    );
     
     console.log(`🔄 Scheduling reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms`);
+    wsState.set(WS_STATES.RECONNECTING);
     
-    setTimeout(() => {
-      if (this.reconnectAttempts <= this.maxReconnectAttempts) {
+    this.reconnectTimeout = setTimeout(() => {
+      if (this.reconnectAttempts <= this.maxReconnectAttempts && !this.manualDisconnect) {
         this.connect();
       } else {
         console.error('❌ Max reconnection attempts reached');
+        wsState.set(WS_STATES.MAX_RETRIES_REACHED);
       }
     }, delay);
+  }
+
+  startHeartbeat() {
+    // Clean up existing heartbeat
+    this.stopHeartbeat();
+    
+    console.log('💓 Starting heartbeat mechanism');
+    
+    // Send ping every 30 seconds
+    this.heartbeatInterval = setInterval(() => {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        console.log('💓 Sending heartbeat ping');
+        
+        // Send ping
+        this.send({ type: 'ping', timestamp: Date.now() });
+        
+        // Set timeout for pong response
+        this.heartbeatTimeout = setTimeout(() => {
+          this.missedHeartbeats++;
+          console.warn(`⚠️ Missed heartbeat ${this.missedHeartbeats}/${this.maxMissedHeartbeats}`);
+          
+          // If too many missed heartbeats, force reconnect
+          if (this.missedHeartbeats >= this.maxMissedHeartbeats) {
+            console.error('❌ Too many missed heartbeats, forcing reconnect');
+            warning('Connection unstable, reconnecting...', 3000);
+            this.ws?.close(4000, 'Heartbeat timeout');
+          }
+        }, this.heartbeatTimeoutMs);
+      }
+    }, this.heartbeatIntervalMs);
+  }
+
+  stopHeartbeat() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
+    }
+    
+    if (this.heartbeatTimeout) {
+      clearTimeout(this.heartbeatTimeout);
+      this.heartbeatTimeout = null;
+    }
+    
+    this.missedHeartbeats = 0;
   }
 
   handleFileEvent(event) {
@@ -174,11 +310,60 @@ class WebSocketManager {
 
   // Disconnect
   disconnect() {
+    console.log('🔌 Manually disconnecting WebSocket');
+    this.manualDisconnect = true;
+    
+    // Clear reconnect attempts
+    this.reconnectAttempts = 0;
+    wsReconnectAttempts.set(0);
+    
+    // Clear reconnect timeout
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+    
+    // Stop heartbeat
+    this.stopHeartbeat();
+    
+    // Close WebSocket connection
     if (this.ws) {
       this.ws.close(1000, 'Manual disconnect');
       this.ws = null;
     }
-    wsConnected.set(false);
+    
+    wsState.set(WS_STATES.DISCONNECTED);
+  }
+
+  // Get current connection state
+  getState() {
+    if (!this.ws) return WS_STATES.DISCONNECTED;
+    
+    switch (this.ws.readyState) {
+      case WebSocket.CONNECTING:
+        return WS_STATES.CONNECTING;
+      case WebSocket.OPEN:
+        return WS_STATES.CONNECTED;
+      case WebSocket.CLOSING:
+      case WebSocket.CLOSED:
+        return this.reconnectAttempts > 0 ? WS_STATES.RECONNECTING : WS_STATES.DISCONNECTED;
+      default:
+        return WS_STATES.DISCONNECTED;
+    }
+  }
+
+  // Force reconnect (reset retry counter)
+  forceReconnect() {
+    console.log('🔄 Forcing reconnect...');
+    this.reconnectAttempts = 0;
+    wsReconnectAttempts.set(0);
+    
+    if (this.ws) {
+      this.ws.close(4001, 'Force reconnect');
+      this.ws = null;
+    }
+    
+    this.connect();
   }
 }
 

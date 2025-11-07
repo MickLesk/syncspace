@@ -2,6 +2,7 @@
   import { currentLang, currentTheme } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import { auth } from "../stores/auth";
+  import WebSocketStatus from "../system/WebSocketStatus.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -38,6 +39,9 @@
   </div>
 
   <div class="header-right">
+    <!-- WebSocket Status Indicator -->
+    <WebSocketStatus />
+
     <button class="lang-selector" onclick={toggleLang}>
       <span class="lang-flag">{langFlag}</span>
       <span>{langText}</span>

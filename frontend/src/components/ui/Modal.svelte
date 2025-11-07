@@ -14,6 +14,7 @@
     closeOnEscape = true,
     onclose = () => {},
     children,
+    actions,
   } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
@@ -155,13 +156,13 @@
 
       <!-- Content -->
       <div class="modal-content">
-        <slot />
+        {@render children?.()}
       </div>
 
       <!-- Actions (if provided) -->
-      {#if $$slots.actions}
+      {#if actions}
         <div class="modal-actions">
-          <slot name="actions" />
+          {@render actions?.()}
         </div>
       {/if}
     </div>

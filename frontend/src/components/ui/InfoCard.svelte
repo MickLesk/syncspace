@@ -10,6 +10,7 @@
     clickable = false,
     padding = "medium", // small, medium, large
     onClick = () => {},
+    children,
   } = $props();
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
@@ -31,7 +32,7 @@
     {/if}
 
     <div class="card-content">
-      <slot />
+      {@render children?.()}
     </div>
   </button>
 {:else}
@@ -45,7 +46,7 @@
     {/if}
 
     <div class="card-content">
-      <slot />
+      {@render children?.()}
     </div>
   </div>
 {/if}

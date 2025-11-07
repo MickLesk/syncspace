@@ -13,6 +13,7 @@
   import Modal from "../../components/ui/Modal.svelte";
   import EmptyState from "../../components/ui/EmptyState.svelte";
   import LoadingState from "../../components/ui/LoadingState.svelte";
+  import VirtualList from "../../components/ui/VirtualList.svelte";
   import FileCard from "../../components/files/FileCard.svelte";
   import FileToolbar from "../../components/files/FileToolbar.svelte";
   import FileActionsMenu from "../../components/files/FileActionsMenu.svelte";
@@ -498,39 +499,106 @@
 
   async function handleUpload(filesToUpload) {
     const fileList = Array.from(filesToUpload);
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY_MS = 1000;
 
     for (let file of fileList) {
       const uploadId = Date.now() + Math.random();
+      let retryCount = 0;
+      let uploadSuccess = false;
+      
+      // Initialize upload progress entry
       uploadProgress = [
         ...uploadProgress,
-        { id: uploadId, name: file.name, progress: 0, status: "uploading" },
+        { 
+          id: uploadId, 
+          name: file.name, 
+          progress: 0, 
+          status: "uploading",
+          retries: 0,
+          error: null,
+          size: file.size
+        },
       ];
 
-      try {
-        await api.files.uploadWithProgress($currentPath, file, (percent) => {
+      while (retryCount <= MAX_RETRIES && !uploadSuccess) {
+        try {
+          // Update retry count in UI if retrying
+          if (retryCount > 0) {
+            uploadProgress = uploadProgress.map((up) =>
+              up.id === uploadId 
+                ? { ...up, status: "retrying", retries: retryCount, progress: 0 } 
+                : up
+            );
+            
+            // Wait before retry with exponential backoff
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS * retryCount));
+          }
+
+          // Perform upload with progress tracking
+          await api.files.uploadWithProgress($currentPath, file, (percent) => {
+            uploadProgress = uploadProgress.map((up) =>
+              up.id === uploadId 
+                ? { ...up, progress: percent, status: "uploading" } 
+                : up
+            );
+          });
+
+          // Upload successful
           uploadProgress = uploadProgress.map((up) =>
-            up.id === uploadId ? { ...up, progress: percent } : up
+            up.id === uploadId 
+              ? { ...up, status: "complete", progress: 100, error: null } 
+              : up
           );
-        });
 
-        uploadProgress = uploadProgress.map((up) =>
-          up.id === uploadId ? { ...up, status: "complete", progress: 100 } : up
-        );
+          success(tr("uploadedFile", file.name));
+          uploadSuccess = true;
 
-        success(tr("uploadedFile", file.name));
-      } catch (err) {
-        uploadProgress = uploadProgress.map((up) =>
-          up.id === uploadId ? { ...up, status: "error" } : up
-        );
-        errorToast(tr("failedToUploadFile", file.name));
+        } catch (err) {
+          retryCount++;
+          console.error(`[Upload] Failed to upload ${file.name} (attempt ${retryCount}/${MAX_RETRIES + 1}):`, err);
+          
+          // Parse error message
+          let errorMessage = "Unknown error";
+          if (err.message) {
+            errorMessage = err.message;
+          } else if (typeof err === "string") {
+            errorMessage = err;
+          }
+
+          // Check if we should retry
+          const isNetworkError = errorMessage.includes("network") || errorMessage.includes("timeout") || errorMessage.includes("Failed to fetch");
+          const shouldRetry = isNetworkError && retryCount <= MAX_RETRIES;
+
+          if (!shouldRetry) {
+            // Final failure - update UI with error
+            uploadProgress = uploadProgress.map((up) =>
+              up.id === uploadId 
+                ? { ...up, status: "error", error: errorMessage, retries: retryCount } 
+                : up
+            );
+            
+            // Show detailed error toast
+            if (retryCount > MAX_RETRIES) {
+              errorToast(`${tr("failedToUploadFile", file.name)} - Max retries (${MAX_RETRIES}) reached. ${errorMessage}`);
+            } else {
+              errorToast(`${tr("failedToUploadFile", file.name)} - ${errorMessage}`);
+            }
+            break;
+          }
+        }
       }
     }
 
+    // Reload files to show newly uploaded files
     await loadFiles();
 
+    // Clean up completed uploads after 5 seconds (increased from 3s)
     setTimeout(() => {
-      uploadProgress = uploadProgress.filter((up) => up.status === "uploading");
-    }, 3000);
+      uploadProgress = uploadProgress.filter((up) => 
+        up.status === "uploading" || up.status === "retrying"
+      );
+    }, 5000);
   }
 
   async function createNewFolder(data) {
@@ -929,27 +997,60 @@
           isSearchMode ? modals.openAdvancedSearch() : modals.openUpload()}
       />
     {:else}
-      <div
-        class={viewMode === "grid"
-          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 grid-stagger"
-          : "flex flex-col gap-2 list-stagger"}
-      >
-        {#each displayFiles() as file (file.file_path || file.name)}
-          <FileCard
-            {file}
-            {viewMode}
-            selected={selectedFiles.has(file.file_path || file.name)}
-            onSelect={() => handleFileSelection(file)}
-            onOpen={() => openFile(file)}
-            onContextMenu={(f, e) => handleContextMenu(f, e)}
-            onDragStart={(f) =>
-              console.log("[FilesView] Drag started:", f.name)}
-            onDragEnd={(f) => console.log("[FilesView] Drag ended:", f.name)}
-            onDrop={(draggedFile, targetFolder) =>
-              handleFileDrop(draggedFile, targetFolder)}
-          />
-        {/each}
-      </div>
+      <!-- Use VirtualList for large file lists (>100 items) for performance -->
+      {#if displayFiles().length > 100}
+        <div class="virtual-list-wrapper" style="height: 70vh;">
+          <VirtualList
+            items={displayFiles()}
+            itemHeight={viewMode === "grid" ? 160 : 72}
+          >
+            {#snippet children(file, index)}
+              <div
+                class={viewMode === "grid"
+                  ? "px-2"
+                  : ""}
+              >
+                <FileCard
+                  {file}
+                  {viewMode}
+                  selected={selectedFiles.has(file.file_path || file.name)}
+                  onSelect={() => handleFileSelection(file)}
+                  onOpen={() => openFile(file)}
+                  onContextMenu={(f, e) => handleContextMenu(f, e)}
+                  onDragStart={(f) =>
+                    console.log("[FilesView] Drag started:", f.name)}
+                  onDragEnd={(f) => console.log("[FilesView] Drag ended:", f.name)}
+                  onDrop={(draggedFile, targetFolder) =>
+                    handleFileDrop(draggedFile, targetFolder)}
+                />
+              </div>
+            {/snippet}
+          </VirtualList>
+        </div>
+      {:else}
+        <!-- Regular rendering for small file lists (<100 items) -->
+        <div
+          class={viewMode === "grid"
+            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 grid-stagger"
+            : "flex flex-col gap-2 list-stagger"}
+        >
+          {#each displayFiles() as file (file.file_path || file.name)}
+            <FileCard
+              {file}
+              {viewMode}
+              selected={selectedFiles.has(file.file_path || file.name)}
+              onSelect={() => handleFileSelection(file)}
+              onOpen={() => openFile(file)}
+              onContextMenu={(f, e) => handleContextMenu(f, e)}
+              onDragStart={(f) =>
+                console.log("[FilesView] Drag started:", f.name)}
+              onDragEnd={(f) => console.log("[FilesView] Drag ended:", f.name)}
+              onDrop={(draggedFile, targetFolder) =>
+                handleFileDrop(draggedFile, targetFolder)}
+            />
+          {/each}
+        </div>
+      {/if}
     {/if}
   </div>
 </PageWrapper>
