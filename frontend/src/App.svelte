@@ -30,6 +30,9 @@
   // Tools Views
   import DuplicatesView from "./pages/tools/DuplicatesView.svelte";
 
+  // Jobs & System Management
+  import JobsDashboard from "./pages/JobsDashboard.svelte";
+
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
   import UserProfileView from "./pages/user/UserProfileView.svelte";
@@ -274,6 +277,8 @@
                 <DuplicatesView />
               {:else if $currentView === "backup"}
                 <BackupView />
+              {:else if $currentView === "jobs"}
+                <JobsDashboard />
               {:else if $currentView === "notifications"}
                 <NotificationsView />
               {:else if $currentView === "recent"}

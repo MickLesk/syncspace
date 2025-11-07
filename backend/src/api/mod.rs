@@ -81,6 +81,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(folder_colors::router())
                 .merge(errors::router())  // Error reporting endpoint
                 .merge(jobs::router())    // Background jobs management
+                .merge(cron::router())    // Cron scheduler management
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,
