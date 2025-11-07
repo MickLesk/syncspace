@@ -31,6 +31,7 @@ pub mod duplicates;
 pub mod folder_colors;
 pub mod errors;
 pub mod jobs;
+pub mod cron;
 
 use axum::{
     middleware,

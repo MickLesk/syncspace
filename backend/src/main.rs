@@ -11,6 +11,7 @@
 
 mod api;
 mod auth;
+mod cron;
 mod database;
 mod jobs;
 mod middleware;
@@ -271,7 +272,7 @@ async fn main() {
     };
 
     // Build router
-    let app = build_router(app_state);
+    let app = build_router(app_state.clone());
 
     // Start server
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
@@ -280,9 +281,15 @@ async fn main() {
     println!("✨ Ready to accept connections!");
 
     // Start background job worker pool
-    let worker_pool = workers::WorkerPool::new(pool.clone(), 4);
+    let worker_pool = workers::WorkerPool::new(app_state.db_pool.clone(), 4);
     let worker_handle = tokio::spawn(async move {
         worker_pool.start().await;
+    });
+    
+    // Start cron scheduler
+    let cron_scheduler = cron::CronScheduler::new(app_state.db_pool.clone());
+    let cron_handle = tokio::spawn(async move {
+        cron_scheduler.start().await;
     });
 
     let listener = tokio::net::TcpListener::bind(addr)
