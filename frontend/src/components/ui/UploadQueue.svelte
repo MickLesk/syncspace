@@ -5,10 +5,10 @@
     UPLOAD_STATUS,
     PRIORITY,
     uploadStats,
-  } from "../lib/uploadQueue";
+  } from "../../lib/uploadQueue";
   import { fade, fly, slide } from "svelte/transition";
-  import { t } from "../i18n";
-  import { currentLang } from "../stores/ui";
+  import { t } from "../../i18n";
+  import { currentLang } from "../../stores/ui";
 
   let { compact = false, showCompleted = false } = $props();
 

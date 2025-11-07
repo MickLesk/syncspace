@@ -331,18 +331,182 @@ async fn create_diff(
     prev_version: &VersionMetadata,
     new_content: &[u8],
 ) -> Result<Vec<u8>, Box<dyn std::error::Error + Send + Sync>> {
-    // Simple byte-level diff using RLE-like compression
-    // In production, use a proper diff library like `diff` or `similar`
+    // Load previous version content
+    let prev_content = tokio::fs::read(&prev_version.storage_path).await?;
     
-    // For now, just return new content if different
-    // TODO: Implement proper binary diff
-    Ok(new_content.to_vec())
+    // For text files, use line-based diff
+    if is_text_file(&prev_content) && is_text_file(new_content) {
+        let prev_text = String::from_utf8_lossy(&prev_content);
+        let new_text = String::from_utf8_lossy(new_content);
+        
+        // Use similar crate for text diff
+        use similar::TextDiff;
+        let diff = TextDiff::from_lines(&prev_text, &new_text);
+        
+        // Serialize diff operations as JSON
+        let mut operations = Vec::new();
+        for op in diff.iter_all_changes() {
+            operations.push(serde_json::json!({
+                "tag": format!("{:?}", op.tag()),
+                "value": op.value()
+            }));
+        }
+        
+        let diff_json = serde_json::to_vec(&operations)?;
+        return Ok(diff_json);
+    }
+    
+    // For binary files, use simple RLE compression
+    let mut diff_data = Vec::new();
+    
+    // Simple byte-level diff: store changed byte ranges
+    let min_len = prev_content.len().min(new_content.len());
+    let mut i = 0;
+    
+    while i < min_len {
+        if prev_content[i] != new_content[i] {
+            // Find extent of change
+            let start = i;
+            while i < min_len && prev_content[i] != new_content[i] {
+                i += 1;
+            }
+            
+            // Store: [operation: 1=change] [start: u32] [length: u32] [data]
+            diff_data.push(1u8); // Change operation
+            diff_data.extend_from_slice(&(start as u32).to_le_bytes());
+            diff_data.extend_from_slice(&((i - start) as u32).to_le_bytes());
+            diff_data.extend_from_slice(&new_content[start..i]);
+        } else {
+            i += 1;
+        }
+    }
+    
+    // If new file is longer, append the rest
+    if new_content.len() > prev_content.len() {
+        diff_data.push(2u8); // Append operation
+        diff_data.extend_from_slice(&(prev_content.len() as u32).to_le_bytes());
+        diff_data.extend_from_slice(&((new_content.len() - prev_content.len()) as u32).to_le_bytes());
+        diff_data.extend_from_slice(&new_content[prev_content.len()..]);
+    }
+    
+    // If new file is shorter, record truncation
+    if new_content.len() < prev_content.len() {
+        diff_data.push(3u8); // Truncate operation
+        diff_data.extend_from_slice(&(new_content.len() as u32).to_le_bytes());
+    }
+    
+    Ok(diff_data)
 }
 
 fn apply_diff(base_content: &[u8], diff_data: &[u8]) -> Result<Vec<u8>, Box<dyn std::error::Error + Send + Sync>> {
-    // Apply diff to base content
-    // TODO: Implement proper diff application
-    Ok(diff_data.to_vec())
+    // Check if it's a JSON text diff
+    if let Ok(operations) = serde_json::from_slice::<Vec<serde_json::Value>>(diff_data) {
+        // Text diff - reconstruct from operations
+        let mut result = String::new();
+        
+        for op in &operations {  // Borrow operations instead of consuming
+            if let Some(tag) = op.get("tag").and_then(|v| v.as_str()) {
+                if let Some(value) = op.get("value").and_then(|v| v.as_str()) {
+                    match tag {
+                        "\"Equal\"" | "Equal" => result.push_str(value),
+                        "\"Insert\"" | "Insert" => result.push_str(value),
+                        // Skip Delete operations
+                        _ => {}
+                    }
+                }
+            }
+        }
+        
+        return Ok(result.into_bytes());
+    }
+    
+    // Binary diff - apply operations
+    let mut result = base_content.to_vec();
+    let mut cursor = 0;
+    
+    while cursor < diff_data.len() {
+        let operation = diff_data[cursor];
+        cursor += 1;
+        
+        match operation {
+            1 => { // Change operation
+                if cursor + 8 > diff_data.len() {
+                    break;
+                }
+                
+                let start = u32::from_le_bytes([
+                    diff_data[cursor],
+                    diff_data[cursor + 1],
+                    diff_data[cursor + 2],
+                    diff_data[cursor + 3],
+                ]) as usize;
+                cursor += 4;
+                
+                let length = u32::from_le_bytes([
+                    diff_data[cursor],
+                    diff_data[cursor + 1],
+                    diff_data[cursor + 2],
+                    diff_data[cursor + 3],
+                ]) as usize;
+                cursor += 4;
+                
+                if cursor + length > diff_data.len() {
+                    break;
+                }
+                
+                // Apply change
+                if start + length <= result.len() {
+                    result[start..start + length].copy_from_slice(&diff_data[cursor..cursor + length]);
+                }
+                cursor += length;
+            }
+            2 => { // Append operation
+                if cursor + 8 > diff_data.len() {
+                    break;
+                }
+                
+                cursor += 4; // Skip start position (always at end)
+                
+                let length = u32::from_le_bytes([
+                    diff_data[cursor],
+                    diff_data[cursor + 1],
+                    diff_data[cursor + 2],
+                    diff_data[cursor + 3],
+                ]) as usize;
+                cursor += 4;
+                
+                if cursor + length > diff_data.len() {
+                    break;
+                }
+                
+                // Append data
+                result.extend_from_slice(&diff_data[cursor..cursor + length]);
+                cursor += length;
+            }
+            3 => { // Truncate operation
+                if cursor + 4 > diff_data.len() {
+                    break;
+                }
+                
+                let new_length = u32::from_le_bytes([
+                    diff_data[cursor],
+                    diff_data[cursor + 1],
+                    diff_data[cursor + 2],
+                    diff_data[cursor + 3],
+                ]) as usize;
+                cursor += 4;
+                
+                // Truncate to new length
+                result.truncate(new_length);
+            }
+            _ => {
+                // Unknown operation, stop
+                break;
+            }
+        }
+    }
+    
+    Ok(result)
 }
 
 fn is_text_file(content: &[u8]) -> bool {
@@ -351,46 +515,36 @@ fn is_text_file(content: &[u8]) -> bool {
 }
 
 fn compute_text_diff(from: &str, to: &str) -> Vec<DiffLine> {
-    let from_lines: Vec<&str> = from.lines().collect();
-    let to_lines: Vec<&str> = to.lines().collect();
+    use similar::{ChangeTag, TextDiff};
     
+    let diff = TextDiff::from_lines(from, to);
     let mut result = Vec::new();
+    let mut line_num = 0;
     
-    // Simple line-by-line comparison
-    let max_len = from_lines.len().max(to_lines.len());
-    
-    for i in 0..max_len {
-        match (from_lines.get(i), to_lines.get(i)) {
-            (Some(&from_line), Some(&to_line)) => {
-                if from_line == to_line {
-                    result.push(DiffLine {
-                        line_number: i + 1,
-                        change_type: ChangeType::Unchanged,
-                        content: from_line.to_string(),
-                    });
-                } else {
-                    result.push(DiffLine {
-                        line_number: i + 1,
-                        change_type: ChangeType::Modified,
-                        content: format!("- {}\n+ {}", from_line, to_line),
-                    });
-                }
+    for change in diff.iter_all_changes() {
+        let change_type = match change.tag() {
+            ChangeTag::Delete => {
+                line_num += 1;
+                ChangeType::Deleted
             }
-            (Some(&from_line), None) => {
-                result.push(DiffLine {
-                    line_number: i + 1,
-                    change_type: ChangeType::Deleted,
-                    content: format!("- {}", from_line),
-                });
+            ChangeTag::Insert => {
+                line_num += 1;
+                ChangeType::Added
             }
-            (None, Some(&to_line)) => {
-                result.push(DiffLine {
-                    line_number: i + 1,
-                    change_type: ChangeType::Added,
-                    content: format!("+ {}", to_line),
-                });
+            ChangeTag::Equal => {
+                line_num += 1;
+                ChangeType::Unchanged
             }
-            (None, None) => break,
+        };
+        
+        // Only include changed lines and limited context
+        if matches!(change_type, ChangeType::Deleted | ChangeType::Added) 
+            || (line_num > 0 && result.len() < 1000) {  // Limit output size
+            result.push(DiffLine {
+                line_number: line_num,
+                change_type,
+                content: change.value().trim_end().to_string(),
+            });
         }
     }
     
