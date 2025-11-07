@@ -34,6 +34,7 @@ pub mod errors;
 pub mod jobs;
 pub mod cron;
 pub mod db_health;
+pub mod database_health;
 pub mod upload_chunk;
 
 use axum::{
@@ -62,7 +63,8 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(quota::router())
                 .merge(file_versions::router())
                 // .merge(twofa::router()) // TODO: Fix compilation
-                .merge(files::router())
+                .merge(versions::router())  // MUST come before files::router() (more specific routes first)
+                .merge(files::router())     // Has catch-all /files/{*path}, must be last for /files/*
                 .merge(directories::router())
                 .merge(search::router())
                 .merge(sharing::router())
@@ -76,7 +78,6 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(notifications::router())
                 .merge(comments::router())
                 .merge(trash::router())
-                .merge(versions::router())
                 .merge(batch::router())
                 .merge(config::router())
                 .merge(peers::router())
@@ -87,6 +88,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(jobs::router())    // Background jobs management
                 .merge(cron::router())    // Cron scheduler management
                 .merge(db_health::router()) // Database health and monitoring
+                .merge(database_health::router()) // Advanced database health check
                 .merge(upload_chunk::router()) // Chunked upload support
                 .layer(middleware::from_fn_with_state(
                     state.clone(),

@@ -130,8 +130,9 @@ pub async fn check_health(pool: &SqlitePool, monitor: &DatabaseMonitor) -> Resul
 
     // Get pool statistics
     let pool_size = pool.size();
-    let active_connections = pool.num_idle();
-    let idle_connections = pool.size() - pool.num_idle();
+    let idle_count = pool.num_idle() as u32; // Convert usize to u32
+    let active_connections = idle_count;
+    let idle_connections = pool_size.saturating_sub(idle_count);
 
     // Check if pool is over-utilized
     if active_connections as f32 / pool_size as f32 > 0.9 {
@@ -264,18 +265,19 @@ pub async fn vacuum_database(pool: &SqlitePool) -> Result<(), sqlx::Error> {
 
 /// Detect and warn about connection leaks
 pub async fn detect_connection_leaks(pool: &SqlitePool) {
-    let active = pool.size() - pool.num_idle();
-    let idle = pool.num_idle();
+    let pool_size = pool.size();
+    let idle = pool.num_idle() as u32;
+    let active = pool_size.saturating_sub(idle);
     
     // If most connections are active for extended period, might be a leak
-    if active > 0 && active as f32 / pool.size() as f32 > 0.8 {
+    if active > 0 && active as f32 / pool_size as f32 > 0.8 {
         warn!("⚠️ Possible connection leak detected: {}/{} connections active", 
-              active, pool.size());
+              active, pool_size);
         warn!("⚠️ Consider checking for missing connection releases");
     }
     
     info!("🔍 Connection status: {} active, {} idle, {} total", 
-          active, idle, pool.size());
+          active, idle, pool_size);
 }
 
 /// Background task to monitor database health

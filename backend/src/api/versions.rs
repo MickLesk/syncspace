@@ -177,7 +177,7 @@ async fn restore_version(
 
 pub fn router() -> Router<AppState> {
     Router::new()
-        .route("/files/:file_id/versions", get(list_versions).post(create_version))
-        .route("/files/:file_id/versions/:version_id", delete(delete_version))
-        .route("/files/:file_id/versions/:version_id/restore", post(restore_version))
+        .route("/files/{file_id}/versions", get(list_versions).post(create_version))
+        .route("/files/{file_id}/versions/{version_id}", delete(delete_version))
+        .route("/files/{file_id}/versions/{version_id}/restore", post(restore_version))
 }

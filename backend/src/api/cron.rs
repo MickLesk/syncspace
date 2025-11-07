@@ -17,11 +17,11 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/cron", post(create_cron_job_handler))
         .route("/cron", get(list_cron_jobs_handler))
-        .route("/cron/:id", get(get_cron_job_handler))
-        .route("/cron/:id", put(update_cron_job_handler))
-        .route("/cron/:id", delete(delete_cron_job_handler))
-        .route("/cron/:id/enable", post(enable_cron_job_handler))
-        .route("/cron/:id/disable", post(disable_cron_job_handler))
+        .route("/cron/{id}", get(get_cron_job_handler))
+        .route("/cron/{id}", put(update_cron_job_handler))
+        .route("/cron/{id}", delete(delete_cron_job_handler))
+        .route("/cron/{id}/enable", post(enable_cron_job_handler))
+        .route("/cron/{id}/disable", post(disable_cron_job_handler))
 }
 
 // ============================================================================

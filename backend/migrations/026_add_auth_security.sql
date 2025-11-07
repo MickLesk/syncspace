@@ -69,7 +69,10 @@ CREATE INDEX IF NOT EXISTS idx_password_history_user_id ON password_history(user
 CREATE INDEX IF NOT EXISTS idx_password_history_changed_at ON password_history(changed_at);
 
 -- Add password policy fields to users table (if not exists)
-ALTER TABLE users ADD COLUMN password_last_changed_at TEXT DEFAULT (datetime('now'));
+-- Note: SQLite doesn't allow non-constant defaults in ALTER TABLE, so we add with NULL then UPDATE
+ALTER TABLE users ADD COLUMN password_last_changed_at TEXT;
+UPDATE users SET password_last_changed_at = datetime('now') WHERE password_last_changed_at IS NULL;
+
 ALTER TABLE users ADD COLUMN password_expires_at TEXT; -- NULL = never expires
 ALTER TABLE users ADD COLUMN require_password_change INTEGER DEFAULT 0; -- Force password change on next login
 ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0; -- Counter for lockout

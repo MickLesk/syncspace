@@ -33,7 +33,7 @@ pub fn router() -> Router<AppState> {
 async fn get_health(
     State(state): State<AppState>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    match check_health(&state.db_pool, &state.db_monitor).await {
+    match check_health(&state.db_pool, &state.db_health_monitor).await {
         Ok(health) => Ok(Json(health)),
         Err(e) => {
             eprintln!("❌ Health check failed: {}", e);

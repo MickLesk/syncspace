@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/auth/sessions", get(list_sessions))
-        .route("/auth/sessions/:session_id", delete(revoke_session))
+        .route("/auth/sessions/{session_id}", delete(revoke_session))
         .route("/auth/sessions/revoke-all", post(revoke_all_sessions))
         .route("/auth/login-attempts", get(list_login_attempts))
         .route("/auth/password-policy", get(get_password_policy))

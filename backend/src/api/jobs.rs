@@ -18,8 +18,8 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/jobs", post(enqueue_job_handler))
         .route("/jobs", get(list_jobs_handler))
-        .route("/jobs/:job_id", get(get_job_handler))
-        .route("/jobs/:job_id/cancel", post(cancel_job_handler))
+        .route("/jobs/{job_id}", get(get_job_handler))
+        .route("/jobs/{job_id}/cancel", post(cancel_job_handler))
         .route("/jobs/cleanup", post(cleanup_jobs_handler))
         .route("/jobs/stats", get(get_job_stats_handler))
 }
