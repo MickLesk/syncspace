@@ -4,7 +4,7 @@
 # Node modules (will be installed in container)
 frontend/node_modules/
 
-# Build output (will be generated in container)  
+# Build output (will be generated in container)
 frontend/dist/
 frontend/build/
 
