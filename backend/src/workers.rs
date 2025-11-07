@@ -301,15 +301,6 @@ async fn process_thumbnail_generation(_pool: &SqlitePool, job: &BackgroundJob) -
         "dimensions": format!("{}x{}", max_width, max_height)
     }).to_string()))
 }
-    tracing::info!("Thumbnail generation job: {:?}", payload);
-    
-    // TODO: Implement actual thumbnail generation
-    tokio::time::sleep(Duration::from_secs(1)).await;
-    
-    Ok(Some(serde_json::json!({
-        "thumbnails_created": 5
-    }).to_string()))
-}
 
 async fn process_file_cleanup(_pool: &SqlitePool, job: &BackgroundJob) -> Result<Option<String>, String> {
     let payload: serde_json::Value = serde_json::from_str(&job.payload)
