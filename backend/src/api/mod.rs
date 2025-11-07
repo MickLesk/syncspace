@@ -2,6 +2,7 @@
 //! Centralizes all API route definitions
 
 pub mod auth;
+pub mod auth_security;
 pub mod setup;
 // pub mod twofa; // TODO: Fix compilation errors
 pub mod groups;
@@ -55,6 +56,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
         .merge(
             Router::new()
                 .merge(auth::protected_router())  // Protected auth routes (2FA, change-password, etc.)
+                .merge(auth_security::router())   // Auth security (sessions, login attempts, password policy)
                 .merge(users::router())
                 .merge(groups::router())
                 .merge(quota::router())
