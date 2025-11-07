@@ -360,6 +360,12 @@ async fn archive_job(pool: &SqlitePool, job_id: &str) -> Result<(), sqlx::Error>
     .execute(pool)
     .await?;
     
+    // Delete from active queue
+    sqlx::query("DELETE FROM background_jobs WHERE id = ?")
+        .bind(job_id)
+        .execute(pool)
+        .await?;
+    
     Ok(())
 }
 

@@ -1,14 +1,12 @@
 //! WebSocket handling module
 
 use axum::{
-    extract::{ws::{Message, WebSocket}, State, WebSocketUpgrade},
+    extract::{ws::{Message, WebSocket}, WebSocketUpgrade},
     response::Response,
 };
 use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use tokio::sync::broadcast::Sender;
-
-use crate::AppState;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FileChangeEvent {
@@ -44,15 +42,20 @@ impl FileChangeEvent {
 }
 
 /// WebSocket upgrade handler
-pub async fn ws_handler(
-    ws: WebSocketUpgrade,
-    State(state): State<AppState>,
-) -> Response {
-    ws.on_upgrade(|socket| handle_socket(socket, state.fs_tx))
+/// 
+/// NOTE: This handler is only used from main.rs with AppState.
+/// For lib.rs/tests, use handle_socket directly with a broadcast sender.
+pub fn ws_handler_with_tx(tx: Sender<FileChangeEvent>) -> impl Fn(WebSocketUpgrade) -> std::pin::Pin<Box<dyn std::future::Future<Output = Response> + Send>> + Clone {
+    move |ws: WebSocketUpgrade| {
+        let tx = tx.clone();
+        Box::pin(async move {
+            ws.on_upgrade(move |socket| handle_socket(socket, tx))
+        })
+    }
 }
 
 /// Handle WebSocket connection
-async fn handle_socket(socket: WebSocket, tx: Sender<FileChangeEvent>) {
+pub async fn handle_socket(socket: WebSocket, tx: Sender<FileChangeEvent>) {
     let (mut sender, mut receiver) = socket.split();
     let mut rx = tx.subscribe();
 
