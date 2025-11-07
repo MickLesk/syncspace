@@ -349,9 +349,15 @@ async fn main() {
         worker_pool.start().await;
     });
     
+    // Start new job system workers
+    let job_worker_shutdown = jobs::worker::start_job_workers(app_state.db_pool.clone(), 2).await;
+    
+    // Start new job scheduler
+    let job_scheduler_shutdown = jobs::scheduler::start_job_scheduler(app_state.db_pool.clone()).await;
+    
     // Start cron scheduler
     let cron_scheduler = cron::CronScheduler::new(app_state.db_pool.clone());
-    let cron_handle = tokio::spawn(async move {
+    let _cron_handle = tokio::spawn(async move {
         cron_scheduler.start().await;
     });
 

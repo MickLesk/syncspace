@@ -9,7 +9,8 @@ use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 use uuid::Uuid;
 
-use crate::jobs::{enqueue_job, CronJob, JobType};
+// TODO: Re-enable after job system API is fixed
+// use crate::jobs::{enqueue_job, CronJob, JobType};
 
 /// Cron scheduler that checks and enqueues jobs
 pub struct CronScheduler {
@@ -28,6 +29,9 @@ impl CronScheduler {
     
     /// Start the scheduler loop
     pub async fn start(&self) {
+        tracing::info!("⏰ Cron scheduler (old system) - DISABLED pending refactor");
+        // TODO: Re-enable after job system refactor
+        /*
         tracing::info!("⏰ Starting cron scheduler (checking every {}s)", self.check_interval_secs);
         
         loop {
@@ -37,8 +41,11 @@ impl CronScheduler {
             
             sleep(Duration::from_secs(self.check_interval_secs)).await;
         }
+        */
     }
     
+    /*
+    // TODO: Re-enable after job system refactor
     /// Process all enabled cron jobs
     async fn process_cron_jobs(&self) -> Result<(), sqlx::Error> {
         let now = Utc::now();
@@ -100,6 +107,8 @@ impl CronScheduler {
         Ok(())
     }
 }
+
+*/  // End of commented old cron system
 
 // ============================================================================
 // Cron Expression Parser (Simplified)

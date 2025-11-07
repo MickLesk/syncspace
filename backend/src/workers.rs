@@ -2,7 +2,8 @@
 //! 
 //! Manages Tokio tasks for parallel job execution with graceful shutdown.
 
-use crate::jobs::{BackgroundJob, JobStatus, JobType, fetch_next_job, mark_job_running, mark_job_completed, mark_job_failed};
+// TODO: Re-enable after job system API is fixed
+// use crate::jobs::{BackgroundJob, JobStatus, JobType, fetch_next_job, mark_job_running, mark_job_completed, mark_job_failed};
 use crate::websocket::FileChangeEvent;
 use sqlx::SqlitePool;
 use std::sync::Arc;
@@ -33,6 +34,9 @@ impl WorkerPool {
     
     /// Start worker pool
     pub async fn start(&self) {
+        tracing::info!("🚀 Job worker pool (old system) - DISABLED pending refactor");
+        // TODO: Re-enable after job system refactor
+        /*
         tracing::info!("🚀 Starting job worker pool with {} workers", self.num_workers);
         
         let mut handles = Vec::new();
@@ -56,6 +60,7 @@ impl WorkerPool {
         }
         
         tracing::info!("✅ All workers stopped");
+        */
     }
     
     /// Signal graceful shutdown
@@ -65,6 +70,8 @@ impl WorkerPool {
     }
 }
 
+/*
+// TODO: Re-enable after job system refactor
 /// Worker loop - continuously fetch and process jobs
 async fn worker_loop(
     worker_id: usize,
@@ -595,3 +602,4 @@ async fn process_virus_scan(_pool: &SqlitePool, job: &BackgroundJob) -> Result<O
         "clean": true
     }).to_string()))
 }
+*/  // End of commented old worker system
