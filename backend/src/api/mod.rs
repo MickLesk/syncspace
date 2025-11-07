@@ -33,6 +33,7 @@ pub mod errors;
 pub mod jobs;
 pub mod cron;
 pub mod db_health;
+pub mod upload_chunk;
 
 use axum::{
     middleware,
@@ -84,6 +85,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(jobs::router())    // Background jobs management
                 .merge(cron::router())    // Cron scheduler management
                 .merge(db_health::router()) // Database health and monitoring
+                .merge(upload_chunk::router()) // Chunked upload support
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

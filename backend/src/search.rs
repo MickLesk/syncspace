@@ -26,6 +26,36 @@ pub struct SearchResult {
     pub size: u64,
     pub modified: String,
     pub file_type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub highlights: Option<Vec<String>>,
+}
+
+/// Search suggestion for autocomplete
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SearchSuggestion {
+    pub text: String,
+    pub file_type: Option<String>,
+    pub score: f32,
+}
+
+/// Faceted search filters
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SearchFacets {
+    pub file_types: std::collections::HashMap<String, usize>,
+    pub size_ranges: std::collections::HashMap<String, usize>,
+    pub date_ranges: std::collections::HashMap<String, usize>,
+}
+
+/// Advanced search options
+#[derive(Debug, Clone, Deserialize)]
+pub struct SearchOptions {
+    pub fuzzy: bool,
+    pub fuzzy_distance: Option<u8>, // Max edit distance (1-2)
+    pub file_type_filter: Option<Vec<String>>,
+    pub min_size: Option<u64>,
+    pub max_size: Option<u64>,
+    pub date_from: Option<chrono::DateTime<chrono::Utc>>,
+    pub date_to: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 /// Search index manager
@@ -279,6 +309,318 @@ impl SearchIndex {
         limit: usize,
         fuzzy: bool,
     ) -> Result<Vec<SearchResult>, Box<dyn std::error::Error + Send + Sync>> {
+        self.search_advanced(query_str, limit, SearchOptions {
+            fuzzy,
+            fuzzy_distance: Some(2),
+            file_type_filter: None,
+            min_size: None,
+            max_size: None,
+            date_from: None,
+            date_to: None,
+        })
+    }
+    
+    /// Advanced search with filters and facets
+    pub fn search_advanced(
+        &self,
+        query_str: &str,
+        limit: usize,
+        options: SearchOptions,
+    ) -> Result<Vec<SearchResult>, Box<dyn std::error::Error + Send + Sync>> {
+        let searcher = self.reader.searcher();
+        
+        // Parse query
+        let mut query = if options.fuzzy {
+            // Fuzzy search - allows typos
+            let term = Term::from_field_text(self.filename_field, query_str);
+            let distance = options.fuzzy_distance.unwrap_or(2).min(2); // Cap at 2
+            Box::new(FuzzyTermQuery::new(term, distance, true)) as Box<dyn tantivy::query::Query>
+        } else {
+            // Standard query parser for filename, path and content
+            let query_parser = QueryParser::for_index(
+                &self.index,
+                vec![self.filename_field, self.path_field, self.content_field],
+            );
+            query_parser.parse_query(query_str)?
+        };
+        
+        // Apply filters if specified
+        if let Some(ref file_types) = options.file_type_filter {
+            // Add file type filter
+            use tantivy::query::{BooleanQuery, Occur};
+            
+            let file_type_queries: Vec<Box<dyn tantivy::query::Query>> = file_types.iter()
+                .map(|ft| {
+                    let term = Term::from_field_text(self.file_type_field, ft);
+                    Box::new(tantivy::query::TermQuery::new(term, tantivy::schema::IndexRecordOption::Basic)) as Box<dyn tantivy::query::Query>
+                })
+                .collect();
+            
+            if !file_type_queries.is_empty() {
+                let file_type_filter = BooleanQuery::new(
+                    file_type_queries.into_iter().map(|q| (Occur::Should, q)).collect()
+                );
+                
+                query = Box::new(BooleanQuery::new(vec![
+                    (Occur::Must, query),
+                    (Occur::Must, Box::new(file_type_filter)),
+                ]));
+            }
+        }
+        
+        // Search
+        let top_docs = searcher.search(&query, &TopDocs::with_limit(limit))?;
+        
+        // Convert to results
+        let mut results = Vec::new();
+        for (score, doc_address) in top_docs {
+            let retrieved_doc = searcher.doc::<tantivy::TantivyDocument>(doc_address)?;
+            
+            let file_id = retrieved_doc
+                .get_first(self.file_id_field)
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            
+            let filename = retrieved_doc
+                .get_first(self.filename_field)
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            
+            let path = retrieved_doc
+                .get_first(self.path_field)
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            
+            let file_type = retrieved_doc
+                .get_first(self.file_type_field)
+                .and_then(|v| v.as_str())
+                .unwrap_or("unknown")
+                .to_string();
+            
+            let size = retrieved_doc
+                .get_first(self.size_field)
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0);
+            
+            let modified = retrieved_doc
+                .get_first(self.modified_field)
+                .and_then(|v| v.as_datetime())
+                .map(|dt| {
+                    chrono::DateTime::from_timestamp(dt.into_timestamp_secs(), 0)
+                        .unwrap_or_default()
+                        .to_rfc3339()
+                })
+                .unwrap_or_default();
+            
+            // Apply post-search filters (size, date)
+            if let Some(min_size) = options.min_size {
+                if size < min_size {
+                    continue;
+                }
+            }
+            if let Some(max_size) = options.max_size {
+                if size > max_size {
+                    continue;
+                }
+            }
+            
+            if let Some(date_from) = options.date_from {
+                if let Ok(file_date) = chrono::DateTime::parse_from_rfc3339(&modified) {
+                    if file_date.with_timezone(&chrono::Utc) < date_from {
+                        continue;
+                    }
+                }
+            }
+            
+            if let Some(date_to) = options.date_to {
+                if let Ok(file_date) = chrono::DateTime::parse_from_rfc3339(&modified) {
+                    if file_date.with_timezone(&chrono::Utc) > date_to {
+                        continue;
+                    }
+                }
+            }
+            
+            // Generate highlights for filename and path
+            let highlights = Self::generate_highlights(query_str, &filename, &path);
+            
+            results.push(SearchResult {
+                file_id,
+                filename,
+                path,
+                snippet: None, // TODO: Add snippet extraction from content
+                score,
+                size,
+                modified,
+                file_type,
+                highlights: Some(highlights),
+            });
+        }
+        
+        Ok(results)
+    }
+    
+    /// Generate search suggestions for autocomplete
+    pub fn suggest(
+        &self,
+        prefix: &str,
+        limit: usize,
+    ) -> Result<Vec<SearchSuggestion>, Box<dyn std::error::Error + Send + Sync>> {
+        let searcher = self.reader.searcher();
+        
+        // Create prefix query on filename field
+        let query_str = format!("{}*", prefix); // Wildcard search
+        let query_parser = QueryParser::for_index(
+            &self.index,
+            vec![self.filename_field],
+        );
+        
+        let query = query_parser.parse_query(&query_str)?;
+        let top_docs = searcher.search(&query, &TopDocs::with_limit(limit * 2))?; // Get more to deduplicate
+        
+        // Collect unique suggestions
+        let mut suggestions = Vec::new();
+        let mut seen = std::collections::HashSet::new();
+        
+        for (score, doc_address) in top_docs {
+            if suggestions.len() >= limit {
+                break;
+            }
+            
+            let retrieved_doc = searcher.doc::<tantivy::TantivyDocument>(doc_address)?;
+            
+            let filename = retrieved_doc
+                .get_first(self.filename_field)
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            
+            let file_type = retrieved_doc
+                .get_first(self.file_type_field)
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string());
+            
+            // Deduplicate by filename
+            if !seen.contains(&filename) {
+                seen.insert(filename.clone());
+                suggestions.push(SearchSuggestion {
+                    text: filename,
+                    file_type,
+                    score,
+                });
+            }
+        }
+        
+        Ok(suggestions)
+    }
+    
+    /// Get search facets (aggregations by file type, size, date)
+    pub fn facets(
+        &self,
+        query_str: Option<&str>,
+    ) -> Result<SearchFacets, Box<dyn std::error::Error + Send + Sync>> {
+        let searcher = self.reader.searcher();
+        
+        // Get all or filtered documents
+        let query: Box<dyn tantivy::query::Query> = if let Some(q) = query_str {
+            let query_parser = QueryParser::for_index(
+                &self.index,
+                vec![self.filename_field, self.path_field, self.content_field],
+            );
+            query_parser.parse_query(q)?
+        } else {
+            Box::new(tantivy::query::AllQuery)
+        };
+        
+        // Search all matching documents
+        let top_docs = searcher.search(&query, &TopDocs::with_limit(10000))?; // Limit to prevent OOM
+        
+        let mut file_types = std::collections::HashMap::new();
+        let mut size_ranges = std::collections::HashMap::new();
+        let mut date_ranges = std::collections::HashMap::new();
+        
+        for (_, doc_address) in top_docs {
+            let retrieved_doc = searcher.doc::<tantivy::TantivyDocument>(doc_address)?;
+            
+            // Count by file type
+            if let Some(file_type) = retrieved_doc.get_first(self.file_type_field).and_then(|v| v.as_str()) {
+                *file_types.entry(file_type.to_string()).or_insert(0) += 1;
+            }
+            
+            // Count by size range
+            if let Some(size) = retrieved_doc.get_first(self.size_field).and_then(|v| v.as_u64()) {
+                let range = match size {
+                    0..=1024 => "< 1 KB",
+                    1025..=10240 => "1-10 KB",
+                    10241..=102400 => "10-100 KB",
+                    102401..=1048576 => "100 KB - 1 MB",
+                    1048577..=10485760 => "1-10 MB",
+                    10485761..=104857600 => "10-100 MB",
+                    _ => "> 100 MB",
+                };
+                *size_ranges.entry(range.to_string()).or_insert(0) += 1;
+            }
+            
+            // Count by date range (last 7 days, 30 days, 90 days, older)
+            if let Some(modified) = retrieved_doc.get_first(self.modified_field).and_then(|v| v.as_datetime()) {
+                let file_date = chrono::DateTime::from_timestamp(modified.into_timestamp_secs(), 0)
+                    .unwrap_or_default();
+                let now = chrono::Utc::now();
+                let days_ago = (now - file_date).num_days();
+                
+                let range = match days_ago {
+                    0..=7 => "Last 7 days",
+                    8..=30 => "Last 30 days",
+                    31..=90 => "Last 90 days",
+                    _ => "Older",
+                };
+                *date_ranges.entry(range.to_string()).or_insert(0) += 1;
+            }
+        }
+        
+        Ok(SearchFacets {
+            file_types,
+            size_ranges,
+            date_ranges,
+        })
+    }
+    
+    /// Generate highlights by matching query terms in text
+    fn generate_highlights(query: &str, filename: &str, path: &str) -> Vec<String> {
+        let mut highlights = Vec::new();
+        let query_lower = query.to_lowercase();
+        let query_terms: Vec<&str> = query_lower.split_whitespace().collect();
+        
+        // Check filename
+        let filename_lower = filename.to_lowercase();
+        for term in &query_terms {
+            if filename_lower.contains(term) {
+                highlights.push(format!("Filename: {}", filename));
+                break;
+            }
+        }
+        
+        // Check path
+        let path_lower = path.to_lowercase();
+        for term in &query_terms {
+            if path_lower.contains(term) {
+                highlights.push(format!("Path: {}", path));
+                break;
+            }
+        }
+        
+        highlights
+    }
+    
+    /// Search with query string (legacy method - kept for backwards compatibility)
+    pub fn search_legacy(
+        &self,
+        query_str: &str,
+        limit: usize,
+        fuzzy: bool,
+    ) -> Result<Vec<SearchResult>, Box<dyn std::error::Error + Send + Sync>> {
         let searcher = self.reader.searcher();
         
         // Parse query
@@ -351,6 +693,7 @@ impl SearchIndex {
                 size,
                 modified,
                 file_type,
+                highlights: None,
             });
         }
         

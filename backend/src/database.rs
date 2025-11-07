@@ -969,3 +969,301 @@ pub struct EnhancedBackup {
     pub destination_type: Option<String>,
     pub metadata: Option<String>,
 }
+
+// ==================== AUTHENTICATION SECURITY MODELS ====================
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct LoginAttempt {
+    pub id: String,
+    pub username: String,
+    pub ip_address: String,
+    pub user_agent: Option<String>,
+    pub success: i64, // 0=failed, 1=success
+    pub failure_reason: Option<String>,
+    pub attempted_at: String,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct UserSession {
+    pub id: String,
+    pub user_id: String,
+    pub session_token: String,
+    pub ip_address: String,
+    pub user_agent: Option<String>,
+    pub created_at: String,
+    pub last_active_at: String,
+    pub expires_at: String,
+    pub revoked: i64, // 0=active, 1=revoked
+    pub revoked_at: Option<String>,
+    pub revoked_reason: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct AccountLockout {
+    pub id: String,
+    pub user_id: String,
+    pub username: String,
+    pub locked_at: String,
+    pub locked_until: String,
+    pub reason: String,
+    pub failed_attempts_count: i64,
+    pub unlocked_at: Option<String>,
+    pub unlocked_by: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct PasswordHistory {
+    pub id: String,
+    pub user_id: String,
+    pub password_hash: String,
+    pub changed_at: String,
+}
+
+impl LoginAttempt {
+    /// Log a login attempt
+    pub async fn create(
+        pool: &SqlitePool,
+        username: &str,
+        ip_address: &str,
+        user_agent: Option<&str>,
+        success: bool,
+        failure_reason: Option<&str>,
+    ) -> Result<Self, sqlx::Error> {
+        let id = Uuid::new_v4().to_string();
+        let now = Utc::now().to_rfc3339();
+        
+        sqlx::query_as::<_, LoginAttempt>(
+            "INSERT INTO login_attempts (id, username, ip_address, user_agent, success, failure_reason, attempted_at, created_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING *"
+        )
+        .bind(&id)
+        .bind(username)
+        .bind(ip_address)
+        .bind(user_agent)
+        .bind(if success { 1 } else { 0 })
+        .bind(failure_reason)
+        .bind(&now)
+        .bind(&now)
+        .fetch_one(pool)
+        .await
+    }
+    
+    /// Get recent failed attempts for a username
+    pub async fn get_recent_failures(
+        pool: &SqlitePool,
+        username: &str,
+        minutes: i64,
+    ) -> Result<Vec<Self>, sqlx::Error> {
+        let cutoff = Utc::now() - chrono::Duration::minutes(minutes);
+        sqlx::query_as::<_, LoginAttempt>(
+            "SELECT * FROM login_attempts 
+             WHERE username = ? AND success = 0 AND attempted_at >= ?
+             ORDER BY attempted_at DESC"
+        )
+        .bind(username)
+        .bind(cutoff.to_rfc3339())
+        .fetch_all(pool)
+        .await
+    }
+}
+
+impl UserSession {
+    /// Create a new session
+    pub async fn create(
+        pool: &SqlitePool,
+        user_id: &str,
+        session_token: &str,
+        ip_address: &str,
+        user_agent: Option<&str>,
+        expires_at: chrono::DateTime<Utc>,
+    ) -> Result<Self, sqlx::Error> {
+        let id = Uuid::new_v4().to_string();
+        let now = Utc::now().to_rfc3339();
+        
+        sqlx::query_as::<_, UserSession>(
+            "INSERT INTO user_sessions (id, user_id, session_token, ip_address, user_agent, created_at, last_active_at, expires_at, revoked)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0) RETURNING *"
+        )
+        .bind(&id)
+        .bind(user_id)
+        .bind(session_token)
+        .bind(ip_address)
+        .bind(user_agent)
+        .bind(&now)
+        .bind(&now)
+        .bind(expires_at.to_rfc3339())
+        .fetch_one(pool)
+        .await
+    }
+    
+    /// Get active sessions for a user
+    pub async fn get_user_sessions(
+        pool: &SqlitePool,
+        user_id: &str,
+    ) -> Result<Vec<Self>, sqlx::Error> {
+        sqlx::query_as::<_, UserSession>(
+            "SELECT * FROM user_sessions 
+             WHERE user_id = ? AND revoked = 0 AND expires_at > datetime('now')
+             ORDER BY last_active_at DESC"
+        )
+        .bind(user_id)
+        .fetch_all(pool)
+        .await
+    }
+    
+    /// Revoke a session
+    pub async fn revoke(
+        pool: &SqlitePool,
+        session_id: &str,
+        reason: &str,
+    ) -> Result<(), sqlx::Error> {
+        let now = Utc::now().to_rfc3339();
+        sqlx::query(
+            "UPDATE user_sessions SET revoked = 1, revoked_at = ?, revoked_reason = ?
+             WHERE id = ?"
+        )
+        .bind(&now)
+        .bind(reason)
+        .bind(session_id)
+        .execute(pool)
+        .await?;
+        Ok(())
+    }
+    
+    /// Update last active timestamp
+    pub async fn update_activity(
+        pool: &SqlitePool,
+        session_token: &str,
+    ) -> Result<(), sqlx::Error> {
+        let now = Utc::now().to_rfc3339();
+        sqlx::query(
+            "UPDATE user_sessions SET last_active_at = ? WHERE session_token = ?"
+        )
+        .bind(&now)
+        .bind(session_token)
+        .execute(pool)
+        .await?;
+        Ok(())
+    }
+}
+
+impl AccountLockout {
+    /// Create an account lockout
+    pub async fn create(
+        pool: &SqlitePool,
+        user_id: &str,
+        username: &str,
+        failed_attempts: i64,
+        lock_duration_minutes: i64,
+    ) -> Result<Self, sqlx::Error> {
+        let id = Uuid::new_v4().to_string();
+        let now = Utc::now();
+        let locked_until = now + chrono::Duration::minutes(lock_duration_minutes);
+        
+        sqlx::query_as::<_, AccountLockout>(
+            "INSERT INTO account_lockouts (id, user_id, username, locked_at, locked_until, reason, failed_attempts_count)
+             VALUES (?, ?, ?, ?, ?, 'too_many_failed_attempts', ?) RETURNING *"
+        )
+        .bind(&id)
+        .bind(user_id)
+        .bind(username)
+        .bind(now.to_rfc3339())
+        .bind(locked_until.to_rfc3339())
+        .bind(failed_attempts)
+        .fetch_one(pool)
+        .await
+    }
+    
+    /// Check if user is currently locked
+    pub async fn is_locked(
+        pool: &SqlitePool,
+        username: &str,
+    ) -> Result<Option<Self>, sqlx::Error> {
+        sqlx::query_as::<_, AccountLockout>(
+            "SELECT * FROM account_lockouts 
+             WHERE username = ? AND locked_until > datetime('now') AND unlocked_at IS NULL
+             ORDER BY locked_at DESC LIMIT 1"
+        )
+        .bind(username)
+        .fetch_optional(pool)
+        .await
+    }
+    
+    /// Unlock an account (admin action)
+    pub async fn unlock(
+        pool: &SqlitePool,
+        lockout_id: &str,
+        unlocked_by: &str,
+    ) -> Result<(), sqlx::Error> {
+        let now = Utc::now().to_rfc3339();
+        sqlx::query(
+            "UPDATE account_lockouts SET unlocked_at = ?, unlocked_by = ?
+             WHERE id = ?"
+        )
+        .bind(&now)
+        .bind(unlocked_by)
+        .bind(lockout_id)
+        .execute(pool)
+        .await?;
+        Ok(())
+    }
+}
+
+impl PasswordHistory {
+    /// Add password to history
+    pub async fn add(
+        pool: &SqlitePool,
+        user_id: &str,
+        password_hash: &str,
+    ) -> Result<(), sqlx::Error> {
+        let id = Uuid::new_v4().to_string();
+        let now = Utc::now().to_rfc3339();
+        
+        sqlx::query(
+            "INSERT INTO password_history (id, user_id, password_hash, changed_at)
+             VALUES (?, ?, ?, ?)"
+        )
+        .bind(&id)
+        .bind(user_id)
+        .bind(password_hash)
+        .bind(&now)
+        .execute(pool)
+        .await?;
+        
+        // Keep only last 5 passwords
+        sqlx::query(
+            "DELETE FROM password_history 
+             WHERE user_id = ? AND id NOT IN (
+                 SELECT id FROM password_history 
+                 WHERE user_id = ? 
+                 ORDER BY changed_at DESC 
+                 LIMIT 5
+             )"
+        )
+        .bind(user_id)
+        .bind(user_id)
+        .execute(pool)
+        .await?;
+        
+        Ok(())
+    }
+    
+    /// Check if password was used recently
+    pub async fn was_used_recently(
+        pool: &SqlitePool,
+        user_id: &str,
+        password_hash: &str,
+    ) -> Result<bool, sqlx::Error> {
+        let result = sqlx::query_scalar::<_, i64>(
+            "SELECT COUNT(*) FROM password_history 
+             WHERE user_id = ? AND password_hash = ?"
+        )
+        .bind(user_id)
+        .bind(password_hash)
+        .fetch_one(pool)
+        .await?;
+        
+        Ok(result > 0)
+    }
+}

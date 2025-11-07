@@ -278,10 +278,28 @@ export const files = {
 
   /**
    * Upload a file with FormData and progress tracking
+   * Automatically uses chunked upload for files >100MB
    */
-  async uploadWithProgress(path, file, onProgress) {
+  async uploadWithProgress(path, file, onProgress, onPause = null) {
+    const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks
+    const LARGE_FILE_THRESHOLD = 100 * 1024 * 1024; // 100MB
+    
+    // Use chunked upload for large files
+    if (file.size > LARGE_FILE_THRESHOLD) {
+      return this.uploadChunked(path, file, onProgress, onPause);
+    }
+    
+    // Standard upload for smaller files
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
+      
+      // Store XHR for pause/cancel functionality
+      if (onPause) {
+        onPause(() => {
+          xhr.abort();
+          reject(new Error('Upload paused by user'));
+        });
+      }
       
       // Progress tracking
       if (onProgress) {
@@ -308,11 +326,15 @@ export const files = {
       });
       
       xhr.addEventListener('error', () => {
-        reject(new Error('Upload failed'));
+        reject(new Error('Network error during upload'));
       });
       
       xhr.addEventListener('abort', () => {
         reject(new Error('Upload cancelled'));
+      });
+      
+      xhr.addEventListener('timeout', () => {
+        reject(new Error('Upload timeout'));
       });
       
       // Prepare FormData
@@ -322,6 +344,7 @@ export const files = {
       
       // Open and send request
       xhr.open('POST', `${API_BASE}/upload-multipart`);
+      xhr.timeout = 300000; // 5 minute timeout
       
       // Add auth header
       const token = getToken();
@@ -331,6 +354,181 @@ export const files = {
       
       xhr.send(formData);
     });
+  },
+
+  /**
+   * Chunked upload for large files (>100MB)
+   * Supports pause/resume functionality
+   */
+  async uploadChunked(path, file, onProgress, onPause = null) {
+    const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const uploadId = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    let isPaused = false;
+    let currentChunk = 0;
+    
+    // Restore from localStorage if resuming
+    const savedProgress = this.getUploadProgress(file.name);
+    if (savedProgress && savedProgress.uploadId === uploadId) {
+      currentChunk = savedProgress.currentChunk;
+      console.log(`📦 Resuming chunked upload from chunk ${currentChunk}/${totalChunks}`);
+    }
+    
+    // Setup pause handler
+    if (onPause) {
+      onPause(() => {
+        isPaused = true;
+        this.saveUploadProgress(file.name, {
+          uploadId,
+          currentChunk,
+          totalChunks,
+          path,
+          timestamp: Date.now()
+        });
+        throw new Error('Upload paused');
+      });
+    }
+    
+    try {
+      // Upload chunks sequentially
+      while (currentChunk < totalChunks) {
+        if (isPaused) {
+          throw new Error('Upload paused by user');
+        }
+        
+        const start = currentChunk * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunk = file.slice(start, end);
+        
+        // Upload chunk
+        await this.uploadChunk(path, file.name, chunk, currentChunk, totalChunks, uploadId);
+        
+        currentChunk++;
+        
+        // Update progress
+        if (onProgress) {
+          const percentComplete = (currentChunk / totalChunks) * 100;
+          const bytesUploaded = Math.min(currentChunk * CHUNK_SIZE, file.size);
+          onProgress(percentComplete, bytesUploaded, file.size);
+        }
+        
+        // Save progress to localStorage
+        this.saveUploadProgress(file.name, {
+          uploadId,
+          currentChunk,
+          totalChunks,
+          path,
+          timestamp: Date.now()
+        });
+      }
+      
+      // Finalize upload on backend
+      await this.finalizeChunkedUpload(path, file.name, uploadId, totalChunks);
+      
+      // Clear saved progress
+      this.clearUploadProgress(file.name);
+      
+      return { success: true, message: 'Chunked upload complete' };
+      
+    } catch (error) {
+      if (error.message !== 'Upload paused' && error.message !== 'Upload paused by user') {
+        // Clear progress on error (but not on pause)
+        this.clearUploadProgress(file.name);
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Upload a single chunk
+   */
+  async uploadChunk(path, fileName, chunk, chunkIndex, totalChunks, uploadId) {
+    const formData = new FormData();
+    formData.append('chunk', chunk);
+    formData.append('path', path);
+    formData.append('fileName', fileName);
+    formData.append('chunkIndex', chunkIndex.toString());
+    formData.append('totalChunks', totalChunks.toString());
+    formData.append('uploadId', uploadId);
+    
+    const response = await fetch(`${API_BASE}/upload-chunk`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: formData
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Chunk upload failed: ${response.status}`);
+    }
+    
+    return response.json();
+  },
+
+  /**
+   * Finalize chunked upload (merge chunks on backend)
+   */
+  async finalizeChunkedUpload(path, fileName, uploadId, totalChunks) {
+    const response = await fetch(`${API_BASE}/upload-chunk-finalize`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        path,
+        fileName,
+        uploadId,
+        totalChunks
+      })
+    });
+    
+    return handleResponse(response);
+  },
+
+  /**
+   * Save upload progress to localStorage
+   */
+  saveUploadProgress(fileName, progress) {
+    try {
+      const key = `upload_progress_${fileName}`;
+      localStorage.setItem(key, JSON.stringify(progress));
+    } catch (error) {
+      console.error('Failed to save upload progress:', error);
+    }
+  },
+
+  /**
+   * Get upload progress from localStorage
+   */
+  getUploadProgress(fileName) {
+    try {
+      const key = `upload_progress_${fileName}`;
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        const progress = JSON.parse(saved);
+        // Only use if less than 24 hours old
+        if (Date.now() - progress.timestamp < 24 * 60 * 60 * 1000) {
+          return progress;
+        }
+        // Clear old progress
+        this.clearUploadProgress(fileName);
+      }
+    } catch (error) {
+      console.error('Failed to get upload progress:', error);
+    }
+    return null;
+  },
+
+  /**
+   * Clear upload progress from localStorage
+   */
+  clearUploadProgress(fileName) {
+    try {
+      const key = `upload_progress_${fileName}`;
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.error('Failed to clear upload progress:', error);
+    }
   },
 
   /**
@@ -441,6 +639,44 @@ export const search = {
     });
     const response = await fetch(`${API_BASE}/search?${params}`, {
       headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get search suggestions for autocomplete
+   */
+  async suggest(prefix, limit = 10) {
+    const params = new URLSearchParams({
+      q: prefix,
+      limit: limit.toString(),
+    });
+    const response = await fetch(`${API_BASE}/search/suggest?${params}`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get search facets (aggregations by file type, size, date)
+   */
+  async facets(query = '') {
+    const params = new URLSearchParams({
+      q: query,
+    });
+    const response = await fetch(`${API_BASE}/search/facets?${params}`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Reindex all files (admin operation)
+   */
+  async reindex() {
+    const response = await fetch(`${API_BASE}/search/reindex`, {
+      method: 'POST',
+      headers: getHeaders(),
     });
     return handleResponse(response);
   },
