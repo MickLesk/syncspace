@@ -6,7 +6,7 @@
    * Virtual List/Grid Component
    * Renders only visible items for better performance with large datasets
    * Supports both list view and responsive grid layouts
-   * 
+   *
    * @props items - Array of items to render
    * @props itemHeight - Height of each item/row in pixels (default: 60)
    * @props visibleCount - Number of visible items (informational, default: 20)
@@ -36,11 +36,11 @@
   // Calculate responsive columns for grid layout
   let responsiveColumns = $derived(() => {
     if (!isGrid || columns > 1) return columns; // Use provided columns if specified
-    
+
     // Auto-calculate responsive columns based on container width
     if (containerWidth >= 1280) return 4; // xl: 4 columns
     if (containerWidth >= 1024) return 3; // lg: 3 columns
-    if (containerWidth >= 640) return 2;  // sm: 2 columns
+    if (containerWidth >= 640) return 2; // sm: 2 columns
     return 1; // default: 1 column
   });
 
@@ -62,8 +62,10 @@
 
   // Convert row indices to item indices
   let startIndex = $derived(startRowIndex * effectiveColumns);
-  let endIndex = $derived(Math.min(items.length, endRowIndex * effectiveColumns));
-  
+  let endIndex = $derived(
+    Math.min(items.length, endRowIndex * effectiveColumns)
+  );
+
   let visibleItems = $derived(items.slice(startIndex, endIndex));
   let totalHeight = $derived(totalRows * rowHeight);
   let offsetY = $derived(startRowIndex * rowHeight);
@@ -71,7 +73,7 @@
   // Restore scroll position from localStorage on mount
   $effect(() => {
     if (!persistKey || isRestoring) return;
-    
+
     const savedScroll = localStorage.getItem(`vscroll_${persistKey}`);
     if (savedScroll) {
       const position = parseInt(savedScroll, 10);
@@ -79,7 +81,7 @@
         isRestoring = true;
         // Use setTimeout to ensure DOM is ready
         setTimeout(() => {
-          const container = document.querySelector('.virtual-list-container');
+          const container = document.querySelector(".virtual-list-container");
           if (container) {
             container.scrollTop = position;
             scrollTop = position;
@@ -94,10 +96,10 @@
   let saveTimeout;
   $effect(() => {
     if (!persistKey || isRestoring) return;
-    
+
     // Trigger effect on scrollTop change
     const currentScroll = scrollTop;
-    
+
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
       if (currentScroll > 0) {

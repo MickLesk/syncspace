@@ -19,26 +19,28 @@
   function generateTestData(count) {
     const start = performance.now();
     const data = [];
-    const types = ['folder', 'pdf', 'image', 'video', 'document', 'text'];
+    const types = ["folder", "pdf", "image", "video", "document", "text"];
     const extensions = {
-      pdf: '.pdf',
-      image: '.jpg',
-      video: '.mp4',
-      document: '.docx',
-      text: '.txt',
-      folder: ''
+      pdf: ".pdf",
+      image: ".jpg",
+      video: ".mp4",
+      document: ".docx",
+      text: ".txt",
+      folder: "",
     };
 
     for (let i = 0; i < count; i++) {
       const type = types[Math.floor(Math.random() * types.length)];
       const ext = extensions[type];
       data.push({
-        name: `${type === 'folder' ? 'Folder' : 'File'}_${i}${ext}`,
+        name: `${type === "folder" ? "Folder" : "File"}_${i}${ext}`,
         file_path: `/test/path/${i}${ext}`,
         size: Math.floor(Math.random() * 10000000),
-        modified_at: new Date(Date.now() - Math.random() * 31536000000).toISOString(),
-        is_dir: type === 'folder',
-        mime_type: type === 'folder' ? null : `application/${type}`,
+        modified_at: new Date(
+          Date.now() - Math.random() * 31536000000
+        ).toISOString(),
+        is_dir: type === "folder",
+        mime_type: type === "folder" ? null : `application/${type}`,
       });
     }
     const end = performance.now();
@@ -60,13 +62,13 @@
   function measureScrollFPS() {
     const now = performance.now();
     frameCount++;
-    
+
     if (now - lastTime >= 1000) {
       scrollFPS = frameCount;
       frameCount = 0;
       lastTime = now;
     }
-    
+
     requestAnimationFrame(measureScrollFPS);
   }
 
@@ -77,18 +79,20 @@
 
   // Preset test sizes
   const presets = [
-    { label: '100 items', value: 100 },
-    { label: '1K items', value: 1000 },
-    { label: '10K items', value: 10000 },
-    { label: '100K items', value: 100000 },
+    { label: "100 items", value: 100 },
+    { label: "1K items", value: 1000 },
+    { label: "10K items", value: 10000 },
+    { label: "100K items", value: 100000 },
   ];
 </script>
 
 <div class="performance-test-container p-6 bg-base-200 rounded-lg">
   <h2 class="text-2xl font-bold mb-4">Virtual Scrolling Performance Test</h2>
-  
+
   <!-- Controls -->
-  <div class="controls grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div
+    class="controls grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+  >
     <div class="form-control">
       <label class="label" for="test-size">
         <span class="label-text">Test Size</span>
@@ -235,8 +239,9 @@
       <li>Try different view modes (list vs grid)</li>
     </ol>
     <p class="mt-2 text-sm text-base-content/70">
-      <strong>Expected Results:</strong> With virtualization enabled, even 100K items should scroll smoothly at 60 FPS.
-      Without virtualization, performance degrades rapidly above 1K items.
+      <strong>Expected Results:</strong> With virtualization enabled, even 100K items
+      should scroll smoothly at 60 FPS. Without virtualization, performance degrades
+      rapidly above 1K items.
     </p>
   </div>
 </div>

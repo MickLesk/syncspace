@@ -28,6 +28,8 @@ fn default_fuzzy() -> bool { true }
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/search", get(search_handler))
+        .route("/search/suggest", get(suggest_handler))
+        .route("/search/facets", get(facets_handler))
         .route("/search/reindex", post(reindex_handler))
 }
 
@@ -99,3 +101,38 @@ async fn reindex_handler(State(state): State<AppState>, _user: UserInfo) -> Resu
     }))
 }
 
+/// GET /api/search/suggest - Get search suggestions for autocomplete
+async fn suggest_handler(
+    State(state): State<AppState>,
+    _user: UserInfo,
+    Query(query): Query<SearchQuery>,
+) -> Result<Json<Vec<crate::search::SearchSuggestion>>, StatusCode> {
+    let suggestions = state.search_index.suggest(&query.q, query.limit)
+        .map_err(|e| {
+            eprintln!("Failed to get suggestions: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+    
+    Ok(Json(suggestions))
+}
+
+/// GET /api/search/facets - Get search facets (aggregations)
+async fn facets_handler(
+    State(state): State<AppState>,
+    _user: UserInfo,
+    Query(query): Query<SearchQuery>,
+) -> Result<Json<crate::search::SearchFacets>, StatusCode> {
+    let query_str = if query.q.is_empty() {
+        None
+    } else {
+        Some(query.q.as_str())
+    };
+    
+    let facets = state.search_index.facets(query_str)
+        .map_err(|e| {
+            eprintln!("Failed to get facets: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+    
+    Ok(Json(facets))
+}
