@@ -379,6 +379,7 @@ pub struct User {
     // Security
     pub totp_secret: Option<String>,
     pub totp_enabled: bool,
+    pub token_version: i32,  // For global token invalidation
     
     // Quota
     pub storage_quota_bytes: i64,
@@ -393,6 +394,21 @@ pub struct User {
     pub created_at: String,
     pub last_login: Option<String>,
     pub updated_at: String,
+}
+
+/// Refresh token for JWT authentication with rotation and revocation support
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct RefreshToken {
+    pub id: String,                     // UUID for token identifier
+    pub user_id: String,                // Foreign key to users table
+    pub token_hash: String,             // SHA256 hash of refresh token
+    pub token_version: i32,             // Version number for token rotation
+    pub expires_at: String,             // ISO 8601 timestamp
+    pub created_at: String,             // ISO 8601 timestamp
+    pub last_used_at: Option<String>,   // ISO 8601 timestamp
+    pub revoked_at: Option<String>,     // ISO 8601 timestamp (NULL if active)
+    pub user_agent: Option<String>,     // User agent for security tracking
+    pub ip_address: Option<String>,     // IP address for security tracking
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
