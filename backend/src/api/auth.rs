@@ -89,14 +89,21 @@ pub fn router() -> Router<AppState> {
 // ==================== HANDLERS ====================
 
 /// Register a new user
+#[tracing::instrument(skip(state, req), fields(username = %req.username))]
 async fn register_handler(
     State(state): State<AppState>,
     Json(req): Json<RegisterRequest>,
 ) -> Result<Json<AuthResponse>, (StatusCode, Json<serde_json::Value>)> {
-    services::register(&state, req.username, req.password)
+    tracing::info!("User registration attempt");
+    
+    services::register(&state, req.username.clone(), req.password)
         .await
-        .map(Json)
+        .map(|response| {
+            tracing::info!("User registered successfully: {}", req.username);
+            Json(response)
+        })
         .map_err(|e| {
+            tracing::warn!("Registration failed for {}: {}", req.username, e);
             (
                 StatusCode::BAD_REQUEST,
                 Json(serde_json::json!({
@@ -107,14 +114,21 @@ async fn register_handler(
 }
 
 /// Login user
+#[tracing::instrument(skip(state, req), fields(username = %req.username, has_2fa = req.totp_code.is_some()))]
 async fn login_handler(
     State(state): State<AppState>,
     Json(req): Json<LoginRequest>,
 ) -> Result<Json<AuthResponse>, (StatusCode, Json<serde_json::Value>)> {
-    services::login(&state, req.username, req.password, req.totp_code)
+    tracing::info!("Login attempt");
+    
+    services::login(&state, req.username.clone(), req.password, req.totp_code)
         .await
-        .map(Json)
+        .map(|response| {
+            tracing::info!("Login successful for: {}", req.username);
+            Json(response)
+        })
         .map_err(|e| {
+            tracing::warn!("Login failed for {}: {}", req.username, e);
             (
                 StatusCode::UNAUTHORIZED,
                 Json(serde_json::json!({
@@ -125,20 +139,31 @@ async fn login_handler(
 }
 
 /// Get current user info
+#[tracing::instrument(skip(user), fields(user_id = %user.0.id))]
 async fn me_handler(user: User) -> Json<UserInfo> {
+    tracing::debug!("Getting current user info");
     Json(user.0)
 }
 
 /// Change password
+#[tracing::instrument(skip(state, user, req), fields(user_id = %user.id))]
 async fn change_password_handler(
     State(state): State<AppState>,
     user: UserInfo,
     Json(req): Json<ChangePasswordRequest>,
 ) -> Result<StatusCode, StatusCode> {
+    tracing::info!("Password change attempt");
+    
     services::change_password(&state, &user, req.old_password, req.new_password)
         .await
-        .map(|_| StatusCode::OK)
-        .map_err(|_| StatusCode::BAD_REQUEST)
+        .map(|_| {
+            tracing::info!("Password changed successfully");
+            StatusCode::OK
+        })
+        .map_err(|e| {
+            tracing::warn!("Password change failed: {}", e);
+            StatusCode::BAD_REQUEST
+        })
 }
 
 /// Setup 2FA (generate secret)

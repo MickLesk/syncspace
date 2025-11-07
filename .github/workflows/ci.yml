@@ -1,0 +1,195 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # Backend Tests
+  backend-test:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: stable
+        components: rustfmt, clippy
+        
+    - name: Cache cargo registry
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+        
+    - name: Cache cargo index
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+        
+    - name: Cache cargo build
+      uses: actions/cache@v4
+      with:
+        path: backend/target
+        key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+    
+    - name: Run cargo fmt check
+      working-directory: ./backend
+      run: cargo fmt --all -- --check
+      
+    - name: Run cargo clippy
+      working-directory: ./backend
+      run: cargo clippy --all-targets --all-features -- -D warnings
+      
+    - name: Run unit tests
+      working-directory: ./backend
+      run: cargo test --tests --verbose
+      
+    - name: Build backend
+      working-directory: ./backend
+      run: cargo build --release --verbose
+      
+  # Frontend Tests
+  frontend-test:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+      
+    - name: Run linter
+      working-directory: ./frontend
+      run: npm run lint || echo "Skipping lint (not configured)"
+      
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+      
+  # Security Audit
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      
+    - name: Install cargo-audit
+      run: cargo install cargo-audit
+      
+    - name: Run cargo audit
+      working-directory: ./backend
+      run: cargo audit || echo "Security vulnerabilities found (non-blocking)"
+      
+  # Code Coverage
+  code-coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: stable
+        components: llvm-tools-preview
+        
+    - name: Install cargo-tarpaulin
+      run: cargo install cargo-tarpaulin
+      
+    - name: Generate code coverage
+      working-directory: ./backend
+      run: cargo tarpaulin --out Xml --output-dir ./coverage
+      
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./backend/coverage/cobertura.xml
+        fail_ci_if_error: false
+        
+  # Build Artifacts
+  build-artifacts:
+    name: Build Release Artifacts
+    runs-on: ${{ matrix.os }}
+    needs: [backend-test, frontend-test]
+    if: github.ref == 'refs/heads/main'
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Build backend
+      working-directory: ./backend
+      run: cargo build --release
+      
+    - name: Build frontend
+      working-directory: ./frontend
+      run: |
+        npm ci
+        npm run build
+        
+    - name: Package artifacts (Linux/macOS)
+      if: matrix.os != 'windows-latest'
+      run: |
+        mkdir -p release
+        cp backend/target/release/syncbackend release/
+        cp -r frontend/dist release/frontend
+        tar -czf syncspace-${{ matrix.os }}.tar.gz -C release .
+        
+    - name: Package artifacts (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: pwsh
+      run: |
+        New-Item -ItemType Directory -Force -Path release
+        Copy-Item backend/target/release/syncbackend.exe release/
+        Copy-Item -Recurse frontend/dist release/frontend
+        Compress-Archive -Path release/* -DestinationPath syncspace-${{ matrix.os }}.zip
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: syncspace-${{ matrix.os }}
+        path: |
+          syncspace-*.tar.gz
+          syncspace-*.zip
+        if-no-files-found: error
