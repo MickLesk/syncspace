@@ -96,6 +96,12 @@
       category: "tools",
     },
     {
+      id: "jobs",
+      icon: "gear-wide-connected",
+      label: "Background Jobs",
+      category: "tools",
+    },
+    {
       id: "trash",
       icon: "trash-fill",
       label: t($currentLang, "trash"),

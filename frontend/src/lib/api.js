@@ -1542,3 +1542,126 @@ export async function deleteRequest(endpoint) {
   });
   return handleResponse(response);
 }
+
+// ============================================================================
+// Jobs API
+// ============================================================================
+
+export const jobs = {
+  /**
+   * Get job statistics
+   */
+  stats: () => fetch(`${API_BASE}/jobs/stats`, { headers: getHeaders() }),
+  
+  /**
+   * List jobs with filters
+   */
+  list: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.status) query.set("status", params.status);
+    if (params.job_type) query.set("job_type", params.job_type);
+    if (params.limit) query.set("limit", params.limit);
+    if (params.offset) query.set("offset", params.offset);
+    
+    const queryString = query.toString();
+    const url = queryString ? `${API_BASE}/jobs?${queryString}` : `${API_BASE}/jobs`;
+    
+    return fetch(url, { headers: getHeaders() });
+  },
+  
+  /**
+   * Get job by ID
+   */
+  get: (jobId) => fetch(`${API_BASE}/jobs/${jobId}`, { headers: getHeaders() }),
+  
+  /**
+   * Enqueue new job
+   */
+  enqueue: (jobType, payload, priority = 5, scheduledAt = null) => 
+    fetch(`${API_BASE}/jobs`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ job_type: jobType, payload, priority, scheduled_at: scheduledAt }),
+    }),
+  
+  /**
+   * Cancel job
+   */
+  cancel: (jobId) =>
+    fetch(`${API_BASE}/jobs/${jobId}/cancel`, {
+      method: "POST",
+      headers: getHeaders(),
+    }),
+  
+  /**
+   * Cleanup old jobs
+   */
+  cleanup: () =>
+    fetch(`${API_BASE}/jobs/cleanup`, {
+      method: "POST",
+      headers: getHeaders(),
+    }),
+};
+
+// ============================================================================
+// Cron API
+// ============================================================================
+
+export const cron = {
+  /**
+   * List all cron jobs
+   */
+  list: () => fetch(`${API_BASE}/cron`, { headers: getHeaders() }),
+  
+  /**
+   * Get cron job by ID
+   */
+  get: (cronId) => fetch(`${API_BASE}/cron/${cronId}`, { headers: getHeaders() }),
+  
+  /**
+   * Create cron job
+   */
+  create: (name, jobType, cronExpression, payload) =>
+    fetch(`${API_BASE}/cron`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ name, job_type: jobType, cron_expression: cronExpression, payload }),
+    }),
+  
+  /**
+   * Update cron job
+   */
+  update: (cronId, cronExpression, payload) =>
+    fetch(`${API_BASE}/cron/${cronId}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify({ cron_expression: cronExpression, payload }),
+    }),
+  
+  /**
+   * Delete cron job
+   */
+  delete: (cronId) =>
+    fetch(`${API_BASE}/cron/${cronId}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    }),
+  
+  /**
+   * Enable cron job
+   */
+  enable: (cronId) =>
+    fetch(`${API_BASE}/cron/${cronId}/enable`, {
+      method: "POST",
+      headers: getHeaders(),
+    }),
+  
+  /**
+   * Disable cron job
+   */
+  disable: (cronId) =>
+    fetch(`${API_BASE}/cron/${cronId}/disable`, {
+      method: "POST",
+      headers: getHeaders(),
+    }),
+};
