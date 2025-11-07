@@ -1,0 +1,71 @@
+# Frontend Docker Build Context Ignore
+# Note: Build context is now root directory, paths are adjusted accordingly
+
+# Node modules (will be installed in container)
+frontend/node_modules/
+
+# Build output (will be generated in container)  
+frontend/dist/
+frontend/build/
+
+# Development files
+*.swp
+*.swo
+*~
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+docs/
+*.md
+
+# Logs and temporary files
+*.log
+*.tmp
+logs/
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Docker files (avoid recursive includes)
+docker/
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Test files
+frontend/coverage/
+frontend/.nyc_output/
+
+# Svelte/Vite cache
+frontend/.svelte-kit/
+frontend/vite.config.js.timestamp-*
+
+# Backend artifacts (frontend doesn't need them)
+backend/
+data/
+
+# Package manager files that could conflict
+frontend/package-lock.json
+frontend/yarn.lock
+frontend/pnpm-lock.yaml
+
+# Backend build artifacts
+backend/target/
+backend/Cargo.lock

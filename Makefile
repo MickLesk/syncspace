@@ -15,6 +15,8 @@ help:
 	@echo "  make format       - Format code (rustfmt + prettier)"
 	@echo "  make clean        - Clean build artifacts"
 	@echo "  make build        - Build production binaries"
+	@echo "  make docker-up    - Start with Docker"
+	@echo "  make docker-down  - Stop Docker containers"
 	@echo ""
 
 # Development - Start both backend and frontend
@@ -92,12 +94,40 @@ install:
 	cd frontend && npm install
 	@echo "✅ Dependencies installed!"
 
-# Docker build (optional)
-docker-build:
-	@echo "🐳 Building Docker image..."
-	docker build -t syncspace:latest .
+# =============================================================================
+# DOCKER TARGETS (Production Ready)
+# =============================================================================
 
-# Docker run (optional)
-docker-run:
-	@echo "🐳 Running Docker container..."
-	docker run -p 8080:8080 -p 5173:5173 -v $$(pwd)/data:/app/data syncspace:latest
+# Start with Docker
+docker-up:
+	@echo "🐳 Starting SyncSpace containers..."
+	docker-compose up -d
+	@echo "✅ Containers started!"
+	@echo "🌐 Frontend: http://localhost:3000"
+	@echo "🔧 Backend API: http://localhost:8080"
+
+# Stop containers
+docker-down:
+	@echo "� Stopping containers..."
+	docker-compose down
+
+# Docker logs
+docker-logs:
+	@echo "📋 Showing container logs..."
+	docker-compose logs -f
+
+# Docker status
+docker-status:
+	@echo "📊 Container Status:"
+	docker-compose ps
+
+# Rebuild containers
+docker-rebuild:
+	@echo "� Rebuilding containers..."
+	docker-compose up -d --build
+
+# Cleanup
+docker-clean:
+	@echo "🧹 Cleaning up..."
+	docker-compose down -v
+	docker system prune -f

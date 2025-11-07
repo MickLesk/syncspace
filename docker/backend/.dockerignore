@@ -1,0 +1,59 @@
+# Backend Docker Build Context Ignore
+# Note: Build context is now root directory, paths are adjusted accordingly
+
+# Target directory (compiled artifacts)
+backend/target/
+
+# Development files
+*.swp
+*.swo
+*~
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+docs/
+*.md
+
+# Logs and temporary files
+*.log
+*.tmp
+logs/
+
+# Data directory (not needed in build)
+data/
+*.db
+*.db-*
+
+# Test files
+backend/tests/fixtures/
+test_data/
+
+# Environment files
+.env
+.env.*
+
+# Docker files (avoid recursive includes)
+docker/
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Frontend artifacts (backend doesn't need them)
+frontend/
+node_modules/
+
+# Build artifacts from other components
+frontend/dist/
+frontend/node_modules/
