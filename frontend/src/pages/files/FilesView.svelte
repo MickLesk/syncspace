@@ -1023,25 +1023,25 @@
         <div class="virtual-list-wrapper" style="height: 70vh;">
           <VirtualList
             items={displayFiles()}
-            itemHeight={viewMode === "grid" ? 160 : 72}
+            itemHeight={viewMode === "grid" ? 200 : 72}
+            isGrid={viewMode === "grid"}
+            persistKey={currentPath}
           >
             {#snippet children(file, index)}
-              <div class={viewMode === "grid" ? "px-2" : ""}>
-                <FileCard
-                  {file}
-                  {viewMode}
-                  selected={selectedFiles.has(file.file_path || file.name)}
-                  onSelect={() => handleFileSelection(file)}
-                  onOpen={() => openFile(file)}
-                  onContextMenu={(f, e) => handleContextMenu(f, e)}
-                  onDragStart={(f) =>
-                    console.log("[FilesView] Drag started:", f.name)}
-                  onDragEnd={(f) =>
-                    console.log("[FilesView] Drag ended:", f.name)}
-                  onDrop={(draggedFile, targetFolder) =>
-                    handleFileDrop(draggedFile, targetFolder)}
-                />
-              </div>
+              <FileCard
+                {file}
+                {viewMode}
+                selected={selectedFiles.has(file.file_path || file.name)}
+                onSelect={() => handleFileSelection(file)}
+                onOpen={() => openFile(file)}
+                onContextMenu={(f, e) => handleContextMenu(f, e)}
+                onDragStart={(f) =>
+                  console.log("[FilesView] Drag started:", f.name)}
+                onDragEnd={(f) =>
+                  console.log("[FilesView] Drag ended:", f.name)}
+                onDrop={(draggedFile, targetFolder) =>
+                  handleFileDrop(draggedFile, targetFolder)}
+              />
             {/snippet}
           </VirtualList>
         </div>
