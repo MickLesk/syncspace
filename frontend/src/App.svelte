@@ -1,10 +1,16 @@
 <script>
   import { onMount } from "svelte";
   import { auth } from "./stores/auth";
-  import { currentTheme, currentView, currentLang } from "./stores/ui";
-  import { userPreferences } from "./stores/preferences";
   import { initErrorReporting } from "./lib/errorReporting";
   import { websocketManager } from "./stores/websocket.js";
+
+  // Backend-First: Import serverState instead of separate UI/preference stores
+  import {
+    serverState,
+    initializeServerState,
+    isDarkMode,
+    currentLanguage,
+  } from "./stores/serverState";
 
   // Setup & Auth Views
   import SetupWizard from "./pages/SetupWizard.svelte";
@@ -52,6 +58,10 @@
   import WebSocketStatus from "./components/system/WebSocketStatus.svelte";
   import UploadQueue from "./components/ui/UploadQueue.svelte";
 
+  // PWA Components
+  import PWAInstallPrompt from "./components/pwa/PWAInstallPrompt.svelte";
+  import OfflineIndicator from "./components/offline/OfflineIndicator.svelte";
+
   // State für Setup-Check
   let setupCompleted = $state(null); // null = loading, true = completed, false = needs setup
   let setupCheckDone = $state(false);
@@ -86,7 +96,22 @@
     // Validate auth token
     await auth.validateToken();
 
-    // Initialisiere mit Light-Mode
+    // Load user state from backend (Backend-First Architecture)
+    if ($auth.isLoggedIn) {
+      try {
+        console.log("📥 Loading server state...");
+        await initializeServerState();
+        console.log("✅ Server state loaded");
+
+        // Connect WebSocket after user is authenticated
+        console.log("🔌 Connecting WebSocket...");
+        websocketManager.connect();
+      } catch (err) {
+        console.error("Failed to load server state:", err);
+      }
+    }
+
+    // Initialize theme from server state
     if (!localStorage.getItem("theme")) {
       localStorage.setItem("theme", "light");
       document.documentElement.classList.remove("dark");
@@ -94,40 +119,18 @@
     }
   });
 
-  // Load user preferences on mount if logged in
-  onMount(async () => {
-    if ($auth.isLoggedIn) {
-      try {
-        await Promise.all([
-          userPreferences.load(),
-          currentTheme.loadFromBackend?.(),
-          currentLang.loadFromBackend?.(),
-        ]);
-
-        // Connect WebSocket after user is authenticated
-        console.log("🔌 Connecting WebSocket...");
-        websocketManager.connect();
-      } catch (err) {
-        console.error("Failed to load user data:", err);
-      }
-    }
-  });
-
-  // Reload preferences when user logs in
+  // Load server state when user logs in
   $effect(() => {
     if ($auth.isLoggedIn) {
-      Promise.all([
-        userPreferences.load(),
-        currentTheme.loadFromBackend?.(),
-        currentLang.loadFromBackend?.(),
-      ])
+      initializeServerState()
         .then(() => {
+          console.log("✅ Server state synced after login");
           // Connect WebSocket when user logs in
           console.log("🔌 User logged in, connecting WebSocket...");
           websocketManager.connect();
         })
         .catch((err) => {
-          console.error("Failed to load user data:", err);
+          console.error("Failed to load server state:", err);
         });
     } else {
       // Disconnect WebSocket when user logs out
@@ -136,11 +139,10 @@
     }
   });
 
-  // Apply theme to document - Tailwind v4 compatible
+  // Apply theme to document - Tailwind v4 compatible (Backend-First)
   $effect(() => {
     if (typeof document !== "undefined") {
-      const isDark =
-        $currentTheme === "dark" || $currentTheme === "syncspace-dark";
+      const isDark = $isDarkMode;
 
       const html = document.documentElement;
 
@@ -261,6 +263,12 @@
         on:toggleActivityFeed={(e) => (showActivityFeed = e.detail.visible)}
         bind:showActivityFeed
       />
+
+      <!-- PWA Install Prompt -->
+      <PWAInstallPrompt />
+
+      <!-- Offline Status Indicator -->
+      <OfflineIndicator />
 
       <!-- WebSocket Status Indicator (Top Right) -->
       <div class="fixed top-4 right-4 z-50">
