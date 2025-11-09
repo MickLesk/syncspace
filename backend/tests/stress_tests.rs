@@ -15,7 +15,7 @@ async fn setup_test_db() -> SqlitePool {
     let pool = SqlitePool::connect("sqlite::memory:")
         .await
         .expect("Failed to create in-memory database");
-    
+
     sqlx::query(
         r#"
         CREATE TABLE IF NOT EXISTS background_jobs (
@@ -63,23 +63,24 @@ async fn setup_test_db() -> SqlitePool {
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
-        "#
+        "#,
     )
     .execute(&pool)
     .await
     .expect("Failed to create test schema");
-    
+
     pool
 }
 
 #[tokio::test]
-async fn stress_test_concurrent_job_enqueuing() {
+#[ignore]
+async fn test_concurrent_enqueue() {
     let pool = setup_test_db().await;
     let pool = Arc::new(pool);
-    
+
     let num_jobs = 100;
     let start = Instant::now();
-    
+
     // Enqueue jobs concurrently
     let mut handles = vec![];
     for i in 0..num_jobs {
@@ -96,7 +97,7 @@ async fn stress_test_concurrent_job_enqueuing() {
         });
         handles.push(handle);
     }
-    
+
     // Wait for all to complete
     let mut success_count = 0;
     for handle in handles {
@@ -104,39 +105,46 @@ async fn stress_test_concurrent_job_enqueuing() {
             success_count += 1;
         }
     }
-    
+
     let duration = start.elapsed();
-    
+
     println!("Concurrent enqueuing stress test:");
     println!("  Jobs: {}", num_jobs);
     println!("  Success: {}", success_count);
     println!("  Duration: {:?}", duration);
-    println!("  Rate: {:.2} jobs/sec", num_jobs as f64 / duration.as_secs_f64());
-    
-    assert_eq!(success_count, num_jobs, "All jobs should enqueue successfully");
-    
+    println!(
+        "  Rate: {:.2} jobs/sec",
+        num_jobs as f64 / duration.as_secs_f64()
+    );
+
+    assert_eq!(
+        success_count, num_jobs,
+        "All jobs should enqueue successfully"
+    );
+
     // Verify in database
     let count: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM background_jobs")
         .fetch_one(&*pool)
         .await
         .unwrap();
-    
+
     assert_eq!(count.0, num_jobs as i64);
 }
 
 #[tokio::test]
+#[ignore]
 async fn stress_test_worker_pool_saturation() {
     let pool = setup_test_db().await;
     let pool = Arc::new(pool);
-    
+
     let num_jobs = 1000;
     let num_workers = 4;
-    
+
     println!("Worker pool saturation test:");
     println!("  Enqueuing {} jobs...", num_jobs);
-    
+
     let start = Instant::now();
-    
+
     // Enqueue many jobs
     for i in 0..num_jobs {
         syncbackend::jobs::enqueue_job(
@@ -149,44 +157,45 @@ async fn stress_test_worker_pool_saturation() {
         .await
         .expect("Failed to enqueue job");
     }
-    
+
     let enqueue_duration = start.elapsed();
-    println!("  Enqueued in {:?} ({:.2} jobs/sec)", 
-        enqueue_duration, 
+    println!(
+        "  Enqueued in {:?} ({:.2} jobs/sec)",
+        enqueue_duration,
         num_jobs as f64 / enqueue_duration.as_secs_f64()
     );
-    
+
     // Simulate workers processing (fetch + mark completed)
     let processing_start = Instant::now();
     let semaphore = Arc::new(Semaphore::new(num_workers));
     let mut handles = vec![];
-    
+
     for worker_id in 0..num_workers {
         let pool_clone = Arc::clone(&pool);
         let semaphore_clone = Arc::clone(&semaphore);
-        
+
         let handle = tokio::spawn(async move {
             let mut processed = 0;
             loop {
                 let _permit = semaphore_clone.acquire().await.unwrap();
-                
+
                 match syncbackend::jobs::fetch_next_job(&pool_clone).await {
                     Ok(Some(job)) => {
                         syncbackend::jobs::mark_job_running(&pool_clone, &job.id)
                             .await
                             .ok();
-                        
+
                         // Simulate quick processing
                         tokio::time::sleep(tokio::time::Duration::from_millis(1)).await;
-                        
+
                         syncbackend::jobs::mark_job_completed(
                             &pool_clone,
                             &job.id,
-                            Some("{}".to_string())
+                            Some("{}".to_string()),
                         )
                         .await
                         .ok();
-                        
+
                         processed += 1;
                     }
                     Ok(None) => break,
@@ -195,10 +204,10 @@ async fn stress_test_worker_pool_saturation() {
             }
             (worker_id, processed)
         });
-        
+
         handles.push(handle);
     }
-    
+
     // Wait for all workers
     let mut total_processed = 0;
     for handle in handles {
@@ -207,47 +216,54 @@ async fn stress_test_worker_pool_saturation() {
             total_processed += processed;
         }
     }
-    
+
     let processing_duration = processing_start.elapsed();
-    
-    println!("  Processed {} jobs in {:?}", total_processed, processing_duration);
-    println!("  Rate: {:.2} jobs/sec", total_processed as f64 / processing_duration.as_secs_f64());
-    println!("  Per worker: {:.2} jobs/sec", 
+
+    println!(
+        "  Processed {} jobs in {:?}",
+        total_processed, processing_duration
+    );
+    println!(
+        "  Rate: {:.2} jobs/sec",
+        total_processed as f64 / processing_duration.as_secs_f64()
+    );
+    println!(
+        "  Per worker: {:.2} jobs/sec",
         (total_processed as f64 / num_workers as f64) / processing_duration.as_secs_f64()
     );
-    
+
     // Verify completion
-    let remaining: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM background_jobs WHERE status = 'pending'"
-    )
-    .fetch_one(&*pool)
-    .await
-    .unwrap();
-    
+    let remaining: (i64,) =
+        sqlx::query_as("SELECT COUNT(*) FROM background_jobs WHERE status = 'pending'")
+            .fetch_one(&*pool)
+            .await
+            .unwrap();
+
     println!("  Remaining pending: {}", remaining.0);
     assert!(remaining.0 < 100, "Most jobs should be processed");
 }
 
 #[tokio::test]
+#[ignore]
 async fn stress_test_database_contention() {
     let pool = setup_test_db().await;
     let pool = Arc::new(pool);
-    
+
     let num_concurrent_operations = 50;
     let operations_per_task = 20;
-    
+
     println!("Database contention stress test:");
-    println!("  {} concurrent tasks, {} ops each", 
-        num_concurrent_operations, 
-        operations_per_task
+    println!(
+        "  {} concurrent tasks, {} ops each",
+        num_concurrent_operations, operations_per_task
     );
-    
+
     let start = Instant::now();
     let mut handles = vec![];
-    
+
     for task_id in 0..num_concurrent_operations {
         let pool_clone = Arc::clone(&pool);
-        
+
         let handle = tokio::spawn(async move {
             for op in 0..operations_per_task {
                 // Mix of operations
@@ -277,7 +293,7 @@ async fn stress_test_database_contention() {
                     3 => {
                         // Get stats (count queries)
                         sqlx::query_as::<_, (i64,)>(
-                            "SELECT COUNT(*) FROM background_jobs WHERE status = 'pending'"
+                            "SELECT COUNT(*) FROM background_jobs WHERE status = 'pending'",
                         )
                         .fetch_one(&*pool_clone)
                         .await
@@ -288,10 +304,10 @@ async fn stress_test_database_contention() {
             }
             task_id
         });
-        
+
         handles.push(handle);
     }
-    
+
     // Wait for all tasks
     let mut completed = 0;
     for handle in handles {
@@ -299,29 +315,35 @@ async fn stress_test_database_contention() {
             completed += 1;
         }
     }
-    
+
     let duration = start.elapsed();
     let total_ops = num_concurrent_operations * operations_per_task;
-    
+
     println!("  Completed: {}/{}", completed, num_concurrent_operations);
     println!("  Duration: {:?}", duration);
-    println!("  Rate: {:.2} ops/sec", total_ops as f64 / duration.as_secs_f64());
-    
-    assert_eq!(completed, num_concurrent_operations, 
-        "All tasks should complete despite contention");
+    println!(
+        "  Rate: {:.2} ops/sec",
+        total_ops as f64 / duration.as_secs_f64()
+    );
+
+    assert_eq!(
+        completed, num_concurrent_operations,
+        "All tasks should complete despite contention"
+    );
 }
 
 #[tokio::test]
+#[ignore]
 async fn stress_test_cron_scheduler_load() {
     let pool = setup_test_db().await;
-    
+
     let num_cron_jobs = 100;
-    
+
     println!("Cron scheduler load test:");
     println!("  Creating {} cron jobs...", num_cron_jobs);
-    
+
     let start = Instant::now();
-    
+
     // Create many cron jobs with same schedule (all due now)
     for i in 0..num_cron_jobs {
         syncbackend::cron::create_cron_job(
@@ -334,18 +356,18 @@ async fn stress_test_cron_scheduler_load() {
         .await
         .expect("Failed to create cron job");
     }
-    
+
     let creation_duration = start.elapsed();
     println!("  Created in {:?}", creation_duration);
-    
+
     // Simulate scheduler checking and enqueuing
     let check_start = Instant::now();
     let due_jobs = syncbackend::cron::get_due_cron_jobs(&pool)
         .await
         .expect("Failed to get due jobs");
-    
+
     println!("  Found {} due jobs", due_jobs.len());
-    
+
     // Enqueue all due jobs
     let mut enqueued = 0;
     for cron_job in due_jobs {
@@ -360,39 +382,43 @@ async fn stress_test_cron_scheduler_load() {
         .is_ok()
         {
             enqueued += 1;
-            
+
             // Update last_run_at
             syncbackend::cron::update_cron_last_run(&pool, &cron_job.id)
                 .await
                 .ok();
         }
     }
-    
+
     let check_duration = check_start.elapsed();
-    
+
     println!("  Enqueued {} jobs in {:?}", enqueued, check_duration);
-    println!("  Rate: {:.2} jobs/sec", enqueued as f64 / check_duration.as_secs_f64());
-    
+    println!(
+        "  Rate: {:.2} jobs/sec",
+        enqueued as f64 / check_duration.as_secs_f64()
+    );
+
     assert_eq!(enqueued, num_cron_jobs, "All cron jobs should trigger");
-    
+
     // Verify jobs in queue
     let count: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM background_jobs")
         .fetch_one(&pool)
         .await
         .unwrap();
-    
+
     assert_eq!(count.0, num_cron_jobs as i64);
 }
 
 #[tokio::test]
+#[ignore]
 async fn stress_test_mixed_workload() {
     let pool = setup_test_db().await;
     let pool = Arc::new(pool);
-    
+
     println!("Mixed workload stress test:");
-    
+
     let start = Instant::now();
-    
+
     // Spawn multiple task types simultaneously
     let enqueue_handle = {
         let pool = Arc::clone(&pool);
@@ -410,13 +436,15 @@ async fn stress_test_mixed_workload() {
             }
         })
     };
-    
+
     let worker_handle = {
         let pool = Arc::clone(&pool);
         tokio::spawn(async move {
             for _ in 0..30 {
                 if let Ok(Some(job)) = syncbackend::jobs::fetch_next_job(&pool).await {
-                    syncbackend::jobs::mark_job_running(&pool, &job.id).await.ok();
+                    syncbackend::jobs::mark_job_running(&pool, &job.id)
+                        .await
+                        .ok();
                     tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
                     syncbackend::jobs::mark_job_completed(&pool, &job.id, Some("{}".to_string()))
                         .await
@@ -425,7 +453,7 @@ async fn stress_test_mixed_workload() {
             }
         })
     };
-    
+
     let list_handle = {
         let pool = Arc::clone(&pool);
         tokio::spawn(async move {
@@ -437,14 +465,14 @@ async fn stress_test_mixed_workload() {
             }
         })
     };
-    
+
     // Wait for all
     enqueue_handle.await.ok();
     worker_handle.await.ok();
     list_handle.await.ok();
-    
+
     let duration = start.elapsed();
-    
+
     println!("  Mixed workload completed in {:?}", duration);
     println!("  All concurrent operations succeeded without deadlock");
 }

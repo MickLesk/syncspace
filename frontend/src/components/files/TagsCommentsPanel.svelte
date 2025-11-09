@@ -446,7 +446,7 @@
 </div>
 
 <style>
-  .active {
-    @apply font-semibold;
+  :global(.active) {
+    font-weight: 600;
   }
 </style>

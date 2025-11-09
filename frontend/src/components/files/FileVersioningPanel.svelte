@@ -73,13 +73,9 @@
   <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
     <div class="flex gap-2">
       <button
-        class="px-4 py-2 rounded text-sm font-medium transition-colors"
-        class:bg-blue-100={!showStats}
-        class:dark:bg-blue-900={!showStats}
-        class:text-blue-700={!showStats}
-        class:dark:text-blue-200={!showStats}
-        class:text-slate-600={showStats}
-        class:dark:text-slate-400={showStats}
+        class="{!showStats 
+          ? 'px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
+          : 'px-4 py-2 rounded text-sm font-medium transition-colors text-slate-600 dark:text-slate-400'}"
         on:click={() => (showStats = false)}
       >
         <i class="bi bi-clock-history mr-2" />
@@ -87,13 +83,9 @@
       </button>
 
       <button
-        class="px-4 py-2 rounded text-sm font-medium transition-colors"
-        class:bg-blue-100={showStats}
-        class:dark:bg-blue-900={showStats}
-        class:text-blue-700={showStats}
-        class:dark:text-blue-200={showStats}
-        class:text-slate-600={!showStats}
-        class:dark:text-slate-400={!showStats}
+        class="{showStats 
+          ? 'px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
+          : 'px-4 py-2 rounded text-sm font-medium transition-colors text-slate-600 dark:text-slate-400'}"
         on:click={() => (showStats = true)}
       >
         <i class="bi bi-pie-chart mr-2" />
@@ -192,20 +184,17 @@
           <div class="space-y-2">
             {#each $versionTimeline as version, idx (version.id)}
               <div
-                class="flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50"
-                class:border-blue-400={version.isCurrent}
-                class:bg-blue-50={version.isCurrent}
-                class:dark:bg-blue-900/20={version.isCurrent}
+                class="{version.isCurrent 
+                  ? 'flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                  : 'flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 border-slate-200 dark:border-slate-700'}"
                 on:click={() => selectVersion(version.id)}
               >
                 <!-- Timeline Marker -->
                 <div class="flex flex-col items-center">
                   <div
-                    class="w-4 h-4 rounded-full border-2"
-                    class:bg-blue-500={version.isCurrent}
-                    class:border-blue-500={version.isCurrent}
-                    class:border-slate-300={!version.isCurrent}
-                    class:dark:border-slate-600={!version.isCurrent}
+                    class="{version.isCurrent 
+                      ? 'w-4 h-4 rounded-full border-2 bg-blue-500 border-blue-500'
+                      : 'w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600'}"
                   />
                   {#if idx < $versionTimeline.length - 1}
                     <div

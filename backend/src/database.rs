@@ -376,6 +376,7 @@ async fn ensure_admin_user(pool: &SqlitePool) -> Result<(), sqlx::Error> {
 }
 
 /// Get database path (in ./data directory like the file system)
+#[allow(dead_code)]
 fn get_db_path() -> PathBuf {
     // Try to use DATA_DIR constant from main if available, otherwise fallback to ./data
     let mut path = std::env::current_exe()

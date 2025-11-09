@@ -3,7 +3,7 @@
 
 use sqlx::SqlitePool;
 use syncbackend::auth;
-use syncbackend::database::{self, RefreshToken, User};
+use syncbackend::database::User;
 
 // Helper function to create test database pool
 async fn create_test_pool() -> SqlitePool {
@@ -33,7 +33,7 @@ async fn create_test_user(pool: &SqlitePool) -> User {
             created_at TEXT NOT NULL,
             last_login TEXT,
             updated_at TEXT NOT NULL
-        )"
+        )",
     )
     .execute(pool)
     .await
@@ -52,7 +52,7 @@ async fn create_test_user(pool: &SqlitePool) -> User {
             user_agent TEXT,
             ip_address TEXT,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )"
+        )",
     )
     .execute(pool)
     .await
@@ -61,14 +61,14 @@ async fn create_test_user(pool: &SqlitePool) -> User {
     // Create test user
     let user_id = uuid::Uuid::new_v4().to_string();
     let now = chrono::Utc::now().to_rfc3339();
-    
+
     sqlx::query(
         "INSERT INTO users (
             id, username, password_hash, email, display_name,
             storage_quota_bytes, storage_used_bytes,
             default_view, language, theme, token_version,
             totp_enabled, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(&user_id)
     .bind("testuser")
@@ -101,7 +101,8 @@ async fn test_generate_access_and_refresh_tokens() {
     assert!(!access_token.is_empty());
 
     // Generate refresh token (7 day expiration)
-    let refresh_token = auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
+    let refresh_token =
+        auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
     assert!(!refresh_token.is_empty());
 
     // Verify access token
@@ -110,7 +111,8 @@ async fn test_generate_access_and_refresh_tokens() {
     assert_eq!(access_claims.username, user.username);
 
     // Verify refresh token
-    let refresh_claims = auth::verify_refresh_token(&refresh_token).expect("Failed to verify refresh token");
+    let refresh_claims =
+        auth::verify_refresh_token(&refresh_token).expect("Failed to verify refresh token");
     assert_eq!(refresh_claims.sub, user.id);
     assert_eq!(refresh_claims.username, user.username);
     assert_eq!(refresh_claims.token_version, user.token_version);
@@ -122,12 +124,19 @@ async fn test_store_and_validate_refresh_token() {
     let user = create_test_user(&pool).await;
 
     // Generate refresh token
-    let refresh_token = auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
+    let refresh_token =
+        auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
 
     // Store refresh token in database
-    auth::store_refresh_token(&pool, &user.id, &refresh_token, Some("Test User Agent".to_string()), Some("127.0.0.1".to_string()))
-        .await
-        .expect("Failed to store refresh token");
+    auth::store_refresh_token(
+        &pool,
+        &user.id,
+        &refresh_token,
+        Some("Test User Agent".to_string()),
+        Some("127.0.0.1".to_string()),
+    )
+    .await
+    .expect("Failed to store refresh token");
 
     // Validate refresh token
     let validated_user = auth::validate_refresh_token(&pool, &refresh_token)
@@ -144,13 +153,15 @@ async fn test_token_rotation_on_refresh() {
     let user = create_test_user(&pool).await;
 
     // Generate and store first refresh token
-    let refresh_token1 = auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
+    let refresh_token1 =
+        auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
     auth::store_refresh_token(&pool, &user.id, &refresh_token1, None, None)
         .await
         .expect("Failed to store refresh token");
 
     // Simulate token rotation (generate new token)
-    let refresh_token2 = auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
+    let refresh_token2 =
+        auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
     auth::store_refresh_token(&pool, &user.id, &refresh_token2, None, None)
         .await
         .expect("Failed to store refresh token");
@@ -169,7 +180,8 @@ async fn test_revoke_specific_refresh_token() {
     let user = create_test_user(&pool).await;
 
     // Generate and store refresh token
-    let refresh_token = auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
+    let refresh_token =
+        auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
     auth::store_refresh_token(&pool, &user.id, &refresh_token, None, None)
         .await
         .expect("Failed to store refresh token");
@@ -196,9 +208,13 @@ async fn test_revoke_all_user_tokens() {
     // Generate and store multiple refresh tokens
     let token1 = auth::generate_refresh_token(&user).expect("Failed to generate token1");
     let token2 = auth::generate_refresh_token(&user).expect("Failed to generate token2");
-    
-    auth::store_refresh_token(&pool, &user.id, &token1, None, None).await.expect("Failed to store token1");
-    auth::store_refresh_token(&pool, &user.id, &token2, None, None).await.expect("Failed to store token2");
+
+    auth::store_refresh_token(&pool, &user.id, &token1, None, None)
+        .await
+        .expect("Failed to store token1");
+    auth::store_refresh_token(&pool, &user.id, &token2, None, None)
+        .await
+        .expect("Failed to store token2");
 
     // Both tokens should be valid
     assert!(auth::validate_refresh_token(&pool, &token1).await.is_ok());
@@ -220,13 +236,16 @@ async fn test_token_version_invalidation() {
     let user = create_test_user(&pool).await;
 
     // Generate and store refresh token
-    let refresh_token = auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
+    let refresh_token =
+        auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
     auth::store_refresh_token(&pool, &user.id, &refresh_token, None, None)
         .await
         .expect("Failed to store refresh token");
 
     // Validate token (should work)
-    assert!(auth::validate_refresh_token(&pool, &refresh_token).await.is_ok());
+    assert!(auth::validate_refresh_token(&pool, &refresh_token)
+        .await
+        .is_ok());
 
     // Increment user's token_version (simulating password change)
     sqlx::query("UPDATE users SET token_version = token_version + 1 WHERE id = ?")
@@ -249,7 +268,7 @@ async fn test_cleanup_expired_tokens() {
     // Insert expired token manually
     let expired_token_id = uuid::Uuid::new_v4().to_string();
     let past_time = chrono::Utc::now() - chrono::Duration::days(10);
-    
+
     sqlx::query(
         "INSERT INTO refresh_tokens (id, user_id, token_hash, token_version, expires_at, created_at) 
          VALUES (?, ?, ?, ?, ?, ?)"
@@ -265,7 +284,8 @@ async fn test_cleanup_expired_tokens() {
     .unwrap();
 
     // Insert valid token
-    let refresh_token = auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
+    let refresh_token =
+        auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
     auth::store_refresh_token(&pool, &user.id, &refresh_token, None, None)
         .await
         .expect("Failed to store refresh token");
@@ -303,9 +323,13 @@ async fn test_access_token_short_expiration() {
     // Check expiration is ~15 minutes (900 seconds) from now
     let now = chrono::Utc::now().timestamp() as usize;
     let exp_diff = claims.exp - now;
-    
+
     // Allow some margin (14-16 minutes)
-    assert!(exp_diff >= 840 && exp_diff <= 960, "Expected ~900s expiration, got {}", exp_diff);
+    assert!(
+        exp_diff >= 840 && exp_diff <= 960,
+        "Expected ~900s expiration, got {}",
+        exp_diff
+    );
 }
 
 #[tokio::test]
@@ -314,13 +338,18 @@ async fn test_refresh_token_long_expiration() {
     let user = create_test_user(&pool).await;
 
     // Generate refresh token
-    let refresh_token = auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
+    let refresh_token =
+        auth::generate_refresh_token(&user).expect("Failed to generate refresh token");
     let claims = auth::verify_refresh_token(&refresh_token).expect("Failed to verify token");
 
     // Check expiration is ~7 days (604800 seconds) from now
     let now = chrono::Utc::now().timestamp() as usize;
     let exp_diff = claims.exp - now;
-    
+
     // Allow some margin (6.9-7.1 days)
-    assert!(exp_diff >= 595000 && exp_diff <= 614000, "Expected ~604800s expiration, got {}", exp_diff);
+    assert!(
+        exp_diff >= 595000 && exp_diff <= 614000,
+        "Expected ~604800s expiration, got {}",
+        exp_diff
+    );
 }

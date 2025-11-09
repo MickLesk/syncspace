@@ -1,7 +1,11 @@
 <script>
-  import { onMount } from 'svelte';
-  import { customTheme, PRESET_THEMES, currentPresetName } from '$stores/customTheme.js';
-  import { t } from '$lib/i18n.js';
+  import { onMount } from "svelte";
+  import {
+    customTheme,
+    PRESET_THEMES,
+    currentPresetName,
+  } from "$stores/customTheme.js";
+  import { t } from "$lib/i18n.js";
 
   let showColorPicker = null;
   let showAdvanced = false;
@@ -20,25 +24,25 @@
   }
 
   function handleDensityChange(density) {
-    customTheme.updateProperty('density', density);
+    customTheme.updateProperty("density", density);
   }
 
   function handleFontSizeChange(size) {
-    customTheme.updateProperty('fontSize', size);
+    customTheme.updateProperty("fontSize", size);
   }
 
   function handleBorderRadiusChange(radius) {
-    customTheme.updateProperty('borderRadius', radius);
+    customTheme.updateProperty("borderRadius", radius);
   }
 
   function handleShadowIntensityChange(intensity) {
-    customTheme.updateProperty('shadowIntensity', intensity);
+    customTheme.updateProperty("shadowIntensity", intensity);
   }
 
   function handleImport() {
     if (importFile?.files?.[0]) {
       customTheme.import(importFile.files[0]);
-      importFile.value = '';
+      importFile.value = "";
     }
   }
 
@@ -47,36 +51,33 @@
   }
 </script>
 
-<div class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+<div
+  class="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+>
   <!-- Header -->
   <div class="mb-8">
     <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
       <i class="bi bi-palette mr-2"></i>
-      {t('settings.theme_customization')}
+      {t("settings.theme_customization")}
     </h2>
     <p class="text-sm text-gray-600 dark:text-gray-400">
-      {t('settings.customize_colors_and_appearance')}
+      {t("settings.customize_colors_and_appearance")}
     </p>
   </div>
 
   <!-- Preset Themes -->
   <div class="mb-8">
     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-      {t('theme.presets')}
+      {t("theme.presets")}
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
       {#each Object.entries(PRESET_THEMES) as [key, preset]}
         <button
           on:click={() => handlePresetClick(key)}
-          class="p-4 rounded-lg border-2 transition-all hover:shadow-md"
-          class:border-blue-500={$currentPresetName === key}
-          class:border-gray-300={$currentPresetName !== key}
-          class:dark:border-blue-400={$currentPresetName === key}
-          class:dark:border-gray-600={$currentPresetName !== key}
-          class:bg-blue-50={$currentPresetName === key}
-          class:dark:bg-blue-900/20={$currentPresetName === key}
-          class:bg-gray-50={$currentPresetName !== key}
-          class:dark:bg-gray-800={$currentPresetName !== key}
+          class="p-4 rounded-lg border-2 transition-all hover:shadow-md {$currentPresetName ===
+          key
+            ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20'
+            : 'border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-800'}"
         >
           <div class="flex gap-2 mb-3 h-6">
             <div
@@ -92,12 +93,18 @@
               style="background-color: {preset.accentColor}"
             ></div>
           </div>
-          <p class="font-medium text-gray-900 dark:text-white text-sm">{preset.name}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">{preset.description}</p>
+          <p class="font-medium text-gray-900 dark:text-white text-sm">
+            {preset.name}
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            {preset.description}
+          </p>
           {#if $currentPresetName === key}
-            <div class="mt-2 text-xs text-blue-600 dark:text-blue-400 flex items-center">
+            <div
+              class="mt-2 text-xs text-blue-600 dark:text-blue-400 flex items-center"
+            >
               <i class="bi bi-check-circle mr-1"></i>
-              {t('theme.active')}
+              {t("theme.active")}
             </div>
           {/if}
         </button>
@@ -108,34 +115,36 @@
   <!-- Color Customization -->
   <div class="mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-      {t('theme.custom_colors')}
+      {t("theme.custom_colors")}
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- Primary Color -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          {t('theme.primary_color')}
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
+          {t("theme.primary_color")}
         </label>
         <div class="flex gap-2">
           <button
-            on:click={() => toggleColorPicker('primaryColor')}
+            on:click={() => toggleColorPicker("primaryColor")}
             class="w-12 h-12 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-gray-500 transition-colors cursor-pointer"
             style="background-color: {$customTheme.primaryColor}"
-            title={t('theme.click_to_edit')}
+            title={t("theme.click_to_edit")}
           ></button>
           <input
             type="text"
             value={$customTheme.primaryColor}
-            on:change={(e) => handleColorChange('primaryColor', e.target.value)}
+            on:change={(e) => handleColorChange("primaryColor", e.target.value)}
             class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white"
             placeholder="#3B82F6"
           />
         </div>
-        {#if showColorPicker === 'primaryColor'}
+        {#if showColorPicker === "primaryColor"}
           <input
             type="color"
             value={$customTheme.primaryColor}
-            on:change={(e) => handleColorChange('primaryColor', e.target.value)}
+            on:change={(e) => handleColorChange("primaryColor", e.target.value)}
             class="mt-2"
           />
         {/if}
@@ -143,29 +152,33 @@
 
       <!-- Secondary Color -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          {t('theme.secondary_color')}
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
+          {t("theme.secondary_color")}
         </label>
         <div class="flex gap-2">
           <button
-            on:click={() => toggleColorPicker('secondaryColor')}
+            on:click={() => toggleColorPicker("secondaryColor")}
             class="w-12 h-12 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-gray-500 transition-colors cursor-pointer"
             style="background-color: {$customTheme.secondaryColor}"
-            title={t('theme.click_to_edit')}
+            title={t("theme.click_to_edit")}
           ></button>
           <input
             type="text"
             value={$customTheme.secondaryColor}
-            on:change={(e) => handleColorChange('secondaryColor', e.target.value)}
+            on:change={(e) =>
+              handleColorChange("secondaryColor", e.target.value)}
             class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white"
             placeholder="#10B981"
           />
         </div>
-        {#if showColorPicker === 'secondaryColor'}
+        {#if showColorPicker === "secondaryColor"}
           <input
             type="color"
             value={$customTheme.secondaryColor}
-            on:change={(e) => handleColorChange('secondaryColor', e.target.value)}
+            on:change={(e) =>
+              handleColorChange("secondaryColor", e.target.value)}
             class="mt-2"
           />
         {/if}
@@ -173,29 +186,31 @@
 
       <!-- Accent Color -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          {t('theme.accent_color')}
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
+          {t("theme.accent_color")}
         </label>
         <div class="flex gap-2">
           <button
-            on:click={() => toggleColorPicker('accentColor')}
+            on:click={() => toggleColorPicker("accentColor")}
             class="w-12 h-12 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-gray-500 transition-colors cursor-pointer"
             style="background-color: {$customTheme.accentColor}"
-            title={t('theme.click_to_edit')}
+            title={t("theme.click_to_edit")}
           ></button>
           <input
             type="text"
             value={$customTheme.accentColor}
-            on:change={(e) => handleColorChange('accentColor', e.target.value)}
+            on:change={(e) => handleColorChange("accentColor", e.target.value)}
             class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white"
             placeholder="#F59E0B"
           />
         </div>
-        {#if showColorPicker === 'accentColor'}
+        {#if showColorPicker === "accentColor"}
           <input
             type="color"
             value={$customTheme.accentColor}
-            on:change={(e) => handleColorChange('accentColor', e.target.value)}
+            on:change={(e) => handleColorChange("accentColor", e.target.value)}
             class="mt-2"
           />
         {/if}
@@ -206,16 +221,18 @@
   <!-- Display Settings -->
   <div class="mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-      {t('theme.display_settings')}
+      {t("theme.display_settings")}
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Density -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          {t('theme.density')}
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+        >
+          {t("theme.density")}
         </label>
         <div class="space-y-2">
-          {#each ['compact', 'comfortable', 'spacious'] as option}
+          {#each ["compact", "comfortable", "spacious"] as option}
             <label class="flex items-center cursor-pointer">
               <input
                 type="radio"
@@ -235,11 +252,13 @@
 
       <!-- Font Size -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          {t('theme.font_size')}
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+        >
+          {t("theme.font_size")}
         </label>
         <div class="space-y-2">
-          {#each ['sm', 'base', 'lg', 'xl'] as option}
+          {#each ["sm", "base", "lg", "xl"] as option}
             <label class="flex items-center cursor-pointer">
               <input
                 type="radio"
@@ -259,11 +278,13 @@
 
       <!-- Border Radius -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          {t('theme.border_radius')}
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+        >
+          {t("theme.border_radius")}
         </label>
         <div class="space-y-2">
-          {#each ['none', 'sm', 'base', 'lg', 'xl'] as option}
+          {#each ["none", "sm", "base", "lg", "xl"] as option}
             <label class="flex items-center cursor-pointer">
               <input
                 type="radio"
@@ -283,11 +304,13 @@
 
       <!-- Shadow Intensity -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          {t('theme.shadow_intensity')}
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+        >
+          {t("theme.shadow_intensity")}
         </label>
         <div class="space-y-2">
-          {#each ['light', 'normal', 'strong'] as option}
+          {#each ["light", "normal", "strong"] as option}
             <label class="flex items-center cursor-pointer">
               <input
                 type="radio"
@@ -310,7 +333,7 @@
   <!-- Import/Export -->
   <div>
     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-      {t('theme.import_export')}
+      {t("theme.import_export")}
     </h3>
     <div class="flex gap-4">
       <button
@@ -318,7 +341,7 @@
         class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center"
       >
         <i class="bi bi-download mr-2"></i>
-        {t('theme.export')}
+        {t("theme.export")}
       </button>
 
       <label class="flex-1">
@@ -327,7 +350,7 @@
           class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors flex items-center justify-center cursor-pointer"
         >
           <i class="bi bi-upload mr-2"></i>
-          {t('theme.import')}
+          {t("theme.import")}
         </button>
         <input
           bind:this={importFile}
@@ -343,38 +366,38 @@
         class="flex-1 px-4 py-2 bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg transition-colors flex items-center justify-center"
       >
         <i class="bi bi-arrow-counterclockwise mr-2"></i>
-        {t('theme.reset')}
+        {t("theme.reset")}
       </button>
     </div>
   </div>
 </div>
 
 <style>
-  :global([data-density='compact']) {
+  :global([data-density="compact"]) {
     --spacing-factor: 0.75;
   }
 
-  :global([data-density='comfortable']) {
+  :global([data-density="comfortable"]) {
     --spacing-factor: 1;
   }
 
-  :global([data-density='spacious']) {
+  :global([data-density="spacious"]) {
     --spacing-factor: 1.25;
   }
 
-  :global([data-font-size='sm']) {
+  :global([data-font-size="sm"]) {
     font-size: 0.875rem;
   }
 
-  :global([data-font-size='base']) {
+  :global([data-font-size="base"]) {
     font-size: 1rem;
   }
 
-  :global([data-font-size='lg']) {
+  :global([data-font-size="lg"]) {
     font-size: 1.125rem;
   }
 
-  :global([data-font-size='xl']) {
+  :global([data-font-size="xl"]) {
     font-size: 1.25rem;
   }
 </style>
