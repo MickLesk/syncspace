@@ -17,8 +17,9 @@
      */
     "sourceMap": true,
     "esModuleInterop": true,
-    "types": ["vite/client", "svelte"],
     "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": [],
     /**
      * Typecheck JS in `.svelte` and `.js` files by default.
      * Disable this if you'd like to use dynamic types.
