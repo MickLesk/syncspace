@@ -8,65 +8,103 @@ use uuid::Uuid;
 pub mod directory {
     use super::*;
     use crate::models::DirectoryInfo;
-    use tokio::fs;
     use std::path::Path;
+    use tokio::fs;
     const DATA_DIR: &str = "./data";
-    
-    pub async fn create_directory(state: &AppState, user: &UserInfo, path: &str) -> Result<DirectoryInfo> {
+
+    pub async fn create_directory(
+        state: &AppState,
+        user: &UserInfo,
+        path: &str,
+    ) -> Result<DirectoryInfo> {
         let full = Path::new(DATA_DIR).join(path);
         fs::create_dir_all(&full).await?;
-        
+
         // Log activity
         let dirname = full.file_name().unwrap().to_string_lossy().to_string();
         let _ = super::activity::log(
-            state,
-            &user.id,
-            "create",
-            path,
-            &dirname,
-            None,
-            None,
-            "success",
-            None,
-            None,
-        ).await;
-        
-        let _ = state.fs_tx.send(crate::FileChangeEvent::new(path.to_string(), "mkdir".to_string()));
-        Ok(DirectoryInfo { id: Uuid::new_v4(), name: dirname, path: path.to_string(), parent_id: None, owner_id: Uuid::parse_str(&user.id).unwrap_or_default(), created_at: Utc::now() })
+            state, &user.id, "create", path, &dirname, None, None, "success", None, None,
+        )
+        .await;
+
+        let _ = state.fs_tx.send(crate::FileChangeEvent::new(
+            path.to_string(),
+            "mkdir".to_string(),
+        ));
+        Ok(DirectoryInfo {
+            id: Uuid::new_v4(),
+            name: dirname,
+            path: path.to_string(),
+            parent_id: None,
+            owner_id: Uuid::parse_str(&user.id).unwrap_or_default(),
+            created_at: Utc::now(),
+        })
     }
-    
+
     pub async fn delete_directory(state: &AppState, user: &UserInfo, dir_id: &str) -> Result<()> {
         fs::remove_dir_all(Path::new(DATA_DIR).join(dir_id)).await?;
-        let _ = state.fs_tx.send(crate::FileChangeEvent::new(dir_id.to_string(), "delete".to_string()));
+        let _ = state.fs_tx.send(crate::FileChangeEvent::new(
+            dir_id.to_string(),
+            "delete".to_string(),
+        ));
         Ok(())
     }
-    
-    pub async fn move_directory(state: &AppState, user: &UserInfo, dir_id: &str, new_parent_path: &str) -> Result<()> {
+
+    pub async fn move_directory(
+        state: &AppState,
+        user: &UserInfo,
+        dir_id: &str,
+        new_parent_path: &str,
+    ) -> Result<()> {
         let old_path = Path::new(DATA_DIR).join(dir_id);
-        let new_path = Path::new(DATA_DIR).join(new_parent_path).join(old_path.file_name().unwrap());
+        let new_path = Path::new(DATA_DIR)
+            .join(new_parent_path)
+            .join(old_path.file_name().unwrap());
         fs::rename(&old_path, &new_path).await?;
-        let _ = state.fs_tx.send(crate::FileChangeEvent::new(new_parent_path.to_string(), "move".to_string()));
+        let _ = state.fs_tx.send(crate::FileChangeEvent::new(
+            new_parent_path.to_string(),
+            "move".to_string(),
+        ));
         Ok(())
     }
-    
-    pub async fn rename_directory(state: &AppState, user: &UserInfo, dir_id: &str, new_name: &str) -> Result<()> {
+
+    pub async fn rename_directory(
+        state: &AppState,
+        user: &UserInfo,
+        dir_id: &str,
+        new_name: &str,
+    ) -> Result<()> {
         let old_path = Path::new(DATA_DIR).join(dir_id);
-        let parent = old_path.parent().ok_or_else(|| anyhow!("No parent directory"))?;
+        let parent = old_path
+            .parent()
+            .ok_or_else(|| anyhow!("No parent directory"))?;
         let new_path = parent.join(new_name);
         fs::rename(&old_path, &new_path).await?;
-        let _ = state.fs_tx.send(crate::FileChangeEvent::new(dir_id.to_string(), "rename".to_string()));
+        let _ = state.fs_tx.send(crate::FileChangeEvent::new(
+            dir_id.to_string(),
+            "rename".to_string(),
+        ));
         Ok(())
     }
-    
+
     // Missing functions for API compatibility
-    pub async fn batch_move(state: &AppState, user: &UserInfo, paths: Vec<String>, target_path: &str) -> Result<()> {
+    pub async fn batch_move(
+        state: &AppState,
+        user: &UserInfo,
+        paths: Vec<String>,
+        target_path: &str,
+    ) -> Result<()> {
         for path in paths {
             let _ = move_directory(state, user, &path, target_path).await;
         }
         Ok(())
     }
-    
-    pub async fn get_directory_tree(state: &AppState, user: &UserInfo, path: &str) -> Result<serde_json::Value> {
+
+    pub async fn get_directory_tree(
+        state: &AppState,
+        user: &UserInfo,
+        path: &str,
+    ) -> Result<serde_json::Value> {
         Ok(serde_json::json!({"path": path, "children": []}))
     }
 }
@@ -75,8 +113,13 @@ pub mod directory {
 pub mod sharing {
     use super::*;
     use crate::models::Share;
-    
-    pub async fn create_share(state: &AppState, user: &UserInfo, path: &str, _is_public: bool) -> Result<Share> {
+
+    pub async fn create_share(
+        state: &AppState,
+        user: &UserInfo,
+        path: &str,
+        _is_public: bool,
+    ) -> Result<Share> {
         let id = Uuid::new_v4();
         let token = format!("{}", Uuid::new_v4());
         let now = Utc::now();
@@ -93,43 +136,201 @@ pub mod sharing {
             password_hash: None,
         })
     }
-    
+
     pub async fn list_shares(state: &AppState, user: &UserInfo) -> Result<Vec<Share>> {
-        let rows: Vec<crate::database::SharedLink> = sqlx::query_as("SELECT * FROM shared_links WHERE created_by = ?").bind(&user.id).fetch_all(&state.db_pool).await?;
-        Ok(rows.iter().map(|r| Share {
-            id: Uuid::parse_str(&r.id).unwrap_or_default(),
-            file_path: r.item_id.clone(),
-            token: r.id.clone(),
-            permission: "read".to_string(),
-            created_by: Uuid::parse_str(&r.created_by).unwrap_or_default(),
-            created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
-            expires_at: r.expires_at.clone().and_then(|s| chrono::DateTime::parse_from_rfc3339(&s).ok().map(|dt| dt.with_timezone(&Utc))),
-            password_hash: None,
-        }).collect())
+        let rows: Vec<crate::database::SharedLink> =
+            sqlx::query_as("SELECT * FROM shared_links WHERE created_by = ?")
+                .bind(&user.id)
+                .fetch_all(&state.db_pool)
+                .await?;
+        Ok(rows
+            .iter()
+            .map(|r| Share {
+                id: Uuid::parse_str(&r.id).unwrap_or_default(),
+                file_path: r.item_id.clone(),
+                token: r.id.clone(),
+                permission: "read".to_string(),
+                created_by: Uuid::parse_str(&r.created_by).unwrap_or_default(),
+                created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at)
+                    .unwrap_or_else(|_| Utc::now().into())
+                    .with_timezone(&Utc),
+                expires_at: r.expires_at.clone().and_then(|s| {
+                    chrono::DateTime::parse_from_rfc3339(&s)
+                        .ok()
+                        .map(|dt| dt.with_timezone(&Utc))
+                }),
+                password_hash: None,
+            })
+            .collect())
     }
-    
+
     pub async fn delete_share(state: &AppState, user: &UserInfo, share_id: &str) -> Result<()> {
-        sqlx::query("DELETE FROM shared_links WHERE id = ? AND created_by = ?").bind(share_id).bind(&user.id).execute(&state.db_pool).await?;
+        sqlx::query("DELETE FROM shared_links WHERE id = ? AND created_by = ?")
+            .bind(share_id)
+            .bind(&user.id)
+            .execute(&state.db_pool)
+            .await?;
         Ok(())
     }
-    
+
     // Missing functions for API compatibility
     pub async fn get_share(state: &AppState, share_id: &str) -> Result<Share> {
-        let row: crate::database::SharedLink = sqlx::query_as("SELECT * FROM shared_links WHERE id = ?").bind(share_id).fetch_one(&state.db_pool).await?;
+        let row: crate::database::SharedLink =
+            sqlx::query_as("SELECT * FROM shared_links WHERE id = ?")
+                .bind(share_id)
+                .fetch_one(&state.db_pool)
+                .await?;
         Ok(Share {
             id: Uuid::parse_str(&row.id).unwrap_or_default(),
             file_path: row.item_id.clone(),
             token: row.id.clone(),
             permission: "read".to_string(),
             created_by: Uuid::parse_str(&row.created_by).unwrap_or_default(),
-            created_at: chrono::DateTime::parse_from_rfc3339(&row.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
-            expires_at: row.expires_at.and_then(|s| chrono::DateTime::parse_from_rfc3339(&s).ok().map(|dt| dt.with_timezone(&Utc))),
+            created_at: chrono::DateTime::parse_from_rfc3339(&row.created_at)
+                .unwrap_or_else(|_| Utc::now().into())
+                .with_timezone(&Utc),
+            expires_at: row.expires_at.and_then(|s| {
+                chrono::DateTime::parse_from_rfc3339(&s)
+                    .ok()
+                    .map(|dt| dt.with_timezone(&Utc))
+            }),
             password_hash: None,
         })
     }
-    
-    pub async fn update_share(state: &AppState, user: &UserInfo, share_id: &str, _req: serde_json::Value) -> Result<()> {
+
+    pub async fn update_share(
+        state: &AppState,
+        user: &UserInfo,
+        share_id: &str,
+        _req: serde_json::Value,
+    ) -> Result<()> {
         // Stub implementation
+        Ok(())
+    }
+
+    /// Regenerate share token - invalidates old token
+    pub async fn regenerate_token(
+        state: &AppState,
+        user: &UserInfo,
+        share_id: &str,
+    ) -> Result<String> {
+        let new_token = Uuid::new_v4().to_string();
+        let now = Utc::now().to_rfc3339();
+
+        sqlx::query(
+            "UPDATE shared_links 
+             SET id = ?, token_version = token_version + 1, regenerated_at = ?, regenerated_by = ?
+             WHERE id = ? AND created_by = ?",
+        )
+        .bind(&new_token)
+        .bind(&now)
+        .bind(&user.id)
+        .bind(share_id)
+        .bind(&user.id)
+        .execute(&state.db_pool)
+        .await?;
+
+        Ok(new_token)
+    }
+
+    /// Get share analytics
+    pub async fn get_analytics(
+        state: &AppState,
+        user: &UserInfo,
+        share_id: &str,
+    ) -> Result<serde_json::Value> {
+        // Verify ownership
+        let _share: crate::database::SharedLink =
+            sqlx::query_as("SELECT * FROM shared_links WHERE id = ? AND created_by = ?")
+                .bind(share_id)
+                .bind(&user.id)
+                .fetch_one(&state.db_pool)
+                .await?;
+
+        // Get access statistics
+        let stats: (i64,) = sqlx::query_as(
+            "SELECT COUNT(*) as total_accesses FROM shared_link_access_log WHERE share_id = ?",
+        )
+        .bind(share_id)
+        .fetch_one(&state.db_pool)
+        .await
+        .unwrap_or((0,));
+
+        let last_access: Option<(String,)> = sqlx::query_as(
+            "SELECT accessed_at FROM shared_link_access_log WHERE share_id = ? ORDER BY accessed_at DESC LIMIT 1"
+        )
+        .bind(share_id)
+        .fetch_optional(&state.db_pool)
+        .await
+        .unwrap_or(None);
+
+        Ok(serde_json::json!({
+            "total_accesses": stats.0,
+            "last_accessed": last_access.map(|la| la.0),
+            "share_id": share_id
+        }))
+    }
+
+    /// Get access log for share
+    pub async fn get_access_log(
+        state: &AppState,
+        user: &UserInfo,
+        share_id: &str,
+    ) -> Result<Vec<serde_json::Value>> {
+        // Verify ownership
+        let _share: crate::database::SharedLink =
+            sqlx::query_as("SELECT * FROM shared_links WHERE id = ? AND created_by = ?")
+                .bind(share_id)
+                .bind(&user.id)
+                .fetch_one(&state.db_pool)
+                .await?;
+
+        let logs: Vec<crate::database::SharedLinkAccessLog> = sqlx::query_as(
+            "SELECT * FROM shared_link_access_log WHERE share_id = ? ORDER BY accessed_at DESC LIMIT 100"
+        )
+        .bind(share_id)
+        .fetch_all(&state.db_pool)
+        .await?;
+
+        Ok(logs
+            .iter()
+            .map(|log| {
+                serde_json::json!({
+                    "id": log.id,
+                    "ip": log.accessed_by_ip,
+                    "accessed_at": log.accessed_at,
+                    "action": log.action,
+                    "status": log.status,
+                    "user_agent": log.user_agent
+                })
+            })
+            .collect())
+    }
+
+    /// Log access to shared link
+    pub async fn log_access(
+        state: &AppState,
+        share_id: &str,
+        ip: Option<&str>,
+        action: &str,
+        user_agent: Option<&str>,
+    ) -> Result<()> {
+        let id = Uuid::new_v4().to_string();
+        let now = Utc::now().to_rfc3339();
+
+        sqlx::query(
+            "INSERT INTO shared_link_access_log (id, share_id, accessed_by_ip, accessed_at, action, status, user_agent)
+             VALUES (?, ?, ?, ?, ?, 'success', ?)"
+        )
+        .bind(&id)
+        .bind(share_id)
+        .bind(ip)
+        .bind(&now)
+        .bind(action)
+        .bind(user_agent)
+        .execute(&state.db_pool)
+        .await?;
+
         Ok(())
     }
 }
@@ -137,7 +338,7 @@ pub mod sharing {
 // ACTIVITY SERVICE
 pub mod activity {
     use super::*;
-    
+
     /// Log an activity to the database
     pub async fn log(
         state: &AppState,
@@ -153,7 +354,7 @@ pub mod activity {
     ) -> Result<()> {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now().to_rfc3339();
-        
+
         sqlx::query(
             "INSERT INTO activity_log (id, user_id, action, file_path, file_name, file_size, old_path, status, error_message, metadata, created_at) 
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -171,13 +372,17 @@ pub mod activity {
         .bind(&now)
         .execute(&state.db_pool)
         .await?;
-        
+
         Ok(())
     }
-    
+
     /// List activities with pagination and permission filtering
     /// Only shows activities for files/folders the user can access
-    pub async fn list(state: &AppState, user: &UserInfo, limit: usize) -> Result<Vec<serde_json::Value>> {
+    pub async fn list(
+        state: &AppState,
+        user: &UserInfo,
+        limit: usize,
+    ) -> Result<Vec<serde_json::Value>> {
         #[derive(sqlx::FromRow)]
         struct ActivityRow {
             id: String,
@@ -192,21 +397,20 @@ pub mod activity {
             metadata: Option<String>,
             created_at: String,
         }
-        
+
         // Get all activities (we'll filter by permissions)
-        let rows: Vec<ActivityRow> = sqlx::query_as(
-            "SELECT * FROM activity_log ORDER BY created_at DESC LIMIT ?"
-        )
-        .bind((limit * 3) as i64) // Fetch more to ensure we have enough after filtering
-        .fetch_all(&state.db_pool)
-        .await?;
-        
+        let rows: Vec<ActivityRow> =
+            sqlx::query_as("SELECT * FROM activity_log ORDER BY created_at DESC LIMIT ?")
+                .bind((limit * 3) as i64) // Fetch more to ensure we have enough after filtering
+                .fetch_all(&state.db_pool)
+                .await?;
+
         let mut filtered_activities = Vec::new();
-        
+
         for row in rows {
             // Check if user has permission to see this activity
             let has_access = check_file_access(state, user, &row.file_path).await;
-            
+
             if has_access {
                 filtered_activities.push(serde_json::json!({
                     "id": &row.id,
@@ -221,44 +425,43 @@ pub mod activity {
                     "metadata": row.metadata.as_ref().and_then(|m| serde_json::from_str::<serde_json::Value>(m).ok()),
                     "created_at": &row.created_at,
                 }));
-                
+
                 // Stop when we have enough filtered results
                 if filtered_activities.len() >= limit {
                     break;
                 }
             }
         }
-        
+
         Ok(filtered_activities)
     }
-    
+
     /// Check if user has access to a file based on ownership, permissions, or shares
     async fn check_file_access(state: &AppState, user: &UserInfo, file_path: &str) -> bool {
         let user_id = user.user_id();
-        
+
         // 1. Check if user is the owner of the file
-        let is_owner: Option<(i64,)> = sqlx::query_as(
-            "SELECT COUNT(*) FROM files WHERE file_path = ? AND owner_id = ?"
-        )
-        .bind(file_path)
-        .bind(user_id)
-        .fetch_optional(&state.db_pool)
-        .await
-        .ok()
-        .flatten();
-        
+        let is_owner: Option<(i64,)> =
+            sqlx::query_as("SELECT COUNT(*) FROM files WHERE file_path = ? AND owner_id = ?")
+                .bind(file_path)
+                .bind(user_id)
+                .fetch_optional(&state.db_pool)
+                .await
+                .ok()
+                .flatten();
+
         if let Some((count,)) = is_owner {
             if count > 0 {
                 return true;
             }
         }
-        
+
         // 2. Check if user has explicit permission via file_permissions table
         let has_permission: Option<(i64,)> = sqlx::query_as(
             "SELECT COUNT(*) FROM file_permissions fp 
              JOIN files f ON (fp.item_type = 'file' AND fp.item_id = f.id)
              WHERE f.file_path = ? AND fp.user_id = ? AND fp.can_read = 1 
-             AND (fp.expires_at IS NULL OR fp.expires_at > datetime('now'))"
+             AND (fp.expires_at IS NULL OR fp.expires_at > datetime('now'))",
         )
         .bind(file_path)
         .bind(user_id)
@@ -266,19 +469,19 @@ pub mod activity {
         .await
         .ok()
         .flatten();
-        
+
         if let Some((count,)) = has_permission {
             if count > 0 {
                 return true;
             }
         }
-        
+
         // 3. Check if file is shared with user via shares table
         let is_shared: Option<(i64,)> = sqlx::query_as(
             "SELECT COUNT(*) FROM shares s
              JOIN files f ON s.file_id = f.id
              WHERE f.file_path = ? AND s.shared_with_user_id = ?
-             AND (s.expires_at IS NULL OR s.expires_at > datetime('now'))"
+             AND (s.expires_at IS NULL OR s.expires_at > datetime('now'))",
         )
         .bind(file_path)
         .bind(user_id)
@@ -286,49 +489,49 @@ pub mod activity {
         .await
         .ok()
         .flatten();
-        
+
         if let Some((count,)) = is_shared {
             if count > 0 {
                 return true;
             }
         }
-        
+
         // No access found
         false
     }
-    
+
     /// Get activity statistics with smart unread count
     /// Returns count of activities since user's last visit to Activity page
     pub async fn get_stats(state: &AppState, user: &UserInfo) -> Result<serde_json::Value> {
         let user_id = user.user_id();
-        
+
         let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM activity_log")
             .fetch_one(&state.db_pool)
             .await
             .unwrap_or(0);
-        
+
         let today: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM activity_log WHERE DATE(created_at) = DATE('now')"
+            "SELECT COUNT(*) FROM activity_log WHERE DATE(created_at) = DATE('now')",
         )
         .fetch_one(&state.db_pool)
         .await
         .unwrap_or(0);
-        
+
         // Get user's last activity visit timestamp
-        let last_visit: Option<(Option<String>,)> = sqlx::query_as(
-            "SELECT last_activity_visit FROM users WHERE id = ?"
-        )
-        .bind(user_id)
-        .fetch_optional(&state.db_pool)
-        .await
-        .ok()
-        .flatten();
-        
+        let last_visit: Option<(Option<String>,)> =
+            sqlx::query_as("SELECT last_activity_visit FROM users WHERE id = ?")
+                .bind(user_id)
+                .fetch_optional(&state.db_pool)
+                .await
+                .ok()
+                .flatten();
+
         // Clone for later use
-        let last_visit_str = last_visit.as_ref()
+        let last_visit_str = last_visit
+            .as_ref()
             .and_then(|(v,)| v.clone())
             .unwrap_or_else(|| "never".to_string());
-        
+
         // Count unread activities (since last visit, with permission filter)
         let unread_count = if let Some((Some(last_visit_time),)) = last_visit {
             // Get activities since last visit
@@ -336,17 +539,17 @@ pub mod activity {
             struct ActivityPath {
                 file_path: String,
             }
-            
+
             let activities: Vec<ActivityPath> = sqlx::query_as(
                 "SELECT file_path FROM activity_log 
                  WHERE created_at > ? 
-                 ORDER BY created_at DESC"
+                 ORDER BY created_at DESC",
             )
             .bind(&last_visit_time)
             .fetch_all(&state.db_pool)
             .await
             .unwrap_or_default();
-            
+
             // Filter by permissions
             let mut count = 0;
             for activity in activities {
@@ -359,19 +562,19 @@ pub mod activity {
             // First visit - show today's activities
             today
         };
-        
+
         let by_action: Vec<(String, i64)> = sqlx::query_as(
             "SELECT action, COUNT(*) as count FROM activity_log GROUP BY action ORDER BY count DESC"
         )
         .fetch_all(&state.db_pool)
         .await
         .unwrap_or_default();
-        
+
         let mut action_counts = serde_json::Map::new();
         for (action, count) in by_action {
             action_counts.insert(action, serde_json::json!(count));
         }
-        
+
         Ok(serde_json::json!({
             "total": total,
             "today": today,
@@ -380,20 +583,18 @@ pub mod activity {
             "by_action": action_counts,
         }))
     }
-    
+
     /// Mark activity page as visited - resets unread count
     pub async fn mark_visited(state: &AppState, user: &UserInfo) -> Result<()> {
         let user_id = user.user_id();
         let now = chrono::Utc::now().to_rfc3339();
-        
-        sqlx::query(
-            "UPDATE users SET last_activity_visit = ? WHERE id = ?"
-        )
-        .bind(&now)
-        .bind(user_id)
-        .execute(&state.db_pool)
-        .await?;
-        
+
+        sqlx::query("UPDATE users SET last_activity_visit = ? WHERE id = ?")
+            .bind(&now)
+            .bind(user_id)
+            .execute(&state.db_pool)
+            .await?;
+
         Ok(())
     }
 }
@@ -402,8 +603,13 @@ pub mod activity {
 pub mod tag {
     use super::*;
     use crate::models::Tag;
-    
-    pub async fn create_tag(state: &AppState, user: &UserInfo, name: &str, color: Option<String>) -> Result<Tag> {
+
+    pub async fn create_tag(
+        state: &AppState,
+        user: &UserInfo,
+        name: &str,
+        color: Option<String>,
+    ) -> Result<Tag> {
         let id = Uuid::new_v4();
         let now = Utc::now().to_rfc3339();
         sqlx::query("INSERT INTO tags (id, name, color, owner_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)")
@@ -416,39 +622,75 @@ pub mod tag {
             created_at: Utc::now(),
         })
     }
-    
+
     pub async fn list_tags(state: &AppState, user: &UserInfo) -> Result<Vec<Tag>> {
-        let rows: Vec<crate::database::Tag> = sqlx::query_as("SELECT * FROM tags WHERE owner_id = ?").bind(&user.id).fetch_all(&state.db_pool).await?;
-        Ok(rows.iter().map(|r| Tag {
-            id: Uuid::parse_str(&r.id).unwrap_or_default(),
-            name: r.name.clone(),
-            color: r.color.clone(),
-            user_id: Uuid::parse_str(&r.owner_id).unwrap_or_default(),
-            created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
-        }).collect())
+        let rows: Vec<crate::database::Tag> =
+            sqlx::query_as("SELECT * FROM tags WHERE owner_id = ?")
+                .bind(&user.id)
+                .fetch_all(&state.db_pool)
+                .await?;
+        Ok(rows
+            .iter()
+            .map(|r| Tag {
+                id: Uuid::parse_str(&r.id).unwrap_or_default(),
+                name: r.name.clone(),
+                color: r.color.clone(),
+                user_id: Uuid::parse_str(&r.owner_id).unwrap_or_default(),
+                created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at)
+                    .unwrap_or_else(|_| Utc::now().into())
+                    .with_timezone(&Utc),
+            })
+            .collect())
     }
-    
+
     // Alias functions for API compatibility
-    pub async fn create(state: &AppState, user: &UserInfo, name: &str, color: Option<String>) -> Result<Tag> {
+    pub async fn create(
+        state: &AppState,
+        user: &UserInfo,
+        name: &str,
+        color: Option<String>,
+    ) -> Result<Tag> {
         create_tag(state, user, name, color).await
     }
-    
+
     pub async fn list(state: &AppState, user: &UserInfo) -> Result<Vec<Tag>> {
         list_tags(state, user).await
     }
-    
+
     pub async fn delete(state: &AppState, user: &UserInfo, tag_id: &str) -> Result<()> {
-        sqlx::query("DELETE FROM tags WHERE id = ? AND owner_id = ?").bind(tag_id).bind(&user.id).execute(&state.db_pool).await?;
+        sqlx::query("DELETE FROM tags WHERE id = ? AND owner_id = ?")
+            .bind(tag_id)
+            .bind(&user.id)
+            .execute(&state.db_pool)
+            .await?;
         Ok(())
     }
-    
-    pub async fn tag_file(state: &AppState, user: &UserInfo, file_id: &str, tag_id: &str) -> Result<()> {
-        sqlx::query("INSERT INTO file_tags (file_id, tag_id) VALUES (?, ?)").bind(file_id).bind(tag_id).execute(&state.db_pool).await?;
+
+    pub async fn tag_file(
+        state: &AppState,
+        user: &UserInfo,
+        file_id: &str,
+        tag_id: &str,
+    ) -> Result<()> {
+        sqlx::query("INSERT INTO file_tags (file_id, tag_id) VALUES (?, ?)")
+            .bind(file_id)
+            .bind(tag_id)
+            .execute(&state.db_pool)
+            .await?;
         Ok(())
     }
-    
-    pub async fn untag_file(state: &AppState, user: &UserInfo, file_id: &str, tag_id: &str) -> Result<()> {
-        sqlx::query("DELETE FROM file_tags WHERE file_id = ? AND tag_id = ?").bind(file_id).bind(tag_id).execute(&state.db_pool).await?;
+
+    pub async fn untag_file(
+        state: &AppState,
+        user: &UserInfo,
+        file_id: &str,
+        tag_id: &str,
+    ) -> Result<()> {
+        sqlx::query("DELETE FROM file_tags WHERE file_id = ? AND tag_id = ?")
+            .bind(file_id)
+            .bind(tag_id)
+            .execute(&state.db_pool)
+            .await?;
         Ok(())
     }
 }
@@ -457,34 +699,63 @@ pub mod tag {
 pub mod favorites {
     use super::*;
     use crate::database::Favorite;
-    
-    pub async fn add_favorite(state: &AppState, user: &UserInfo, item_type: &str, item_id: &str) -> Result<Favorite> {
+
+    pub async fn add_favorite(
+        state: &AppState,
+        user: &UserInfo,
+        item_type: &str,
+        item_id: &str,
+    ) -> Result<Favorite> {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now().to_rfc3339();
         sqlx::query("INSERT INTO favorites (id, user_id, item_type, item_id, sort_order, created_at) VALUES (?, ?, ?, ?, 0, ?)")
             .bind(&id).bind(&user.id).bind(item_type).bind(item_id).bind(&now).execute(&state.db_pool).await?;
-        Ok(Favorite { id, user_id: user.id.clone(), item_type: item_type.to_string(), item_id: item_id.to_string(), sort_order: 0, created_at: now })
+        Ok(Favorite {
+            id,
+            user_id: user.id.clone(),
+            item_type: item_type.to_string(),
+            item_id: item_id.to_string(),
+            sort_order: 0,
+            created_at: now,
+        })
     }
-    
+
     pub async fn list_favorites(state: &AppState, user: &UserInfo) -> Result<Vec<Favorite>> {
-        let rows: Vec<crate::database::Favorite> = sqlx::query_as("SELECT * FROM favorites WHERE user_id = ?").bind(&user.id).fetch_all(&state.db_pool).await?;
+        let rows: Vec<crate::database::Favorite> =
+            sqlx::query_as("SELECT * FROM favorites WHERE user_id = ?")
+                .bind(&user.id)
+                .fetch_all(&state.db_pool)
+                .await?;
         Ok(rows)
     }
-    
-    pub async fn remove_favorite(state: &AppState, user: &UserInfo, favorite_id: &str) -> Result<()> {
-        sqlx::query("DELETE FROM favorites WHERE id = ? AND user_id = ?").bind(favorite_id).bind(&user.id).execute(&state.db_pool).await?;
+
+    pub async fn remove_favorite(
+        state: &AppState,
+        user: &UserInfo,
+        favorite_id: &str,
+    ) -> Result<()> {
+        sqlx::query("DELETE FROM favorites WHERE id = ? AND user_id = ?")
+            .bind(favorite_id)
+            .bind(&user.id)
+            .execute(&state.db_pool)
+            .await?;
         Ok(())
     }
-    
+
     // Alias functions for API compatibility
-    pub async fn add(state: &AppState, user: &UserInfo, item_type: &str, item_id: &str) -> Result<Favorite> {
+    pub async fn add(
+        state: &AppState,
+        user: &UserInfo,
+        item_type: &str,
+        item_id: &str,
+    ) -> Result<Favorite> {
         add_favorite(state, user, item_type, item_id).await
     }
-    
+
     pub async fn list(state: &AppState, user: &UserInfo) -> Result<Vec<Favorite>> {
         list_favorites(state, user).await
     }
-    
+
     pub async fn remove(state: &AppState, user: &UserInfo, favorite_id: &str) -> Result<()> {
         remove_favorite(state, user, favorite_id).await
     }
@@ -494,28 +765,49 @@ pub mod favorites {
 pub mod backup {
     use super::*;
     use crate::models::Backup;
-    
-    pub async fn create_backup(state: &AppState, user: &UserInfo, backup_type: &str) -> Result<Backup> {
+
+    pub async fn create_backup(
+        state: &AppState,
+        user: &UserInfo,
+        backup_type: &str,
+    ) -> Result<Backup> {
         let id = Uuid::new_v4();
         let now = Utc::now();
         let file_path = format!("/backups/{}.tar.gz", id);
         sqlx::query("INSERT INTO enhanced_backups (id, backup_type, size_bytes, storage_path, created_by, created_at, status) VALUES (?, ?, 0, ?, ?, ?, 'pending')")
             .bind(&id).bind(backup_type).bind(&file_path).bind(&user.id).bind(now.to_rfc3339()).execute(&state.db_pool).await?;
-        Ok(Backup { id, backup_type: backup_type.to_string(), size_bytes: 0, created_by: Uuid::parse_str(&user.id).unwrap_or_default(), created_at: now, status: "pending".to_string(), file_path })
+        Ok(Backup {
+            id,
+            backup_type: backup_type.to_string(),
+            size_bytes: 0,
+            created_by: Uuid::parse_str(&user.id).unwrap_or_default(),
+            created_at: now,
+            status: "pending".to_string(),
+            file_path,
+        })
     }
-    
+
     pub async fn list_backups(state: &AppState, user: &UserInfo) -> Result<Vec<Backup>> {
-        let rows: Vec<crate::database::EnhancedBackup> = sqlx::query_as("SELECT * FROM enhanced_backups WHERE created_by = ? ORDER BY created_at DESC")
-            .bind(&user.id).fetch_all(&state.db_pool).await?;
-        Ok(rows.iter().map(|r| Backup {
-            id: Uuid::parse_str(&r.id).unwrap_or_default(),
-            backup_type: r.backup_type.clone(),
-            size_bytes: r.size_bytes,
-            created_by: Uuid::parse_str(&r.created_by).unwrap_or_default(),
-            created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at).unwrap_or_else(|_| Utc::now().into()).with_timezone(&Utc),
-            status: r.status.clone(),
-            file_path: r.storage_path.clone(),
-        }).collect())
+        let rows: Vec<crate::database::EnhancedBackup> = sqlx::query_as(
+            "SELECT * FROM enhanced_backups WHERE created_by = ? ORDER BY created_at DESC",
+        )
+        .bind(&user.id)
+        .fetch_all(&state.db_pool)
+        .await?;
+        Ok(rows
+            .iter()
+            .map(|r| Backup {
+                id: Uuid::parse_str(&r.id).unwrap_or_default(),
+                backup_type: r.backup_type.clone(),
+                size_bytes: r.size_bytes,
+                created_by: Uuid::parse_str(&r.created_by).unwrap_or_default(),
+                created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at)
+                    .unwrap_or_else(|_| Utc::now().into())
+                    .with_timezone(&Utc),
+                status: r.status.clone(),
+                file_path: r.storage_path.clone(),
+            })
+            .collect())
     }
 }
 
@@ -523,8 +815,12 @@ pub mod backup {
 pub mod collaboration {
     use super::*;
     use crate::models::{FileLock, UserPresence};
-    
-    pub async fn acquire_lock(state: &AppState, user: &UserInfo, file_path: &str) -> Result<FileLock> {
+
+    pub async fn acquire_lock(
+        state: &AppState,
+        user: &UserInfo,
+        file_path: &str,
+    ) -> Result<FileLock> {
         let id = Uuid::new_v4();
         let now = Utc::now();
         let expires = now + chrono::Duration::minutes(30);
@@ -539,42 +835,59 @@ pub mod collaboration {
             expires_at: expires,
         })
     }
-    
+
     pub async fn release_lock(state: &AppState, user: &UserInfo, file_path: &str) -> Result<()> {
-        sqlx::query("DELETE FROM file_locks WHERE file_path = ? AND locked_by = ?").bind(file_path).bind(&user.id).execute(&state.db_pool).await?;
+        sqlx::query("DELETE FROM file_locks WHERE file_path = ? AND locked_by = ?")
+            .bind(file_path)
+            .bind(&user.id)
+            .execute(&state.db_pool)
+            .await?;
         Ok(())
     }
-    
-    pub async fn update_presence(state: &AppState, user: &UserInfo, file_path: Option<String>, activity: &str) -> Result<()> {
+
+    pub async fn update_presence(
+        state: &AppState,
+        user: &UserInfo,
+        file_path: Option<String>,
+        activity: &str,
+    ) -> Result<()> {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now().to_rfc3339();
         sqlx::query("INSERT OR REPLACE INTO user_presence (id, user_id, username, file_path, activity_type, last_seen) VALUES (?, ?, ?, ?, ?, ?)")
             .bind(&id).bind(&user.id).bind(&user.username).bind(file_path).bind(activity).bind(&now).execute(&state.db_pool).await?;
         Ok(())
     }
-    
+
     // Missing functions for API compatibility
     pub async fn list_locks(state: &AppState, user: &UserInfo) -> Result<Vec<FileLock>> {
         Ok(vec![])
     }
-    
+
     pub async fn renew_lock(state: &AppState, user: &UserInfo, file_path: &str) -> Result<()> {
         Ok(())
     }
-    
+
     pub async fn get_presence(state: &AppState) -> Result<Vec<UserPresence>> {
         Ok(vec![])
     }
-    
+
     pub async fn get_activity(state: &AppState, user: &UserInfo) -> Result<Vec<serde_json::Value>> {
         Ok(vec![])
     }
-    
-    pub async fn list_conflicts(state: &AppState, user: &UserInfo) -> Result<Vec<serde_json::Value>> {
+
+    pub async fn list_conflicts(
+        state: &AppState,
+        user: &UserInfo,
+    ) -> Result<Vec<serde_json::Value>> {
         Ok(vec![])
     }
-    
-    pub async fn resolve_conflict(state: &AppState, user: &UserInfo, conflict_id: &str, resolution: &str) -> Result<()> {
+
+    pub async fn resolve_conflict(
+        state: &AppState,
+        user: &UserInfo,
+        conflict_id: &str,
+        resolution: &str,
+    ) -> Result<()> {
         Ok(())
     }
 }
@@ -582,7 +895,7 @@ pub mod collaboration {
 // SYSTEM SERVICE
 pub mod system {
     use super::*;
-    
+
     pub async fn get_stats(state: &AppState) -> Result<serde_json::Value> {
         Ok(serde_json::json!({
             "file_count": 0,
@@ -590,7 +903,7 @@ pub mod system {
             "user_count": 1,
         }))
     }
-    
+
     pub async fn get_storage_info(state: &AppState) -> Result<serde_json::Value> {
         Ok(serde_json::json!({
             "total": 1000000000,
@@ -598,12 +911,12 @@ pub mod system {
             "free": 1000000000,
         }))
     }
-    
+
     // Missing functions for API compatibility
     pub async fn get_status(state: &AppState) -> Result<serde_json::Value> {
         Ok(serde_json::json!({"status": "ok", "version": "0.1.0"}))
     }
-    
+
     pub async fn get_config_info(state: &AppState) -> Result<serde_json::Value> {
         Ok(serde_json::json!({"max_upload_size": 10485760}))
     }

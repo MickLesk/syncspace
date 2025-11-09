@@ -1,5 +1,5 @@
 //! Database module for SyncSpace
-//! 
+//!
 //! Provides SQLite database connection and models for all tables.
 
 use chrono::Utc;
@@ -31,15 +31,17 @@ macro_rules! discover_migrations {
 pub async fn init_db() -> Result<SqlitePool, sqlx::Error> {
     // Get database path - always use ./data/syncspace.db relative to current working directory
     let db_path = PathBuf::from("./data/syncspace.db");
-    
+
     // Ensure parent directory exists
     if let Some(parent) = db_path.parent() {
         if let Err(e) = std::fs::create_dir_all(parent) {
             eprintln!("⚠️ Failed to create data directory: {}", e);
-            return Err(sqlx::Error::Configuration(format!("Cannot create data directory: {}", e).into()));
+            return Err(sqlx::Error::Configuration(
+                format!("Cannot create data directory: {}", e).into(),
+            ));
         }
     }
-    
+
     if !db_path.exists() {
         println!("📦 Creating new database: {}", db_path.display());
     } else {
@@ -47,14 +49,13 @@ pub async fn init_db() -> Result<SqlitePool, sqlx::Error> {
     }
 
     // Convert to absolute path for better debugging
-    let abs_path = std::fs::canonicalize(&db_path)
-        .unwrap_or_else(|_| db_path.clone());
-    
+    let abs_path = std::fs::canonicalize(&db_path).unwrap_or_else(|_| db_path.clone());
+
     println!("📂 Absolute path: {}", abs_path.display());
 
     // SQLite URL with create flag - this creates the file if it doesn't exist
     let db_url = format!("sqlite:{}?mode=rwc", db_path.display());
-    
+
     println!("🔗 Connecting to database...");
 
     // Create optimized connection pool
@@ -68,22 +69,40 @@ pub async fn init_db() -> Result<SqlitePool, sqlx::Error> {
         .after_connect(|conn, _meta| {
             Box::pin(async move {
                 // Enable WAL mode for better concurrency
-                sqlx::query("PRAGMA journal_mode=WAL;").execute(&mut *conn).await?;
-                
+                sqlx::query("PRAGMA journal_mode=WAL;")
+                    .execute(&mut *conn)
+                    .await?;
+
                 // TEMPORARILY DISABLE foreign keys due to InMemory vs SQLite user_id mismatch
-                sqlx::query("PRAGMA foreign_keys=OFF;").execute(&mut *conn).await?;
-                
+                sqlx::query("PRAGMA foreign_keys=OFF;")
+                    .execute(&mut *conn)
+                    .await?;
+
                 // Performance optimizations
-                sqlx::query("PRAGMA synchronous=NORMAL;").execute(&mut *conn).await?; // Faster than FULL, still safe with WAL
-                sqlx::query("PRAGMA temp_store=MEMORY;").execute(&mut *conn).await?; // Store temp tables in memory
-                sqlx::query("PRAGMA cache_size=-64000;").execute(&mut *conn).await?; // 64MB cache (negative = KB)
-                sqlx::query("PRAGMA mmap_size=268435456;").execute(&mut *conn).await?; // 256MB memory-mapped I/O
-                sqlx::query("PRAGMA page_size=4096;").execute(&mut *conn).await?; // Optimal page size
-                
+                sqlx::query("PRAGMA synchronous=NORMAL;")
+                    .execute(&mut *conn)
+                    .await?; // Faster than FULL, still safe with WAL
+                sqlx::query("PRAGMA temp_store=MEMORY;")
+                    .execute(&mut *conn)
+                    .await?; // Store temp tables in memory
+                sqlx::query("PRAGMA cache_size=-64000;")
+                    .execute(&mut *conn)
+                    .await?; // 64MB cache (negative = KB)
+                sqlx::query("PRAGMA mmap_size=268435456;")
+                    .execute(&mut *conn)
+                    .await?; // 256MB memory-mapped I/O
+                sqlx::query("PRAGMA page_size=4096;")
+                    .execute(&mut *conn)
+                    .await?; // Optimal page size
+
                 // WAL checkpointing settings
-                sqlx::query("PRAGMA wal_autocheckpoint=1000;").execute(&mut *conn).await?; // Checkpoint every 1000 pages
-                sqlx::query("PRAGMA busy_timeout=5000;").execute(&mut *conn).await?; // 5 second busy timeout
-                
+                sqlx::query("PRAGMA wal_autocheckpoint=1000;")
+                    .execute(&mut *conn)
+                    .await?; // Checkpoint every 1000 pages
+                sqlx::query("PRAGMA busy_timeout=5000;")
+                    .execute(&mut *conn)
+                    .await?; // 5 second busy timeout
+
                 println!("✅ Connection configured with optimized settings");
                 Ok(())
             })
@@ -91,12 +110,14 @@ pub async fn init_db() -> Result<SqlitePool, sqlx::Error> {
         .connect(&db_url)
         .await?;
 
-    println!("✅ Database pool created (max: {}, min: {}, timeout: {}s)", 
-             MAX_CONNECTIONS, MIN_CONNECTIONS, ACQUIRE_TIMEOUT_SECS);
+    println!(
+        "✅ Database pool created (max: {}, min: {}, timeout: {}s)",
+        MAX_CONNECTIONS, MIN_CONNECTIONS, ACQUIRE_TIMEOUT_SECS
+    );
 
     // Run migrations
     run_migrations(&pool).await?;
-    
+
     // Ensure admin user exists
     ensure_admin_user(&pool).await?;
 
@@ -104,7 +125,10 @@ pub async fn init_db() -> Result<SqlitePool, sqlx::Error> {
 }
 
 /// Helper function to execute multi-statement SQL migrations
-async fn execute_migration_statements(pool: &SqlitePool, migration_sql: &str) -> Result<(), sqlx::Error> {
+async fn execute_migration_statements(
+    pool: &SqlitePool,
+    migration_sql: &str,
+) -> Result<(), sqlx::Error> {
     // Remove SQL comments (both -- line comments and inline comments)
     // and join lines into a cleaned SQL string
     let cleaned_sql: String = migration_sql
@@ -120,44 +144,58 @@ async fn execute_migration_statements(pool: &SqlitePool, migration_sql: &str) ->
         .filter(|line| !line.trim().is_empty())
         .collect::<Vec<_>>()
         .join("\n");
-    
+
     // Split into individual statements by semicolon
     let statements: Vec<String> = cleaned_sql
         .split(';')
         .map(|s| s.trim().to_string())
         .filter(|s| !s.is_empty())
         .collect();
-    
+
     // Start a transaction for all statements in this migration
     let mut tx = pool.begin().await?;
-    
+
     // Execute each statement individually within the transaction
     for (i, statement) in statements.iter().enumerate() {
-        println!("  ↳ Executing statement {}/{}: {}...", i+1, statements.len(), 
-                 if statement.len() > 60 { &statement[..60] } else { statement });
-        
+        println!(
+            "  ↳ Executing statement {}/{}: {}...",
+            i + 1,
+            statements.len(),
+            if statement.len() > 60 {
+                &statement[..60]
+            } else {
+                statement
+            }
+        );
+
         if let Err(e) = sqlx::query(statement).execute(&mut *tx).await {
             // Check if error is "duplicate column" or "already exists" - these are safe to ignore
             let error_msg = format!("{:?}", e);
-            let is_safe_error = error_msg.contains("duplicate column") 
+            let is_safe_error = error_msg.contains("duplicate column")
                 || error_msg.contains("already exists")
                 || error_msg.contains("UNIQUE constraint failed");
-            
+
             if is_safe_error {
-                println!("  ⚠️  Statement already applied (safe to skip): {}", 
-                         if statement.len() > 50 { &statement[..50] } else { statement });
+                println!(
+                    "  ⚠️  Statement already applied (safe to skip): {}",
+                    if statement.len() > 50 {
+                        &statement[..50]
+                    } else {
+                        statement
+                    }
+                );
             } else {
-                eprintln!("❌ Failed to execute statement {}:", i+1);
+                eprintln!("❌ Failed to execute statement {}:", i + 1);
                 eprintln!("   SQL: {}", statement);
                 eprintln!("   Error: {:?}", e);
                 return Err(e);
             }
         }
     }
-    
+
     // Commit the transaction
     tx.commit().await?;
-    
+
     Ok(())
 }
 
@@ -171,18 +209,17 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             migration_file TEXT NOT NULL UNIQUE,
             executed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        )"
+        )",
     )
     .execute(pool)
     .await?;
 
     // Check if this is an existing database (check for users table)
-    let is_existing_db: Option<(i64,)> = sqlx::query_as(
-        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='users'"
-    )
-    .fetch_optional(pool)
-    .await?;
-    
+    let is_existing_db: Option<(i64,)> =
+        sqlx::query_as("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='users'")
+            .fetch_optional(pool)
+            .await?;
+
     let db_exists = if let Some((count,)) = is_existing_db {
         count > 0
     } else {
@@ -192,24 +229,25 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     // If database exists but migrations_tracker is empty, mark all existing migrations as executed
     // This prevents re-running migrations on existing databases
     if db_exists {
-        let tracker_count: Option<(i64,)> = sqlx::query_as(
-            "SELECT COUNT(*) FROM migrations_tracker"
-        )
-        .fetch_optional(pool)
-        .await?;
-        
+        let tracker_count: Option<(i64,)> =
+            sqlx::query_as("SELECT COUNT(*) FROM migrations_tracker")
+                .fetch_optional(pool)
+                .await?;
+
         if let Some((count,)) = tracker_count {
             if count == 0 {
                 println!("📌 Existing database detected. Marking all discovered migrations as executed...");
-                
+
                 // Get all migrations from auto-discovery
                 let all_migrations = discover_migrations!();
-                
+
                 for (filename, _) in all_migrations {
-                    sqlx::query("INSERT OR IGNORE INTO migrations_tracker (migration_file) VALUES (?)")
-                        .bind(filename)
-                        .execute(pool)
-                        .await?;
+                    sqlx::query(
+                        "INSERT OR IGNORE INTO migrations_tracker (migration_file) VALUES (?)",
+                    )
+                    .bind(filename)
+                    .execute(pool)
+                    .await?;
                 }
                 println!("✅ Historical migrations marked");
             }
@@ -225,12 +263,11 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
 
     for (filename, migration_sql) in migrations {
         // Check if this migration was already executed
-        let already_run: Option<(i64,)> = sqlx::query_as(
-            "SELECT COUNT(*) FROM migrations_tracker WHERE migration_file = ?"
-        )
-        .bind(filename)
-        .fetch_optional(pool)
-        .await?;
+        let already_run: Option<(i64,)> =
+            sqlx::query_as("SELECT COUNT(*) FROM migrations_tracker WHERE migration_file = ?")
+                .bind(filename)
+                .fetch_optional(pool)
+                .await?;
 
         if let Some((count,)) = already_run {
             if count > 0 {
@@ -248,75 +285,75 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
             .bind(filename)
             .execute(pool)
             .await?;
-        
+
         executed_count += 1;
     }
 
     if executed_count > 0 {
-        println!("✅ Executed {} new migrations successfully!", executed_count);
+        println!(
+            "✅ Executed {} new migrations successfully!",
+            executed_count
+        );
     }
     if skipped_count > 0 {
         println!("⏭️  Skipped {} already executed migrations", skipped_count);
     }
-    
+
     Ok(())
 }
-
 
 /// Ensure admin user exists (username: admin, password: admin)
 /// ONLY creates default admin if setup has NOT been completed
 /// This provides backwards compatibility for existing installations
 async fn ensure_admin_user(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     // Check if setup has been completed
-    let setup_completed: Option<(bool,)> = sqlx::query_as(
-        "SELECT setup_completed FROM system_settings WHERE id = 1"
-    )
-    .fetch_optional(pool)
-    .await?;
-    
+    let setup_completed: Option<(bool,)> =
+        sqlx::query_as("SELECT setup_completed FROM system_settings WHERE id = 1")
+            .fetch_optional(pool)
+            .await?;
+
     if setup_completed.map(|(c,)| c).unwrap_or(false) {
         println!("✅ Setup completed - skipping default admin creation");
         return Ok(());
     }
-    
+
     // Check if admin user already exists
-    let existing: Option<(String,)> = sqlx::query_as(
-        "SELECT id FROM users WHERE username = 'admin'"
-    )
-    .fetch_optional(pool)
-    .await?;
-    
+    let existing: Option<(String,)> =
+        sqlx::query_as("SELECT id FROM users WHERE username = 'admin'")
+            .fetch_optional(pool)
+            .await?;
+
     if existing.is_some() {
         println!("✅ Admin user already exists");
         return Ok(());
     }
-    
+
     println!("👤 Creating default admin user (username: admin, password: admin)");
-    
+
     // Hash password "admin" with argon2
     use argon2::{
         password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
-        Argon2
+        Argon2,
     };
-    
+
     let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
     let password_hash = argon2
         .hash_password("admin".as_bytes(), &salt)
         .map_err(|e| sqlx::Error::Configuration(format!("Password hashing failed: {}", e).into()))?
         .to_string();
-    
+
     // Create admin user with UUID
     let admin_id = uuid::Uuid::new_v4().to_string();
     let now = chrono::Utc::now();
-    
+
     sqlx::query(
         "INSERT INTO users (
             id, username, password_hash, email, display_name,
             storage_quota_bytes, storage_used_bytes,
             default_view, language, theme,
             totp_enabled, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(&admin_id)
     .bind("admin")
@@ -333,7 +370,7 @@ async fn ensure_admin_user(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     .bind(now)
     .execute(pool)
     .await?;
-    
+
     println!("✅ Admin user created successfully");
     Ok(())
 }
@@ -345,20 +382,20 @@ fn get_db_path() -> PathBuf {
         .ok()
         .and_then(|p| p.parent().map(|p| p.to_path_buf()))
         .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
-    
+
     // Go up to backend root if we're in target/debug or target/release
     if path.ends_with("debug") || path.ends_with("release") {
         path.pop(); // Remove debug/release
         path.pop(); // Remove target
     }
-    
+
     path.push("data");
-    
+
     // Create data directory if it doesn't exist
     if !path.exists() {
         std::fs::create_dir_all(&path).ok();
     }
-    
+
     path.push("syncspace.db");
     path
 }
@@ -375,21 +412,21 @@ pub struct User {
     pub display_name: Option<String>,
     pub bio: Option<String>,
     pub avatar_base64: Option<String>,
-    
+
     // Security
     pub totp_secret: Option<String>,
     pub totp_enabled: bool,
-    pub token_version: i32,  // For global token invalidation
-    
+    pub token_version: i32, // For global token invalidation
+
     // Quota
     pub storage_quota_bytes: i64,
     pub storage_used_bytes: i64,
-    
+
     // Preferences
     pub default_view: String,
     pub language: String,
     pub theme: String,
-    
+
     // Timestamps
     pub created_at: String,
     pub last_login: Option<String>,
@@ -399,16 +436,16 @@ pub struct User {
 /// Refresh token for JWT authentication with rotation and revocation support
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct RefreshToken {
-    pub id: String,                     // UUID for token identifier
-    pub user_id: String,                // Foreign key to users table
-    pub token_hash: String,             // SHA256 hash of refresh token
-    pub token_version: i32,             // Version number for token rotation
-    pub expires_at: String,             // ISO 8601 timestamp
-    pub created_at: String,             // ISO 8601 timestamp
-    pub last_used_at: Option<String>,   // ISO 8601 timestamp
-    pub revoked_at: Option<String>,     // ISO 8601 timestamp (NULL if active)
-    pub user_agent: Option<String>,     // User agent for security tracking
-    pub ip_address: Option<String>,     // IP address for security tracking
+    pub id: String,                   // UUID for token identifier
+    pub user_id: String,              // Foreign key to users table
+    pub token_hash: String,           // SHA256 hash of refresh token
+    pub token_version: i32,           // Version number for token rotation
+    pub expires_at: String,           // ISO 8601 timestamp
+    pub created_at: String,           // ISO 8601 timestamp
+    pub last_used_at: Option<String>, // ISO 8601 timestamp
+    pub revoked_at: Option<String>,   // ISO 8601 timestamp (NULL if active)
+    pub user_agent: Option<String>,   // User agent for security tracking
+    pub ip_address: Option<String>,   // IP address for security tracking
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
@@ -506,6 +543,9 @@ pub struct SharedLink {
     pub download_count: i32,
     pub created_at: String,
     pub last_accessed_at: Option<String>,
+    pub token_version: i32,
+    pub regenerated_at: Option<String>,
+    pub regenerated_by: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
@@ -643,6 +683,15 @@ pub struct Tag {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct CommentReaction {
+    pub id: String,
+    pub comment_id: String,
+    pub emoji: String,
+    pub user_id: String,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct FileTag {
     pub id: String,
     pub file_id: String,
@@ -722,7 +771,10 @@ impl User {
     }
 
     /// Get user by username
-    pub async fn get_by_username(pool: &SqlitePool, username: &str) -> Result<Option<Self>, sqlx::Error> {
+    pub async fn get_by_username(
+        pool: &SqlitePool,
+        username: &str,
+    ) -> Result<Option<Self>, sqlx::Error> {
         sqlx::query_as::<_, User>("SELECT * FROM users WHERE username = ?")
             .bind(username)
             .fetch_optional(pool)
@@ -863,7 +915,7 @@ impl FileHistory {
     /// Get history for a file
     pub async fn get_for_file(pool: &SqlitePool, file_id: &str) -> Result<Vec<Self>, sqlx::Error> {
         sqlx::query_as::<_, FileHistory>(
-            "SELECT * FROM file_history WHERE file_id = ? ORDER BY created_at DESC"
+            "SELECT * FROM file_history WHERE file_id = ? ORDER BY created_at DESC",
         )
         .bind(file_id)
         .fetch_all(pool)
@@ -900,15 +952,13 @@ impl Setting {
         updated_by: Option<&str>,
     ) -> Result<(), sqlx::Error> {
         let now = Utc::now().to_rfc3339();
-        sqlx::query(
-            "UPDATE settings SET value = ?, updated_at = ?, updated_by = ? WHERE key = ?"
-        )
-        .bind(value)
-        .bind(&now)
-        .bind(updated_by)
-        .bind(key)
-        .execute(pool)
-        .await?;
+        sqlx::query("UPDATE settings SET value = ?, updated_at = ?, updated_by = ? WHERE key = ?")
+            .bind(value)
+            .bind(&now)
+            .bind(updated_by)
+            .bind(key)
+            .execute(pool)
+            .await?;
         Ok(())
     }
 }
@@ -1032,7 +1082,7 @@ impl LoginAttempt {
     ) -> Result<Self, sqlx::Error> {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now().to_rfc3339();
-        
+
         sqlx::query_as::<_, LoginAttempt>(
             "INSERT INTO login_attempts (id, username, ip_address, user_agent, success, failure_reason, attempted_at, created_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING *"
@@ -1048,7 +1098,7 @@ impl LoginAttempt {
         .fetch_one(pool)
         .await
     }
-    
+
     /// Get recent failed attempts for a username
     pub async fn get_recent_failures(
         pool: &SqlitePool,
@@ -1059,7 +1109,7 @@ impl LoginAttempt {
         sqlx::query_as::<_, LoginAttempt>(
             "SELECT * FROM login_attempts 
              WHERE username = ? AND success = 0 AND attempted_at >= ?
-             ORDER BY attempted_at DESC"
+             ORDER BY attempted_at DESC",
         )
         .bind(username)
         .bind(cutoff.to_rfc3339())
@@ -1080,7 +1130,7 @@ impl UserSession {
     ) -> Result<Self, sqlx::Error> {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now().to_rfc3339();
-        
+
         sqlx::query_as::<_, UserSession>(
             "INSERT INTO user_sessions (id, user_id, session_token, ip_address, user_agent, created_at, last_active_at, expires_at, revoked)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0) RETURNING *"
@@ -1096,7 +1146,7 @@ impl UserSession {
         .fetch_one(pool)
         .await
     }
-    
+
     /// Get active sessions for a user
     pub async fn get_user_sessions(
         pool: &SqlitePool,
@@ -1105,13 +1155,13 @@ impl UserSession {
         sqlx::query_as::<_, UserSession>(
             "SELECT * FROM user_sessions 
              WHERE user_id = ? AND revoked = 0 AND expires_at > datetime('now')
-             ORDER BY last_active_at DESC"
+             ORDER BY last_active_at DESC",
         )
         .bind(user_id)
         .fetch_all(pool)
         .await
     }
-    
+
     /// Revoke a session
     pub async fn revoke(
         pool: &SqlitePool,
@@ -1121,7 +1171,7 @@ impl UserSession {
         let now = Utc::now().to_rfc3339();
         sqlx::query(
             "UPDATE user_sessions SET revoked = 1, revoked_at = ?, revoked_reason = ?
-             WHERE id = ?"
+             WHERE id = ?",
         )
         .bind(&now)
         .bind(reason)
@@ -1130,20 +1180,18 @@ impl UserSession {
         .await?;
         Ok(())
     }
-    
+
     /// Update last active timestamp
     pub async fn update_activity(
         pool: &SqlitePool,
         session_token: &str,
     ) -> Result<(), sqlx::Error> {
         let now = Utc::now().to_rfc3339();
-        sqlx::query(
-            "UPDATE user_sessions SET last_active_at = ? WHERE session_token = ?"
-        )
-        .bind(&now)
-        .bind(session_token)
-        .execute(pool)
-        .await?;
+        sqlx::query("UPDATE user_sessions SET last_active_at = ? WHERE session_token = ?")
+            .bind(&now)
+            .bind(session_token)
+            .execute(pool)
+            .await?;
         Ok(())
     }
 }
@@ -1160,7 +1208,7 @@ impl AccountLockout {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now();
         let locked_until = now + chrono::Duration::minutes(lock_duration_minutes);
-        
+
         sqlx::query_as::<_, AccountLockout>(
             "INSERT INTO account_lockouts (id, user_id, username, locked_at, locked_until, reason, failed_attempts_count)
              VALUES (?, ?, ?, ?, ?, 'too_many_failed_attempts', ?) RETURNING *"
@@ -1174,22 +1222,19 @@ impl AccountLockout {
         .fetch_one(pool)
         .await
     }
-    
+
     /// Check if user is currently locked
-    pub async fn is_locked(
-        pool: &SqlitePool,
-        username: &str,
-    ) -> Result<Option<Self>, sqlx::Error> {
+    pub async fn is_locked(pool: &SqlitePool, username: &str) -> Result<Option<Self>, sqlx::Error> {
         sqlx::query_as::<_, AccountLockout>(
             "SELECT * FROM account_lockouts 
              WHERE username = ? AND locked_until > datetime('now') AND unlocked_at IS NULL
-             ORDER BY locked_at DESC LIMIT 1"
+             ORDER BY locked_at DESC LIMIT 1",
         )
         .bind(username)
         .fetch_optional(pool)
         .await
     }
-    
+
     /// Unlock an account (admin action)
     pub async fn unlock(
         pool: &SqlitePool,
@@ -1199,7 +1244,7 @@ impl AccountLockout {
         let now = Utc::now().to_rfc3339();
         sqlx::query(
             "UPDATE account_lockouts SET unlocked_at = ?, unlocked_by = ?
-             WHERE id = ?"
+             WHERE id = ?",
         )
         .bind(&now)
         .bind(unlocked_by)
@@ -1219,10 +1264,10 @@ impl PasswordHistory {
     ) -> Result<(), sqlx::Error> {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now().to_rfc3339();
-        
+
         sqlx::query(
             "INSERT INTO password_history (id, user_id, password_hash, changed_at)
-             VALUES (?, ?, ?, ?)"
+             VALUES (?, ?, ?, ?)",
         )
         .bind(&id)
         .bind(user_id)
@@ -1230,7 +1275,7 @@ impl PasswordHistory {
         .bind(&now)
         .execute(pool)
         .await?;
-        
+
         // Keep only last 5 passwords
         sqlx::query(
             "DELETE FROM password_history 
@@ -1239,16 +1284,16 @@ impl PasswordHistory {
                  WHERE user_id = ? 
                  ORDER BY changed_at DESC 
                  LIMIT 5
-             )"
+             )",
         )
         .bind(user_id)
         .bind(user_id)
         .execute(pool)
         .await?;
-        
+
         Ok(())
     }
-    
+
     /// Check if password was used recently
     pub async fn was_used_recently(
         pool: &SqlitePool,
@@ -1257,13 +1302,13 @@ impl PasswordHistory {
     ) -> Result<bool, sqlx::Error> {
         let result = sqlx::query_scalar::<_, i64>(
             "SELECT COUNT(*) FROM password_history 
-             WHERE user_id = ? AND password_hash = ?"
+             WHERE user_id = ? AND password_hash = ?",
         )
         .bind(user_id)
         .bind(password_hash)
         .fetch_one(pool)
         .await?;
-        
+
         Ok(result > 0)
     }
 }
