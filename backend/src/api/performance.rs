@@ -1,5 +1,6 @@
 //! Performance API endpoints
 
+use crate::{auth::UserInfo, services, AppState};
 use axum::{
     extract::{Path, State},
     http::StatusCode,
@@ -8,7 +9,6 @@ use axum::{
 };
 use serde::Deserialize;
 use uuid::Uuid;
-use crate::{services, AppState, auth::UserInfo};
 
 #[derive(Debug, Deserialize)]
 pub struct CreateJobRequest {
@@ -71,19 +71,65 @@ async fn list_jobs(
     State(state): State<AppState>,
     _user: UserInfo,
 ) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    // TODO: Implement job listing
-    Ok(Json(vec![]))
+    // Query job_queue table for active/pending jobs
+    let queue = crate::jobs::queue::JobQueue::new(std::sync::Arc::new(state.db_pool.clone()));
+    let jobs = queue.list_jobs(None, None, 50, 0).await.map_err(|e| {
+        tracing::error!("Failed to list jobs: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    let job_list = jobs
+        .into_iter()
+        .map(|job| {
+            serde_json::json!({
+                "id": job.id,
+                "job_type": job.job_type,
+                "status": job.status,
+                "created_at": job.created_at,
+                "started_at": job.started_at,
+                "completed_at": job.completed_at,
+                "error": job.error,
+                "attempts": job.attempts,
+            })
+        })
+        .collect();
+
+    Ok(Json(job_list))
 }
 
 async fn create_job(
     State(state): State<AppState>,
-    _user: UserInfo,
+    user: UserInfo,
     Json(req): Json<CreateJobRequest>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    let job_id = Uuid::new_v4();
-    
+    // Create a new job
+    let job = crate::jobs::types::Job {
+        id: Uuid::new_v4().to_string(),
+        job_type: req.job_type.clone(),
+        status: "pending".to_string(),
+        payload: req.parameters.to_string(),
+        result: None,
+        error: None,
+        attempts: 0,
+        max_attempts: 3,
+        created_at: chrono::Utc::now().to_rfc3339(),
+        started_at: None,
+        completed_at: None,
+        scheduled_for: None,
+        created_by: Some(user.id),
+    };
+
+    // Enqueue the job
+    let queue = crate::jobs::queue::JobQueue::new(std::sync::Arc::new(state.db_pool.clone()));
+    let enqueued_job = queue.enqueue(job).await.map_err(|e| {
+        tracing::error!("Failed to enqueue job: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
     Ok(Json(serde_json::json!({
-        "job_id": job_id,
+        "job_id": enqueued_job.id,
+        "job_type": enqueued_job.job_type,
+        "status": enqueued_job.status,
         "message": "Job created successfully"
     })))
 }
@@ -92,11 +138,28 @@ async fn get_job_status(
     State(state): State<AppState>,
     Path(job_id): Path<Uuid>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    // TODO: Implement job status retrieval
-    Ok(Json(serde_json::json!({
-        "job_id": job_id,
-        "status": "completed"
-    })))
+    // Get job by ID from database
+    let queue = crate::jobs::queue::JobQueue::new(std::sync::Arc::new(state.db_pool.clone()));
+    let job = queue.get_job(&job_id.to_string()).await.map_err(|e| {
+        tracing::error!("Failed to get job status: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    match job {
+        Some(job) => Ok(Json(serde_json::json!({
+            "job_id": job.id,
+            "job_type": job.job_type,
+            "status": job.status,
+            "created_at": job.created_at,
+            "started_at": job.started_at,
+            "completed_at": job.completed_at,
+            "error": job.error,
+            "result": job.result,
+            "attempts": job.attempts,
+            "max_attempts": job.max_attempts,
+        }))),
+        None => Err(StatusCode::NOT_FOUND),
+    }
 }
 
 async fn get_system_info(

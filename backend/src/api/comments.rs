@@ -15,6 +15,11 @@ use uuid::Uuid;
 use crate::auth::UserInfo;
 use crate::AppState;
 
+#[derive(Debug, Deserialize)]
+pub struct FilePathQuery {
+    pub path: String,
+}
+
 /// Comment model (matches 002_add_comments_tags.sql schema)
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct Comment {
@@ -216,32 +221,34 @@ pub fn router() -> Router<AppState> {
         )
 }
 
-/// File-scoped comments routes: /files/{path}/comments/*
-/// This is the primary interface for frontend
+/// File-scoped comments routes using query parameters
+/// Frontend should call: /api/file-comments/list?path={path}
 pub fn file_comments_router() -> Router<AppState> {
     Router::new()
+        .route("/api/file-comments/list", get(list_file_comments))
+        .route("/api/file-comments/create", post(create_file_comment))
         .route(
-            "/files/*path/comments",
-            get(list_file_comments).post(create_file_comment),
+            "/api/file-comments/update/{comment_id}",
+            put(update_file_comment),
         )
         .route(
-            "/files/*path/comments/:comment_id",
-            put(update_file_comment).delete(delete_file_comment),
+            "/api/file-comments/delete/{comment_id}",
+            routing::delete(delete_file_comment),
         )
         .route(
-            "/files/*path/comments/:comment_id/reactions",
+            "/api/file-comments/reaction/{comment_id}",
             post(add_reaction),
         )
 }
 
 // ============================================================================
-// FILE-SCOPED COMMENT ENDPOINTS: /files/{path}/comments/*
+// FILE-SCOPED COMMENT ENDPOINTS with Query Parameters
 // ============================================================================
 
-/// GET /files/{path}/comments - List all comments for a file
+/// GET /api/file-comments/list?path={path} - List all comments for a file
 async fn list_file_comments(
     State(state): State<AppState>,
-    Path(path): Path<String>,
+    Query(query): Query<FilePathQuery>,
     _user: UserInfo,
 ) -> Result<Json<Vec<CommentResponse>>, StatusCode> {
     let comments = sqlx::query_as::<_, Comment>(
@@ -254,7 +261,7 @@ async fn list_file_comments(
         ORDER BY created_at DESC
         "#,
     )
-    .bind(&path)
+    .bind(&query.path)
     .fetch_all(&state.db)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -275,10 +282,10 @@ async fn list_file_comments(
     Ok(Json(responses))
 }
 
-/// POST /files/{path}/comments - Create comment for a file
+/// POST /api/file-comments/create?path={path} - Create comment for a file
 async fn create_file_comment(
     State(state): State<AppState>,
-    Path(path): Path<String>,
+    Query(query): Query<FilePathQuery>,
     user_info: UserInfo,
     Json(req): Json<CreateCommentRequest>,
 ) -> Result<(StatusCode, Json<serde_json::Value>), StatusCode> {
@@ -296,7 +303,7 @@ async fn create_file_comment(
         "#,
     )
     .bind(&comment_id)
-    .bind(&path)
+    .bind(&query.path)
     .bind(&user_info.id)
     .bind(&sanitized_content)
     .bind(&now)
@@ -317,10 +324,11 @@ async fn create_file_comment(
     ))
 }
 
-/// PUT /files/{path}/comments/{comment_id} - Update comment (edit)
+/// PUT /api/file-comments/update/{comment_id}?path={path} - Update comment (edit)
 async fn update_file_comment(
     State(state): State<AppState>,
-    Path((path, comment_id)): Path<(String, String)>,
+    Path(comment_id): Path<String>,
+    Query(_query): Query<FilePathQuery>,
     user_info: UserInfo,
     Json(req): Json<CreateCommentRequest>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
@@ -351,10 +359,11 @@ async fn update_file_comment(
     })))
 }
 
-/// DELETE /files/{path}/comments/{comment_id} - Delete comment
+/// DELETE /api/file-comments/delete/{comment_id}?path={path} - Delete comment
 async fn delete_file_comment(
     State(state): State<AppState>,
-    Path((path, comment_id)): Path<(String, String)>,
+    Path(comment_id): Path<String>,
+    Query(_query): Query<FilePathQuery>,
     user_info: UserInfo,
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query(
@@ -376,10 +385,11 @@ async fn delete_file_comment(
     Ok(StatusCode::NO_CONTENT)
 }
 
-/// POST /files/{path}/comments/{comment_id}/reactions - Add emoji reaction
+/// POST /api/file-comments/reaction/{comment_id}?path={path} - Add emoji reaction
 async fn add_reaction(
     State(state): State<AppState>,
-    Path((path, comment_id)): Path<(String, String)>,
+    Path(comment_id): Path<String>,
+    Query(_query): Query<FilePathQuery>,
     user_info: UserInfo,
     Json(req): Json<ReactionRequest>,
 ) -> Result<StatusCode, StatusCode> {

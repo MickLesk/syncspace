@@ -9,8 +9,8 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::AppState;
 use crate::auth::UserInfo;
+use crate::AppState;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -38,31 +38,40 @@ impl Default for AppConfig {
 }
 
 /// Get application config
-async fn get_config(
-    State(state): State<AppState>,
-) -> Result<impl IntoResponse, StatusCode> {
-    // TODO: Load from database or config file
+async fn get_config(State(_state): State<AppState>) -> Result<impl IntoResponse, StatusCode> {
+    // State available for future database-backed config
     let config = AppConfig::default();
-    
+
     Ok(Json(config))
 }
 
-/// Update application config
+/// Update application config (admin only)
 async fn update_config(
-    State(state): State<AppState>,
+    State(_state): State<AppState>,
     user_info: UserInfo,
     Json(config): Json<AppConfig>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    // TODO: Save to database or config file
-    // TODO: Add admin permission check
-    
+    // Verify user is admin
+    if user_info.username != "admin" {
+        return Err(StatusCode::FORBIDDEN);
+    }
+
+    // Log config changes for audit trail
+    eprintln!(
+        "Config updated by {}: max_upload_size={}, enable_sharing={}",
+        user_info.username, config.max_upload_size, config.enable_sharing
+    );
+
+    // TODO: Persist to database settings table
+
     Ok(Json(serde_json::json!({
-        "message": "Configuration updated successfully"
+        "message": "Configuration updated successfully",
+        "max_upload_size": config.max_upload_size,
+        "enable_sharing": config.enable_sharing
     })))
 }
 
 /// Build config router
 pub fn router() -> Router<AppState> {
-    Router::new()
-        .route("/config", get(get_config).put(update_config))
+    Router::new().route("/config", get(get_config).put(update_config))
 }

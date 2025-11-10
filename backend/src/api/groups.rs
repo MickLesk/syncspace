@@ -46,6 +46,12 @@ pub struct AssignRoleRequest {
     pub role: String, // admin, moderator, user, guest
 }
 
+#[derive(Deserialize)]
+struct SuspendRequest {
+    reason: String,
+    duration_days: Option<i64>,
+}
+
 /// List all groups
 async fn list_groups(
     State(state): State<AppState>,
@@ -282,20 +288,16 @@ async fn suspend_user(
     State(state): State<AppState>,
     Path(user_id): Path<String>,
     user: UserInfo,
+    Json(req): Json<SuspendRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    #[derive(Deserialize)]
-    struct SuspendRequest {
-        reason: String,
-        duration_days: Option<i64>,
-    }
-
     let id = Uuid::new_v4().to_string();
     let now = chrono::Utc::now();
     let now_str = now.to_rfc3339();
 
-    // TODO: Parse request body for reason and duration
-    let reason = "Suspended by administrator";
-    let expires_at: Option<String> = None; // Permanent
+    // Calculate expiration if duration provided
+    let expires_at: Option<String> = req
+        .duration_days
+        .map(|days| (now + chrono::Duration::days(days)).to_rfc3339());
 
     sqlx::query(
         "INSERT INTO user_suspensions (id, user_id, reason, suspended_by, suspended_at, expires_at, is_active)
@@ -303,7 +305,7 @@ async fn suspend_user(
     )
     .bind(&id)
     .bind(&user_id)
-    .bind(reason)
+    .bind(&req.reason)
     .bind(&user.user_id())
     .bind(&now_str)
     .bind(&expires_at)
@@ -321,7 +323,9 @@ async fn suspend_user(
     Ok((
         StatusCode::OK,
         Json(serde_json::json!({
-            "message": "User suspended successfully"
+            "message": "User suspended successfully",
+            "reason": req.reason,
+            "expires_at": expires_at
         })),
     ))
 }

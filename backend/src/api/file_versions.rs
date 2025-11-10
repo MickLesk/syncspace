@@ -1,8 +1,8 @@
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
     response::{IntoResponse, Json},
-    routing::{get, post},
+    routing::{delete, get, post},
     Router,
 };
 use serde::{Deserialize, Serialize};
@@ -92,6 +92,9 @@ async fn restore_version(
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let (version_path, size, checksum) = version.ok_or(StatusCode::NOT_FOUND)?;
+
+    // Use version_path for future file content restoration
+    eprintln!("Restoring from version path: {}", version_path);
 
     // Get current file info
     let current_file: Option<(String,)> = sqlx::query_as("SELECT path FROM files WHERE id = ?")
@@ -240,28 +243,29 @@ pub fn router() -> Router<AppState> {
         .route("/api/versions/{version_id}", get(get_version_details))
 }
 
-/// File-scoped versions routes: /files/{path}/versions/*
+/// File-scoped versions routes: /api/file-versions/*
 /// This is the primary interface for frontend
 pub fn file_versions_router() -> Router<AppState> {
     Router::new()
-        .route("/files/{*path}/versions", get(list_path_versions))
+        .route("/api/file-versions/list", get(list_path_versions))
         .route(
-            "/files/{*path}/versions/{version_num}",
-            get(get_version_by_number).delete(delete_version_by_number),
+            "/api/file-versions/get/{version_num}",
+            get(get_version_by_number),
         )
         .route(
-            "/files/{*path}/versions/{version_num}/download",
+            "/api/file-versions/delete/{version_num}",
+            delete(delete_version_by_number),
+        )
+        .route(
+            "/api/file-versions/download/{version_num}",
             get(download_version_content),
         )
         .route(
-            "/files/{*path}/versions/{version_num}/restore",
+            "/api/file-versions/restore/{version_num}",
             post(restore_version_by_number),
         )
-        .route("/files/{*path}/versions/diff", post(diff_versions_content))
-        .route(
-            "/files/{*path}/versions/cleanup",
-            post(cleanup_old_versions),
-        )
+        .route("/api/file-versions/diff", post(diff_versions_content))
+        .route("/api/file-versions/cleanup", post(cleanup_old_versions))
 }
 
 // ============================================================================
@@ -307,10 +311,15 @@ pub struct CleanupResponse {
     pub freed_space: i64,
 }
 
-/// GET /files/{path}/versions - List all versions
+#[derive(Debug, Deserialize)]
+pub struct FilePathQuery {
+    pub path: String,
+}
+
+/// GET /api/file-versions/list?path={path} - List all versions
 async fn list_path_versions(
     State(state): State<AppState>,
-    Path(path): Path<String>,
+    Query(query): Query<FilePathQuery>,
     _user: UserInfo,
 ) -> Result<Json<Vec<FileVersion>>, StatusCode> {
     let versions: Vec<FileVersion> = sqlx::query_as(
@@ -320,7 +329,7 @@ async fn list_path_versions(
          WHERE file_path = ?
          ORDER BY version_number DESC",
     )
-    .bind(&path)
+    .bind(&query.path)
     .fetch_all(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -328,10 +337,11 @@ async fn list_path_versions(
     Ok(Json(versions))
 }
 
-/// GET /files/{path}/versions/{version_num} - Get specific version
+/// GET /api/file-versions/get/{version_num}?path={path} - Get specific version
 async fn get_version_by_number(
     State(state): State<AppState>,
-    Path((path, version_num)): Path<(String, i32)>,
+    Path(version_num): Path<i32>,
+    Query(query): Query<FilePathQuery>,
     _user: UserInfo,
 ) -> Result<Json<FileVersion>, StatusCode> {
     let version: Option<FileVersion> = sqlx::query_as(
@@ -340,7 +350,7 @@ async fn get_version_by_number(
          FROM file_versions
          WHERE file_path = ? AND version_number = ?",
     )
-    .bind(&path)
+    .bind(&query.path)
     .bind(version_num)
     .fetch_optional(&state.db_pool)
     .await
@@ -349,10 +359,11 @@ async fn get_version_by_number(
     version.map(Json).ok_or(StatusCode::NOT_FOUND)
 }
 
-/// GET /files/{path}/versions/{version_num}/download - Download version
+/// GET /api/file-versions/download/{version_num}?path={path} - Download version
 async fn download_version_content(
-    State(state): State<AppState>,
-    Path((path, version_num)): Path<(String, i32)>,
+    State(_state): State<AppState>,
+    Path(version_num): Path<i32>,
+    Query(_query): Query<FilePathQuery>,
     _user: UserInfo,
 ) -> Result<StatusCode, StatusCode> {
     // TODO: Implement file streaming from version storage
@@ -360,14 +371,15 @@ async fn download_version_content(
     Err(StatusCode::NOT_IMPLEMENTED)
 }
 
-/// DELETE /files/{path}/versions/{version_num} - Delete version
+/// DELETE /api/file-versions/delete/{version_num}?path={path} - Delete version
 async fn delete_version_by_number(
     State(state): State<AppState>,
-    Path((path, version_num)): Path<(String, i32)>,
+    Path(version_num): Path<i32>,
+    Query(query): Query<FilePathQuery>,
     _user: UserInfo,
 ) -> Result<StatusCode, StatusCode> {
     sqlx::query("DELETE FROM file_versions WHERE file_path = ? AND version_number = ?")
-        .bind(&path)
+        .bind(&query.path)
         .bind(version_num)
         .execute(&state.db_pool)
         .await
@@ -376,11 +388,12 @@ async fn delete_version_by_number(
     Ok(StatusCode::NO_CONTENT)
 }
 
-/// POST /files/{path}/versions/{version_num}/restore - Restore version
+/// POST /api/file-versions/restore/{version_num}?path={path} - Restore version
 async fn restore_version_by_number(
-    State(state): State<AppState>,
-    Path((path, version_num)): Path<(String, i32)>,
-    user_info: UserInfo,
+    State(_state): State<AppState>,
+    Path(version_num): Path<i32>,
+    Query(_query): Query<FilePathQuery>,
+    _user_info: UserInfo,
     Json(_req): Json<serde_json::Value>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     // TODO: Implement version restoration logic
@@ -392,10 +405,10 @@ async fn restore_version_by_number(
     })))
 }
 
-/// POST /files/{path}/versions/diff - Compare two versions
+/// POST /api/file-versions/diff?path={path} - Compare two versions
 async fn diff_versions_content(
-    State(state): State<AppState>,
-    Path(path): Path<String>,
+    State(_state): State<AppState>,
+    Query(_query): Query<FilePathQuery>,
     _user: UserInfo,
     Json(req): Json<DiffRequest>,
 ) -> Result<Json<DiffResponse>, StatusCode> {
@@ -453,10 +466,10 @@ async fn diff_versions_content(
     }))
 }
 
-/// POST /files/{path}/versions/cleanup - Delete old versions
+/// POST /api/file-versions/cleanup?path={path} - Delete old versions
 async fn cleanup_old_versions(
     State(state): State<AppState>,
-    Path(path): Path<String>,
+    Query(query): Query<FilePathQuery>,
     _user: UserInfo,
     Json(req): Json<CleanupRequest>,
 ) -> Result<Json<CleanupResponse>, StatusCode> {
@@ -466,7 +479,7 @@ async fn cleanup_old_versions(
          WHERE file_path = ? 
          AND created_at < datetime('now', ? || ' days')",
     )
-    .bind(&path)
+    .bind(&query.path)
     .bind(&format!("-{}", req.days_old))
     .fetch_all(&state.db_pool)
     .await
@@ -481,7 +494,7 @@ async fn cleanup_old_versions(
          WHERE file_path = ? 
          AND created_at < datetime('now', ? || ' days')",
     )
-    .bind(&path)
+    .bind(&query.path)
     .bind(&format!("-{}", req.days_old))
     .execute(&state.db_pool)
     .await

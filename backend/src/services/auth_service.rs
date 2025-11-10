@@ -264,14 +264,47 @@ pub async fn change_password(
         return Err(anyhow!("Password must be at least 6 characters"));
     }
 
-    // Validate password strength
+    // Validate password strength using security module
     crate::security::validate_password_strength(&new_password)
         .map_err(|e| anyhow!("Weak password: {}", e))?;
 
-    // Change password in SQLite database
+    // Validate against password policy and history
+    crate::services::auth_security_service::validate_password_change(
+        &state.db_pool,
+        &user.id,
+        &new_password,
+    )
+    .await
+    .map_err(|e| anyhow!("Password validation failed: {}", e))?;
+
+    // Change password in SQLite database (this also hashes the password internally)
     auth::change_user_password(&state.db_pool, &user.id, &old_password, &new_password)
         .await
         .map_err(|e| anyhow!("Password change failed: {}", e))?;
+
+    // Get the newly hashed password from database for history tracking
+    let updated_user = auth::get_user_by_id(&state.db_pool, &user.id)
+        .await
+        .map_err(|e| anyhow!("Failed to fetch updated user: {}", e))?
+        .ok_or_else(|| anyhow!("User not found after password change"))?;
+
+    // Add to password history
+    crate::services::auth_security_service::update_password_with_history(
+        &state.db_pool,
+        &user.id,
+        &updated_user.password_hash,
+    )
+    .await
+    .map_err(|e| anyhow!("Failed to update password history: {}", e))?;
+
+    // Revoke all user sessions on password change (security best practice)
+    crate::services::auth_security_service::revoke_all_user_sessions(
+        &state.db_pool,
+        &user.id,
+        "password_changed",
+    )
+    .await
+    .map_err(|e| anyhow!("Failed to revoke sessions: {}", e))?;
 
     // Revoke all refresh tokens on password change (security best practice)
     auth::revoke_all_user_tokens(&state.db_pool, &user.id)

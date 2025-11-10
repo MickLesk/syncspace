@@ -1,5 +1,5 @@
 //! SyncSpace Backend - Refactored Architecture
-//! 
+//!
 //! Clean separation of concerns:
 //! - `api/` - HTTP endpoints and routing
 //! - `services/` - Business logic layer
@@ -32,16 +32,16 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use axum::{
     extract::DefaultBodyLimit,
+    extract::{State as AxumState, WebSocketUpgrade},
     http::Method,
     middleware as axum_middleware,
+    response::Response,
     routing::get,
     Router,
-    extract::{WebSocketUpgrade, State as AxumState},
-    response::Response,
 };
+use sqlx::Row;
 use tokio::sync::{broadcast, Mutex};
 use tower_http::cors::{Any, CorsLayer};
-use sqlx::Row;
 
 use auth::RateLimiter; // UserDB removed - using SQLite directly
 use search::SearchIndex;
@@ -56,7 +56,7 @@ const DATA_DIR: &str = "./data";
 // ==================== LOGGING SETUP ====================
 
 /// Initialize structured logging with environment-based configuration
-/// 
+///
 /// Set RUST_LOG environment variable to control log levels:
 /// - RUST_LOG=debug    - Show all debug messages
 /// - RUST_LOG=info     - Show info and above (default)
@@ -64,16 +64,11 @@ const DATA_DIR: &str = "./data";
 /// - RUST_LOG=error    - Show errors only
 /// - RUST_LOG=syncbackend=debug,tower_http=debug - Module-specific levels
 fn init_tracing() {
-    use tracing_subscriber::{
-        fmt,
-        layer::SubscriberExt,
-        util::SubscriberInitExt,
-        EnvFilter,
-    };
+    use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
     // Default log level: INFO for our app, WARN for dependencies
     let default_filter = "syncbackend=info,tower_http=info,axum=info,sqlx=warn";
-    
+
     let env_filter = EnvFilter::try_from_default_env()
         .or_else(|_| EnvFilter::try_new(default_filter))
         .expect("Failed to create env filter");
@@ -88,7 +83,7 @@ fn init_tracing() {
                 .with_file(true)
                 .with_line_number(true)
                 .with_level(true)
-                .compact() // Compact format for better readability
+                .compact(), // Compact format for better readability
         )
         .init();
 }
@@ -139,7 +134,8 @@ async fn main() {
     init_tracing();
 
     tracing::info!("🚀 SyncSpace Backend Starting...");
-    tracing::info!("📊 Build: {} @ {}", 
+    tracing::info!(
+        "📊 Build: {} @ {}",
         option_env!("CARGO_PKG_VERSION").unwrap_or("unknown"),
         option_env!("BUILD_TIME").unwrap_or("unknown")
     );
@@ -158,11 +154,11 @@ async fn main() {
         .expect("Failed to initialize database");
 
     println!("✅ Database connection established");
-    
+
     // Initialize version storage directory
     services::version_storage_service::init_version_storage()
         .expect("Failed to initialize version storage");
-    
+
     println!("✅ Version storage initialized");
 
     // Initialize rate limiter
@@ -196,15 +192,12 @@ async fn main() {
             if count > 0 {
                 println!("✅ Synced {} existing files to database", count);
             }
-        },
+        }
         Err(e) => eprintln!("⚠️  Filesystem sync failed: {}", e),
     }
 
     // Initialize search index
-    let search_index = Arc::new(
-        SearchIndex::new()
-            .expect("Failed to initialize search index"),
-    );
+    let search_index = Arc::new(SearchIndex::new().expect("Failed to initialize search index"));
 
     // Background reindex of all files on startup
     {
@@ -212,15 +205,23 @@ async fn main() {
         let pool = db_pool.clone();
         tokio::spawn(async move {
             println!("🔍 Starting background search index rebuild...");
-            
-            match sqlx::query("SELECT id, name, path, size_bytes, updated_at FROM files WHERE is_deleted = 0")
-                .fetch_all(&pool)
-                .await 
+
+            match sqlx::query(
+                "SELECT id, name, path, size_bytes, updated_at FROM files WHERE is_deleted = 0",
+            )
+            .fetch_all(&pool)
+            .await
             {
                 Ok(files) => {
                     let mut count = 0;
                     for row in files {
-                        if let (Ok(file_id), Ok(filename), Ok(path), Ok(size_bytes), Ok(updated_at)) = (
+                        if let (
+                            Ok(file_id),
+                            Ok(filename),
+                            Ok(path),
+                            Ok(size_bytes),
+                            Ok(updated_at),
+                        ) = (
                             row.try_get::<String, _>("id"),
                             row.try_get::<String, _>("name"),
                             row.try_get::<String, _>("path"),
@@ -230,15 +231,26 @@ async fn main() {
                             let modified = chrono::DateTime::parse_from_rfc3339(&updated_at)
                                 .unwrap_or_else(|_| chrono::Utc::now().into())
                                 .with_timezone(&chrono::Utc);
-                            
+
                             let file_path = std::path::Path::new("./data").join(&path);
                             let content = if file_path.exists() {
                                 crate::search::extract_content(&file_path).await
                             } else {
                                 None
                             };
-                            
-                            if index.index_file(&file_id, &filename, &path, content, modified, size_bytes as u64).await.is_ok() {
+
+                            if index
+                                .index_file(
+                                    &file_id,
+                                    &filename,
+                                    &path,
+                                    content,
+                                    modified,
+                                    size_bytes as u64,
+                                )
+                                .await
+                                .is_ok()
+                            {
                                 count += 1;
                             }
                         }
@@ -255,7 +267,8 @@ async fn main() {
     let cache_manager = performance::CacheManager::new(cache_config.clone())
         .await
         .expect("Failed to initialize cache manager");
-    let job_processor = performance::JobProcessor::new(cache_manager.clone(), cache_config.background_job_workers);
+    let job_processor =
+        performance::JobProcessor::new(cache_manager.clone(), cache_config.background_job_workers);
     let performance_monitor = Arc::new(performance::PerformanceMonitor::new(cache_manager.clone()));
 
     // Create WebSocket broadcast channel
@@ -270,11 +283,11 @@ async fn main() {
     // Initialize database monitor for connection pool monitoring
     let db_monitor = Arc::new(db_monitor::DatabaseMonitor::new(20, 2));
     tracing::info!("📊 Database monitor initialized");
-    
+
     // Initialize advanced database health monitor
     let db_health_monitor = Arc::new(database_monitor::DatabaseMonitor::new());
     tracing::info!("🏥 Database health monitor initialized");
-    
+
     // Start background monitoring task
     let monitor_pool_clone = db_pool.clone();
     let monitor_health_clone = db_health_monitor.clone();
@@ -306,14 +319,16 @@ async fn main() {
     tokio::spawn(async move {
         loop {
             tokio::time::sleep(tokio::time::Duration::from_secs(30)).await;
-            
+
             // Update pool stats (SQLx doesn't expose these directly, so we estimate)
             let total = monitor_pool.size() as u32;
             let idle = monitor_pool.num_idle() as u32;
             let active = total.saturating_sub(idle);
-            
-            monitor_db_monitor.update_pool_stats(active, idle, total).await;
-            
+
+            monitor_db_monitor
+                .update_pool_stats(active, idle, total)
+                .await;
+
             // Check for connection leaks
             let leaks = monitor_db_monitor.detect_leaks().await;
             if !leaks.is_empty() {
@@ -321,7 +336,7 @@ async fn main() {
                     tracing::warn!("{}", leak);
                 }
             }
-            
+
             // Log pool health
             let health = monitor_db_monitor.health_status().await;
             tracing::debug!(
@@ -344,31 +359,73 @@ async fn main() {
     println!("✨ Ready to accept connections!");
 
     // Start background job worker pool
-    let worker_pool = workers::WorkerPool::new(app_state.db_pool.clone(), app_state.fs_tx.clone(), 4);
+    let worker_pool =
+        workers::WorkerPool::new(app_state.db_pool.clone(), app_state.fs_tx.clone(), 4);
     let worker_handle = tokio::spawn(async move {
         worker_pool.start().await;
     });
-    
+
     // Start new job system workers
-    let job_worker_shutdown = jobs::worker::start_job_workers(Arc::new(app_state.db_pool.clone()), 2).await;
-    
+    let job_worker_shutdown =
+        jobs::worker::start_job_workers(Arc::new(app_state.db_pool.clone()), 2).await;
+
     // Start new job scheduler
-    let job_scheduler_shutdown = jobs::scheduler::start_job_scheduler(Arc::new(app_state.db_pool.clone())).await;
-    
-    // Start cron scheduler
+    let job_scheduler_shutdown =
+        jobs::scheduler::start_job_scheduler(Arc::new(app_state.db_pool.clone())).await;
+
+    // Start cron scheduler (currently disabled)
     let cron_scheduler = cron::CronScheduler::new(app_state.db_pool.clone());
     let _cron_handle = tokio::spawn(async move {
         cron_scheduler.start().await;
+    });
+
+    // Start periodic cleanup tasks for auth security
+    let cleanup_pool = app_state.db_pool.clone();
+    let _cleanup_handle = tokio::spawn(async move {
+        use tokio::time::{interval, Duration};
+        let mut interval = interval(Duration::from_secs(3600)); // Run every hour
+
+        loop {
+            interval.tick().await;
+
+            // Cleanup expired sessions
+            match services::auth_security_service::cleanup_expired_sessions(&cleanup_pool).await {
+                Ok(count) => {
+                    if count > 0 {
+                        tracing::info!("🧹 Cleaned up {} expired sessions", count);
+                    }
+                }
+                Err(e) => tracing::error!("Failed to cleanup expired sessions: {}", e),
+            }
+
+            // Cleanup old login attempts (keep last 90 days)
+            match services::auth_security_service::cleanup_old_login_attempts(&cleanup_pool).await {
+                Ok(count) => {
+                    if count > 0 {
+                        tracing::info!("🧹 Cleaned up {} old login attempts", count);
+                    }
+                }
+                Err(e) => tracing::error!("Failed to cleanup old login attempts: {}", e),
+            }
+
+            // Cleanup expired refresh tokens
+            match auth::cleanup_expired_tokens(&cleanup_pool).await {
+                Ok(count) => {
+                    if count > 0 {
+                        tracing::info!("🧹 Cleaned up {} expired refresh tokens", count);
+                    }
+                }
+                Err(e) => tracing::error!("Failed to cleanup expired tokens: {}", e),
+            }
+        }
     });
 
     let listener = tokio::net::TcpListener::bind(addr)
         .await
         .expect("Failed to bind address");
 
-    axum::serve(listener, app)
-        .await
-        .expect("Server error");
-    
+    axum::serve(listener, app).await.expect("Server error");
+
     // Wait for workers to finish (won't reach here normally)
     let _ = worker_handle.await;
 }
@@ -376,14 +433,9 @@ async fn main() {
 // ==================== ROUTER BUILDER ====================
 
 /// WebSocket handler for main app (with AppState)
-async fn ws_handler(
-    ws: WebSocketUpgrade,
-    AxumState(state): AxumState<AppState>,
-) -> Response {
+async fn ws_handler(ws: WebSocketUpgrade, AxumState(state): AxumState<AppState>) -> Response {
     let fs_tx = state.fs_tx.clone();
-    ws.on_upgrade(|socket| async move {
-        websocket::handle_socket(socket, fs_tx).await
-    })
+    ws.on_upgrade(|socket| async move { websocket::handle_socket(socket, fs_tx).await })
 }
 
 fn build_router(state: AppState) -> Router {
@@ -396,23 +448,20 @@ fn build_router(state: AppState) -> Router {
     Router::new()
         // Root - Status page (direct access on http://localhost:8080)
         .route("/", get(status::get_status_html))
-        
         // WebSocket endpoint
         .route("/api/ws", get(ws_handler))
-        
         // Public status endpoints (no auth required)
         .route("/status", get(status::get_status_html))
         .route("/status/json", get(status::get_status_json))
-        .route("/api/status", get(status::get_status_json))  // Public API status
+        .route("/api/status", get(status::get_status_json)) // Public API status
         .route("/health", get(status::health_check))
-        
         // API routes (delegated to api module)
         .nest("/api", api::build_api_router(state.clone()))
-        
         // Apply middleware (order matters!)
-        .layer(axum_middleware::from_fn(security::security_headers_middleware))
+        .layer(axum_middleware::from_fn(
+            security::security_headers_middleware,
+        ))
         .layer(cors)
         .layer(DefaultBodyLimit::max(100 * 1024 * 1024)) // 100 MB
-        
         .with_state(state)
 }
