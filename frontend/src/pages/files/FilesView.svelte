@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { files, currentPath, currentLang } from "../../stores/ui";
   import { favorites } from "../../stores/favorites";
-  import { userPreferences } from "../../stores/preferences";
+  import { userPreferences, preferences } from "../../stores/preferences";
   import { success, error as errorToast } from "../../stores/toast";
   import { modals, modalEvents } from "../../stores/modals";
   import { t } from "../../i18n.js";
@@ -237,51 +237,102 @@
 
     window.addEventListener("keydown", handleKeydown);
     window.addEventListener("popstate", handlePopstateRef);
-    
-    // Listen for search result selection from AppHeader
-    const handleOpenFileFromSearch = async (event) => {
-      const { filePath, fileName, fileId, isFolder } = event.detail;
-      console.log("[FilesView] Opening file from search:", event.detail);
-      
-      // Extract directory path and filename
-      const pathParts = filePath.split('/').filter(p => p);
-      const fileNameFromPath = pathParts.pop() || fileName;
-      const directoryPath = pathParts.length > 0 ? '/' + pathParts.join('/') : '/';
-      
-      // Navigate to the directory containing the file
-      if (directoryPath !== $currentPath) {
-        await navigateTo(directoryPath);
-      }
-      
-      // Wait a bit for files to load
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      // Find the file in the current file list
-      const targetFile = files.find(f => 
-        f.name === fileNameFromPath || 
-        f.path === filePath ||
-        f.id === fileId
-      );
-      
-      if (targetFile) {
-        if (isFolder) {
-          // If it's a folder, navigate into it
-          navigateTo(filePath);
-        } else {
-          // If it's a file, open the preview
-          handleFileClick(targetFile);
-        }
-      } else {
-        console.warn("[FilesView] Could not find file in current directory:", fileNameFromPath);
-      }
-    };
-    
     window.addEventListener("openFileFromSearch", handleOpenFileFromSearch);
-    
-    onDestroy(() => {
-      window.removeEventListener("openFileFromSearch", handleOpenFileFromSearch);
-    });
   });
+
+  // Define handleOpenFileFromSearch outside of onMount so it can be referenced in onMount and onDestroy
+  const handleOpenFileFromSearch = async (event) => {
+    const { filePath, fileName, fileId, isFolder } = event.detail;
+    console.log("[FilesView] Opening file from search:", event.detail);
+
+    // Extract directory path and filename
+    const pathParts = filePath.split("/").filter((p) => p);
+    const fileNameFromPath = pathParts.pop() || fileName;
+    const directoryPath =
+      pathParts.length > 0 ? "/" + pathParts.join("/") : "/";
+
+    console.log(
+      "[FilesView] Parsed - directory:",
+      directoryPath,
+      "filename:",
+      fileNameFromPath
+    );
+
+    // Navigate to the directory containing the file
+    if (directoryPath !== $currentPath) {
+      console.log("[FilesView] Navigating to directory:", directoryPath);
+      await navigateTo(directoryPath);
+      // Wait longer for files to load after navigation
+      await new Promise((resolve) => setTimeout(resolve, 800));
+    } else {
+      // Already in correct directory, wait briefly for UI update
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+    // Find the file in the current file list (use $files to get the actual array from the store)
+    const currentFiles = $files; // Get current value from store
+    console.log("[FilesView] Current files array:", currentFiles);
+
+    const targetFile = currentFiles.find(
+      (f) =>
+        f.name === fileNameFromPath ||
+        f.path === filePath ||
+        f.file_path === filePath ||
+        f.id === fileId
+    );
+
+    console.log("[FilesView] Target file found:", targetFile);
+
+    if (targetFile) {
+      if (isFolder) {
+        // If it's a folder, navigate into it
+        console.log("[FilesView] Navigating into folder:", filePath);
+        navigateTo(filePath);
+      } else {
+        // If it's a file, highlight it (user can click to open)
+        console.log("[FilesView] Highlighting file:", targetFile.name);
+
+        // Scroll to file card if in grid/list view - wait for DOM update
+        setTimeout(() => {
+          console.log(
+            "[FilesView] Searching for file card with data-file-name:",
+            targetFile.name
+          );
+          const fileCards = document.querySelectorAll("[data-file-name]");
+          console.log(
+            "[FilesView] Found",
+            fileCards.length,
+            "file cards in DOM"
+          );
+
+          for (const card of fileCards) {
+            const cardName = card.getAttribute("data-file-name");
+            if (cardName === targetFile.name) {
+              console.log(
+                "[FilesView] ✅ Found matching card, scrolling and highlighting"
+              );
+              card.scrollIntoView({ behavior: "smooth", block: "center" });
+              // Add highlight effect (heartbeat/pulse animation)
+              card.classList.add("highlight-search-result");
+              setTimeout(
+                () => card.classList.remove("highlight-search-result"),
+                4000 // 4 Sekunden für die längere Animation
+              );
+              break;
+            }
+          }
+        }, 300); // Increased timeout to ensure DOM is updated
+
+        // Don't open preview automatically - let user click to open
+      }
+    } else {
+      console.warn(
+        "[FilesView] Could not find file in current directory:",
+        fileNameFromPath
+      );
+      errorToast(tr("fileNotFound"));
+    }
+  };
 
   onDestroy(() => {
     if (unsubscribeFileEvent) unsubscribeFileEvent();
@@ -289,6 +340,7 @@
       window.removeEventListener("popstate", handlePopstateRef);
     }
     window.removeEventListener("keydown", handleKeydown);
+    window.removeEventListener("openFileFromSearch", handleOpenFileFromSearch);
   });
 
   // Modal Event Listeners - Listen to events from ModalPortal
@@ -1200,6 +1252,66 @@
   :global(.file-card-grid),
   :global(.file-card-list) {
     transition: all 0.2s ease;
+  }
+
+  /* Search Result Highlight Animation - SUPER AUFFÄLLIG! */
+  :global(.highlight-search-result) {
+    animation:
+      highlight-border-spin 4s ease-in-out,
+      highlight-glow 1s ease-in-out infinite;
+    position: relative;
+    z-index: 100;
+    transform: scale(1.08);
+    background: linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.1),
+      rgba(147, 51, 234, 0.1)
+    ) !important;
+  }
+
+  /* Umlaufender animierter Rahmen */
+  @keyframes highlight-border-spin {
+    0% {
+      box-shadow:
+        0 0 0 4px rgba(59, 130, 246, 1),
+        0 0 20px rgba(59, 130, 246, 0.5),
+        inset 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+    25% {
+      box-shadow:
+        0 0 0 6px rgba(147, 51, 234, 1),
+        0 0 30px rgba(147, 51, 234, 0.6),
+        inset 0 0 30px rgba(147, 51, 234, 0.2);
+    }
+    50% {
+      box-shadow:
+        0 0 0 8px rgba(59, 130, 246, 1),
+        0 0 40px rgba(59, 130, 246, 0.7),
+        inset 0 0 40px rgba(59, 130, 246, 0.3);
+    }
+    75% {
+      box-shadow:
+        0 0 0 6px rgba(147, 51, 234, 1),
+        0 0 30px rgba(147, 51, 234, 0.6),
+        inset 0 0 30px rgba(147, 51, 234, 0.2);
+    }
+    100% {
+      box-shadow:
+        0 0 0 4px rgba(59, 130, 246, 1),
+        0 0 20px rgba(59, 130, 246, 0.5),
+        inset 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+  }
+
+  /* Zusätzliches Glühen/Pulsieren */
+  @keyframes highlight-glow {
+    0%,
+    100% {
+      filter: brightness(1);
+    }
+    50% {
+      filter: brightness(1.2);
+    }
   }
 
   /* Drag & Drop Visual Feedback */

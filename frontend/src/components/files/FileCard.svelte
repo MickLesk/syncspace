@@ -38,6 +38,17 @@
       return;
     }
 
+    // Skip system folders
+    const folderName = file.name || "";
+    const systemFolders = ["versions", "search_index", "syncspace.db", ".git"];
+    if (
+      systemFolders.some(
+        (sys) => folderName.toLowerCase() === sys.toLowerCase()
+      )
+    ) {
+      return; // Don't load colors for system folders
+    }
+
     // Otherwise fetch from API
     try {
       const response = await api.folderColors.get(file.file_path || file.name);
@@ -156,6 +167,7 @@
     <button
       type="button"
       draggable="true"
+      data-file-name={file.name}
       class="file-card-grid p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg dark:shadow-gray-900/50 text-left w-full transition-all border-2"
       class:border-blue-500={selected}
       class:dark:border-blue-400={selected}

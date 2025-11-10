@@ -179,22 +179,47 @@
   // Handle search result selection - navigate to file and open it
   function handleSearchResultSelected(event) {
     const { file, path } = event.detail;
-    console.log("[App] Search result selected:", file);
-    
+    console.log("[App] Search result selected:", $state.snapshot(file));
+
     // Switch to files view if not already there
     if ($currentView !== "files") {
       currentView.set("files");
     }
-    
+
     // Use custom event to tell FilesView to navigate and open this file
-    window.dispatchEvent(new CustomEvent("openFileFromSearch", {
-      detail: {
-        filePath: path,
-        fileName: file.name,
-        fileId: file.id,
-        isFolder: file.type === "folder"
-      }
-    }));
+    window.dispatchEvent(
+      new CustomEvent("openFileFromSearch", {
+        detail: {
+          filePath: path,
+          fileName: file.name,
+          fileId: file.id,
+          isFolder: file.type === "folder",
+        },
+      })
+    );
+  }
+
+  // Handle advanced search from AppHeader
+  function handleAdvancedSearch(event) {
+    const { query, filters, sortBy, sortOrder } = event.detail;
+    console.log("[App] Advanced search triggered:", {
+      query,
+      filters,
+      sortBy,
+      sortOrder,
+    });
+
+    // Switch to files view if not already there
+    if ($currentView !== "files") {
+      currentView.set("files");
+    }
+
+    // Dispatch advanced search event to FilesView
+    window.dispatchEvent(
+      new CustomEvent("advancedSearch", {
+        detail: { query, filters, sortBy, sortOrder },
+      })
+    );
   }
 
   // Check for hash-based routing (login vs signup)
@@ -283,6 +308,7 @@
       <AppHeader
         on:navigate={handleNavigate}
         on:searchResultSelected={handleSearchResultSelected}
+        on:advancedSearch={handleAdvancedSearch}
         on:toggleActivityFeed={(e) => (showActivityFeed = e.detail.visible)}
         bind:showActivityFeed
       />

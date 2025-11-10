@@ -31,7 +31,25 @@
   onMount(() => {
     checkBackendStatus();
     const interval = setInterval(checkBackendStatus, 10000); // Every 10 seconds
-    return () => clearInterval(interval);
+
+    // Handle outside clicks to close search dropdown
+    const handleClickOutside = (event) => {
+      if (
+        showSearchDropdown &&
+        searchDropdownRef &&
+        !searchDropdownRef.contains(event.target) &&
+        !searchInputRef?.contains(event.target)
+      ) {
+        showSearchDropdown = false;
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("click", handleClickOutside);
+    };
   });
 
   async function checkBackendStatus() {
@@ -76,7 +94,8 @@
   let showSearchDropdown = $state(false);
   let searchResults = $state([]);
   let searchDebounce = null;
-  let searchInputRef = null;
+  let searchInputRef = $state(null);
+  let searchDropdownRef = $state(null); // Reference for outside click detection
 
   let isDark = $derived($currentTheme === "dark");
   let userInitials = $derived(
@@ -173,15 +192,24 @@
     if (searchQuery.trim()) {
       searchDebounce = setTimeout(async () => {
         try {
+          console.log("[AppHeader] Searching for:", searchQuery);
           // Call Tantivy full-text search API
           const response = await api.search.query(searchQuery, 10, true);
-          
+          console.log("[AppHeader] Search response:", response);
+
+          // Check if response has results array
+          if (!response || !response.results) {
+            console.warn("[AppHeader] Invalid response format:", response);
+            searchResults = [];
+            return;
+          }
+
           // Transform search results to UI format
           searchResults = response.results.map((result) => {
             const isFolder = result.is_dir || false;
             const fileName = result.filename || result.name || "Unknown";
             const filePath = result.path || result.file_path || "";
-            
+
             // Determine icon based on file type
             let icon = "file-earmark-text";
             if (isFolder) {
@@ -198,8 +226,12 @@
               icon = "file-earmark-play";
             } else if (fileName.match(/\.(zip|rar|7z|tar|gz)$/i)) {
               icon = "file-earmark-zip";
+            } else if (
+              fileName.match(/\.(js|ts|jsx|tsx|py|java|cpp|c|h|css|html)$/i)
+            ) {
+              icon = "file-earmark-code";
             }
-            
+
             return {
               id: result.id || result.file_id,
               name: fileName,
@@ -207,30 +239,34 @@
               type: isFolder ? "folder" : "file",
               icon: icon,
               score: result.score || 0,
-              size: result.size_bytes || 0,
+              size: result.size_bytes || result.size || 0,
+              snippet: result.snippet || "",
             };
           });
+
+          console.log(
+            "[AppHeader] Transformed results:",
+            $state.snapshot(searchResults)
+          );
         } catch (err) {
-          console.error("Search failed:", err);
+          console.error("[AppHeader] Search failed:", err);
           searchResults = [];
         }
       }, 300);
     } else {
       searchResults = [];
     }
-  }
-
-  // Select search result and navigate to file
+  } // Select search result and navigate to file
   function selectSearchResult(result) {
     searchQuery = result.name;
     saveRecentSearch(result.name);
     showSearchDropdown = false;
-    
+
     // Dispatch with full file information for navigation
-    dispatch("searchResultSelected", { 
+    dispatch("searchResultSelected", {
       file: result,
-      query: result.name, 
-      path: result.path 
+      query: result.name,
+      path: result.path,
     });
   }
 
@@ -327,6 +363,7 @@
               onclick={() => {
                 searchQuery = "";
                 searchResults = [];
+                showSearchDropdown = false; // Close dropdown when clearing
               }}
               aria-label="Clear search"
             >
@@ -346,7 +383,7 @@
 
         <!-- Search Dropdown -->
         {#if showSearchDropdown}
-          <div class="search-dropdown">
+          <div class="search-dropdown" bind:this={searchDropdownRef}>
             {#if searchQuery.trim() && searchResults.length > 0}
               <div class="search-section">
                 <div class="search-section-title">Results</div>
@@ -363,6 +400,11 @@
                     <div class="search-result-content">
                       <div class="search-result-name">{result.name}</div>
                       <div class="search-result-path">{result.path}</div>
+                      {#if result.snippet}
+                        <div class="search-result-snippet">
+                          {result.snippet}
+                        </div>
+                      {/if}
                     </div>
                     <i class="bi bi-arrow-return-left text-xs opacity-40"></i>
                   </button>
@@ -1150,6 +1192,24 @@
 
   :global(.dark) .search-result-path {
     color: rgba(255, 255, 255, 0.5);
+  }
+
+  .search-result-snippet {
+    font-size: 0.7rem;
+    color: rgba(17, 24, 39, 0.6);
+    margin-top: 0.25rem;
+    line-height: 1.3;
+    max-height: 2.6em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  :global(.dark) .search-result-snippet {
+    color: rgba(255, 255, 255, 0.6);
   }
 
   .search-empty {
