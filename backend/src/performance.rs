@@ -38,8 +38,11 @@ pub struct CacheManager {
     pub config: CacheConfig,
 }
 
+#[allow(dead_code)]
 impl CacheManager {
-    pub async fn new(config: CacheConfig) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn new(
+        config: CacheConfig,
+    ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let memory_cache = Cache::builder()
             .max_capacity(config.memory_cache_size)
             .time_to_live(config.default_ttl)
@@ -58,14 +61,17 @@ impl CacheManager {
             config,
         })
     }
-    
+
     // Check if Redis is connected
     pub fn has_redis(&self) -> bool {
         self.redis_pool.is_some()
     }
 
     // Get value from cache (memory first, then Redis)
-    pub async fn get(&self, key: &str) -> Result<Option<String>, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get(
+        &self,
+        key: &str,
+    ) -> Result<Option<String>, Box<dyn std::error::Error + Send + Sync>> {
         // Try memory cache first
         if let Some(value) = self.memory_cache.get(key).await {
             return Ok(Some(value));
@@ -81,9 +87,16 @@ impl CacheManager {
     }
 
     // Set value in cache
-    pub async fn set(&self, key: &str, value: &str, _ttl: Option<Duration>) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn set(
+        &self,
+        key: &str,
+        value: &str,
+        _ttl: Option<Duration>,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         // Set in memory cache
-        self.memory_cache.insert(key.to_string(), value.to_string()).await;
+        self.memory_cache
+            .insert(key.to_string(), value.to_string())
+            .await;
 
         // Redis integration simplified for now
         if let Some(_pool) = &self.redis_pool {
@@ -106,14 +119,21 @@ impl CacheManager {
     }
 
     // Cache file metadata
-    pub async fn cache_file_metadata(&self, file_path: &str, metadata: &FileMetadata) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn cache_file_metadata(
+        &self,
+        file_path: &str,
+        metadata: &FileMetadata,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let key = format!("file_meta:{}", file_path);
         let value = serde_json::to_string(metadata)?;
         self.set(&key, &value, Some(Duration::from_secs(300))).await // 5 minutes TTL
     }
 
     // Get cached file metadata
-    pub async fn get_file_metadata(&self, file_path: &str) -> Result<Option<FileMetadata>, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_file_metadata(
+        &self,
+        file_path: &str,
+    ) -> Result<Option<FileMetadata>, Box<dyn std::error::Error + Send + Sync>> {
         let key = format!("file_meta:{}", file_path);
         if let Some(value) = self.get(&key).await? {
             let metadata: FileMetadata = serde_json::from_str(&value)?;
@@ -124,14 +144,22 @@ impl CacheManager {
     }
 
     // Cache directory listings
-    pub async fn cache_directory_listing(&self, dir_path: &str, files: &[crate::models::FileInfo]) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn cache_directory_listing(
+        &self,
+        dir_path: &str,
+        files: &[crate::models::FileInfo],
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let key = format!("dir_list:{}", dir_path);
         let value = serde_json::to_string(files)?;
         self.set(&key, &value, Some(Duration::from_secs(60))).await // 1 minute TTL
     }
 
     // Get cached directory listing
-    pub async fn get_directory_listing(&self, dir_path: &str) -> Result<Option<Vec<crate::models::FileInfo>>, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_directory_listing(
+        &self,
+        dir_path: &str,
+    ) -> Result<Option<Vec<crate::models::FileInfo>>, Box<dyn std::error::Error + Send + Sync>>
+    {
         let key = format!("dir_list:{}", dir_path);
         if let Some(value) = self.get(&key).await? {
             let files: Vec<crate::models::FileInfo> = serde_json::from_str(&value)?;
@@ -142,14 +170,22 @@ impl CacheManager {
     }
 
     // Cache search results
-    pub async fn cache_search_results(&self, query: &str, results: &[SearchResult]) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn cache_search_results(
+        &self,
+        query: &str,
+        results: &[SearchResult],
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let key = format!("search:{}", query);
         let value = serde_json::to_string(results)?;
-        self.set(&key, &value, Some(Duration::from_secs(1800))).await // 30 minutes TTL
+        self.set(&key, &value, Some(Duration::from_secs(1800)))
+            .await // 30 minutes TTL
     }
 
     // Get cached search results
-    pub async fn get_search_results(&self, query: &str) -> Result<Option<Vec<SearchResult>>, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_search_results(
+        &self,
+        query: &str,
+    ) -> Result<Option<Vec<SearchResult>>, Box<dyn std::error::Error + Send + Sync>> {
         let key = format!("search:{}", query);
         if let Some(value) = self.get(&key).await? {
             let results: Vec<SearchResult> = serde_json::from_str(&value)?;
@@ -160,10 +196,13 @@ impl CacheManager {
     }
 
     // Invalidate cache patterns
-    pub async fn invalidate_pattern(&self, _pattern: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn invalidate_pattern(
+        &self,
+        _pattern: &str,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         // For now, we can't efficiently invalidate patterns in memory cache
         // In production, consider using cache tags or versioning
-        
+
         if let Some(_pool) = &self.redis_pool {
             // Redis pattern invalidation would be implemented here
         }
@@ -192,6 +231,7 @@ pub struct JobProcessor {
     workers: usize,
 }
 
+#[allow(dead_code)]
 impl JobProcessor {
     pub fn new(cache_manager: CacheManager, workers: usize) -> Self {
         Self {
@@ -202,7 +242,12 @@ impl JobProcessor {
     }
 
     // Queue a background job
-    pub async fn queue_job(&self, job_type: String, payload: serde_json::Value, priority: i32) -> String {
+    pub async fn queue_job(
+        &self,
+        job_type: String,
+        payload: serde_json::Value,
+        priority: i32,
+    ) -> String {
         let job = BackgroundJob {
             id: Uuid::new_v4().to_string(),
             job_type,
@@ -223,7 +268,12 @@ impl JobProcessor {
     }
 
     // Schedule a job for later
-    pub async fn schedule_job(&self, job_type: String, payload: serde_json::Value, when: chrono::DateTime<chrono::Utc>) -> String {
+    pub async fn schedule_job(
+        &self,
+        job_type: String,
+        payload: serde_json::Value,
+        when: chrono::DateTime<chrono::Utc>,
+    ) -> String {
         let job = BackgroundJob {
             id: Uuid::new_v4().to_string(),
             job_type,
@@ -244,10 +294,10 @@ impl JobProcessor {
 
     // Start processing jobs
     pub async fn start_processing(&self) {
-        for worker_id in 0..self.workers {
+        for _worker_id in 0..self.workers {
             let queue = Arc::clone(&self.job_queue);
             let cache_manager = self.cache_manager.clone();
-            
+
             tokio::spawn(async move {
                 loop {
                     if let Some(job) = Self::get_next_job(&queue).await {
@@ -263,11 +313,12 @@ impl JobProcessor {
     async fn get_next_job(queue: &Arc<RwLock<Vec<BackgroundJob>>>) -> Option<BackgroundJob> {
         let mut queue_guard = queue.write().await;
         let now = chrono::Utc::now();
-        
+
         // Find the first job that's ready to run
-        if let Some(pos) = queue_guard.iter().position(|job| {
-            job.scheduled_for.map_or(true, |scheduled| scheduled <= now)
-        }) {
+        if let Some(pos) = queue_guard
+            .iter()
+            .position(|job| job.scheduled_for.map_or(true, |scheduled| scheduled <= now))
+        {
             Some(queue_guard.remove(pos))
         } else {
             None
@@ -276,7 +327,7 @@ impl JobProcessor {
 
     async fn process_job(job: BackgroundJob, cache_manager: &CacheManager) {
         println!("Processing job: {} ({})", job.id, job.job_type);
-        
+
         let result = match job.job_type.as_str() {
             "thumbnail_generation" => Self::process_thumbnail_job(&job.payload).await,
             "search_indexing" => Self::process_search_indexing(&job.payload).await,
@@ -295,7 +346,9 @@ impl JobProcessor {
         }
     }
 
-    async fn process_thumbnail_job(payload: &serde_json::Value) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn process_thumbnail_job(
+        payload: &serde_json::Value,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         // Implementation for thumbnail generation
         let file_path = payload["file_path"].as_str().unwrap();
         println!("Generating thumbnail for: {}", file_path);
@@ -303,7 +356,9 @@ impl JobProcessor {
         Ok(())
     }
 
-    async fn process_search_indexing(payload: &serde_json::Value) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn process_search_indexing(
+        payload: &serde_json::Value,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         // Implementation for search indexing
         let file_path = payload["file_path"].as_str().unwrap();
         println!("Indexing file for search: {}", file_path);
@@ -311,7 +366,10 @@ impl JobProcessor {
         Ok(())
     }
 
-    async fn process_cache_warming(payload: &serde_json::Value, cache_manager: &CacheManager) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn process_cache_warming(
+        payload: &serde_json::Value,
+        _cache_manager: &CacheManager,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         // Implementation for cache warming
         let cache_keys = payload["keys"].as_array().unwrap();
         println!("Warming cache for {} keys", cache_keys.len());
@@ -319,7 +377,9 @@ impl JobProcessor {
         Ok(())
     }
 
-    async fn process_cleanup_job(payload: &serde_json::Value) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn process_cleanup_job(
+        payload: &serde_json::Value,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         // Implementation for cleanup
         let directory = payload["directory"].as_str().unwrap();
         println!("Cleaning up directory: {}", directory);
@@ -327,31 +387,29 @@ impl JobProcessor {
         Ok(())
     }
 
-    async fn process_directory_sizes(payload: &serde_json::Value) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn process_directory_sizes(
+        payload: &serde_json::Value,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         // Implementation for calculating directory sizes in parallel
         let directory = payload["directory"].as_str().unwrap();
         println!("Calculating sizes for: {}", directory);
-        
+
         // Use rayon for parallel directory traversal
         use std::path::Path;
         let dir_path = Path::new(directory);
-        
+
         if dir_path.exists() && dir_path.is_dir() {
             let total_size = walkdir::WalkDir::new(dir_path)
                 .into_iter()
                 .par_bridge()
                 .filter_map(|entry| entry.ok())
                 .filter(|entry| entry.file_type().is_file())
-                .map(|entry| {
-                    entry.metadata()
-                        .map(|metadata| metadata.len())
-                        .unwrap_or(0)
-                })
+                .map(|entry| entry.metadata().map(|metadata| metadata.len()).unwrap_or(0))
                 .sum::<u64>();
-            
+
             println!("Directory {} total size: {} bytes", directory, total_size);
         }
-        
+
         Ok(())
     }
 }
@@ -367,11 +425,15 @@ pub struct PerformanceMetrics {
     pub cpu_usage: f64,
 }
 
+#[allow(dead_code)]
 pub struct PerformanceMonitor {
+    #[allow(dead_code)]
     cache_manager: CacheManager,
+    #[allow(dead_code)]
     metrics_history: Arc<RwLock<Vec<PerformanceMetrics>>>,
 }
 
+#[allow(dead_code)]
 impl PerformanceMonitor {
     pub fn new(cache_manager: CacheManager) -> Self {
         Self {
@@ -385,7 +447,7 @@ impl PerformanceMonitor {
         let metrics = PerformanceMetrics {
             cache_hit_ratio: self.calculate_cache_hit_ratio().await,
             average_response_time: Duration::from_millis(50), // Placeholder
-            active_connections: 10, // Placeholder
+            active_connections: 10,                           // Placeholder
             memory_usage: self.get_memory_usage(),
             disk_usage: self.get_disk_usage().await,
             cpu_usage: self.get_cpu_usage(),
@@ -394,7 +456,7 @@ impl PerformanceMonitor {
         // Store in history
         let mut history = self.metrics_history.write().await;
         history.push(metrics.clone());
-        
+
         // Keep only last 1000 metrics
         if history.len() > 1000 {
             history.remove(0);
@@ -417,7 +479,7 @@ impl PerformanceMonitor {
         // Calculate disk usage
         use std::path::Path;
         let data_dir = Path::new("./data");
-        
+
         if data_dir.exists() {
             walkdir::WalkDir::new(data_dir)
                 .into_iter()
@@ -438,11 +500,7 @@ impl PerformanceMonitor {
 
     pub async fn get_metrics_history(&self, limit: usize) -> Vec<PerformanceMetrics> {
         let history = self.metrics_history.read().await;
-        history.iter()
-            .rev()
-            .take(limit)
-            .cloned()
-            .collect()
+        history.iter().rev().take(limit).cloned().collect()
     }
 }
 

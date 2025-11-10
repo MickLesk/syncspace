@@ -15,7 +15,9 @@
 
   async function fetchBackendStatus() {
     try {
-      const response = await fetch("http://localhost:8080/api/status");
+      const response = await fetch(
+        `${new URL(window.location.href).protocol}//${new URL(window.location.href).hostname}:8080/api/status`
+      );
       if (response.ok) {
         serverInfo = await response.json();
         backendOnline = true;

@@ -7,6 +7,7 @@
   import { auth } from "../../stores/auth.js";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
+  import * as api from "../../lib/api.js";
   import QRCode from "qrcode";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
@@ -26,18 +27,13 @@
 
   async function loadSecurityStatus() {
     try {
-      const response = await fetch("http://localhost:8080/api/users/me", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-
-      if (response.ok) {
-        const user = await response.json();
+      const user = await api.auth.me();
+      if (user) {
         twoFAEnabled = user.totp_enabled === 1 || user.totp_enabled === true;
       }
     } catch (e) {
       console.error("Failed to load security status:", e);
+      error = tr("failedToLoadProfile");
     }
   }
 
@@ -47,40 +43,28 @@
     success = "";
 
     try {
-      const response = await fetch("http://localhost:8080/api/auth/2fa/setup", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          "Content-Type": "application/json",
-        },
-      });
+      twoFASetup = await api.auth.setup2FA();
 
-      if (response.ok) {
-        twoFASetup = await response.json();
-
-        // Generate QR code from the otpauth URL
-        try {
-          qrCodeDataUrl = await QRCode.toDataURL(twoFASetup.qr_code_url, {
-            width: 256,
-            margin: 2,
-            color: {
-              dark: "#000000",
-              light: "#FFFFFF",
-            },
-          });
-        } catch (qrError) {
-          console.error("QR code generation error:", qrError);
-          error = tr("failedToGenerateQRCode");
-          return;
-        }
-
-        showSetup = true;
-      } else {
+      // Generate QR code from the otpauth URL
+      try {
+        qrCodeDataUrl = await QRCode.toDataURL(twoFASetup.qr_code_url, {
+          width: 256,
+          margin: 2,
+          color: {
+            dark: "#000000",
+            light: "#FFFFFF",
+          },
+        });
+      } catch (qrError) {
+        console.error("QR code generation error:", qrError);
         error = tr("failedToGenerateQRCode");
+        return;
       }
+
+      showSetup = true;
     } catch (e) {
       console.error("2FA setup error:", e);
-      error = tr("connectionError");
+      error = tr("failedToGenerateQRCode");
     } finally {
       loading = false;
     }
@@ -96,37 +80,15 @@
     error = "";
 
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/auth/2fa/enable",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            totp_code: verificationCode,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        success = tr("twoFAEnabledSuccess");
-        twoFAEnabled = true;
-        showSetup = false;
-        twoFASetup = null;
-        verificationCode = "";
-      } else {
-        try {
-          const data = await response.json();
-          error = data.error || tr("invalidVerificationCode");
-        } catch {
-          error = tr("invalidVerificationCode");
-        }
-      }
+      await api.auth.enable2FA(verificationCode);
+      success = tr("twoFAEnabledSuccess");
+      twoFAEnabled = true;
+      showSetup = false;
+      twoFASetup = null;
+      verificationCode = "";
     } catch (e) {
       console.error("2FA enable error:", e);
-      error = tr("failedToLoadProfile");
+      error = tr("invalidVerificationCode");
     } finally {
       loading = false;
     }
@@ -141,27 +103,14 @@
     error = "";
 
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/auth/2fa/disable",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        success = tr("twoFADisabledSuccess");
-        twoFAEnabled = false;
-        showSetup = false;
-        twoFASetup = null;
-      } else {
-        error = tr("failedToDisable2FA");
-      }
+      await api.auth.disable2FA("");
+      success = tr("twoFADisabledSuccess");
+      twoFAEnabled = false;
+      showSetup = false;
+      twoFASetup = null;
     } catch (e) {
       console.error("2FA disable error:", e);
-      error = tr("failedToDisable2FARetry");
+      error = tr("failedToDisable2FA");
     } finally {
       loading = false;
     }
@@ -186,182 +135,172 @@
   <div class="page-fade-in space-y-6">
     <!-- 2FA Status Card -->
     <ModernCard variant="glass">
-      {#snippet children()}
-        <div class="p-6 space-y-4">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <i
-                class="bi bi-shield-lock-fill text-3xl text-primary-600 dark:text-primary-400"
-              ></i>
-              <div>
-                <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-                  {tr("twoFactorAuthentication")}
-                </h2>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                  {tr("addExtraLayerSecurity")}
-                </p>
-              </div>
-            </div>
-            <div
-              class="px-4 py-2 rounded-full text-sm font-semibold {twoFAEnabled
-                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'}"
-            >
-              {twoFAEnabled ? tr("enabled") : tr("disabled")}
+      <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <i
+              class="bi bi-shield-lock-fill text-3xl text-primary-600 dark:text-primary-400"
+            ></i>
+            <div>
+              <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+                {tr("twoFactorAuthentication")}
+              </h2>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                {tr("addExtraLayerSecurity")}
+              </p>
             </div>
           </div>
-
-          {#if error}
-            <div
-              class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg"
-            >
-              <i class="bi bi-exclamation-triangle-fill mr-2"></i>
-              {error}
-            </div>
-          {/if}
-
-          {#if success}
-            <div
-              class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-lg"
-            >
-              <i class="bi bi-check-circle-fill mr-2"></i>
-              {success}
-            </div>
-          {/if}
-
-          {#if !showSetup}
-            <div class="flex gap-3">
-              {#if !twoFAEnabled}
-                <ModernButton
-                  variant="primary"
-                  onclick={setup2FA}
-                  disabled={loading}
-                  class="flex-1"
-                >
-                  <i class="bi bi-shield-plus mr-2"></i>
-                  {loading ? tr("loading") : tr("enable2FA")}
-                </ModernButton>
-              {:else}
-                <ModernButton
-                  variant="danger"
-                  onclick={disable2FA}
-                  disabled={loading}
-                  class="flex-1"
-                >
-                  <i class="bi bi-shield-x mr-2"></i>
-                  {loading ? tr("disabling") : tr("disable2FA")}
-                </ModernButton>
-              {/if}
-            </div>
-          {/if}
+          <div
+            class="px-4 py-2 rounded-full text-sm font-semibold {twoFAEnabled
+              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+              : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'}"
+          >
+            {twoFAEnabled ? tr("enabled") : tr("disabled")}
+          </div>
         </div>
-      {/snippet}
+
+        {#if error}
+          <div
+            class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg"
+          >
+            <i class="bi bi-exclamation-triangle-fill mr-2"></i>
+            {error}
+          </div>
+        {/if}
+
+        {#if success}
+          <div
+            class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-lg"
+          >
+            <i class="bi bi-check-circle-fill mr-2"></i>
+            {success}
+          </div>
+        {/if}
+
+        {#if !showSetup}
+          <div class="flex gap-3">
+            {#if !twoFAEnabled}
+              <ModernButton
+                variant="primary"
+                onclick={setup2FA}
+                disabled={loading}
+                class="flex-1"
+              >
+                <i class="bi bi-shield-plus mr-2"></i>
+                {loading ? tr("loading") : tr("enable2FA")}
+              </ModernButton>
+            {:else}
+              <ModernButton
+                variant="danger"
+                onclick={disable2FA}
+                disabled={loading}
+                class="flex-1"
+              >
+                <i class="bi bi-shield-x mr-2"></i>
+                {loading ? tr("disabling") : tr("disable2FA")}
+              </ModernButton>
+            {/if}
+          </div>
+        {/if}
+      </div>
     </ModernCard>
 
     <!-- 2FA Setup Card -->
     {#if showSetup && twoFASetup}
       <ModernCard variant="glass">
-        {#snippet children()}
-          <div class="p-6 space-y-6">
-            <div class="text-center">
-              <h3
-                class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2"
-              >
-                {tr("scanQRCode")}
-              </h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                {tr("useAuthenticatorApp")}
-              </p>
+        <div class="p-6 space-y-6">
+          <div class="text-center">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+              {tr("scanQRCode")}
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              {tr("useAuthenticatorApp")}
+            </p>
 
-              <!-- QR Code -->
-              <div class="bg-white p-6 rounded-xl inline-block shadow-lg mb-6">
-                {#if qrCodeDataUrl}
-                  <img
-                    src={qrCodeDataUrl}
-                    alt="2FA QR Code"
-                    class="w-64 h-64"
-                  />
-                {:else}
-                  <div class="w-64 h-64 flex items-center justify-center">
-                    <div
-                      class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"
-                    ></div>
-                  </div>
-                {/if}
-              </div>
-
-              <!-- Manual Entry -->
-              <details class="text-left mb-6">
-                <summary
-                  class="cursor-pointer text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-                >
-                  {tr("manualEntry")}
-                </summary>
-                <div
-                  class="mt-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
-                >
-                  <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                    {tr("verificationCode")}:
-                  </p>
-                  <code
-                    class="block p-3 bg-white dark:bg-gray-900 rounded font-mono text-sm break-all border border-gray-300 dark:border-gray-600"
-                  >
-                    {twoFASetup.secret}
-                  </code>
+            <!-- QR Code -->
+            <div class="bg-white p-6 rounded-xl inline-block shadow-lg mb-6">
+              {#if qrCodeDataUrl}
+                <img src={qrCodeDataUrl} alt="2FA QR Code" class="w-64 h-64" />
+              {:else}
+                <div class="w-64 h-64 flex items-center justify-center">
+                  <div
+                    class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"
+                  ></div>
                 </div>
-              </details>
+              {/if}
             </div>
 
-            <!-- Verification -->
-            <div class="space-y-4">
-              <div>
-                <label
-                  for="verification-code"
-                  class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+            <!-- Manual Entry -->
+            <details class="text-left mb-6">
+              <summary
+                class="cursor-pointer text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+              >
+                {tr("manualEntry")}
+              </summary>
+              <div
+                class="mt-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+              >
+                <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                  {tr("verificationCode")}:
+                </p>
+                <code
+                  class="block p-3 bg-white dark:bg-gray-900 rounded font-mono text-sm break-all border border-gray-300 dark:border-gray-600"
                 >
-                  {tr("enterVerificationCode")}
-                </label>
-                <input
-                  id="verification-code"
-                  type="text"
-                  bind:value={verificationCode}
-                  placeholder="000000"
-                  maxlength="6"
-                  class="w-full px-4 py-3 text-center text-2xl font-mono tracking-wider border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition"
-                  onkeypress={(e) => {
-                    if (!/[0-9]/.test(e.key)) {
-                      e.preventDefault();
-                    }
-                  }}
-                />
+                  {twoFASetup.secret}
+                </code>
               </div>
+            </details>
+          </div>
 
-              <div class="flex gap-3">
-                <ModernButton
-                  variant="secondary"
-                  onclick={cancelSetup}
-                  class="flex-1"
-                >
-                  {tr("cancel")}
-                </ModernButton>
-                <ModernButton
-                  variant="primary"
-                  onclick={enable2FA}
-                  disabled={loading || verificationCode.length !== 6}
-                  class="flex-1"
-                >
-                  {loading ? tr("verifying") : tr("verifyCode")}
-                </ModernButton>
-              </div>
+          <!-- Verification -->
+          <div class="space-y-4">
+            <div>
+              <label
+                for="verification-code"
+                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+              >
+                {tr("enterVerificationCode")}
+              </label>
+              <input
+                id="verification-code"
+                type="text"
+                bind:value={verificationCode}
+                placeholder="000000"
+                maxlength="6"
+                class="w-full px-4 py-3 text-center text-2xl font-mono tracking-wider border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition"
+                onkeypress={(e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
+              />
+            </div>
+
+            <div class="flex gap-3">
+              <ModernButton
+                variant="secondary"
+                onclick={cancelSetup}
+                class="flex-1"
+              >
+                {tr("cancel")}
+              </ModernButton>
+              <ModernButton
+                variant="primary"
+                onclick={enable2FA}
+                disabled={loading || verificationCode.length !== 6}
+                class="flex-1"
+              >
+                {loading ? tr("verifying") : tr("verifyCode")}
+              </ModernButton>
             </div>
           </div>
-        {/snippet}
+        </div>
       </ModernCard>
     {/if}
 
     <!-- Security Tips Card -->
     <ModernCard variant="glass">
-      {#snippet children()}
+      <div>
         <div class="p-6 space-y-4">
           <div class="flex items-center gap-3 mb-4">
             <i
@@ -391,33 +330,31 @@
             </li>
           </ul>
         </div>
-      {/snippet}
+      </div>
     </ModernCard>
 
     <!-- Change Password Card -->
     <ModernCard variant="glass">
-      {#snippet children()}
-        <div class="p-6 space-y-4">
-          <div class="flex items-center gap-3">
-            <i
-              class="bi bi-key-fill text-2xl text-primary-600 dark:text-primary-400"
-            ></i>
-            <div>
-              <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {tr("changePassword")}
-              </h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                {tr("updateAccountPassword")}
-              </p>
-            </div>
+      <div class="p-6 space-y-4">
+        <div class="flex items-center gap-3">
+          <i
+            class="bi bi-key-fill text-2xl text-primary-600 dark:text-primary-400"
+          ></i>
+          <div>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
+              {tr("changePassword")}
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              {tr("updateAccountPassword")}
+            </p>
           </div>
-
-          <ModernButton variant="secondary" class="w-full">
-            <i class="bi bi-arrow-clockwise mr-2"></i>
-            {tr("changePassword")}
-          </ModernButton>
         </div>
-      {/snippet}
+
+        <ModernButton variant="secondary" class="w-full">
+          <i class="bi bi-arrow-clockwise mr-2"></i>
+          {tr("changePassword")}
+        </ModernButton>
+      </div>
     </ModernCard>
   </div>
 </PageWrapper>

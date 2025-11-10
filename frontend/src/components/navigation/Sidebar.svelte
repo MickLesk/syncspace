@@ -44,9 +44,12 @@
       const token = localStorage.getItem("authToken");
       if (!token) return null;
 
-      const response = await fetch("http://localhost:8080/api/activity/stats", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `${new URL(window.location.href).protocol}//${new URL(window.location.href).hostname}:8080/api/activity/stats`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response.ok) {
         return await response.json();

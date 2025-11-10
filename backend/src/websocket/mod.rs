@@ -33,11 +33,13 @@ impl FileChangeEvent {
         }
     }
 
+    #[allow(dead_code)]
     pub fn with_user(mut self, user_id: String) -> Self {
         self.user_id = Some(user_id);
         self
     }
 
+    #[allow(dead_code)]
     pub fn with_metadata(mut self, metadata: serde_json::Value) -> Self {
         self.metadata = Some(metadata);
         self
@@ -48,6 +50,7 @@ impl FileChangeEvent {
 ///
 /// NOTE: This handler is only used from main.rs with AppState.
 /// For lib.rs/tests, use handle_socket directly with a broadcast sender.
+#[allow(dead_code)]
 pub fn ws_handler_with_tx(
     tx: Sender<FileChangeEvent>,
 ) -> impl Fn(WebSocketUpgrade) -> std::pin::Pin<Box<dyn std::future::Future<Output = Response> + Send>>
@@ -91,7 +94,7 @@ pub async fn handle_socket(socket: WebSocket, tx: Sender<FileChangeEvent>) {
                                     "type": "pong",
                                     "timestamp": chrono::Utc::now().timestamp_millis()
                                 });
-                                if let Ok(pong_str) = serde_json::to_string(&pong) {
+                                if let Ok(_pong_str) = serde_json::to_string(&pong) {
                                     // Send pong through the sender (need to access it)
                                     // Since sender is moved to send_task, we need a different approach
                                     // For now, just log it - the client will timeout and reconnect
@@ -104,7 +107,7 @@ pub async fn handle_socket(socket: WebSocket, tx: Sender<FileChangeEvent>) {
                         }
                     }
                 }
-                Message::Ping(data) => {
+                Message::Ping(_data) => {
                     // Axum handles Ping frames automatically with Pong
                     tracing::trace!("Received WebSocket Ping frame");
                 }

@@ -5,6 +5,7 @@
   import { t } from "../i18n.js";
   import ModernCard from "../components/ui/ModernCard.svelte";
   import ModernButton from "../components/ui/ModernButton.svelte";
+  import * as api from "../lib/api.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -140,23 +141,16 @@
     loading = true;
 
     try {
-      const response = await fetch("http://localhost:8080/api/setup/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const result = await api.setup.complete(formData);
 
-      if (response.ok) {
+      if (result) {
         // Auto-login with new admin credentials
         await auth.login(formData.admin_username, formData.admin_password);
         window.location.href = "/"; // Redirect to main app
-      } else {
-        const error = await response.text();
-        errors.general = error || tr("error");
       }
     } catch (e) {
       console.error("Setup error:", e);
-      errors.general = tr("backendOffline");
+      errors.general = e.message || tr("backendOffline");
     } finally {
       loading = false;
     }
@@ -205,8 +199,7 @@
 
     <!-- Step Content -->
     <ModernCard variant="glass" class="step-content">
-      {#snippet children()}
-        <div class="step-inner">
+      <div class="step-inner">
           <!-- Step 1: Admin Account -->
           {#if currentStep === 1}
             <h2 class="step-title">
@@ -587,7 +580,7 @@
             </ModernButton>
           {/if}
         </div>
-      {/snippet}
+      </div>
     </ModernCard>
   </div>
 </div>

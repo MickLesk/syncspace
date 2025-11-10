@@ -3,7 +3,7 @@
    * File Versioning Timeline Component
    * Shows version history with diff viewer and restore functionality
    */
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
   import {
     versionState,
     versionTimeline,
@@ -18,9 +18,9 @@
     selectVersion,
     exitCompareMode,
     getVersionStats,
-  } from '../stores/fileVersioning.js';
+  } from "../stores/fileVersioning.js";
 
-  export let filePath = '';
+  export let filePath = "";
   export let readOnly = false;
 
   let compareMode = false;
@@ -47,20 +47,20 @@
   }
 
   function formatDate(date) {
-    return new Date(date).toLocaleDateString('de-DE', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(date).toLocaleDateString("de-DE", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   }
 
   function formatSize(bytes) {
-    if (!bytes) return '0 B';
-    const sizes = ['B', 'KB', 'MB', 'GB'];
+    if (!bytes) return "0 B";
+    const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
   }
 
   function getStats() {
@@ -68,14 +68,18 @@
   }
 </script>
 
-<div class="flex flex-col h-full bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+<div
+  class="flex flex-col h-full bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
+>
   <!-- Header with Tabs -->
-  <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+  <div
+    class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700"
+  >
     <div class="flex gap-2">
       <button
-        class="{!showStats 
-          ? 'px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-          : 'px-4 py-2 rounded text-sm font-medium transition-colors text-slate-600 dark:text-slate-400'}"
+        class={!showStats
+          ? "px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200"
+          : "px-4 py-2 rounded text-sm font-medium transition-colors text-slate-600 dark:text-slate-400"}
         on:click={() => (showStats = false)}
       >
         <i class="bi bi-clock-history mr-2" />
@@ -83,9 +87,9 @@
       </button>
 
       <button
-        class="{showStats 
-          ? 'px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-          : 'px-4 py-2 rounded text-sm font-medium transition-colors text-slate-600 dark:text-slate-400'}"
+        class={showStats
+          ? "px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200"
+          : "px-4 py-2 rounded text-sm font-medium transition-colors text-slate-600 dark:text-slate-400"}
         on:click={() => (showStats = true)}
       >
         <i class="bi bi-pie-chart mr-2" />
@@ -95,7 +99,10 @@
 
     {#if $versionState.versions.length > 0}
       <div class="text-sm text-slate-600 dark:text-slate-400">
-        {$versionState.versions.length} version{$versionState.versions.length !== 1 ? 's' : ''}
+        {$versionState.versions.length} version{$versionState.versions
+          .length !== 1
+          ? "s"
+          : ""}
       </div>
     {/if}
   </div>
@@ -109,42 +116,63 @@
         </div>
       </div>
     {:else if $error}
-      <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded text-red-700 dark:text-red-200 text-sm">
+      <div
+        class="bg-red-50 dark:bg-red-900/20 p-3 rounded text-red-700 dark:text-red-200 text-sm"
+      >
         <i class="bi bi-exclamation-circle mr-2" />
         {$error}
       </div>
     {:else if showStats}
       <!-- STATS VIEW -->
-      {#if getStats() as stats}
+      {#if true}
+        {@const stats = getStats()}
         <div class="space-y-4">
           <!-- Stats Grid -->
           <div class="grid grid-cols-2 gap-4">
             <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded">
-              <p class="text-xs text-blue-600 dark:text-blue-300 font-medium">Total Versions</p>
-              <p class="text-3xl font-bold text-blue-700 dark:text-blue-200 mt-1">
+              <p class="text-xs text-blue-600 dark:text-blue-300 font-medium">
+                Total Versions
+              </p>
+              <p
+                class="text-3xl font-bold text-blue-700 dark:text-blue-200 mt-1"
+              >
                 {stats.totalVersions}
               </p>
             </div>
 
             <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded">
-              <p class="text-xs text-green-600 dark:text-green-300 font-medium">Total Size</p>
-              <p class="text-2xl font-bold text-green-700 dark:text-green-200 mt-1">
+              <p class="text-xs text-green-600 dark:text-green-300 font-medium">
+                Total Size
+              </p>
+              <p
+                class="text-2xl font-bold text-green-700 dark:text-green-200 mt-1"
+              >
                 {formatSize(stats.totalSize)}
               </p>
             </div>
 
             <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded">
-              <p class="text-xs text-purple-600 dark:text-purple-300 font-medium">Avg Size</p>
-              <p class="text-2xl font-bold text-purple-700 dark:text-purple-200 mt-1">
+              <p
+                class="text-xs text-purple-600 dark:text-purple-300 font-medium"
+              >
+                Avg Size
+              </p>
+              <p
+                class="text-2xl font-bold text-purple-700 dark:text-purple-200 mt-1"
+              >
                 {formatSize(stats.avgSize)}
               </p>
             </div>
 
             <div class="bg-orange-50 dark:bg-orange-900/20 p-4 rounded">
-              <p class="text-xs text-orange-600 dark:text-orange-300 font-medium">
+              <p
+                class="text-xs text-orange-600 dark:text-orange-300 font-medium"
+              >
                 Avg Timespan
               </p>
-              <p class="text-2xl font-bold text-orange-700 dark:text-orange-200 mt-1">
+              <p
+                class="text-2xl font-bold text-orange-700 dark:text-orange-200 mt-1"
+              >
                 {stats.avgTimeoutDays}d
               </p>
             </div>
@@ -152,19 +180,34 @@
 
           <!-- Size Range -->
           <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded">
-            <p class="text-sm font-medium text-slate-900 dark:text-white mb-3">Size Range</p>
+            <p class="text-sm font-medium text-slate-900 dark:text-white mb-3">
+              Size Range
+            </p>
             <div class="space-y-2">
-              <div class="flex justify-between text-xs text-slate-600 dark:text-slate-400">
+              <div
+                class="flex justify-between text-xs text-slate-600 dark:text-slate-400"
+              >
                 <span>Smallest:</span>
                 <span>{formatSize(stats.minSize)}</span>
               </div>
-              <div class="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2">
+              <div
+                class="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2"
+              >
                 <div
                   class="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full"
-                  style="width: {Math.min(100, Math.round(((stats.avgSize - stats.minSize) / (stats.maxSize - stats.minSize)) * 100))}%"
+                  style="width: {Math.min(
+                    100,
+                    Math.round(
+                      ((stats.avgSize - stats.minSize) /
+                        (stats.maxSize - stats.minSize)) *
+                        100
+                    )
+                  )}%"
                 />
               </div>
-              <div class="flex justify-between text-xs text-slate-600 dark:text-slate-400">
+              <div
+                class="flex justify-between text-xs text-slate-600 dark:text-slate-400"
+              >
                 <span>Largest:</span>
                 <span>{formatSize(stats.maxSize)}</span>
               </div>
@@ -183,18 +226,19 @@
           <!-- Version List -->
           <div class="space-y-2">
             {#each $versionTimeline as version, idx (version.id)}
-              <div
-                class="{version.isCurrent 
-                  ? 'flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 border-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                  : 'flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 border-slate-200 dark:border-slate-700'}"
-                on:click={() => selectVersion(version.id)}
+              <button
+                type="button"
+                class={version.isCurrent
+                  ? "flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 border-blue-400 bg-blue-50 dark:bg-blue-900/20 w-full text-left"
+                  : "flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 border-slate-200 dark:border-slate-700 w-full text-left"}
+                onclick={() => selectVersion(version.id)}
               >
                 <!-- Timeline Marker -->
                 <div class="flex flex-col items-center">
                   <div
-                    class="{version.isCurrent 
-                      ? 'w-4 h-4 rounded-full border-2 bg-blue-500 border-blue-500'
-                      : 'w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600'}"
+                    class={version.isCurrent
+                      ? "w-4 h-4 rounded-full border-2 bg-blue-500 border-blue-500"
+                      : "w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600"}
                   />
                   {#if idx < $versionTimeline.length - 1}
                     <div
@@ -230,7 +274,8 @@
                   </p>
 
                   <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    {formatSize(version.sizeBytes)} • By {version.createdBy || 'System'}
+                    {formatSize(version.sizeBytes)} • By {version.createdBy ||
+                      "System"}
                   </p>
                 </div>
 
@@ -238,7 +283,8 @@
                 {#if !version.isCurrent}
                   <div class="flex gap-1">
                     <button
-                      on:click|stopPropagation={() => downloadVersion(filePath, version.versionNumber)}
+                      on:click|stopPropagation={() =>
+                        downloadVersion(filePath, version.versionNumber)}
                       class="p-2 text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors"
                       title="Download"
                     >
@@ -247,7 +293,8 @@
 
                     {#if !readOnly}
                       <button
-                        on:click|stopPropagation={() => restoreVersion(filePath, version.versionNumber)}
+                        on:click|stopPropagation={() =>
+                          restoreVersion(filePath, version.versionNumber)}
                         disabled={$restoring}
                         class="p-2 text-slate-600 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 disabled:opacity-50 transition-colors"
                         title="Restore"
@@ -256,7 +303,9 @@
                       </button>
 
                       <button
-                        on:click|stopPropagation={() => deleteVersion(filePath, version.versionNumber)}
+                        type="button"
+                        on:click|stopPropagation={() =>
+                          deleteVersion(filePath, version.versionNumber)}
                         class="p-2 text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
                         title="Delete"
                       >
@@ -265,21 +314,29 @@
                     {/if}
                   </div>
                 {/if}
-              </div>
+              </button>
             {/each}
           </div>
 
           <!-- Compare Section -->
           {#if !readOnly && $versionState.versions.length > 1}
-            <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
-              <h4 class="font-medium text-slate-900 dark:text-white mb-3">Compare Versions</h4>
+            <div
+              class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700"
+            >
+              <h4 class="font-medium text-slate-900 dark:text-white mb-3">
+                Compare Versions
+              </h4>
 
               <div class="space-y-3">
                 <div>
-                  <label class="text-sm text-slate-700 dark:text-slate-300 block mb-1">
+                  <label
+                    for="version-1-select"
+                    class="text-sm text-slate-700 dark:text-slate-300 block mb-1"
+                  >
                     Version 1
                   </label>
                   <select
+                    id="version-1-select"
                     bind:value={selectedV1}
                     class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
                   >
@@ -291,10 +348,14 @@
                 </div>
 
                 <div>
-                  <label class="text-sm text-slate-700 dark:text-slate-300 block mb-1">
+                  <label
+                    for="version-2-select"
+                    class="text-sm text-slate-700 dark:text-slate-300 block mb-1"
+                  >
                     Version 2
                   </label>
                   <select
+                    id="version-2-select"
                     bind:value={selectedV2}
                     class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
                   >
@@ -319,9 +380,13 @@
 
           <!-- Diff Result -->
           {#if showDiff && $versionState.diffResult}
-            <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <div
+              class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700"
+            >
               <div class="flex items-center justify-between mb-3">
-                <h4 class="font-medium text-slate-900 dark:text-white">Diff Result</h4>
+                <h4 class="font-medium text-slate-900 dark:text-white">
+                  Diff Result
+                </h4>
                 <button
                   on:click={() => {
                     showDiff = false;
@@ -333,11 +398,19 @@
                 </button>
               </div>
 
-              <div class="bg-slate-50 dark:bg-slate-700/50 rounded p-3 max-h-64 overflow-y-auto text-xs font-mono text-slate-600 dark:text-slate-400 space-y-1">
+              <div
+                class="bg-slate-50 dark:bg-slate-700/50 rounded p-3 max-h-64 overflow-y-auto text-xs font-mono text-slate-600 dark:text-slate-400 space-y-1"
+              >
                 {#if $versionState.diffResult.changes && $versionState.diffResult.changes.length > 0}
                   {#each $versionState.diffResult.changes as change}
                     <div class="flex gap-2">
-                      <span class="w-8">{change.type === 'added' ? '+' : change.type === 'removed' ? '−' : '~'}</span>
+                      <span class="w-8"
+                        >{change.type === "added"
+                          ? "+"
+                          : change.type === "removed"
+                            ? "−"
+                            : "~"}</span
+                      >
                       <span>{change.line}</span>
                     </div>
                   {/each}

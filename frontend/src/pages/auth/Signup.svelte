@@ -2,6 +2,7 @@
   import { auth } from "../../stores/auth.js";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
+  import * as api from "../../lib/api.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -45,17 +46,7 @@
     successMessage = "";
 
     try {
-      const response = await fetch("http://localhost:8080/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || tr("registrationFailed"));
-      }
+      const data = await api.auth.register(username, password);
 
       successMessage = tr("profileSavedSuccessfully");
 
@@ -183,14 +174,25 @@
           ></i>{tr("password")}
         </label>
         <div class="relative">
-          <input
-            id="signup-password"
-            type={showPassword ? "text" : "password"}
-            bind:value={password}
-            class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder={tr("createStrongPassword")}
-            disabled={loading}
-          />
+          {#if showPassword}
+            <input
+              id="signup-password"
+              type="text"
+              bind:value={password}
+              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder={tr("createStrongPassword")}
+              disabled={loading}
+            />
+          {:else}
+            <input
+              id="signup-password"
+              type="password"
+              bind:value={password}
+              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder={tr("createStrongPassword")}
+              disabled={loading}
+            />
+          {/if}
           <i
             class="bi bi-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
           ></i>
@@ -218,14 +220,25 @@
           ></i>{tr("confirmPassword")}
         </label>
         <div class="relative">
-          <input
-            id="signup-confirm-password"
-            type={showConfirmPassword ? "text" : "password"}
-            bind:value={confirmPassword}
-            class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder={tr("confirmYourPassword")}
-            disabled={loading}
-          />
+          {#if showConfirmPassword}
+            <input
+              id="signup-confirm-password"
+              type="text"
+              bind:value={confirmPassword}
+              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder={tr("confirmYourPassword")}
+              disabled={loading}
+            />
+          {:else}
+            <input
+              id="signup-confirm-password"
+              type="password"
+              bind:value={confirmPassword}
+              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder={tr("confirmYourPassword")}
+              disabled={loading}
+            />
+          {/if}
           <i
             class="bi bi-shield-check absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
           ></i>

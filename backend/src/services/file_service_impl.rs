@@ -1,4 +1,6 @@
-//! File service - Full implementation
+#![allow(dead_code)]
+
+//! File operations service implementation
 use crate::{auth::UserInfo, models::FileInfo, AppState, FileChangeEvent};
 use anyhow::{anyhow, Result};
 use chrono::Utc;

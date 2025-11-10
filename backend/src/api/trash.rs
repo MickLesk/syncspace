@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 //! Trash/Recycle Bin API Routes
 
 use axum::{
@@ -78,14 +80,18 @@ async fn restore_from_trash(
     State(state): State<AppState>,
     Path(path): Path<String>,
     user_info: UserInfo,
-    Json(_req): Json<RestoreRequest>,
+    Json(req): Json<RestoreRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
     // Restore file by setting is_deleted = 0
     let now = chrono::Utc::now().to_rfc3339();
 
+    // Use destination_path if provided, otherwise restore to original location
+    let restore_path = req.destination_path.unwrap_or_else(|| path.clone());
+
     let result = sqlx::query(
-        "UPDATE files SET is_deleted = 0, updated_at = ? WHERE path = ? AND is_deleted = 1",
+        "UPDATE files SET is_deleted = 0, path = ?, updated_at = ? WHERE path = ? AND is_deleted = 1",
     )
+    .bind(&restore_path)
     .bind(&now)
     .bind(&path)
     .execute(&state.db)

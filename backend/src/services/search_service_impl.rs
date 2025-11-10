@@ -1,4 +1,6 @@
-//! Search service - Full implementation
+#![allow(dead_code)]
+
+//! Search service implementation
 use crate::{auth::UserInfo, AppState};
 use anyhow::Result;
 

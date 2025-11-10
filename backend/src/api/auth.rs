@@ -57,7 +57,7 @@ pub struct Disable2FARequest {
 pub struct Setup2FAResponse {
     pub secret: String,
     pub qr_code_url: String,
-    pub qr_url: String,  // Alias for compatibility
+    pub qr_url: String, // Alias for compatibility
 }
 
 // ==================== ROUTER ====================
@@ -83,6 +83,7 @@ pub fn protected_router() -> Router<AppState> {
 
 /// Legacy function for backward compatibility (only public routes)
 #[deprecated(note = "Use public_router() and protected_router() instead")]
+#[allow(dead_code)]
 pub fn router() -> Router<AppState> {
     public_router()
 }
@@ -96,7 +97,7 @@ async fn register_handler(
     Json(req): Json<RegisterRequest>,
 ) -> Result<Json<AuthResponse>, (StatusCode, Json<serde_json::Value>)> {
     tracing::info!("User registration attempt");
-    
+
     services::register(&state, req.username.clone(), req.password)
         .await
         .map(|response| {
@@ -109,7 +110,7 @@ async fn register_handler(
                 StatusCode::BAD_REQUEST,
                 Json(serde_json::json!({
                     "error": e.to_string()
-                }))
+                })),
             )
         })
 }
@@ -121,7 +122,7 @@ async fn login_handler(
     Json(req): Json<LoginRequest>,
 ) -> Result<Json<AuthResponse>, (StatusCode, Json<serde_json::Value>)> {
     tracing::info!("Login attempt");
-    
+
     services::login(&state, req.username.clone(), req.password, req.totp_code)
         .await
         .map(|response| {
@@ -134,7 +135,7 @@ async fn login_handler(
                 StatusCode::UNAUTHORIZED,
                 Json(serde_json::json!({
                     "error": e.to_string()
-                }))
+                })),
             )
         })
 }
@@ -154,7 +155,7 @@ async fn change_password_handler(
     Json(req): Json<ChangePasswordRequest>,
 ) -> Result<StatusCode, StatusCode> {
     tracing::info!("Password change attempt");
-    
+
     services::change_password(&state, &user, req.old_password, req.new_password)
         .await
         .map(|_| {
@@ -220,7 +221,7 @@ async fn logout_handler(
     user: UserInfo,
 ) -> Result<StatusCode, StatusCode> {
     tracing::info!("Logout attempt");
-    
+
     services::logout(&state, &user)
         .await
         .map(|_| {
@@ -232,4 +233,3 @@ async fn logout_handler(
             StatusCode::INTERNAL_SERVER_ERROR
         })
 }
-

@@ -8,6 +8,7 @@ use crate::{
 use anyhow::anyhow;
 use chrono::Utc;
 
+#[allow(dead_code)]
 pub struct AuthService;
 
 pub async fn register(
@@ -305,6 +306,16 @@ pub async fn setup_2fa(
         "otpauth://totp/SyncSpace:{}?secret={}&issuer=SyncSpace",
         user.username, secret
     );
+
+    // Log 2FA setup attempt
+    let _ = sqlx::query(
+        "INSERT INTO activity_log (id, user_id, action, status, created_at) VALUES (?, ?, 'setup_2fa_initiated', 'pending', datetime('now'))"
+    )
+    .bind(uuid::Uuid::new_v4().to_string())
+    .bind(&user.id)
+    .execute(&state.db_pool)
+    .await;
+
     Ok(Setup2FAResponse {
         secret: secret.clone(),
         qr_code_url: qr_url.clone(),

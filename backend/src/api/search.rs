@@ -1,4 +1,6 @@
-//! Search API endpoints
+#![allow(dead_code)]
+
+//! Full-text search API endpoints
 
 use crate::auth::UserInfo;
 

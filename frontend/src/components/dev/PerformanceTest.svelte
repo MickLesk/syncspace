@@ -202,10 +202,9 @@
             items={testData}
             {itemHeight}
             isGrid={viewMode === "grid"}
+            let:item={file}
           >
-            {#snippet children(file, index)}
-              <FileCard {file} {viewMode} />
-            {/snippet}
+            <FileCard {file} {viewMode} />
           </VirtualList>
         </div>
       {:else}

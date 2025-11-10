@@ -162,6 +162,7 @@ async fn restore_version(
 }
 
 /// Create new version when file is updated
+#[allow(dead_code)]
 pub async fn create_version(
     pool: &sqlx::SqlitePool,
     file_id: &str,

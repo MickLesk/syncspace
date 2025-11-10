@@ -2,7 +2,7 @@
   import { auth } from "../../stores/auth.js";
   import { loading, currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
-  import api from "../../lib/api.js";
+  import * as api from "../../lib/api.js";
   import { onMount } from "svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
@@ -27,10 +27,13 @@
 
   async function checkBackendStatus() {
     try {
-      // Simple health check - just ping the health endpoint
-      const response = await fetch("http://localhost:8080/health", {
-        method: "GET",
-      });
+      // Simple health check using api.js
+      const response = await fetch(
+        `${new URL(window.location.href).protocol}//${new URL(window.location.href).hostname}:8080/health`,
+        {
+          method: "GET",
+        }
+      );
       // If we get a response (even error 404/500), backend is online
       backendOnline = response.ok || response.status >= 400;
       checkingBackend = false;
@@ -62,25 +65,19 @@
         loginData.totp_code = twoFactorCode;
       }
 
-      const response = await fetch("http://localhost:8080/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginData),
-      });
+      const data = await api.auth.login(
+        username,
+        password,
+        showTwoFactor ? twoFactorCode : null
+      );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Check if 2FA is required
-        if (data.requires_2fa === true) {
-          showTwoFactor = true;
-          errorMessage = tr("pleaseEnter2FACode");
-          loginInProgress = false;
-          loading.hide();
-          return;
-        }
-
-        throw new Error(data.error || tr("loginFailed"));
+      // Check if 2FA is required
+      if (data.requires_2fa === true) {
+        showTwoFactor = true;
+        errorMessage = tr("pleaseEnter2FACode");
+        loginInProgress = false;
+        loading.hide();
+        return;
       }
 
       // Login successful - store token and update auth store
@@ -209,14 +206,25 @@
           ></i>{tr("password")}
         </label>
         <div class="relative">
-          <input
-            id="password-input"
-            type={showPassword ? "text" : "password"}
-            bind:value={password}
-            class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder={tr("enterPassword")}
-            disabled={loginInProgress}
-          />
+          {#if showPassword}
+            <input
+              id="password-input"
+              type="text"
+              bind:value={password}
+              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder={tr("enterPassword")}
+              disabled={loginInProgress}
+            />
+          {:else}
+            <input
+              id="password-input"
+              type="password"
+              bind:value={password}
+              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder={tr("enterPassword")}
+              disabled={loginInProgress}
+            />
+          {/if}
           <i
             class="bi bi-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
           ></i>

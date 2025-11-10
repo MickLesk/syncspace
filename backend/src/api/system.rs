@@ -31,10 +31,10 @@ async fn get_stats(
 
 async fn get_storage_info(
     State(state): State<AppState>,
-    _user: UserInfo,
+    user: UserInfo,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     // User info available for quota checks
-    let storage = services::system::get_storage_info(&state)
+    let storage = services::system::get_storage_info(&state, &user)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     serde_json::to_value(storage)
@@ -51,6 +51,7 @@ async fn get_config_info(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
+#[allow(dead_code)]
 async fn sync_filesystem(
     State(state): State<AppState>,
     user: UserInfo,

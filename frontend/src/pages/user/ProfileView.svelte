@@ -6,7 +6,7 @@
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
-  import api from "../../lib/api.js";
+  import * as api from "../../lib/api.js";
 
   let user = $state({
     username: "Loading...",
@@ -185,18 +185,7 @@
   async function reindexSearch() {
     try {
       showToast("Rebuilding search index...", "info");
-      const response = await fetch("http://localhost:8080/api/search/reindex", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const result = await response.json();
+      const result = await api.search.reindex();
       showToast(
         `Search index rebuilt: ${result.files_indexed} files indexed`,
         "success"

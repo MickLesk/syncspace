@@ -15,12 +15,18 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize)]
 pub struct CreateShareRequest {
     pub file_path: String,
+    #[allow(dead_code)]
     pub permission: String,
+    #[allow(dead_code)]
     pub expires_at: Option<String>,
+    #[allow(dead_code)]
     pub password: Option<String>,
+    #[allow(dead_code)]
     pub user_ids: Option<Vec<String>>, // NEW: List of user IDs to share with
+    #[allow(dead_code)]
     pub permissions: Option<Vec<String>>, // NEW: Permissions for each user (parallel array)
-    pub allow_external: Option<bool>,  // NEW: Toggle external/public sharing
+    #[allow(dead_code)]
+    pub allow_external: Option<bool>, // NEW: Toggle external/public sharing
 }
 
 pub fn router() -> Router<AppState> {

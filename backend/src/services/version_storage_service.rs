@@ -668,6 +668,7 @@ pub struct DiffLine {
 }
 
 #[derive(Debug, serde::Serialize)]
+#[allow(dead_code)]
 pub enum ChangeType {
     Added,
     Deleted,

@@ -889,13 +889,12 @@
       .join("/");
 
     try {
-      // Use fetch with auth token to download
-      const token = localStorage.getItem("authToken");
+      // Use API to download file
       const response = await fetch(
-        `http://localhost:8080/api/file/${encodedPath}`,
+        `${new URL(window.location.href).protocol}//${new URL(window.location.href).hostname}:8080/api/file/${encodedPath}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         }
       );
@@ -1135,23 +1134,22 @@
             isGrid={viewMode === "grid"}
             persistKey={$currentPath}
             overscan={5}
+            let:item={file}
+            let:index
           >
-            {#snippet children(file, index)}
-              <FileCard
-                {file}
-                {viewMode}
-                selected={selectedFiles.has(file.file_path || file.name)}
-                onSelect={() => handleFileSelection(file)}
-                onOpen={() => openFile(file)}
-                onContextMenu={(f, e) => handleContextMenu(f, e)}
-                onDragStart={(f) =>
-                  console.log("[FilesView] Drag started:", f.name)}
-                onDragEnd={(f) =>
-                  console.log("[FilesView] Drag ended:", f.name)}
-                onDrop={(draggedFile, targetFolder) =>
-                  handleFileDrop(draggedFile, targetFolder)}
-              />
-            {/snippet}
+            <FileCard
+              {file}
+              {viewMode}
+              selected={selectedFiles.has(file.file_path || file.name)}
+              onSelect={() => handleFileSelection(file)}
+              onOpen={() => openFile(file)}
+              onContextMenu={(f, e) => handleContextMenu(f, e)}
+              onDragStart={(f) =>
+                console.log("[FilesView] Drag started:", f.name)}
+              onDragEnd={(f) => console.log("[FilesView] Drag ended:", f.name)}
+              onDrop={(draggedFile, targetFolder) =>
+                handleFileDrop(draggedFile, targetFolder)}
+            />
           </VirtualList>
         </div>
       {:else}

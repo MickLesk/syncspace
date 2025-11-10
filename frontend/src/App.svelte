@@ -70,7 +70,9 @@
   // Check if setup is needed
   async function checkSetupStatus() {
     try {
-      const response = await fetch("http://localhost:8080/api/setup/status");
+      const response = await fetch(
+        `${new URL(window.location.href).protocol}//${new URL(window.location.href).hostname}:8080/api/setup/status`
+      );
       if (response.ok) {
         const data = await response.json();
         setupCompleted = data.setup_completed;

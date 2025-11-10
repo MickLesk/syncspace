@@ -1,5 +1,5 @@
 //! Authentication module for SyncSpace
-//! 
+//!
 //! Provides user management, JWT tokens, password hashing, and TOTP 2FA.
 //! All data stored in SQLite database - NO JSON files.
 
@@ -22,15 +22,18 @@ use uuid::Uuid;
 
 // TODO: Move to environment variable
 const JWT_SECRET: &str = "your-secret-key-change-in-production";
-const ACCESS_TOKEN_EXPIRATION_MINUTES: i64 = 15;  // Short-lived access token
-const REFRESH_TOKEN_EXPIRATION_DAYS: i64 = 7;     // Long-lived refresh token
+const ACCESS_TOKEN_EXPIRATION_MINUTES: i64 = 15; // Short-lived access token
+const REFRESH_TOKEN_EXPIRATION_DAYS: i64 = 7; // Long-lived refresh token
 
 // ============================================================================
 // SQLite-based Auth Functions (NO JSON files)
 // ============================================================================
 
 /// Get user by username from SQLite
-pub async fn get_user_by_username(pool: &SqlitePool, username: &str) -> Result<Option<crate::database::User>, sqlx::Error> {
+pub async fn get_user_by_username(
+    pool: &SqlitePool,
+    username: &str,
+) -> Result<Option<crate::database::User>, sqlx::Error> {
     sqlx::query_as::<_, crate::database::User>("SELECT * FROM users WHERE username = ?")
         .bind(username)
         .fetch_optional(pool)
@@ -38,7 +41,10 @@ pub async fn get_user_by_username(pool: &SqlitePool, username: &str) -> Result<O
 }
 
 /// Get user by ID from SQLite
-pub async fn get_user_by_id(pool: &SqlitePool, user_id: &str) -> Result<Option<crate::database::User>, sqlx::Error> {
+pub async fn get_user_by_id(
+    pool: &SqlitePool,
+    user_id: &str,
+) -> Result<Option<crate::database::User>, sqlx::Error> {
     sqlx::query_as::<_, crate::database::User>("SELECT * FROM users WHERE id = ?")
         .bind(user_id)
         .fetch_optional(pool)
@@ -46,14 +52,18 @@ pub async fn get_user_by_id(pool: &SqlitePool, user_id: &str) -> Result<Option<c
 }
 
 /// Verify password for user
-pub async fn verify_password(pool: &SqlitePool, username: &str, password: &str) -> Result<crate::database::User, String> {
+pub async fn verify_password(
+    pool: &SqlitePool,
+    username: &str,
+    password: &str,
+) -> Result<crate::database::User, String> {
     let user = get_user_by_username(pool, username)
         .await
         .map_err(|e| format!("Database error: {}", e))?
         .ok_or("Invalid username or password")?;
 
-    let parsed_hash = PasswordHash::new(&user.password_hash)
-        .map_err(|_| "Invalid password hash".to_string())?;
+    let parsed_hash =
+        PasswordHash::new(&user.password_hash).map_err(|_| "Invalid password hash".to_string())?;
 
     Argon2::default()
         .verify_password(password.as_bytes(), &parsed_hash)
@@ -63,15 +73,20 @@ pub async fn verify_password(pool: &SqlitePool, username: &str, password: &str) 
 }
 
 /// Change user password in SQLite
-pub async fn change_user_password(pool: &SqlitePool, user_id: &str, old_password: &str, new_password: &str) -> Result<(), String> {
+pub async fn change_user_password(
+    pool: &SqlitePool,
+    user_id: &str,
+    old_password: &str,
+    new_password: &str,
+) -> Result<(), String> {
     let user = get_user_by_id(pool, user_id)
         .await
         .map_err(|e| format!("Database error: {}", e))?
         .ok_or("User not found")?;
 
     // Verify old password
-    let parsed_hash = PasswordHash::new(&user.password_hash)
-        .map_err(|_| "Invalid password hash".to_string())?;
+    let parsed_hash =
+        PasswordHash::new(&user.password_hash).map_err(|_| "Invalid password hash".to_string())?;
 
     Argon2::default()
         .verify_password(old_password.as_bytes(), &parsed_hash)
@@ -101,13 +116,13 @@ pub async fn change_user_password(pool: &SqlitePool, user_id: &str, old_password
 /// Validate JWT token against SQLite database
 pub async fn validate_token_against_db(pool: &SqlitePool, token: &str) -> Result<UserInfo, String> {
     let claims = verify_token(token)?;
-    
+
     // Get user from SQLite to ensure they still exist
     let user = get_user_by_id(pool, &claims.sub)
         .await
         .map_err(|e| format!("Database error: {}", e))?
         .ok_or("User not found")?;
-    
+
     Ok(UserInfo {
         id: user.id,
         username: user.username,
@@ -127,10 +142,10 @@ pub struct Claims {
 /// Refresh Token Claims (longer expiration)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RefreshTokenClaims {
-    pub sub: String,       // Subject (user ID)
-    pub username: String,  // Username for convenience
-    pub exp: usize,        // Expiration time (7 days)
-    pub iat: usize,        // Issued at
+    pub sub: String,        // Subject (user ID)
+    pub username: String,   // Username for convenience
+    pub exp: usize,         // Expiration time (7 days)
+    pub iat: usize,         // Issued at
     pub token_version: i32, // For token rotation/invalidation (changed from u32 to i32)
 }
 
@@ -191,6 +206,7 @@ pub fn verify_token(token: &str) -> Result<Claims, String> {
 }
 
 /// Verify refresh token and extract claims
+#[allow(dead_code)]
 pub fn verify_refresh_token(token: &str) -> Result<RefreshTokenClaims, String> {
     decode::<RefreshTokenClaims>(
         token,
@@ -257,8 +273,8 @@ where
         }
 
         let token = auth_header.trim_start_matches("Bearer ");
-        let claims = verify_token(token)
-            .map_err(|_| (StatusCode::UNAUTHORIZED, "Invalid token"))?;
+        let claims =
+            verify_token(token).map_err(|_| (StatusCode::UNAUTHORIZED, "Invalid token"))?;
 
         let user_id = Uuid::parse_str(&claims.sub)
             .map_err(|_| (StatusCode::UNAUTHORIZED, "Invalid user ID"))?;
@@ -273,12 +289,14 @@ where
 }
 
 /// Auth request/response structures
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct RegisterRequest {
     pub username: String,
     pub password: String,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct LoginRequest {
     pub username: String,
@@ -337,7 +355,7 @@ impl User {
     pub fn id(&self) -> &str {
         &self.0.id
     }
-    
+
     pub fn username(&self) -> &str {
         &self.0.username
     }
@@ -346,7 +364,7 @@ impl User {
 // Provide direct field access for backward compatibility
 impl std::ops::Deref for User {
     type Target = UserInfo;
-    
+
     fn deref(&self) -> &Self::Target {
         &self.0
     }
@@ -381,26 +399,26 @@ pub async fn store_refresh_token(
     user_agent: Option<String>,
     ip_address: Option<String>,
 ) -> Result<(), String> {
-    use sha2::{Sha256, Digest};
-    
+    use sha2::{Digest, Sha256};
+
     // Hash the refresh token for storage
     let mut hasher = Sha256::new();
     hasher.update(refresh_token.as_bytes());
     let token_hash = format!("{:x}", hasher.finalize());
-    
+
     // Get user's token version
     let user = get_user_by_id(pool, user_id)
         .await
         .map_err(|e| format!("Database error: {}", e))?
         .ok_or("User not found")?;
-    
+
     let id = Uuid::new_v4().to_string();
     let now = Utc::now().to_rfc3339();
     let expires_at = Utc::now()
         .checked_add_signed(Duration::days(REFRESH_TOKEN_EXPIRATION_DAYS))
         .ok_or("Invalid timestamp")?
         .to_rfc3339();
-    
+
     sqlx::query(
         "INSERT INTO refresh_tokens (id, user_id, token_hash, token_version, expires_at, created_at, user_agent, ip_address) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
@@ -416,7 +434,7 @@ pub async fn store_refresh_token(
     .execute(pool)
     .await
     .map_err(|e| format!("Failed to store refresh token: {}", e))?;
-    
+
     Ok(())
 }
 
@@ -425,41 +443,41 @@ pub async fn validate_refresh_token(
     pool: &SqlitePool,
     refresh_token: &str,
 ) -> Result<crate::database::User, String> {
-    use sha2::{Sha256, Digest};
-    
+    use sha2::{Digest, Sha256};
+
     // Verify token signature and extract claims
     let claims = verify_refresh_token(refresh_token)?;
-    
+
     // Hash the refresh token for lookup
     let mut hasher = Sha256::new();
     hasher.update(refresh_token.as_bytes());
     let token_hash = format!("{:x}", hasher.finalize());
-    
+
     // Check if token exists in database and is not revoked
     let token_record: Option<crate::database::RefreshToken> = sqlx::query_as(
         "SELECT * FROM refresh_tokens 
          WHERE token_hash = ? AND user_id = ? AND revoked_at IS NULL 
-         AND datetime(expires_at) > datetime('now')"
+         AND datetime(expires_at) > datetime('now')",
     )
     .bind(&token_hash)
     .bind(&claims.sub)
     .fetch_optional(pool)
     .await
     .map_err(|e| format!("Database error: {}", e))?;
-    
+
     let token_record = token_record.ok_or("Invalid or expired refresh token")?;
-    
+
     // Get user and check token version
     let user = get_user_by_id(pool, &claims.sub)
         .await
         .map_err(|e| format!("Database error: {}", e))?
         .ok_or("User not found")?;
-    
+
     // Verify token version matches (for global invalidation)
     if token_record.token_version != user.token_version {
         return Err("Refresh token has been invalidated".to_string());
     }
-    
+
     // Update last_used_at
     let now = Utc::now().to_rfc3339();
     sqlx::query("UPDATE refresh_tokens SET last_used_at = ? WHERE id = ?")
@@ -468,21 +486,18 @@ pub async fn validate_refresh_token(
         .execute(pool)
         .await
         .map_err(|e| format!("Failed to update token usage: {}", e))?;
-    
+
     Ok(user)
 }
 
 /// Revoke specific refresh token
-pub async fn revoke_refresh_token(
-    pool: &SqlitePool,
-    refresh_token: &str,
-) -> Result<(), String> {
-    use sha2::{Sha256, Digest};
-    
+pub async fn revoke_refresh_token(pool: &SqlitePool, refresh_token: &str) -> Result<(), String> {
+    use sha2::{Digest, Sha256};
+
     let mut hasher = Sha256::new();
     hasher.update(refresh_token.as_bytes());
     let token_hash = format!("{:x}", hasher.finalize());
-    
+
     let now = Utc::now().to_rfc3339();
     sqlx::query("UPDATE refresh_tokens SET revoked_at = ? WHERE token_hash = ?")
         .bind(&now)
@@ -490,25 +505,24 @@ pub async fn revoke_refresh_token(
         .execute(pool)
         .await
         .map_err(|e| format!("Failed to revoke token: {}", e))?;
-    
+
     Ok(())
 }
 
 /// Revoke all refresh tokens for a user (e.g., on password change, logout all devices)
-pub async fn revoke_all_user_tokens(
-    pool: &SqlitePool,
-    user_id: &str,
-) -> Result<(), String> {
+pub async fn revoke_all_user_tokens(pool: &SqlitePool, user_id: &str) -> Result<(), String> {
     let now = Utc::now().to_rfc3339();
-    
+
     // Revoke all tokens
-    sqlx::query("UPDATE refresh_tokens SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL")
-        .bind(&now)
-        .bind(user_id)
-        .execute(pool)
-        .await
-        .map_err(|e| format!("Failed to revoke tokens: {}", e))?;
-    
+    sqlx::query(
+        "UPDATE refresh_tokens SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL",
+    )
+    .bind(&now)
+    .bind(user_id)
+    .execute(pool)
+    .await
+    .map_err(|e| format!("Failed to revoke tokens: {}", e))?;
+
     // Increment user's token version to invalidate all tokens globally
     sqlx::query("UPDATE users SET token_version = token_version + 1, updated_at = ? WHERE id = ?")
         .bind(&now)
@@ -516,17 +530,18 @@ pub async fn revoke_all_user_tokens(
         .execute(pool)
         .await
         .map_err(|e| format!("Failed to increment token version: {}", e))?;
-    
+
     Ok(())
 }
 
 /// Clean up expired refresh tokens (call this periodically)
 pub async fn cleanup_expired_tokens(pool: &SqlitePool) -> Result<u64, String> {
-    let result = sqlx::query("DELETE FROM refresh_tokens WHERE datetime(expires_at) < datetime('now')")
-        .execute(pool)
-        .await
-        .map_err(|e| format!("Failed to clean up expired tokens: {}", e))?;
-    
+    let result =
+        sqlx::query("DELETE FROM refresh_tokens WHERE datetime(expires_at) < datetime('now')")
+            .execute(pool)
+            .await
+            .map_err(|e| format!("Failed to clean up expired tokens: {}", e))?;
+
     Ok(result.rows_affected())
 }
 

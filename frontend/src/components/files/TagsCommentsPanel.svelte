@@ -185,6 +185,7 @@
           <!-- Add Tag Form -->
           <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded space-y-3">
             <label
+              for="tagNameInput"
               class="block text-sm font-medium text-slate-700 dark:text-slate-300"
             >
               Add Tag
@@ -192,6 +193,7 @@
 
             <div class="flex gap-2">
               <input
+                id="tagNameInput"
                 type="text"
                 placeholder="Tag name..."
                 bind:value={newTagName}

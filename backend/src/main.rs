@@ -18,7 +18,6 @@ mod db_monitor;
 mod jobs;
 mod middleware;
 mod models;
-mod search;
 mod security;
 mod services;
 mod status;
@@ -26,7 +25,6 @@ mod websocket;
 mod workers;
 
 use std::net::SocketAddr;
-use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -43,8 +41,7 @@ use sqlx::Row;
 use tokio::sync::{broadcast, Mutex};
 use tower_http::cors::{Any, CorsLayer};
 
-use auth::RateLimiter; // UserDB removed - using SQLite directly
-use search::SearchIndex;
+use auth::RateLimiter;
 use websocket::FileChangeEvent;
 
 // Performance and caching imports
@@ -91,24 +88,16 @@ fn init_tracing() {
 // ==================== SHARED STATE ====================
 
 #[derive(Clone)]
+#[allow(dead_code)]
 pub struct AppState {
-    config: Arc<Mutex<Config>>,
-    fs_tx: broadcast::Sender<FileChangeEvent>,
-    // user_db removed - now using SQLite db_pool directly
-    rate_limiter: Arc<RateLimiter>,
-    search_index: Arc<SearchIndex>,
-    db_pool: sqlx::SqlitePool,
-    db_monitor: Arc<db_monitor::DatabaseMonitor>,
-    db_health_monitor: Arc<database_monitor::DatabaseMonitor>, // New: Advanced monitoring
-    cache_manager: CacheManager,
-    job_processor: JobProcessor,
-    performance_monitor: Arc<PerformanceMonitor>,
-    // Status page fields
-    pub start_time: u64,
-    pub active_ws_connections: Arc<AtomicUsize>,
-    pub db: sqlx::SqlitePool, // Alias for status page
+    pub db_pool: sqlx::SqlitePool,
+    pub fs_tx: broadcast::Sender<FileChangeEvent>,
+    pub cache_manager: Arc<CacheManager>,
+    pub rate_limiter: Arc<RateLimiter>,
+    pub config: Arc<Mutex<Config>>,
+    pub job_processor: JobProcessor,
+    pub performance_monitor: Arc<PerformanceMonitor>,
 }
-
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Config {
     pub max_file_size: usize,
@@ -264,12 +253,17 @@ async fn main() {
 
     // Initialize performance monitoring
     let cache_config = performance::CacheConfig::default();
-    let cache_manager = performance::CacheManager::new(cache_config.clone())
+    let cache_manager_inner = performance::CacheManager::new(cache_config.clone())
         .await
         .expect("Failed to initialize cache manager");
-    let job_processor =
-        performance::JobProcessor::new(cache_manager.clone(), cache_config.background_job_workers);
-    let performance_monitor = Arc::new(performance::PerformanceMonitor::new(cache_manager.clone()));
+    let cache_manager = Arc::new(cache_manager_inner);
+    let job_processor = performance::JobProcessor::new(
+        (*cache_manager).clone(),
+        cache_config.background_job_workers,
+    );
+    let performance_monitor = Arc::new(performance::PerformanceMonitor::new(
+        (*cache_manager).clone(),
+    ));
 
     // Create WebSocket broadcast channel
     let (fs_tx, _) = broadcast::channel::<FileChangeEvent>(100);
@@ -299,55 +293,22 @@ async fn main() {
     let app_state = AppState {
         config,
         fs_tx,
-        // user_db removed - now using SQLite db_pool directly
         rate_limiter,
-        search_index,
         db_pool: db_pool.clone(),
-        db_monitor: db_monitor.clone(),
-        db_health_monitor: db_health_monitor.clone(),
         cache_manager,
         job_processor,
         performance_monitor,
-        start_time,
-        active_ws_connections: Arc::new(AtomicUsize::new(0)),
-        db: db_pool.clone(), // Alias for status page compatibility
     };
 
-    // Start pool monitoring task
-    let monitor_pool = db_pool.clone();
-    let monitor_db_monitor = db_monitor.clone();
-    tokio::spawn(async move {
-        loop {
-            tokio::time::sleep(tokio::time::Duration::from_secs(30)).await;
-
-            // Update pool stats (SQLx doesn't expose these directly, so we estimate)
-            let total = monitor_pool.size() as u32;
-            let idle = monitor_pool.num_idle() as u32;
-            let active = total.saturating_sub(idle);
-
-            monitor_db_monitor
-                .update_pool_stats(active, idle, total)
-                .await;
-
-            // Check for connection leaks
-            let leaks = monitor_db_monitor.detect_leaks().await;
-            if !leaks.is_empty() {
-                for leak in leaks {
-                    tracing::warn!("{}", leak);
-                }
-            }
-
-            // Log pool health
-            let health = monitor_db_monitor.health_status().await;
-            tracing::debug!(
-                "Pool health: {} - {:.1}% utilized ({}/{} connections)",
-                health.status,
-                health.pool_utilization * 100.0,
-                health.active_connections,
-                health.max_connections
-            );
-        }
-    });
+    // Optional: Start pool monitoring task (commented out - requires db_monitor)
+    // let monitor_pool = db_pool.clone();
+    // let monitor_db_monitor = db_monitor.clone();
+    // tokio::spawn(async move {
+    //     loop {
+    //         tokio::time::sleep(tokio::time::Duration::from_secs(30)).await;
+    //         // ... monitoring code
+    //     }
+    // });
 
     // Build router
     let app = build_router(app_state.clone());
@@ -365,13 +326,16 @@ async fn main() {
         worker_pool.start().await;
     });
 
-    // Start new job system workers
+    // Start new job system workers and store shutdown token for graceful shutdown
     let job_worker_shutdown =
         jobs::worker::start_job_workers(Arc::new(app_state.db_pool.clone()), 2).await;
 
-    // Start new job scheduler
+    // Start new job scheduler and store shutdown token for graceful shutdown
     let job_scheduler_shutdown =
         jobs::scheduler::start_job_scheduler(Arc::new(app_state.db_pool.clone())).await;
+
+    // Store shutdown tokens for cleanup on exit
+    let _shutdown_tokens = (job_worker_shutdown, job_scheduler_shutdown);
 
     // Start cron scheduler (currently disabled)
     let cron_scheduler = cron::CronScheduler::new(app_state.db_pool.clone());

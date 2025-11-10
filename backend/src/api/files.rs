@@ -35,6 +35,7 @@ pub struct CopyRequest {
 }
 
 #[derive(Debug, Serialize)]
+#[allow(dead_code)]
 pub struct FileListResponse {
     pub files: Vec<FileInfo>,
     pub total: usize,
@@ -65,7 +66,10 @@ pub fn router() -> Router<AppState> {
         // Copy file
         .route("/copy/{*path}", post(copy_file_handler))
         // List files in directory / Delete file - combined route with multiple methods
-        .route("/files/{*path}", get(list_files_handler).delete(delete_file_handler))
+        .route(
+            "/files/{*path}",
+            get(list_files_handler).delete(delete_file_handler),
+        )
 }
 
 // ==================== HANDLERS ====================
@@ -77,7 +81,7 @@ async fn list_files_root(
     user: UserInfo,
 ) -> Result<Json<Vec<FileInfo>>, StatusCode> {
     tracing::debug!("Listing files in root directory");
-    
+
     services::list_files(&state, &user, "")
         .await
         .map(|files| {
@@ -98,7 +102,7 @@ async fn list_files_handler(
     Path(path): Path<String>,
 ) -> Result<Json<Vec<FileInfo>>, StatusCode> {
     tracing::debug!("Listing files in directory: {}", path);
-    
+
     services::list_files(&state, &user, &path)
         .await
         .map(|files| {
@@ -173,10 +177,14 @@ async fn upload_multipart_handler(
     // Extract path and file from multipart form
     let mut target_path = String::new();
     let mut file_data: Option<(String, Vec<u8>)> = None;
-    
-    while let Some(field) = multipart.next_field().await.map_err(|_| StatusCode::BAD_REQUEST)? {
+
+    while let Some(field) = multipart
+        .next_field()
+        .await
+        .map_err(|_| StatusCode::BAD_REQUEST)?
+    {
         let field_name = field.name().unwrap_or("").to_string();
-        
+
         if field_name == "path" {
             // Path field
             target_path = field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?;
@@ -187,7 +195,7 @@ async fn upload_multipart_handler(
             file_data = Some((filename, data.to_vec()));
         }
     }
-    
+
     // Upload the file using the service layer (which handles DB + filesystem)
     if let Some((filename, data)) = file_data {
         // Construct the full path: target_path/filename
@@ -201,12 +209,16 @@ async fn upload_multipart_handler(
                 format!("{}/{}", clean_path, filename)
             }
         };
-        
+
         // CRITICAL: Remove leading slash to prevent path.join() from replacing base path
         let upload_path = upload_path.trim_start_matches('/');
-        
-        eprintln!("[upload_multipart_handler] Uploading to path: '{}' (size: {} bytes)", upload_path, data.len());
-        
+
+        eprintln!(
+            "[upload_multipart_handler] Uploading to path: '{}' (size: {} bytes)",
+            upload_path,
+            data.len()
+        );
+
         // Use the service layer to handle upload (creates DB entry + saves file)
         services::upload_file(&state, &user, upload_path, data)
             .await
@@ -214,9 +226,12 @@ async fn upload_multipart_handler(
                 eprintln!("[upload_multipart_handler] Upload failed: {:?}", e);
                 StatusCode::INTERNAL_SERVER_ERROR
             })?;
-        
-        eprintln!("[upload_multipart_handler] Upload successful: '{}'", upload_path);
-        
+
+        eprintln!(
+            "[upload_multipart_handler] Upload successful: '{}'",
+            upload_path
+        );
+
         Ok(StatusCode::CREATED)
     } else {
         Err(StatusCode::BAD_REQUEST)
@@ -282,11 +297,6 @@ async fn get_thumbnail_handler(
 ) -> Result<impl IntoResponse, StatusCode> {
     services::get_thumbnail(&state, &user, &file_id)
         .await
-        .map(|bytes| {
-            (
-                [(axum::http::header::CONTENT_TYPE, "image/jpeg")],
-                bytes,
-            )
-        })
+        .map(|bytes| ([(axum::http::header::CONTENT_TYPE, "image/jpeg")], bytes))
         .map_err(|_| StatusCode::NOT_FOUND)
 }

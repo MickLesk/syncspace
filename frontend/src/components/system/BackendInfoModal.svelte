@@ -3,7 +3,7 @@
   import { t } from "../../i18n.js";
   import { onMount } from "svelte";
   import Modal from "../ui/Modal.svelte";
-  import api from "../../lib/api.js";
+  import * as api from "../../lib/api.js";
 
   let { visible = $bindable(false) } = $props();
 
@@ -18,7 +18,9 @@
     loading = true;
     try {
       // Check backend status
-      const response = await fetch("http://localhost:8080/health");
+      const response = await fetch(
+        `${new URL(window.location.href).protocol}//${new URL(window.location.href).hostname}:8080/health`
+      );
       backendOnline = response.ok;
 
       // Load server info

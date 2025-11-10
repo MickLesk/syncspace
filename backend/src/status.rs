@@ -1,9 +1,10 @@
+#![allow(dead_code)]
+
 /**
  * Status Module - API Status Page & Health Checks
- * 
+ *
  * Provides comprehensive system status, health checks, and API endpoint documentation
  */
-
 use axum::{
     extract::State,
     http::StatusCode,
@@ -92,7 +93,9 @@ pub async fn get_status_json(State(state): State<AppState>) -> impl IntoResponse
         websocket: WebSocketStatus {
             enabled: true,
             endpoint: "ws://localhost:8080/api/ws".to_string(),
-            active_connections: state.active_ws_connections.load(std::sync::atomic::Ordering::Relaxed),
+            active_connections: state
+                .active_ws_connections
+                .load(std::sync::atomic::Ordering::Relaxed),
         },
         endpoints: get_all_endpoints(),
     };
@@ -110,7 +113,7 @@ pub async fn get_status_html(State(state): State<AppState>) -> impl IntoResponse
 
     let uptime_str = format_uptime(uptime);
     let endpoints = get_all_endpoints();
-    
+
     // Group endpoints by category
     let mut auth_endpoints = Vec::new();
     let mut file_endpoints = Vec::new();
@@ -392,7 +395,9 @@ pub async fn get_status_html(State(state): State<AppState>) -> impl IntoResponse
         env!("CARGO_PKG_VERSION"),
         uptime_str,
         state.db.size(),
-        state.active_ws_connections.load(std::sync::atomic::Ordering::Relaxed),
+        state
+            .active_ws_connections
+            .load(std::sync::atomic::Ordering::Relaxed),
         render_endpoint_category("🔐 Authentication", &auth_endpoints),
         render_endpoint_category("📁 Files", &file_endpoints),
         render_endpoint_category("👤 Users", &user_endpoints),
@@ -489,7 +494,6 @@ fn get_all_endpoints() -> Vec<EndpointInfo> {
             auth_required: true,
             category: "Authentication".to_string(),
         },
-
         // Files
         EndpointInfo {
             method: "GET".to_string(),
@@ -575,7 +579,6 @@ fn get_all_endpoints() -> Vec<EndpointInfo> {
             auth_required: true,
             category: "Files".to_string(),
         },
-
         // Users
         EndpointInfo {
             method: "GET".to_string(),
@@ -605,7 +608,6 @@ fn get_all_endpoints() -> Vec<EndpointInfo> {
             auth_required: true,
             category: "Users".to_string(),
         },
-
         // Sharing
         EndpointInfo {
             method: "GET".to_string(),
@@ -635,7 +637,6 @@ fn get_all_endpoints() -> Vec<EndpointInfo> {
             auth_required: false,
             category: "Sharing".to_string(),
         },
-
         // System
         EndpointInfo {
             method: "GET".to_string(),
@@ -672,7 +673,6 @@ fn get_all_endpoints() -> Vec<EndpointInfo> {
             auth_required: true,
             category: "System".to_string(),
         },
-
         // Collaboration
         EndpointInfo {
             method: "GET".to_string(),
@@ -725,11 +725,19 @@ fn render_endpoint_category(title: &str, endpoints: &[EndpointInfo]) -> String {
     }
 
     let mut html = format!("<div class=\"endpoint-category\"><h3>{}</h3>", title);
-    
+
     for endpoint in endpoints {
-        let auth_class = if endpoint.auth_required { "auth-required" } else { "auth-optional" };
-        let auth_text = if endpoint.auth_required { "🔒 Required" } else { "🔓 Optional" };
-        
+        let auth_class = if endpoint.auth_required {
+            "auth-required"
+        } else {
+            "auth-optional"
+        };
+        let auth_text = if endpoint.auth_required {
+            "🔒 Required"
+        } else {
+            "🔓 Optional"
+        };
+
         html.push_str(&format!(
             r#"<div class="endpoint">
                 <div class="method {}">{}</div>
@@ -745,7 +753,7 @@ fn render_endpoint_category(title: &str, endpoints: &[EndpointInfo]) -> String {
             endpoint.description
         ));
     }
-    
+
     html.push_str("</div>");
     html
 }

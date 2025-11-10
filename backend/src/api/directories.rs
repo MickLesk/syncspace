@@ -18,7 +18,7 @@ use crate::AppState;
 
 #[derive(Debug, Deserialize)]
 pub struct CreateDirRequest {
-    // Support both formats: 
+    // Support both formats:
     // 1. { "path": "folder/subfolder" } - full path from frontend
     // 2. { "name": "folder", "parent_path": "/some/path" } - legacy format
     pub path: Option<String>,
@@ -43,6 +43,7 @@ pub struct BatchMoveRequest {
 }
 
 #[derive(Debug, Serialize)]
+#[allow(dead_code)]
 pub struct DirectoryTreeResponse {
     pub directories: Vec<DirectoryInfo>,
     pub total: usize,
@@ -64,8 +65,8 @@ pub fn router() -> Router<AppState> {
         .route("/dirs/{dir_id}/rename", put(rename_dir_handler))
         // Delete directory (soft delete to trash)
         .route("/dirs/{dir_id}", delete(delete_dir_handler))
-        // NOTE: Cannot use /dirs/{*path} catch-all after specific routes - Axum limitation
-        // Frontend must use /dirs/create with path in body instead
+    // NOTE: Cannot use /dirs/{*path} catch-all after specific routes - Axum limitation
+    // Frontend must use /dirs/create with path in body instead
 }
 
 // ==================== HANDLERS ====================
@@ -87,7 +88,7 @@ async fn create_dir_handler(
     } else {
         return Err(StatusCode::BAD_REQUEST);
     };
-    
+
     services::directory::create_directory(&state, &user, &path)
         .await
         .map(Json)
@@ -95,6 +96,7 @@ async fn create_dir_handler(
 }
 
 /// Create directory from path parameter (for API compatibility)
+#[allow(dead_code)]
 async fn create_dir_from_path(
     State(state): State<AppState>,
     user: UserInfo,

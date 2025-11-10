@@ -2,6 +2,7 @@
 
 use crate::auth::UserInfo;
 
+use crate::{services, AppState};
 use axum::{
     extract::{Path, State},
     http::StatusCode,
@@ -10,11 +11,11 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use crate::{services, AppState};
 
 #[derive(Debug, Deserialize)]
 pub struct CreateBackupRequest {
     pub backup_type: String,
+    #[allow(dead_code)]
     pub include_versions: bool,
 }
 
@@ -38,35 +39,82 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/backups", get(list_backups))
         .route("/backups/create", post(create_backup))
-        .route("/backups/{backup_id}", get(get_backup).delete(delete_backup))
+        .route(
+            "/backups/{backup_id}",
+            get(get_backup).delete(delete_backup),
+        )
         .route("/backups/{backup_id}/verify", post(verify_backup))
-        .route("/backups/{backup_id}/verifications", get(list_verifications))
+        .route(
+            "/backups/{backup_id}/verifications",
+            get(list_verifications),
+        )
         .route("/backups/cleanup", post(cleanup_backups))
         // Backup schedules
-        .route("/backups/schedules", get(list_schedules).post(create_schedule))
-        .route("/backups/schedules/{schedule_id}", get(get_schedule).put(update_schedule).delete(delete_schedule))
-        .route("/backups/schedules/{schedule_id}/trigger", post(trigger_schedule))
+        .route(
+            "/backups/schedules",
+            get(list_schedules).post(create_schedule),
+        )
+        .route(
+            "/backups/schedules/{schedule_id}",
+            get(get_schedule)
+                .put(update_schedule)
+                .delete(delete_schedule),
+        )
+        .route(
+            "/backups/schedules/{schedule_id}/trigger",
+            post(trigger_schedule),
+        )
 }
 
-async fn list_backups(State(state): State<AppState>, user: UserInfo) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    let backups = services::backup::list_backups(&state, &user).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    Ok(Json(backups.into_iter().map(|b| serde_json::to_value(b).unwrap_or_default()).collect()))
+async fn list_backups(
+    State(state): State<AppState>,
+    user: UserInfo,
+) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
+    let backups = services::backup::list_backups(&state, &user)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(
+        backups
+            .into_iter()
+            .map(|b| serde_json::to_value(b).unwrap_or_default())
+            .collect(),
+    ))
 }
 
-async fn create_backup(State(state): State<AppState>, user: UserInfo, Json(req): Json<CreateBackupRequest>) -> Result<Json<serde_json::Value>, StatusCode> {
-    let backup = services::backup::create_backup(&state, &user, &req.backup_type).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    serde_json::to_value(backup).map(Json).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+async fn create_backup(
+    State(state): State<AppState>,
+    user: UserInfo,
+    Json(req): Json<CreateBackupRequest>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let backup = services::backup::create_backup(&state, &user, &req.backup_type)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    serde_json::to_value(backup)
+        .map(Json)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
-async fn get_backup(State(_state): State<AppState>, _user: UserInfo, Path(backup_id): Path<String>) -> Result<Json<serde_json::Value>, StatusCode> {
+async fn get_backup(
+    State(_state): State<AppState>,
+    _user: UserInfo,
+    Path(backup_id): Path<String>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
     Ok(Json(serde_json::json!({"id": backup_id})))
 }
 
-async fn delete_backup(State(_state): State<AppState>, _user: UserInfo, Path(_backup_id): Path<String>) -> Result<StatusCode, StatusCode> {
+async fn delete_backup(
+    State(_state): State<AppState>,
+    _user: UserInfo,
+    Path(_backup_id): Path<String>,
+) -> Result<StatusCode, StatusCode> {
     Ok(StatusCode::NO_CONTENT)
 }
 
-async fn verify_backup(State(_state): State<AppState>, _user: UserInfo, Path(_backup_id): Path<String>) -> Result<Json<serde_json::Value>, StatusCode> {
+async fn verify_backup(
+    State(_state): State<AppState>,
+    _user: UserInfo,
+    Path(_backup_id): Path<String>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
     Ok(Json(serde_json::json!({"valid": true})))
 }
 
@@ -78,7 +126,10 @@ async fn list_verifications(
     Ok(Json(vec![]))
 }
 
-async fn cleanup_backups(State(_state): State<AppState>, _user: UserInfo) -> Result<StatusCode, StatusCode> {
+async fn cleanup_backups(
+    State(_state): State<AppState>,
+    _user: UserInfo,
+) -> Result<StatusCode, StatusCode> {
     Ok(StatusCode::OK)
 }
 
@@ -104,7 +155,7 @@ async fn create_schedule(
         backup_type: req.backup_type,
         enabled: true,
     };
-    
+
     Ok(Json(schedule))
 }
 
@@ -128,7 +179,7 @@ async fn update_schedule(
         backup_type: req.backup_type,
         enabled: true,
     };
-    
+
     Ok(Json(schedule))
 }
 

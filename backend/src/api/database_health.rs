@@ -1,16 +1,17 @@
-//! Database health check API endpoints
+#![allow(dead_code)]
+
+//! Database health monitoring API
 
 use axum::{
     extract::State,
     http::StatusCode,
     response::IntoResponse,
-    Json,
     routing::{get, post},
-    Router,
+    Json, Router,
 };
 use serde_json::json;
 
-use crate::database_monitor::{check_health, checkpoint_wal, analyze_database, vacuum_database};
+use crate::database_monitor::{analyze_database, check_health, checkpoint_wal, vacuum_database};
 use crate::AppState;
 
 pub fn router() -> Router<AppState> {
@@ -22,17 +23,15 @@ pub fn router() -> Router<AppState> {
 }
 
 /// Get database health status
-/// 
+///
 /// GET /api/db/health
-/// 
+///
 /// Returns comprehensive database health information including:
 /// - Connection pool status
 /// - Query statistics
 /// - Database size
 /// - Performance metrics
-async fn get_health(
-    State(state): State<AppState>,
-) -> Result<impl IntoResponse, StatusCode> {
+async fn get_health(State(state): State<AppState>) -> Result<impl IntoResponse, StatusCode> {
     match check_health(&state.db_pool, &state.db_health_monitor).await {
         Ok(health) => Ok(Json(health)),
         Err(e) => {
@@ -43,12 +42,12 @@ async fn get_health(
 }
 
 /// Trigger a WAL checkpoint
-/// 
+///
 /// POST /api/db/checkpoint
-/// 
+///
 /// Forces a Write-Ahead Log checkpoint to sync data to the main database file.
 /// This can help reduce WAL file size and improve read performance.
-/// 
+///
 /// Requires: Admin authentication
 async fn trigger_checkpoint(
     State(state): State<AppState>,
@@ -66,16 +65,14 @@ async fn trigger_checkpoint(
 }
 
 /// Trigger database analysis
-/// 
+///
 /// POST /api/db/analyze
-/// 
+///
 /// Updates SQLite query planner statistics to improve query performance.
 /// Should be run periodically or after major data changes.
-/// 
+///
 /// Requires: Admin authentication
-async fn trigger_analyze(
-    State(state): State<AppState>,
-) -> Result<impl IntoResponse, StatusCode> {
+async fn trigger_analyze(State(state): State<AppState>) -> Result<impl IntoResponse, StatusCode> {
     match analyze_database(&state.db_pool).await {
         Ok(_) => Ok(Json(json!({
             "success": true,
@@ -89,16 +86,14 @@ async fn trigger_analyze(
 }
 
 /// Trigger database vacuum
-/// 
+///
 /// POST /api/db/vacuum
-/// 
+///
 /// Rebuilds the database file to reclaim unused space.
 /// Warning: This can take a long time for large databases!
-/// 
+///
 /// Requires: Admin authentication
-async fn trigger_vacuum(
-    State(state): State<AppState>,
-) -> Result<impl IntoResponse, StatusCode> {
+async fn trigger_vacuum(State(state): State<AppState>) -> Result<impl IntoResponse, StatusCode> {
     match vacuum_database(&state.db_pool).await {
         Ok(_) => Ok(Json(json!({
             "success": true,

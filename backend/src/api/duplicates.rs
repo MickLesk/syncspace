@@ -14,12 +14,15 @@ use crate::AppState;
 // TODO: Move these to models or create proper service
 #[derive(serde::Deserialize)]
 pub struct FindDuplicatesQuery {
+    #[allow(dead_code)]
     pub min_size_bytes: Option<i64>,
 }
 
 #[derive(serde::Deserialize)]
 pub struct ResolveDuplicatesRequest {
+    #[allow(dead_code)]
     pub keep_file_id: String,
+    #[allow(dead_code)]
     pub delete_file_ids: Vec<String>,
 }
 
