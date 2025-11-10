@@ -1,23 +1,28 @@
-<script lang="ts"></script>
+<script lang="ts">
   interface Props {
     disabled?: boolean;
-    variant?: 'primary' | 'danger' | 'success';
-    size?: 'sm' | 'md' | 'lg';
+    variant?: "primary" | "danger" | "success";
+    size?: "sm" | "md" | "lg";
     icon?: string;
   }
 
-  let { disabled = false, variant = 'primary', size = 'md', icon }: Props = $props();
+  let {
+    disabled = false,
+    variant = "primary",
+    size = "md",
+    icon,
+  }: Props = $props();
 
   const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-6 h-6',
-    lg: 'w-8 h-8',
+    sm: "w-4 h-4",
+    md: "w-6 h-6",
+    lg: "w-8 h-8",
   };
 
   const variantClasses = {
-    primary: 'accent-blue-500',
-    danger: 'accent-red-500',
-    success: 'accent-green-500',
+    primary: "accent-blue-500",
+    danger: "accent-red-500",
+    success: "accent-green-500",
   };
 </script>
 

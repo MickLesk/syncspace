@@ -46,12 +46,14 @@
   </div>
 </div>
 
-<style global>
+<style>
   :global(body) {
-    @apply bg-slate-900 m-0 p-0;
+    background-color: #0f172a;
+    margin: 0;
+    padding: 0;
   }
 
   :global(*) {
-    @apply box-border;
+    box-sizing: border-box;
   }
 </style>

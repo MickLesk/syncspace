@@ -191,9 +191,3 @@
     </div>
   </footer>
 </div>
-
-<style>
-  :global(body) {
-    @apply bg-slate-900;
-  }
-</style>

@@ -71,9 +71,3 @@
     <slot />
   </button>
 {/if}
-
-<style>
-  :global(.icon) {
-    @apply p-2;
-  }
-</style>
