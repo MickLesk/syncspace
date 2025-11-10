@@ -215,23 +215,41 @@
     variant="primary"
     onclose={close}
   >
-    <!-- Search Input -->
+    <!-- Search Input with inline Search Button -->
     <form onsubmit={handleFormSubmit} class="space-y-4">
       <div class="space-y-2">
-        <div
-          class="flex rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20"
-        >
-          <span
-            class="px-4 bg-gray-50 dark:bg-gray-800 flex items-center text-gray-600 dark:text-gray-400"
+        <div class="flex gap-2">
+          <div
+            class="flex-1 flex rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20"
+          >
+            <span
+              class="px-4 bg-gray-50 dark:bg-gray-800 flex items-center text-gray-600 dark:text-gray-400"
+            >
+              <i class="bi bi-search text-lg"></i>
+            </span>
+            <input
+              type="text"
+              placeholder={tr("searchPlaceholder")}
+              class="flex-1 px-4 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 outline-none"
+              bind:value={searchQuery}
+            />
+          </div>
+          <!-- Primary Search Button (always visible) -->
+          <button
+            type="button"
+            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-500/25 font-medium whitespace-nowrap"
+            onclick={handleSearch}
+            disabled={!searchQuery.trim()}
           >
             <i class="bi bi-search text-lg"></i>
-          </span>
-          <input
-            type="text"
-            placeholder={tr("searchPlaceholder")}
-            class="flex-1 px-4 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 outline-none"
-            bind:value={searchQuery}
-          />
+            {tr("search")}
+            {#if activeFilterCount > 0}
+              <span
+                class="px-2 py-0.5 bg-white/20 rounded-full text-xs font-medium"
+                >{activeFilterCount}</span
+              >
+            {/if}
+          </button>
         </div>
       </div>
 
@@ -244,128 +262,138 @@
         />
       {/if}
 
-      <!-- Filters Section -->
-      <hr class="my-6 border-gray-200 dark:border-gray-700" />
-      <div class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-4">
-        {tr("filters")}
+      <!-- Filters Section - Compact with Collapsible -->
+      <div class="border-2 border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <details open>
+          <summary
+            class="text-sm font-semibold text-gray-600 dark:text-gray-400 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2"
+          >
+            <i class="bi bi-funnel text-blue-600 dark:text-blue-400"></i>
+            {tr("filters")}
+            {#if activeFilterCount > 0}
+              <span
+                class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium"
+              >
+                {activeFilterCount}
+              </span>
+            {/if}
+          </summary>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <!-- File Type Filter -->
+            <div class="space-y-2">
+              <label
+                for="fileTypeFilter"
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                <i
+                  class="bi bi-file-earmark text-blue-600 dark:text-blue-400 mr-2"
+                ></i>
+                {tr("fileType")}
+              </label>
+              <select
+                id="fileTypeFilter"
+                class="w-full px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100"
+                bind:value={activeFilters.fileType}
+              >
+                <option value="">{tr("selectFileType")}</option>
+                {#each fileTypeOptions as option}
+                  <option value={option.value}>{option.label}</option>
+                {/each}
+              </select>
+            </div>
+
+            <!-- Date Range Filter -->
+            <div class="space-y-2">
+              <div
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                <i class="bi bi-calendar text-blue-600 dark:text-blue-400 mr-2"
+                ></i>
+                {tr("dateModified")}
+              </div>
+              <div class="flex gap-2">
+                <input
+                  type="date"
+                  class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
+                  bind:value={activeFilters.dateFrom}
+                  placeholder={tr("from")}
+                  aria-label="From date"
+                />
+                <input
+                  type="date"
+                  class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
+                  bind:value={activeFilters.dateTo}
+                  placeholder={tr("to")}
+                  aria-label="To date"
+                />
+              </div>
+            </div>
+
+            <!-- File Size Filter -->
+            <div class="space-y-2">
+              <div
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                <i class="bi bi-hdd text-blue-600 dark:text-blue-400 mr-2"></i>
+                {tr("fileSize")}
+              </div>
+              <div class="flex gap-2">
+                <input
+                  type="number"
+                  class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
+                  bind:value={activeFilters.sizeMin}
+                  placeholder={tr("minSizeMB")}
+                  min="0"
+                  aria-label="Minimum file size"
+                />
+                <input
+                  type="number"
+                  class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
+                  bind:value={activeFilters.sizeMax}
+                  placeholder={tr("maxSizeMB")}
+                  min="0"
+                  aria-label="Maximum file size"
+                />
+              </div>
+            </div>
+
+            <!-- Modified By Filter (if multi-user) -->
+            <div class="space-y-2">
+              <label
+                for="modifiedByFilter"
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                <i class="bi bi-person text-blue-600 dark:text-blue-400 mr-2"
+                ></i>
+                {tr("modifiedBy")}
+              </label>
+              <input
+                id="modifiedByFilter"
+                type="text"
+                class="w-full px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
+                bind:value={activeFilters.modifiedBy}
+                placeholder={tr("username")}
+              />
+            </div>
+          </div>
+        </details>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- File Type Filter -->
-        <div class="space-y-2">
-          <label
-            for="fileTypeFilter"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            <i class="bi bi-file-earmark text-blue-600 dark:text-blue-400 mr-2"
-            ></i>
-            {tr("fileType")}
-          </label>
-          <select
-            id="fileTypeFilter"
-            class="w-full px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100"
-            bind:value={activeFilters.fileType}
-          >
-            <option value="">{tr("selectFileType")}</option>
-            {#each fileTypeOptions as option}
-              <option value={option.value}>{option.label}</option>
-            {/each}
-          </select>
-        </div>
-
-        <!-- Date Range Filter -->
-        <div class="space-y-2">
-          <div
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            <i class="bi bi-calendar text-blue-600 dark:text-blue-400 mr-2"></i>
-            {tr("dateModified")}
-          </div>
-          <div class="flex gap-2">
-            <input
-              type="date"
-              class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
-              bind:value={activeFilters.dateFrom}
-              placeholder={tr("from")}
-              aria-label="From date"
-            />
-            <input
-              type="date"
-              class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
-              bind:value={activeFilters.dateTo}
-              placeholder={tr("to")}
-              aria-label="To date"
-            />
-          </div>
-        </div>
-
-        <!-- File Size Filter -->
-        <div class="space-y-2">
-          <div
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            <i class="bi bi-hdd text-blue-600 dark:text-blue-400 mr-2"></i>
-            {tr("fileSize")}
-          </div>
-          <div class="flex gap-2">
-            <input
-              type="number"
-              class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
-              bind:value={activeFilters.sizeMin}
-              placeholder={tr("minSizeMB")}
-              min="0"
-              aria-label="Minimum file size"
-            />
-            <input
-              type="number"
-              class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
-              bind:value={activeFilters.sizeMax}
-              placeholder={tr("maxSizeMB")}
-              min="0"
-              aria-label="Maximum file size"
-            />
-          </div>
-        </div>
-
-        <!-- Modified By Filter (if multi-user) -->
-        <div class="space-y-2">
-          <label
-            for="modifiedByFilter"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            <i class="bi bi-person text-blue-600 dark:text-blue-400 mr-2"></i>
-            {tr("modifiedBy")}
-          </label>
-          <input
-            id="modifiedByFilter"
-            type="text"
-            class="w-full px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
-            bind:value={activeFilters.modifiedBy}
-            placeholder={tr("username")}
-          />
-        </div>
-      </div>
-
-      <!-- Sort Options -->
-      <hr class="my-6 border-gray-200 dark:border-gray-700" />
-      <div class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-4">
-        {tr("sortOptions")}
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Sort By -->
-        <div class="space-y-2">
+      <!-- Sort Options - Compact inline -->
+      <div class="flex gap-4 items-center">
+        <div class="flex-1 space-y-2">
           <label
             for="sortByFilter"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            class="block text-xs font-medium text-gray-600 dark:text-gray-400"
           >
-            <i class="bi bi-sort-down text-blue-600 dark:text-blue-400 mr-2"
+            <i class="bi bi-sort-down text-blue-600 dark:text-blue-400 mr-1"
             ></i>
             {tr("sortBy")}
           </label>
           <select
             id="sortByFilter"
-            class="w-full px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100"
+            class="w-full px-3 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100 text-sm"
             bind:value={sortBy}
           >
             {#each sortOptions as option}
@@ -374,76 +402,79 @@
           </select>
         </div>
 
-        <!-- Sort Order -->
-        <div class="space-y-2">
+        <!-- Sort Order - Compact Toggle -->
+        <div class="flex-1 space-y-2">
           <div
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            class="block text-xs font-medium text-gray-600 dark:text-gray-400"
           >
-            <i class="bi bi-arrow-down-up text-blue-600 dark:text-blue-400 mr-2"
+            <i class="bi bi-arrow-down-up text-blue-600 dark:text-blue-400 mr-1"
             ></i>
             {tr("sortOrder")}
           </div>
           <div
-            class="flex rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700"
+            class="flex rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700"
             role="group"
             aria-label="Sort order"
           >
             <button
               type="button"
-              class="flex-1 px-4 py-2 text-sm font-medium transition-all {sortOrder ===
+              class="flex-1 px-3 py-2 text-xs font-medium transition-all {sortOrder ===
               'asc'
                 ? 'bg-blue-600 text-white'
                 : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
               onclick={() => (sortOrder = "asc")}
             >
-              <i class="bi bi-sort-alpha-down mr-2"></i>
-              {tr("ascending")}
+              <i class="bi bi-sort-alpha-down"></i>
             </button>
             <button
               type="button"
-              class="flex-1 px-4 py-2 text-sm font-medium transition-all border-l-2 border-gray-200 dark:border-gray-700 {sortOrder ===
+              class="flex-1 px-3 py-2 text-xs font-medium transition-all border-l-2 border-gray-200 dark:border-gray-700 {sortOrder ===
               'desc'
                 ? 'bg-blue-600 text-white'
                 : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
               onclick={() => (sortOrder = "desc")}
             >
-              <i class="bi bi-sort-alpha-down-alt mr-2"></i>
-              {tr("descending")}
+              <i class="bi bi-sort-alpha-down-alt"></i>
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Recent Searches -->
+      <!-- Recent Searches - Compact chips -->
       {#if recentSearches.length > 0}
-        <hr class="my-6 border-gray-200 dark:border-gray-700" />
-        <div
-          class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-4"
-        >
-          {tr("recentSearches")}
-        </div>
+        <div class="space-y-2">
+          <div
+            class="text-xs font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1"
+          >
+            <i class="bi bi-clock-history text-blue-600 dark:text-blue-400"></i>
+            {tr("recentSearches")}
+          </div>
 
-        <div class="flex flex-wrap gap-2">
-          {#each recentSearches as search}
-            <button
-              type="button"
-              class="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all text-sm flex items-center gap-2"
-              onclick={() => handleRecentSearchClick(search)}
-            >
-              <i class="bi bi-clock-history"></i>
-              {search.query}
-            </button>
-          {/each}
+          <div class="flex flex-wrap gap-2">
+            {#each recentSearches.slice(0, 5) as search}
+              <button
+                type="button"
+                class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-700 dark:hover:text-blue-300 transition-all text-xs flex items-center gap-1"
+                onclick={() => handleRecentSearchClick(search)}
+              >
+                <i class="bi bi-clock-history opacity-60"></i>
+                {typeof search === "string" ? search : search.query}
+              </button>
+            {/each}
+          </div>
         </div>
       {/if}
     </form>
 
-    <!-- Action Buttons Slot -->
-    <div slot="actions" class="flex gap-3 justify-between w-full">
+    <!-- Action Buttons Slot - Only utilities, main search button is inline -->
+    <div
+      slot="actions"
+      class="flex gap-3 justify-between w-full border-t-2 border-gray-200 dark:border-gray-700 pt-4"
+    >
       <div class="flex gap-2">
         <button
           type="button"
-          class="px-4 py-2 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-3 py-2 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           onclick={clearFilters}
           disabled={activeFilterCount === 0}
         >
@@ -453,48 +484,32 @@
 
         <button
           type="button"
-          class="px-4 py-2 border-2 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all text-sm flex items-center gap-2"
+          class="px-3 py-2 border-2 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all text-xs flex items-center gap-1"
           onclick={() => (showSavedSearches = true)}
-          title="View saved searches"
+          title={tr("viewSavedSearches")}
         >
           <i class="bi bi-bookmark"></i>
-          Saved
+          {tr("saved")}
         </button>
 
         <button
           type="button"
-          class="px-4 py-2 border-2 border-green-200 dark:border-green-700 text-green-700 dark:text-green-300 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 transition-all text-sm flex items-center gap-2"
+          class="px-3 py-2 border-2 border-green-200 dark:border-green-700 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-all text-xs flex items-center gap-1"
           onclick={openSaveDialog}
-          title="Save current search"
+          title={tr("saveCurrentSearch")}
         >
           <i class="bi bi-bookmark-plus"></i>
-          Save
+          {tr("save")}
         </button>
       </div>
 
-      <div class="flex gap-3">
-        <button
-          type="button"
-          class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
-          onclick={close}
-        >
-          {tr("cancel")}
-        </button>
-        <button
-          type="button"
-          class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-500/25"
-          onclick={handleSearch}
-        >
-          <i class="bi bi-search"></i>
-          {tr("search")}
-          {#if activeFilterCount > 0}
-            <span
-              class="px-2 py-0.5 bg-white/20 rounded-full text-xs font-medium"
-              >{activeFilterCount}</span
-            >
-          {/if}
-        </button>
-      </div>
+      <button
+        type="button"
+        class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all text-sm"
+        onclick={close}
+      >
+        {tr("close")}
+      </button>
     </div>
   </Modal>
 {/if}

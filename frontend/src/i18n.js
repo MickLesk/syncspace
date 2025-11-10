@@ -611,6 +611,11 @@ export const translations = {
     activeFilters: 'Aktive Filter',
     removeFilter: 'Filter entfernen',
     clearFilters: 'Filter löschen',
+    saved: 'Gespeichert',
+    save: 'Speichern',
+    viewSavedSearches: 'Gespeicherte Suchen anzeigen',
+    saveCurrentSearch: 'Aktuelle Suche speichern',
+    close: 'Schließen',
     
     // Storage Quota
     storage: {
@@ -1939,6 +1944,11 @@ export const translations = {
     activeFilters: 'Active Filters',
     removeFilter: 'Remove filter',
     clearFilters: 'Clear Filters',
+    saved: 'Saved',
+    save: 'Save',
+    viewSavedSearches: 'View saved searches',
+    saveCurrentSearch: 'Save current search',
+    close: 'Close',
     
     // File Statistics
     statistics: {

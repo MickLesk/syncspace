@@ -31,10 +31,14 @@
   async function loadFolders() {
     try {
       const response = await api.files.list("/");
-      const data = await response.json();
-      availableFolders = data.filter((item) => item.is_directory);
+      // response.data ist bereits das Array, nicht response.json()!
+      availableFolders = (response.data || []).filter(
+        (item) => item.is_directory
+      );
+      console.log("[MoveFileModal] Loaded folders:", availableFolders);
     } catch (err) {
       console.error("Failed to load folders:", err);
+      errorToast(tr("failedToLoadFolders"));
     }
   }
 
@@ -48,9 +52,14 @@
       let targetPath = destinationPath;
 
       // Create new folder if requested
-      if (createNewFolder && newFolderName) {
-        await api.directories.create(newFolderName);
-        targetPath = newFolderName;
+      if (createNewFolder && newFolderName.trim()) {
+        try {
+          await api.directories.create({ path: `/${newFolderName.trim()}` });
+          targetPath = newFolderName.trim();
+        } catch (err) {
+          console.error("[MoveFileModal] Failed to create folder:", err);
+          throw new Error(tr("failedToCreateFolder"));
+        }
       }
 
       const sourcePath = file.path || file.file_path || file.name;

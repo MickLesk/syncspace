@@ -624,6 +624,45 @@ export const files = {
 };
 
 // ============================================
+// DIRECTORIES ENDPOINT
+// ============================================
+
+export const directories = {
+  /**
+   * Create a new directory
+   */
+  async create(data) {
+    const response = await fetch(`${API_BASE}/dirs`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List all directories recursively
+   */
+  async listAll() {
+    const response = await fetch(`${API_BASE}/dirs`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get directory info
+   */
+  async getInfo(path) {
+    const encodedPath = encodeURIComponent(path);
+    const response = await fetch(`${API_BASE}/dirs/${encodedPath}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================
 // SEARCH ENDPOINT
 // ============================================
 
@@ -1214,7 +1253,7 @@ export default {
   versions: {
     // List all versions for a file
     async list(fileId) {
-      const response = await fetch(`${API_BASE}/versions/${fileId}`, {
+      const response = await fetch(`${API_BASE}/files/${fileId}/versions`, {
         headers: getHeaders()
       });
       return { data: await handleResponse(response) };
@@ -1222,7 +1261,7 @@ export default {
 
     // Create a new version of a file
     async create(fileId, versionData) {
-      const response = await fetch(`${API_BASE}/versions/${fileId}/create`, {
+      const response = await fetch(`${API_BASE}/files/${fileId}/versions`, {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify(versionData)
@@ -1249,7 +1288,7 @@ export default {
 
     // Restore a version (creates new current version)
     async restore(versionId, options = {}) {
-      const response = await fetch(`${API_BASE}/versions/${versionId}/restore`, {
+      const response = await fetch(`${API_BASE}/files/${versionId}/versions/restore`, {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify(options)
@@ -1900,4 +1939,31 @@ export const cron = {
       method: "POST",
       headers: getHeaders(),
     }),
+};
+
+// ============================================================================
+// DEFAULT EXPORT - All API modules
+// ============================================================================
+
+export default {
+  auth,
+  users,
+  files,
+  directories,
+  search,
+  activity,
+  comments,
+  tags,
+  folderColors,
+  config,
+  peers,
+  batch,
+  favorites,
+  versions,
+  backup,
+  backupSchedules,
+  system,
+  shares,
+  jobs,
+  cron,
 };

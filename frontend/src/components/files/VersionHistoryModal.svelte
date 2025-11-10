@@ -158,9 +158,9 @@
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
   >
-    <!-- Modal Content -->
+    <!-- Modal Content - Kompaktere Größe -->
     <div
-      class="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-11/12 max-w-6xl max-h-[90vh] flex flex-col border border-gray-200 dark:border-gray-700"
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-11/12 max-w-3xl max-h-[80vh] flex flex-col border border-gray-200 dark:border-gray-700"
     >
       <div class="flex justify-between items-center mb-4 px-6 pt-6">
         <h3 class="font-bold text-lg text-gray-900 dark:text-white">

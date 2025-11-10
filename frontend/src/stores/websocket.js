@@ -86,16 +86,6 @@ class WebSocketManager {
         try {
           const data = JSON.parse(event.data);
           
-          // Handle heartbeat pong
-          if (data.type === 'pong') {
-            this.missedHeartbeats = 0;
-            if (this.heartbeatTimeout) {
-              clearTimeout(this.heartbeatTimeout);
-              this.heartbeatTimeout = null;
-            }
-            return;
-          }
-          
           console.log('📨 WebSocket message received:', data);
           
           // Add to events store (keep last 50 events)
@@ -195,26 +185,35 @@ class WebSocketManager {
     
     console.log('💓 Starting heartbeat mechanism');
     
-    // Send ping every 30 seconds
+    // Increase heartbeat interval to 45 seconds (less aggressive)
+    this.heartbeatIntervalMs = 45000;
+    // Increase timeout to 10 seconds (more lenient)
+    this.heartbeatTimeoutMs = 10000;
+    
+    // Send ping every 45 seconds
     this.heartbeatInterval = setInterval(() => {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        console.log('💓 Sending heartbeat ping');
+        console.log('💓 Checking connection (passive)');
         
-        // Send ping
-        this.send({ type: 'ping', timestamp: Date.now() });
+        // Don't send JSON ping - WebSocket protocol handles this automatically
+        // Just check if connection is still alive
+        // If connection drops, onclose will handle reconnection
         
-        // Set timeout for pong response
-        this.heartbeatTimeout = setTimeout(() => {
-          this.missedHeartbeats++;
-          console.warn(`⚠️ Missed heartbeat ${this.missedHeartbeats}/${this.maxMissedHeartbeats}`);
-          
-          // If too many missed heartbeats, force reconnect
-          if (this.missedHeartbeats >= this.maxMissedHeartbeats) {
-            console.error('❌ Too many missed heartbeats, forcing reconnect');
-            warning('Connection unstable, reconnecting...', 3000);
-            this.ws?.close(4000, 'Heartbeat timeout');
-          }
-        }, this.heartbeatTimeoutMs);
+        // Reset missed heartbeats since connection is still open
+        if (this.missedHeartbeats > 0) {
+          console.log('✅ Connection recovered, resetting missed heartbeats');
+          this.missedHeartbeats = 0;
+        }
+      } else {
+        this.missedHeartbeats++;
+        console.warn(`⚠️ Connection not open ${this.missedHeartbeats}/${this.maxMissedHeartbeats}`);
+        
+        // If connection is dead for too long, force reconnect
+        if (this.missedHeartbeats >= this.maxMissedHeartbeats) {
+          console.error('❌ Connection dead for too long, forcing reconnect');
+          this.stopHeartbeat();
+          this.reconnect();
+        }
       }
     }, this.heartbeatIntervalMs);
   }

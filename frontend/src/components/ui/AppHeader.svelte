@@ -258,16 +258,19 @@
     }
   } // Select search result and navigate to file
   function selectSearchResult(result) {
-    searchQuery = result.name;
-    saveRecentSearch(result.name);
+    saveRecentSearch(searchQuery); // Save the actual search query, not the filename
     showSearchDropdown = false;
 
     // Dispatch with full file information for navigation
     dispatch("searchResultSelected", {
       file: result,
-      query: result.name,
+      query: searchQuery,
       path: result.path,
     });
+
+    // Clear search query after selection (Question 1)
+    searchQuery = "";
+    searchResults = [];
   }
 
   // Select recent search
@@ -413,15 +416,17 @@
             {:else if !searchQuery.trim() && recentSearches.length > 0}
               <div class="search-section">
                 <div class="search-section-header">
-                  <div class="search-section-title">Recent Searches</div>
+                  <div class="search-section-title">
+                    {t($currentLang, "recentSearches")}
+                  </div>
                   <button
                     class="search-clear-all"
                     onclick={clearRecentSearches}
                   >
-                    Clear
+                    {t($currentLang, "clear")}
                   </button>
                 </div>
-                {#each recentSearches as recent}
+                {#each recentSearches.slice(0, 5) as recent}
                   <button
                     class="search-result-item"
                     onclick={() => selectRecentSearch(recent)}
