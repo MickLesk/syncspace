@@ -1,5 +1,6 @@
 <script lang="ts">
   interface Props {
+    checked?: boolean;
     disabled?: boolean;
     variant?: "primary" | "danger" | "success" | "warning";
     class?: string;
@@ -7,6 +8,7 @@
   }
 
   let {
+    checked = $bindable(false),
     disabled = false,
     variant = "primary",
     class: customClass = "",
@@ -14,29 +16,40 @@
   }: Props = $props();
 
   const variantClasses = {
-    primary: "peer-checked:bg-blue-500",
-    danger: "peer-checked:bg-red-500",
-    success: "peer-checked:bg-green-500",
-    warning: "peer-checked:bg-yellow-500",
+    primary: "bg-blue-500",
+    danger: "bg-red-500",
+    success: "bg-green-500",
+    warning: "bg-yellow-500",
   };
 </script>
 
-<label class={`flex items-center cursor-pointer select-none ${customClass}`}>
-  <input type="checkbox" {disabled} class="sr-only peer" {onchange} />
+<label class={`inline-flex items-center cursor-pointer select-none ${customClass}`}>
+  <input 
+    type="checkbox" 
+    bind:checked
+    {disabled} 
+    class="sr-only" 
+    {onchange} 
+  />
   <div
     class={`
-      relative w-11 h-6 bg-gray-300 rounded-full transition-colors
-      ${variantClasses[variant]} peer-checked:bg-blue-500 peer-disabled:opacity-50
+      relative w-11 h-6 rounded-full transition-colors duration-200
+      ${checked ? variantClasses[variant] : 'bg-gray-300'}
+      ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
     `}
   >
     <span
-      class="
-        absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow transition-transform
-        peer-checked:translate-x-5
-      "
+      class={`
+        absolute top-1 left-1 bg-white w-4 h-4 rounded-full shadow-md
+        transition-transform duration-200 ease-in-out
+        ${checked ? 'translate-x-5' : 'translate-x-0'}
+      `}
     />
   </div>
-  <span class="ml-3 text-sm text-gray-700">
-    <slot />
-  </span>
+  {#if $$slots.default}
+    <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">
+      <slot />
+    </span>
+  {/if}
+</label>
 </label>
