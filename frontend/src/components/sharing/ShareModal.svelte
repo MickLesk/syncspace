@@ -140,57 +140,69 @@
 >
   {#if !showShareResult}
     <!-- Share Configuration - ENHANCED -->
-    <div class="space-y-6">
+    <div class="space-y-5">
       <!-- Share Type -->
-      <div class="form-control">
-        <label class="label">
-          <span class="label-text font-semibold text-base"
-            >{tr("shareType")}</span
-          >
+      <div>
+        <label
+          class="block text-sm font-semibold text-gray-900 dark:text-white mb-3"
+        >
+          {tr("shareType")}
         </label>
         <div class="grid grid-cols-2 gap-4">
           <label
-            class="cursor-pointer border-2 rounded-xl p-4 transition-all {shareType ===
+            class="cursor-pointer border shadow-sm rounded-xl p-5 transition-all {shareType ===
             'public'
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-              : 'border-gray-300 dark:border-gray-600 hover:border-blue-300'}"
+              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
+              : 'hover:shadow-md'}"
           >
-            <input
-              type="radio"
-              bind:group={shareType}
-              value="public"
-              class="radio radio-primary mb-2"
-            />
-            <div>
-              <div class="font-semibold text-lg flex items-center gap-2">
-                <i class="bi bi-globe text-blue-600"></i>
-                {tr("publicLink")}
-              </div>
-              <div class="text-sm opacity-70 mt-1">
-                {tr("anyoneWithLinkCanAccess")}
+            <div class="flex items-start gap-3">
+              <input
+                type="radio"
+                bind:group={shareType}
+                value="public"
+                class="radio radio-primary mt-0.5"
+              />
+              <div class="flex-1">
+                <div
+                  class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white"
+                >
+                  <i
+                    class="bi bi-globe text-xl text-blue-600 dark:text-blue-400"
+                  ></i>
+                  {tr("publicLink")}
+                </div>
+                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {tr("anyoneWithLinkCanAccess")}
+                </div>
               </div>
             </div>
           </label>
 
           <label
-            class="cursor-pointer border-2 rounded-xl p-4 transition-all {shareType ===
+            class="cursor-pointer border shadow-sm rounded-xl p-5 transition-all {shareType ===
             'users'
-              ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
-              : 'border-gray-300 dark:border-gray-600 hover:border-purple-300'}"
+              ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-md'
+              : 'hover:shadow-md'}"
           >
-            <input
-              type="radio"
-              bind:group={shareType}
-              value="users"
-              class="radio radio-primary mb-2"
-            />
-            <div>
-              <div class="font-semibold text-lg flex items-center gap-2">
-                <i class="bi bi-people text-purple-600"></i>
-                {tr("specificUsers")}
-              </div>
-              <div class="text-sm opacity-70 mt-1">
-                {tr("shareWithSelectedUsers")}
+            <div class="flex items-start gap-3">
+              <input
+                type="radio"
+                bind:group={shareType}
+                value="users"
+                class="radio radio-primary mt-0.5"
+              />
+              <div class="flex-1">
+                <div
+                  class="font-semibold text-base flex items-center gap-2 text-gray-900 dark:text-white"
+                >
+                  <i
+                    class="bi bi-people text-xl text-purple-600 dark:text-purple-400"
+                  ></i>
+                  {tr("specificUsers")}
+                </div>
+                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {tr("shareWithSelectedUsers")}
+                </div>
               </div>
             </div>
           </label>
@@ -199,38 +211,65 @@
 
       <!-- User Selection (for user-to-user shares) -->
       {#if shareType === "users"}
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-semibold text-base">
-              <i class="bi bi-person-plus mr-1"></i>
-              {tr("selectUsers")}
-            </span>
-            <span class="label-text-alt"
-              >{selectedUsers.length} {tr("selected")}</span
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <label
+              class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2"
             >
-          </label>
+              <i class="bi bi-person-plus text-lg"></i>
+              {tr("selectUsers")}
+            </label>
+            <span
+              class="text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full"
+            >
+              {selectedUsers.length}
+              {tr("selected")}
+            </span>
+          </div>
 
           {#if loadingUsers}
-            <div class="flex justify-center py-8">
-              <span class="loading loading-spinner loading-lg text-primary"
-              ></span>
+            <div
+              class="flex items-center justify-center py-12 border shadow-sm rounded-lg bg-gray-50 dark:bg-gray-800"
+            >
+              <div class="text-center">
+                <span class="loading loading-spinner loading-lg text-primary"
+                ></span>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
+                  {tr("loadingUsers")}...
+                </p>
+              </div>
+            </div>
+          {:else if availableUsers.length === 0}
+            <div
+              class="flex items-center justify-center py-12 border shadow-sm rounded-lg bg-gray-50 dark:bg-gray-800"
+            >
+              <div class="text-center">
+                <i class="bi bi-people text-4xl text-gray-400"></i>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
+                  {tr("noUsersAvailable")}
+                </p>
+              </div>
             </div>
           {:else}
             <div
-              class="max-h-60 overflow-y-auto border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 p-2"
+              class="max-h-64 overflow-y-auto border shadow-inner rounded-lg bg-gray-50 dark:bg-gray-800 p-2"
             >
               {#each availableUsers as user}
                 <div
-                  class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  class="flex items-center gap-3 p-4 hover:bg-white dark:hover:bg-gray-700 transition-colors rounded-lg cursor-pointer border-b last:border-b-0 border-gray-200 dark:border-gray-700"
+                  onclick={() => toggleUserSelection(user)}
                 >
                   <input
                     type="checkbox"
-                    class="checkbox checkbox-primary"
+                    class="checkbox checkbox-primary flex-shrink-0"
                     checked={isUserSelected(user.id)}
+                    onclick={(e) => e.stopPropagation()}
                     onchange={() => toggleUserSelection(user)}
                   />
-                  <div class="flex-1">
-                    <div class="font-medium text-gray-900 dark:text-white">
+                  <div class="flex-1 min-w-0">
+                    <div
+                      class="font-medium text-gray-900 dark:text-white truncate"
+                    >
                       {user.display_name || user.username}
                     </div>
                     <div class="text-sm text-gray-500 dark:text-gray-400">
@@ -240,21 +279,12 @@
                   {#if isUserSelected(user.id)}
                     <select
                       bind:value={userPermissions[user.id]}
-                      class="select select-sm select-bordered"
+                      class="select select-sm select-bordered w-28 bg-white dark:bg-gray-700"
                       onclick={(e) => e.stopPropagation()}
                     >
-                      <option value="read">
-                        <i class="bi bi-eye"></i>
-                        {tr("read")}
-                      </option>
-                      <option value="write">
-                        <i class="bi bi-pencil"></i>
-                        {tr("write")}
-                      </option>
-                      <option value="admin">
-                        <i class="bi bi-shield-check"></i>
-                        {tr("admin")}
-                      </option>
+                      <option value="read">{tr("read")}</option>
+                      <option value="write">{tr("write")}</option>
+                      <option value="admin">{tr("admin")}</option>
                     </select>
                   {/if}
                 </div>
@@ -265,21 +295,23 @@
       {/if}
 
       <!-- External Sharing Toggle -->
-      <div class="form-control">
+      <div>
         <label
-          class="label cursor-pointer justify-start gap-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl p-4"
+          class="flex items-start gap-4 cursor-pointer border shadow-sm hover:shadow-md rounded-xl p-5 transition-all"
         >
           <input
             type="checkbox"
             bind:checked={allowExternal}
-            class="toggle toggle-primary"
+            class="toggle toggle-primary mt-1 flex-shrink-0"
           />
           <div class="flex-1">
-            <div class="font-semibold text-base">
-              <i class="bi bi-box-arrow-up-right mr-1"></i>
+            <div
+              class="font-semibold text-base text-gray-900 dark:text-white flex items-center gap-2"
+            >
+              <i class="bi bi-box-arrow-up-right text-lg"></i>
               {tr("allowExternalSharing")}
             </div>
-            <div class="text-sm opacity-70 mt-1">
+            <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
               {tr("shareLinkWithPeopleOutsideSystem")}
             </div>
           </div>
@@ -287,72 +319,86 @@
       </div>
 
       <!-- Password Protection -->
-      <div class="form-control">
+      <div>
         <label
-          class="label cursor-pointer justify-start gap-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl p-4"
+          class="flex items-start gap-4 cursor-pointer border shadow-sm hover:shadow-md rounded-xl p-5 transition-all"
         >
           <input
             type="checkbox"
             bind:checked={requirePassword}
-            class="toggle toggle-warning"
+            class="toggle toggle-warning mt-1 flex-shrink-0"
           />
           <div class="flex-1">
-            <div class="font-semibold text-base">
-              <i class="bi bi-lock mr-1"></i>
+            <div
+              class="font-semibold text-base text-gray-900 dark:text-white flex items-center gap-2"
+            >
+              <i class="bi bi-lock-fill text-lg"></i>
               {tr("passwordProtection")}
             </div>
-            <div class="text-sm opacity-70 mt-1">
+            <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
               {tr("requirePasswordToAccess")}
             </div>
           </div>
         </label>
 
         {#if requirePassword}
-          <input
-            type="password"
-            placeholder={tr("enterPassword")}
-            class="input input-bordered mt-3"
-            bind:value={sharePassword}
-            required
-          />
+          <div class="mt-3">
+            <input
+              type="password"
+              placeholder={tr("enterPassword")}
+              class="input input-bordered w-full bg-white dark:bg-gray-700"
+              bind:value={sharePassword}
+              required
+            />
+          </div>
         {/if}
       </div>
 
       <!-- Expiration Date -->
-      <div class="form-control">
-        <label class="label">
-          <span class="label-text font-semibold text-base">
-            <i class="bi bi-calendar-event mr-1"></i>
-            {tr("expirationDate")}
-          </span>
-          <button
-            class="label-text-alt link link-primary"
-            onclick={() => (expiresAt = null)}
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <label
+            class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2"
           >
-            {tr("neverExpires")}
-          </button>
-        </label>
+            <i class="bi bi-calendar-event text-lg"></i>
+            {tr("expirationDate")}
+          </label>
+          {#if expiresAt}
+            <button
+              type="button"
+              class="btn btn-xs btn-ghost gap-1 text-amber-600 hover:text-amber-700 dark:text-amber-400"
+              onclick={() => (expiresAt = null)}
+            >
+              <i class="bi bi-x-circle"></i>
+              {tr("neverExpires")}
+            </button>
+          {/if}
+        </div>
         <input
           type="datetime-local"
-          class="input input-bordered"
+          class="input input-sm input-bordered w-full bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 transition-colors"
           bind:value={expiresAt}
           min={new Date().toISOString().slice(0, 16)}
         />
         {#if expiresAt}
-          <label class="label">
-            <span class="label-text-alt text-amber-600 dark:text-amber-400">
-              <i class="bi bi-exclamation-triangle mr-1"></i>
+          <div
+            class="mt-2 flex items-center gap-2 p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800"
+          >
+            <i
+              class="bi bi-exclamation-triangle text-amber-600 dark:text-amber-400"
+            ></i>
+            <span class="text-sm text-amber-700 dark:text-amber-300">
               {tr("expiresOn")}: {new Date(expiresAt).toLocaleString(
                 $currentLang
               )}
             </span>
-          </label>
+          </div>
         {/if}
       </div>
 
       <!-- Permission Preview (for public shares) -->
       {#if shareType === "public"}
-        <div class="alert alert-info rounded-xl">
+        <div class="alert alert-info rounded-xl shadow-sm">
           <i class="bi bi-info-circle"></i>
           <div class="text-sm">
             {tr("publicSharesHaveReadOnlyAccess")}
@@ -362,9 +408,9 @@
     </div>
   {:else}
     <!-- Share Result - ENHANCED -->
-    <div class="space-y-6">
+    <div class="space-y-5">
       <!-- Success Message -->
-      <div class="alert alert-success rounded-xl shadow-lg">
+      <div class="alert alert-success rounded-xl shadow-md">
         <i class="bi bi-check-circle-fill text-3xl"></i>
         <div>
           <h3 class="font-bold text-lg">{tr("shareCreatedSuccessfully")}!</h3>
@@ -381,21 +427,23 @@
       <!-- Share URL -->
       {#if allowExternal}
         <div class="form-control">
-          <label class="label">
-            <span class="label-text font-semibold text-base">
-              <i class="bi bi-link-45deg mr-1"></i>
+          <label class="label py-0 mb-2">
+            <span
+              class="label-text font-semibold text-base flex items-center gap-2"
+            >
+              <i class="bi bi-link-45deg"></i>
               {tr("shareUrl")}
             </span>
           </label>
-          <div class="join w-full">
+          <div class="join w-full shadow-sm">
             <input
               type="text"
               readonly
               value={shareUrl}
-              class="input input-bordered join-item flex-1 font-mono text-sm bg-gray-50 dark:bg-gray-800"
+              class="input input-sm input-bordered join-item flex-1 font-mono text-sm bg-gray-50 dark:bg-gray-800"
             />
             <button
-              class="btn btn-primary join-item gap-2"
+              class="btn btn-sm btn-primary join-item gap-2"
               onclick={copyShareUrl}
             >
               <i class="bi bi-clipboard"></i>
@@ -407,24 +455,36 @@
 
       <!-- Share Details Grid -->
       <div class="grid grid-cols-2 gap-4">
-        <div class="card bg-base-200 p-4">
-          <div class="text-sm opacity-70">{tr("type")}</div>
-          <div class="font-bold text-xl mt-1">
+        <div
+          class="border shadow-sm rounded-lg p-4 bg-gray-50 dark:bg-gray-800"
+        >
+          <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+            {tr("type")}
+          </div>
+          <div class="font-semibold text-lg mt-1 flex items-center gap-2">
             {#if shareType === "public"}
-              <i class="bi bi-globe text-blue-600"></i> {tr("public")}
+              <i class="bi bi-globe text-blue-500"></i>
+              <span>{tr("public")}</span>
             {:else}
-              <i class="bi bi-people text-purple-600"></i> {tr("users")}
+              <i class="bi bi-people text-purple-500"></i>
+              <span>{tr("users")}</span>
             {/if}
           </div>
         </div>
-        <div class="card bg-base-200 p-4">
-          <div class="text-sm opacity-70">{tr("expires")}</div>
-          <div class="font-bold text-xl mt-1">
+        <div
+          class="border shadow-sm rounded-lg p-4 bg-gray-50 dark:bg-gray-800"
+        >
+          <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+            {tr("expires")}
+          </div>
+          <div class="font-semibold text-lg mt-1 flex items-center gap-2">
             {#if expiresAt}
-              <i class="bi bi-calendar-event text-amber-600"></i>
-              {new Date(expiresAt).toLocaleDateString($currentLang)}
+              <i class="bi bi-calendar-event text-amber-500"></i>
+              <span>{new Date(expiresAt).toLocaleDateString($currentLang)}</span
+              >
             {:else}
-              <i class="bi bi-infinity text-green-600"></i> {tr("never")}
+              <i class="bi bi-infinity text-green-500"></i>
+              <span>{tr("never")}</span>
             {/if}
           </div>
         </div>
@@ -433,23 +493,25 @@
       <!-- Selected Users (for user shares) -->
       {#if shareType === "users" && selectedUsers.length > 0}
         <div class="form-control">
-          <label class="label">
-            <span class="label-text font-semibold text-base">
-              <i class="bi bi-people-fill mr-1"></i>
+          <label class="label py-0 mb-2">
+            <span
+              class="label-text font-semibold text-base flex items-center gap-2"
+            >
+              <i class="bi bi-people-fill"></i>
               {tr("sharedWithUsers")}
             </span>
           </label>
           <div class="space-y-2">
             {#each selectedUsers as user}
               <div
-                class="flex items-center justify-between p-3 bg-base-200 rounded-lg"
+                class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border shadow-sm"
               >
                 <div class="flex items-center gap-3">
                   <div class="avatar placeholder">
                     <div
                       class="bg-primary text-primary-content w-10 rounded-full"
                     >
-                      <span class="text-sm"
+                      <span class="text-sm font-semibold"
                         >{(user.display_name || user.username)
                           .charAt(0)
                           .toUpperCase()}</span
@@ -457,13 +519,15 @@
                     </div>
                   </div>
                   <div>
-                    <div class="font-medium">
+                    <div class="font-medium text-gray-900 dark:text-white">
                       {user.display_name || user.username}
                     </div>
-                    <div class="text-sm opacity-70">@{user.username}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                      @{user.username}
+                    </div>
                   </div>
                 </div>
-                <div class="badge badge-lg gap-1">
+                <div class="badge badge-lg gap-1 border shadow-sm">
                   {#if userPermissions[user.id] === "read"}
                     <i class="bi bi-eye"></i> {tr("read")}
                   {:else if userPermissions[user.id] === "write"}
@@ -481,13 +545,13 @@
       <!-- Security Features -->
       <div class="flex flex-wrap gap-3">
         {#if requirePassword}
-          <div class="badge badge-warning badge-lg gap-2">
+          <div class="badge badge-warning badge-lg gap-2 shadow-sm">
             <i class="bi bi-lock-fill"></i>
             {tr("passwordProtected")}
           </div>
         {/if}
         {#if allowExternal}
-          <div class="badge badge-info badge-lg gap-2">
+          <div class="badge badge-info badge-lg gap-2 shadow-sm">
             <i class="bi bi-box-arrow-up-right"></i>
             {tr("externalSharingEnabled")}
           </div>
