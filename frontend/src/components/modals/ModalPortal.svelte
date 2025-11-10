@@ -15,6 +15,8 @@
   import FileUploadZone from "../files/FileUploadZone.svelte";
   import AdvancedSearchModal from "../search/AdvancedSearchModal.svelte";
   import FilePreviewModal from "../files/FilePreviewModal.svelte";
+  import ShareModal from "../sharing/ShareModal.svelte";
+  import VersionHistoryModal from "../files/VersionHistoryModal.svelte";
 
   let newFolderName = $state("");
   let newFileName = $state("");
@@ -774,111 +776,16 @@
   </div>
 </Modal>
 
-<!-- Share File Modal -->
-<Modal
-  visible={$modals.share.visible}
-  title={tr("shareFile")}
-  onclose={() => modals.close("share")}
->
-  <div class="space-y-4">
-    <p class="text-gray-700 dark:text-gray-300">
-      {tr("shareFile")} <strong>{$modals.share.data?.name}</strong>
-    </p>
-    <div>
-      <label
-        for="share-link"
-        class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
-      >
-        {tr("shareLinkGenerated")}
-      </label>
-      <input
-        id="share-link"
-        type="text"
-        readonly
-        value="https://syncspace.local/share/{$modals.share.data?.id ||
-          'pending'}"
-        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-      />
-    </div>
-    <div class="flex items-center gap-2">
-      <input id="share-password" type="checkbox" class="rounded" />
-      <label
-        for="share-password"
-        class="text-sm text-gray-700 dark:text-gray-300"
-      >
-        {tr("protectWithPassword")}
-      </label>
-    </div>
-    <div class="flex justify-end gap-2">
-      <button
-        type="button"
-        class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-        onclick={() => modals.close("share")}
-      >
-        {tr("cancel")}
-      </button>
-      <button
-        type="button"
-        class="px-4 py-2 bg-primary-500 text-white rounded font-medium"
-        onclick={() => {
-          console.log("Create share link:", $modals.share.data);
-          modals.close("share");
-        }}
-      >
-        <i class="bi bi-share"></i>
-        {tr("createLink")}
-      </button>
-    </div>
-  </div>
-</Modal>
+<!-- Share File Modal - NEW ENHANCED VERSION -->
+<ShareModal
+  bind:isOpen={$modals.share.visible}
+  file={$modals.share.data}
+  onClose={() => modals.close("share")}
+/>
 
-<!-- Version History Modal -->
-<Modal
-  visible={$modals.versionHistory.visible}
-  title={tr("versionHistory")}
-  onclose={() => modals.close("versionHistory")}
-  size="large"
->
-  <div class="space-y-4">
-    <p class="text-gray-700 dark:text-gray-300">
-      {tr("versionHistory")}
-      <strong>{$modals.versionHistory.data?.name}</strong>
-    </p>
-    <div class="space-y-2">
-      <div class="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-        <div class="flex justify-between items-center">
-          <div>
-            <p class="font-medium text-gray-900 dark:text-gray-100">
-              {tr("currentVersion")}
-            </p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              {tr("modifiedBy")}
-              {new Date().toLocaleString()}
-            </p>
-          </div>
-          <button
-            type="button"
-            class="px-3 py-1 text-sm bg-primary-500 text-white rounded"
-          >
-            <i class="bi bi-download"></i>
-            {tr("download")}
-          </button>
-        </div>
-      </div>
-      <div class="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-        <p class="text-gray-500 dark:text-gray-400 text-center">
-          {tr("noPreviousVersions")}
-        </p>
-      </div>
-    </div>
-    <div class="flex justify-end gap-2">
-      <button
-        type="button"
-        class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-        onclick={() => modals.close("versionHistory")}
-      >
-        {tr("close")}
-      </button>
-    </div>
-  </div>
-</Modal>
+<!-- Version History Modal - NEW ENHANCED VERSION -->
+<VersionHistoryModal
+  bind:isOpen={$modals.versionHistory.visible}
+  file={$modals.versionHistory.data}
+  onClose={() => modals.close("versionHistory")}
+/>
