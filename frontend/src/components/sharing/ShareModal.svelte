@@ -127,9 +127,7 @@
     shareUrl = "";
   }
 
-  $: if (isOpen && !showShareResult) {
-    // Reset on open (but not when showing results)
-  }
+  // Reset on modal open (handled by effect above)
 </script>
 
 <Modal
