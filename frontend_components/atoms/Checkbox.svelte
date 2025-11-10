@@ -4,6 +4,7 @@
     variant?: "primary" | "danger" | "success";
     size?: "sm" | "md" | "lg";
     icon?: string;
+    onchange?: (event: Event) => void;
   }
 
   let {
@@ -11,6 +12,7 @@
     variant = "primary",
     size = "md",
     icon,
+    onchange,
   }: Props = $props();
 
   const sizeClasses = {
@@ -31,7 +33,7 @@
     type="checkbox"
     {disabled}
     class={`rounded cursor-pointer ${sizeClasses[size]} ${variantClasses[variant]}`}
-    onchange
+    {onchange}
   />
   <label class="ml-2 text-sm text-gray-700 cursor-pointer select-none">
     <slot />

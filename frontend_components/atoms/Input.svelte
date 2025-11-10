@@ -4,6 +4,9 @@
     variant?: "primary" | "secondary" | "danger";
     error?: boolean;
     class?: string;
+    oninput?: (event: Event) => void;
+    onchange?: (event: Event) => void;
+    onblur?: (event: Event) => void;
   }
 
   let {
@@ -11,6 +14,9 @@
     variant = "primary",
     error = false,
     class: customClass = "",
+    oninput,
+    onchange,
+    onblur,
   }: Props = $props();
 
   const variantClasses = {
@@ -30,7 +36,7 @@
     ${error ? "border-red-500 focus:ring-red-500" : variantClasses[variant]}
     ${customClass}
   `}
-  oninput
-  onchange
-  onblur
+  {oninput}
+  {onchange}
+  {onblur}
 />
