@@ -600,6 +600,21 @@ export const files = {
   },
 
   /**
+   * Get version history for a file
+   */
+  async getVersions(filePath) {
+    const cleanPath = filePath.replace(/^\/+|\/+$/g, '');
+    const encodedPath = cleanPath
+      .split('/')
+      .map(segment => encodeURIComponent(segment))
+      .join('/');
+    const response = await fetch(`${API_BASE}/files/${encodedPath}/versions`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
    * Get thumbnail for a file
    */
   async getThumbnail(filePath) {
@@ -632,7 +647,7 @@ export const directories = {
    * Create a new directory
    */
   async create(data) {
-    const response = await fetch(`${API_BASE}/dirs`, {
+    const response = await fetch(`${API_BASE}/dirs/create`, {
       method: "POST",
       headers: getHeaders(),
       body: JSON.stringify(data),
@@ -641,13 +656,20 @@ export const directories = {
   },
 
   /**
-   * List all directories recursively
+   * Get full directory tree recursively
    */
-  async listAll() {
-    const response = await fetch(`${API_BASE}/dirs`, {
+  async getTree() {
+    const response = await fetch(`${API_BASE}/dirs/tree`, {
       headers: getHeaders(),
     });
     return handleResponse(response);
+  },
+
+  /**
+   * List all directories recursively (alias for getTree)
+   */
+  async listAll() {
+    return this.getTree();
   },
 
   /**
@@ -1160,24 +1182,7 @@ export const recent = {
       });
       return handleResponse(response);
     }
-  },
-  
-  // System endpoints
-export const system = {
-    async storage() {
-      const response = await fetch(`${API_BASE}/system/storage`, {
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    },
-    
-    async stats() {
-      const response = await fetch(`${API_BASE}/stats`, {
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    }
-  },
+  };
   
 export const sharing = {
     // Create a share for a file or folder - ENHANCED
@@ -1276,7 +1281,7 @@ export const sharing = {
       });
       return handleResponse(response);
     }
-  },
+  };
   
   // File versioning endpoints
 export const versions = {
@@ -1361,10 +1366,10 @@ export const versions = {
       });
       return { data: await handleResponse(response) };
     }
-  },
+  };
   
   // Duplicate files detection endpoints
-  duplicates: {
+export const duplicates = {
     // Find all duplicate files
     async find(minSizeBytes = 0) {
       const response = await fetch(`${API_BASE}/duplicates?min_size_bytes=${minSizeBytes}`, {
@@ -1394,10 +1399,10 @@ export const versions = {
       });
       return handleResponse(response);
     }
-  },
+  };
   
   // Collaboration endpoints
-  collaboration: {
+export const collaboration = {
     // File Locks
     async listLocks(filePath = null) {
       const params = filePath ? `?file_path=${encodeURIComponent(filePath)}` : '';
@@ -1500,12 +1505,10 @@ export const versions = {
       });
       return { data: await handleResponse(response) };
     }
-  },
-  
-  createWebSocket,
+  };
   
   // Trash endpoints
-  trash: {
+export const trash = {
     list: () => fetch(`${API_BASE}/trash`, { headers: getHeaders() }),
     restore: (path) => fetch(`${API_BASE}/trash/restore/${encodeURIComponent(path)}`, { 
       method: 'POST', 
@@ -1523,8 +1526,7 @@ export const versions = {
       method: 'DELETE', 
       headers: getHeaders() 
     })
-  }
-};
+  };
 
 // ============================================
 // BACKUP ENDPOINTS
@@ -1997,5 +1999,7 @@ export default {
   jobs,
   cron,
   recent,
-  performance,
+  duplicates,
+  collaboration,
+  trash,
 };

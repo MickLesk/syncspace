@@ -18,8 +18,6 @@
   let loading = $state(false);
   let error = $state(null);
   let availableFolders = $state([]);
-  let folderTree = $state([]);
-  let expandedFolders = $state(new Set());
   let createNewFolder = $state(false);
   let newFolderName = $state("");
 
@@ -32,60 +30,73 @@
 
   async function loadFolders() {
     try {
-      const response = await api.files.list("/");
-      // response.data ist bereits das Array, nicht response.json()!
-      availableFolders = (response.data || []).filter(
-        (item) => item.is_directory
+      loading = true;
+      console.log("[MoveFileModal] Starting folder load...");
+
+      // Load ALL folders recursively by scanning the file system
+      const allFolders = await loadFoldersRecursively("/");
+      availableFolders = allFolders;
+
+      console.log(
+        "[MoveFileModal] Loaded",
+        availableFolders.length,
+        "folders:",
+        availableFolders
+      );
+    } catch (err) {
+      console.error("[MoveFileModal] Failed to load folders:", err);
+      errorToast(tr("failedToLoadFolders"));
+    } finally {
+      loading = false;
+    }
+  }
+
+  // Recursively load all folders from a path
+  async function loadFoldersRecursively(path, depth = 0) {
+    if (depth > 10) {
+      console.warn(`[MoveFileModal] Max depth reached at ${path}`);
+      return [];
+    }
+
+    try {
+      console.log(
+        `[MoveFileModal] Loading folders from: ${path} (depth: ${depth})`
+      );
+      const response = await api.files.list(path);
+      console.log(`[MoveFileModal] Response for ${path}:`, response);
+
+      const items = response.data || response || [];
+      const folders = items.filter((item) => item.is_directory);
+
+      console.log(
+        `[MoveFileModal] Found ${folders.length} folders at ${path}:`,
+        folders.map((f) => f.name)
       );
 
-      // Build tree structure
-      folderTree = buildFolderTree(availableFolders);
+      let allFolders = [...folders];
 
-      console.log("[MoveFileModal] Loaded folders:", availableFolders);
-      console.log("[MoveFileModal] Folder tree:", folderTree);
-    } catch (err) {
-      console.error("Failed to load folders:", err);
-      errorToast(tr("failedToLoadFolders"));
-    }
-  }
+      // Load subfolders for each folder
+      for (const folder of folders) {
+        // Construct proper full path for subfolder
+        const folderName = folder.name;
+        const parentPath = path === "/" ? "" : path;
+        const fullPath = parentPath
+          ? `${parentPath}/${folderName}`
+          : folderName;
 
-  // Build hierarchical folder tree
-  function buildFolderTree(folders) {
-    const tree = [];
-    const map = new Map();
+        console.log(
+          `[MoveFileModal] Processing folder: ${folderName}, full path: ${fullPath}`
+        );
 
-    // Create map of all folders
-    folders.forEach((folder) => {
-      const path = folder.path || folder.file_path || folder.name;
-      map.set(path, {
-        ...folder,
-        path: path,
-        children: [],
-      });
-    });
-
-    // Build tree
-    folders.forEach((folder) => {
-      const path = folder.path || folder.file_path || folder.name;
-      const parentPath = path.split("/").slice(0, -1).join("/");
-
-      if (parentPath && map.has(parentPath)) {
-        map.get(parentPath).children.push(map.get(path));
-      } else {
-        tree.push(map.get(path));
+        const subfolders = await loadFoldersRecursively(fullPath, depth + 1);
+        allFolders = [...allFolders, ...subfolders];
       }
-    });
 
-    return tree;
-  }
-
-  function toggleFolder(path) {
-    if (expandedFolders.has(path)) {
-      expandedFolders.delete(path);
-    } else {
-      expandedFolders.add(path);
+      return allFolders;
+    } catch (err) {
+      console.error(`[MoveFileModal] Failed to load ${path}:`, err);
+      return [];
     }
-    expandedFolders = new Set(expandedFolders);
   }
 
   function selectFolder(path) {
@@ -217,6 +228,35 @@
               {tr("rootDirectory")}
             </button>
 
+            <!-- Loading indicator -->
+            {#if loading}
+              <div class="flex items-center justify-center py-8">
+                <svg
+                  class="animate-spin h-8 w-8 text-primary"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                <span class="ml-3 text-gray-600 dark:text-gray-400"
+                  >{tr("loadingFolders")}...</span
+                >
+              </div>
+            {/if}
+
             <!-- Folder list with visual hierarchy -->
             {#each availableFolders as folder}
               {@const folderPath =
@@ -243,6 +283,16 @@
                 {/if}
               </button>
             {/each}
+
+            <!-- No folders message -->
+            {#if !loading && availableFolders.length === 0}
+              <div
+                class="text-center py-6 text-gray-500 dark:text-gray-400 text-sm"
+              >
+                <i class="bi bi-folder-x text-3xl mb-2"></i>
+                <p>{tr("noFoldersFound")}</p>
+              </div>
+            {/if}
           </div>
         {/if}
       </div>

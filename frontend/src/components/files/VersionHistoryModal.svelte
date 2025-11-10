@@ -21,12 +21,13 @@
   let restoreComment = $state("");
   let showRestoreModal = $state(false);
   let versionToRestore = $state(null);
-  let lastFileId = $state(null);
+  let lastFilePath = $state(null);
 
-  // Only reload when file ID changes or modal opens
+  // Only reload when file path changes or modal opens
   $effect(() => {
-    if (isOpen && file?.id && file.id !== lastFileId) {
-      lastFileId = file.id;
+    const currentPath = file?.path || file?.file_path;
+    if (isOpen && currentPath && currentPath !== lastFilePath) {
+      lastFilePath = currentPath;
       loadVersions();
     }
   });
@@ -34,7 +35,7 @@
   // Reset when modal closes
   $effect(() => {
     if (!isOpen) {
-      lastFileId = null;
+      lastFilePath = null;
       versions = [];
       selectedVersions = { from: null, to: null };
       diffContent = null;
@@ -43,12 +44,21 @@
   });
 
   async function loadVersions() {
-    if (!file?.id) return;
+    const filePath = file?.path || file?.file_path;
+    if (!filePath) return;
 
     loading = true;
     try {
-      const response = await api.versions.list(file.id);
-      versions = response.data || [];
+      // Use file path to load versions
+      const encodedPath = encodeURIComponent(filePath);
+      const response = await api.files.getVersions(encodedPath);
+      versions = response.data || response || [];
+      console.log(
+        "[VersionHistory] Loaded",
+        versions.length,
+        "versions for",
+        filePath
+      );
     } catch (err) {
       error(tr("failedToLoadVersionHistory"));
       console.error(err);
@@ -183,7 +193,7 @@
       {:else}
         <div class="flex gap-4 flex-1 min-h-0 px-6">
           <!-- Version List -->
-          <div class="w-1/2 flex flex-col">
+          <div class="w-1/2 flex flex-col min-h-0">
             <div class="flex justify-between items-center mb-2">
               <h4 class="font-semibold text-gray-900 dark:text-white">
                 Versions ({versions.length})
@@ -194,7 +204,7 @@
             </div>
 
             <div
-              class="flex-1 overflow-y-auto border rounded-lg bg-white dark:bg-gray-900"
+              class="flex-1 overflow-y-auto border rounded-lg bg-white dark:bg-gray-900 max-h-[50vh]"
             >
               {#each versions as version (version.id)}
                 <div
@@ -307,14 +317,14 @@
           </div>
 
           <!-- Diff View -->
-          <div class="w-1/2 flex flex-col">
+          <div class="w-1/2 flex flex-col min-h-0">
             <h4 class="font-semibold mb-2 text-gray-900 dark:text-white">
               Version Comparison
             </h4>
 
             {#if showDiff && diffContent}
               <div
-                class="flex-1 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 p-4"
+                class="flex-1 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 p-4 max-h-[50vh]"
               >
                 <div class="mb-4">
                   <div class="text-sm text-gray-500 dark:text-gray-400">

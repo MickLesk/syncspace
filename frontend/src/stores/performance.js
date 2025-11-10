@@ -71,28 +71,27 @@ class PerformanceMonitor {
     // Load current performance metrics
     async loadMetrics() {
         try {
-            const response = await api.performance.getMetrics();
-            if (response) {
-                performanceMetrics.set({
-                    ...response,
-                    last_updated: new Date()
-                });
-                
-                // Add to history
-                performanceHistory.update(history => {
-                    const newHistory = [...history, {
-                        timestamp: new Date(),
-                        ...response
-                    }];
-                    
-                    // Keep only last 100 data points
-                    if (newHistory.length > 100) {
-                        newHistory.shift();
-                    }
-                    
-                    return newHistory;
-                });
-            }
+            // TODO: Re-enable when performance API is available
+            // const response = await api.performance.getMetrics();
+            // if (response) {
+            //     performanceMetrics.set({
+            //         ...response,
+            //         last_updated: new Date()
+            //     });
+            //     
+            //     performanceHistory.update(history => {
+            //         const newHistory = [...history, {
+            //             timestamp: new Date(),
+            //             ...response
+            //         }];
+            //         
+            //         if (newHistory.length > 100) {
+            //             newHistory.shift();
+            //         }
+            //         
+            //         return newHistory;
+            //     });
+            // }
         } catch (error) {
             console.error('Failed to load performance metrics:', error);
         }
@@ -101,38 +100,29 @@ class PerformanceMonitor {
     // Load performance history
     async loadHistory(limit = 50) {
         try {
-            const response = await api.performance.getHistory(limit);
-            if (response) {
-                const formattedHistory = response.map(item => ({
-                    timestamp: new Date(item.timestamp || Date.now()),
-                    ...item
-                }));
-                performanceHistory.set(formattedHistory);
-            }
+            // TODO: Re-enable when performance API is available
+            // const response = await api.performance.getHistory(limit);
+            // if (response) {
+            //     const formattedHistory = response.map(item => ({
+            //         timestamp: new Date(item.timestamp || Date.now()),
+            //         ...item
+            //     }));
+            //     performanceHistory.set(formattedHistory);
+            // }
         } catch (error) {
             console.error('Failed to load performance history:', error);
-        }
-    }
-
-    // Load cache statistics
-    async loadCacheStats() {
-        try {
-            const response = await api.performance.getCacheStats();
-            if (response) {
-                cacheStats.set(response);
-            }
-        } catch (error) {
-            console.error('Failed to load cache stats:', error);
         }
     }
 
     // Load background jobs status
     async loadBackgroundJobs() {
         try {
-            const response = await api.performance.getBackgroundJobs();
-            if (response) {
-                backgroundJobs.set(response);
-            }
+            // TODO: Re-enable when performance API is available
+            // const response = await api.performance.getBackgroundJobs();
+            // if (response) {
+            //     backgroundJobs.set(response);
+            // }
+            console.warn('[Performance] API not available - skipping background jobs');
         } catch (error) {
             console.error('Failed to load background jobs:', error);
         }
@@ -141,12 +131,28 @@ class PerformanceMonitor {
     // Load system information
     async loadSystemInfo() {
         try {
-            const response = await api.performance.getSystemInfo();
-            if (response) {
-                systemInfo.set(response);
-            }
+            // TODO: Re-enable when performance API is available
+            // const response = await api.performance.getSystemInfo();
+            // if (response) {
+            //     systemInfo.set(response);
+            // }
+            console.warn('[Performance] API not available - skipping system info');
         } catch (error) {
             console.error('Failed to load system info:', error);
+        }
+    }
+
+    // Load cache statistics
+    async loadCacheStats() {
+        try {
+            // TODO: Re-enable when performance API is available
+            // const response = await api.performance.getCacheStats();
+            // if (response) {
+            //     cacheStats.set(response);
+            // }
+            console.warn('[Performance] API not available - skipping cache stats');
+        } catch (error) {
+            console.error('Failed to load cache stats:', error);
         }
     }
 
@@ -183,45 +189,51 @@ class PerformanceMonitor {
     // Clear cache
     async clearCache() {
         try {
-            const response = await api.performance.clearCache();
-            if (response && response.status) {
-                console.log('Cache cleared successfully');
-                await this.loadCacheStats(); // Refresh stats
-                return true;
-            }
+            // TODO: Re-enable when performance API is available
+            // const response = await api.performance.clearCache();
+            // if (response && response.status) {
+            //     console.log('Cache cleared successfully');
+            //     await this.loadCacheStats();
+            //     return true;
+            // }
+            console.warn('[Performance] API not available - cannot clear cache');
+            return false;
         } catch (error) {
             console.error('Failed to clear cache:', error);
             throw error;
         }
-        return false;
     }
 
     // Queue background job
     async queueJob(jobType, payload, priority = 0) {
         try {
-            const response = await api.performance.queueJob({
-                job_type: jobType,
-                payload: payload,
-                priority: priority
-            });
-            
-            if (response && response.job_id) {
-                console.log(`Job queued: ${response.job_id}`);
-                await this.loadBackgroundJobs(); // Refresh job list
-                return response.job_id;
-            }
+            // TODO: Re-enable when performance API is available
+            // const response = await api.performance.queueJob({
+            //     job_type: jobType,
+            //     payload: payload,
+            //     priority: priority
+            // });
+            // if (response && response.job_id) {
+            //     console.log(`Job queued: ${response.job_id}`);
+            //     await this.loadBackgroundJobs();
+            //     return response.job_id;
+            // }
+            console.warn('[Performance] API not available - cannot queue job');
+            return null;
         } catch (error) {
             console.error('Failed to queue job:', error);
             throw error;
         }
-        return null;
     }
 
     // Get job status
     async getJobStatus(jobId) {
         try {
-            const response = await api.performance.getJobStatus(jobId);
-            return response;
+            // TODO: Re-enable when performance API is available
+            // const response = await api.performance.getJobStatus(jobId);
+            // return response;
+            console.warn('[Performance] API not available - cannot get job status');
+            return null;
         } catch (error) {
             console.error('Failed to get job status:', error);
             throw error;

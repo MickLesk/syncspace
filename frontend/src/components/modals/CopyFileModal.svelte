@@ -30,15 +30,72 @@
 
   async function loadFolders() {
     try {
-      const response = await api.files.list("/");
-      // response.data ist bereits das Array!
-      availableFolders = (response.data || []).filter(
-        (item) => item.is_directory
+      loading = true;
+      console.log("[CopyFileModal] Starting folder load...");
+
+      // Load ALL folders recursively by scanning the file system
+      const allFolders = await loadFoldersRecursively("/");
+      availableFolders = allFolders;
+
+      console.log(
+        "[CopyFileModal] Loaded",
+        availableFolders.length,
+        "folders:",
+        availableFolders
       );
-      console.log("[CopyFileModal] Loaded folders:", availableFolders);
     } catch (err) {
-      console.error("Failed to load folders:", err);
+      console.error("[CopyFileModal] Failed to load folders:", err);
       errorToast(tr("failedToLoadFolders"));
+    } finally {
+      loading = false;
+    }
+  }
+
+  // Recursively load all folders from a path
+  async function loadFoldersRecursively(path, depth = 0) {
+    if (depth > 10) {
+      console.warn(`[CopyFileModal] Max depth reached at ${path}`);
+      return [];
+    }
+
+    try {
+      console.log(
+        `[CopyFileModal] Loading folders from: ${path} (depth: ${depth})`
+      );
+      const response = await api.files.list(path);
+      console.log(`[CopyFileModal] Response for ${path}:`, response);
+
+      const items = response.data || response || [];
+      const folders = items.filter((item) => item.is_directory);
+
+      console.log(
+        `[CopyFileModal] Found ${folders.length} folders at ${path}:`,
+        folders.map((f) => f.name)
+      );
+
+      let allFolders = [...folders];
+
+      // Load subfolders for each folder
+      for (const folder of folders) {
+        // Construct proper full path for subfolder
+        const folderName = folder.name;
+        const parentPath = path === "/" ? "" : path;
+        const fullPath = parentPath
+          ? `${parentPath}/${folderName}`
+          : folderName;
+
+        console.log(
+          `[CopyFileModal] Processing folder: ${folderName}, full path: ${fullPath}`
+        );
+
+        const subfolders = await loadFoldersRecursively(fullPath, depth + 1);
+        allFolders = [...allFolders, ...subfolders];
+      }
+
+      return allFolders;
+    } catch (err) {
+      console.error(`[CopyFileModal] Failed to load ${path}:`, err);
+      return [];
     }
   }
 
@@ -139,6 +196,35 @@
           {tr("rootDirectory")}
         </button>
 
+        <!-- Loading indicator -->
+        {#if loading}
+          <div class="flex items-center justify-center py-8">
+            <svg
+              class="animate-spin h-8 w-8 text-primary"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <span class="ml-3 text-gray-600 dark:text-gray-400"
+              >{tr("loadingFolders")}...</span
+            >
+          </div>
+        {/if}
+
         <!-- Folder list with visual hierarchy -->
         {#each availableFolders as folder}
           {@const folderPath = folder.path || folder.file_path || folder.name}
@@ -164,6 +250,16 @@
             {/if}
           </button>
         {/each}
+
+        <!-- No folders message -->
+        {#if !loading && availableFolders.length === 0}
+          <div
+            class="text-center py-6 text-gray-500 dark:text-gray-400 text-sm"
+          >
+            <i class="bi bi-folder-x text-3xl mb-2"></i>
+            <p>{tr("noFoldersFound")}</p>
+          </div>
+        {/if}
       </div>
 
       <!-- New file name (optional) -->
