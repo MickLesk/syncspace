@@ -7,6 +7,10 @@
   import Filter from "../molecules/Filter.svelte";
   import Select from "../molecules/Select.svelte";
   import ContextMenu from "../molecules/ContextMenu.svelte";
+  import Tooltip from "../molecules/Tooltip.svelte";
+  import Tabs from "../molecules/Tabs.svelte";
+  import Accordion from "../molecules/Accordion.svelte";
+  import Drawer from "../molecules/Drawer.svelte";
 
   let toastComponent: Toast;
   let selectedFilters: string[] = [];
@@ -14,6 +18,10 @@
   let contextMenuVisible = false;
   let contextX = 0;
   let contextY = 0;
+  let activeTab = "profile";
+  let accordion1Open = false;
+  let accordion2Open = false;
+  let drawerOpen = false;
 
   const breadcrumbItems = [
     { label: "Home", href: "#" },
@@ -26,6 +34,13 @@
     { id: "archived", label: "Archived" },
     { id: "starred", label: "Starred" },
     { id: "shared", label: "Shared" },
+  ];
+
+  const tabs = [
+    { id: "profile", label: "Profile", icon: "bi-person-fill" },
+    { id: "settings", label: "Settings", icon: "bi-gear-fill", badge: "3" },
+    { id: "messages", label: "Messages", icon: "bi-envelope-fill" },
+    { id: "disabled", label: "Disabled", disabled: true },
   ];
 
   const selectOptions = [
@@ -119,8 +134,7 @@
             <Button
               size="sm"
               variant="danger"
-              onclick={() =>
-                showToast("error", "Error! Something went wrong.")}
+              onclick={() => showToast("error", "Error! Something went wrong.")}
             >
               <i class="bi bi-exclamation-circle-fill mr-2"></i>Error
             </Button>
@@ -255,6 +269,215 @@
         on:close={() => (contextMenuVisible = false)}
         on:select={(e) => handleContextMenuItem(e.detail)}
       />
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Tooltips Section -->
+    <section>
+      <h2
+        class="text-2xl font-bold text-slate-200 mb-6 flex items-center gap-3"
+      >
+        <i class="bi bi-chat-square-text text-purple-400"></i>Tooltips
+      </h2>
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+        <div class="flex gap-8 items-center justify-center flex-wrap">
+          <Tooltip position="top">
+            {#snippet children()}
+              <Button>Top Tooltip</Button>
+            {/snippet}
+            {#snippet content()}
+              Tooltip on top
+            {/snippet}
+          </Tooltip>
+
+          <Tooltip position="right">
+            {#snippet children()}
+              <Button>Right Tooltip</Button>
+            {/snippet}
+            {#snippet content()}
+              Tooltip on right
+            {/snippet}
+          </Tooltip>
+
+          <Tooltip position="bottom">
+            {#snippet children()}
+              <Button>Bottom Tooltip</Button>
+            {/snippet}
+            {#snippet content()}
+              Tooltip on bottom
+            {/snippet}
+          </Tooltip>
+
+          <Tooltip position="left">
+            {#snippet children()}
+              <Button>Left Tooltip</Button>
+            {/snippet}
+            {#snippet content()}
+              Tooltip on left
+            {/snippet}
+          </Tooltip>
+        </div>
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Tabs Section -->
+    <section>
+      <h2
+        class="text-2xl font-bold text-slate-200 mb-6 flex items-center gap-3"
+      >
+        <i class="bi bi-layout-three-columns text-blue-400"></i>Tabs
+      </h2>
+
+      <div class="space-y-6">
+        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+          <h3 class="text-lg font-semibold text-slate-200 mb-4">
+            Default Tabs
+          </h3>
+          <Tabs {tabs} bind:active={activeTab} variant="default">
+            {#snippet children(tabId)}
+              <div class="p-4 bg-slate-700/30 rounded-lg">
+                <p class="text-slate-300">
+                  Content for <strong>{tabId}</strong> tab
+                </p>
+              </div>
+            {/snippet}
+          </Tabs>
+        </div>
+
+        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+          <h3 class="text-lg font-semibold text-slate-200 mb-4">Pills Tabs</h3>
+          <Tabs {tabs} variant="pills">
+            {#snippet children(tabId)}
+              <div class="p-4 bg-slate-700/30 rounded-lg">
+                <p class="text-slate-300">
+                  Pills content for <strong>{tabId}</strong>
+                </p>
+              </div>
+            {/snippet}
+          </Tabs>
+        </div>
+
+        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+          <h3 class="text-lg font-semibold text-slate-200 mb-4">
+            Underline Tabs
+          </h3>
+          <Tabs {tabs} variant="underline">
+            {#snippet children(tabId)}
+              <div class="p-4">
+                <p class="text-slate-300">
+                  Underline content for <strong>{tabId}</strong>
+                </p>
+              </div>
+            {/snippet}
+          </Tabs>
+        </div>
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Accordion Section -->
+    <section>
+      <h2
+        class="text-2xl font-bold text-slate-200 mb-6 flex items-center gap-3"
+      >
+        <i class="bi bi-list-nested text-green-400"></i>Accordion
+      </h2>
+
+      <div class="space-y-4">
+        <Accordion
+          bind:open={accordion1Open}
+          title="What is SyncSpace?"
+          icon="bi-question-circle"
+          variant="bordered"
+        >
+          <p class="text-slate-300">
+            SyncSpace is a modern file synchronization service with a Rust
+            backend and Svelte 5 frontend. It provides secure, fast, and
+            reliable file syncing across multiple devices.
+          </p>
+        </Accordion>
+
+        <Accordion
+          bind:open={accordion2Open}
+          title="Component Features"
+          icon="bi-star-fill"
+          variant="filled"
+        >
+          <ul class="list-disc list-inside space-y-2 text-slate-300">
+            <li>Svelte 5 runes and snippets</li>
+            <li>TypeScript support</li>
+            <li>Dark mode ready</li>
+            <li>Fully accessible</li>
+            <li>Smooth animations</li>
+          </ul>
+        </Accordion>
+
+        <Accordion
+          title="Installation Guide"
+          icon="bi-download"
+          variant="default"
+        >
+          <pre class="bg-slate-900 p-4 rounded text-green-400 text-sm">
+npm install syncspace-components
+          </pre>
+        </Accordion>
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Drawer Section -->
+    <section>
+      <h2
+        class="text-2xl font-bold text-slate-200 mb-6 flex items-center gap-3"
+      >
+        <i class="bi bi-layout-sidebar text-orange-400"></i>Drawer
+      </h2>
+
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+        <div class="flex gap-4 flex-wrap">
+          <Button onclick={() => (drawerOpen = true)}
+            >Open Drawer (Right)</Button
+          >
+        </div>
+      </div>
+
+      <Drawer
+        bind:open={drawerOpen}
+        position="right"
+        size="md"
+        title="Drawer Example"
+        closable
+      >
+        <div class="space-y-4">
+          <p class="text-gray-700 dark:text-gray-300">
+            This is a drawer component! It slides in from the side.
+          </p>
+
+          <div class="space-y-2">
+            <h3 class="font-semibold text-gray-900 dark:text-gray-100">
+              Features:
+            </h3>
+            <ul
+              class="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300"
+            >
+              <li>4 positions (left, right, top, bottom)</li>
+              <li>5 sizes (sm, md, lg, xl, full)</li>
+              <li>Smooth slide animations</li>
+              <li>Backdrop with blur effect</li>
+              <li>Click outside to close</li>
+            </ul>
+          </div>
+
+          <Button variant="primary" onclick={() => (drawerOpen = false)}>
+            Close Drawer
+          </Button>
+        </div>
+      </Drawer>
     </section>
 
     <Divider variant="horizontal" color="slate" />

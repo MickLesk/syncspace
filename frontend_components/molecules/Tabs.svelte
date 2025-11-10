@@ -37,8 +37,7 @@
     default: {
       container: "border-b border-gray-200 dark:border-gray-700",
       tab: "px-4 py-2 border-b-2 transition-colors",
-      active:
-        "border-blue-500 text-blue-600 dark:text-blue-400 font-medium",
+      active: "border-blue-500 text-blue-600 dark:text-blue-400 font-medium",
       inactive:
         "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600",
     },
@@ -52,8 +51,7 @@
     underline: {
       container: "gap-6 border-b border-gray-200 dark:border-gray-700",
       tab: "px-1 py-2 border-b-2 transition-colors",
-      active:
-        "border-blue-500 text-blue-600 dark:text-blue-400 font-medium",
+      active: "border-blue-500 text-blue-600 dark:text-blue-400 font-medium",
       inactive:
         "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200",
     },

@@ -36,10 +36,7 @@
 
 <div class={`relative inline-block ${customClass}`}>
   <!-- Trigger -->
-  <div
-    onmouseenter={() => (open = true)}
-    onmouseleave={() => (open = false)}
-  >
+  <div onmouseenter={() => (open = true)} onmouseleave={() => (open = false)}>
     {#if children}
       {@render children()}
     {/if}

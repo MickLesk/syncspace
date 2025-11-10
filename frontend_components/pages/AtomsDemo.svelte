@@ -8,6 +8,10 @@
   import Input from "../atoms/Input.svelte";
   import Avatar from "../atoms/Avatar.svelte";
   import Card from "../atoms/Card.svelte";
+  import Spinner from "../atoms/Spinner.svelte";
+  import ProgressBar from "../atoms/ProgressBar.svelte";
+  import Alert from "../atoms/Alert.svelte";
+  import Textarea from "../atoms/Textarea.svelte";
   import { colorMap, sizeMap } from "../shared/index.ts";
 
   type ButtonVariant =
@@ -48,6 +52,9 @@
 
   let checkboxState = false;
   let toggleState = false;
+  let progress = 65;
+  let textareaValue = "";
+  let showAlert = true;
   let inputValue = "";
   let selectedSize: ButtonSize = "md";
 </script>
@@ -316,6 +323,137 @@
             Hover over this card to see the effect. Great for clickable items.
           </p>
         </Card>
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Spinners Section -->
+    <section>
+      <h2
+        class="text-2xl font-bold text-slate-200 mb-6 flex items-center gap-3"
+      >
+        <i class="bi bi-arrow-repeat text-blue-400"></i>Spinners
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+          <h3 class="text-lg font-semibold text-slate-200 mb-4">Sizes</h3>
+          <div class="flex items-center gap-6">
+            <Spinner size="sm" variant="primary" />
+            <Spinner size="md" variant="primary" />
+            <Spinner size="lg" variant="primary" />
+            <Spinner size="xl" variant="primary" />
+          </div>
+        </div>
+
+        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+          <h3 class="text-lg font-semibold text-slate-200 mb-4">Variants</h3>
+          <div class="flex items-center gap-6">
+            <Spinner variant="primary" />
+            <Spinner variant="success" />
+            <Spinner variant="danger" />
+            <Spinner variant="warning" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Progress Bars Section -->
+    <section>
+      <h2
+        class="text-2xl font-bold text-slate-200 mb-6 flex items-center gap-3"
+      >
+        <i class="bi bi-bar-chart-fill text-green-400"></i>Progress Bars
+      </h2>
+      <div class="space-y-6">
+        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+          <h3 class="text-lg font-semibold text-slate-200 mb-4">Basic</h3>
+          <div class="space-y-4">
+            <ProgressBar value={progress} variant="primary" showLabel />
+            <ProgressBar value={85} variant="success" showLabel
+              >Upload Progress</ProgressBar
+            >
+            <ProgressBar value={45} variant="warning" showLabel />
+            <ProgressBar value={25} variant="danger" showLabel />
+          </div>
+        </div>
+
+        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+          <h3 class="text-lg font-semibold text-slate-200 mb-4">
+            Striped & Animated
+          </h3>
+          <div class="space-y-4">
+            <ProgressBar value={70} variant="primary" striped showLabel />
+            <ProgressBar
+              value={55}
+              variant="success"
+              striped
+              animated
+              showLabel
+            >
+              Processing...
+            </ProgressBar>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Alerts Section -->
+    <section>
+      <h2
+        class="text-2xl font-bold text-slate-200 mb-6 flex items-center gap-3"
+      >
+        <i class="bi bi-bell-fill text-yellow-400"></i>Alerts
+      </h2>
+      <div class="space-y-4">
+        {#if showAlert}
+          <Alert type="info" dismissible ondismiss={() => (showAlert = false)}>
+            This is an informational alert. Click the X to dismiss.
+          </Alert>
+        {/if}
+        <Alert type="success" icon="bi-check-circle-fill">
+          Your changes have been saved successfully!
+        </Alert>
+        <Alert type="warning">Warning: This action cannot be undone.</Alert>
+        <Alert type="danger" dismissible>
+          Error: Something went wrong. Please try again.
+        </Alert>
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Textarea Section -->
+    <section>
+      <h2
+        class="text-2xl font-bold text-slate-200 mb-6 flex items-center gap-3"
+      >
+        <i class="bi bi-textarea-t text-purple-400"></i>Textarea
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+          <Textarea
+            bind:value={textareaValue}
+            placeholder="Enter your message..."
+            rows={6}
+          >
+            Message
+          </Textarea>
+        </div>
+
+        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+          <Textarea
+            placeholder="This textarea has an error"
+            error={true}
+            rows={6}
+          >
+            Error State
+          </Textarea>
+        </div>
       </div>
     </section>
 

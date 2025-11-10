@@ -34,7 +34,8 @@
     filled: {
       container:
         "border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden",
-      header: "bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700",
+      header:
+        "bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700",
       content: "p-4 bg-white dark:bg-gray-900",
     },
   };
