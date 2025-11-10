@@ -262,11 +262,11 @@
     if (directoryPath !== $currentPath) {
       console.log("[FilesView] Navigating to directory:", directoryPath);
       await navigateTo(directoryPath);
-      // Wait longer for files to load after navigation
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      // Warte nur kurz - die Animation soll schneller kommen!
+      await new Promise((resolve) => setTimeout(resolve, 400));
     } else {
-      // Already in correct directory, wait briefly for UI update
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // Already in correct directory, fast animation
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     // Find the file in the current file list (use $files to get the actual array from the store)
@@ -292,8 +292,8 @@
         // If it's a file, highlight it (user can click to open)
         console.log("[FilesView] Highlighting file:", targetFile.name);
 
-        // Scroll to file card if in grid/list view - wait for DOM update
-        setTimeout(() => {
+        // Scroll to file card - sofort ohne Verzögerung!
+        const scrollAndHighlight = () => {
           console.log(
             "[FilesView] Searching for file card with data-file-name:",
             targetFile.name
@@ -312,16 +312,20 @@
                 "[FilesView] ✅ Found matching card, scrolling and highlighting"
               );
               card.scrollIntoView({ behavior: "smooth", block: "center" });
-              // Add highlight effect (heartbeat/pulse animation)
+              // Add highlight effect (5 Sekunden!)
               card.classList.add("highlight-search-result");
               setTimeout(
                 () => card.classList.remove("highlight-search-result"),
-                4000 // 4 Sekunden für die längere Animation
+                5000 // 5 Sekunden Animation!
               );
               break;
             }
           }
-        }, 300); // Increased timeout to ensure DOM is updated
+        };
+
+        // Versuche sofort, wenn nicht gefunden, warte kurz und versuche nochmal
+        scrollAndHighlight();
+        setTimeout(scrollAndHighlight, 150); // Backup falls DOM noch nicht bereit
 
         // Don't open preview automatically - let user click to open
       }
@@ -1257,7 +1261,7 @@
   /* Search Result Highlight Animation - SUPER AUFFÄLLIG! */
   :global(.highlight-search-result) {
     animation:
-      highlight-border-spin 4s ease-in-out,
+      highlight-border-spin 5s ease-in-out,
       highlight-glow 1s ease-in-out infinite;
     position: relative;
     z-index: 100;

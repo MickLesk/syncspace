@@ -358,7 +358,14 @@ impl SearchIndex {
             vec![self.filename_field, self.path_field, self.content_field],
         );
 
-        let mut query: Box<dyn tantivy::query::Query> = query_parser.parse_query(query_str)?;
+        // For non-fuzzy search, use AllQuery to get all documents (we filter in post-processing)
+        // For fuzzy search, use standard query parser
+        let mut query: Box<dyn tantivy::query::Query> = if options.fuzzy {
+            query_parser.parse_query(query_str)?
+        } else {
+            // Use AllQuery to retrieve all documents, then filter by substring
+            Box::new(tantivy::query::AllQuery)
+        };
 
         // Apply filters if specified
         if let Some(ref file_types) = options.file_type_filter {

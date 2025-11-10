@@ -193,8 +193,8 @@
       searchDebounce = setTimeout(async () => {
         try {
           console.log("[AppHeader] Searching for:", searchQuery);
-          // Call Tantivy full-text search API
-          const response = await api.search.query(searchQuery, 10, true);
+          // Call Tantivy full-text search API with fuzzy=false for substring matching
+          const response = await api.search.query(searchQuery, 10, false);
           console.log("[AppHeader] Search response:", response);
 
           // Check if response has results array

@@ -24,11 +24,37 @@ pub async fn search(
     }
 
     match state.search_index.search(query, limit, fuzzy) {
-        Ok(results) => {
+        Ok(mut results) => {
+            // ALSO search in folders table for folder matching
+            let query_lower = query.to_lowercase();
+            if let Ok(folders) = sqlx::query_as::<_, (String, String)>(
+                "SELECT name, path FROM folders WHERE LOWER(name) LIKE ?",
+            )
+            .bind(format!("%{}%", query_lower))
+            .fetch_all(&state.db_pool)
+            .await
+            {
+                for (name, path) in folders {
+                    // Add folder to results
+                    results.push(crate::search::SearchResult {
+                        file_id: path.clone(),
+                        filename: name.clone(),
+                        path: path.clone(),
+                        snippet: None,
+                        score: 10.0, // High score for exact folder matches
+                        size: 0,
+                        modified: chrono::Utc::now().to_rfc3339(),
+                        file_type: "folder".to_string(),
+                        highlights: None,
+                    });
+                }
+            }
+
             // Map SearchResult to proper JSON with all fields
             let json_results = results
                 .iter()
                 .map(|r| {
+                    let is_folder = r.file_type == "folder";
                     serde_json::json!({
                         "id": r.file_id,
                         "file_id": r.file_id,
@@ -43,7 +69,8 @@ pub async fn search(
                         "modified": r.modified,
                         "file_type": r.file_type,
                         "highlights": r.highlights,
-                        "is_dir": false, // Files only in search index currently
+                        "is_dir": is_folder,
+                        "type": if is_folder { "folder" } else { "file" },
                     })
                 })
                 .collect();
