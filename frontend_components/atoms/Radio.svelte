@@ -4,7 +4,7 @@
   interface Props {
     name: string;
     value: string;
-    checked?: boolean;
+    group?: string;
     disabled?: boolean;
     variant?: "primary" | "danger" | "success";
     size?: "sm" | "md" | "lg";
@@ -16,7 +16,7 @@
   let {
     name,
     value,
-    checked = $bindable(false),
+    group = $bindable(""),
     disabled = false,
     variant = "primary",
     size = "md",
@@ -24,6 +24,9 @@
     onchange,
     children,
   }: Props = $props();
+
+  // Derived state to check if this radio is selected
+  const isChecked = $derived(group === value);
 
   const sizeClasses = {
     sm: { box: "w-4 h-4", inner: "w-2 h-2" },
@@ -63,7 +66,7 @@
     type="radio"
     {name}
     {value}
-    bind:checked
+    bind:group
     {disabled}
     {onchange}
     class="sr-only peer"
@@ -77,7 +80,7 @@
       border-2 rounded-full
       transition-all duration-200 ease-in-out
       ${
-        checked
+        isChecked
           ? `${currentVariant.bg} border-transparent`
           : `bg-white border-gray-300 ${currentVariant.border}`
       }
@@ -91,7 +94,7 @@
         ${currentSize.inner}
         bg-white rounded-full
         transition-all duration-200
-        ${checked ? "scale-100 opacity-100" : "scale-0 opacity-0"}
+        ${isChecked ? "scale-100 opacity-100" : "scale-0 opacity-0"}
       `}
     />
   </div>

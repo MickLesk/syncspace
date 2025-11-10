@@ -15,4 +15,6 @@ export { default as Textarea } from './Textarea.svelte';
 export { default as ThemeToggle } from './ThemeToggle.svelte';
 export { default as Radio } from './Radio.svelte';
 export { default as Skeleton } from './Skeleton.svelte';
+export { default as Chip } from './Chip.svelte';
+export { default as IconButton } from './IconButton.svelte';
 

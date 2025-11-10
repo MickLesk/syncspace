@@ -16,10 +16,10 @@
   };
 </script>
 
-<div class="min-h-screen bg-slate-900 dark:bg-slate-900">
+<div class="min-h-screen bg-white dark:bg-slate-900">
   <!-- Navigation -->
   <nav
-    class="fixed top-0 left-0 right-0 bg-slate-800 dark:bg-slate-800 border-b border-slate-700 dark:border-slate-700 z-50"
+    class="fixed top-0 left-0 right-0 bg-gray-100 dark:bg-slate-800 border-b border-gray-300 dark:border-slate-700 z-50"
   >
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
       <h1 class="text-2xl font-bold text-white">SyncSpace Components</h1>
@@ -43,7 +43,7 @@
   </nav>
 
   <!-- Content -->
-  <div class="pt-20">
+  <div class="pt-20 bg-white dark:bg-slate-900 min-h-screen">
     {#key currentPage}
       <svelte:component this={pages[currentPage].component} />
     {/key}
@@ -52,7 +52,6 @@
 
 <style>
   :global(body) {
-    background-color: #0f172a;
     margin: 0;
     padding: 0;
   }

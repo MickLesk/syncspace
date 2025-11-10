@@ -11,6 +11,11 @@
   import Tabs from "../molecules/Tabs.svelte";
   import Accordion from "../molecules/Accordion.svelte";
   import Drawer from "../molecules/Drawer.svelte";
+  import Dropdown from "../molecules/Dropdown.svelte";
+  import EmptyState from "../molecules/EmptyState.svelte";
+  import StatCard from "../molecules/StatCard.svelte";
+  import Timeline from "../molecules/Timeline.svelte";
+  import Stepper from "../molecules/Stepper.svelte";
 
   let toastComponent: Toast;
   let selectedFilters: string[] = [];
@@ -22,6 +27,8 @@
   let accordion1Open = false;
   let accordion2Open = false;
   let drawerOpen = false;
+  let dropdownOpen = false;
+  let currentStep = 0;
 
   const breadcrumbItems = [
     { label: "Home", href: "#" },
@@ -46,8 +53,57 @@
   const selectOptions = [
     { value: "option1", label: "Option 1" },
     { value: "option2", label: "Option 2" },
-    { value: "option3", label: "Option 3" },
+        { value: "option3", label: "Option 3" },
     { value: "option4", label: "Option 4" },
+  ];
+
+  const dropdownItems = [
+    { label: "Profile", icon: "bi-person-fill", action: () => alert("Profile clicked") },
+    { label: "Settings", icon: "bi-gear-fill", action: () => alert("Settings clicked") },
+    { divider: true },
+    { label: "Logout", icon: "bi-box-arrow-right", danger: true, action: () => alert("Logout clicked") },
+  ];
+
+  const timelineItems = [
+    {
+      id: "1",
+      title: "Project Started",
+      description: "Initial project setup and configuration",
+      timestamp: "2 hours ago",
+      icon: "bi-play-circle-fill",
+      variant: "success" as const,
+    },
+    {
+      id: "2",
+      title: "New Feature Added",
+      description: "Implemented user authentication system",
+      timestamp: "1 hour ago",
+      icon: "bi-plus-circle-fill",
+      variant: "primary" as const,
+    },
+    {
+      id: "3",
+      title: "Bug Fixed",
+      description: "Resolved critical security vulnerability",
+      timestamp: "30 minutes ago",
+      icon: "bi-bug-fill",
+      variant: "danger" as const,
+    },
+    {
+      id: "4",
+      title: "Deployment",
+      description: "Production deployment completed successfully",
+      timestamp: "10 minutes ago",
+      icon: "bi-cloud-upload-fill",
+      variant: "success" as const,
+    },
+  ];
+
+  const stepperSteps = [
+    { label: "Account", description: "Basic information", icon: "bi-person-fill" },
+    { label: "Profile", description: "Personal details" },
+    { label: "Verification", description: "Email & phone" },
+    { label: "Complete", description: "Finish setup", icon: "bi-check-circle-fill" },
   ];
 
   const contextMenuItems = [
@@ -58,7 +114,7 @@
     { id: "delete", label: "Delete", icon: "bi-trash-fill", dangerous: true },
   ];
 
-  function showToast(
+  function handleContextMenu(e: MouseEvent) {
     type: "success" | "error" | "warning" | "info",
     message: string
   ) {
@@ -478,6 +534,181 @@ npm install syncspace-components
           </Button>
         </div>
       </Drawer>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Dropdown Section -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+        <i class="bi bi-list mr-3 text-blue-400"></i>Dropdown
+      </h2>
+
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">Dropdown Menu</h3>
+        <div class="flex gap-4">
+          <Dropdown
+            items={dropdownItems}
+            bind:open={dropdownOpen}
+            position="bottom-left"
+          >
+            {#snippet children()}
+              <Button variant="primary">
+                <i class="bi bi-three-dots-vertical mr-2"></i>
+                Menu
+              </Button>
+            {/snippet}
+          </Dropdown>
+        </div>
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Empty State Section -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+        <i class="bi bi-inbox mr-3 text-blue-400"></i>Empty State
+      </h2>
+
+      <div
+        class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 space-y-6"
+      >
+        <EmptyState
+          icon="bi-inbox"
+          title="No messages yet"
+          description="Your inbox is empty. Start a conversation to see messages here."
+          actionLabel="New Message"
+          onaction={() => alert("New message clicked")}
+        />
+
+        <Divider variant="horizontal" color="slate" />
+
+        <EmptyState
+          variant="glass"
+          icon="bi-search"
+          title="No results found"
+          description="Try adjusting your search criteria"
+        />
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Stat Cards Section -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+        <i class="bi bi-bar-chart-fill mr-3 text-blue-400"></i>Stat Cards
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          title="Total Users"
+          value="12,458"
+          change={12}
+          trend="up"
+          icon="bi-people-fill"
+          variant="primary"
+        />
+        <StatCard
+          title="Revenue"
+          value="$54,231"
+          change={8}
+          trend="up"
+          icon="bi-cash-stack"
+          variant="success"
+        />
+        <StatCard
+          title="Active Sessions"
+          value="2,847"
+          change={-3}
+          trend="down"
+          icon="bi-activity"
+          variant="warning"
+        />
+        <StatCard
+          title="Error Rate"
+          value="0.12%"
+          change={-5}
+          trend="down"
+          icon="bi-exclamation-triangle-fill"
+          variant="danger"
+        />
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Timeline Section -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+        <i class="bi bi-clock-history mr-3 text-blue-400"></i>Timeline
+      </h2>
+
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-6">
+          Activity Timeline
+        </h3>
+        <Timeline items={timelineItems} />
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Stepper Section -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+        <i class="bi bi-signpost-split mr-3 text-blue-400"></i>Stepper
+      </h2>
+
+      <div
+        class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 space-y-8"
+      >
+        <div>
+          <h3 class="text-lg font-semibold text-slate-200 mb-6">
+            Horizontal Stepper
+          </h3>
+          <Stepper
+            steps={stepperSteps}
+            bind:currentStep
+            orientation="horizontal"
+          />
+          <div class="flex gap-3 mt-6">
+            <Button
+              variant="outline"
+              onclick={() => (currentStep = Math.max(0, currentStep - 1))}
+              disabled={currentStep === 0}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="primary"
+              onclick={() =>
+                (currentStep = Math.min(
+                  stepperSteps.length - 1,
+                  currentStep + 1
+                ))}
+              disabled={currentStep === stepperSteps.length - 1}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+
+        <Divider variant="horizontal" color="slate" />
+
+        <div>
+          <h3 class="text-lg font-semibold text-slate-200 mb-6">
+            Vertical Stepper (Glass)
+          </h3>
+          <Stepper
+            steps={stepperSteps}
+            bind:currentStep
+            orientation="vertical"
+            variant="glass"
+          />
+        </div>
+      </div>
     </section>
 
     <Divider variant="horizontal" color="slate" />

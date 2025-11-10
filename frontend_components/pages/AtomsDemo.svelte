@@ -12,6 +12,10 @@
   import ProgressBar from "../atoms/ProgressBar.svelte";
   import Alert from "../atoms/Alert.svelte";
   import Textarea from "../atoms/Textarea.svelte";
+  import Skeleton from "../atoms/Skeleton.svelte";
+  import Radio from "../atoms/Radio.svelte";
+  import Chip from "../atoms/Chip.svelte";
+  import IconButton from "../atoms/IconButton.svelte";
   import { colorMap, sizeMap } from "../shared/index.ts";
 
   type ButtonVariant =
@@ -57,6 +61,12 @@
   let showAlert = true;
   let inputValue = "";
   let selectedSize: ButtonSize = "md";
+  let radioGroup = "";
+  let chips = ["Design", "Development", "Marketing", "Sales"];
+
+  function removeChip(index: number) {
+    chips = chips.filter((_, i) => i !== index);
+  }
 </script>
 
 <div class="min-h-screen bg-slate-900 py-12">
@@ -453,6 +463,271 @@
           >
             Error State
           </Textarea>
+        </div>
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Spinners Section -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+        <i class="bi bi-arrow-repeat mr-3 text-blue-400"></i>Spinners
+      </h2>
+
+      <!-- Spinner Types -->
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 mb-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">Types</h3>
+        <div class="flex flex-wrap gap-8 items-center">
+          <div class="text-center">
+            <Spinner type="spin" variant="primary" size="lg" />
+            <p class="text-slate-400 text-sm mt-2">Spin</p>
+          </div>
+          <div class="text-center">
+            <Spinner type="dots" variant="success" size="lg" />
+            <p class="text-slate-400 text-sm mt-2">Dots</p>
+          </div>
+          <div class="text-center">
+            <Spinner type="pulse" variant="warning" size="lg" />
+            <p class="text-slate-400 text-sm mt-2">Pulse</p>
+          </div>
+          <div class="text-center">
+            <Spinner type="bounce" variant="danger" size="lg" />
+            <p class="text-slate-400 text-sm mt-2">Bounce</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spinner Sizes -->
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">Sizes</h3>
+        <div class="flex flex-wrap gap-6 items-center">
+          <Spinner type="spin" variant="primary" size="sm" />
+          <Spinner type="dots" variant="primary" size="md" />
+          <Spinner type="pulse" variant="primary" size="lg" />
+          <Spinner type="bounce" variant="primary" size="xl" />
+        </div>
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Chips Section -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+        <i class="bi bi-tags-fill mr-3 text-blue-400"></i>Chips
+      </h2>
+
+      <!-- Chip Variants -->
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 mb-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">Variants</h3>
+        <div class="flex flex-wrap gap-3">
+          <Chip variant="default">Default</Chip>
+          <Chip variant="primary">Primary</Chip>
+          <Chip variant="success">Success</Chip>
+          <Chip variant="danger">Danger</Chip>
+          <Chip variant="warning">Warning</Chip>
+          <Chip variant="info">Info</Chip>
+          <Chip variant="glass">Glass</Chip>
+        </div>
+      </div>
+
+      <!-- Chip with Icons -->
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 mb-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">With Icons</h3>
+        <div class="flex flex-wrap gap-3">
+          <Chip variant="primary" icon="bi-star-fill">Featured</Chip>
+          <Chip variant="success" icon="bi-check-circle-fill">Verified</Chip>
+          <Chip variant="danger" icon="bi-x-circle-fill">Error</Chip>
+          <Chip variant="warning" icon="bi-exclamation-triangle-fill"
+            >Warning</Chip
+          >
+        </div>
+      </div>
+
+      <!-- Removable Chips -->
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">Removable</h3>
+        <div class="flex flex-wrap gap-3">
+          {#each chips as chip, index}
+            <Chip
+              variant="primary"
+              removable
+              onremove={() => removeChip(index)}
+            >
+              {chip}
+            </Chip>
+          {/each}
+        </div>
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Icon Buttons Section -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+        <i class="bi bi-circle-square mr-3 text-blue-400"></i>Icon Buttons
+      </h2>
+
+      <!-- Icon Button Variants -->
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 mb-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">Variants</h3>
+        <div class="flex flex-wrap gap-3">
+          <IconButton icon="bi-heart-fill" variant="default" ariaLabel="Like" />
+          <IconButton
+            icon="bi-star-fill"
+            variant="primary"
+            ariaLabel="Favorite"
+          />
+          <IconButton
+            icon="bi-trash-fill"
+            variant="danger"
+            ariaLabel="Delete"
+          />
+          <IconButton
+            icon="bi-check-lg"
+            variant="success"
+            ariaLabel="Confirm"
+          />
+          <IconButton icon="bi-search" variant="ghost" ariaLabel="Search" />
+          <IconButton
+            icon="bi-gear-fill"
+            variant="glass"
+            ariaLabel="Settings"
+          />
+        </div>
+      </div>
+
+      <!-- Icon Button Sizes -->
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 mb-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">Sizes</h3>
+        <div class="flex flex-wrap gap-3 items-center">
+          <IconButton
+            icon="bi-heart-fill"
+            variant="primary"
+            size="sm"
+            ariaLabel="Like"
+          />
+          <IconButton
+            icon="bi-heart-fill"
+            variant="primary"
+            size="md"
+            ariaLabel="Like"
+          />
+          <IconButton
+            icon="bi-heart-fill"
+            variant="primary"
+            size="lg"
+            ariaLabel="Like"
+          />
+          <IconButton
+            icon="bi-heart-fill"
+            variant="primary"
+            size="xl"
+            ariaLabel="Like"
+          />
+        </div>
+      </div>
+
+      <!-- Icon Button Shapes -->
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">Shapes</h3>
+        <div class="flex flex-wrap gap-3">
+          <IconButton
+            icon="bi-heart-fill"
+            variant="primary"
+            rounded={false}
+            ariaLabel="Like"
+          />
+          <IconButton
+            icon="bi-heart-fill"
+            variant="primary"
+            rounded={true}
+            ariaLabel="Like"
+          />
+          <IconButton
+            icon="bi-arrow-repeat"
+            variant="success"
+            rounded={true}
+            loading={true}
+            ariaLabel="Loading"
+          />
+        </div>
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Radio Buttons Section -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+        <i class="bi bi-circle-fill mr-3 text-blue-400"></i>Radio Buttons
+      </h2>
+
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">
+          Select an Option
+        </h3>
+        <div class="flex flex-col gap-3">
+          <Radio
+            name="option"
+            value="option1"
+            bind:group={radioGroup}
+            variant="primary"
+          >
+            Option 1
+          </Radio>
+          <Radio
+            name="option"
+            value="option2"
+            bind:group={radioGroup}
+            variant="primary"
+          >
+            Option 2
+          </Radio>
+          <Radio
+            name="option"
+            value="option3"
+            bind:group={radioGroup}
+            variant="primary"
+          >
+            Option 3
+          </Radio>
+        </div>
+        <p class="text-slate-400 text-sm mt-4">
+          Selected: {radioGroup || "None"}
+        </p>
+      </div>
+    </section>
+
+    <Divider variant="horizontal" color="slate" />
+
+    <!-- Skeleton Section -->
+    <section class="mb-16">
+      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+        <i class="bi bi-box mr-3 text-blue-400"></i>Skeleton Loaders
+      </h2>
+
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">Variants</h3>
+        <div class="space-y-6">
+          <div>
+            <p class="text-slate-400 text-sm mb-2">Text</p>
+            <Skeleton variant="text" width="300px" />
+          </div>
+          <div>
+            <p class="text-slate-400 text-sm mb-2">Rectangle</p>
+            <Skeleton variant="rect" width="400px" height="200px" />
+          </div>
+          <div>
+            <p class="text-slate-400 text-sm mb-2">Circle</p>
+            <Skeleton variant="circle" width="80px" height="80px" />
+          </div>
+          <div>
+            <p class="text-slate-400 text-sm mb-2">Avatar</p>
+            <Skeleton variant="avatar" />
+          </div>
         </div>
       </div>
     </section>
