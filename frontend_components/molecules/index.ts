@@ -8,3 +8,4 @@ export { default as Tooltip } from './Tooltip.svelte';
 export { default as Tabs } from './Tabs.svelte';
 export { default as Accordion } from './Accordion.svelte';
 export { default as Drawer } from './Drawer.svelte';
+export { default as Dropdown } from './Dropdown.svelte';

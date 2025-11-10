@@ -3,24 +3,21 @@
 ## 🎯 High Priority
 
 ### Dark/Light Mode Toggle
-
-- [ ] Create Theme Toggle component (button with sun/moon icon)
-- [ ] Implement theme store with localStorage persistence
-- [ ] Add `data-theme="dark"` attribute switching on `<html>` tag
+- [x] Create Theme Toggle component (button with sun/moon icon) ✅
+- [x] Implement theme store with localStorage persistence ✅
+- [x] Add `data-theme="dark"` attribute switching on `<html>` tag ✅
 - [ ] Test all components in both themes
-- [ ] Add smooth transition animations for theme switching
-- [ ] Add system preference detection (prefers-color-scheme)
+- [x] Add smooth transition animations for theme switching ✅
+- [x] Add system preference detection (prefers-color-scheme) ✅
 
 ### Component Fixes & Improvements
-
-- [ ] Fix all remaining `<slot>` deprecation warnings (convert to snippets)
-- [ ] Add `children` Snippet prop to all components still using slots
+- [x] Fix all remaining `<slot>` deprecation warnings (convert to snippets) ✅
+- [x] Add `children` Snippet prop to all components still using slots ✅
 - [ ] Test all components with TypeScript strict mode
-- [ ] Verify all event handlers work correctly
+- [x] Verify all event handlers work correctly ✅
 - [ ] Add keyboard navigation support to all interactive components
 
 ### Documentation
-
 - [ ] Create comprehensive README for each component
 - [ ] Add JSDoc comments to all Props interfaces
 - [ ] Create usage examples for each component
@@ -30,18 +27,16 @@
 ## 🎨 New Components
 
 ### Atoms (Missing)
-
 - [ ] **Switch** - iOS-style switch (different from Toggle)
-- [ ] **Radio** - Radio button component with groups
-- [ ] **Skeleton** - Loading skeleton placeholders
+- [x] **Radio** - Radio button component with groups ✅
+- [x] **Skeleton** - Loading skeleton placeholders ✅
 - [ ] **Chip** - Small chip/tag component with close button
 - [ ] **IconButton** - Circular icon-only button
 - [ ] **Link** - Styled anchor component
 - [ ] **Image** - Image with loading states and fallback
 
 ### Molecules (Missing)
-
-- [ ] **Dropdown** - Dropdown menu component
+- [x] **Dropdown** - Dropdown menu component ✅
 - [ ] **Pagination** - Page navigation component
 - [ ] **DatePicker** - Calendar date picker
 - [ ] **TimePicker** - Time selection component

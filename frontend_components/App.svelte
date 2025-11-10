@@ -4,6 +4,7 @@
   import AtomsDemo from "./pages/AtomsDemo.svelte";
   import MoleculesDemo from "./pages/MoleculesDemo.svelte";
   import OrganismsDemo from "./pages/OrganismsDemo.svelte";
+  import ThemeToggle from "./atoms/ThemeToggle.svelte";
 
   let currentPage = "home";
 
@@ -15,25 +16,28 @@
   };
 </script>
 
-<div class="min-h-screen bg-slate-900">
+<div class="min-h-screen bg-slate-900 dark:bg-slate-900">
   <!-- Navigation -->
   <nav
-    class="fixed top-0 left-0 right-0 bg-slate-800 border-b border-slate-700 z-50"
+    class="fixed top-0 left-0 right-0 bg-slate-800 dark:bg-slate-800 border-b border-slate-700 dark:border-slate-700 z-50"
   >
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
       <h1 class="text-2xl font-bold text-white">SyncSpace Components</h1>
-      <div class="flex gap-4">
-        {#each Object.entries(pages) as [key, page]}
-          <button
-            onclick={() => (currentPage = key)}
-            class="px-4 py-2 rounded-lg font-medium transition-colors {currentPage ===
-            key
-              ? 'bg-blue-600 text-white'
-              : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}"
-          >
-            {page.label}
-          </button>
-        {/each}
+      <div class="flex items-center gap-4">
+        <div class="flex gap-4">
+          {#each Object.entries(pages) as [key, page]}
+            <button
+              onclick={() => (currentPage = key)}
+              class="px-4 py-2 rounded-lg font-medium transition-colors {currentPage ===
+              key
+                ? 'bg-blue-600 text-white'
+                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}"
+            >
+              {page.label}
+            </button>
+          {/each}
+        </div>
+        <ThemeToggle />
       </div>
     </div>
   </nav>

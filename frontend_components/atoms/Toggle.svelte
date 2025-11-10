@@ -1,10 +1,13 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
+
   interface Props {
     checked?: boolean;
     disabled?: boolean;
     variant?: "primary" | "danger" | "success" | "warning";
     class?: string;
     onchange?: (event: Event) => void;
+    children?: Snippet;
   }
 
   let {
@@ -13,6 +16,7 @@
     variant = "primary",
     class: customClass = "",
     onchange,
+    children,
   }: Props = $props();
 
   const variantClasses = {
@@ -42,9 +46,9 @@
       `}
     />
   </div>
-  {#if $$slots.default}
+  {#if children}
     <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">
-      <slot />
+      {@render children()}
     </span>
   {/if}
 </label>

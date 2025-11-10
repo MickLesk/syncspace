@@ -12,3 +12,7 @@ export { default as Spinner } from './Spinner.svelte';
 export { default as ProgressBar } from './ProgressBar.svelte';
 export { default as Alert } from './Alert.svelte';
 export { default as Textarea } from './Textarea.svelte';
+export { default as ThemeToggle } from './ThemeToggle.svelte';
+export { default as Radio } from './Radio.svelte';
+export { default as Skeleton } from './Skeleton.svelte';
+
