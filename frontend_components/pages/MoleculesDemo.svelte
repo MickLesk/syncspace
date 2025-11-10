@@ -114,7 +114,7 @@
     { id: "delete", label: "Delete", icon: "bi-trash-fill", dangerous: true },
   ];
 
-  function handleContextMenu(e: MouseEvent) {
+  function showToast(
     type: "success" | "error" | "warning" | "info",
     message: string
   ) {
@@ -304,11 +304,13 @@
       </h2>
 
       <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-        <p class="text-slate-300 mb-6">
+        <p class="text-slate-400 mb-4">
           Right-click on the box below to open a context menu:
         </p>
 
         <div
+          role="button"
+          tabindex="0"
           oncontextmenu={handleContextMenu}
           class="bg-slate-700/50 border-2 border-dashed border-slate-600 rounded-lg p-12 text-center cursor-context-menu hover:border-slate-500 transition-colors"
         >
