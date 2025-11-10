@@ -3,12 +3,11 @@
 
 use crate::auth::UserInfo;
 use crate::services::auth_security_service;
-use crate::database::UserSession;
 use crate::AppState;
 use axum::{
     extract::{Path, State},
     http::StatusCode,
-    routing::{get, post, delete},
+    routing::{delete, get, post},
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
@@ -36,17 +35,20 @@ async fn list_sessions(
             eprintln!("Failed to get sessions: {:?}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
-    
-    let response: Vec<SessionResponse> = sessions.into_iter().map(|s| SessionResponse {
-        id: s.id,
-        ip_address: s.ip_address,
-        user_agent: s.user_agent,
-        created_at: s.created_at,
-        last_active_at: s.last_active_at,
-        expires_at: s.expires_at,
-        is_current: false, // TODO: Compare with current session token
-    }).collect();
-    
+
+    let response: Vec<SessionResponse> = sessions
+        .into_iter()
+        .map(|s| SessionResponse {
+            id: s.id,
+            ip_address: s.ip_address,
+            user_agent: s.user_agent,
+            created_at: s.created_at,
+            last_active_at: s.last_active_at,
+            expires_at: s.expires_at,
+            is_current: false, // TODO: Compare with current session token
+        })
+        .collect();
+
     Ok(Json(response))
 }
 
@@ -60,18 +62,18 @@ async fn revoke_session(
     let sessions = auth_security_service::get_user_sessions(&state.db_pool, &user.id)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    
+
     if !sessions.iter().any(|s| s.id == session_id) {
         return Err(StatusCode::FORBIDDEN);
     }
-    
+
     auth_security_service::revoke_session(&state.db_pool, &session_id, "user_logout")
         .await
         .map_err(|e| {
             eprintln!("Failed to revoke session: {:?}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
-    
+
     Ok(Json(SuccessResponse {
         success: true,
         message: "Session revoked successfully".to_string(),
@@ -89,7 +91,7 @@ async fn revoke_all_sessions(
             eprintln!("Failed to revoke all sessions: {:?}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
-    
+
     Ok(Json(SuccessResponse {
         success: true,
         message: "All sessions revoked successfully".to_string(),
@@ -103,16 +105,14 @@ async fn list_login_attempts(
     State(state): State<AppState>,
     user: UserInfo,
 ) -> Result<Json<Vec<LoginAttemptResponse>>, StatusCode> {
-    let username = sqlx::query_scalar::<_, String>(
-        "SELECT username FROM users WHERE id = ?"
-    )
-    .bind(&user.id)
-    .fetch_one(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    
+    let username = sqlx::query_scalar::<_, String>("SELECT username FROM users WHERE id = ?")
+        .bind(&user.id)
+        .fetch_one(&state.db_pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
     let attempts = sqlx::query_as::<_, crate::database::LoginAttempt>(
-        "SELECT * FROM login_attempts WHERE username = ? ORDER BY attempted_at DESC LIMIT 50"
+        "SELECT * FROM login_attempts WHERE username = ? ORDER BY attempted_at DESC LIMIT 50",
     )
     .bind(&username)
     .fetch_all(&state.db_pool)
@@ -121,15 +121,18 @@ async fn list_login_attempts(
         eprintln!("Failed to get login attempts: {:?}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
-    
-    let response: Vec<LoginAttemptResponse> = attempts.into_iter().map(|a| LoginAttemptResponse {
-        ip_address: a.ip_address,
-        user_agent: a.user_agent,
-        success: a.success == 1,
-        failure_reason: a.failure_reason,
-        attempted_at: a.attempted_at,
-    }).collect();
-    
+
+    let response: Vec<LoginAttemptResponse> = attempts
+        .into_iter()
+        .map(|a| LoginAttemptResponse {
+            ip_address: a.ip_address,
+            user_agent: a.user_agent,
+            success: a.success == 1,
+            failure_reason: a.failure_reason,
+            attempted_at: a.attempted_at,
+        })
+        .collect();
+
     Ok(Json(response))
 }
 

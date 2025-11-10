@@ -1,16 +1,16 @@
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Path, State},
     http::StatusCode,
     response::{IntoResponse, Json},
-    routing::{delete, get, post, put},
+    routing::{delete, get, post},
     Router,
 };
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
-use crate::AppState;
 use crate::auth::UserInfo;
+use crate::AppState;
 
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct UserGroup {
@@ -54,7 +54,7 @@ async fn list_groups(
     let groups: Vec<UserGroup> = sqlx::query_as(
         "SELECT id, name, description, created_by, created_at, updated_at 
          FROM user_groups
-         ORDER BY name ASC"
+         ORDER BY name ASC",
     )
     .fetch_all(&state.db_pool)
     .await
@@ -74,7 +74,7 @@ async fn create_group(
 
     sqlx::query(
         "INSERT INTO user_groups (id, name, description, created_by, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?)"
+         VALUES (?, ?, ?, ?, ?, ?)",
     )
     .bind(&id)
     .bind(&req.name)
@@ -86,11 +86,14 @@ async fn create_group(
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    Ok((StatusCode::CREATED, Json(serde_json::json!({
-        "id": id,
-        "name": req.name,
-        "message": "Group created successfully"
-    }))))
+    Ok((
+        StatusCode::CREATED,
+        Json(serde_json::json!({
+            "id": id,
+            "name": req.name,
+            "message": "Group created successfully"
+        })),
+    ))
 }
 
 /// Get group details with members
@@ -101,7 +104,7 @@ async fn get_group(
 ) -> Result<impl IntoResponse, StatusCode> {
     let group: Option<UserGroup> = sqlx::query_as(
         "SELECT id, name, description, created_by, created_at, updated_at 
-         FROM user_groups WHERE id = ?"
+         FROM user_groups WHERE id = ?",
     )
     .bind(&group_id)
     .fetch_optional(&state.db_pool)
@@ -116,7 +119,7 @@ async fn get_group(
          FROM user_group_members ugm
          JOIN users u ON u.id = ugm.user_id
          WHERE ugm.group_id = ?
-         ORDER BY u.username ASC"
+         ORDER BY u.username ASC",
     )
     .bind(&group_id)
     .fetch_all(&state.db_pool)
@@ -141,7 +144,7 @@ async fn add_member(
 
     sqlx::query(
         "INSERT INTO user_group_members (id, group_id, user_id, added_by, added_at)
-         VALUES (?, ?, ?, ?, ?)"
+         VALUES (?, ?, ?, ?, ?)",
     )
     .bind(&id)
     .bind(&group_id)
@@ -158,9 +161,12 @@ async fn add_member(
         }
     })?;
 
-    Ok((StatusCode::OK, Json(serde_json::json!({
-        "message": "Member added successfully"
-    }))))
+    Ok((
+        StatusCode::OK,
+        Json(serde_json::json!({
+            "message": "Member added successfully"
+        })),
+    ))
 }
 
 /// Remove member from group
@@ -169,14 +175,12 @@ async fn remove_member(
     Path((group_id, user_id)): Path<(String, String)>,
     _user: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let result = sqlx::query(
-        "DELETE FROM user_group_members WHERE group_id = ? AND user_id = ?"
-    )
-    .bind(&group_id)
-    .bind(&user_id)
-    .execute(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let result = sqlx::query("DELETE FROM user_group_members WHERE group_id = ? AND user_id = ?")
+        .bind(&group_id)
+        .bind(&user_id)
+        .execute(&state.db_pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     if result.rows_affected() == 0 {
         return Err(StatusCode::NOT_FOUND);
@@ -231,7 +235,7 @@ async fn assign_role(
     // Insert new role
     sqlx::query(
         "INSERT INTO user_system_roles (id, user_id, role, assigned_by, assigned_at)
-         VALUES (?, ?, ?, ?, ?)"
+         VALUES (?, ?, ?, ?, ?)",
     )
     .bind(&id)
     .bind(&user_id)
@@ -242,9 +246,12 @@ async fn assign_role(
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    Ok((StatusCode::OK, Json(serde_json::json!({
-        "message": format!("Role '{}' assigned successfully", req.role)
-    }))))
+    Ok((
+        StatusCode::OK,
+        Json(serde_json::json!({
+            "message": format!("Role '{}' assigned successfully", req.role)
+        })),
+    ))
 }
 
 /// Get user roles
@@ -311,9 +318,12 @@ async fn suspend_user(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    Ok((StatusCode::OK, Json(serde_json::json!({
-        "message": "User suspended successfully"
-    }))))
+    Ok((
+        StatusCode::OK,
+        Json(serde_json::json!({
+            "message": "User suspended successfully"
+        })),
+    ))
 }
 
 /// Lift suspension
@@ -326,7 +336,7 @@ async fn unsuspend_user(
 
     sqlx::query(
         "UPDATE user_suspensions SET is_active = 0, lifted_at = ?, lifted_by = ? 
-         WHERE user_id = ? AND is_active = 1"
+         WHERE user_id = ? AND is_active = 1",
     )
     .bind(&now)
     .bind(&user.user_id())
@@ -341,9 +351,12 @@ async fn unsuspend_user(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    Ok((StatusCode::OK, Json(serde_json::json!({
-        "message": "Suspension lifted successfully"
-    }))))
+    Ok((
+        StatusCode::OK,
+        Json(serde_json::json!({
+            "message": "Suspension lifted successfully"
+        })),
+    ))
 }
 
 /// Router
@@ -351,11 +364,20 @@ pub fn router() -> Router<AppState> {
     Router::new()
         // Groups
         .route("/api/groups", get(list_groups).post(create_group))
-        .route("/api/groups/{group_id}", get(get_group).delete(delete_group))
+        .route(
+            "/api/groups/{group_id}",
+            get(get_group).delete(delete_group),
+        )
         .route("/api/groups/{group_id}/members", post(add_member))
-        .route("/api/groups/{group_id}/members/{user_id}", delete(remove_member))
+        .route(
+            "/api/groups/{group_id}/members/{user_id}",
+            delete(remove_member),
+        )
         // Roles
-        .route("/api/users/{user_id}/roles", get(get_user_roles).post(assign_role))
+        .route(
+            "/api/users/{user_id}/roles",
+            get(get_user_roles).post(assign_role),
+        )
         // Suspensions
         .route("/api/users/{user_id}/suspend", post(suspend_user))
         .route("/api/users/{user_id}/unsuspend", post(unsuspend_user))

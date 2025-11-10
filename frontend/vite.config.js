@@ -27,9 +27,38 @@ export default defineConfig({
             return 'fonts/[name]-[hash][extname]';
           }
           return 'assets/[name]-[hash][extname]';
+        },
+        manualChunks: {
+          // Vendor chunks - separate large dependencies
+          'vendor-svelte': ['svelte'],
+          'vendor-icons': ['bootstrap-icons'],
+          
+          // UI components chunk
+          'ui-components': [
+            './src/components/ui/AppHeader.svelte',
+            './src/components/ui/Modal.svelte',
+            './src/components/ui/Toast.svelte',
+            './src/components/navigation/Sidebar.svelte'
+          ],
+          
+          // File management chunk
+          'file-views': [
+            './src/pages/files/FilesView.svelte',
+            './src/pages/files/SharedView.svelte',
+            './src/pages/files/RecentFilesView.svelte'
+          ],
+          
+          // Admin/Settings chunk
+          'admin-views': [
+            './src/pages/user/UserSettingsView.svelte',
+            './src/pages/user/UserProfileView.svelte',
+            './src/pages/user/UsersView.svelte'
+          ]
         }
       }
-    }
+    },
+    chunkSizeWarningLimit: 600, // Increase from default 500KB
+    sourcemap: false // Disable sourcemaps in production for smaller builds
   },
   resolve: {
     alias: {

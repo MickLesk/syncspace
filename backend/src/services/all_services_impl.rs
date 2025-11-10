@@ -297,10 +297,9 @@ pub mod sharing {
             .map(|log| {
                 serde_json::json!({
                     "id": log.id,
-                    "ip": log.accessed_by_ip,
+                    "ip": log.ip_address,
                     "accessed_at": log.accessed_at,
                     "action": log.action,
-                    "status": log.status,
                     "user_agent": log.user_agent
                 })
             })
@@ -664,6 +663,91 @@ pub mod tag {
             .execute(&state.db_pool)
             .await?;
         Ok(())
+    }
+
+    pub async fn list_by_file(
+        state: &AppState,
+        _user: &UserInfo,
+        file_path: &str,
+    ) -> Result<Vec<Tag>> {
+        let rows: Vec<crate::database::Tag> = sqlx::query_as(
+            "SELECT DISTINCT t.* FROM tags t 
+             INNER JOIN file_tags ft ON t.id = ft.tag_id 
+             WHERE ft.file_path = ?",
+        )
+        .bind(file_path)
+        .fetch_all(&state.db_pool)
+        .await?;
+
+        Ok(rows
+            .iter()
+            .map(|r| Tag {
+                id: Uuid::parse_str(&r.id).unwrap_or_default(),
+                name: r.name.clone(),
+                color: r.color.clone(),
+                user_id: Uuid::parse_str(&r.owner_id).unwrap_or_default(),
+                created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at)
+                    .unwrap_or_else(|_| Utc::now().into())
+                    .with_timezone(&Utc),
+            })
+            .collect())
+    }
+
+    pub async fn create_for_file(
+        state: &AppState,
+        user: &UserInfo,
+        file_path: &str,
+        name: &str,
+        color: Option<String>,
+    ) -> Result<Tag> {
+        // First create the tag
+        let tag = create_tag(state, user, name, color).await?;
+
+        // Then associate it with the file
+        let ft_id = Uuid::new_v4().to_string();
+        let now = Utc::now().to_rfc3339();
+        sqlx::query(
+            "INSERT INTO file_tags (id, file_id, tag_id, item_type, file_path, tagged_by, created_at) 
+             VALUES (?, ?, ?, 'file', ?, ?, ?)"
+        )
+        .bind(&ft_id)
+        .bind(file_path)
+        .bind(&tag.id.to_string())
+        .bind(file_path)
+        .bind(&user.id)
+        .bind(&now)
+        .execute(&state.db_pool)
+        .await?;
+
+        Ok(tag)
+    }
+
+    pub async fn update(
+        state: &AppState,
+        user: &UserInfo,
+        tag_id: &str,
+        name: &str,
+        color: Option<String>,
+    ) -> Result<Tag> {
+        let now = Utc::now().to_rfc3339();
+        sqlx::query(
+            "UPDATE tags SET name = ?, color = ?, updated_at = ? WHERE id = ? AND owner_id = ?",
+        )
+        .bind(name)
+        .bind(color.as_deref())
+        .bind(&now)
+        .bind(tag_id)
+        .bind(&user.id)
+        .execute(&state.db_pool)
+        .await?;
+
+        Ok(Tag {
+            id: Uuid::parse_str(tag_id).unwrap_or_default(),
+            name: name.to_string(),
+            color,
+            user_id: Uuid::parse_str(&user.id).unwrap_or_default(),
+            created_at: Utc::now(),
+        })
     }
 
     pub async fn tag_file(

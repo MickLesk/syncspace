@@ -3,6 +3,7 @@
   import { auth } from "./stores/auth";
   import { initErrorReporting } from "./lib/errorReporting";
   import { websocketManager } from "./stores/websocket.js";
+  import { currentView } from "./stores/ui.js";
 
   // Backend-First: Import serverState instead of separate UI/preference stores
   import {

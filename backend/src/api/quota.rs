@@ -2,13 +2,13 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
     response::{IntoResponse, Json},
-    routing::{get, put},
+    routing::get,
     Router,
 };
 use serde::{Deserialize, Serialize};
 
-use crate::AppState;
 use crate::auth::UserInfo;
+use crate::AppState;
 
 #[derive(Debug, Serialize)]
 pub struct QuotaInfo {
@@ -30,13 +30,12 @@ async fn get_my_quota(
     State(state): State<AppState>,
     user: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let quota_info: Option<(i64, i64)> = sqlx::query_as(
-        "SELECT storage_used_bytes, storage_quota_bytes FROM users WHERE id = ?"
-    )
-    .bind(&user.user_id())
-    .fetch_optional(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let quota_info: Option<(i64, i64)> =
+        sqlx::query_as("SELECT storage_used_bytes, storage_quota_bytes FROM users WHERE id = ?")
+            .bind(&user.user_id())
+            .fetch_optional(&state.db_pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let (used, quota) = quota_info.ok_or(StatusCode::NOT_FOUND)?;
 
@@ -63,7 +62,7 @@ async fn get_user_quota(
     _admin: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
     let user_info: Option<(String, i64, i64)> = sqlx::query_as(
-        "SELECT username, storage_used_bytes, storage_quota_bytes FROM users WHERE id = ?"
+        "SELECT username, storage_used_bytes, storage_quota_bytes FROM users WHERE id = ?",
     )
     .bind(&user_id)
     .fetch_optional(&state.db_pool)
@@ -101,20 +100,21 @@ async fn set_user_quota(
 
     let now = chrono::Utc::now().to_rfc3339();
 
-    sqlx::query(
-        "UPDATE users SET storage_quota_bytes = ?, updated_at = ? WHERE id = ?"
-    )
-    .bind(req.quota_bytes)
-    .bind(&now)
-    .bind(&user_id)
-    .execute(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    sqlx::query("UPDATE users SET storage_quota_bytes = ?, updated_at = ? WHERE id = ?")
+        .bind(req.quota_bytes)
+        .bind(&now)
+        .bind(&user_id)
+        .execute(&state.db_pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    Ok((StatusCode::OK, Json(serde_json::json!({
-        "message": "Quota updated successfully",
-        "quota_bytes": req.quota_bytes
-    }))))
+    Ok((
+        StatusCode::OK,
+        Json(serde_json::json!({
+            "message": "Quota updated successfully",
+            "quota_bytes": req.quota_bytes
+        })),
+    ))
 }
 
 /// Update storage usage (internal helper, called when files are uploaded/deleted)
@@ -124,7 +124,7 @@ pub async fn update_storage_usage(
 ) -> Result<(), StatusCode> {
     // Calculate total storage used by summing file sizes
     let total_used: Option<(i64,)> = sqlx::query_as(
-        "SELECT COALESCE(SUM(size_bytes), 0) FROM files WHERE owner_id = ? AND is_deleted = 0"
+        "SELECT COALESCE(SUM(size_bytes), 0) FROM files WHERE owner_id = ? AND is_deleted = 0",
     )
     .bind(user_id)
     .fetch_optional(pool)
@@ -135,15 +135,13 @@ pub async fn update_storage_usage(
 
     let now = chrono::Utc::now().to_rfc3339();
 
-    sqlx::query(
-        "UPDATE users SET storage_used_bytes = ?, updated_at = ? WHERE id = ?"
-    )
-    .bind(total)
-    .bind(&now)
-    .bind(user_id)
-    .execute(pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    sqlx::query("UPDATE users SET storage_used_bytes = ?, updated_at = ? WHERE id = ?")
+        .bind(total)
+        .bind(&now)
+        .bind(user_id)
+        .execute(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     Ok(())
 }
@@ -154,13 +152,12 @@ pub async fn check_quota_available(
     user_id: &str,
     required_bytes: i64,
 ) -> Result<bool, StatusCode> {
-    let quota_info: Option<(i64, i64)> = sqlx::query_as(
-        "SELECT storage_used_bytes, storage_quota_bytes FROM users WHERE id = ?"
-    )
-    .bind(user_id)
-    .fetch_optional(pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let quota_info: Option<(i64, i64)> =
+        sqlx::query_as("SELECT storage_used_bytes, storage_quota_bytes FROM users WHERE id = ?")
+            .bind(user_id)
+            .fetch_optional(pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let (used, quota) = quota_info.ok_or(StatusCode::NOT_FOUND)?;
 
@@ -175,7 +172,7 @@ async fn list_all_quotas(
     let users: Vec<(String, String, i64, i64)> = sqlx::query_as(
         "SELECT id, username, storage_used_bytes, storage_quota_bytes 
          FROM users 
-         ORDER BY storage_used_bytes DESC"
+         ORDER BY storage_used_bytes DESC",
     )
     .fetch_all(&state.db_pool)
     .await
@@ -209,5 +206,8 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/api/quota", get(get_my_quota))
         .route("/api/quota/all", get(list_all_quotas))
-        .route("/api/quota/{user_id}", get(get_user_quota).put(set_user_quota))
+        .route(
+            "/api/quota/{user_id}",
+            get(get_user_quota).put(set_user_quota),
+        )
 }

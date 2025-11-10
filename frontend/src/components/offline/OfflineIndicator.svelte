@@ -1,7 +1,7 @@
 <script>
   // OfflineIndicator.svelte - Shows offline status and queue
   import { offlineManager, formatCacheSize } from "../../stores/offlineManager";
-  import { t } from "../../lib/i18n";
+  import { t } from "../../i18n";
 
   let showDetails = $state(false);
 

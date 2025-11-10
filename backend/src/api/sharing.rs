@@ -43,9 +43,9 @@ pub fn router() -> Router<AppState> {
 /// Public sharing routes - NO AUTH REQUIRED
 pub fn public_router() -> Router<AppState> {
     Router::new()
-        .route("/sharing/public/:share_token", get(get_public_share))
+        .route("/sharing/public/{share_token}", get(get_public_share))
         .route(
-            "/sharing/public/:share_token/download",
+            "/sharing/public/{share_token}/download",
             get(download_public_share),
         )
 }

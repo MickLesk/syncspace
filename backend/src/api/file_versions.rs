@@ -244,21 +244,24 @@ pub fn router() -> Router<AppState> {
 /// This is the primary interface for frontend
 pub fn file_versions_router() -> Router<AppState> {
     Router::new()
-        .route("/files/*path/versions", get(list_path_versions))
+        .route("/files/{*path}/versions", get(list_path_versions))
         .route(
-            "/files/*path/versions/:version_num",
+            "/files/{*path}/versions/{version_num}",
             get(get_version_by_number).delete(delete_version_by_number),
         )
         .route(
-            "/files/*path/versions/:version_num/download",
+            "/files/{*path}/versions/{version_num}/download",
             get(download_version_content),
         )
         .route(
-            "/files/*path/versions/:version_num/restore",
+            "/files/{*path}/versions/{version_num}/restore",
             post(restore_version_by_number),
         )
-        .route("/files/*path/versions/diff", post(diff_versions_content))
-        .route("/files/*path/versions/cleanup", post(cleanup_old_versions))
+        .route("/files/{*path}/versions/diff", post(diff_versions_content))
+        .route(
+            "/files/{*path}/versions/cleanup",
+            post(cleanup_old_versions),
+        )
 }
 
 // ============================================================================
@@ -351,7 +354,7 @@ async fn download_version_content(
     State(state): State<AppState>,
     Path((path, version_num)): Path<(String, i32)>,
     _user: UserInfo,
-) -> Result<impl IntoResponse, StatusCode> {
+) -> Result<StatusCode, StatusCode> {
     // TODO: Implement file streaming from version storage
     // For now, return 501 Not Implemented
     Err(StatusCode::NOT_IMPLEMENTED)

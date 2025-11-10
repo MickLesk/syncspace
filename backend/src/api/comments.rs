@@ -4,7 +4,7 @@ use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::{IntoResponse, Json},
-    routing::{self, post},
+    routing::{self, get, post, put},
     Router,
 };
 use chrono::Utc;

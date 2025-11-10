@@ -1,11 +1,11 @@
 //! Tag Service - Business logic for tag management
 
-use crate::{AppState, auth::UserInfo};
-use anyhow::{Result, bail};
+use crate::{auth::UserInfo, AppState};
+use anyhow::{bail, Result};
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
-use chrono::Utc;
 
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct Tag {
@@ -41,22 +41,27 @@ pub async fn list(state: &AppState, user: &UserInfo) -> Result<Vec<Tag>> {
     .bind(&user.id)
     .fetch_all(&state.db)
     .await?;
-    
+
     Ok(tags)
 }
 
 /// Create a new tag
-pub async fn create(state: &AppState, user: &UserInfo, name: &str, color: Option<String>) -> Result<Tag> {
+pub async fn create(
+    state: &AppState,
+    user: &UserInfo,
+    name: &str,
+    color: Option<String>,
+) -> Result<Tag> {
     // Validate color format if provided (must be hex color)
     if let Some(ref c) = color {
         if !c.starts_with('#') || (c.len() != 7 && c.len() != 9) {
             bail!("Invalid color format. Use #RRGGBB or #RRGGBBAA");
         }
     }
-    
+
     let tag_id = Uuid::new_v4().to_string();
     let now = Utc::now().to_rfc3339();
-    
+
     sqlx::query(
         r#"
         INSERT INTO tags (id, name, color, owner_id, created_at, updated_at)
@@ -71,7 +76,7 @@ pub async fn create(state: &AppState, user: &UserInfo, name: &str, color: Option
     .bind(&now)
     .execute(&state.db)
     .await?;
-    
+
     Ok(Tag {
         id: tag_id,
         name: name.to_string(),
@@ -94,23 +99,28 @@ pub async fn delete(state: &AppState, user: &UserInfo, tag_id: &str) -> Result<(
     .bind(&user.id)
     .execute(&state.db)
     .await?;
-    
+
     if result.rows_affected() == 0 {
         bail!("Tag not found or access denied");
     }
-    
+
     Ok(())
 }
 
 /// Update tag color
-pub async fn update_color(state: &AppState, user: &UserInfo, tag_id: &str, color: String) -> Result<()> {
+pub async fn update_color(
+    state: &AppState,
+    user: &UserInfo,
+    tag_id: &str,
+    color: String,
+) -> Result<()> {
     // Validate color format
     if !color.starts_with('#') || (color.len() != 7 && color.len() != 9) {
         bail!("Invalid color format. Use #RRGGBB or #RRGGBBAA");
     }
-    
+
     let now = Utc::now().to_rfc3339();
-    
+
     let result = sqlx::query(
         r#"
         UPDATE tags
@@ -124,16 +134,21 @@ pub async fn update_color(state: &AppState, user: &UserInfo, tag_id: &str, color
     .bind(&user.id)
     .execute(&state.db)
     .await?;
-    
+
     if result.rows_affected() == 0 {
         bail!("Tag not found or access denied");
     }
-    
+
     Ok(())
 }
 
 /// Tag a file (assign tag to file)
-pub async fn tag_file(state: &AppState, user: &UserInfo, file_id: &str, tag_id: &str) -> Result<FileTag> {
+pub async fn tag_file(
+    state: &AppState,
+    user: &UserInfo,
+    file_id: &str,
+    tag_id: &str,
+) -> Result<FileTag> {
     // Verify tag belongs to user
     let tag = sqlx::query_as::<_, Tag>(
         "SELECT id, name, color, owner_id, created_at, updated_at FROM tags WHERE id = ? AND owner_id = ?"
@@ -142,17 +157,17 @@ pub async fn tag_file(state: &AppState, user: &UserInfo, file_id: &str, tag_id: 
     .bind(&user.id)
     .fetch_optional(&state.db)
     .await?;
-    
+
     if tag.is_none() {
         bail!("Tag not found or access denied");
     }
-    
+
     // Get file path (assuming file_id is the path for now)
     let file_path = file_id;
-    
+
     let file_tag_id = Uuid::new_v4().to_string();
     let now = Utc::now().to_rfc3339();
-    
+
     sqlx::query(
         r#"
         INSERT INTO file_tags (id, file_id, tag_id, item_type, file_path, tagged_by, created_at)
@@ -167,7 +182,7 @@ pub async fn tag_file(state: &AppState, user: &UserInfo, file_id: &str, tag_id: 
     .bind(&now)
     .execute(&state.db)
     .await?;
-    
+
     Ok(FileTag {
         id: file_tag_id,
         file_id: file_id.to_string(),
@@ -180,7 +195,12 @@ pub async fn tag_file(state: &AppState, user: &UserInfo, file_id: &str, tag_id: 
 }
 
 /// Remove tag from file
-pub async fn untag_file(state: &AppState, user: &UserInfo, file_id: &str, tag_id: &str) -> Result<()> {
+pub async fn untag_file(
+    state: &AppState,
+    user: &UserInfo,
+    file_id: &str,
+    tag_id: &str,
+) -> Result<()> {
     let result = sqlx::query(
         r#"
         DELETE FROM file_tags
@@ -192,11 +212,11 @@ pub async fn untag_file(state: &AppState, user: &UserInfo, file_id: &str, tag_id
     .bind(&user.id)
     .execute(&state.db)
     .await?;
-    
+
     if result.rows_affected() == 0 {
         bail!("File tag not found or access denied");
     }
-    
+
     Ok(())
 }
 
@@ -217,7 +237,7 @@ pub async fn list_file_tags(state: &AppState, file_path: &str) -> Result<Vec<(Ta
     .bind(file_path)
     .fetch_all(&state.db)
     .await?;
-    
+
     let mut results = Vec::new();
     for row in rows {
         let tag = Tag {
@@ -239,6 +259,99 @@ pub async fn list_file_tags(state: &AppState, file_path: &str) -> Result<Vec<(Ta
         };
         results.push((tag, file_tag));
     }
-    
+
     Ok(results)
+}
+
+/// Alias for list_file_tags (used by API)
+pub async fn list_by_file(state: &AppState, _user: &UserInfo, file_path: &str) -> Result<Vec<Tag>> {
+    let rows = sqlx::query(
+        r#"
+        SELECT DISTINCT t.id, t.name, t.color, t.owner_id, t.created_at, t.updated_at
+        FROM file_tags ft
+        JOIN tags t ON ft.tag_id = t.id
+        WHERE ft.file_path = ?
+        ORDER BY t.name ASC
+        "#,
+    )
+    .bind(file_path)
+    .fetch_all(&state.db)
+    .await?;
+
+    let mut tags = Vec::new();
+    for row in rows {
+        tags.push(Tag {
+            id: row.get("id"),
+            name: row.get("name"),
+            color: row.get("color"),
+            owner_id: row.get("owner_id"),
+            created_at: row.get("created_at"),
+            updated_at: row.get("updated_at"),
+        });
+    }
+
+    Ok(tags)
+}
+
+/// Create tag for a specific file
+pub async fn create_for_file(
+    state: &AppState,
+    user: &UserInfo,
+    file_path: &str,
+    name: &str,
+    color: Option<String>,
+) -> Result<Tag> {
+    // First create or get the tag
+    let tag = create(state, user, name, color).await?;
+
+    // Then tag the file
+    tag_file(state, user, file_path, &tag.id).await?;
+
+    Ok(tag)
+}
+
+/// Update tag name and color
+pub async fn update(
+    state: &AppState,
+    user: &UserInfo,
+    tag_id: &str,
+    name: &str,
+    color: Option<String>,
+) -> Result<Tag> {
+    // Validate color format if provided
+    if let Some(ref c) = color {
+        if !c.starts_with('#') || (c.len() != 7 && c.len() != 9) {
+            bail!("Invalid color format. Use #RRGGBB or #RRGGBBAA");
+        }
+    }
+
+    let now = Utc::now().to_rfc3339();
+
+    let result = sqlx::query(
+        r#"
+        UPDATE tags
+        SET name = ?, color = ?, updated_at = ?
+        WHERE id = ? AND owner_id = ?
+        "#,
+    )
+    .bind(name)
+    .bind(&color)
+    .bind(&now)
+    .bind(tag_id)
+    .bind(&user.id)
+    .execute(&state.db)
+    .await?;
+
+    if result.rows_affected() == 0 {
+        bail!("Tag not found or access denied");
+    }
+
+    Ok(Tag {
+        id: tag_id.to_string(),
+        name: name.to_string(),
+        color,
+        owner_id: user.id.clone(),
+        created_at: String::new(), // Will be fetched if needed
+        updated_at: now,
+    })
 }
