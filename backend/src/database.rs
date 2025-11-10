@@ -547,6 +547,18 @@ pub struct SharedLink {
     pub token_version: i32,
     pub regenerated_at: Option<String>,
     pub regenerated_by: Option<String>,
+    pub allow_external: Option<bool>, // New: Toggle external sharing
+    pub share_type: Option<String>,   // New: 'public', 'user', 'mixed'
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct ShareUser {
+    pub id: String,
+    pub share_id: String,
+    pub user_id: String,
+    pub permission: String, // 'read', 'write', 'admin'
+    pub created_at: String,
+    pub created_by: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]

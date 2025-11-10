@@ -332,6 +332,119 @@ pub mod sharing {
 
         Ok(())
     }
+
+    /// Add users to a share with specific permissions
+    pub async fn add_share_users(
+        state: &AppState,
+        user: &UserInfo,
+        share_id: &str,
+        user_ids: Vec<String>,
+        permissions: Vec<String>,
+    ) -> Result<Vec<crate::database::ShareUser>> {
+        // Verify ownership of the share
+        let _share: crate::database::SharedLink =
+            sqlx::query_as("SELECT * FROM shared_links WHERE id = ? AND created_by = ?")
+                .bind(share_id)
+                .bind(&user.id)
+                .fetch_one(&state.db_pool)
+                .await?;
+
+        let now = Utc::now().to_rfc3339();
+        let mut share_users = Vec::new();
+
+        for (user_id, permission) in user_ids.iter().zip(permissions.iter()) {
+            let id = Uuid::new_v4().to_string();
+
+            // Insert or update the share_user entry
+            sqlx::query(
+                "INSERT INTO share_users (id, share_id, user_id, permission, created_at, created_by)
+                 VALUES (?, ?, ?, ?, ?, ?)
+                 ON CONFLICT(share_id, user_id) DO UPDATE SET permission = excluded.permission"
+            )
+            .bind(&id)
+            .bind(share_id)
+            .bind(user_id)
+            .bind(permission)
+            .bind(&now)
+            .bind(&user.id)
+            .execute(&state.db_pool)
+            .await?;
+
+            share_users.push(crate::database::ShareUser {
+                id,
+                share_id: share_id.to_string(),
+                user_id: user_id.clone(),
+                permission: permission.clone(),
+                created_at: now.clone(),
+                created_by: user.id.clone(),
+            });
+        }
+
+        Ok(share_users)
+    }
+
+    /// Get all users for a share
+    pub async fn get_share_users(
+        state: &AppState,
+        share_id: &str,
+    ) -> Result<Vec<crate::database::ShareUser>> {
+        let users: Vec<crate::database::ShareUser> =
+            sqlx::query_as("SELECT * FROM share_users WHERE share_id = ?")
+                .bind(share_id)
+                .fetch_all(&state.db_pool)
+                .await?;
+        Ok(users)
+    }
+
+    /// Remove a user from a share
+    pub async fn remove_share_user(
+        state: &AppState,
+        user: &UserInfo,
+        share_id: &str,
+        user_id: &str,
+    ) -> Result<()> {
+        // Verify ownership
+        let _share: crate::database::SharedLink =
+            sqlx::query_as("SELECT * FROM shared_links WHERE id = ? AND created_by = ?")
+                .bind(share_id)
+                .bind(&user.id)
+                .fetch_one(&state.db_pool)
+                .await?;
+
+        sqlx::query("DELETE FROM share_users WHERE share_id = ? AND user_id = ?")
+            .bind(share_id)
+            .bind(user_id)
+            .execute(&state.db_pool)
+            .await?;
+
+        Ok(())
+    }
+
+    /// Update user permission on a share
+    pub async fn update_share_user_permission(
+        state: &AppState,
+        user: &UserInfo,
+        share_id: &str,
+        user_id: &str,
+        permission: &str,
+    ) -> Result<()> {
+        // Verify ownership
+        let _share: crate::database::SharedLink =
+            sqlx::query_as("SELECT * FROM shared_links WHERE id = ? AND created_by = ?")
+                .bind(share_id)
+                .bind(&user.id)
+                .fetch_one(&state.db_pool)
+                .await?;
+
+        sqlx::query("UPDATE share_users SET permission = ? WHERE share_id = ? AND user_id = ?")
+            .bind(permission)
+            .bind(share_id)
+            .bind(user_id)
+            .execute(&state.db_pool)
+            .await?;
+
+        Ok(())
+    }
 }
 
 // ACTIVITY SERVICE

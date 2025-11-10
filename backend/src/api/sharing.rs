@@ -6,7 +6,7 @@ use crate::{services, AppState};
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
-    routing::{get, post, put},
+    routing::{delete, get, post, put},
     Json, Router,
 };
 use chrono::Utc;
@@ -18,6 +18,9 @@ pub struct CreateShareRequest {
     pub permission: String,
     pub expires_at: Option<String>,
     pub password: Option<String>,
+    pub user_ids: Option<Vec<String>>, // NEW: List of user IDs to share with
+    pub permissions: Option<Vec<String>>, // NEW: Permissions for each user (parallel array)
+    pub allow_external: Option<bool>,  // NEW: Toggle external/public sharing
 }
 
 pub fn router() -> Router<AppState> {
@@ -38,6 +41,15 @@ pub fn router() -> Router<AppState> {
         .route("/shares/{share_id}/analytics", get(get_share_analytics))
         .route("/shares/{share_id}/access-log", get(get_access_log))
         .route("/shared-with-me", get(list_shared_with_me))
+        // NEW: Share user management
+        .route(
+            "/shares/{share_id}/users",
+            get(get_share_users).post(add_share_users),
+        )
+        .route(
+            "/shares/{share_id}/users/{user_id}",
+            delete(remove_share_user).put(update_share_user_permission),
+        )
 }
 
 /// Public sharing routes - NO AUTH REQUIRED
@@ -308,4 +320,101 @@ async fn download_public_share(
         StatusCode::NOT_IMPLEMENTED,
         "File streaming not yet implemented",
     ))
+}
+
+// ============================================================================
+// SHARE USER MANAGEMENT ENDPOINTS
+// ============================================================================
+
+#[derive(Debug, Deserialize)]
+pub struct AddShareUsersRequest {
+    pub user_ids: Vec<String>,
+    pub permissions: Vec<String>, // Parallel array: permissions[i] for user_ids[i]
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateShareUserPermissionRequest {
+    pub permission: String, // 'read', 'write', 'admin'
+}
+
+/// GET /shares/{share_id}/users - Get all users for a share
+async fn get_share_users(
+    State(state): State<AppState>,
+    user: UserInfo,
+    Path(share_id): Path<String>,
+) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
+    // Verify ownership or membership
+    let _share: crate::database::SharedLink =
+        sqlx::query_as("SELECT * FROM shared_links WHERE id = ? AND created_by = ?")
+            .bind(&share_id)
+            .bind(&user.id)
+            .fetch_one(&state.db_pool)
+            .await
+            .map_err(|_| StatusCode::FORBIDDEN)?;
+
+    let users = services::sharing::get_share_users(&state, &share_id)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(Json(
+        users
+            .into_iter()
+            .map(|u| serde_json::to_value(u).unwrap_or_default())
+            .collect(),
+    ))
+}
+
+/// POST /shares/{share_id}/users - Add users to a share
+async fn add_share_users(
+    State(state): State<AppState>,
+    user: UserInfo,
+    Path(share_id): Path<String>,
+    Json(req): Json<AddShareUsersRequest>,
+) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
+    if req.user_ids.len() != req.permissions.len() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    let share_users =
+        services::sharing::add_share_users(&state, &user, &share_id, req.user_ids, req.permissions)
+            .await
+            .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    Ok(Json(
+        share_users
+            .into_iter()
+            .map(|u| serde_json::to_value(u).unwrap_or_default())
+            .collect(),
+    ))
+}
+
+/// DELETE /shares/{share_id}/users/{user_id} - Remove user from share
+async fn remove_share_user(
+    State(state): State<AppState>,
+    user: UserInfo,
+    Path((share_id, user_id)): Path<(String, String)>,
+) -> Result<StatusCode, StatusCode> {
+    services::sharing::remove_share_user(&state, &user, &share_id, &user_id)
+        .await
+        .map(|_| StatusCode::NO_CONTENT)
+        .map_err(|_| StatusCode::NOT_FOUND)
+}
+
+/// PUT /shares/{share_id}/users/{user_id} - Update user permission
+async fn update_share_user_permission(
+    State(state): State<AppState>,
+    user: UserInfo,
+    Path((share_id, user_id)): Path<(String, String)>,
+    Json(req): Json<UpdateShareUserPermissionRequest>,
+) -> Result<StatusCode, StatusCode> {
+    services::sharing::update_share_user_permission(
+        &state,
+        &user,
+        &share_id,
+        &user_id,
+        &req.permission,
+    )
+    .await
+    .map(|_| StatusCode::OK)
+    .map_err(|_| StatusCode::BAD_REQUEST)
 }

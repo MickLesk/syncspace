@@ -1138,22 +1138,8 @@ export const favorites = {
 // GENERIC API METHODS (for new endpoints)
 // ============================================
 
-export default {
-  auth,
-  users,
-  files,
-  search,
-  config,
-  peers,
-  comments,
-  tags,
-  batch,
-  performance,
-  favorites,  // Add favorites to default export
-  folderColors,  // Add folder colors to default export
-  
-  // Recent files endpoints
-  recent: {
+// Recent files endpoints
+export const recent = {
     async list(limit = 50) {
       const response = await fetch(`${API_BASE}/recent?limit=${limit}`, {
         headers: getHeaders()
@@ -1177,7 +1163,7 @@ export default {
   },
   
   // System endpoints
-  system: {
+export const system = {
     async storage() {
       const response = await fetch(`${API_BASE}/system/storage`, {
         headers: getHeaders()
@@ -1193,22 +1179,25 @@ export default {
     }
   },
   
-  sharing: {
-    // Create a share for a file or folder
-    async create(fileId = null, folderId = null, options = {}) {
+export const sharing = {
+    // Create a share for a file or folder - ENHANCED
+    async create(requestData) {
+      // Support both old and new API format
+      const body = requestData.file_path ? requestData : {
+        file_id: requestData.fileId || requestData.file_id,
+        folder_id: requestData.folderId || requestData.folder_id,
+        shared_with: requestData.sharedWith || null,
+        expires_in_days: requestData.expiresInDays || null,
+        can_read: requestData.canRead !== false,
+        can_write: requestData.canWrite || false,
+        can_delete: requestData.canDelete || false,
+        can_share: requestData.canShare || false
+      };
+
       const response = await fetch(`${API_BASE}/shares`, {
         method: 'POST',
         headers: getHeaders(),
-        body: JSON.stringify({
-          file_id: fileId,
-          folder_id: folderId,
-          shared_with: options.sharedWith || null, // null = public link
-          expires_in_days: options.expiresInDays || null,
-          can_read: options.canRead !== false,
-          can_write: options.canWrite || false,
-          can_delete: options.canDelete || false,
-          can_share: options.canShare || false
-        })
+        body: JSON.stringify(body)
       });
       return handleResponse(response);
     },
@@ -1246,11 +1235,51 @@ export default {
         body: JSON.stringify(permissions)
       });
       return handleResponse(response);
+    },
+
+    // NEW: Get share users
+    async getUsers(shareId) {
+      const response = await fetch(`${API_BASE}/shares/${shareId}/users`, {
+        headers: getHeaders()
+      });
+      return handleResponse(response);
+    },
+
+    // NEW: Add users to share
+    async addUsers(shareId, userIds, permissions) {
+      const response = await fetch(`${API_BASE}/shares/${shareId}/users`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          user_ids: userIds,
+          permissions: permissions
+        })
+      });
+      return handleResponse(response);
+    },
+
+    // NEW: Remove user from share
+    async removeUser(shareId, userId) {
+      const response = await fetch(`${API_BASE}/shares/${shareId}/users/${userId}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return handleResponse(response);
+    },
+
+    // NEW: Update user permission on share
+    async updateUserPermission(shareId, userId, permission) {
+      const response = await fetch(`${API_BASE}/shares/${shareId}/users/${userId}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ permission })
+      });
+      return handleResponse(response);
     }
   },
   
   // File versioning endpoints
-  versions: {
+export const versions = {
     // List all versions for a file
     async list(fileId) {
       const response = await fetch(`${API_BASE}/files/${fileId}/versions`, {
@@ -1963,7 +1992,10 @@ export default {
   backup,
   backupSchedules,
   system,
+  sharing,
   shares,
   jobs,
   cron,
+  recent,
+  performance,
 };

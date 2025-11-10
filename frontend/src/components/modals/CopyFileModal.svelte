@@ -31,11 +31,19 @@
   async function loadFolders() {
     try {
       const response = await api.files.list("/");
-      const data = await response.json();
-      availableFolders = data.filter((item) => item.is_directory);
+      // response.data ist bereits das Array!
+      availableFolders = (response.data || []).filter(
+        (item) => item.is_directory
+      );
+      console.log("[CopyFileModal] Loaded folders:", availableFolders);
     } catch (err) {
       console.error("Failed to load folders:", err);
+      errorToast(tr("failedToLoadFolders"));
     }
+  }
+
+  function selectFolder(path) {
+    destinationPath = path;
   }
 
   async function handleCopy() {
@@ -113,18 +121,50 @@
         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
       >
         {tr("destinationFolder")}
-        <select
-          bind:value={destinationPath}
-          class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
-        >
-          <option value="">{tr("rootDirectory")}</option>
-          {#each availableFolders as folder}
-            <option value={folder.path || folder.file_path}>
-              {folder.name}
-            </option>
-          {/each}
-        </select>
       </label>
+      <!-- Folder Tree View -->
+      <div
+        class="max-h-60 overflow-y-auto border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 p-2"
+      >
+        <!-- Root option -->
+        <button
+          type="button"
+          onclick={() => selectFolder("")}
+          class="w-full text-left px-3 py-2 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors {destinationPath ===
+          ''
+            ? 'bg-blue-100 dark:bg-blue-900/40 font-semibold'
+            : ''}"
+        >
+          <i class="bi bi-house-door text-blue-600 dark:text-blue-400 mr-2"></i>
+          {tr("rootDirectory")}
+        </button>
+
+        <!-- Folder list with visual hierarchy -->
+        {#each availableFolders as folder}
+          {@const folderPath = folder.path || folder.file_path || folder.name}
+          {@const depth = (folderPath.match(/\//g) || []).length}
+          {@const isSelected = destinationPath === folderPath}
+
+          <button
+            type="button"
+            onclick={() => selectFolder(folderPath)}
+            class="w-full text-left px-3 py-2 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors {isSelected
+              ? 'bg-blue-100 dark:bg-blue-900/40 font-semibold'
+              : ''}"
+            style="padding-left: {depth * 20 + 12}px"
+          >
+            <i class="bi bi-folder-fill text-amber-500 mr-2"></i>
+            <span class="text-gray-900 dark:text-white text-sm"
+              >{folder.name}</span
+            >
+            {#if depth > 0}
+              <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                ({folderPath})
+              </span>
+            {/if}
+          </button>
+        {/each}
+      </div>
 
       <!-- New file name (optional) -->
       <label

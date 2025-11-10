@@ -18,6 +18,8 @@
   let loading = $state(false);
   let error = $state(null);
   let availableFolders = $state([]);
+  let folderTree = $state([]);
+  let expandedFolders = $state(new Set());
   let createNewFolder = $state(false);
   let newFolderName = $state("");
 
@@ -35,11 +37,59 @@
       availableFolders = (response.data || []).filter(
         (item) => item.is_directory
       );
+
+      // Build tree structure
+      folderTree = buildFolderTree(availableFolders);
+
       console.log("[MoveFileModal] Loaded folders:", availableFolders);
+      console.log("[MoveFileModal] Folder tree:", folderTree);
     } catch (err) {
       console.error("Failed to load folders:", err);
       errorToast(tr("failedToLoadFolders"));
     }
+  }
+
+  // Build hierarchical folder tree
+  function buildFolderTree(folders) {
+    const tree = [];
+    const map = new Map();
+
+    // Create map of all folders
+    folders.forEach((folder) => {
+      const path = folder.path || folder.file_path || folder.name;
+      map.set(path, {
+        ...folder,
+        path: path,
+        children: [],
+      });
+    });
+
+    // Build tree
+    folders.forEach((folder) => {
+      const path = folder.path || folder.file_path || folder.name;
+      const parentPath = path.split("/").slice(0, -1).join("/");
+
+      if (parentPath && map.has(parentPath)) {
+        map.get(parentPath).children.push(map.get(path));
+      } else {
+        tree.push(map.get(path));
+      }
+    });
+
+    return tree;
+  }
+
+  function toggleFolder(path) {
+    if (expandedFolders.has(path)) {
+      expandedFolders.delete(path);
+    } else {
+      expandedFolders.add(path);
+    }
+    expandedFolders = new Set(expandedFolders);
+  }
+
+  function selectFolder(path) {
+    destinationPath = path;
   }
 
   async function handleMove() {
@@ -148,18 +198,52 @@
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
             {tr("selectDestination")}
-            <select
-              bind:value={destinationPath}
-              class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
-            >
-              <option value="">{tr("rootDirectory")}</option>
-              {#each availableFolders as folder}
-                <option value={folder.path || folder.file_path}>
-                  📁 {folder.name}
-                </option>
-              {/each}
-            </select>
           </label>
+          <!-- Folder Tree View -->
+          <div
+            class="max-h-60 overflow-y-auto border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 p-2"
+          >
+            <!-- Root option -->
+            <button
+              type="button"
+              onclick={() => selectFolder("")}
+              class="w-full text-left px-3 py-2 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors {destinationPath ===
+              ''
+                ? 'bg-blue-100 dark:bg-blue-900/40 font-semibold'
+                : ''}"
+            >
+              <i class="bi bi-house-door text-blue-600 dark:text-blue-400 mr-2"
+              ></i>
+              {tr("rootDirectory")}
+            </button>
+
+            <!-- Folder list with visual hierarchy -->
+            {#each availableFolders as folder}
+              {@const folderPath =
+                folder.path || folder.file_path || folder.name}
+              {@const depth = (folderPath.match(/\//g) || []).length}
+              {@const isSelected = destinationPath === folderPath}
+
+              <button
+                type="button"
+                onclick={() => selectFolder(folderPath)}
+                class="w-full text-left px-3 py-2 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors {isSelected
+                  ? 'bg-blue-100 dark:bg-blue-900/40 font-semibold'
+                  : ''}"
+                style="padding-left: {depth * 20 + 12}px"
+              >
+                <i class="bi bi-folder-fill text-amber-500 mr-2"></i>
+                <span class="text-gray-900 dark:text-white text-sm"
+                  >{folder.name}</span
+                >
+                {#if depth > 0}
+                  <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                    ({folderPath})
+                  </span>
+                {/if}
+              </button>
+            {/each}
+          </div>
         {/if}
       </div>
 
