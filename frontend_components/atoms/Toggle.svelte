@@ -23,26 +23,22 @@
   };
 </script>
 
-<label class={`inline-flex items-center cursor-pointer select-none ${customClass}`}>
-  <input 
-    type="checkbox" 
-    bind:checked
-    {disabled} 
-    class="sr-only" 
-    {onchange} 
-  />
+<label
+  class={`inline-flex items-center cursor-pointer select-none ${customClass}`}
+>
+  <input type="checkbox" bind:checked {disabled} class="sr-only" {onchange} />
   <div
     class={`
       relative w-11 h-6 rounded-full transition-colors duration-200
-      ${checked ? variantClasses[variant] : 'bg-gray-300'}
-      ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+      ${checked ? variantClasses[variant] : "bg-gray-300"}
+      ${disabled ? "opacity-50 cursor-not-allowed" : ""}
     `}
   >
     <span
       class={`
         absolute top-1 left-1 bg-white w-4 h-4 rounded-full shadow-md
         transition-transform duration-200 ease-in-out
-        ${checked ? 'translate-x-5' : 'translate-x-0'}
+        ${checked ? "translate-x-5" : "translate-x-0"}
       `}
     />
   </div>
@@ -51,5 +47,4 @@
       <slot />
     </span>
   {/if}
-</label>
 </label>
