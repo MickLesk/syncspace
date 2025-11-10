@@ -6,7 +6,6 @@ use axum::{
     Router,
 };
 use serde::{Deserialize, Serialize};
-use similar::{ChangeTag, TextDiff};
 use sqlx::FromRow;
 use uuid::Uuid;
 
@@ -362,7 +361,7 @@ async fn get_version_by_number(
 /// GET /api/file-versions/download/{version_num}?path={path} - Download version
 async fn download_version_content(
     State(_state): State<AppState>,
-    Path(version_num): Path<i32>,
+    Path(_version_num): Path<i32>,
     Query(_query): Query<FilePathQuery>,
     _user: UserInfo,
 ) -> Result<StatusCode, StatusCode> {
@@ -407,52 +406,68 @@ async fn restore_version_by_number(
 
 /// POST /api/file-versions/diff?path={path} - Compare two versions
 async fn diff_versions_content(
-    State(_state): State<AppState>,
-    Query(_query): Query<FilePathQuery>,
+    State(state): State<AppState>,
+    Query(query): Query<FilePathQuery>,
     _user: UserInfo,
     Json(req): Json<DiffRequest>,
 ) -> Result<Json<DiffResponse>, StatusCode> {
-    // TODO: Get actual version content from storage
-    // For now, return mock diff
+    // Get version IDs from version numbers
+    let v1_id: Option<(String,)> =
+        sqlx::query_as("SELECT id FROM file_versions WHERE file_path = ? AND version_number = ?")
+            .bind(&query.path)
+            .bind(req.version1)
+            .fetch_optional(&state.db_pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    // In production:
-    // 1. Get version1 content from filesystem/DB
-    // 2. Get version2 content from filesystem/DB
-    // 3. Use TextDiff to compare
+    let v2_id: Option<(String,)> =
+        sqlx::query_as("SELECT id FROM file_versions WHERE file_path = ? AND version_number = ?")
+            .bind(&query.path)
+            .bind(req.version2)
+            .fetch_optional(&state.db_pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    let v1_content = "Line 1\nLine 2\nLine 3\n".to_string();
-    let v2_content = "Line 1\nLine 2 modified\nLine 3\nLine 4 added\n".to_string();
+    let (v1_id,) = v1_id.ok_or(StatusCode::NOT_FOUND)?;
+    let (v2_id,) = v2_id.ok_or(StatusCode::NOT_FOUND)?;
 
-    // Generate diff
-    let diff = TextDiff::from_lines(&v1_content, &v2_content);
+    // Use version storage service to get real diff
+    let version_diff =
+        crate::services::version_storage_service::get_version_diff(&state.db_pool, &v1_id, &v2_id)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    let mut changes = Vec::new();
-    let mut added = 0;
-    let mut removed = 0;
+    // Convert service diff to API response format
+    let changes: Vec<DiffChange> = if let Some(text_diff) = version_diff.text_diff {
+        text_diff
+            .iter()
+            .filter(|line| {
+                !matches!(
+                    line.change_type,
+                    crate::services::version_storage_service::ChangeType::Unchanged
+                )
+            })
+            .map(|line| DiffChange {
+                change_type: match line.change_type {
+                    crate::services::version_storage_service::ChangeType::Added => "added",
+                    crate::services::version_storage_service::ChangeType::Deleted => "removed",
+                    crate::services::version_storage_service::ChangeType::Modified => "modified",
+                    _ => "unchanged",
+                }
+                .to_string(),
+                line_number: Some(line.line_number),
+                content: line.content.clone(),
+            })
+            .collect()
+    } else {
+        vec![]
+    };
 
-    for change in diff.iter_all_changes() {
-        match change.tag() {
-            ChangeTag::Delete => {
-                removed += 1;
-                changes.push(DiffChange {
-                    change_type: "removed".to_string(),
-                    line_number: None,
-                    content: change.value().to_string(),
-                });
-            }
-            ChangeTag::Insert => {
-                added += 1;
-                changes.push(DiffChange {
-                    change_type: "added".to_string(),
-                    line_number: None,
-                    content: change.value().to_string(),
-                });
-            }
-            ChangeTag::Equal => {
-                // Skip unchanged lines for brevity (or include if needed)
-            }
-        }
-    }
+    let added = changes.iter().filter(|c| c.change_type == "added").count();
+    let removed = changes
+        .iter()
+        .filter(|c| c.change_type == "removed")
+        .count();
 
     Ok(Json(DiffResponse {
         version1: req.version1,

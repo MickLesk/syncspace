@@ -191,6 +191,19 @@ pub async fn upload_file(
     path: &str,
     data: Vec<u8>,
 ) -> Result<FileInfo> {
+    // SECURITY: Check quota before upload
+    let file_size = data.len() as i64;
+    let has_quota = crate::api::quota::check_quota_available(&state.db_pool, &user.id, file_size)
+        .await
+        .map_err(|_| anyhow!("Failed to check quota"))?;
+
+    if !has_quota {
+        return Err(anyhow!(
+            "Insufficient storage quota. Required: {} bytes",
+            file_size
+        ));
+    }
+
     // SECURITY: Validate and sanitize file path
     let safe_path =
         crate::security::validate_file_path(path).map_err(|_| anyhow!("Invalid file path"))?;
@@ -201,7 +214,7 @@ pub async fn upload_file(
         .and_then(|n| n.to_str())
         .ok_or_else(|| anyhow!("Invalid filename"))?;
 
-    let safe_filename =
+    let _safe_filename =
         crate::security::validate_filename(filename).map_err(|_| anyhow!("Invalid filename"))?;
 
     let target = Path::new(DATA_DIR).join(&safe_path);
@@ -274,6 +287,9 @@ pub async fn upload_file(
     )
     .await;
 
+    // Update storage usage after upload
+    let _ = crate::api::quota::update_storage_usage(&state.db_pool, &user.id).await;
+
     // AUTO-INDEX: Add file to search index
     let content = crate::search::extract_content(&target).await;
     let _ = state
@@ -309,7 +325,7 @@ pub async fn upload_file(
 
 pub async fn delete_file(state: &AppState, user: &UserInfo, path: &str) -> Result<()> {
     // SECURITY: Validate file path
-    let safe_path =
+    let _safe_path =
         crate::security::validate_file_path(path).map_err(|_| anyhow!("Invalid file path"))?;
 
     // SOFT DELETE: Mark file as deleted in DB instead of actually deleting it
@@ -366,6 +382,9 @@ pub async fn delete_file(state: &AppState, user: &UserInfo, path: &str) -> Resul
         state, &user.id, "delete", path, &filename, None, None, "success", None, None,
     )
     .await;
+
+    // Update storage usage after delete
+    let _ = crate::api::quota::update_storage_usage(&state.db_pool, &user.id).await;
 
     // AUTO-INDEX: Remove file from search index (get file_id first)
     if let Ok(row) = sqlx::query("SELECT id FROM files WHERE path = ?")

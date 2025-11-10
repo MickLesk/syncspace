@@ -7,13 +7,13 @@ use axum::{
     routing::{delete, get, post},
     Router,
 };
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
-use crate::AppState;
 use crate::auth::UserInfo;
+use crate::AppState;
 
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct TrashItem {
@@ -33,7 +33,7 @@ pub struct RestoreRequest {
 /// List trash items
 async fn list_trash(
     State(state): State<AppState>,
-    user_info: UserInfo,
+    _user_info: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
     // Query files marked as deleted from the files table
     #[derive(sqlx::FromRow)]
@@ -45,7 +45,7 @@ async fn list_trash(
         deleted_at: String,
         deleted_by: String,
     }
-    
+
     let items: Vec<TrashRow> = sqlx::query_as(
         "SELECT id, path as original_path, name as file_name, size_bytes as file_size, updated_at as deleted_at, owner_id as deleted_by
          FROM files
@@ -55,18 +55,21 @@ async fn list_trash(
     .fetch_all(&state.db)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    
-    let trash_items: Vec<TrashItem> = items.iter().map(|row| TrashItem {
-        id: uuid::Uuid::parse_str(&row.id).unwrap_or_default(),
-        original_path: row.original_path.clone(),
-        file_name: row.file_name.clone(),
-        file_size: row.file_size,
-        deleted_at: chrono::DateTime::parse_from_rfc3339(&row.deleted_at)
-            .map(|dt| dt.with_timezone(&chrono::Utc))
-            .unwrap_or_else(|_| chrono::Utc::now()),
-        deleted_by: row.deleted_by.clone(),
-    }).collect();
-    
+
+    let trash_items: Vec<TrashItem> = items
+        .iter()
+        .map(|row| TrashItem {
+            id: uuid::Uuid::parse_str(&row.id).unwrap_or_default(),
+            original_path: row.original_path.clone(),
+            file_name: row.file_name.clone(),
+            file_size: row.file_size,
+            deleted_at: chrono::DateTime::parse_from_rfc3339(&row.deleted_at)
+                .map(|dt| dt.with_timezone(&chrono::Utc))
+                .unwrap_or_else(|_| chrono::Utc::now()),
+            deleted_by: row.deleted_by.clone(),
+        })
+        .collect();
+
     Ok(Json(trash_items))
 }
 
@@ -75,32 +78,35 @@ async fn restore_from_trash(
     State(state): State<AppState>,
     Path(path): Path<String>,
     user_info: UserInfo,
-    Json(req): Json<RestoreRequest>,
+    Json(_req): Json<RestoreRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
     // Restore file by setting is_deleted = 0
     let now = chrono::Utc::now().to_rfc3339();
-    
+
     let result = sqlx::query(
-        "UPDATE files SET is_deleted = 0, updated_at = ? WHERE path = ? AND is_deleted = 1"
+        "UPDATE files SET is_deleted = 0, updated_at = ? WHERE path = ? AND is_deleted = 1",
     )
     .bind(&now)
     .bind(&path)
     .execute(&state.db)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    
+
     if result.rows_affected() == 0 {
         return Err(StatusCode::NOT_FOUND);
     }
-    
+
     // Log the restoration
     let log_id = uuid::Uuid::new_v4().to_string();
     let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'restored', ?, 'success', datetime('now'))")
         .bind(&log_id).bind(&user_info.id).bind(&path).execute(&state.db).await;
-    
-    Ok((StatusCode::OK, Json(serde_json::json!({
-        "message": "Item restored successfully"
-    }))))
+
+    Ok((
+        StatusCode::OK,
+        Json(serde_json::json!({
+            "message": "Item restored successfully"
+        })),
+    ))
 }
 
 /// Permanently delete item
@@ -120,13 +126,13 @@ async fn permanent_delete(
     .execute(&state.db)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    
+
     if result.rows_affected() == 0 {
         return Err(StatusCode::NOT_FOUND);
     }
-    
+
     // TODO: Delete actual file from filesystem
-    
+
     Ok(StatusCode::NO_CONTENT)
 }
 
@@ -137,7 +143,7 @@ async fn cleanup_trash(
 ) -> Result<impl IntoResponse, StatusCode> {
     let thirty_days_ago = Utc::now() - chrono::Duration::days(30);
     let thirty_days_ago_str = thirty_days_ago.to_rfc3339();
-    
+
     let result = sqlx::query(
         r#"
         DELETE FROM trash_items
@@ -149,7 +155,7 @@ async fn cleanup_trash(
     .execute(&state.db)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    
+
     Ok(Json(serde_json::json!({
         "deleted_count": result.rows_affected()
     })))
@@ -170,7 +176,7 @@ async fn empty_trash(
     .execute(&state.db)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    
+
     Ok(Json(serde_json::json!({
         "deleted_count": result.rows_affected()
     })))

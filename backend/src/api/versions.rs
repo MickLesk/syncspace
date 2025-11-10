@@ -12,9 +12,9 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use std::path::PathBuf;
 
-use crate::AppState;
 use crate::auth::UserInfo;
 use crate::services::version_storage_service;
+use crate::AppState;
 
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct FileVersion {
@@ -74,11 +74,11 @@ async fn create_version(
     Json(req): Json<CreateVersionRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
     let file_path = PathBuf::from(&req.file_path);
-    
+
     if !file_path.exists() {
         return Err(StatusCode::NOT_FOUND);
     }
-    
+
     match version_storage_service::create_version(
         &state.db_pool,
         &file_id,
@@ -104,7 +104,7 @@ async fn create_version(
                 created_at: version_metadata.created_at,
                 comment: version_metadata.comment,
             };
-            
+
             Ok((StatusCode::CREATED, Json(version)))
         }
         Err(e) => {
@@ -120,18 +120,17 @@ async fn delete_version(
     Path((file_id, version_id)): Path<(String, String)>,
     _user: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let version: Option<(String,)> = sqlx::query_as(
-        "SELECT storage_path FROM file_versions WHERE id = ? AND file_id = ?"
-    )
-    .bind(&version_id)
-    .bind(&file_id)
-    .fetch_optional(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    
+    let version: Option<(String,)> =
+        sqlx::query_as("SELECT storage_path FROM file_versions WHERE id = ? AND file_id = ?")
+            .bind(&version_id)
+            .bind(&file_id)
+            .fetch_optional(&state.db_pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
     if let Some((storage_path,)) = version {
         let _ = tokio::fs::remove_file(&storage_path).await;
-        
+
         let result = sqlx::query("DELETE FROM file_versions WHERE id = ?")
             .bind(&version_id)
             .execute(&state.db_pool)
@@ -151,13 +150,13 @@ async fn delete_version(
 /// Restore a version (returns file content)
 async fn restore_version(
     State(state): State<AppState>,
-    Path((file_id, version_id)): Path<(String, String)>,
+    Path((_file_id, version_id)): Path<(String, String)>,
     _user: UserInfo,
 ) -> Result<Response, StatusCode> {
     match version_storage_service::restore_version(&state.db_pool, &version_id).await {
         Ok(content) => {
             let body = Bytes::from(content);
-            
+
             Ok(Response::builder()
                 .status(StatusCode::OK)
                 .header(header::CONTENT_TYPE, "application/octet-stream")
@@ -177,7 +176,13 @@ async fn restore_version(
 
 pub fn router() -> Router<AppState> {
     Router::new()
-        .route("/versions/{file_id}", get(list_versions).post(create_version))
+        .route(
+            "/versions/{file_id}",
+            get(list_versions).post(create_version),
+        )
         .route("/versions/{file_id}/{version_id}", delete(delete_version))
-        .route("/versions/{file_id}/{version_id}/restore", post(restore_version))
+        .route(
+            "/versions/{file_id}/{version_id}/restore",
+            post(restore_version),
+        )
 }

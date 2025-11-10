@@ -6,8 +6,8 @@ pub mod scheduler;
 pub mod types;
 pub mod worker;
 
-// Re-exports for external use (via lib.rs)
-pub use queue::JobQueue;
-pub use scheduler::JobScheduler;
-pub use types::{Job, JobResult, JobStatus, JobType};
-pub use worker::JobWorker;
+// Re-exports for external use (currently unused but available for future integration)
+// pub use queue::JobQueue;
+// pub use scheduler::JobScheduler;
+// pub use types::{Job, JobResult, JobStatus, JobType};
+// pub use worker::JobWorker;

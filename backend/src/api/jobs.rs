@@ -1,67 +1,26 @@
-//! Background Jobs API Endpoints
+﻿//! Background Jobs API Endpoints
 //! 
 //! Provides REST API for job management and monitoring.
-//! 
-//! TODO: Re-implement with new job system
 
-/*
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::Json,
-    routing::{get, post, delete},
+    routing::{get, post},
     Router,
 };
 use serde::{Deserialize, Serialize};
+use chrono::Utc;
 use crate::auth::UserInfo;
-use crate::jobs::{self, JobType, JobStatus};
 use crate::AppState;
 
 pub fn router() -> Router<AppState> {
     Router::new()
-        .route("/jobs", post(enqueue_job_handler))
+        .route("/jobs/stats", get(get_job_stats_handler))
         .route("/jobs", get(list_jobs_handler))
         .route("/jobs/{job_id}", get(get_job_handler))
         .route("/jobs/{job_id}/cancel", post(cancel_job_handler))
         .route("/jobs/cleanup", post(cleanup_jobs_handler))
-        .route("/jobs/stats", get(get_job_stats_handler))
-}
-
-// ============================================================================
-// Request/Response Models
-// ============================================================================
-
-#[derive(Debug, Deserialize)]
-struct EnqueueJobRequest {
-    job_type: String,
-    payload: serde_json::Value,
-    #[serde(default = "default_priority")]
-    priority: i32,
-    scheduled_at: Option<String>,
-}
-
-fn default_priority() -> i32 {
-    5
-}
-
-#[derive(Debug, Serialize)]
-struct EnqueueJobResponse {
-    job_id: String,
-    status: String,
-}
-
-#[derive(Debug, Deserialize)]
-struct ListJobsQuery {
-    status: Option<String>,
-    job_type: Option<String>,
-    #[serde(default = "default_limit")]
-    limit: i32,
-    #[serde(default)]
-    offset: i32,
-}
-
-fn default_limit() -> i32 {
-    50
 }
 
 #[derive(Debug, Serialize)]
@@ -73,172 +32,159 @@ struct JobStatsResponse {
     total: i64,
 }
 
-// ============================================================================
-// Handlers
-// ============================================================================
-
-/// Enqueue a new background job
-#[tracing::instrument(skip(state, _user, req))]
-async fn enqueue_job_handler(
-    State(state): State<AppState>,
-    _user: UserInfo,
-    Json(req): Json<EnqueueJobRequest>,
-) -> Result<Json<EnqueueJobResponse>, StatusCode> {
-    let job_type = JobType::from_str(&req.job_type);
-    
-    let scheduled_at = req.scheduled_at
-        .and_then(|s| chrono::DateTime::parse_from_rfc3339(&s).ok())
-        .map(|dt| dt.with_timezone(&chrono::Utc));
-    
-    let job_id = jobs::enqueue_job(
-        &state.db_pool,
-        job_type,
-        req.payload,
-        req.priority,
-        scheduled_at,
-    )
-    .await
-    .map_err(|e| {
-        tracing::error!("Failed to enqueue job: {}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
-    
-    Ok(Json(EnqueueJobResponse {
-        job_id,
-        status: "pending".to_string(),
-    }))
+#[derive(Debug, Deserialize)]
+struct ListJobsQuery {
+    status: Option<String>,
+    #[serde(default = "default_limit")]
+    limit: i32,
+    #[serde(default)]
+    offset: i32,
 }
 
-/// List jobs with optional filters
-#[tracing::instrument(skip(state, _user))]
-async fn list_jobs_handler(
-    State(state): State<AppState>,
-    _user: UserInfo,
-    Query(query): Query<ListJobsQuery>,
-) -> Result<Json<Vec<jobs::BackgroundJob>>, StatusCode> {
-    let status = query.status.map(|s| JobStatus::from_str(&s));
-    let job_type = query.job_type.map(|s| JobType::from_str(&s));
-    
-    let jobs_list = jobs::list_jobs(
-        &state.db_pool,
-        status,
-        job_type,
-        query.limit,
-        query.offset,
-    )
-    .await
-    .map_err(|e| {
-        tracing::error!("Failed to list jobs: {}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
-    
-    Ok(Json(jobs_list))
+fn default_limit() -> i32 {
+    50
 }
 
-/// Get specific job by ID
-#[tracing::instrument(skip(state, _user))]
-async fn get_job_handler(
-    State(state): State<AppState>,
-    _user: UserInfo,
-    Path(job_id): Path<String>,
-) -> Result<Json<jobs::BackgroundJob>, StatusCode> {
-    let job = jobs::get_job(&state.db_pool, &job_id)
-        .await
-        .map_err(|e| {
-            tracing::error!("Failed to get job: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?
-        .ok_or(StatusCode::NOT_FOUND)?;
-    
-    Ok(Json(job))
+#[derive(Debug, Serialize)]
+struct JobResponse {
+    id: String,
+    job_type: String,
+    status: String,
+    priority: i32,
+    attempts: i32,
+    max_retries: i32,
+    created_at: String,
+    scheduled_at: Option<String>,
+    started_at: Option<String>,
+    completed_at: Option<String>,
+    error_message: Option<String>,
 }
 
-/// Cancel a pending job
-#[tracing::instrument(skip(state, _user))]
-async fn cancel_job_handler(
-    State(state): State<AppState>,
-    _user: UserInfo,
-    Path(job_id): Path<String>,
-) -> Result<StatusCode, StatusCode> {
-    jobs::cancel_job(&state.db_pool, &job_id)
-        .await
-        .map_err(|e| {
-            tracing::error!("Failed to cancel job: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
-    
-    Ok(StatusCode::OK)
+#[derive(Debug, sqlx::FromRow)]
+struct JobRow {
+    id: String,
+    job_type: String,
+    status: String,
+    priority: i32,
+    attempts: i32,
+    max_retries: i32,
+    created_at: String,
+    scheduled_at: Option<String>,
+    started_at: Option<String>,
+    completed_at: Option<String>,
+    error_message: Option<String>,
 }
 
-/// Cleanup old completed/failed jobs
-#[tracing::instrument(skip(state, _user))]
-async fn cleanup_jobs_handler(
-    State(state): State<AppState>,
-    _user: UserInfo,
-) -> Result<Json<serde_json::Value>, StatusCode> {
-    let deleted = jobs::cleanup_old_jobs(&state.db_pool, 30)
-        .await
-        .map_err(|e| {
-            tracing::error!("Failed to cleanup jobs: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
-    
-    Ok(Json(serde_json::json!({
-        "deleted": deleted
-    })))
-}
-
-/// Get job statistics
 #[tracing::instrument(skip(state, _user))]
 async fn get_job_stats_handler(
     State(state): State<AppState>,
     _user: UserInfo,
 ) -> Result<Json<JobStatsResponse>, StatusCode> {
-    let pending: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM background_jobs WHERE status = 'pending'"
-    )
-    .fetch_one(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let pending: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM job_queue WHERE status = 'pending'")
+        .fetch_one(&state.db_pool).await.map_err(|e| {
+            tracing::error!("Failed to count pending jobs: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
     
-    let running: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM background_jobs WHERE status = 'running'"
-    )
-    .fetch_one(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let running: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM job_queue WHERE status = 'running'")
+        .fetch_one(&state.db_pool).await.map_err(|e| {
+            tracing::error!("Failed to count running jobs: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
     
-    let completed: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM background_jobs WHERE status = 'completed'"
-    )
-    .fetch_one(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let completed: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM job_queue WHERE status = 'completed'")
+        .fetch_one(&state.db_pool).await.map_err(|e| {
+            tracing::error!("Failed to count completed jobs: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
     
-    let failed: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM background_jobs WHERE status = 'failed'"
-    )
-    .fetch_one(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    
-    let total = pending.0 + running.0 + completed.0 + failed.0;
+    let failed: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM job_queue WHERE status = 'failed'")
+        .fetch_one(&state.db_pool).await.map_err(|e| {
+            tracing::error!("Failed to count failed jobs: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
     
     Ok(Json(JobStatsResponse {
         pending: pending.0,
         running: running.0,
         completed: completed.0,
         failed: failed.0,
-        total,
+        total: pending.0 + running.0 + completed.0 + failed.0,
     }))
 }
-*/  // End of commented old jobs API
 
-// Placeholder router until new system is ready
-use axum::Router;
-use crate::AppState;
+#[tracing::instrument(skip(state, _user))]
+async fn list_jobs_handler(
+    State(state): State<AppState>,
+    _user: UserInfo,
+    Query(query): Query<ListJobsQuery>,
+) -> Result<Json<Vec<JobResponse>>, StatusCode> {
+    let mut sql = String::from("SELECT * FROM job_queue WHERE 1=1");
+    
+    if let Some(status) = &query.status {
+        sql.push_str(&format!(" AND status = '{}'", status));
+    }
+    
+    sql.push_str(&format!(" ORDER BY created_at DESC LIMIT {} OFFSET {}", query.limit, query.offset));
+    
+    let jobs: Vec<JobRow> = sqlx::query_as(&sql).fetch_all(&state.db_pool).await.map_err(|e| {
+        tracing::error!("Failed to list jobs: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+    
+    let response: Vec<JobResponse> = jobs.into_iter().map(|job| JobResponse {
+        id: job.id, job_type: job.job_type, status: job.status, priority: job.priority,
+        attempts: job.attempts, max_retries: job.max_retries, created_at: job.created_at,
+        scheduled_at: job.scheduled_at, started_at: job.started_at,
+        completed_at: job.completed_at, error_message: job.error_message,
+    }).collect();
+    
+    Ok(Json(response))
+}
 
-pub fn router() -> Router<AppState> {
-    Router::new()
-    // TODO: Add new job system routes
+#[tracing::instrument(skip(state, _user))]
+async fn get_job_handler(
+    State(state): State<AppState>,
+    _user: UserInfo,
+    Path(job_id): Path<String>,
+) -> Result<Json<JobResponse>, StatusCode> {
+    let job: JobRow = sqlx::query_as("SELECT * FROM job_queue WHERE id = ?")
+        .bind(&job_id).fetch_one(&state.db_pool).await.map_err(|_| StatusCode::NOT_FOUND)?;
+    
+    Ok(Json(JobResponse {
+        id: job.id, job_type: job.job_type, status: job.status, priority: job.priority,
+        attempts: job.attempts, max_retries: job.max_retries, created_at: job.created_at,
+        scheduled_at: job.scheduled_at, started_at: job.started_at,
+        completed_at: job.completed_at, error_message: job.error_message,
+    }))
+}
+
+#[tracing::instrument(skip(state, _user))]
+async fn cancel_job_handler(
+    State(state): State<AppState>,
+    _user: UserInfo,
+    Path(job_id): Path<String>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let result = sqlx::query("UPDATE job_queue SET status = 'cancelled', completed_at = ? WHERE id = ? AND status IN ('pending', 'running')")
+        .bind(Utc::now().to_rfc3339()).bind(&job_id).execute(&state.db_pool).await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    if result.rows_affected() == 0 {
+        return Err(StatusCode::NOT_FOUND);
+    }
+    
+    Ok(Json(serde_json::json!({"success": true, "message": "Job cancelled"})))
+}
+
+#[tracing::instrument(skip(state, _user))]
+async fn cleanup_jobs_handler(
+    State(state): State<AppState>,
+    _user: UserInfo,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let cutoff = Utc::now() - chrono::Duration::days(30);
+    let result = sqlx::query("DELETE FROM job_queue WHERE status IN ('completed', 'failed', 'cancelled') AND completed_at < ?")
+        .bind(cutoff.to_rfc3339()).execute(&state.db_pool).await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    Ok(Json(serde_json::json!({"deleted": result.rows_affected()})))
 }

@@ -50,22 +50,32 @@ async fn upload_chunk(
     mut multipart: Multipart,
 ) -> Result<Json<ChunkUploadResponse>, StatusCode> {
     let mut chunk_data: Option<Vec<u8>> = None;
-    let mut path: Option<String> = None;
+    let mut _path: Option<String> = None;
     let mut file_name: Option<String> = None;
     let mut chunk_index: Option<usize> = None;
     let mut total_chunks: Option<usize> = None;
     let mut upload_id: Option<String> = None;
 
     // Parse multipart fields
-    while let Some(field) = multipart.next_field().await.map_err(|_| StatusCode::BAD_REQUEST)? {
+    while let Some(field) = multipart
+        .next_field()
+        .await
+        .map_err(|_| StatusCode::BAD_REQUEST)?
+    {
         let field_name = field.name().unwrap_or("").to_string();
 
         match field_name.as_str() {
             "chunk" => {
-                chunk_data = Some(field.bytes().await.map_err(|_| StatusCode::BAD_REQUEST)?.to_vec());
+                chunk_data = Some(
+                    field
+                        .bytes()
+                        .await
+                        .map_err(|_| StatusCode::BAD_REQUEST)?
+                        .to_vec(),
+                );
             }
             "path" => {
-                path = Some(field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?);
+                _path = Some(field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?);
             }
             "fileName" => {
                 file_name = Some(field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?);
@@ -94,23 +104,29 @@ async fn upload_chunk(
 
     // Create temp directory for chunks
     let temp_dir = PathBuf::from("./data/temp_uploads");
-    fs::create_dir_all(&temp_dir).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    fs::create_dir_all(&temp_dir)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     // Create upload-specific directory
     let upload_dir = temp_dir.join(&upload_id);
-    fs::create_dir_all(&upload_dir).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    fs::create_dir_all(&upload_dir)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     // Save chunk to temp file
     let chunk_path = upload_dir.join(format!("chunk_{:06}", chunk_index));
     let mut file = fs::File::create(&chunk_path)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    
+
     file.write_all(&chunk_data)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    
-    file.flush().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    file.flush()
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     tracing::info!(
         "Chunk {}/{} received for file '{}' (upload_id: {})",
@@ -129,12 +145,42 @@ async fn upload_chunk(
 
 /// Finalize chunked upload by merging all chunks
 async fn finalize_chunked_upload(
-    State(_state): State<AppState>,
-    _user: UserInfo,
+    State(state): State<AppState>,
+    user: UserInfo,
     Json(req): Json<ChunkFinalizeRequest>,
 ) -> Result<Json<ChunkFinalizeResponse>, StatusCode> {
     let temp_dir = PathBuf::from("./data/temp_uploads");
     let upload_dir = temp_dir.join(&req.upload_id);
+
+    // Calculate total size by summing all chunks
+    let mut total_size: i64 = 0;
+    for i in 0..req.total_chunks {
+        let chunk_path = upload_dir.join(format!("chunk_{:06}", i));
+        if !chunk_path.exists() {
+            tracing::error!("Missing chunk {} for upload {}", i, req.upload_id);
+            return Err(StatusCode::BAD_REQUEST);
+        }
+        let metadata = fs::metadata(&chunk_path)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        total_size += metadata.len() as i64;
+    }
+
+    // SECURITY: Check quota before finalizing upload
+    let has_quota = crate::api::quota::check_quota_available(&state.db_pool, &user.id, total_size)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    if !has_quota {
+        tracing::warn!(
+            "User {} exceeded quota. Required: {} bytes",
+            user.id,
+            total_size
+        );
+        // Clean up temp chunks on quota failure
+        let _ = fs::remove_dir_all(&upload_dir).await;
+        return Err(StatusCode::INSUFFICIENT_STORAGE);
+    }
 
     // Verify all chunks exist
     for i in 0..req.total_chunks {
@@ -171,22 +217,23 @@ async fn finalize_chunked_upload(
         let chunk_data = fs::read(&chunk_path)
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-        
+
         final_file
             .write_all(&chunk_data)
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     }
 
-    final_file.flush().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    final_file
+        .flush()
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     // Clean up temp chunks
-    fs::remove_dir_all(&upload_dir)
-        .await
-        .map_err(|e| {
-            tracing::warn!("Failed to cleanup temp upload directory: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+    fs::remove_dir_all(&upload_dir).await.map_err(|e| {
+        tracing::warn!("Failed to cleanup temp upload directory: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     tracing::info!(
         "Chunked upload finalized: {} ({} chunks merged)",

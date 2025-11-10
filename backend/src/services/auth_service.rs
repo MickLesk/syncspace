@@ -374,8 +374,8 @@ pub async fn refresh_token(
     state: &AppState,
     user: &UserInfo,
 ) -> Result<AuthResponse, anyhow::Error> {
-    // Note: This endpoint is called with an access token, but in production you'd want
-    // to accept the refresh token in the request body instead
+    // Note: This endpoint currently uses access token for authentication
+    // In production, you should pass refresh_token in request body instead
 
     // Get user from SQLite to ensure latest data and token_version
     let db_user = auth::get_user_by_id(&state.db_pool, &user.id)
@@ -395,7 +395,8 @@ pub async fn refresh_token(
         .await
         .map_err(|e| anyhow!("Failed to store refresh token: {}", e))?;
 
-    // Note: In production, you'd also revoke the old refresh token here
+    // Note: In production, you'd also revoke the old refresh token using:
+    // auth::revoke_refresh_token(&state.db_pool, &old_refresh_token).await?;
 
     Ok(AuthResponse {
         token,

@@ -417,6 +417,16 @@ async fn main() {
                 }
                 Err(e) => tracing::error!("Failed to cleanup expired tokens: {}", e),
             }
+
+            // Cleanup old file versions (keep max 50, delete older than 90 days)
+            match services::version_storage_service::cleanup_all_old_versions(&cleanup_pool).await {
+                Ok(count) => {
+                    if count > 0 {
+                        tracing::info!("🧹 Cleaned up {} old file versions", count);
+                    }
+                }
+                Err(e) => tracing::error!("Failed to cleanup old file versions: {}", e),
+            }
         }
     });
 
