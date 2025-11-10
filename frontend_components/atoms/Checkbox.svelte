@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
+
   interface Props {
     checked?: boolean;
     disabled?: boolean;
@@ -6,6 +8,7 @@
     size?: "sm" | "md" | "lg";
     class?: string;
     onchange?: (event: Event) => void;
+    children?: Snippet;
   }
 
   let {
@@ -15,6 +18,7 @@
     size = "md",
     class: customClass = "",
     onchange,
+    children,
   }: Props = $props();
 
   const sizeClasses = {
@@ -45,6 +49,10 @@
       ring: "focus:ring-yellow-500/20",
     },
   };
+
+  // Safe variant lookup with fallback
+  const currentVariant = variantClasses[variant] || variantClasses.primary;
+  const currentSize = sizeClasses[size] || sizeClasses.md;
 </script>
 
 <label
@@ -65,22 +73,22 @@
   <div
     class={`
       relative flex items-center justify-center
-      ${sizeClasses[size].box}
+      ${currentSize.box}
       border-2 rounded-md
       transition-all duration-200 ease-in-out
       ${
         checked
-          ? `${variantClasses[variant].bg} border-transparent`
-          : `bg-white border-gray-300 ${variantClasses[variant].border}`
+          ? `${currentVariant.bg} border-transparent`
+          : `bg-white border-gray-300 ${currentVariant.border}`
       }
       ${disabled ? "" : "group-hover:shadow-md"}
-      focus-within:ring-4 ${variantClasses[variant].ring}
+      focus-within:ring-4 ${currentVariant.ring}
     `}
   >
     <!-- Checkmark icon with animation -->
     <svg
       class={`
-        ${sizeClasses[size].check}
+        ${currentSize.check}
         text-white transition-all duration-200
         ${checked ? "scale-100 opacity-100" : "scale-0 opacity-0"}
       `}
@@ -99,9 +107,9 @@
   </div>
 
   <!-- Label text -->
-  {#if $$slots.default}
+  {#if children}
     <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">
-      <slot />
+      {@render children()}
     </span>
   {/if}
 </label>
