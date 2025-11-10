@@ -1,5 +1,12 @@
 <script lang="ts">
-  import { colorMap, colorHover, sizeMap, transitions, type ButtonVariant, type ButtonSize } from '../shared/index.js';
+  import {
+    colorMap,
+    colorHover,
+    sizeMap,
+    transitions,
+    type ButtonVariant,
+    type ButtonSize,
+  } from "../shared/index.js";
 
   interface Props {
     variant?: ButtonVariant;
@@ -14,15 +21,15 @@
   }
 
   let {
-    variant = 'primary',
-    size = 'md',
+    variant = "primary",
+    size = "md",
     disabled = false,
     loading = false,
     fullWidth = false,
     icon = false,
     href,
     onclick,
-    class: customClass = '',
+    class: customClass = "",
   }: Props = $props();
 
   const baseClasses = `
@@ -42,20 +49,24 @@
     outline: `border-2 border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-300`,
   };
 
-  const classes = `${baseClasses} ${variantClasses[variant]} ${fullWidth ? 'w-full' : ''} ${customClass}`;
+  const classes = `${baseClasses} ${variantClasses[variant]} ${fullWidth ? "w-full" : ""} ${customClass}`;
 </script>
 
 {#if href}
   <a {href} class={classes} class:icon {disabled}>
     {#if loading}
-      <span class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>
+      <span
+        class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"
+      ></span>
     {/if}
     <slot />
   </a>
 {:else}
-  <button {onclick} {disabled} {class: classes} class:icon {disabled}>
+  <button {onclick} {disabled} class={classes} class:icon>
     {#if loading}
-      <span class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>
+      <span
+        class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"
+      ></span>
     {/if}
     <slot />
   </button>

@@ -45,6 +45,6 @@
   const classes = `rounded-full font-semibold inline-flex items-center gap-2 ${sizeClasses[size]} ${variantClasses[variant]} ${icon ? 'p-1.5' : ''}`;
 </script>
 
-<span {class: classes}>
+<span class={classes}>
   <slot />
 </span>

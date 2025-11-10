@@ -20,12 +20,7 @@
 </script>
 
 <label class={`flex items-center cursor-pointer select-none ${customClass}`}>
-  <input
-    type="checkbox"
-    {disabled}
-    class="sr-only peer"
-    onchange
-  />
+  <input type="checkbox" {disabled} class="sr-only peer" onchange />
   <div
     class={`
       relative w-11 h-6 bg-gray-300 rounded-full transition-colors
