@@ -5,8 +5,7 @@ use chrono::Utc;
 use uuid::Uuid;
 
 pub async fn get_profile(state: &AppState, user: &UserInfo) -> Result<serde_json::Value> {
-    let db_user: Option<crate::database::User> = sqlx::query_as("SELECT * FROM users WHERE id = ?")
-        .bind(&user.id).fetch_optional(&state.db_pool).await?;
+    let db_user = crate::database::User::get_by_id(&state.db_pool, &user.id).await?;
     
     match db_user {
         Some(u) => Ok(serde_json::json!({
@@ -40,8 +39,7 @@ pub async fn update_profile(state: &AppState, user: &UserInfo, req: UpdateProfil
 }
 
 pub async fn get_settings(state: &AppState, user: &UserInfo) -> Result<serde_json::Value> {
-    let db_user: Option<crate::database::User> = sqlx::query_as("SELECT * FROM users WHERE id = ?")
-        .bind(&user.id).fetch_optional(&state.db_pool).await?;
+    let db_user = crate::database::User::get_by_id(&state.db_pool, &user.id).await?;
     
     match db_user {
         Some(u) => Ok(serde_json::json!({

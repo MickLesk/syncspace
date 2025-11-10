@@ -65,23 +65,10 @@ pub async fn register(
             .to_string()
     };
 
-    // Create user in database
-    let user_id = uuid::Uuid::new_v4().to_string();
-    let now = Utc::now().to_rfc3339();
-    sqlx::query("INSERT INTO users (id, username, password_hash, totp_enabled, storage_quota_bytes, storage_used_bytes, default_view, language, theme, created_at, updated_at) VALUES (?, ?, ?, 0, 10737418240, 0, 'grid', 'de', 'light', ?, ?)")
-        .bind(&user_id)
-        .bind(&username)
-        .bind(&password_hash)
-        .bind(&now)
-        .bind(&now)
-        .execute(&state.db_pool)
+    // Create user in database using helper
+    let user = crate::database::User::create(&state.db_pool, username.clone(), password_hash)
         .await
         .map_err(|e| anyhow!("Failed to create user: {}", e))?;
-
-    // Get newly created user
-    let user = auth::get_user_by_id(&state.db_pool, &user_id)
-        .await?
-        .ok_or_else(|| anyhow!("Failed to retrieve created user"))?;
 
     // Generate tokens
     let token =
@@ -207,13 +194,8 @@ pub async fn login(
     let _ = crate::services::auth_security_service::reset_failed_attempts(&state.db_pool, &user.id)
         .await;
 
-    // Update last_login in database
-    let now = Utc::now().to_rfc3339();
-    sqlx::query("UPDATE users SET last_login = ?, updated_at = ? WHERE id = ?")
-        .bind(&now)
-        .bind(&now)
-        .bind(&user.id)
-        .execute(&state.db_pool)
+    // Update last_login in database using helper
+    crate::database::User::update_last_login(&state.db_pool, &user.id)
         .await
         .map_err(|e| anyhow!("Failed to update last login: {}", e))?;
 
