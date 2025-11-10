@@ -208,6 +208,16 @@ export const users = {
     });
     return handleResponse(response);
   },
+
+  /**
+   * List all users (for sharing dialogs)
+   */
+  async listAll() {
+    const response = await fetch(`${API_BASE}/users`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
 };
 
 // ============================================
