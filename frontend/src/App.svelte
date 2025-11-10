@@ -176,6 +176,27 @@
     currentView.set(view);
   }
 
+  // Handle search result selection - navigate to file and open it
+  function handleSearchResultSelected(event) {
+    const { file, path } = event.detail;
+    console.log("[App] Search result selected:", file);
+    
+    // Switch to files view if not already there
+    if ($currentView !== "files") {
+      currentView.set("files");
+    }
+    
+    // Use custom event to tell FilesView to navigate and open this file
+    window.dispatchEvent(new CustomEvent("openFileFromSearch", {
+      detail: {
+        filePath: path,
+        fileName: file.name,
+        fileId: file.id,
+        isFolder: file.type === "folder"
+      }
+    }));
+  }
+
   // Check for hash-based routing (login vs signup)
   let showSignup = $state(false);
   let isMobileMenuOpen = $state(false);
@@ -261,6 +282,7 @@
     <div class="main-wrapper overflow-x-hidden">
       <AppHeader
         on:navigate={handleNavigate}
+        on:searchResultSelected={handleSearchResultSelected}
         on:toggleActivityFeed={(e) => (showActivityFeed = e.detail.visible)}
         bind:showActivityFeed
       />

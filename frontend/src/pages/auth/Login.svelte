@@ -27,14 +27,12 @@
 
   async function checkBackendStatus() {
     try {
-      // Simple health check - just try to reach the backend
-      const response = await fetch("http://localhost:8080/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: "", password: "" }),
+      // Simple health check - just ping the health endpoint
+      const response = await fetch("http://localhost:8080/health", {
+        method: "GET",
       });
-      // If we get ANY response (even error), backend is online
-      backendOnline = true;
+      // If we get a response (even error 404/500), backend is online
+      backendOnline = response.ok || response.status >= 400;
       checkingBackend = false;
     } catch (err) {
       // Network error = backend offline
@@ -129,7 +127,7 @@
         >
       {:else if backendOnline}
         <span class="text-green-300 text-xs font-semibold"
-          >{tr("backendConnecting")}</span
+          >{tr("backendOnline")}</span
         >
       {:else}
         <span class="text-red-300 text-xs font-semibold"

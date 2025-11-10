@@ -186,10 +186,15 @@
     // Load preferences and favorites
     try {
       await userPreferences.load();
-      const prefs = userPreferences.getAll();
-      if (prefs && typeof prefs.view_mode === "string") {
-        viewMode = prefs.view_mode;
-      }
+
+      // Subscribe to preferences store to get current values
+      const unsubscribe = preferences.subscribe((prefs) => {
+        if (prefs && typeof prefs.view_mode === "string") {
+          viewMode = prefs.view_mode;
+        }
+      });
+      unsubscribe(); // Immediately unsubscribe after getting value
+
       preferencesLoaded = true; // Enable auto-save after loading
     } catch (err) {
       console.error("Failed to load preferences:", err);
@@ -232,6 +237,50 @@
 
     window.addEventListener("keydown", handleKeydown);
     window.addEventListener("popstate", handlePopstateRef);
+    
+    // Listen for search result selection from AppHeader
+    const handleOpenFileFromSearch = async (event) => {
+      const { filePath, fileName, fileId, isFolder } = event.detail;
+      console.log("[FilesView] Opening file from search:", event.detail);
+      
+      // Extract directory path and filename
+      const pathParts = filePath.split('/').filter(p => p);
+      const fileNameFromPath = pathParts.pop() || fileName;
+      const directoryPath = pathParts.length > 0 ? '/' + pathParts.join('/') : '/';
+      
+      // Navigate to the directory containing the file
+      if (directoryPath !== $currentPath) {
+        await navigateTo(directoryPath);
+      }
+      
+      // Wait a bit for files to load
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Find the file in the current file list
+      const targetFile = files.find(f => 
+        f.name === fileNameFromPath || 
+        f.path === filePath ||
+        f.id === fileId
+      );
+      
+      if (targetFile) {
+        if (isFolder) {
+          // If it's a folder, navigate into it
+          navigateTo(filePath);
+        } else {
+          // If it's a file, open the preview
+          handleFileClick(targetFile);
+        }
+      } else {
+        console.warn("[FilesView] Could not find file in current directory:", fileNameFromPath);
+      }
+    };
+    
+    window.addEventListener("openFileFromSearch", handleOpenFileFromSearch);
+    
+    onDestroy(() => {
+      window.removeEventListener("openFileFromSearch", handleOpenFileFromSearch);
+    });
   });
 
   onDestroy(() => {

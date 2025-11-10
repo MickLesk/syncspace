@@ -172,42 +172,66 @@
 
     if (searchQuery.trim()) {
       searchDebounce = setTimeout(async () => {
-        // TODO: Call actual search API
-        // For now, mock results
-        searchResults = [
-          {
-            name: "Document.pdf",
-            path: "/documents/Document.pdf",
-            type: "file",
-            icon: "file-earmark-pdf",
-          },
-          {
-            name: "Images",
-            path: "/images",
-            type: "folder",
-            icon: "folder-fill",
-          },
-          {
-            name: "Project Report.docx",
-            path: "/work/Project Report.docx",
-            type: "file",
-            icon: "file-earmark-word",
-          },
-        ].filter((item) =>
-          item.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        try {
+          // Call Tantivy full-text search API
+          const response = await api.search.query(searchQuery, 10, true);
+          
+          // Transform search results to UI format
+          searchResults = response.results.map((result) => {
+            const isFolder = result.is_dir || false;
+            const fileName = result.filename || result.name || "Unknown";
+            const filePath = result.path || result.file_path || "";
+            
+            // Determine icon based on file type
+            let icon = "file-earmark-text";
+            if (isFolder) {
+              icon = "folder-fill";
+            } else if (fileName.match(/\.(pdf)$/i)) {
+              icon = "file-earmark-pdf";
+            } else if (fileName.match(/\.(docx?|doc)$/i)) {
+              icon = "file-earmark-word";
+            } else if (fileName.match(/\.(xlsx?|xls|csv)$/i)) {
+              icon = "file-earmark-excel";
+            } else if (fileName.match(/\.(png|jpe?g|gif|svg|webp|bmp)$/i)) {
+              icon = "file-earmark-image";
+            } else if (fileName.match(/\.(mp4|webm|avi|mov)$/i)) {
+              icon = "file-earmark-play";
+            } else if (fileName.match(/\.(zip|rar|7z|tar|gz)$/i)) {
+              icon = "file-earmark-zip";
+            }
+            
+            return {
+              id: result.id || result.file_id,
+              name: fileName,
+              path: filePath,
+              type: isFolder ? "folder" : "file",
+              icon: icon,
+              score: result.score || 0,
+              size: result.size_bytes || 0,
+            };
+          });
+        } catch (err) {
+          console.error("Search failed:", err);
+          searchResults = [];
+        }
       }, 300);
     } else {
       searchResults = [];
     }
   }
 
-  // Select search result
+  // Select search result and navigate to file
   function selectSearchResult(result) {
     searchQuery = result.name;
     saveRecentSearch(result.name);
     showSearchDropdown = false;
-    dispatch("search", { query: result.name, path: result.path });
+    
+    // Dispatch with full file information for navigation
+    dispatch("searchResultSelected", { 
+      file: result,
+      query: result.name, 
+      path: result.path 
+    });
   }
 
   // Select recent search

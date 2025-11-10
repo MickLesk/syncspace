@@ -8,6 +8,11 @@
       "segment_id": "bc244e02-3911-4f51-a194-b6796a9629eb",
       "max_doc": 1,
       "deletes": null
+    },
+    {
+      "segment_id": "a8c3709e-3f4e-4d4d-bf3a-1f0dd091ff05",
+      "max_doc": 1,
+      "deletes": null
     }
   ],
   "schema": [
@@ -98,5 +103,5 @@
       }
     }
   ],
-  "opstamp": 3
+  "opstamp": 6
 }
