@@ -3,15 +3,15 @@
     colors,
     elevation,
     shape,
+    shapeExpressive,
     sizes,
     stateLayers,
     surface,
-    transitions,
     outline,
-    type ButtonSize,
-    shapeExpressive,
     springs,
+    motionPresets,
     typographyEmphasized,
+    type ButtonSize,
   } from "../shared/index.js";
   import type { Snippet } from "svelte";
 
@@ -24,61 +24,66 @@
     variant?: ButtonVariant;
     color?: ButtonColor;
     size?: ButtonSize;
+
+    // 🆕 M3 EXPRESSIVE FEATURES
+    emphasized?: boolean; // Bold typography for impact
+    shapeStyle?: ShapeVariant; // Shape variety for visual interest
+    motion?: MotionVariant; // Spring physics animations
+    fullWidth?: boolean;
+
+    // Standard props
     disabled?: boolean;
     loading?: boolean;
-    fullWidth?: boolean;
     href?: string;
     onclick?: () => void;
     class?: string;
     children?: Snippet;
-    // M3 Expressive additions
-    emphasized?: boolean;
-    shapeStyle?: ShapeVariant;
-    motion?: MotionVariant;
   }
 
   let {
     variant = "filled",
     color = "primary",
     size = "md",
+    emphasized = false,
+    shapeStyle = "normal",
+    motion = "smooth",
+    fullWidth = false,
     disabled = false,
     loading = false,
-    fullWidth = false,
     href,
     onclick,
     class: customClass = "",
     children,
-    emphasized = false,
-    shapeStyle = "normal",
-    motion = "smooth",
   }: Props = $props();
 
-  // M3 Expressive: Shape variety
+  // Base classes - M3 foundation
+  const baseClasses = `
+    inline-flex items-center justify-center gap-2
+    font-medium
+    focus-visible:outline-none
+    disabled:opacity-38 disabled:cursor-not-allowed disabled:pointer-events-none
+    ${sizes[size]}
+  `;
+
+  // 🆕 M3 EXPRESSIVE: Shape variety
   const shapeClasses = {
     normal: shape.lg,
-    "extra-rounded": shapeExpressive["extra-large"], // 28px
+    "extra-rounded": shapeExpressive["extra-large"],
     squircle: shapeExpressive["squircle-lg"],
     mixed: shapeExpressive["mixed-rounded"],
   };
 
-  // M3 Expressive: Motion variants
+  // 🆕 M3 EXPRESSIVE: Spring motion
   const motionClasses = {
     smooth: `transition-all duration-300 ease-[${springs.spatial.smooth}]`,
     bouncy: `transition-all duration-300 ease-[${springs.spatial.bouncy}]`,
     energetic: `transition-all duration-400 ease-[${springs.spatial.energetic}]`,
   };
 
-  // Base classes - Material 3 foundation + M3 Expressive
-  const baseClasses = `
-    inline-flex items-center justify-center gap-2
-    ${emphasized ? typographyEmphasized.label.large.split(" ").slice(0, 2).join(" ") : "font-medium"}
-    ${shapeClasses[shapeStyle]}
-    ${motionClasses[motion]}
-    focus-visible:outline-none
-    disabled:opacity-38 disabled:cursor-not-allowed disabled:pointer-events-none
-    ${sizes[size]}
-    hover:scale-105 active:scale-95
-  `;
+  // 🆕 M3 EXPRESSIVE: Typography emphasis
+  const textClasses = emphasized
+    ? "font-bold tracking-tight" // 700 weight for impact!
+    : "font-medium";
 
   // Material 3 Button Variants
   const variantStyles = {
@@ -90,6 +95,8 @@
       ${elevation[1]}
       ${stateLayers.hover}
       ${stateLayers.pressed}
+      hover:scale-105
+      active:scale-95
     `,
     outlined: `
       ${surface.base}
@@ -98,6 +105,8 @@
       ${colors[color].focus}
       ${stateLayers.hover}
       ${stateLayers.pressed}
+      hover:scale-102
+      active:scale-98
     `,
     text: `
       bg-transparent
@@ -105,6 +114,8 @@
       ${colors[color].focus}
       ${stateLayers.hover}
       ${stateLayers.pressed}
+      hover:scale-105
+      active:scale-95
     `,
     elevated: `
       ${surface.containerLow}
@@ -114,6 +125,10 @@
       hover:${elevation[2]}
       ${stateLayers.hover}
       ${stateLayers.pressed}
+      hover:scale-105
+      hover:-translate-y-0.5
+      active:scale-100
+      active:translate-y-0
     `,
     tonal: `
       ${colors[color].container}
@@ -121,10 +136,20 @@
       ${colors[color].focus}
       ${stateLayers.hover}
       ${stateLayers.pressed}
+      hover:scale-105
+      active:scale-95
     `,
   };
 
-  const classes = `${baseClasses} ${variantStyles[variant]} ${fullWidth ? "w-full" : ""} ${customClass}`;
+  const classes = `
+    ${baseClasses} 
+    ${shapeClasses[shapeStyle]} 
+    ${motionClasses[motion]}
+    ${textClasses}
+    ${variantStyles[variant]} 
+    ${fullWidth ? "w-full" : ""} 
+    ${customClass}
+  `;
 </script>
 
 {#if href}
@@ -154,35 +179,16 @@
 {/if}
 
 <style>
-  /* Material 3: Subtle state layer transitions */
-  button,
-  a {
-    position: relative;
-    overflow: hidden;
+  /* M3 Expressive: Spring hover effects with scale */
+  button:hover:not(:disabled),
+  a:hover:not([aria-disabled="true"]) {
+    transform-origin: center;
   }
 
-  /* State layer effect */
-  button::before,
-  a::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    opacity: 0;
-    transition: opacity 200ms ease-in-out;
-    pointer-events: none;
-  }
-
-  button:hover::before,
-  a:hover::before {
-    opacity: 0.08;
-    background: currentColor;
-  }
-
-  button:active::before,
-  a:active::before {
-    opacity: 0.12;
-    background: currentColor;
+  /* Pressed state with spring bounce-back */
+  button:active:not(:disabled),
+  a:active:not([aria-disabled="true"]) {
+    transition-duration: 100ms;
   }
 
   /* Disabled state */

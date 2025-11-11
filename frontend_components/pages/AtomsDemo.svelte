@@ -72,24 +72,89 @@
 <div class="min-h-screen bg-slate-900 py-12">
   <div class="max-w-7xl mx-auto px-6">
     <!-- Header -->
-    <div class="mb-12">
-      <h1 class="text-4xl font-bold text-white mb-2">Atoms Component Demo</h1>
-      <p class="text-slate-400">Basic building blocks for your UI</p>
+    <div class="mb-12 text-center">
+      <div
+        class="inline-block px-4 py-1.5 bg-blue-500/20 border border-blue-500/30 rounded-full mb-4"
+      >
+        <span class="text-blue-400 text-sm font-semibold"
+          >✨ 2025 Design System</span
+        >
+      </div>
+      <h1 class="text-5xl font-bold text-white mb-3">
+        Atoms Component Library
+      </h1>
+      <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+        Modern UI components with <span class="text-blue-400"
+          >subtle neumorphism</span
+        >,
+        <span class="text-purple-400">glowing effects</span>, and
+        <span class="text-green-400">smooth microinteractions</span>
+      </p>
+
+      <!-- Feature Tags -->
+      <div class="flex flex-wrap justify-center gap-3 mt-6">
+        <span
+          class="px-3 py-1 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 text-sm"
+        >
+          🌊 Spring Animations
+        </span>
+        <span
+          class="px-3 py-1 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 text-sm"
+        >
+          ✨ Glow Effects
+        </span>
+        <span
+          class="px-3 py-1 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 text-sm"
+        >
+          🚀 Hover Lift
+        </span>
+        <span
+          class="px-3 py-1 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 text-sm"
+        >
+          🎨 Glassmorphism
+        </span>
+        <span
+          class="px-3 py-1 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 text-sm"
+        >
+          🌙 Dark Mode Native
+        </span>
+      </div>
     </div>
 
     <!-- Buttons Section -->
     <section class="mb-16">
       <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-cursor-fill mr-3 text-blue-400"></i>Buttons
+        <i class="bi bi-cursor-fill mr-3 text-blue-400"></i>Buttons - 2025
+        Design
       </h2>
 
-      <!-- Variants -->
+      <!-- Variants with Glow -->
       <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 mb-8">
-        <h3 class="text-lg font-semibold text-slate-200 mb-4">Variants</h3>
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">
+          Variants with Hover Glow ✨
+        </h3>
+        <div class="flex flex-wrap gap-4">
+          {#each buttonVariants as variant (variant)}
+            <Button {variant} glow>
+              <i class="bi bi-star-fill mr-2"></i>
+              {variant.charAt(0).toUpperCase() + variant.slice(1)}
+            </Button>
+          {/each}
+        </div>
+        <p class="text-slate-400 text-sm mt-4">
+          💡 Hover over buttons to see the glow effect!
+        </p>
+      </div>
+
+      <!-- Standard Variants (No Glow) -->
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 mb-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">
+          Standard (No Glow)
+        </h3>
         <div class="flex flex-wrap gap-4">
           {#each buttonVariants as variant (variant)}
             <Button {variant}>
-              <i class="bi bi-star-fill mr-2"></i>
+              <i class="bi bi-check-lg mr-2"></i>
               {variant.charAt(0).toUpperCase() + variant.slice(1)}
             </Button>
           {/each}
@@ -108,16 +173,29 @@
         </div>
       </div>
 
-      <!-- Loading State -->
+      <!-- Interactive States -->
       <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-        <h3 class="text-lg font-semibold text-slate-200 mb-4">Loading State</h3>
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">
+          Interactive States with Lift Effect 🚀
+        </h3>
         <div class="flex flex-wrap gap-4">
-          <Button loading>
+          <Button loading glow>
             <i class="bi bi-cloud-upload mr-2"></i>Uploading...
           </Button>
-          <Button variant="secondary" loading>Processing</Button>
-          <Button variant="success" disabled>Disabled</Button>
+          <Button variant="success" glow onclick={() => alert("Clicked!")}>
+            <i class="bi bi-check-circle-fill mr-2"></i>Click Me!
+          </Button>
+          <Button variant="danger" glow>
+            <i class="bi bi-trash-fill mr-2"></i>Delete
+          </Button>
+          <Button variant="secondary" disabled>
+            <i class="bi bi-lock-fill mr-2"></i>Disabled
+          </Button>
         </div>
+        <p class="text-slate-400 text-sm mt-4">
+          ✨ Buttons lift on hover and press down on click with smooth spring
+          animations
+        </p>
       </div>
     </section>
 
@@ -175,38 +253,80 @@
     <!-- Input Section -->
     <section class="mb-16">
       <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-keyboard-fill mr-3 text-green-400"></i>Inputs
+        <i class="bi bi-keyboard-fill mr-3 text-green-400"></i>Inputs - 2025
+        Design
       </h2>
 
       <div class="grid md:grid-cols-2 gap-8">
-        <!-- Text Input -->
+        <!-- Text Input with Glow -->
         <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-          <h3 class="text-lg font-semibold text-slate-200 mb-4">Text Input</h3>
-          <Label label="Enter your text" hint="This is a helpful hint" />
-          <Input bind:value={inputValue} placeholder="Type something..." />
+          <h3 class="text-lg font-semibold text-slate-200 mb-4">
+            Focus Glow Effect ✨
+          </h3>
+          <Label
+            label="Enter your text"
+            hint="Focus on input to see the glow"
+          />
+          <Input bind:value={inputValue} placeholder="Type something..." glow />
           <p class="text-slate-400 text-sm mt-4">
-            Value: {inputValue || "empty"}
+            💡 Focus triggers a glowing blue shadow effect
           </p>
         </div>
 
         <!-- Input Variants -->
         <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-          <h3 class="text-lg font-semibold text-slate-200 mb-4">Variants</h3>
+          <h3 class="text-lg font-semibold text-slate-200 mb-4">
+            Input States with Animation
+          </h3>
           <div class="space-y-3">
             <div>
-              <Input variant="primary" placeholder="Primary variant" />
+              <Input variant="primary" placeholder="Primary (focus me!)" glow />
             </div>
             <div>
-              <Input variant="secondary" placeholder="Secondary variant" />
+              <Input
+                variant="secondary"
+                placeholder="Secondary variant"
+                glow={false}
+              />
             </div>
             <div>
               <Input
                 variant="danger"
-                error="This field is required"
-                placeholder="Error state"
+                error
+                placeholder="Error state with pulse"
+                glow
               />
+              <p class="text-red-400 text-xs mt-1">
+                ⚠️ Error inputs pulse to grab attention
+              </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Interactive Demo -->
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 mt-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">
+          Interactive Demo - Type to See Value
+        </h3>
+        <Input
+          bind:value={inputValue}
+          placeholder="Start typing..."
+          glow
+          class="text-lg"
+        />
+        <div
+          class="mt-4 p-4 bg-slate-900/50 rounded-lg border border-slate-600"
+        >
+          <p class="text-slate-300">
+            <span class="text-slate-500">Current Value:</span>
+            <span class="text-blue-400 font-mono ml-2">
+              {inputValue || "(empty)"}
+            </span>
+          </p>
+          <p class="text-slate-400 text-xs mt-2">
+            ✨ Notice the subtle scale effect on focus and smooth transitions
+          </p>
         </div>
       </div>
     </section>
@@ -216,7 +336,8 @@
     <!-- Checkbox & Toggle Section -->
     <section class="mb-16">
       <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-toggle2-on mr-3 text-yellow-400"></i>Controls
+        <i class="bi bi-toggle2-on mr-3 text-yellow-400"></i>Controls - 2025
+        Design
       </h2>
 
       <div class="grid md:grid-cols-2 gap-8">
@@ -230,22 +351,65 @@
             <Checkbox label="Disabled" disabled />
           </div>
           <p class="text-slate-400 text-sm mt-4">
-            Checked: {checkboxState ? "Yes" : "No"}
+            Checked: {checkboxState ? "Yes ✓" : "No ✗"}
           </p>
         </div>
 
-        <!-- Toggles -->
+        <!-- Toggles with Spring Animation -->
         <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-          <h3 class="text-lg font-semibold text-slate-200 mb-4">Toggles</h3>
+          <h3 class="text-lg font-semibold text-slate-200 mb-4">
+            Toggles with Spring Animation 🌊
+          </h3>
           <div class="space-y-4">
-            <Toggle bind:checked={toggleState} label="Primary toggle" />
-            <Toggle variant="success" label="Success toggle" />
-            <Toggle variant="danger" label="Danger toggle" />
-            <Toggle disabled label="Disabled toggle" />
+            <Toggle bind:checked={toggleState} glow>
+              <span class="font-medium">Primary with glow</span>
+            </Toggle>
+            <Toggle variant="success" glow>
+              <span class="font-medium">Success with glow</span>
+            </Toggle>
+            <Toggle variant="danger" glow>
+              <span class="font-medium">Danger with glow</span>
+            </Toggle>
+            <Toggle disabled>
+              <span class="font-medium">Disabled toggle</span>
+            </Toggle>
           </div>
-          <p class="text-slate-400 text-sm mt-4">
-            Enabled: {toggleState ? "Yes" : "No"}
-          </p>
+          <div
+            class="mt-4 p-3 bg-slate-900/50 rounded-lg border border-slate-600"
+          >
+            <p class="text-slate-400 text-sm">
+              ✨ Enabled: <span class="text-blue-400 font-semibold"
+                >{toggleState ? "Yes" : "No"}</span
+              >
+            </p>
+            <p class="text-slate-500 text-xs mt-1">
+              Toggle animations use spring physics for natural bouncy feel
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toggle Features Demo -->
+      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 mt-8">
+        <h3 class="text-lg font-semibold text-slate-200 mb-4">
+          2025 Toggle Features Showcase
+        </h3>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="text-center p-4 bg-slate-900/30 rounded-lg">
+            <Toggle variant="primary" glow />
+            <p class="text-slate-400 text-sm mt-3">Spring Animation</p>
+            <p class="text-slate-500 text-xs mt-1">Bounces on state change</p>
+          </div>
+          <div class="text-center p-4 bg-slate-900/30 rounded-lg">
+            <Toggle variant="success" glow />
+            <p class="text-slate-400 text-sm mt-3">Glow Effect</p>
+            <p class="text-slate-500 text-xs mt-1">Glows when active</p>
+          </div>
+          <div class="text-center p-4 bg-slate-900/30 rounded-lg">
+            <Toggle variant="warning" glow />
+            <p class="text-slate-400 text-sm mt-3">Hover Scale</p>
+            <p class="text-slate-500 text-xs mt-1">Scales up on hover</p>
+          </div>
         </div>
       </div>
     </section>
@@ -292,45 +456,76 @@
     <!-- Card Section -->
     <section class="mb-16">
       <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-card-text mr-3 text-cyan-400"></i>Cards
+        <i class="bi bi-card-text mr-3 text-cyan-400"></i>Cards - 2025 Design
       </h2>
 
       <div class="grid md:grid-cols-3 gap-8">
-        <!-- Basic Card -->
+        <!-- Glassmorphism Card -->
         <Card
-          title="Basic Card"
-          description="A simple card with title and description"
+          title="Glassmorphism Card"
+          description="Modern glass effect with backdrop blur"
+          glass={true}
+          glow={true}
+          hoverable={true}
         >
           <p class="text-slate-400">
-            This is the card content area. You can put any content here using
-            slots.
+            ✨ This card features the glassmorphism effect - translucent
+            background with backdrop blur, popular in 2025 design.
           </p>
         </Card>
 
-        <!-- Card with Footer -->
+        <!-- Card with Glow -->
         <Card
-          title="Card with Actions"
-          description="Interactive card with footer"
-          footer={true}
+          title="Glowing Card"
+          description="Hover for subtle glow effect"
+          glow={true}
+          hoverable={true}
+          shadow="lg"
         >
           <p class="text-slate-400 mb-4">
-            This card has a footer section for actions.
+            🌟 Hover over this card to see the subtle blue glow effect, perfect
+            for highlighting important content.
           </p>
-          <div class="flex gap-2 pt-4 border-t border-slate-600">
-            <Button size="sm" variant="primary">Save</Button>
-            <Button size="sm" variant="secondary">Cancel</Button>
-          </div>
         </Card>
 
-        <!-- Hoverable Card -->
+        <!-- Elevated Card -->
         <Card
-          title="Hoverable Card"
-          description="Interactive card with hover effect"
+          title="Elevated Card"
+          description="Deep shadow with lift effect"
           hoverable={true}
+          shadow="xl"
           bordered={true}
         >
           <p class="text-slate-400">
-            Hover over this card to see the effect. Great for clickable items.
+            🚀 This card lifts up on hover with smooth spring animation,
+            creating a tactile 3D effect.
+          </p>
+        </Card>
+      </div>
+
+      <!-- Card Comparison -->
+      <div class="grid md:grid-cols-2 gap-8 mt-8">
+        <!-- Standard Card -->
+        <Card
+          title="Standard Card"
+          description="Classic solid background"
+          shadow="md"
+        >
+          <p class="text-slate-400">
+            Traditional card design with solid background and medium shadow.
+            Still looks great!
+          </p>
+        </Card>
+
+        <!-- Glass Card -->
+        <Card
+          title="Glass Card"
+          description="Translucent with blur"
+          glass={true}
+        >
+          <p class="text-slate-400">
+            Modern glassmorphism with transparency and backdrop blur. Notice the
+            subtle difference!
           </p>
         </Card>
       </div>

@@ -8,17 +8,10 @@
     surface,
     transitions,
     outline,
+    type ButtonVariant,
     type ButtonSize,
-    shapeExpressive,
-    springs,
-    typographyEmphasized,
+    type ButtonColor,
   } from "../shared/index.js";
-  import type { Snippet } from "svelte";
-
-  type ButtonVariant = "filled" | "outlined" | "text" | "elevated" | "tonal";
-  type ButtonColor = "primary" | "secondary" | "tertiary" | "error" | "success";
-  type ShapeVariant = "normal" | "extra-rounded" | "squircle" | "mixed";
-  type MotionVariant = "smooth" | "bouncy" | "energetic";
 
   interface Props {
     variant?: ButtonVariant;
@@ -30,11 +23,6 @@
     href?: string;
     onclick?: () => void;
     class?: string;
-    children?: Snippet;
-    // M3 Expressive additions
-    emphasized?: boolean;
-    shapeStyle?: ShapeVariant;
-    motion?: MotionVariant;
   }
 
   let {
@@ -47,37 +35,16 @@
     href,
     onclick,
     class: customClass = "",
-    children,
-    emphasized = false,
-    shapeStyle = "normal",
-    motion = "smooth",
   }: Props = $props();
 
-  // M3 Expressive: Shape variety
-  const shapeClasses = {
-    normal: shape.lg,
-    "extra-rounded": shapeExpressive["extra-large"], // 28px
-    squircle: shapeExpressive["squircle-lg"],
-    mixed: shapeExpressive["mixed-rounded"],
-  };
-
-  // M3 Expressive: Motion variants
-  const motionClasses = {
-    smooth: `transition-all duration-300 ease-[${springs.spatial.smooth}]`,
-    bouncy: `transition-all duration-300 ease-[${springs.spatial.bouncy}]`,
-    energetic: `transition-all duration-400 ease-[${springs.spatial.energetic}]`,
-  };
-
-  // Base classes - Material 3 foundation + M3 Expressive
+  // Base classes - Material 3 foundation
   const baseClasses = `
     inline-flex items-center justify-center gap-2
-    ${emphasized ? typographyEmphasized.label.large.split(" ").slice(0, 2).join(" ") : "font-medium"}
-    ${shapeClasses[shapeStyle]}
-    ${motionClasses[motion]}
+    font-medium ${shape.lg}
+    ${transitions.normal}
     focus-visible:outline-none
     disabled:opacity-38 disabled:cursor-not-allowed disabled:pointer-events-none
     ${sizes[size]}
-    hover:scale-105 active:scale-95
   `;
 
   // Material 3 Button Variants
@@ -128,16 +95,14 @@
 </script>
 
 {#if href}
-  <a {href} class={classes} aria-disabled={disabled}>
+  <a {href} class={classes} {disabled}>
     {#if loading}
       <span
         class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"
         aria-hidden="true"
       ></span>
     {/if}
-    {#if children}
-      {@render children()}
-    {/if}
+    <slot />
   </a>
 {:else}
   <button {onclick} {disabled} class={classes} type="button">
@@ -147,9 +112,7 @@
         aria-hidden="true"
       ></span>
     {/if}
-    {#if children}
-      {@render children()}
-    {/if}
+    <slot />
   </button>
 {/if}
 
@@ -161,7 +124,7 @@
     overflow: hidden;
   }
 
-  /* State layer effect */
+  /* Ripple effect placeholder (can be enhanced with JS) */
   button::before,
   a::before {
     content: "";
@@ -187,7 +150,7 @@
 
   /* Disabled state */
   button:disabled,
-  a[aria-disabled="true"] {
+  a[disabled] {
     opacity: 0.38;
   }
 </style>

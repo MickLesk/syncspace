@@ -72,9 +72,11 @@
         class="max-w-full h-auto rounded-lg"
       />
     {:else if file.type === "video" && file.url}
-      <video src={file.url} controls class="max-w-full h-auto rounded-lg" />
+      <video src={file.url} controls class="max-w-full h-auto rounded-lg">
+        <track kind="captions" src="" label="English" default />
+      </video>
     {:else if file.type === "audio" && file.url}
-      <audio src={file.url} controls class="w-full" />
+      <audio src={file.url} controls class="w-full"></audio>
     {:else if (file.type === "text" || file.type === "code") && file.content}
       <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-xs"><code
           >{file.content}</code

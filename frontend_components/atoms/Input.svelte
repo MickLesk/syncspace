@@ -1,42 +1,116 @@
 <script lang="ts">
+  import {
+    shape,
+    shapeExpressive,
+    springs,
+    outline,
+    colors,
+    stateLayers,
+    typographyEmphasized,
+  } from "../shared/index.js";
+
+  type ShapeVariant = "normal" | "extra-rounded" | "squircle";
+  type InputSize = "sm" | "md" | "lg";
+
   interface Props {
-    disabled?: boolean;
-    variant?: "primary" | "secondary" | "danger";
+    value?: string;
+    placeholder?: string;
+    label?: string;
+    helperText?: string;
     error?: boolean;
+    disabled?: boolean;
+    type?: string;
+
+    // 🆕 M3 EXPRESSIVE FEATURES
+    emphasized?: boolean; // Bold label typography
+    shapeStyle?: ShapeVariant; // Shape variety
+    size?: InputSize;
+
     class?: string;
     oninput?: (event: Event) => void;
-    onchange?: (event: Event) => void;
-    onblur?: (event: Event) => void;
   }
 
   let {
-    disabled = false,
-    variant = "primary",
+    value = $bindable(""),
+    placeholder = "",
+    label = "",
+    helperText = "",
     error = false,
+    disabled = false,
+    type = "text",
+    emphasized = false,
+    shapeStyle = "normal",
+    size = "md",
     class: customClass = "",
     oninput,
-    onchange,
-    onblur,
   }: Props = $props();
 
-  const variantClasses = {
-    primary: "border-gray-300 focus:border-blue-500 focus:ring-blue-500",
-    secondary: "border-gray-400 focus:border-gray-600",
-    danger: "border-red-500 focus:ring-red-500",
+  // 🆕 M3 EXPRESSIVE: Shape variety
+  const shapeClasses = {
+    normal: shape.lg,
+    "extra-rounded": shapeExpressive["extra-large"],
+    squircle: shapeExpressive["squircle-md"],
   };
+
+  // 🆕 M3 EXPRESSIVE: Size variants
+  const sizeClasses = {
+    sm: "h-9 px-3 text-sm",
+    md: "h-11 px-4 text-base",
+    lg: "h-14 px-5 text-lg",
+  };
+
+  // 🆕 M3 EXPRESSIVE: Label emphasis
+  const labelClasses = emphasized
+    ? `${typographyEmphasized.label.large} mb-2 text-gray-900 dark:text-white`
+    : "text-sm font-medium text-gray-700 dark:text-gray-300 mb-2";
 </script>
 
-<input
-  type="text"
-  {disabled}
-  class={`
-    w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-400
-    focus:outline-none focus:ring-2 transition-colors
-    disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50
-    ${error ? "border-red-500 focus:ring-red-500" : variantClasses[variant]}
-    ${customClass}
-  `}
-  {oninput}
-  {onchange}
-  {onblur}
-/>
+<div class={customClass}>
+  {#if label}
+    <label class={`block ${labelClasses}`}>
+      {label}
+    </label>
+  {/if}
+
+  <input
+    {type}
+    bind:value
+    {placeholder}
+    {disabled}
+    {oninput}
+    class={`
+      w-full
+      ${sizeClasses[size]}
+      ${shapeClasses[shapeStyle]}
+      ${outline.default}
+      ${error ? outline.error : colors.primary.focus}
+      ${stateLayers.hover}
+      bg-white dark:bg-gray-800
+      text-gray-900 dark:text-white
+      placeholder:text-gray-400 dark:placeholder:text-gray-500
+      disabled:opacity-50 disabled:cursor-not-allowed
+      transition-all duration-300 ease-[${springs.effects.color}]
+      focus:scale-[1.01]
+      focus:shadow-lg
+    `}
+  />
+
+  {#if helperText}
+    <p
+      class={`
+      text-xs mt-2
+      ${error ? "text-red-600 dark:text-red-400" : "text-gray-500 dark:text-gray-400"}
+      ${emphasized ? "font-semibold" : ""}
+    `}
+    >
+      {helperText}
+    </p>
+  {/if}
+</div>
+
+<style>
+  /* M3 Expressive: Spring focus animation */
+  input:focus {
+    transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+</style>

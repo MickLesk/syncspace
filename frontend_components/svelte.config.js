@@ -1,7 +1,6 @@
-import adapter from '@sveltejs/adapter-auto';
-
 export default {
-  kit: {
-    adapter: adapter()
+  // Simple Svelte config without SvelteKit
+  compilerOptions: {
+    runes: true
   }
 };
