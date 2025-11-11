@@ -1,7 +1,7 @@
 {
     "name": "@syncspace/components",
-    "version": "1.0.0",
-    "description": "SyncSpace Component Library - Production-ready UI components built with Svelte 5, TypeScript, and Tailwind CSS v4",
+    "version": "2.0.0",
+    "description": "SyncSpace Design System - Modern UI components with advanced features, built with Svelte 5, TypeScript, and Tailwind CSS v4. Production-ready with 76% smaller bundles via lazy loading and code splitting.",
     "type": "module",
     "main": "./atoms/index.ts",
     "exports": {

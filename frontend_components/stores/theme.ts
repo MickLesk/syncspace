@@ -19,33 +19,33 @@ function getInitialTheme(): Theme {
 
 // Create theme store
 function createThemeStore() {
-  const { subscribe, set, update } = writable<Theme>(getInitialTheme());
+  const { subscribe, set: internalSet, update } = writable<Theme>(getInitialTheme());
+
+  function applyTheme(value: Theme) {
+    if (isBrowser) {
+      localStorage.setItem("theme", value);
+      if (value === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+    internalSet(value);
+  }
 
   return {
     subscribe,
-    set: (value: Theme) => {
-      if (isBrowser) {
-        localStorage.setItem("theme", value);
-        document.documentElement.setAttribute("data-theme", value);
-      }
-      set(value);
-    },
+    set: applyTheme,
     toggle: () => {
       update((current) => {
         const next = current === "light" ? "dark" : "light";
-        if (isBrowser) {
-          localStorage.setItem("theme", next);
-          document.documentElement.setAttribute("data-theme", next);
-        }
+        applyTheme(next);
         return next;
       });
     },
     init: () => {
-      if (isBrowser) {
-        const theme = getInitialTheme();
-        document.documentElement.setAttribute("data-theme", theme);
-        set(theme);
-      }
+      const theme = getInitialTheme();
+      applyTheme(theme);
     },
   };
 }

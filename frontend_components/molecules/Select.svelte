@@ -43,8 +43,13 @@
 
   {#if open}
     <div
+      role="listbox"
+      tabindex="0"
       class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10"
       onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => {
+        if (e.key === "Escape") open = false;
+      }}
     >
       {#each items as item}
         <button
@@ -62,5 +67,12 @@
 </div>
 
 {#if open}
-  <div class="fixed inset-0 z-0" onclick={() => (open = false)} />
+  <div
+    role="presentation"
+    class="fixed inset-0 z-0"
+    onclick={() => (open = false)}
+    onkeydown={(e) => {
+      if (e.key === "Escape") open = false;
+    }}
+  ></div>
 {/if}

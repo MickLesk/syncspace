@@ -1,33 +1,66 @@
 <script>
   import "./src/app.css";
+  import { onMount } from "svelte";
+  import { theme } from "./stores/theme.ts";
   import Home from "./pages/Home.svelte";
-  import AtomsDemo from "./pages/AtomsDemo.svelte";
-  import MoleculesDemo from "./pages/MoleculesDemo.svelte";
-  import OrganismsDemo from "./pages/OrganismsDemo.svelte";
-  import ExpressiveDemo from "./pages/ExpressiveDemo.svelte";
   import ThemeToggle from "./atoms/ThemeToggle.svelte";
 
   let currentPage = $state("home");
+  let loadedComponents = $state({});
+  let isLoading = $state(false);
+  let loadingPage = $state("");
+
+  // Initialize theme ASAP
+  onMount(() => {
+    theme.init();
+    loadedComponents.home = Home;
+  });
+
+  // Lazy load page components on demand
+  const componentLoaders = {
+    home: () => Promise.resolve({ default: Home }),
+    atoms: () => import("./pages/AtomsDemo.svelte"),
+    molecules: () => import("./pages/MoleculesDemo.svelte"),
+    organisms: () => import("./pages/OrganismsDemo.svelte"),
+    playground: () => import("./pages/PlaygroundView.svelte"),
+    dashboard: () => import("./pages/DashboardTemplate.svelte"),
+  };
+
+  async function loadComponent(pageKey) {
+    // Prevent loading if already loaded or currently loading
+    if (loadedComponents[pageKey] || loadingPage === pageKey) return;
+
+    loadingPage = pageKey;
+    isLoading = true;
+    try {
+      const module = await componentLoaders[pageKey]();
+      loadedComponents = { ...loadedComponents, [pageKey]: module.default };
+    } catch (error) {
+      console.error(`Failed to load ${pageKey}:`, error);
+    } finally {
+      isLoading = false;
+      loadingPage = "";
+    }
+  }
+
+  // Auto-load component when page changes
+  $effect(() => {
+    if (
+      currentPage &&
+      !loadedComponents[currentPage] &&
+      loadingPage !== currentPage
+    ) {
+      loadComponent(currentPage);
+    }
+  });
 
   const pages = {
-    home: { component: Home, label: "Home", icon: "bi-house-fill" },
-    atoms: { component: AtomsDemo, label: "Atoms", icon: "bi-box" },
-    molecules: {
-      component: MoleculesDemo,
-      label: "Molecules",
-      icon: "bi-grid-3x3",
-    },
-    organisms: {
-      component: OrganismsDemo,
-      label: "Organisms",
-      icon: "bi-layers",
-    },
-    expressive: {
-      component: ExpressiveDemo,
-      label: "M3 Expressive",
-      icon: "bi-stars",
-      featured: true,
-    },
+    home: { label: "Home", icon: "bi-house-fill" },
+    atoms: { label: "Atoms", icon: "bi-box" },
+    molecules: { label: "Molecules", icon: "bi-grid-3x3" },
+    organisms: { label: "Organisms", icon: "bi-layers" },
+    playground: { label: "Playground", icon: "bi-code-slash", featured: true },
+    dashboard: { label: "Dashboard", icon: "bi-speedometer2", featured: true },
   };
 </script>
 
@@ -62,24 +95,24 @@
         </div>
 
         <!-- Navigation Links -->
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1">
           {#each Object.entries(pages) as [key, page]}
             <button
               onclick={() => (currentPage = key)}
-              class="group relative px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 {currentPage ===
+              class="group relative px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-200 {currentPage ===
               key
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'}"
             >
-              <span class="flex items-center gap-2">
+              <span class="flex items-center gap-1.5">
                 {#if page.icon}
-                  <i class={page.icon}></i>
+                  <i class="{page.icon} text-base"></i>
                 {/if}
-                {page.label}
+                <span class="hidden lg:inline">{page.label}</span>
               </span>
               {#if page.featured}
                 <span
-                  class="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"
+                  class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"
                 ></span>
               {/if}
             </button>
@@ -94,16 +127,22 @@
 
   <!-- Content with smooth transitions -->
   <div class="pt-16">
-    {#if currentPage === "home"}
-      <Home />
-    {:else if currentPage === "atoms"}
-      <AtomsDemo />
-    {:else if currentPage === "molecules"}
-      <MoleculesDemo />
-    {:else if currentPage === "organisms"}
-      <OrganismsDemo />
-    {:else if currentPage === "expressive"}
-      <ExpressiveDemo />
+    {#if isLoading}
+      <div class="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+        <div class="text-center">
+          <div
+            class="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"
+          ></div>
+          <p class="text-slate-600 dark:text-slate-400">Loading component...</p>
+        </div>
+      </div>
+    {:else if loadedComponents[currentPage]}
+      {@const Component = loadedComponents[currentPage]}
+      <Component />
+    {:else}
+      <div class="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+        <p class="text-slate-600 dark:text-slate-400">Page not found</p>
+      </div>
     {/if}
   </div>
 </div>

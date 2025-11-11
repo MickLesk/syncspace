@@ -1,6 +1,7 @@
 <script lang="ts">
   interface Props {
     label?: string;
+    for?: string;
     required?: boolean;
     error?: string;
     hint?: string;
@@ -9,6 +10,7 @@
 
   let {
     label,
+    for: htmlFor,
     required = false,
     error,
     hint,
@@ -16,7 +18,10 @@
   }: Props = $props();
 </script>
 
-<label class={`block text-sm font-medium text-gray-700 mb-2 ${customClass}`}>
+<label
+  for={htmlFor}
+  class={`block text-sm font-medium text-gray-700 mb-2 ${customClass}`}
+>
   {label}
   {#if required}
     <span class="text-red-500 ml-1">*</span>

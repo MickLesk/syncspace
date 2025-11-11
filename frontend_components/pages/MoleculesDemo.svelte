@@ -1,727 +1,370 @@
-<script lang="ts">
-  import Button from "../atoms/Button.svelte";
+﻿<script lang="ts">
+  import Card from "../atoms/Card.svelte";
   import Divider from "../atoms/Divider.svelte";
+  import Chip from "../atoms/Chip.svelte";
   import Badge from "../atoms/Badge.svelte";
-  import Breadcrumbs from "../molecules/Breadcrumbs.svelte";
-  import Toast from "../molecules/Toast.svelte";
-  import Filter from "../molecules/Filter.svelte";
-  import Select from "../molecules/Select.svelte";
-  import ContextMenu from "../molecules/ContextMenu.svelte";
-  import Tooltip from "../molecules/Tooltip.svelte";
+  import Button from "../atoms/Button.svelte";
   import Tabs from "../molecules/Tabs.svelte";
-  import Accordion from "../molecules/Accordion.svelte";
-  import Drawer from "../molecules/Drawer.svelte";
   import Dropdown from "../molecules/Dropdown.svelte";
-  import EmptyState from "../molecules/EmptyState.svelte";
-  import StatCard from "../molecules/StatCard.svelte";
-  import Timeline from "../molecules/Timeline.svelte";
-  import Stepper from "../molecules/Stepper.svelte";
 
-  let toastComponent: Toast;
-  let selectedFilters: string[] = [];
-  let selectedOption = "option1";
-  let contextMenuVisible = false;
-  let contextX = 0;
-  let contextY = 0;
-  let activeTab = "profile";
-  let accordion1Open = false;
-  let accordion2Open = false;
-  let drawerOpen = false;
-  let dropdownOpen = false;
-  let currentStep = 0;
-
-  const breadcrumbItems = [
-    { label: "Home", href: "#" },
-    { label: "Components", href: "#" },
-    { label: "Molecules", href: "#" },
-  ];
-
-  const filterItems = [
-    { id: "active", label: "Active" },
-    { id: "archived", label: "Archived" },
-    { id: "starred", label: "Starred" },
-    { id: "shared", label: "Shared" },
-  ];
+  let activeTab = $state("overview");
+  let enhancedTab = $state("profile");
+  let gradientTab = $state("home");
 
   const tabs = [
+    { id: "overview", label: "Overview", icon: "bi-house-fill" },
+    { id: "analytics", label: "Analytics", icon: "bi-graph-up", badge: "12" },
+    { id: "settings", label: "Settings", icon: "bi-gear-fill" },
+  ];
+
+  const enhancedTabs = [
     { id: "profile", label: "Profile", icon: "bi-person-fill" },
     { id: "settings", label: "Settings", icon: "bi-gear-fill", badge: "3" },
     { id: "messages", label: "Messages", icon: "bi-envelope-fill" },
     { id: "disabled", label: "Disabled", disabled: true },
   ];
 
-  const selectOptions = [
-    { value: "option1", label: "Option 1" },
-    { value: "option2", label: "Option 2" },
-        { value: "option3", label: "Option 3" },
-    { value: "option4", label: "Option 4" },
+  const gradientTabs = [
+    { id: "home", label: "Home" },
+    { id: "explore", label: "Explore" },
+    { id: "bookmarks", label: "Bookmarks" },
+    { id: "profile", label: "Profile" },
   ];
 
   const dropdownItems = [
-    { label: "Profile", icon: "bi-person-fill", action: () => alert("Profile clicked") },
-    { label: "Settings", icon: "bi-gear-fill", action: () => alert("Settings clicked") },
-    { divider: true },
-    { label: "Logout", icon: "bi-box-arrow-right", danger: true, action: () => alert("Logout clicked") },
-  ];
-
-  const timelineItems = [
     {
-      id: "1",
-      title: "Project Started",
-      description: "Initial project setup and configuration",
-      timestamp: "2 hours ago",
-      icon: "bi-play-circle-fill",
-      variant: "success" as const,
+      id: "edit",
+      label: "Edit",
+      icon: "bi-pencil",
+      action: () => console.log("Edit clicked"),
     },
     {
-      id: "2",
-      title: "New Feature Added",
-      description: "Implemented user authentication system",
-      timestamp: "1 hour ago",
-      icon: "bi-plus-circle-fill",
-      variant: "primary" as const,
+      id: "duplicate",
+      label: "Duplicate",
+      icon: "bi-files",
+      action: () => console.log("Duplicate clicked"),
     },
     {
-      id: "3",
-      title: "Bug Fixed",
-      description: "Resolved critical security vulnerability",
-      timestamp: "30 minutes ago",
-      icon: "bi-bug-fill",
-      variant: "danger" as const,
+      id: "share",
+      label: "Share",
+      icon: "bi-share",
+      action: () => console.log("Share clicked"),
     },
-    {
-      id: "4",
-      title: "Deployment",
-      description: "Production deployment completed successfully",
-      timestamp: "10 minutes ago",
-      icon: "bi-cloud-upload-fill",
-      variant: "success" as const,
-    },
-  ];
-
-  const stepperSteps = [
-    { label: "Account", description: "Basic information", icon: "bi-person-fill" },
-    { label: "Profile", description: "Personal details" },
-    { label: "Verification", description: "Email & phone" },
-    { label: "Complete", description: "Finish setup", icon: "bi-check-circle-fill" },
-  ];
-
-  const contextMenuItems = [
-    { id: "edit", label: "Edit", icon: "bi-pencil-fill" },
-    { id: "duplicate", label: "Duplicate", icon: "bi-files" },
-    { id: "share", label: "Share", icon: "bi-share-fill" },
     { id: "divider", divider: true },
-    { id: "delete", label: "Delete", icon: "bi-trash-fill", dangerous: true },
+    {
+      id: "delete",
+      label: "Delete",
+      icon: "bi-trash",
+      variant: "danger",
+      action: () => console.log("Delete clicked"),
+    },
   ];
-
-  function showToast(
-    type: "success" | "error" | "warning" | "info",
-    message: string
-  ) {
-    toastComponent?.show(message, type, 3000);
-  }
-
-  function handleContextMenu(event: MouseEvent) {
-    event.preventDefault();
-    contextX = event.clientX;
-    contextY = event.clientY;
-    contextMenuVisible = true;
-  }
-
-  function handleContextMenuItem(id: string) {
-    showToast("info", `Clicked: ${id}`);
-    contextMenuVisible = false;
-  }
-
-  function handleFilterChange(items: string[]) {
-    selectedFilters = items;
-    showToast("info", `Filters selected: ${items.length}`);
-  }
 </script>
 
-<div class="min-h-screen bg-slate-900 py-12">
-  <div class="max-w-7xl mx-auto px-6">
-    <!-- Header -->
-    <div class="mb-12">
-      <h1 class="text-4xl font-bold text-white mb-2">
-        Molecules Component Demo
+<div
+  class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8"
+>
+  <div class="max-w-7xl mx-auto space-y-8">
+    <!-- Hero Section -->
+    <div class="text-center space-y-4">
+      <div
+        class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full text-sm font-semibold shadow-lg shadow-blue-500/30"
+      >
+        <i class="bi bi-grid-3x3 text-lg"></i>
+        <span>Molecules Components</span>
+      </div>
+      <h1
+        class="text-6xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
+      >
+        Molecules
       </h1>
-      <p class="text-slate-400">Complex combinations of atoms</p>
+      <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+        Complex components built from multiple atoms with enhanced interactions
+        and spring physics animations
+      </p>
     </div>
 
-    <!-- Breadcrumbs Section -->
-    <section class="mb-16">
-      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-signpost-split mr-3 text-blue-400"></i>Breadcrumbs
-      </h2>
-
-      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-        <Breadcrumbs items={breadcrumbItems} current="Molecules" />
-        <p class="text-slate-400 text-sm mt-6">
-          Breadcrumbs help users understand their location in the navigation
-          hierarchy.
-        </p>
-      </div>
-    </section>
-
-    <Divider variant="horizontal" color="slate" />
-
-    <!-- Toast Section -->
-    <section class="mb-16">
-      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-chat-dots-fill mr-3 text-orange-400"></i>Toasts
-      </h2>
-
-      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-        <div class="space-y-4">
-          <p class="text-slate-300 mb-6">
-            Click buttons to trigger toast notifications at different positions:
-          </p>
-
-          <div class="grid grid-cols-3 gap-4">
-            <Button
-              size="sm"
-              variant="success"
-              onclick={() =>
-                showToast("success", "Success! Operation completed.")}
-            >
-              <i class="bi bi-check-circle-fill mr-2"></i>Success
-            </Button>
-            <Button
-              size="sm"
-              variant="danger"
-              onclick={() => showToast("error", "Error! Something went wrong.")}
-            >
-              <i class="bi bi-exclamation-circle-fill mr-2"></i>Error
-            </Button>
-            <Button
-              size="sm"
-              variant="warning"
-              onclick={() =>
-                showToast("warning", "Warning! Please be careful.")}
-            >
-              <i class="bi bi-exclamation-triangle-fill mr-2"></i>Warning
-            </Button>
-          </div>
-
-          <div>
-            <Button
-              size="sm"
-              variant="primary"
-              onclick={() =>
-                showToast("info", "Info! This is an informational message.")}
-            >
-              <i class="bi bi-info-circle-fill mr-2"></i>Info
-            </Button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <Toast bind:this={toastComponent} position="bottom-right" />
-
-    <Divider variant="horizontal" color="slate" />
-
-    <!-- Filter Section -->
-    <section class="mb-16">
-      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-funnel-fill mr-3 text-purple-400"></i>Filters
-      </h2>
-
-      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-        <h3 class="text-lg font-semibold text-slate-200 mb-4">
-          Multi-Select Filter
-        </h3>
-        <Filter
-          items={filterItems}
-          selected={selectedFilters}
-          onChange={handleFilterChange}
-        />
-
-        <div class="mt-6 pt-6 border-t border-slate-700">
-          <p class="text-slate-400 text-sm">
-            Selected filters:
-            {#if selectedFilters.length > 0}
-              <span class="ml-2">
-                {#each selectedFilters as filter}
-                  <Badge variant="primary" size="sm" class="ml-2"
-                    >{filter}</Badge
-                  >
-                {/each}
-              </span>
-            {:else}
-              <span class="text-slate-500 italic">None selected</span>
-            {/if}
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <Divider variant="horizontal" color="slate" />
-
-    <!-- Select Section -->
-    <section class="mb-16">
-      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-dropdown mr-3 text-green-400"></i>Select Dropdown
-      </h2>
-
-      <div class="grid md:grid-cols-2 gap-8">
-        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-          <h3 class="text-lg font-semibold text-slate-200 mb-4">
-            Basic Select
-          </h3>
-          <Select
-            items={selectOptions}
-            bind:selected={selectedOption}
-            placeholder="Choose an option..."
-          />
-          <p class="text-slate-400 text-sm mt-4">Selected: {selectedOption}</p>
-        </div>
-
-        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-          <h3 class="text-lg font-semibold text-slate-200 mb-4">
-            Disabled Select
-          </h3>
-          <Select
-            items={selectOptions}
-            disabled
-            placeholder="This is disabled..."
-          />
-          <p class="text-slate-400 text-sm mt-4">
-            Disabled state prevents interaction
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <Divider variant="horizontal" color="slate" />
-
-    <!-- Context Menu Section -->
-    <section class="mb-16">
-      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-menu-button-wide-fill mr-3 text-pink-400"></i>Context
-        Menu
-      </h2>
-
-      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-        <p class="text-slate-400 mb-4">
-          Right-click on the box below to open a context menu:
-        </p>
-
-        <div
-          role="button"
-          tabindex="0"
-          oncontextmenu={handleContextMenu}
-          class="bg-slate-700/50 border-2 border-dashed border-slate-600 rounded-lg p-12 text-center cursor-context-menu hover:border-slate-500 transition-colors"
-        >
-          <i class="bi bi-mouse text-4xl text-slate-400 mb-4"></i>
-          <p class="text-slate-400">Right-click here</p>
-        </div>
-      </div>
-
-      <ContextMenu
-        visible={contextMenuVisible}
-        x={contextX}
-        y={contextY}
-        items={contextMenuItems}
-        on:close={() => (contextMenuVisible = false)}
-        on:select={(e) => handleContextMenuItem(e.detail)}
-      />
-    </section>
-
-    <Divider variant="horizontal" color="slate" />
-
-    <!-- Tooltips Section -->
-    <section>
-      <h2
-        class="text-2xl font-bold text-slate-200 mb-6 flex items-center gap-3"
-      >
-        <i class="bi bi-chat-square-text text-purple-400"></i>Tooltips
-      </h2>
-      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-        <div class="flex gap-8 items-center justify-center flex-wrap">
-          <Tooltip position="top">
-            {#snippet children()}
-              <Button>Top Tooltip</Button>
-            {/snippet}
-            {#snippet content()}
-              Tooltip on top
-            {/snippet}
-          </Tooltip>
-
-          <Tooltip position="right">
-            {#snippet children()}
-              <Button>Right Tooltip</Button>
-            {/snippet}
-            {#snippet content()}
-              Tooltip on right
-            {/snippet}
-          </Tooltip>
-
-          <Tooltip position="bottom">
-            {#snippet children()}
-              <Button>Bottom Tooltip</Button>
-            {/snippet}
-            {#snippet content()}
-              Tooltip on bottom
-            {/snippet}
-          </Tooltip>
-
-          <Tooltip position="left">
-            {#snippet children()}
-              <Button>Left Tooltip</Button>
-            {/snippet}
-            {#snippet content()}
-              Tooltip on left
-            {/snippet}
-          </Tooltip>
-        </div>
-      </div>
-    </section>
-
-    <Divider variant="horizontal" color="slate" />
+    <Divider style="gradient" thickness={2} />
 
     <!-- Tabs Section -->
-    <section>
-      <h2
-        class="text-2xl font-bold text-slate-200 mb-6 flex items-center gap-3"
-      >
-        <i class="bi bi-layout-three-columns text-blue-400"></i>Tabs
-      </h2>
-
-      <div class="space-y-6">
-        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-          <h3 class="text-lg font-semibold text-slate-200 mb-4">
-            Default Tabs
-          </h3>
-          <Tabs {tabs} bind:active={activeTab} variant="default">
-            {#snippet children(tabId)}
-              <div class="p-4 bg-slate-700/30 rounded-lg">
-                <p class="text-slate-300">
-                  Content for <strong>{tabId}</strong> tab
-                </p>
-              </div>
-            {/snippet}
-          </Tabs>
-        </div>
-
-        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-          <h3 class="text-lg font-semibold text-slate-200 mb-4">Pills Tabs</h3>
-          <Tabs {tabs} variant="pills">
-            {#snippet children(tabId)}
-              <div class="p-4 bg-slate-700/30 rounded-lg">
-                <p class="text-slate-300">
-                  Pills content for <strong>{tabId}</strong>
-                </p>
-              </div>
-            {/snippet}
-          </Tabs>
-        </div>
-
-        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-          <h3 class="text-lg font-semibold text-slate-200 mb-4">
-            Underline Tabs
-          </h3>
-          <Tabs {tabs} variant="underline">
-            {#snippet children(tabId)}
-              <div class="p-4">
-                <p class="text-slate-300">
-                  Underline content for <strong>{tabId}</strong>
-                </p>
-              </div>
-            {/snippet}
-          </Tabs>
-        </div>
-      </div>
-    </section>
-
-    <Divider variant="horizontal" color="slate" />
-
-    <!-- Accordion Section -->
-    <section>
-      <h2
-        class="text-2xl font-bold text-slate-200 mb-6 flex items-center gap-3"
-      >
-        <i class="bi bi-list-nested text-green-400"></i>Accordion
-      </h2>
-
-      <div class="space-y-4">
-        <Accordion
-          bind:open={accordion1Open}
-          title="What is SyncSpace?"
-          icon="bi-question-circle"
-          variant="bordered"
-        >
-          <p class="text-slate-300">
-            SyncSpace is a modern file synchronization service with a Rust
-            backend and Svelte 5 frontend. It provides secure, fast, and
-            reliable file syncing across multiple devices.
-          </p>
-        </Accordion>
-
-        <Accordion
-          bind:open={accordion2Open}
-          title="Component Features"
-          icon="bi-star-fill"
-          variant="filled"
-        >
-          <ul class="list-disc list-inside space-y-2 text-slate-300">
-            <li>Svelte 5 runes and snippets</li>
-            <li>TypeScript support</li>
-            <li>Dark mode ready</li>
-            <li>Fully accessible</li>
-            <li>Smooth animations</li>
-          </ul>
-        </Accordion>
-
-        <Accordion
-          title="Installation Guide"
-          icon="bi-download"
-          variant="default"
-        >
-          <pre class="bg-slate-900 p-4 rounded text-green-400 text-sm">
-npm install syncspace-components
-          </pre>
-        </Accordion>
-      </div>
-    </section>
-
-    <Divider variant="horizontal" color="slate" />
-
-    <!-- Drawer Section -->
-    <section>
-      <h2
-        class="text-2xl font-bold text-slate-200 mb-6 flex items-center gap-3"
-      >
-        <i class="bi bi-layout-sidebar text-orange-400"></i>Drawer
-      </h2>
-
-      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-        <div class="flex gap-4 flex-wrap">
-          <Button onclick={() => (drawerOpen = true)}
-            >Open Drawer (Right)</Button
-          >
-        </div>
+    <div class="space-y-6">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          Tabs Component
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400">
+          Navigation tabs with smooth indicator animation
+        </p>
       </div>
 
-      <Drawer
-        bind:open={drawerOpen}
-        position="right"
-        size="md"
-        title="Drawer Example"
-        closable
-      >
+      <!-- Standard Tabs -->
+      <Card shapeStyle="extra-rounded" elevationLevel={1}>
         <div class="space-y-4">
-          <p class="text-gray-700 dark:text-gray-300">
-            This is a drawer component! It slides in from the side.
-          </p>
-
-          <div class="space-y-2">
-            <h3 class="font-semibold text-gray-900 dark:text-gray-100">
-              Features:
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+              Standard Tabs
             </h3>
-            <ul
-              class="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300"
-            >
-              <li>4 positions (left, right, top, bottom)</li>
-              <li>5 sizes (sm, md, lg, xl, full)</li>
-              <li>Smooth slide animations</li>
-              <li>Backdrop with blur effect</li>
-              <li>Click outside to close</li>
-            </ul>
+            <Chip size="sm" gradient>Default</Chip>
           </div>
 
-          <Button variant="primary" onclick={() => (drawerOpen = false)}>
-            Close Drawer
-          </Button>
-        </div>
-      </Drawer>
-    </section>
+          <Tabs {tabs} bind:activeTab variant="default" size="md" />
 
-    <Divider variant="horizontal" color="slate" />
+          <div class="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+            <p class="text-gray-600 dark:text-gray-400">
+              Active Tab: <span class="font-bold text-gray-900 dark:text-white"
+                >{activeTab}</span
+              >
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <!-- Enhanced Tabs with Spring Indicator -->
+      <Card shapeStyle="extra-rounded" elevationLevel={2} gradient>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+              Enhanced Spring Tabs
+            </h3>
+            <div class="flex gap-2">
+              <Chip size="sm" gradient emphasized>Bouncy</Chip>
+              <Chip size="sm" gradient emphasized>Spring Physics</Chip>
+            </div>
+          </div>
+
+          <Tabs
+            tabs={enhancedTabs}
+            bind:activeTab={enhancedTab}
+            variant="underline"
+            size="lg"
+            emphasized={true}
+            motion="bouncy"
+          />
+
+          <div
+            class="p-6 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-xl border border-blue-200 dark:border-blue-800"
+          >
+            <div class="flex items-start gap-3">
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-2xl flex-shrink-0"
+              >
+                <i class="bi bi-stars"></i>
+              </div>
+              <div>
+                <h4
+                  class="text-lg font-bold text-gray-900 dark:text-white mb-2"
+                >
+                  {enhancedTab === "profile"
+                    ? "Profile Content"
+                    : enhancedTab === "settings"
+                      ? "Settings Content"
+                      : enhancedTab === "messages"
+                        ? "Messages Content"
+                        : "Content"}
+                </h4>
+                <p class="text-gray-600 dark:text-gray-400">
+                  Enhanced features: <strong>Bold active tab</strong>, spring
+                  indicator with bouncy physics, large size variant.
+                </p>
+                <div class="flex flex-wrap gap-2 mt-3">
+                  <Badge variant="primary" size="sm" gradient>Emphasized</Badge>
+                  <Badge variant="secondary" size="sm" gradient
+                    >Bouncy Spring</Badge
+                  >
+                  <Badge variant="success" size="sm" gradient>Large Size</Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <!-- Gradient Pill Tabs -->
+      <Card shapeStyle="extra-rounded" elevationLevel={1}>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+              Gradient Pills
+            </h3>
+            <Chip size="sm" gradient>Gradient</Chip>
+          </div>
+
+          <Tabs
+            tabs={gradientTabs}
+            bind:activeTab={gradientTab}
+            variant="pills"
+            size="md"
+            gradient={true}
+          />
+
+          <div class="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+            <p class="text-gray-600 dark:text-gray-400">
+              Selected: <span class="font-bold text-gray-900 dark:text-white"
+                >{gradientTab}</span
+              >
+            </p>
+          </div>
+        </div>
+      </Card>
+    </div>
+
+    <Divider />
 
     <!-- Dropdown Section -->
-    <section class="mb-16">
-      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-list mr-3 text-blue-400"></i>Dropdown
-      </h2>
-
-      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-        <h3 class="text-lg font-semibold text-slate-200 mb-4">Dropdown Menu</h3>
-        <div class="flex gap-4">
-          <Dropdown
-            items={dropdownItems}
-            bind:open={dropdownOpen}
-            position="bottom-left"
-          >
-            {#snippet children()}
-              <Button variant="primary">
-                <i class="bi bi-three-dots-vertical mr-2"></i>
-                Menu
-              </Button>
-            {/snippet}
-          </Dropdown>
-        </div>
+    <div class="space-y-6">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          Dropdown Component
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400">
+          Context menus with spring animations
+        </p>
       </div>
-    </section>
 
-    <Divider variant="horizontal" color="slate" />
-
-    <!-- Empty State Section -->
-    <section class="mb-16">
-      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-inbox mr-3 text-blue-400"></i>Empty State
-      </h2>
-
-      <div
-        class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 space-y-6"
-      >
-        <EmptyState
-          icon="bi-inbox"
-          title="No messages yet"
-          description="Your inbox is empty. Start a conversation to see messages here."
-          actionLabel="New Message"
-          onaction={() => alert("New message clicked")}
-        />
-
-        <Divider variant="horizontal" color="slate" />
-
-        <EmptyState
-          variant="glass"
-          icon="bi-search"
-          title="No results found"
-          description="Try adjusting your search criteria"
-        />
-      </div>
-    </section>
-
-    <Divider variant="horizontal" color="slate" />
-
-    <!-- Stat Cards Section -->
-    <section class="mb-16">
-      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-bar-chart-fill mr-3 text-blue-400"></i>Stat Cards
-      </h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Users"
-          value="12,458"
-          change={12}
-          trend="up"
-          icon="bi-people-fill"
-          variant="primary"
-        />
-        <StatCard
-          title="Revenue"
-          value="$54,231"
-          change={8}
-          trend="up"
-          icon="bi-cash-stack"
-          variant="success"
-        />
-        <StatCard
-          title="Active Sessions"
-          value="2,847"
-          change={-3}
-          trend="down"
-          icon="bi-activity"
-          variant="warning"
-        />
-        <StatCard
-          title="Error Rate"
-          value="0.12%"
-          change={-5}
-          trend="down"
-          icon="bi-exclamation-triangle-fill"
-          variant="danger"
-        />
-      </div>
-    </section>
-
-    <Divider variant="horizontal" color="slate" />
-
-    <!-- Timeline Section -->
-    <section class="mb-16">
-      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-clock-history mr-3 text-blue-400"></i>Timeline
-      </h2>
-
-      <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-        <h3 class="text-lg font-semibold text-slate-200 mb-6">
-          Activity Timeline
-        </h3>
-        <Timeline items={timelineItems} />
-      </div>
-    </section>
-
-    <Divider variant="horizontal" color="slate" />
-
-    <!-- Stepper Section -->
-    <section class="mb-16">
-      <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-        <i class="bi bi-signpost-split mr-3 text-blue-400"></i>Stepper
-      </h2>
-
-      <div
-        class="bg-slate-800/50 border border-slate-700 rounded-xl p-8 space-y-8"
-      >
-        <div>
-          <h3 class="text-lg font-semibold text-slate-200 mb-6">
-            Horizontal Stepper
-          </h3>
-          <Stepper
-            steps={stepperSteps}
-            bind:currentStep
-            orientation="horizontal"
-          />
-          <div class="flex gap-3 mt-6">
-            <Button
-              variant="outline"
-              onclick={() => (currentStep = Math.max(0, currentStep - 1))}
-              disabled={currentStep === 0}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="primary"
-              onclick={() =>
-                (currentStep = Math.min(
-                  stepperSteps.length - 1,
-                  currentStep + 1
-                ))}
-              disabled={currentStep === stepperSteps.length - 1}
-            >
-              Next
-            </Button>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Standard Dropdown -->
+        <Card shapeStyle="extra-rounded" elevationLevel={1}>
+          <div class="space-y-4">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+              Standard
+            </h3>
+            <Dropdown items={dropdownItems} label="Actions" size="md" />
           </div>
+        </Card>
+
+        <!-- Enhanced Dropdown -->
+        <Card shapeStyle="extra-rounded" elevationLevel={2} gradient>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                Enhanced
+              </h3>
+              <Chip size="xs" gradient>Spring</Chip>
+            </div>
+            <Dropdown
+              items={dropdownItems}
+              label="Enhanced Actions"
+              size="lg"
+              emphasized={true}
+              motion="bouncy"
+              shapeStyle="extra-rounded"
+            />
+          </div>
+        </Card>
+
+        <!-- Gradient Dropdown -->
+        <Card shapeStyle="extra-rounded" elevationLevel={1}>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                Gradient
+              </h3>
+              <Chip size="xs" gradient>Squircle</Chip>
+            </div>
+            <Dropdown
+              items={dropdownItems}
+              label="Squircle Menu"
+              size="sm"
+              gradient={true}
+              shapeStyle="squircle"
+            />
+          </div>
+        </Card>
+      </div>
+
+      <!-- Feature Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card shapeStyle="extra-rounded" elevationLevel={2} gradient>
+          <div class="space-y-3">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center text-white text-2xl"
+            >
+              <i class="bi bi-type-bold"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+              Bold Labels
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">
+              Emphasized option labels with typographyEmphasized
+            </p>
+          </div>
+        </Card>
+
+        <Card shapeStyle="extra-rounded" elevationLevel={2} gradient>
+          <div class="space-y-3">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center text-white text-2xl"
+            >
+              <i class="bi bi-arrow-down-up"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+              Spring Open
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">
+              Bouncy slide-in animation with spring physics
+            </p>
+          </div>
+        </Card>
+
+        <Card shapeStyle="extra-rounded" elevationLevel={2} gradient>
+          <div class="space-y-3">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-700 rounded-xl flex items-center justify-center text-white text-2xl"
+            >
+              <i class="bi bi-bounding-box"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+              Shape Variety
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">
+              13 shape variants including squircle
+            </p>
+          </div>
+        </Card>
+
+        <Card shapeStyle="extra-rounded" elevationLevel={2} gradient>
+          <div class="space-y-3">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-700 rounded-xl flex items-center justify-center text-white text-2xl"
+            >
+              <i class="bi bi-palette"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+              Gradient Hover
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">
+              Optional gradient hover effects on items
+            </p>
+          </div>
+        </Card>
+      </div>
+    </div>
+
+    <Divider />
+
+    <!-- Coming Soon Section -->
+    <Card shapeStyle="extra-rounded" elevationLevel={1}>
+      <div class="text-center space-y-4 py-8">
+        <div
+          class="w-16 h-16 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full mx-auto flex items-center justify-center text-white text-3xl"
+        >
+          <i class="bi bi-hourglass-split"></i>
         </div>
-
-        <Divider variant="horizontal" color="slate" />
-
-        <div>
-          <h3 class="text-lg font-semibold text-slate-200 mb-6">
-            Vertical Stepper (Glass)
-          </h3>
-          <Stepper
-            steps={stepperSteps}
-            bind:currentStep
-            orientation="vertical"
-            variant="glass"
-          />
+        <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
+          More Components Coming Soon
+        </h3>
+        <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          Toast notifications, Breadcrumbs, Context menus, Tooltips, and more
+          are being redesigned with modern Material Design 3 aesthetics
+        </p>
+        <div class="flex flex-wrap justify-center gap-2">
+          <Chip size="sm" outlined>Toasts</Chip>
+          <Chip size="sm" outlined>Breadcrumbs</Chip>
+          <Chip size="sm" outlined>Context Menu</Chip>
+          <Chip size="sm" outlined>Tooltips</Chip>
+          <Chip size="sm" outlined>Drawer</Chip>
         </div>
       </div>
-    </section>
-
-    <Divider variant="horizontal" color="slate" />
-
-    <!-- Info Box -->
-    <div
-      class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-6 text-slate-300"
-    >
-      <i class="bi bi-info-circle text-blue-400 mr-2"></i>
-      <strong>Tip:</strong> Molecules combine multiple atoms to create more complex
-      UI patterns. They handle more sophisticated interactions and state management.
-    </div>
+    </Card>
   </div>
 </div>

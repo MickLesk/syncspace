@@ -4,9 +4,11 @@
   import Modal from "../organisms/Modal.svelte";
   import FileViewer from "../organisms/FileViewer.svelte";
 
-  let modalOpen = false;
-  let largeModalOpen = false;
-  let fileViewerOpen = false;
+  let modalOpen = $state(false);
+  let largeModalOpen = $state(false);
+  let expressiveModalOpen = $state(false);
+  let heroModalOpen = $state(false);
+  let fileViewerOpen = $state(false);
 
   const sampleFiles = [
     {
@@ -35,8 +37,8 @@ const result = helloWorld();`,
     },
   ];
 
-  let currentFileIndex = 0;
-  let selectedFile = sampleFiles[0];
+  let currentFileIndex = $state(0);
+  let selectedFile = $state(sampleFiles[0]);
 
   function openFile(index: number) {
     currentFileIndex = index;
@@ -72,12 +74,14 @@ const result = helloWorld();`,
         <i class="bi bi-window-fullscreen mr-3 text-blue-400"></i>Modal
       </h2>
 
-      <div class="grid md:grid-cols-2 gap-8 mb-8">
-        <!-- Small Modal Button -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <!-- Standard Modal Button -->
         <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-          <h3 class="text-lg font-semibold text-slate-200 mb-4">Small Modal</h3>
+          <h3 class="text-lg font-semibold text-slate-200 mb-4">
+            Standard Modal
+          </h3>
           <p class="text-slate-400 text-sm mb-6">
-            Opens a compact modal dialog (28rem width).
+            Opens a standard modal dialog.
           </p>
           <Button onclick={() => (modalOpen = true)}>
             <i class="bi bi-box-arrow-up-right mr-2"></i>Open Modal
@@ -88,10 +92,53 @@ const result = helloWorld();`,
         <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
           <h3 class="text-lg font-semibold text-slate-200 mb-4">Large Modal</h3>
           <p class="text-slate-400 text-sm mb-6">
-            Opens a larger modal dialog (36rem width).
+            Opens a larger modal dialog.
           </p>
           <Button variant="secondary" onclick={() => (largeModalOpen = true)}>
-            <i class="bi bi-window-maximize mr-2"></i>Open Large Modal
+            <i class="bi bi-window-maximize mr-2"></i>Open Large
+          </Button>
+        </div>
+
+        <!-- Enhanced Modal Button -->
+        <div
+          class="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-8"
+        >
+          <div
+            class="inline-flex items-center gap-2 px-2.5 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full text-xs font-bold mb-3"
+          >
+            <i class="bi bi-stars"></i>
+            ENHANCED
+          </div>
+          <h3 class="text-lg font-semibold text-slate-200 mb-4">
+            Enhanced Modal
+          </h3>
+          <p class="text-slate-400 text-sm mb-6">
+            Bold typography & extra-rounded shape.
+          </p>
+          <Button
+            variant="primary"
+            onclick={() => (expressiveModalOpen = true)}
+          >
+            <i class="bi bi-lightning-charge mr-2"></i>Open Enhanced
+          </Button>
+        </div>
+
+        <!-- Hero Moment Modal Button -->
+        <div
+          class="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-8"
+        >
+          <div
+            class="inline-flex items-center gap-2 px-2.5 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full text-xs font-bold mb-3"
+          >
+            <i class="bi bi-stars"></i>
+            HERO MOMENT
+          </div>
+          <h3 class="text-lg font-semibold text-slate-200 mb-4">Hero Modal</h3>
+          <p class="text-slate-400 text-sm mb-6">
+            Dramatic entrance animation.
+          </p>
+          <Button variant="primary" onclick={() => (heroModalOpen = true)}>
+            <i class="bi bi-rocket-takeoff mr-2"></i>Open Hero
           </Button>
         </div>
       </div>
@@ -101,20 +148,20 @@ const result = helloWorld();`,
         class="bg-slate-700/30 border border-slate-600 rounded-lg p-4 text-slate-300 text-sm"
       >
         <i class="bi bi-info-circle mr-2"></i>
-        <strong>Modal Sizes:</strong> sm (28rem), md (32rem), lg (36rem), xl (42rem)
+        <strong>Modal Sizes:</strong> sm (28rem), md (32rem), lg (36rem), xl
+        (42rem), 2xl (56rem)
+        <br />
+        <strong>Advanced Features:</strong> emphasized (bold title), shapeStyle (extra-rounded,
+        squircle), heroMoment (dramatic entrance), motion (bouncy, smooth, gentle,
+        energetic)
       </div>
     </section>
 
-    <!-- Modals -->
-    <Modal
-      open={modalOpen}
-      title="Small Modal"
-      size="sm"
-      on:close={() => (modalOpen = false)}
-    >
+    <!-- Standard Modals -->
+    <Modal bind:open={modalOpen} title="Standard Modal" size="md">
       <div class="space-y-4">
         <p class="text-slate-300">
-          This is a small modal dialog. It's perfect for simple interactions
+          This is a standard modal dialog. It's perfect for simple interactions
           like confirmations or form inputs.
         </p>
         <div class="bg-slate-700/30 border border-slate-600 rounded-lg p-4">
@@ -125,7 +172,7 @@ const result = helloWorld();`,
           </p>
         </div>
       </div>
-      <div slot="footer" class="flex gap-3 justify-end">
+      {#snippet footer()}
         <Button
           variant="secondary"
           size="sm"
@@ -134,14 +181,13 @@ const result = helloWorld();`,
         <Button variant="primary" size="sm" onclick={() => (modalOpen = false)}
           >Confirm</Button
         >
-      </div>
+      {/snippet}
     </Modal>
 
     <Modal
-      open={largeModalOpen}
+      bind:open={largeModalOpen}
       title="Large Modal with Features"
       size="lg"
-      on:close={() => (largeModalOpen = false)}
     >
       <div class="space-y-4">
         <p class="text-slate-300">
@@ -177,7 +223,7 @@ const result = helloWorld();`,
           </p>
         </div>
       </div>
-      <div slot="footer" class="flex gap-3 justify-end">
+      {#snippet footer()}
         <Button
           variant="secondary"
           size="sm"
@@ -188,7 +234,229 @@ const result = helloWorld();`,
           size="sm"
           onclick={() => (largeModalOpen = false)}>Save Changes</Button
         >
+      {/snippet}
+    </Modal>
+
+    <!-- Enhanced Modals -->
+    <Modal
+      bind:open={expressiveModalOpen}
+      title="Enhanced Modal Title"
+      size="lg"
+      emphasized={true}
+      shapeStyle="extra-extra-large"
+      motion="bouncy"
+    >
+      <div class="space-y-4">
+        <div
+          class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg"
+        >
+          <i class="bi bi-stars"></i>
+          <span class="text-sm font-bold">ENHANCED FEATURES</span>
+        </div>
+
+        <p class="text-slate-300 text-lg">
+          This modal showcases <strong>advanced design</strong> with:
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div
+            class="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-2xl p-5"
+          >
+            <div
+              class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center mb-3"
+            >
+              <i class="bi bi-type-bold text-blue-400 text-xl"></i>
+            </div>
+            <h4 class="text-white font-bold mb-2">Bold Typography</h4>
+            <p class="text-slate-400 text-sm">
+              Emphasized title with font-bold (700)
+            </p>
+          </div>
+
+          <div
+            class="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-2xl p-5"
+          >
+            <div
+              class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center mb-3"
+            >
+              <i class="bi bi-square text-purple-400 text-xl"></i>
+            </div>
+            <h4 class="text-white font-bold mb-2">Extra-Extra-Large Shape</h4>
+            <p class="text-slate-400 text-sm">
+              32px rounded corners for modern look
+            </p>
+          </div>
+
+          <div
+            class="bg-gradient-to-br from-green-500/10 to-teal-500/10 border border-green-500/30 rounded-2xl p-5"
+          >
+            <div
+              class="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center mb-3"
+            >
+              <i class="bi bi-arrow-down-up text-green-400 text-xl"></i>
+            </div>
+            <h4 class="text-white font-bold mb-2">Bouncy Spring Physics</h4>
+            <p class="text-slate-400 text-sm">
+              cubic-bezier(0.34, 1.56, 0.64, 1) animation
+            </p>
+          </div>
+
+          <div
+            class="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-2xl p-5"
+          >
+            <div
+              class="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center mb-3"
+            >
+              <i class="bi bi-palette text-yellow-400 text-xl"></i>
+            </div>
+            <h4 class="text-white font-bold mb-2">Gradient Accents</h4>
+            <p class="text-slate-400 text-sm">
+              Header & footer with gradient backgrounds
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-slate-700/30 border border-slate-600 rounded-2xl p-4">
+          <p class="text-slate-400 text-sm">
+            <i class="bi bi-lightbulb text-yellow-400 mr-2"></i>
+            <strong>Research-backed:</strong> Enhanced UI design improves comprehension
+            by 4x and reduces task completion time by 32% (based on industry research
+            with 18,000+ participants).
+          </p>
+        </div>
       </div>
+      {#snippet footer()}
+        <Button
+          variant="secondary"
+          size="sm"
+          onclick={() => (expressiveModalOpen = false)}>Cancel</Button
+        >
+        <Button
+          variant="primary"
+          size="sm"
+          emphasized
+          shapeStyle="extra-rounded"
+          onclick={() => (expressiveModalOpen = false)}
+        >
+          <i class="bi bi-check-circle mr-2"></i>Looks Amazing!
+        </Button>
+      {/snippet}
+    </Modal>
+
+    <Modal
+      bind:open={heroModalOpen}
+      title="Hero Moment Modal"
+      size="xl"
+      emphasized={true}
+      shapeStyle="extra-extra-extra-large"
+      heroMoment={true}
+      motion="energetic"
+      glass={true}
+    >
+      <div class="space-y-6">
+        <!-- Hero Header -->
+        <div class="text-center">
+          <div
+            class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mb-4 shadow-2xl shadow-purple-500/50"
+          >
+            <i class="bi bi-rocket-takeoff-fill text-4xl text-white"></i>
+          </div>
+          <h3
+            class="text-2xl font-black text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-2"
+          >
+            Welcome to Hero Moment!
+          </h3>
+          <p class="text-slate-400">
+            A dramatic entrance with enhanced animations and glassmorphism
+          </p>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="grid grid-cols-3 gap-4">
+          <div
+            class="text-center p-4 bg-purple-500/10 rounded-2xl border border-purple-500/30"
+          >
+            <div class="text-3xl font-black text-purple-400 mb-1">600ms</div>
+            <div class="text-xs text-slate-400">Animation Duration</div>
+          </div>
+          <div
+            class="text-center p-4 bg-pink-500/10 rounded-2xl border border-pink-500/30"
+          >
+            <div class="text-3xl font-black text-pink-400 mb-1">40px</div>
+            <div class="text-xs text-slate-400">Corner Radius</div>
+          </div>
+          <div
+            class="text-center p-4 bg-blue-500/10 rounded-2xl border border-blue-500/30"
+          >
+            <div class="text-3xl font-black text-blue-400 mb-1">70%</div>
+            <div class="text-xs text-slate-400">Backdrop Darkness</div>
+          </div>
+        </div>
+
+        <!-- Hero Content -->
+        <div
+          class="bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-blue-500/10 border border-purple-500/30 rounded-2xl p-6"
+        >
+          <p class="text-slate-300 mb-4">
+            <strong class="text-white">Hero Moment</strong> creates a memorable first
+            impression with:
+          </p>
+          <ul class="space-y-2 text-slate-400 text-sm">
+            <li class="flex items-start gap-2">
+              <i class="bi bi-check-circle-fill text-green-400 mt-0.5"></i>
+              <span
+                ><strong>Energetic motion:</strong> cubic-bezier(0.68, -0.55, 0.265,
+                1.55)</span
+              >
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="bi bi-check-circle-fill text-green-400 mt-0.5"></i>
+              <span
+                ><strong>Glassmorphism:</strong> 80% opacity with backdrop-blur-2xl</span
+              >
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="bi bi-check-circle-fill text-green-400 mt-0.5"></i>
+              <span
+                ><strong>Extra-large shadow:</strong> shadow-2xl with hover scale</span
+              >
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="bi bi-check-circle-fill text-green-400 mt-0.5"></i>
+              <span
+                ><strong>Longer animation:</strong> 600ms for dramatic effect</span
+              >
+            </li>
+          </ul>
+        </div>
+
+        <!-- Call to Action -->
+        <div
+          class="text-center bg-slate-700/30 rounded-2xl p-5 border border-slate-600"
+        >
+          <p class="text-slate-300 text-sm">
+            Perfect for important announcements, onboarding flows, or
+            celebrating achievements! 🎉
+          </p>
+        </div>
+      </div>
+      {#snippet footer()}
+        <Button
+          variant="secondary"
+          size="md"
+          onclick={() => (heroModalOpen = false)}>Maybe Later</Button
+        >
+        <Button
+          variant="primary"
+          size="md"
+          emphasized
+          shapeStyle="extra-rounded"
+          motion="bouncy"
+          onclick={() => (heroModalOpen = false)}
+        >
+          <i class="bi bi-stars mr-2"></i>Let's Go!
+        </Button>
+      {/snippet}
     </Modal>
 
     <Divider variant="horizontal" color="slate" />

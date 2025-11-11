@@ -64,7 +64,7 @@
     class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"
     onclick={handleBackdropClick}
     role="presentation"
-  />
+  ></div>
 
   <!-- Drawer -->
   <div

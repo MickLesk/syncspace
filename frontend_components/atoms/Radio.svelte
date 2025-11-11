@@ -96,7 +96,7 @@
         transition-all duration-200
         ${isChecked ? "scale-100 opacity-100" : "scale-0 opacity-0"}
       `}
-    />
+    ></div>
   </div>
 
   <!-- Label text -->

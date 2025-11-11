@@ -42,7 +42,7 @@
         class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed"
       >
         A comprehensive <strong class="text-gray-900 dark:text-white"
-          >Material 3 Expressive</strong
+          >modern UI</strong
         > component library featuring spring physics, bold typography, and emotionally
         impactful design.
       </p>
@@ -68,7 +68,7 @@
           onclick={() => (currentSection = "expressive")}
         >
           <i class="bi bi-stars mr-2"></i>
-          M3 Expressive
+          Advanced Features
         </Button>
       </div>
     </div>

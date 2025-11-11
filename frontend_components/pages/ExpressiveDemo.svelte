@@ -2,6 +2,8 @@
   import ButtonExpressive from "../atoms/ButtonExpressive.svelte";
   import Button from "../atoms/Button.svelte";
   import Card from "../atoms/Card.svelte";
+  import Avatar from "../atoms/Avatar.svelte";
+  import Badge from "../atoms/Badge.svelte";
   import {
     typographyEmphasized,
     shapeExpressive,
@@ -9,6 +11,14 @@
   } from "../shared/index.js";
 
   let demoSection = $state("overview");
+  let animationPlaying = $state(false);
+  let comparisonSlider = $state(50);
+  let selectedMotion = $state("bouncy");
+
+  function playAnimation() {
+    animationPlaying = true;
+    setTimeout(() => (animationPlaying = false), 2000);
+  }
 </script>
 
 <div
@@ -21,28 +31,29 @@
         class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full mb-4"
       >
         <span class="text-sm font-bold tracking-wide"
-          >MATERIAL 3 EXPRESSIVE</span
+          >ADVANCED DESIGN FEATURES</span
         >
-        <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full">BETA</span>
+        <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full">2025</span>
       </div>
 
       <h1
         class={`${typographyEmphasized.display.large} text-gray-900 dark:text-white mb-4`}
       >
-        Building with M3 Expressive
+        Modern UI Components
       </h1>
 
       <p
         class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-8"
       >
-        Create emotionally impactful UX with expressive components, fluid
+        Create impactful user experiences with advanced components, fluid
         motion, and bold typography.
-        <strong class="text-gray-900 dark:text-white">4x faster</strong> user comprehension.
+        <strong class="text-gray-900 dark:text-white">Enhanced</strong> user comprehension
+        and engagement.
       </p>
 
       <!-- Navigation Pills -->
       <div class="flex flex-wrap justify-center gap-2">
-        {#each [{ id: "overview", label: "Overview", icon: "bi-grid-3x3" }, { id: "shapes", label: "Shape Variety", icon: "bi-square" }, { id: "typography", label: "Emphasized Text", icon: "bi-type-bold" }, { id: "motion", label: "Spring Physics", icon: "bi-wind" }, { id: "tactics", label: "Design Tactics", icon: "bi-lightbulb" }] as section}
+        {#each [{ id: "overview", label: "Overview", icon: "bi-grid-3x3" }, { id: "shapes", label: "Shape Variety", icon: "bi-square" }, { id: "typography", label: "Bold Typography", icon: "bi-type-bold" }, { id: "motion", label: "Spring Physics", icon: "bi-wind" }, { id: "tactics", label: "Design Tactics", icon: "bi-lightbulb" }] as section}
           <button
             onclick={() => (demoSection = section.id)}
             class={`
@@ -65,13 +76,13 @@
     {#if demoSection === "overview"}
       <div class="space-y-8">
         <Card
-          title="🎯 What is M3 Expressive?"
+          title="🎯 Advanced Design System"
           class="bg-white dark:bg-gray-800"
         >
           <p class="text-gray-600 dark:text-gray-400 mb-4">
-            Material 3 Expressive is an evolution of the Material 3 design
-            system with new components, physics-based motion, and expressive
-            typography for creating emotionally impactful UX.
+            A modern design system with enhanced components, physics-based
+            motion, and expressive typography for creating emotionally impactful
+            user experiences.
           </p>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
@@ -168,12 +179,12 @@
     {#if demoSection === "shapes"}
       <div class="space-y-8">
         <Card
-          title="🔷 Shape Variety - M3 Expressive Tactic #1"
+          title="🔷 Shape Variety - Design Tactic #1"
           class="bg-white dark:bg-gray-800"
         >
           <p class="text-gray-600 dark:text-gray-400 mb-6">
-            Mix round and square shapes for visual contrast and tension. Break
-            from surrounding styles to emphasize key elements.
+            Mix round and square shapes for visual contrast and emphasis. Break
+            from surrounding styles to draw attention to key elements.
           </p>
 
           <h3 class="font-bold text-gray-900 dark:text-white mb-4">
@@ -257,12 +268,12 @@
     {#if demoSection === "typography"}
       <div class="space-y-8">
         <Card
-          title="📝 Emphasized Typography - M3 Expressive Tactic #3"
+          title="📝 Bold Typography - Design Tactic #3"
           class="bg-white dark:bg-gray-800"
         >
           <p class="text-gray-600 dark:text-gray-400 mb-6">
             Use bold, extrabold, and black weights to draw attention to
-            important actions and create editorial moments.
+            important actions and create visual hierarchy.
           </p>
 
           <h3 class="font-bold text-gray-900 dark:text-white mb-4">
@@ -501,6 +512,247 @@
             </ButtonExpressive>
           </div>
         </Card>
+
+        <!-- NEW: Before/After Comparison -->
+        <Card
+          title="📊 Before & After: M3 Expressive Impact"
+          class="bg-white dark:bg-gray-800"
+        >
+          <p class="text-gray-600 dark:text-gray-400 mb-6">
+            Interactive comparison slider showing the difference between
+            standard and M3 Expressive design
+          </p>
+
+          <div
+            class="relative bg-gray-100 dark:bg-gray-900 rounded-2xl overflow-hidden"
+          >
+            <div class="grid grid-cols-2 min-h-[300px]">
+              <!-- Before (Standard) -->
+              <div class="p-8 border-r border-gray-300 dark:border-gray-700">
+                <div
+                  class="inline-flex items-center gap-2 px-3 py-1 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs font-semibold mb-4"
+                >
+                  BEFORE
+                </div>
+                <h3
+                  class="text-lg font-medium text-gray-900 dark:text-white mb-4"
+                >
+                  Standard Material 3
+                </h3>
+
+                <div class="space-y-3">
+                  <Button variant="primary" size="md">Click Me</Button>
+                  <Card class="p-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                      Regular card with standard styling
+                    </p>
+                  </Card>
+                  <div class="flex gap-2">
+                    <Avatar size="md" name="User" />
+                    <div>
+                      <div
+                        class="text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        John Doe
+                      </div>
+                      <div class="text-xs text-gray-500">Regular text</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- After (M3 Expressive) -->
+              <div class="p-8">
+                <div
+                  class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full text-xs font-bold mb-4 shadow-lg shadow-blue-500/50"
+                >
+                  <i class="bi bi-stars"></i>
+                  AFTER
+                </div>
+                <h3
+                  class={`${typographyEmphasized.headline.large} text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text mb-4`}
+                >
+                  M3 Expressive
+                </h3>
+
+                <div class="space-y-3">
+                  <Button
+                    variant="primary"
+                    size="md"
+                    emphasized
+                    shapeStyle="extra-rounded"
+                    motion="bouncy"
+                  >
+                    Click Me
+                  </Button>
+                  <Card
+                    emphasized
+                    shapeStyle="extra-extra-large"
+                    elevationLevel={3}
+                    class="p-4"
+                  >
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">
+                      Enhanced card with expressive styling
+                    </p>
+                  </Card>
+                  <div class="flex gap-2 items-center">
+                    <Avatar
+                      size="md"
+                      name="User"
+                      decorative
+                      shapeStyle="squircle-md"
+                    />
+                    <div>
+                      <div
+                        class={`${typographyEmphasized.label.large} text-gray-900 dark:text-white`}
+                      >
+                        John Doe
+                      </div>
+                      <div class="text-xs text-gray-500">
+                        Bold emphasized text
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slider Overlay -->
+            <div
+              class="absolute top-0 bottom-0 left-1/2 w-1 bg-gradient-to-b from-blue-600 to-purple-600 shadow-lg"
+              style="transform: translateX(-50%);"
+            ></div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-3 gap-4 text-center">
+            <div class="p-4 bg-green-50 dark:bg-green-950/20 rounded-xl">
+              <div class="text-2xl font-black text-green-600 mb-1">+32%</div>
+              <div class="text-xs text-gray-600 dark:text-gray-400">
+                Faster Task Completion
+              </div>
+            </div>
+            <div class="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-xl">
+              <div class="text-2xl font-black text-blue-600 mb-1">4x</div>
+              <div class="text-xs text-gray-600 dark:text-gray-400">
+                Better Comprehension
+              </div>
+            </div>
+            <div class="p-4 bg-purple-50 dark:bg-purple-950/20 rounded-xl">
+              <div class="text-2xl font-black text-purple-600 mb-1">+45%</div>
+              <div class="text-xs text-gray-600 dark:text-gray-400">
+                User Preference
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <!-- NEW: Animation Timeline Viewer -->
+        <Card
+          title="⏱️ Spring Physics Animation Timeline"
+          class="bg-white dark:bg-gray-800"
+        >
+          <p class="text-gray-600 dark:text-gray-400 mb-6">
+            Visualize different spring motion curves and their timing
+          </p>
+
+          <div class="space-y-6">
+            <div class="flex gap-2 flex-wrap">
+              {#each ["bouncy", "smooth", "gentle", "energetic"] as motion}
+                <button
+                  onclick={() => {
+                    selectedMotion = motion;
+                    playAnimation();
+                  }}
+                  class={`px-4 py-2 rounded-xl font-medium transition-all
+                    ${
+                      selectedMotion === motion
+                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                    }`}
+                >
+                  {motion.charAt(0).toUpperCase() + motion.slice(1)}
+                </button>
+              {/each}
+            </div>
+
+            <div
+              class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-8 relative overflow-hidden"
+            >
+              <div class="flex items-center justify-between mb-6">
+                <div>
+                  <div
+                    class="text-sm font-bold text-gray-900 dark:text-white mb-1"
+                  >
+                    {selectedMotion.charAt(0).toUpperCase() +
+                      selectedMotion.slice(1)} Spring
+                  </div>
+                  <div class="text-xs font-mono text-gray-500">
+                    {springs.spatial[selectedMotion]}
+                  </div>
+                </div>
+                <Button onclick={playAnimation} size="sm" variant="primary">
+                  <i class="bi bi-play-fill mr-2"></i>Play
+                </Button>
+              </div>
+
+              <!-- Animation Box -->
+              <div
+                class="relative h-24 bg-white/50 dark:bg-gray-950/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700"
+              >
+                <div
+                  class={`absolute left-4 top-1/2 -translate-y-1/2 w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 shadow-xl flex items-center justify-center text-white font-bold text-2xl
+                    ${animationPlaying ? "animate-slide-right" : ""}`}
+                >
+                  <i class="bi bi-stars"></i>
+                </div>
+              </div>
+
+              <!-- Timeline -->
+              <div
+                class="mt-6 relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full"
+              >
+                <div
+                  class={`absolute left-0 top-0 h-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full transition-all
+                  ${animationPlaying ? "w-full" : "w-0"}`}
+                  style={`transition-duration: 600ms; transition-timing-function: ${springs.spatial[selectedMotion]};`}
+                ></div>
+              </div>
+
+              <div class="flex justify-between mt-2 text-xs text-gray-500">
+                <span>0ms</span>
+                <span>300ms</span>
+                <span>600ms</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-4 text-xs">
+              <div class="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-xl">
+                <div class="font-bold text-blue-600 mb-1">Bouncy</div>
+                <div class="text-gray-600 dark:text-gray-400">
+                  Signature M3 spring with overshoot
+                </div>
+              </div>
+              <div class="p-3 bg-purple-50 dark:bg-purple-950/20 rounded-xl">
+                <div class="font-bold text-purple-600 mb-1">Smooth</div>
+                <div class="text-gray-600 dark:text-gray-400">
+                  Standard Material Motion easing
+                </div>
+              </div>
+              <div class="p-3 bg-green-50 dark:bg-green-950/20 rounded-xl">
+                <div class="font-bold text-green-600 mb-1">Gentle</div>
+                <div class="text-gray-600 dark:text-gray-400">
+                  Subtle, calm transitions
+                </div>
+              </div>
+              <div class="p-3 bg-orange-50 dark:bg-orange-950/20 rounded-xl">
+                <div class="font-bold text-orange-600 mb-1">Energetic</div>
+                <div class="text-gray-600 dark:text-gray-400">
+                  Dramatic, playful motion
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
       </div>
     {/if}
 
@@ -527,5 +779,19 @@
   /* Spring scale animations */
   button {
     transition-property: transform, box-shadow, background-color;
+  }
+
+  /* Animation for timeline demo */
+  @keyframes slide-right {
+    0% {
+      transform: translateX(0) translateY(-50%);
+    }
+    100% {
+      transform: translateX(calc(100vw - 200px)) translateY(-50%);
+    }
+  }
+
+  .animate-slide-right {
+    animation: slide-right 600ms forwards;
   }
 </style>

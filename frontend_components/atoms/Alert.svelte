@@ -79,7 +79,7 @@
     lg: "text-2xl",
   };
 
-  const config = typeConfig[type];
+  const config = $derived(typeConfig[type] || typeConfig.info);
 </script>
 
 <div
@@ -125,6 +125,7 @@
     {#if dismissible}
       <button
         onclick={onclose}
+        aria-label="Close alert"
         class="flex-shrink-0 text-current opacity-70 hover:opacity-100 transition-opacity"
       >
         <i class="bi bi-x text-xl"></i>

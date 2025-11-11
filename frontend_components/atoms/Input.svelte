@@ -16,6 +16,7 @@
     value?: string;
     placeholder?: string;
     label?: string;
+    id?: string;
     helperText?: string;
     error?: boolean;
     disabled?: boolean;
@@ -34,6 +35,7 @@
     value = $bindable(""),
     placeholder = "",
     label = "",
+    id = "",
     helperText = "",
     error = false,
     disabled = false,
@@ -67,12 +69,13 @@
 
 <div class={customClass}>
   {#if label}
-    <label class={`block ${labelClasses}`}>
+    <label for={id} class={`block ${labelClasses}`}>
       {label}
     </label>
   {/if}
 
   <input
+    {id}
     {type}
     bind:value
     {placeholder}

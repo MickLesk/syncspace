@@ -54,15 +54,15 @@
     "info",
   ];
 
-  let checkboxState = false;
-  let toggleState = false;
-  let progress = 65;
-  let textareaValue = "";
-  let showAlert = true;
-  let inputValue = "";
-  let selectedSize: ButtonSize = "md";
-  let radioGroup = "";
-  let chips = ["Design", "Development", "Marketing", "Sales"];
+  let checkboxState = $state(false);
+  let toggleState = $state(false);
+  let progress = $state(65);
+  let textareaValue = $state("");
+  let showAlert = $state(true);
+  let inputValue = $state("");
+  let selectedSize: ButtonSize = $state("md");
+  let radioGroup = $state("");
+  let chips = $state(["Design", "Development", "Marketing", "Sales"]);
 
   function removeChip(index: number) {
     chips = chips.filter((_, i) => i !== index);
