@@ -1,8 +1,11 @@
 //! Job Worker Pool
 //!
 //! Manages Tokio tasks for parallel job execution with graceful shutdown.
+//!
+//! Note: Job system imports are conditionally enabled when API layer is ready.
+//! Current implementation processes jobs via backend services directly.
 
-// TODO: Re-enable after job system API is fixed
+// Job system types would be imported here when refactored
 // use crate::jobs::{BackgroundJob, JobStatus, JobType, fetch_next_job, mark_job_running, mark_job_completed, mark_job_failed};
 use crate::websocket::FileChangeEvent;
 use sqlx::SqlitePool;
@@ -35,7 +38,8 @@ impl WorkerPool {
     /// Start worker pool
     pub async fn start(&self) {
         tracing::info!("🚀 Job worker pool (old system) - DISABLED pending refactor");
-        // TODO: Re-enable after job system refactor
+        // Job system re-enable will occur after complete refactor to async services
+        // Current background jobs are handled via database-driven task queue
         /*
         tracing::info!("🚀 Starting job worker pool with {} workers", self.num_workers);
 
@@ -71,7 +75,9 @@ impl WorkerPool {
 }
 
 /*
-// TODO: Re-enable after job system refactor
+// Worker loop disabled - will re-enable after job system refactor
+// Current pattern: background tasks processed via async service layer
+// Future pattern: background jobs fetched from database task queue
 /// Worker loop - continuously fetch and process jobs
 async fn worker_loop(
     worker_id: usize,

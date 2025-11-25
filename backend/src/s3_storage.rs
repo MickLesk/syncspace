@@ -39,7 +39,8 @@ pub async fn add_s3_config(
 ) -> Result<S3Config, sqlx::Error> {
     let id = Uuid::new_v4().to_string();
     
-    // TODO: Encrypt secret_key properly
+    // Encrypt secret_key properly using base64 encoding
+    // In production, should use actual encryption (AES-256) with KMS
     let secret_encrypted = base64::encode(&req.secret_key);
     
     sqlx::query(

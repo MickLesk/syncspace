@@ -119,11 +119,31 @@ async fn verify_backup(
 }
 
 async fn list_verifications(
-    State(_state): State<AppState>,
-    Path(_backup_id): Path<String>,
+    State(state): State<AppState>,
+    user: UserInfo,
+    Path(backup_id): Path<String>,
 ) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    // TODO: Implement verification history
-    Ok(Json(vec![]))
+    // Verify backup belongs to user
+    let _backup: Option<String> = sqlx::query_scalar(
+        "SELECT id FROM backups WHERE id = ? AND owner_id = ?"
+    )
+    .bind(&backup_id)
+    .bind(&user.id)
+    .fetch_optional(&*state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    .ok_or(StatusCode::NOT_FOUND)?;
+
+    // Fetch verification history for this backup
+    let verifications = sqlx::query_as::<_, serde_json::Value>(
+        "SELECT id, backup_id, verified_at, status, result_json FROM backup_verifications WHERE backup_id = ? ORDER BY verified_at DESC LIMIT 20"
+    )
+    .bind(&backup_id)
+    .fetch_all(&*state.db_pool)
+    .await
+    .unwrap_or_default();
+
+    Ok(Json(verifications))
 }
 
 async fn cleanup_backups(
@@ -136,11 +156,18 @@ async fn cleanup_backups(
 // Backup schedule handlers
 
 async fn list_schedules(
-    State(_state): State<AppState>,
-    _user: UserInfo,
+    State(state): State<AppState>,
+    user: UserInfo,
 ) -> Result<Json<Vec<BackupSchedule>>, StatusCode> {
-    // TODO: Implement schedule listing
-    Ok(Json(vec![]))
+    let schedules = sqlx::query_as::<_, BackupSchedule>(
+        "SELECT id, user_id, name, cron_expression, backup_type, enabled FROM backup_schedules WHERE user_id = ? ORDER BY created_at DESC"
+    )
+    .bind(&user.id)
+    .fetch_all(&*state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(Json(schedules))
 }
 
 async fn create_schedule(
@@ -160,11 +187,21 @@ async fn create_schedule(
 }
 
 async fn get_schedule(
-    State(_state): State<AppState>,
-    Path(_schedule_id): Path<Uuid>,
+    State(state): State<AppState>,
+    user: UserInfo,
+    Path(schedule_id): Path<Uuid>,
 ) -> Result<Json<BackupSchedule>, StatusCode> {
-    // TODO: Implement schedule retrieval
-    Err(StatusCode::NOT_FOUND)
+    let schedule = sqlx::query_as::<_, BackupSchedule>(
+        "SELECT id, user_id, name, cron_expression, backup_type, enabled FROM backup_schedules WHERE id = ? AND user_id = ?"
+    )
+    .bind(schedule_id.to_string())
+    .bind(&user.id)
+    .fetch_optional(&*state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    .ok_or(StatusCode::NOT_FOUND)?;
+
+    Ok(Json(schedule))
 }
 
 async fn update_schedule(
@@ -184,10 +221,35 @@ async fn update_schedule(
 }
 
 async fn delete_schedule(
-    State(_state): State<AppState>,
-    Path(_schedule_id): Path<Uuid>,
+    State(state): State<AppState>,
+    user: UserInfo,
+    Path(schedule_id): Path<Uuid>,
 ) -> Result<StatusCode, StatusCode> {
-    // TODO: Implement schedule deletion
+    // Verify user owns the schedule
+    let exists: Option<String> = sqlx::query_scalar(
+        "SELECT id FROM backup_schedules WHERE id = ? AND user_id = ?"
+    )
+    .bind(schedule_id.to_string())
+    .bind(&user.id)
+    .fetch_optional(&*state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    if exists.is_none() {
+        return Err(StatusCode::NOT_FOUND);
+    }
+
+    // Delete the schedule
+    sqlx::query(
+        "DELETE FROM backup_schedules WHERE id = ?"
+    )
+    .bind(schedule_id.to_string())
+    .execute(&*state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    tracing::info!("Backup schedule {} deleted by user {}", schedule_id, user.id);
+
     Ok(StatusCode::NO_CONTENT)
 }
 

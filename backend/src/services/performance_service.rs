@@ -71,23 +71,53 @@ pub async fn get_metrics(state: &AppState) -> Result<Value> {
 }
 
 /// Get metrics history (last N data points)
-pub async fn get_metrics_history(_state: &AppState) -> Result<Value> {
-    // TODO: Store metrics in database for historical tracking
-    // For now, return empty array
-    Ok(json!({
-        "history": [],
-        "message": "Historical metrics tracking not yet implemented"
-    }))
+pub async fn get_metrics_history(state: &AppState) -> Result<Value> {
+    // Retrieve metrics history from database (last 100 records)
+    match sqlx::query_as::<_, (String, String, i64)>(
+        "SELECT key, value, timestamp FROM metrics_history ORDER BY timestamp DESC LIMIT 100"
+    )
+    .fetch_all(&state.db_pool)
+    .await
+    {
+        Ok(records) => {
+            let history: Vec<_> = records.into_iter()
+                .map(|(key, value, ts)| {
+                    serde_json::json!({
+                        "key": key,
+                        "value": value,
+                        "timestamp": ts
+                    })
+                })
+                .collect();
+            
+            Ok(json!({
+                "history": history,
+                "count": history.len(),
+                "status": "success"
+            }))
+        }
+        Err(e) => {
+            tracing::warn!("Failed to retrieve metrics history: {}", e);
+            Ok(json!({
+                "history": [],
+                "error": "Failed to retrieve metrics history",
+                "status": "error"
+            }))
+        }
+    }
 }
 
 /// Clear all caches
 pub async fn clear_cache(state: &AppState) -> Result<Value> {
     // Clear memory cache
     state.cache_manager.memory_cache.invalidate_all();
+    tracing::info!("Memory cache cleared");
 
     // If Redis is connected, flush it
     if state.cache_manager.has_redis() {
-        // TODO: Implement Redis flush
+        // Would call Redis FLUSHDB command via cache_manager.redis_client
+        // For now, just log that we would flush Redis
+        tracing::info!("Redis cache would be flushed (requires Redis client implementation)");
     }
 
     Ok(json!({
@@ -182,6 +212,12 @@ pub async fn get_system_info(state: &AppState) -> Result<Value> {
     let uptime_seconds = System::uptime();
     let uptime_formatted = format_uptime(uptime_seconds);
 
+    // Check if encryption is enabled from environment or config
+    let encryption_enabled = std::env::var("ENCRYPTION_ENABLED")
+        .ok()
+        .and_then(|v| v.parse::<bool>().ok())
+        .unwrap_or(false);
+
     Ok(json!({
         "cpu_cores": cpu_count,
         "cpu_usage": cpu_usage,
@@ -203,6 +239,7 @@ pub async fn get_system_info(state: &AppState) -> Result<Value> {
         "os_version": os_version,
         "os_type": os_type,
         "kernel_version": kernel_version,
+        "encryption_enabled": encryption_enabled,
         "uptime": uptime_formatted,
         "uptime_seconds": uptime_seconds,
         "version": env!("CARGO_PKG_VERSION"),

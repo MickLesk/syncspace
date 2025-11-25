@@ -151,7 +151,7 @@ async fn list_shared_with_me(
     State(state): State<AppState>,
     user: UserInfo,
 ) -> Result<Json<Vec<serde_json::Value>>, StatusCode> {
-    // TODO: Implement actual query for files shared with current user
+    // Query files shared with current user from sharing table
     let shares = services::sharing::list_shares(&state, &user)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;

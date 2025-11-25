@@ -948,8 +948,8 @@ pub async fn extract_content(file_path: &Path) -> Option<String> {
         // PDF extraction with lopdf
         "pdf" => extract_pdf_content(file_path).await,
 
-        // TODO: DOCX extraction with docx-rs
-        // "docx" => extract_docx_content(file_path).await,
+        // DOCX extraction - parse XML from zip archive
+        "docx" => extract_docx_content(file_path).await,
         _ => None,
     }
 }
@@ -985,7 +985,61 @@ async fn extract_pdf_content(file_path: &Path) -> Option<String> {
     .flatten()
 }
 
-#[cfg(test)]
+/// Extract text from DOCX file (Word document)
+/// DOCX files are ZIP archives containing XML files
+async fn extract_docx_content(file_path: &Path) -> Option<String> {
+    use std::io::Read;
+    
+    let path = file_path.to_path_buf();
+    tokio::task::spawn_blocking(move || {
+        // Open DOCX file as ZIP
+        let file = std::fs::File::open(&path).ok()?;
+        let mut archive = zip::ZipArchive::new(file).ok()?;
+        let mut text = String::new();
+
+        // Extract text from document.xml
+        if let Ok(mut doc_xml) = archive.by_name("word/document.xml") {
+            let mut content = String::new();
+            doc_xml.read_to_string(&mut content).ok()?;
+            
+            // Simple XML tag stripping (remove <...> tags)
+            let text_only: String = content
+                .chars()
+                .fold((String::new(), false), |(mut acc, in_tag), c| {
+                    if c == '<' {
+                        (acc, true)
+                    } else if c == '>' {
+                        (acc, false)
+                    } else if !in_tag {
+                        acc.push(c);
+                        (acc, false)
+                    } else {
+                        (acc, true)
+                    }
+                })
+                .0;
+            
+            text.push_str(&text_only);
+        }
+
+        // Extract from headers and footers if present
+        if let Ok(mut header) = archive.by_name("word/header1.xml") {
+            let mut content = String::new();
+            header.read_to_string(&mut content).ok()?;
+            text.push_str("\n");
+            text.push_str(&content);
+        }
+
+        if text.is_empty() {
+            None
+        } else {
+            Some(text)
+        }
+    })
+    .await
+    .ok()
+    .flatten()
+}
 mod tests {
     use super::*;
 

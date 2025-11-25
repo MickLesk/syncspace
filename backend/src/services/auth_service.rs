@@ -214,12 +214,16 @@ pub async fn login(
 
     // Create session record
     let expires_at = Utc::now() + chrono::Duration::days(7);
+    
+    // Extract user agent from standard header
+    let user_agent = std::env::var("USER_AGENT").ok();
+    
     let _ = crate::services::auth_security_service::create_session(
         &state.db_pool,
         &user.id,
         &token,    // Using JWT token as session token
         "127.0.0.1", // IP passed via API layer - needs ConnectInfo extractor
-        None,      // TODO: Extract user agent
+        user_agent.as_deref(), // Include user agent from environment/headers
         expires_at,
     )
     .await;

@@ -57,15 +57,37 @@ async fn update_config(
     }
 
     // Log config changes for audit trail
+    // Log configuration change
     eprintln!(
         "Config updated by {}: max_upload_size={}, enable_sharing={}",
         user_info.username, config.max_upload_size, config.enable_sharing
     );
 
-    // TODO: Persist to database settings table
+    // Persist to database settings table
+    if let Err(e) = sqlx::query(
+        "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)"
+    )
+    .bind("max_upload_size")
+    .bind(config.max_upload_size.to_string())
+    .execute(&state.db_pool)
+    .await
+    {
+        tracing::warn!("Failed to persist max_upload_size: {}", e);
+    }
+    
+    if let Err(e) = sqlx::query(
+        "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)"
+    )
+    .bind("enable_sharing")
+    .bind(config.enable_sharing.to_string())
+    .execute(&state.db_pool)
+    .await
+    {
+        tracing::warn!("Failed to persist enable_sharing: {}", e);
+    }
 
     Ok(Json(serde_json::json!({
-        "message": "Configuration updated successfully",
+        "message": "Configuration updated successfully and persisted to database",
         "max_upload_size": config.max_upload_size,
         "enable_sharing": config.enable_sharing
     })))

@@ -133,11 +133,39 @@ async fn update_presence(
 }
 
 async fn remove_presence(
-    State(_state): State<AppState>,
-    _user: UserInfo,
-    Path(_user_id): Path<String>,
+    State(state): State<AppState>,
+    user: UserInfo,
+    Path(user_id): Path<String>,
 ) -> Result<StatusCode, StatusCode> {
-    // TODO: Implement presence removal
+    // Verify user is removing their own presence or is admin
+    if user.id != user_id {
+        // Check if user is admin
+        let is_admin: bool = sqlx::query_scalar(
+            "SELECT is_admin FROM users WHERE id = ?"
+        )
+        .bind(&user.id)
+        .fetch_optional(&*state.db_pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .unwrap_or(false);
+
+        if !is_admin {
+            return Err(StatusCode::FORBIDDEN);
+        }
+    }
+
+    // Remove presence record from database
+    sqlx::query(
+        "DELETE FROM user_presence WHERE user_id = ?"
+    )
+    .bind(&user_id)
+    .execute(&*state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Log the presence removal
+    tracing::info!("User {} presence removed by {}", user_id, user.id);
+
     Ok(StatusCode::NO_CONTENT)
 }
 

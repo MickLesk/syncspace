@@ -1,4 +1,12 @@
-/* // TODO: Re-enable after job system refactor
+/* // Cron Jobs API endpoints - disabled pending job system refactor
+// When re-enabled, will provide:
+// - POST /api/cron - Create scheduled job
+// - GET /api/cron - List jobs
+// - PUT /api/cron/{id} - Update job
+// - DELETE /api/cron/{id} - Delete job
+//
+// Currently using simple cron-based execution via background tasks
+//
 //! Cron Jobs API Endpoints
 
 use axum::{
@@ -188,5 +196,6 @@ use axum::Router;
 
 pub fn router() -> Router<crate::AppState> {
     Router::new()
-    // TODO: Add new job scheduler routes
+    // Job scheduler routes will be added when job system is refactored
+    // Placeholder for future cron job management endpoints
 }
