@@ -39,13 +39,14 @@ async fn list_sessions(
     let response: Vec<SessionResponse> = sessions
         .into_iter()
         .map(|s| SessionResponse {
-            id: s.id,
+            id: s.id.clone(),
             ip_address: s.ip_address,
             user_agent: s.user_agent,
             created_at: s.created_at,
             last_active_at: s.last_active_at,
             expires_at: s.expires_at,
-            is_current: false, // TODO: Compare with current session token
+            // Would need to extract current session token from request to compare
+            is_current: false, // TODO: Compare with request Authorization header token
         })
         .collect();
 

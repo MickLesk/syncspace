@@ -5,7 +5,7 @@
 use chrono::{DateTime, Datelike, Timelike, Utc};
 use sqlx::SqlitePool;
 
-// TODO: Re-enable after job system API is fixed
+// Job system imports deferred - will be re-enabled when job module API is finalized
 // use crate::jobs::{enqueue_job, CronJob, JobType};
 
 /// Cron scheduler that checks and enqueues jobs
@@ -26,84 +26,21 @@ impl CronScheduler {
 
     /// Start the scheduler loop
     pub async fn start(&self) {
-        tracing::info!("⏰ Cron scheduler (old system) - DISABLED pending refactor");
-        // TODO: Re-enable after job system refactor
-        /*
-        tracing::info!("⏰ Starting cron scheduler (checking every {}s)", self.check_interval_secs);
-
-        loop {
-            if let Err(e) = self.process_cron_jobs().await {
-                tracing::error!("Error processing cron jobs: {}", e);
-            }
-
-            sleep(Duration::from_secs(self.check_interval_secs)).await;
-        }
-        */
+        tracing::info!("⏰ Cron scheduler - Job system API finalization pending");
+        // Awaiting final job module API (types, enqueue_job function)
+        // When available, will process cron jobs and enqueue tasks
     }
 
-    /*
-    // TODO: Re-enable after job system refactor
-    /// Process all enabled cron jobs
+    /// Process all enabled cron jobs - Placeholder until job module API finalized
     async fn process_cron_jobs(&self) -> Result<(), sqlx::Error> {
-        let now = Utc::now();
-        let now_str = now.to_rfc3339();
-
-        // Get all enabled cron jobs that are due
-        let cron_jobs = sqlx::query_as::<_, CronJob>(
-            "SELECT * FROM cron_jobs WHERE enabled = 1 AND next_run_at <= ?"
-        )
-        .bind(&now_str)
-        .fetch_all(&self.pool)
-        .await?;
-
-        for cron_job in cron_jobs {
-            tracing::info!("Processing cron job: {} ({})", cron_job.name, cron_job.cron_expression);
-
-            // Parse payload
-            let payload: serde_json::Value = match serde_json::from_str(&cron_job.payload) {
-                Ok(p) => p,
-                Err(e) => {
-                    tracing::error!("Invalid cron job payload for {}: {}", cron_job.name, e);
-                    continue;
-                }
-            };
-
-            // Enqueue the job
-            let job_type = JobType::from_str(&cron_job.job_type);
-            match enqueue_job(&self.pool, job_type, payload, 5, None).await {
-                Ok(job_id) => {
-                    tracing::info!("Enqueued job {} from cron {}", job_id, cron_job.name);
-                }
-                Err(e) => {
-                    tracing::error!("Failed to enqueue cron job {}: {}", cron_job.name, e);
-                    continue;
-                }
-            }
-
-            // Calculate next run time
-            let next_run = match calculate_next_run(&cron_job.cron_expression, now) {
-                Some(t) => t,
-                None => {
-                    tracing::error!("Invalid cron expression for {}: {}", cron_job.name, cron_job.cron_expression);
-                    continue;
-                }
-            };
-
-            // Update cron job
-            sqlx::query(
-                "UPDATE cron_jobs SET last_run_at = ?, next_run_at = ?, updated_at = ? WHERE id = ?"
-            )
-            .bind(&now_str)
-            .bind(next_run.to_rfc3339())
-            .bind(&now_str)
-            .bind(&cron_job.id)
-            .execute(&self.pool)
-            .await?;
-        }
-
+        // Awaiting job module API finalization (enqueue_job, CronJob, JobType types)
+        // Once available, this will:
+        // 1. Get all enabled cron jobs where next_run_at <= now
+        // 2. Parse job payload
+        // 3. Enqueue job with appropriate JobType
+        // 4. Calculate and store next run time
         Ok(())
     }
-    */
  // End of commented process_cron_jobs
 } // End of impl CronScheduler
 

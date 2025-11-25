@@ -4,7 +4,6 @@
 pub mod auth;
 pub mod auth_security;
 pub mod setup;
-// pub mod twofa; // TODO: Fix compilation errors
 pub mod activity;
 pub mod backup;
 pub mod batch;
@@ -53,7 +52,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
         // Protected routes
         .merge(
             Router::new()
-                .merge(auth::protected_router()) // Protected auth routes (2FA, change-password, etc.)
+                .merge(auth::protected_router()) // Protected auth routes (2FA via TOTP, change-password, etc.)
                 .merge(auth_security::router()) // Auth security (sessions, login attempts, password policy)
                 .merge(users::router())
                 .merge(groups::router())
@@ -64,7 +63,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(comments::file_comments_router()) // /files/{path}/comments/*
                 // === GENERIC ROUTES (MORE SPECIFIC FIRST) ===
                 .merge(file_versions::router())
-                // .merge(twofa::router()) // TODO: Fix compilation
+                // 2FA functionality now integrated into auth::protected_router()
                 .merge(versions::router()) // MUST come before files::router() (more specific routes first)
                 .merge(files::router()) // Has catch-all /files/{*path}, must be last for /files/*
                 .merge(directories::router())

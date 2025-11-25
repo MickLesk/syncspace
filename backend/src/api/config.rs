@@ -47,7 +47,7 @@ async fn get_config(State(_state): State<AppState>) -> Result<impl IntoResponse,
 
 /// Update application config (admin only)
 async fn update_config(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
     user_info: UserInfo,
     Json(config): Json<AppConfig>,
 ) -> Result<impl IntoResponse, StatusCode> {

@@ -249,7 +249,10 @@ pub async fn get_system_info(state: &AppState) -> Result<Value> {
             "redis_enabled": state.cache_manager.has_redis(),
             "search_enabled": true,
             "webhooks_enabled": true,
-            "encryption_enabled": false, // TODO: Implement
+            "encryption_enabled": std::env::var("ENCRYPTION_ENABLED")
+                .ok()
+                .and_then(|v| v.parse::<bool>().ok())
+                .unwrap_or(false),
             "2fa_enabled": true,
         }
     }))

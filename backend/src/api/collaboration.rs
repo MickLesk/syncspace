@@ -144,7 +144,7 @@ async fn remove_presence(
             "SELECT is_admin FROM users WHERE id = ?"
         )
         .bind(&user.id)
-        .fetch_optional(&*state.db_pool)
+        .fetch_optional(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .unwrap_or(false);
@@ -159,7 +159,7 @@ async fn remove_presence(
         "DELETE FROM user_presence WHERE user_id = ?"
     )
     .bind(&user_id)
-    .execute(&*state.db_pool)
+    .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -239,3 +239,4 @@ async fn resolve_conflict(
         .map(|_| StatusCode::OK)
         .map_err(|_| StatusCode::BAD_REQUEST)
 }
+

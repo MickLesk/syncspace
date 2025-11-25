@@ -20,8 +20,14 @@ use std::sync::{Arc, Mutex};
 use totp_lite::{totp_custom, Sha1};
 use uuid::Uuid;
 
-// TODO: Move to environment variable
-const JWT_SECRET: &str = "your-secret-key-change-in-production";
+// JWT configuration from environment variables (with fallback defaults)
+fn get_jwt_secret() -> String {
+    std::env::var("JWT_SECRET").unwrap_or_else(|_| {
+        tracing::warn!("JWT_SECRET not set, using default (INSECURE). Set JWT_SECRET environment variable in production!");
+        "your-secret-key-change-in-production".to_string()
+    })
+}
+
 const ACCESS_TOKEN_EXPIRATION_MINUTES: i64 = 15; // Short-lived access token
 const REFRESH_TOKEN_EXPIRATION_DAYS: i64 = 7; // Long-lived refresh token
 
@@ -166,7 +172,7 @@ pub fn generate_token(user: &crate::database::User) -> Result<String, String> {
     encode(
         &Header::default(),
         &claims,
-        &EncodingKey::from_secret(JWT_SECRET.as_ref()),
+        &EncodingKey::from_secret(get_jwt_secret().as_ref()),
     )
     .map_err(|e| format!("Token generation failed: {}", e))
 }
@@ -189,7 +195,7 @@ pub fn generate_refresh_token(user: &crate::database::User) -> Result<String, St
     encode(
         &Header::default(),
         &claims,
-        &EncodingKey::from_secret(JWT_SECRET.as_ref()),
+        &EncodingKey::from_secret(get_jwt_secret().as_ref()),
     )
     .map_err(|e| format!("Token generation failed: {}", e))
 }
@@ -198,7 +204,7 @@ pub fn generate_refresh_token(user: &crate::database::User) -> Result<String, St
 pub fn verify_token(token: &str) -> Result<Claims, String> {
     decode::<Claims>(
         token,
-        &DecodingKey::from_secret(JWT_SECRET.as_ref()),
+        &DecodingKey::from_secret(get_jwt_secret().as_ref()),
         &Validation::default(),
     )
     .map(|data| data.claims)
@@ -210,7 +216,7 @@ pub fn verify_token(token: &str) -> Result<Claims, String> {
 pub fn verify_refresh_token(token: &str) -> Result<RefreshTokenClaims, String> {
     decode::<RefreshTokenClaims>(
         token,
-        &DecodingKey::from_secret(JWT_SECRET.as_ref()),
+        &DecodingKey::from_secret(get_jwt_secret().as_ref()),
         &Validation::default(),
     )
     .map(|data| data.claims)

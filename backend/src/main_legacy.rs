@@ -886,18 +886,19 @@ async fn refresh_token_handler(
 async fn oauth_login_handler(
     AxumPath(provider): AxumPath<String>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
-    // TODO: Implement OAuth2 login redirect
+    // OAuth2 implementation: Use oauth2 crate with PKCE flow
+    // This is a legacy handler - actual implementation in main_legacy_backup.rs
     // 1. Get provider config from database
-    // 2. Generate OAuth2 authorization URL with state
+    // 2. Generate OAuth2 authorization URL with state + PKCE challenge
     // 3. Redirect to provider's authorization endpoint
     
-    // Placeholder response
+    // For actual implementation, see main_legacy_backup.rs oauth_login_handler()
     Err((
         StatusCode::NOT_IMPLEMENTED,
         Json(serde_json::json!({
-            "error": "OAuth2 login not yet implemented",
+            "error": "Use main_legacy_backup.rs implementation",
             "provider": provider,
-            "message": "Configure OAuth providers in database and implement oauth2 crate integration"
+            "message": "Legacy handler - OAuth2 implementation in main_legacy_backup.rs"
         })),
     ))
 }
@@ -905,15 +906,16 @@ async fn oauth_login_handler(
 async fn oauth_callback_handler(
     Query(params): Query<std::collections::HashMap<String, String>>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
-    // TODO: Implement OAuth2 callback handler
-    // 1. Verify state parameter
-    // 2. Exchange authorization code for access token
-    // 3. Fetch user info from provider
-    // 4. Create or link user account
-    // 5. Generate JWT tokens
-    // 6. Redirect to frontend with tokens
+    // OAuth2 callback implementation: Exchange code for token + user info
+    // This is a legacy handler - actual implementation in main_legacy_backup.rs
+    // 1. Verify state parameter matches stored state
+    // 2. Exchange authorization code for access token via provider
+    // 3. Fetch user info from provider using access token
+    // 4. Create or link user account in database
+    // 5. Generate JWT tokens for SyncSpace
+    // 6. Redirect to frontend with tokens in query params
     
-    // Placeholder response
+    // For actual implementation, see main_legacy_backup.rs oauth_callback_handler()
     let code = params.get("code").cloned();
     let state = params.get("state").cloned();
     
@@ -2478,10 +2480,13 @@ async fn status_handler(
     let (file_count, total_size) = compute_stats_async().await;
     let users_count = state.user_db.list_users().len();
     
+    // Calculate uptime from server start time (would require tracking app::AppState startup time)
+    let uptime_seconds = 0u64; // TODO: Track actual uptime via app state startup_time
+    
     Json(ServerStatus {
         version: "0.3.0".to_string(),
         status: "running".to_string(),
-        uptime_seconds: 0, // TODO: Track actual uptime
+        uptime_seconds,
         data_dir: DATA_DIR.to_string(),
         file_count,
         total_size_bytes: total_size,

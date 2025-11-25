@@ -61,8 +61,15 @@ pub async fn add_email_account(
 ) -> Result<EmailAccount, sqlx::Error> {
     let id = Uuid::new_v4().to_string();
     
-    // TODO: Encrypt password properly (using encryption module)
-    let password_encrypted = base64::encode(&req.password);
+    // Encrypt password using AES-256 (from encryption module)
+    // If encryption module not available, use base64 with clear warning
+    let password_encrypted = if let Ok(encrypted) = crate::encryption::encrypt_data(req.password.as_bytes()) {
+        format!("enc:{}", base64::encode(&encrypted))
+    } else {
+        // Fallback: base64 encode (NOT SECURE - for development only)
+        tracing::warn!("Email password stored with base64 encoding only - enable encryption in production!");
+        format!("b64:{}", base64::encode(&req.password))
+    };
     
     sqlx::query(
         "INSERT INTO email_accounts 

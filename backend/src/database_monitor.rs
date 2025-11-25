@@ -173,8 +173,13 @@ pub async fn check_health(pool: &SqlitePool, monitor: &DatabaseMonitor) -> Resul
     
     let wal_size_mb = match wal_info {
         Ok(Some(_)) => {
-            // WAL size estimation (would need file system access for exact size)
-            0.0 // Placeholder
+            // WAL size estimation via file metadata
+            use std::path::Path;
+            if let Ok(metadata) = std::fs::metadata("./data/syncspace.db-wal") {
+                metadata.len() as f64 / 1024.0 / 1024.0 // Convert to MB
+            } else {
+                0.0
+            }
         }
         Ok(None) => 0.0,
         Err(e) => {

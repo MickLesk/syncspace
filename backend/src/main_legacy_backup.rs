@@ -2500,10 +2500,13 @@ async fn status_handler(
     let (file_count, total_size) = compute_stats_async().await;
     let users_count = state.user_db.list_users().len();
     
+    // Calculate uptime from server start time (would require tracking app::AppState startup time)
+    let uptime_seconds = 0u64; // TODO: Track actual uptime via app state startup_time
+    
     Json(ServerStatus {
         version: "0.3.0".to_string(),
         status: "running".to_string(),
-        uptime_seconds: 0, // TODO: Track actual uptime
+        uptime_seconds,
         data_dir: DATA_DIR.to_string(),
         file_count,
         total_size_bytes: total_size,
