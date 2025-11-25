@@ -194,8 +194,23 @@ async fn disable_cron_job_handler(
 
 use axum::Router;
 
+/// Cron job management router
+/// 
+/// Currently returns empty router as cron job API is disabled pending job system refactoring.
+/// The job system requires architectural changes to properly integrate with the background
+/// task scheduler and database-backed job queue.
+/// 
+/// When re-enabled, this will provide:
+/// - POST /api/cron - Create scheduled job
+/// - GET /api/cron - List all cron jobs
+/// - GET /api/cron/{id} - Get specific job
+/// - PUT /api/cron/{id} - Update job configuration
+/// - DELETE /api/cron/{id} - Delete job
+/// - POST /api/cron/{id}/enable - Enable job
+/// - POST /api/cron/{id}/disable - Disable job
+///
+/// See commented implementation above for reference API design.
 pub fn router() -> Router<crate::AppState> {
     Router::new()
-    // Job scheduler routes will be added when job system is refactored
-    // Placeholder for future cron job management endpoints
+    // Routes will be added after job system refactoring is complete
 }

@@ -23,14 +23,14 @@
     try {
       const data = await api.notifications?.list?.();
       if (!data) {
-        throw new Error('Notifications API not available');
+        throw new Error("Notifications API not available");
       }
-      notifications = data.map(n => ({
+      notifications = data.map((n) => ({
         ...n,
-        time: new Date(n.created_at || n.time)
+        time: new Date(n.created_at || n.time),
       }));
     } catch (error) {
-      console.error('Failed to load notifications:', error);
+      console.error("Failed to load notifications:", error);
       notifications = [];
     } finally {
       loading = false;
@@ -57,7 +57,7 @@
         n.id === id ? { ...n, read: true } : n
       );
     } catch (error) {
-      console.error('Failed to mark as read:', error);
+      console.error("Failed to mark as read:", error);
     }
   }
 
@@ -66,7 +66,7 @@
       await api.notifications?.markAllRead?.();
       notifications = notifications.map((n) => ({ ...n, read: true }));
     } catch (error) {
-      console.error('Failed to mark all as read:', error);
+      console.error("Failed to mark all as read:", error);
     }
   }
 
@@ -75,7 +75,7 @@
       await api.notifications?.delete?.(id);
       notifications = notifications.filter((n) => n.id !== id);
     } catch (error) {
-      console.error('Failed to delete notification:', error);
+      console.error("Failed to delete notification:", error);
     }
   }
 

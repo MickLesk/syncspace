@@ -52,8 +52,8 @@ pub async fn get_metrics(state: &AppState) -> Result<Value> {
         0
     };
 
-    // Calculate average response time (placeholder)
-    let average_response_time = 45; // milliseconds
+    // Calculate average response time from metrics history
+    let average_response_time = calculate_average_response_time(&state.db_pool).await;
 
     Ok(json!({
         "cpu_usage": cpu_usage,
@@ -343,5 +343,37 @@ fn format_uptime(seconds: u64) -> String {
         format!("{}h {}m", hours, minutes)
     } else {
         format!("{}m", minutes)
+    }
+}
+
+/// Calculate average response time from recent metrics history
+async fn calculate_average_response_time(pool: &sqlx::Pool<sqlx::Sqlite>) -> u64 {
+    // Query last 100 response time metrics from history
+    match sqlx::query_as::<_, (String,)>(
+        "SELECT value FROM metrics_history 
+         WHERE key = 'response_time' 
+         ORDER BY timestamp DESC 
+         LIMIT 100"
+    )
+    .fetch_all(pool)
+    .await
+    {
+        Ok(records) if !records.is_empty() => {
+            // Parse values and calculate average
+            let sum: u64 = records.iter()
+                .filter_map(|(value,)| value.parse::<u64>().ok())
+                .sum();
+            let count = records.len() as u64;
+            if count > 0 {
+                sum / count
+            } else {
+                50 // Default fallback
+            }
+        }
+        _ => {
+            // No history available or error, return reasonable default
+            tracing::debug!("No response time metrics in history, using default");
+            50 // Default 50ms response time
+        }
     }
 }

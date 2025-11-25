@@ -98,18 +98,22 @@
 
   async function previewRestore(backup) {
     try {
-      // Mock restore preview - in real app this would fetch from API
+      // Fetch restore preview from API
+      const preview = await api.backup?.previewRestore?.(backup.id);
+      if (!preview) {
+        throw new Error("Restore preview API not available");
+      }
       restorePreview = {
         backupId: backup.id,
         backupDate: backup.created_at,
-        fileCount: backup.file_count || 0,
-        size: backup.size_bytes || 0,
+        fileCount: preview.file_count || backup.file_count || 0,
+        size: preview.size_bytes || backup.size_bytes || 0,
         type: backup.backup_type,
-        estimatedDuration:
-          Math.ceil((backup.file_count || 0) / 100) + " minutes",
+        estimatedDuration: preview.estimated_duration || "Unknown",
       };
       showRestoreModal = true;
     } catch (err) {
+      console.error("Failed to load restore preview:", err);
       errorToast("Failed to load restore preview");
     }
   }
@@ -118,11 +122,13 @@
     if (!restorePreview) return;
 
     try {
+      await api.backup?.restore?.(restorePreview.backupId);
       success("Restore started! This may take a while.");
       showRestoreModal = false;
       restorePreview = null;
-      // Add actual restore API call here
+      await loadBackups(); // Refresh backup list
     } catch (err) {
+      console.error("Failed to restore backup:", err);
       errorToast("Failed to restore backup");
     }
   }
