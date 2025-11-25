@@ -84,7 +84,7 @@ pub async fn get_status_json(State(state): State<AppState>) -> impl IntoResponse
         database: DatabaseStatus {
             connected: true,
             pool_size: 10,
-            active_connections: state.db.size(),
+            active_connections: state.db_pool.size(),
         },
         search_index: SearchIndexStatus {
             initialized: true,
@@ -93,9 +93,7 @@ pub async fn get_status_json(State(state): State<AppState>) -> impl IntoResponse
         websocket: WebSocketStatus {
             enabled: true,
             endpoint: "ws://localhost:8080/api/ws".to_string(),
-            active_connections: state
-                .active_ws_connections
-                .load(std::sync::atomic::Ordering::Relaxed),
+            active_connections: 0, // TODO: Track WS connections
         },
         endpoints: get_all_endpoints(),
     };
@@ -394,10 +392,8 @@ pub async fn get_status_html(State(state): State<AppState>) -> impl IntoResponse
 </html>"#,
         env!("CARGO_PKG_VERSION"),
         uptime_str,
-        state.db.size(),
-        state
-            .active_ws_connections
-            .load(std::sync::atomic::Ordering::Relaxed),
+        state.db_pool.size(),
+        0, // TODO: Track WS connections
         render_endpoint_category("🔐 Authentication", &auth_endpoints),
         render_endpoint_category("📁 Files", &file_endpoints),
         render_endpoint_category("👤 Users", &user_endpoints),

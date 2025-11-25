@@ -39,7 +39,7 @@ pub async fn list(state: &AppState, user: &UserInfo) -> Result<Vec<Tag>> {
         "#,
     )
     .bind(&user.id)
-    .fetch_all(&state.db)
+    .fetch_all(&state.db_pool)
     .await?;
 
     Ok(tags)
@@ -74,7 +74,7 @@ pub async fn create(
     .bind(&user.id)
     .bind(&now)
     .bind(&now)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await?;
 
     Ok(Tag {
@@ -97,7 +97,7 @@ pub async fn delete(state: &AppState, user: &UserInfo, tag_id: &str) -> Result<(
     )
     .bind(tag_id)
     .bind(&user.id)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await?;
 
     if result.rows_affected() == 0 {
@@ -132,7 +132,7 @@ pub async fn update_color(
     .bind(&now)
     .bind(tag_id)
     .bind(&user.id)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await?;
 
     if result.rows_affected() == 0 {
@@ -155,7 +155,7 @@ pub async fn tag_file(
     )
     .bind(tag_id)
     .bind(&user.id)
-    .fetch_optional(&state.db)
+    .fetch_optional(&state.db_pool)
     .await?;
 
     if tag.is_none() {
@@ -180,7 +180,7 @@ pub async fn tag_file(
     .bind(file_path)
     .bind(&user.id)
     .bind(&now)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await?;
 
     Ok(FileTag {
@@ -210,7 +210,7 @@ pub async fn untag_file(
     .bind(file_id)
     .bind(tag_id)
     .bind(&user.id)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await?;
 
     if result.rows_affected() == 0 {
@@ -235,7 +235,7 @@ pub async fn list_file_tags(state: &AppState, file_path: &str) -> Result<Vec<(Ta
         "#,
     )
     .bind(file_path)
-    .fetch_all(&state.db)
+    .fetch_all(&state.db_pool)
     .await?;
 
     let mut results = Vec::new();
@@ -275,7 +275,7 @@ pub async fn list_by_file(state: &AppState, _user: &UserInfo, file_path: &str) -
         "#,
     )
     .bind(file_path)
-    .fetch_all(&state.db)
+    .fetch_all(&state.db_pool)
     .await?;
 
     let mut tags = Vec::new();
@@ -339,7 +339,7 @@ pub async fn update(
     .bind(&now)
     .bind(tag_id)
     .bind(&user.id)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await?;
 
     if result.rows_affected() == 0 {
@@ -355,3 +355,4 @@ pub async fn update(
         updated_at: now,
     })
 }
+

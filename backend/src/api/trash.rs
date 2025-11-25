@@ -54,7 +54,7 @@ async fn list_trash(
          WHERE is_deleted = 1
          ORDER BY updated_at DESC"
     )
-    .fetch_all(&state.db)
+    .fetch_all(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -94,7 +94,7 @@ async fn restore_from_trash(
     .bind(&restore_path)
     .bind(&now)
     .bind(&path)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -105,7 +105,7 @@ async fn restore_from_trash(
     // Log the restoration
     let log_id = uuid::Uuid::new_v4().to_string();
     let _ = sqlx::query("INSERT INTO file_history (id, user_id, action, file_path, status, created_at) VALUES (?, ?, 'restored', ?, 'success', datetime('now'))")
-        .bind(&log_id).bind(&user_info.id).bind(&path).execute(&state.db).await;
+        .bind(&log_id).bind(&user_info.id).bind(&path).execute(&state.db_pool).await;
 
     Ok((
         StatusCode::OK,
@@ -129,7 +129,7 @@ async fn permanent_delete(
     )
     .bind(&path)
     .bind(&user_info.id)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -158,7 +158,7 @@ async fn cleanup_trash(
     )
     .bind(&user_info.id)
     .bind(&thirty_days_ago_str)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -179,7 +179,7 @@ async fn empty_trash(
         "#,
     )
     .bind(&user_info.id)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -197,3 +197,4 @@ pub fn router() -> Router<AppState> {
         .route("/trash/cleanup", delete(cleanup_trash))
         .route("/trash/empty", delete(empty_trash))
 }
+

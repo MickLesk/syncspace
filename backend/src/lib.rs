@@ -6,6 +6,7 @@ pub mod auth;
 pub mod cron;
 pub mod database;
 pub mod jobs;
+pub mod search;
 pub mod websocket;
 pub mod workers;
 

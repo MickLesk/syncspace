@@ -18,6 +18,7 @@ mod db_monitor;
 mod jobs;
 mod middleware;
 mod models;
+mod search;
 mod security;
 mod services;
 mod status;
@@ -42,6 +43,7 @@ use tokio::sync::{broadcast, Mutex};
 use tower_http::cors::{Any, CorsLayer};
 
 use auth::RateLimiter;
+use database_monitor::DatabaseMonitor;
 use websocket::FileChangeEvent;
 
 // Performance and caching imports
@@ -97,6 +99,22 @@ pub struct AppState {
     pub config: Arc<Mutex<Config>>,
     pub job_processor: JobProcessor,
     pub performance_monitor: Arc<PerformanceMonitor>,
+    pub db_health_monitor: Arc<DatabaseMonitor>,
+}
+
+impl std::fmt::Debug for AppState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AppState")
+            .field("db_pool", &"SqlitePool")
+            .field("fs_tx", &"broadcast::Sender<FileChangeEvent>")
+            .field("cache_manager", &"Arc<CacheManager>")
+            .field("rate_limiter", &"Arc<RateLimiter>")
+            .field("config", &"Arc<Mutex<Config>>")
+            .field("job_processor", &"JobProcessor")
+            .field("performance_monitor", &"Arc<PerformanceMonitor>")
+            .field("db_health_monitor", &"Arc<DatabaseMonitor>")
+            .finish()
+    }
 }
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Config {
@@ -298,6 +316,7 @@ async fn main() {
         cache_manager,
         job_processor,
         performance_monitor,
+        db_health_monitor: db_health_monitor.clone(),
     };
 
     // Optional: Start pool monitoring task (commented out - requires db_monitor)

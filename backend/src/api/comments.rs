@@ -90,7 +90,7 @@ async fn create_comment(
     .bind(&sanitized_content)
     .bind(&now)
     .bind(&now)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|e| {
         eprintln!("Failed to create comment: {}", e);
@@ -122,7 +122,7 @@ async fn list_comments(
         "#,
     )
     .bind(&query.file_path)
-    .fetch_all(&state.db)
+    .fetch_all(&state.db_pool)
     .await
     .map_err(|e| {
         eprintln!("Failed to list comments: {}", e);
@@ -169,7 +169,7 @@ async fn update_comment(
     .bind(&now)
     .bind(&comment_id)
     .bind(&user_info.id)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|e| {
         eprintln!("Failed to update comment: {}", e);
@@ -199,7 +199,7 @@ async fn delete_comment(
     )
     .bind(&comment_id)
     .bind(&user_info.id)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|e| {
         eprintln!("Failed to delete comment: {}", e);
@@ -264,7 +264,7 @@ async fn list_file_comments(
         "#,
     )
     .bind(&query.path)
-    .fetch_all(&state.db)
+    .fetch_all(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -310,7 +310,7 @@ async fn create_file_comment(
     .bind(&sanitized_content)
     .bind(&now)
     .bind(&now)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -350,7 +350,7 @@ async fn update_file_comment(
     .bind(&now)
     .bind(&comment_id)
     .bind(&user_info.id)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -376,7 +376,7 @@ async fn delete_file_comment(
     )
     .bind(&comment_id)
     .bind(&user_info.id)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -407,7 +407,7 @@ async fn add_reaction(
     .bind(&comment_id)
     .bind(&req.emoji)
     .bind(&user_info.id)
-    .execute(&state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -418,3 +418,4 @@ async fn add_reaction(
 pub struct ReactionRequest {
     pub emoji: String,
 }
+
