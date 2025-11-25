@@ -121,6 +121,23 @@ async fn permanent_delete(
     Path(path): Path<String>,
     user_info: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
+    // First get the item to find the storage path
+    let item: Option<TrashItem> = sqlx::query_as(
+        r#"
+        SELECT id, original_path, storage_path, item_type, name, size_bytes, deleted_by, deleted_at
+        FROM trash_items
+        WHERE original_path = ? AND deleted_by = ?
+        "#,
+    )
+    .bind(&path)
+    .bind(&user_info.id)
+    .fetch_optional(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let item = item.ok_or(StatusCode::NOT_FOUND)?;
+
+    // Delete from database
     let result = sqlx::query(
         r#"
         DELETE FROM trash_items
@@ -137,7 +154,15 @@ async fn permanent_delete(
         return Err(StatusCode::NOT_FOUND);
     }
 
-    // TODO: Delete actual file from filesystem
+    // Delete actual file from filesystem using original_path
+    let file_path = std::path::Path::new("./data").join(&item.original_path);
+    if file_path.exists() {
+        if file_path.is_dir() {
+            let _ = tokio::fs::remove_dir_all(&file_path).await;
+        } else {
+            let _ = tokio::fs::remove_file(&file_path).await;
+        }
+    }
 
     Ok(StatusCode::NO_CONTENT)
 }

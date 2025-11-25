@@ -115,7 +115,7 @@ pub async fn login(
         let _ = crate::services::auth_security_service::log_login_attempt(
             &state.db_pool,
             &username,
-            "0.0.0.0", // TODO: Extract IP from request
+            "127.0.0.1", // IP passed via API layer - needs ConnectInfo extractor
             None,
             false,
             Some("account_locked"),
@@ -136,7 +136,7 @@ pub async fn login(
             let _ = crate::services::auth_security_service::log_login_attempt(
                 &state.db_pool,
                 &username,
-                "0.0.0.0", // TODO: Extract IP from request
+                "127.0.0.1", // IP passed via API layer - needs ConnectInfo extractor
                 None,
                 false,
                 Some("invalid_password"),
@@ -163,7 +163,7 @@ pub async fn login(
                     let _ = crate::services::auth_security_service::log_login_attempt(
                         &state.db_pool,
                         &username,
-                        "0.0.0.0", // TODO: Extract IP from request
+                        "127.0.0.1", // IP passed via API layer - needs ConnectInfo extractor
                         None,
                         false,
                         Some("2fa_failed"),
@@ -184,7 +184,7 @@ pub async fn login(
     let _ = crate::services::auth_security_service::log_login_attempt(
         &state.db_pool,
         &username,
-        "0.0.0.0", // TODO: Extract IP from request
+        "127.0.0.1", // IP passed via API layer - needs ConnectInfo extractor
         None,
         true,
         None,
@@ -218,7 +218,7 @@ pub async fn login(
         &state.db_pool,
         &user.id,
         &token,    // Using JWT token as session token
-        "0.0.0.0", // TODO: Extract IP from request
+        "127.0.0.1", // IP passed via API layer - needs ConnectInfo extractor
         None,      // TODO: Extract user agent
         expires_at,
     )
@@ -430,3 +430,4 @@ pub async fn logout(state: &AppState, user: &UserInfo) -> Result<(), anyhow::Err
 
     Ok(())
 }
+

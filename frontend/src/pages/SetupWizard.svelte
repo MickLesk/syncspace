@@ -200,352 +200,347 @@
     <!-- Step Content -->
     <ModernCard variant="glass" class="step-content">
       <div class="step-inner">
-          <!-- Step 1: Admin Account -->
-          {#if currentStep === 1}
-            <h2 class="step-title">
-              <i class="bi bi-person-circle"></i>
-              {tr("adminAccount")}
-            </h2>
-            <p class="step-description">
-              {tr("createAdminAccount")}
-            </p>
+        <!-- Step 1: Admin Account -->
+        {#if currentStep === 1}
+          <h2 class="step-title">
+            <i class="bi bi-person-circle"></i>
+            {tr("adminAccount")}
+          </h2>
+          <p class="step-description">
+            {tr("createAdminAccount")}
+          </p>
 
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="admin_username">{tr("username")} *</label>
-                <input
-                  id="admin_username"
-                  type="text"
-                  bind:value={formData.admin_username}
-                  class="glass-input"
-                  placeholder="admin"
-                />
-                {#if errors.admin_username}
-                  <span class="error">{errors.admin_username}</span>
-                {/if}
-              </div>
-
-              <div class="form-group">
-                <label for="admin_display_name"
-                  >{tr("adminDisplayName")} *</label
-                >
-                <input
-                  id="admin_display_name"
-                  type="text"
-                  bind:value={formData.admin_display_name}
-                  class="glass-input"
-                  placeholder="Administrator"
-                />
-                {#if errors.admin_display_name}
-                  <span class="error">{errors.admin_display_name}</span>
-                {/if}
-              </div>
-
-              <div class="form-group col-span-2">
-                <label for="admin_email">{tr("adminEmail")} *</label>
-                <input
-                  id="admin_email"
-                  type="email"
-                  bind:value={formData.admin_email}
-                  class="glass-input"
-                  placeholder="admin@example.com"
-                />
-                {#if errors.admin_email}
-                  <span class="error">{errors.admin_email}</span>
-                {/if}
-              </div>
-
-              <div class="form-group">
-                <label for="admin_password">{tr("adminPassword")} *</label>
-                <input
-                  id="admin_password"
-                  type="password"
-                  bind:value={formData.admin_password}
-                  class="glass-input"
-                  placeholder="••••••••"
-                />
-                {#if errors.admin_password}
-                  <span class="error">{errors.admin_password}</span>
-                {/if}
-              </div>
-
-              <div class="form-group">
-                <label for="admin_password_confirm"
-                  >{tr("confirmPassword")} *</label
-                >
-                <input
-                  id="admin_password_confirm"
-                  type="password"
-                  bind:value={formData.admin_password_confirm}
-                  class="glass-input"
-                  placeholder="••••••••"
-                />
-                {#if errors.admin_password_confirm}
-                  <span class="error">{errors.admin_password_confirm}</span>
-                {/if}
-              </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="admin_username">{tr("username")} *</label>
+              <input
+                id="admin_username"
+                type="text"
+                bind:value={formData.admin_username}
+                class="glass-input"
+                placeholder="admin"
+              />
+              {#if errors.admin_username}
+                <span class="error">{errors.admin_username}</span>
+              {/if}
             </div>
-          {/if}
 
-          <!-- Step 2: Server Info -->
-          {#if currentStep === 2}
-            <h2 class="step-title">
-              <i class="bi bi-server"></i>
-              {tr("serverInfo")}
-            </h2>
-            <p class="step-description">
-              {tr("configureServer")}
-            </p>
-
-            <div class="form-grid">
-              <div class="form-group col-span-2">
-                <label for="server_name">{tr("serverName")} *</label>
-                <input
-                  id="server_name"
-                  type="text"
-                  bind:value={formData.server_name}
-                  class="glass-input"
-                  placeholder="SyncSpace"
-                />
-                {#if errors.server_name}
-                  <span class="error">{errors.server_name}</span>
-                {/if}
-              </div>
-
-              <div class="form-group col-span-2">
-                <label for="server_description">{tr("description")}</label>
-                <textarea
-                  id="server_description"
-                  bind:value={formData.server_description}
-                  class="glass-input"
-                  rows="3"
-                  placeholder="Self-hosted file synchronization"
-                ></textarea>
-              </div>
+            <div class="form-group">
+              <label for="admin_display_name">{tr("adminDisplayName")} *</label>
+              <input
+                id="admin_display_name"
+                type="text"
+                bind:value={formData.admin_display_name}
+                class="glass-input"
+                placeholder="Administrator"
+              />
+              {#if errors.admin_display_name}
+                <span class="error">{errors.admin_display_name}</span>
+              {/if}
             </div>
-          {/if}
 
-          <!-- Step 3: Language -->
-          {#if currentStep === 3}
-            <h2 class="step-title">
-              <i class="bi bi-translate"></i>
-              {tr("language")}
-            </h2>
-            <p class="step-description">
-              {tr("chooseDefaultLanguage")}
-            </p>
+            <div class="form-group col-span-2">
+              <label for="admin_email">{tr("adminEmail")} *</label>
+              <input
+                id="admin_email"
+                type="email"
+                bind:value={formData.admin_email}
+                class="glass-input"
+                placeholder="admin@example.com"
+              />
+              {#if errors.admin_email}
+                <span class="error">{errors.admin_email}</span>
+              {/if}
+            </div>
 
-            <div class="language-selector">
-              <button
-                class="language-option"
-                class:selected={formData.default_language === "en"}
-                onclick={() => (formData.default_language = "en")}
+            <div class="form-group">
+              <label for="admin_password">{tr("adminPassword")} *</label>
+              <input
+                id="admin_password"
+                type="password"
+                bind:value={formData.admin_password}
+                class="glass-input"
+                placeholder="••••••••"
+              />
+              {#if errors.admin_password}
+                <span class="error">{errors.admin_password}</span>
+              {/if}
+            </div>
+
+            <div class="form-group">
+              <label for="admin_password_confirm"
+                >{tr("confirmPassword")} *</label
               >
-                <span class="flag">🇬🇧</span>
-                <span>English</span>
-              </button>
-              <button
-                class="language-option"
-                class:selected={formData.default_language === "de"}
-                onclick={() => (formData.default_language = "de")}
-              >
-                <span class="flag">🇩🇪</span>
-                <span>Deutsch</span>
-              </button>
+              <input
+                id="admin_password_confirm"
+                type="password"
+                bind:value={formData.admin_password_confirm}
+                class="glass-input"
+                placeholder="••••••••"
+              />
+              {#if errors.admin_password_confirm}
+                <span class="error">{errors.admin_password_confirm}</span>
+              {/if}
             </div>
-          {/if}
+          </div>
+        {/if}
 
-          <!-- Step 4: Storage -->
-          {#if currentStep === 4}
-            <h2 class="step-title">
-              <i class="bi bi-hdd-fill"></i>
-              {tr("storage")}
-            </h2>
-            <p class="step-description">
-              {tr("configureStorageSettings")}
-            </p>
+        <!-- Step 2: Server Info -->
+        {#if currentStep === 2}
+          <h2 class="step-title">
+            <i class="bi bi-server"></i>
+            {tr("serverInfo")}
+          </h2>
+          <p class="step-description">
+            {tr("configureServer")}
+          </p>
 
-            <div class="form-grid">
-              <div class="form-group col-span-2">
-                <label for="default_quota">{tr("storageQuota")} (GB) *</label>
+          <div class="form-grid">
+            <div class="form-group col-span-2">
+              <label for="server_name">{tr("serverName")} *</label>
+              <input
+                id="server_name"
+                type="text"
+                bind:value={formData.server_name}
+                class="glass-input"
+                placeholder="SyncSpace"
+              />
+              {#if errors.server_name}
+                <span class="error">{errors.server_name}</span>
+              {/if}
+            </div>
+
+            <div class="form-group col-span-2">
+              <label for="server_description">{tr("description")}</label>
+              <textarea
+                id="server_description"
+                bind:value={formData.server_description}
+                class="glass-input"
+                rows="3"
+                placeholder="Self-hosted file synchronization"
+              ></textarea>
+            </div>
+          </div>
+        {/if}
+
+        <!-- Step 3: Language -->
+        {#if currentStep === 3}
+          <h2 class="step-title">
+            <i class="bi bi-translate"></i>
+            {tr("language")}
+          </h2>
+          <p class="step-description">
+            {tr("chooseDefaultLanguage")}
+          </p>
+
+          <div class="language-selector">
+            <button
+              class="language-option"
+              class:selected={formData.default_language === "en"}
+              onclick={() => (formData.default_language = "en")}
+            >
+              <span class="flag">🇬🇧</span>
+              <span>English</span>
+            </button>
+            <button
+              class="language-option"
+              class:selected={formData.default_language === "de"}
+              onclick={() => (formData.default_language = "de")}
+            >
+              <span class="flag">🇩🇪</span>
+              <span>Deutsch</span>
+            </button>
+          </div>
+        {/if}
+
+        <!-- Step 4: Storage -->
+        {#if currentStep === 4}
+          <h2 class="step-title">
+            <i class="bi bi-hdd-fill"></i>
+            {tr("storage")}
+          </h2>
+          <p class="step-description">
+            {tr("configureStorageSettings")}
+          </p>
+
+          <div class="form-grid">
+            <div class="form-group col-span-2">
+              <label for="default_quota">{tr("storageQuota")} (GB) *</label>
+              <input
+                id="default_quota"
+                type="number"
+                bind:value={formData.default_quota_gb}
+                class="glass-input"
+                min="1"
+                max="1000"
+              />
+              <small class="text-gray-500">
+                {tr("eachNewUserReceives", formData.default_quota_gb, "GB")}
+              </small>
+              {#if errors.default_quota_gb}
+                <span class="error">{errors.default_quota_gb}</span>
+              {/if}
+            </div>
+          </div>
+        {/if}
+
+        <!-- Step 5: Security & Registration -->
+        {#if currentStep === 5}
+          <h2 class="step-title">
+            <i class="bi bi-shield-lock-fill"></i>
+            {tr("securitySettings")}
+          </h2>
+          <p class="step-description">
+            {tr("securityRegistrationSettings")}
+          </p>
+
+          <div class="form-grid">
+            <div class="form-group col-span-2">
+              <label class="checkbox-label">
                 <input
-                  id="default_quota"
-                  type="number"
-                  bind:value={formData.default_quota_gb}
-                  class="glass-input"
-                  min="1"
-                  max="1000"
+                  type="checkbox"
+                  bind:checked={formData.allow_registration}
                 />
-                <small class="text-gray-500">
-                  {tr("eachNewUserReceives", formData.default_quota_gb, "GB")}
-                </small>
-                {#if errors.default_quota_gb}
-                  <span class="error">{errors.default_quota_gb}</span>
-                {/if}
-              </div>
+                <span>{tr("allowUserSelfRegistration")}</span>
+              </label>
+              <small class="text-gray-500">
+                {tr("userCanCreateAccountsWithout")}
+              </small>
             </div>
-          {/if}
 
-          <!-- Step 5: Security & Registration -->
-          {#if currentStep === 5}
-            <h2 class="step-title">
-              <i class="bi bi-shield-lock-fill"></i>
-              {tr("securitySettings")}
-            </h2>
-            <p class="step-description">
-              {tr("securityRegistrationSettings")}
-            </p>
-
-            <div class="form-grid">
+            {#if formData.allow_registration}
               <div class="form-group col-span-2">
                 <label class="checkbox-label">
                   <input
                     type="checkbox"
-                    bind:checked={formData.allow_registration}
+                    bind:checked={formData.require_email_verification}
                   />
-                  <span>{tr("allowUserSelfRegistration")}</span>
+                  <span>{tr("requireEmailVerification")}</span>
                 </label>
-                <small class="text-gray-500">
-                  {tr("userCanCreateAccountsWithout")}
-                </small>
               </div>
+            {/if}
 
-              {#if formData.allow_registration}
-                <div class="form-group col-span-2">
-                  <label class="checkbox-label">
-                    <input
-                      type="checkbox"
-                      bind:checked={formData.require_email_verification}
-                    />
-                    <span>{tr("requireEmailVerification")}</span>
-                  </label>
-                </div>
-              {/if}
+            <div class="form-group col-span-2">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  bind:checked={formData.enable_2fa_requirement}
+                />
+                <span>{tr("twoFactorAuthRequired")}</span>
+              </label>
+            </div>
 
-              <div class="form-group col-span-2">
+            <div class="form-group">
+              <label for="password_min_length"
+                >{tr("passwordMinimumLength")}</label
+              >
+              <input
+                id="password_min_length"
+                type="number"
+                bind:value={formData.password_min_length}
+                class="glass-input"
+                min="6"
+                max="32"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="session_timeout">{tr("sessionTimeoutMinutes")}</label>
+              <input
+                id="session_timeout"
+                type="number"
+                bind:value={formData.session_timeout_minutes}
+                class="glass-input"
+                min="30"
+                max="10080"
+              />
+            </div>
+
+            <div class="form-group col-span-2">
+              <div class="font-medium text-sm mb-2">
+                {tr("passwordRequirements")}
+              </div>
+              <div class="checkbox-grid">
                 <label class="checkbox-label">
                   <input
                     type="checkbox"
-                    bind:checked={formData.enable_2fa_requirement}
+                    bind:checked={formData.password_require_uppercase}
                   />
-                  <span>{tr("twoFactorAuthRequired")}</span>
+                  <span>{tr("uppercaseLetters")}</span>
+                </label>
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    bind:checked={formData.password_require_lowercase}
+                  />
+                  <span>{tr("lowercaseLetters")}</span>
+                </label>
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    bind:checked={formData.password_require_numbers}
+                  />
+                  <span>{tr("numbers")}</span>
+                </label>
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    bind:checked={formData.password_require_special}
+                  />
+                  <span>{tr("specialCharacters")}</span>
                 </label>
               </div>
-
-              <div class="form-group">
-                <label for="password_min_length"
-                  >{tr("passwordMinimumLength")}</label
-                >
-                <input
-                  id="password_min_length"
-                  type="number"
-                  bind:value={formData.password_min_length}
-                  class="glass-input"
-                  min="6"
-                  max="32"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="session_timeout"
-                  >{tr("sessionTimeoutMinutes")}</label
-                >
-                <input
-                  id="session_timeout"
-                  type="number"
-                  bind:value={formData.session_timeout_minutes}
-                  class="glass-input"
-                  min="30"
-                  max="10080"
-                />
-              </div>
-
-              <div class="form-group col-span-2">
-                <div class="font-medium text-sm mb-2">
-                  {tr("passwordRequirements")}
-                </div>
-                <div class="checkbox-grid">
-                  <label class="checkbox-label">
-                    <input
-                      type="checkbox"
-                      bind:checked={formData.password_require_uppercase}
-                    />
-                    <span>{tr("uppercaseLetters")}</span>
-                  </label>
-                  <label class="checkbox-label">
-                    <input
-                      type="checkbox"
-                      bind:checked={formData.password_require_lowercase}
-                    />
-                    <span>{tr("lowercaseLetters")}</span>
-                  </label>
-                  <label class="checkbox-label">
-                    <input
-                      type="checkbox"
-                      bind:checked={formData.password_require_numbers}
-                    />
-                    <span>{tr("numbers")}</span>
-                  </label>
-                  <label class="checkbox-label">
-                    <input
-                      type="checkbox"
-                      bind:checked={formData.password_require_special}
-                    />
-                    <span>{tr("specialCharacters")}</span>
-                  </label>
-                </div>
-              </div>
             </div>
-          {/if}
+          </div>
+        {/if}
 
-          <!-- Step 6: Complete -->
-          {#if currentStep === 6}
-            <div class="complete-step">
-              <div class="success-icon">
-                <i class="bi bi-check-circle-fill text-8xl text-green-500"></i>
-              </div>
-              <h2 class="text-3xl font-bold mb-4">
-                {tr("setupWizardComplete")}
-              </h2>
-              <p class="text-gray-600 dark:text-gray-400 mb-6">
-                {tr("yourSyncSpaceInstanceIsConfigured")}
-              </p>
-              <div class="summary-card">
-                <h3 class="font-bold mb-4">{tr("setupSummary")}:</h3>
-                <ul class="summary-list">
-                  <li>
-                    <i class="bi bi-person-check"></i>
-                    {tr("admin")}: {formData.admin_username}
-                  </li>
-                  <li>
-                    <i class="bi bi-server"></i>
-                    {tr("server")}: {formData.server_name}
-                  </li>
-                  <li>
-                    <i class="bi bi-translate"></i>
-                    {tr("language")}: {formData.default_language === "en"
-                      ? "English"
-                      : "Deutsch"}
-                  </li>
-                  <li>
-                    <i class="bi bi-hdd"></i>
-                    {tr("defaultQuota")}: {formData.default_quota_gb} GB
-                  </li>
-                  <li>
-                    <i class="bi bi-shield"></i>
-                    {tr("registration")}: {formData.allow_registration
-                      ? tr("enabled")
-                      : tr("disabled")}
-                  </li>
-                </ul>
-              </div>
-
-              {#if errors.general}
-                <div class="error-banner">{errors.general}</div>
-              {/if}
+        <!-- Step 6: Complete -->
+        {#if currentStep === 6}
+          <div class="complete-step">
+            <div class="success-icon">
+              <i class="bi bi-check-circle-fill text-8xl text-green-500"></i>
             </div>
-          {/if}
-        </div>
+            <h2 class="text-3xl font-bold mb-4">
+              {tr("setupWizardComplete")}
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">
+              {tr("yourSyncSpaceInstanceIsConfigured")}
+            </p>
+            <div class="summary-card">
+              <h3 class="font-bold mb-4">{tr("setupSummary")}:</h3>
+              <ul class="summary-list">
+                <li>
+                  <i class="bi bi-person-check"></i>
+                  {tr("admin")}: {formData.admin_username}
+                </li>
+                <li>
+                  <i class="bi bi-server"></i>
+                  {tr("server")}: {formData.server_name}
+                </li>
+                <li>
+                  <i class="bi bi-translate"></i>
+                  {tr("language")}: {formData.default_language === "en"
+                    ? "English"
+                    : "Deutsch"}
+                </li>
+                <li>
+                  <i class="bi bi-hdd"></i>
+                  {tr("defaultQuota")}: {formData.default_quota_gb} GB
+                </li>
+                <li>
+                  <i class="bi bi-shield"></i>
+                  {tr("registration")}: {formData.allow_registration
+                    ? tr("enabled")
+                    : tr("disabled")}
+                </li>
+              </ul>
+            </div>
+
+            {#if errors.general}
+              <div class="error-banner">{errors.general}</div>
+            {/if}
+          </div>
+        {/if}
 
         <!-- Navigation Buttons -->
         <div class="button-group">

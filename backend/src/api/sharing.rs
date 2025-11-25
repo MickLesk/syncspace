@@ -3,7 +3,9 @@
 use crate::auth::UserInfo;
 
 use crate::{services, AppState};
+use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use axum::{
+    body::Body,
     extract::{Path, Query, State},
     http::StatusCode,
     routing::{delete, get, post, put},
@@ -11,6 +13,7 @@ use axum::{
 };
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
+use tokio_util::io::ReaderStream;
 
 #[derive(Debug, Deserialize)]
 pub struct CreateShareRequest {
@@ -254,11 +257,16 @@ async fn get_public_share(
     }
 
     // Check password if required
-    if let Some(ref _password_hash) = share.password_hash {
-        if params.password.is_none() {
-            return Err(StatusCode::FORBIDDEN); // 403 - Password required
-        }
-        // TODO: Verify password against hash
+    if let Some(ref password_hash) = share.password_hash {
+        let provided_password = params.password.as_ref().ok_or(StatusCode::FORBIDDEN)?;
+        
+        // Verify password using Argon2
+        let parsed_hash = PasswordHash::new(password_hash)
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        
+        Argon2::default()
+            .verify_password(provided_password.as_bytes(), &parsed_hash)
+            .map_err(|_| StatusCode::FORBIDDEN)?;
     }
 
     // Log access
@@ -303,11 +311,16 @@ async fn download_public_share(
     }
 
     // Check password
-    if let Some(ref _password_hash) = share.password_hash {
-        if params.password.is_none() {
-            return Err(StatusCode::FORBIDDEN);
-        }
-        // TODO: Verify password
+    if let Some(ref password_hash) = share.password_hash {
+        let provided_password = params.password.as_ref().ok_or(StatusCode::FORBIDDEN)?;
+        
+        // Verify password using Argon2
+        let parsed_hash = PasswordHash::new(password_hash)
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        
+        Argon2::default()
+            .verify_password(provided_password.as_bytes(), &parsed_hash)
+            .map_err(|_| StatusCode::FORBIDDEN)?;
     }
 
     // Increment download counter
@@ -320,11 +333,40 @@ async fn download_public_share(
     // Log access
     let _ = services::sharing::log_access(&state, &share.id, None, "download", None).await;
 
-    // TODO: Stream file from storage_path or file path
-    // For now, return 501 Not Implemented
+    // Stream file from storage
+    let file_path = std::path::Path::new("./data").join(&share.item_id);
+    
+    if !file_path.exists() {
+        return Err(StatusCode::NOT_FOUND);
+    }
+
+    let file = tokio::fs::File::open(&file_path)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let stream = ReaderStream::new(file);
+    let body = Body::from_stream(stream);
+
+    // Get filename for content-disposition
+    let filename = file_path
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("download");
+
+    // Detect mime type
+    let mime_type = mime_guess::from_path(&file_path)
+        .first_or_octet_stream()
+        .to_string();
+
     Ok((
-        StatusCode::NOT_IMPLEMENTED,
-        "File streaming not yet implemented",
+        [
+            ("content-type", mime_type),
+            (
+                "content-disposition",
+                format!("attachment; filename=\"{}\"", filename),
+            ),
+        ],
+        body,
     ))
 }
 

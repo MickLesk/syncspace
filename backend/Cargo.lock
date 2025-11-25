@@ -3811,6 +3811,7 @@ dependencies = [
  "image",
  "jsonwebtoken",
  "lopdf",
+ "mime_guess",
  "moka",
  "notify",
  "num_cpus",

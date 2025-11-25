@@ -11,6 +11,7 @@ use axum::{
     response::{Html, IntoResponse, Json},
 };
 use serde::{Deserialize, Serialize};
+use std::sync::atomic::Ordering;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::AppState;
@@ -71,8 +72,11 @@ pub struct HealthChecks {
 
 /// Get comprehensive system status (JSON)
 pub async fn get_status_json(State(state): State<AppState>) -> impl IntoResponse {
-    // TODO: Add start_time to AppState for accurate uptime tracking
-    let uptime = 0; // Placeholder
+    let current_time = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+    let uptime = current_time.saturating_sub(state.start_time);
 
     let status = SystemStatus {
         status: "operational".to_string(),
@@ -90,7 +94,7 @@ pub async fn get_status_json(State(state): State<AppState>) -> impl IntoResponse
         websocket: WebSocketStatus {
             enabled: true,
             endpoint: "ws://localhost:8080/api/ws".to_string(),
-            active_connections: 0, // TODO: Track WS connections
+            active_connections: state.ws_connections.load(Ordering::Relaxed),
         },
         endpoints: get_all_endpoints(),
     };
@@ -100,8 +104,11 @@ pub async fn get_status_json(State(state): State<AppState>) -> impl IntoResponse
 
 /// Get system status as HTML page
 pub async fn get_status_html(State(state): State<AppState>) -> impl IntoResponse {
-    // TODO: Add start_time to AppState for accurate uptime tracking
-    let uptime = 0; // Placeholder
+    let current_time = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+    let uptime = current_time.saturating_sub(state.start_time);
 
     let uptime_str = format_uptime(uptime);
     let endpoints = get_all_endpoints();
@@ -387,7 +394,7 @@ pub async fn get_status_html(State(state): State<AppState>) -> impl IntoResponse
         env!("CARGO_PKG_VERSION"),
         uptime_str,
         state.db_pool.size(),
-        0, // TODO: Track WS connections
+        state.ws_connections.load(Ordering::Relaxed),
         render_endpoint_category("🔐 Authentication", &auth_endpoints),
         render_endpoint_category("📁 Files", &file_endpoints),
         render_endpoint_category("👤 Users", &user_endpoints),

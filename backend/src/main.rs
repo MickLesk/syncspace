@@ -26,6 +26,7 @@ mod websocket;
 mod workers;
 
 use std::net::SocketAddr;
+use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -102,6 +103,8 @@ pub struct AppState {
     pub performance_monitor: Arc<PerformanceMonitor>,
     pub db_health_monitor: Arc<DatabaseMonitor>,
     pub search_index: Arc<SearchIndex>,
+    pub start_time: u64,
+    pub ws_connections: Arc<AtomicUsize>,
 }
 
 impl std::fmt::Debug for AppState {
@@ -116,6 +119,8 @@ impl std::fmt::Debug for AppState {
             .field("performance_monitor", &"Arc<PerformanceMonitor>")
             .field("db_health_monitor", &"Arc<DatabaseMonitor>")
             .field("search_index", &"Arc<SearchIndex>")
+            .field("start_time", &self.start_time)
+            .field("ws_connections", &"Arc<AtomicUsize>")
             .finish()
     }
 }
@@ -311,6 +316,11 @@ async fn main() {
     });
 
     // Build application state
+    let start_time = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+    
     let app_state = AppState {
         config,
         fs_tx,
@@ -321,6 +331,8 @@ async fn main() {
         performance_monitor,
         db_health_monitor: db_health_monitor.clone(),
         search_index: search_index.clone(),
+        start_time,
+        ws_connections: Arc::new(AtomicUsize::new(0)),
     };
 
     // Optional: Start pool monitoring task (commented out - requires db_monitor)

@@ -28,32 +28,29 @@ export default defineConfig({
           }
           return 'assets/[name]-[hash][extname]';
         },
-        manualChunks: {
+        manualChunks: (id) => {
           // Vendor chunks - separate large dependencies
-          'vendor-svelte': ['svelte'],
-          'vendor-icons': ['bootstrap-icons'],
+          if (id.includes('node_modules/svelte')) {
+            return 'vendor-svelte';
+          }
+          if (id.includes('node_modules/bootstrap-icons')) {
+            return 'vendor-icons';
+          }
           
           // UI components chunk
-          'ui-components': [
-            './src/components/ui/AppHeader.svelte',
-            './src/components/ui/Modal.svelte',
-            './src/components/ui/Toast.svelte',
-            './src/components/navigation/Sidebar.svelte'
-          ],
+          if (id.includes('src/components/ui/') || id.includes('src/components/navigation/')) {
+            return 'ui-components';
+          }
           
           // File management chunk
-          'file-views': [
-            './src/pages/files/FilesView.svelte',
-            './src/pages/files/SharedView.svelte',
-            './src/pages/files/RecentFilesView.svelte'
-          ],
+          if (id.includes('src/pages/files/')) {
+            return 'file-views';
+          }
           
           // Admin/Settings chunk
-          'admin-views': [
-            './src/pages/user/UserSettingsView.svelte',
-            './src/pages/user/UserProfileView.svelte',
-            './src/pages/user/UsersView.svelte'
-          ]
+          if (id.includes('src/pages/user/')) {
+            return 'admin-views';
+          }
         }
       }
     },

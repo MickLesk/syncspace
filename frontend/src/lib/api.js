@@ -1983,6 +1983,43 @@ export const cron = {
 };
 
 // ============================================================================
+// SETUP WIZARD API
+// ============================================================================
+
+/**
+ * Setup wizard endpoints (first-time installation)
+ */
+const setup = {
+  /**
+   * Check if setup is required
+   */
+  isRequired: () =>
+    fetch(`${API_BASE}/setup/status`, {
+      method: "GET",
+      headers: getHeaders(),
+    }).then(handleResponse),
+
+  /**
+   * Get setup status
+   */
+  status: () =>
+    fetch(`${API_BASE}/setup/status`, {
+      method: "GET",
+      headers: getHeaders(),
+    }).then(handleResponse),
+
+  /**
+   * Complete initial setup
+   */
+  complete: (formData) =>
+    fetch(`${API_BASE}/setup/complete`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(formData),
+    }).then(handleResponse),
+};
+
+// ============================================================================
 // DEFAULT EXPORT - All API modules
 // ============================================================================
 
@@ -2012,4 +2049,5 @@ export default {
   duplicates,
   collaboration,
   trash,
+  setup,
 };

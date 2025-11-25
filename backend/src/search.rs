@@ -489,11 +489,29 @@ impl SearchIndex {
             // Generate highlights for filename and path
             let highlights = Self::generate_highlights(query_str, &filename, &path);
 
+            // Try to extract snippet from file content
+            let file_path = std::path::Path::new("./data").join(&path);
+            let snippet = if file_path.exists() {
+                // Read first 4KB of text files for snippet extraction
+                if let Ok(content) = std::fs::read_to_string(&file_path) {
+                    let truncated = if content.len() > 4096 {
+                        &content[..4096]
+                    } else {
+                        &content
+                    };
+                    Self::extract_snippet(query_str, truncated, 150)
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+
             results.push(SearchResult {
                 file_id,
                 filename,
                 path,
-                snippet: None, // TODO: Add snippet extraction from content
+                snippet,
                 score,
                 size,
                 modified,
@@ -668,6 +686,80 @@ impl SearchIndex {
         highlights
     }
 
+    /// Extract a snippet around the first occurrence of query terms in content
+    fn extract_snippet(query: &str, content: &str, max_length: usize) -> Option<String> {
+        if content.is_empty() {
+            return None;
+        }
+
+        let content_lower = content.to_lowercase();
+        let query_lower = query.to_lowercase();
+        let query_terms: Vec<&str> = query_lower.split_whitespace().collect();
+
+        // Find the first matching term position
+        let mut best_pos: Option<usize> = None;
+        for term in &query_terms {
+            if let Some(pos) = content_lower.find(term) {
+                match best_pos {
+                    None => best_pos = Some(pos),
+                    Some(current) if pos < current => best_pos = Some(pos),
+                    _ => {}
+                }
+            }
+        }
+
+        // If we found a match, extract snippet around it
+        if let Some(pos) = best_pos {
+            let half_len = max_length / 2;
+            let start = pos.saturating_sub(half_len);
+            let end = (pos + half_len).min(content.len());
+
+            // Find word boundaries
+            let actual_start = if start == 0 {
+                0
+            } else {
+                content[start..]
+                    .find(char::is_whitespace)
+                    .map(|p| start + p + 1)
+                    .unwrap_or(start)
+            };
+
+            let actual_end = if end >= content.len() {
+                content.len()
+            } else {
+                content[..end]
+                    .rfind(char::is_whitespace)
+                    .unwrap_or(end)
+            };
+
+            let mut snippet = content[actual_start..actual_end].to_string();
+
+            // Add ellipsis if truncated
+            if actual_start > 0 {
+                snippet = format!("...{}", snippet);
+            }
+            if actual_end < content.len() {
+                snippet = format!("{}...", snippet);
+            }
+
+            return Some(snippet);
+        }
+
+        // No match found, return beginning of content
+        let end = max_length.min(content.len());
+        let actual_end = content[..end]
+            .rfind(char::is_whitespace)
+            .unwrap_or(end);
+        
+        let snippet = if actual_end < content.len() {
+            format!("{}...", &content[..actual_end])
+        } else {
+            content[..actual_end].to_string()
+        };
+
+        Some(snippet)
+    }
+
     /// Search with query string (legacy method - kept for backwards compatibility)
     pub fn search_legacy(
         &self,
@@ -738,11 +830,28 @@ impl SearchIndex {
                 })
                 .unwrap_or_default();
 
+            // Try to extract snippet from file content
+            let file_path = std::path::Path::new("./data").join(&path);
+            let snippet = if file_path.exists() {
+                if let Ok(content) = std::fs::read_to_string(&file_path) {
+                    let truncated = if content.len() > 4096 {
+                        &content[..4096]
+                    } else {
+                        &content
+                    };
+                    Self::extract_snippet(query_str, truncated, 150)
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+
             results.push(SearchResult {
                 file_id,
                 filename,
                 path,
-                snippet: None, // TODO: Add snippet extraction
+                snippet,
                 score,
                 size,
                 modified,
