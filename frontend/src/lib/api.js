@@ -2050,4 +2050,5 @@ export default {
   collaboration,
   trash,
   setup,
+  performance,
 };

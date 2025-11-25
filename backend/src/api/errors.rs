@@ -88,9 +88,26 @@ async fn report_errors_handler(
             }
         }
 
-        // TODO: Store in database for error analytics
-        // TODO: Send alerts for critical errors
-        // TODO: Aggregate similar errors
+        // Store in database for error analytics
+        for error in &payload.errors {
+            if let Err(e) = store_error_for_analytics(&state, error).await {
+                tracing::warn!("Failed to store error analytics: {}", e);
+            }
+        }
+        
+        // Send alerts for critical errors
+        for error in &payload.errors {
+            if should_send_alert(&error) {
+                if let Err(e) = send_critical_error_alert(&state, error).await {
+                    tracing::warn!("Failed to send error alert: {}", e);
+                }
+            }
+        }
+        
+        // Aggregate similar errors (grouping by error_type and url)
+        if let Err(e) = aggregate_similar_errors(&state, &payload.errors).await {
+            tracing::warn!("Failed to aggregate similar errors: {}", e);
+        }
     }
 
     // Store errors in database for later analysis
@@ -155,3 +172,94 @@ async fn store_errors_in_db(
 
     Ok(())
 }
+
+/// Store error for analytics tracking
+async fn store_error_for_analytics(state: &AppState, error: &ErrorReport) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO frontend_errors 
+        (message, stack, error_type, url, user_agent, timestamp, context)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        "#
+    )
+    .bind(&error.message)
+    .bind(format!("{:?}", error.stack))
+    .bind(&error.error_type)
+    .bind(&error.url)
+    .bind(&error.user_agent)
+    .bind(&error.timestamp)
+    .bind(error.context.to_string())
+    .execute(&state.db_pool)
+    .await?;
+    
+    Ok(())
+}
+
+/// Determine if error should trigger an alert
+fn should_send_alert(error: &ErrorReport) -> bool {
+    // Send alerts for critical error types
+    matches!(error.error_type.as_str(), 
+        "SecurityError" | "AuthenticationError" | "CriticalFailure" | "OutOfMemory" | "DatabaseError"
+    )
+}
+
+/// Send alert for critical errors
+async fn send_critical_error_alert(state: &AppState, error: &ErrorReport) -> Result<(), String> {
+    tracing::error!(
+        error_type = %error.error_type,
+        message = %error.message,
+        url = %error.url,
+        "CRITICAL ERROR ALERT - Notification would be sent"
+    );
+    
+    // In production, this would send email/Slack/webhook notifications
+    // For now, just log as critical
+    sqlx::query(
+        "INSERT INTO notifications (user_id, type, title, message, read_status) 
+         VALUES ('system', 'error_alert', ?, ?, false)"
+    )
+    .bind(&error.error_type)
+    .bind(&error.message)
+    .execute(&state.db_pool)
+    .await
+    .map_err(|e| format!("Failed to create alert notification: {}", e))?;
+    
+    Ok(())
+}
+
+/// Aggregate similar errors for pattern detection
+async fn aggregate_similar_errors(state: &AppState, errors: &[ErrorReport]) -> Result<(), sqlx::Error> {
+    // Group errors by type and URL
+    let mut error_groups: std::collections::HashMap<(String, String), usize> = std::collections::HashMap::new();
+    
+    for error in errors {
+        let key = (error.error_type.clone(), error.url.clone());
+        *error_groups.entry(key).or_insert(0) += 1;
+    }
+    
+    // Check for patterns (5+ same errors in short time)
+    for ((error_type, url), count) in error_groups.iter() {
+        if *count >= 5 {
+            tracing::warn!(
+                error_type = %error_type,
+                url = %url,
+                count = count,
+                "Error pattern detected - multiple similar errors"
+            );
+            
+            // Log pattern detection
+            sqlx::query(
+                "INSERT INTO error_patterns (error_type, url, count, detected_at) 
+                 VALUES (?, ?, ?, datetime('now'))"
+            )
+            .bind(error_type)
+            .bind(url)
+            .bind(*count as i64)
+            .execute(&state.db_pool)
+            .await?;
+        }
+    }
+    
+    Ok(())
+}
+

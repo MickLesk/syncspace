@@ -295,13 +295,13 @@ async fn main() {
     let (fs_tx, _) = broadcast::channel::<FileChangeEvent>(100);
 
     // Get start time for uptime calculation
-    let start_time = SystemTime::now()
+    let _start_time = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_secs();
 
     // Initialize database monitor for connection pool monitoring
-    let db_monitor = Arc::new(db_monitor::DatabaseMonitor::new(20, 2));
+    let _db_monitor = Arc::new(db_monitor::DatabaseMonitor::new(20, 2));
     tracing::info!("📊 Database monitor initialized");
 
     // Initialize advanced database health monitor

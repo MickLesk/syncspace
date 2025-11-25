@@ -7,20 +7,19 @@ use axum::{
     routing::get,
     Router,
 };
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::auth::UserInfo;
 use crate::AppState;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Peer {
-    pub id: Uuid,
+    pub id: String,
     pub name: String,
     pub address: String,
     pub status: String, // online, offline, syncing
-    pub last_seen: DateTime<Utc>,
+    pub last_seen: String,
     pub sync_enabled: bool,
 }
 
@@ -32,25 +31,38 @@ pub struct AddPeerRequest {
 
 /// List all peers
 async fn list_peers(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
     user_info: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
     // Log access for audit
     eprintln!("Peer list accessed by: {}", user_info.username);
 
-    // TODO: Query peers table from database
-    // For now return empty list (P2P feature not yet fully implemented)
+    // Query peers table from database
+    let peers: Vec<Peer> = sqlx::query_as(
+        "SELECT id, name, address, status, last_seen, sync_enabled 
+         FROM peers 
+         WHERE user_id = ? 
+         ORDER BY created_at DESC"
+    )
+    .bind(&user_info.id)
+    .fetch_all(&state.db_pool)
+    .await
+    .map_err(|e| {
+        eprintln!("Failed to fetch peers: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
-    Ok(Json(Vec::<Peer>::new()))
+    Ok(Json(peers))
 }
 
 /// Add a new peer
 async fn add_peer(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
     user_info: UserInfo,
     Json(req): Json<AddPeerRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let peer_id = Uuid::new_v4();
+    let peer_id = Uuid::new_v4().to_string();
+    let now = chrono::Utc::now().to_rfc3339();
 
     // Log peer addition
     eprintln!(
@@ -58,13 +70,24 @@ async fn add_peer(
         user_info.username, req.name, req.address
     );
 
-    // TODO: Insert into peers table with user ownership
-    // sqlx::query("INSERT INTO peers (id, name, address, owner_id) VALUES (?, ?, ?, ?)")
-    //     .bind(&peer_id.to_string())
-    //     .bind(&req.name)
-    //     .bind(&req.address)
-    //     .bind(&user_info.id)
-    //     .execute(&state.db).await?;
+    // Insert into peers table with user ownership
+    sqlx::query(
+        "INSERT INTO peers (id, user_id, name, address, status, last_seen, sync_enabled, created_at, updated_at)
+         VALUES (?, ?, ?, ?, 'offline', ?, 1, ?, ?)"
+    )
+    .bind(&peer_id)
+    .bind(&user_info.id)
+    .bind(&req.name)
+    .bind(&req.address)
+    .bind(&now)
+    .bind(&now)
+    .bind(&now)
+    .execute(&state.db_pool)
+    .await
+    .map_err(|e| {
+        eprintln!("Failed to add peer: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     Ok((
         StatusCode::CREATED,
@@ -72,6 +95,8 @@ async fn add_peer(
             "id": peer_id,
             "name": req.name,
             "address": req.address,
+            "status": "offline",
+            "sync_enabled": true,
             "message": "Peer added successfully"
         })),
     ))

@@ -1348,11 +1348,11 @@ pub mod system {
     }
 
     #[allow(dead_code)]
-    fn get_disk_usage(path: &Path) -> Result<(u64, u64)> {
+    fn get_disk_usage(_path: &Path) -> Result<(u64, u64)> {
         #[cfg(target_os = "linux")]
         {
             use std::process::Command;
-            let output = Command::new("df").arg(path).output()?;
+            let output = Command::new("df").arg(_path).output()?;
             let stdout = String::from_utf8_lossy(&output.stdout);
             if let Some(line) = stdout.lines().last() {
                 let parts: Vec<&str> = line.split_whitespace().collect();
@@ -1387,10 +1387,10 @@ fn parse_size(s: &str) -> Result<u64> {
     let size: f64 = s.parse()?;
     let suffix = s.trim_start_matches(|c: char| c.is_numeric() || c == '.');
     let multiplier = match suffix {
-        "K" => 1024,
-        "M" => 1024 * 1024,
-        "G" => 1024 * 1024 * 1024,
-        "T" => 1024 * 1024 * 1024 * 1024,
+        "K" => 1024i64,
+        "M" => 1024i64 * 1024,
+        "G" => 1024i64 * 1024 * 1024,
+        "T" => 1024i64 * 1024 * 1024 * 1024,
         _ => 1,
     };
     Ok((size * multiplier as f64) as u64)

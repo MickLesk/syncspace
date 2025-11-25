@@ -156,6 +156,13 @@ pub async fn get_storage_metrics(
     .fetch_one(pool)
     .await?;
     
+    // Versions size (sum of all file versions)
+    let versions_size: (i64,) = sqlx::query_as(
+        "SELECT COALESCE(SUM(size_bytes), 0) FROM file_versions"
+    )
+    .fetch_one(pool)
+    .await?;
+    
     // Growth trend (last 30 days)
     let growth_trend = get_growth_trend(pool, user_id, 30).await?;
     
@@ -164,7 +171,7 @@ pub async fn get_storage_metrics(
         total_size,
         total_folders: total_folders.0,
         trash_size: trash_size.0,
-        versions_size: 0, // TODO: Calculate from file_versions
+        versions_size: versions_size.0,
         growth_trend,
     })
 }
@@ -191,10 +198,29 @@ pub async fn get_activity_metrics(
     .fetch_one(pool)
     .await?;
     
+    // Downloads today
+    let downloads_today: (i64,) = sqlx::query_as(&format!(
+        "SELECT COUNT(*) FROM activity 
+         WHERE action = 'download' 
+         AND DATE(created_at) = DATE('now') {}",
+        user_filter
+    ))
+    .fetch_one(pool)
+    .await?;
+    
+    // Shares created today
+    let shares_today: (i64,) = sqlx::query_as(&format!(
+        "SELECT COUNT(*) FROM shares 
+         WHERE DATE(created_at) = DATE('now') {}",
+        "".to_string()  // shares don't have user filter in same way
+    ))
+    .fetch_one(pool)
+    .await?;
+    
     // Recent activity (last 50)
     let recent_activity: Vec<RecentActivity> = sqlx::query_as(&format!(
         "SELECT user_id, action, file_path, created_at 
-         FROM file_history 
+         FROM activity 
          WHERE 1=1 {}
          ORDER BY created_at DESC 
          LIMIT 50",
@@ -203,12 +229,31 @@ pub async fn get_activity_metrics(
     .fetch_all(pool)
     .await?;
     
+    // Activity heatmap (count by hour and day)
+    let heatmap_data: Vec<(i32, String, i64)> = sqlx::query_as(
+        "SELECT 
+            CAST(STRFTIME('%H', created_at) AS INTEGER) as hour,
+            LOWER(STRFTIME('%A', created_at)) as day,
+            COUNT(*) as count
+         FROM activity
+         WHERE created_at >= DATETIME('now', '-30 days')
+         GROUP BY hour, day
+         ORDER BY hour, day"
+    )
+    .fetch_all(pool)
+    .await?;
+    
+    let activity_heatmap: Vec<HeatmapData> = heatmap_data
+        .into_iter()
+        .map(|(hour, day, count)| HeatmapData { hour, day, count })
+        .collect();
+    
     Ok(ActivityMetrics {
         uploads_today: uploads_today.0,
-        downloads_today: 0, // TODO: Track downloads
-        shares_today: 0, // TODO: Track shares created today
+        downloads_today: downloads_today.0,
+        shares_today: shares_today.0,
         recent_activity,
-        activity_heatmap: Vec::new(), // TODO: Generate heatmap data
+        activity_heatmap,
     })
 }
 
@@ -255,11 +300,50 @@ pub async fn get_file_metrics(
     .fetch_all(pool)
     .await?;
     
+    // Most shared files (by share count)
+    let most_shared_data: Vec<(String, String, i64)> = sqlx::query_as(&format!(
+        "SELECT f.id, f.name, COUNT(s.id) as share_count
+         FROM files f
+         LEFT JOIN shares s ON f.id = s.file_id
+         {}
+         GROUP BY f.id, f.name
+         ORDER BY share_count DESC
+         LIMIT 10",
+        user_filter
+    ))
+    .fetch_all(pool)
+    .await?;
+    
+    let most_shared: Vec<SharedFile> = most_shared_data
+        .into_iter()
+        .map(|(id, name, share_count)| SharedFile { id, name, share_count })
+        .collect();
+    
+    // Most viewed files (from activity logs)
+    let most_viewed_data: Vec<(String, String, i64)> = sqlx::query_as(&format!(
+        "SELECT f.id, f.name, COUNT(a.id) as view_count
+         FROM files f
+         LEFT JOIN activity a ON INSTR(a.file_path, f.name) > 0
+         {}
+         AND a.action IN ('view', 'download')
+         GROUP BY f.id, f.name
+         ORDER BY view_count DESC
+         LIMIT 10",
+        user_filter
+    ))
+    .fetch_all(pool)
+    .await?;
+    
+    let most_viewed: Vec<ViewedFile> = most_viewed_data
+        .into_iter()
+        .map(|(id, name, view_count)| ViewedFile { id, name, view_count })
+        .collect();
+    
     Ok(FileMetrics {
         file_type_distribution,
         largest_files,
-        most_shared: Vec::new(), // TODO: Track share counts
-        most_viewed: Vec::new(), // TODO: Track view counts
+        most_shared,
+        most_viewed,
     })
 }
 

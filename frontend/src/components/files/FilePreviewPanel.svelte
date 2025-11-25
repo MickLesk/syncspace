@@ -338,17 +338,27 @@
   }
 
   async function addComment() {
-    if (!newComment.trim()) return;
-    // TODO: Call backend API to add comment
-    comments = [...comments, { text: newComment, timestamp: new Date() }];
-    newComment = "";
+    if (!newComment.trim() || !file?.path) return;
+    try {
+      await api.comments.create(file.path, newComment);
+      comments = [...comments, { text: newComment, timestamp: new Date() }];
+      newComment = "";
+      success("Comment added successfully");
+    } catch (err) {
+      errorToast("Failed to add comment: " + (err.message || err));
+    }
   }
 
   async function addTag() {
-    if (!newTag.trim()) return;
-    // TODO: Call backend API to add tag
-    tags = [...tags, newTag];
-    newTag = "";
+    if (!newTag.trim() || !file?.path) return;
+    try {
+      await api.tags.add(file.path, newTag);
+      tags = [...tags, newTag];
+      newTag = "";
+      success("Tag added successfully");
+    } catch (err) {
+      errorToast("Failed to add tag: " + (err.message || err));
+    }
   }
 
   function toggleFullscreen() {

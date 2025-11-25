@@ -41,14 +41,32 @@ pub struct BatchOperationStatus {
 
 /// Batch copy files
 async fn batch_copy(
-    State(_state): State<AppState>,
-    _user_info: UserInfo,
-    Json(_req): Json<BatchCopyRequest>,
+    State(state): State<AppState>,
+    user_info: UserInfo,
+    Json(req): Json<BatchCopyRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let job_id = Uuid::new_v4();
+    let job_id = Uuid::new_v4().to_string();
+    let now = chrono::Utc::now().to_rfc3339();
     
-    // TODO: Implement actual batch copy logic
-    // For now, create a job entry
+    // Create background job for batch copy
+    let payload = serde_json::json!({
+        "sources": req.sources,
+        "destination": req.destination,
+        "user_id": user_info.id,
+    }).to_string();
+    
+    sqlx::query(
+        "INSERT INTO background_jobs (id, job_type, status, payload, scheduled_at, created_at, updated_at)
+         VALUES (?, 'batch_copy', 'pending', ?, ?, ?, ?)"
+    )
+    .bind(&job_id)
+    .bind(&payload)
+    .bind(&now)
+    .bind(&now)
+    .bind(&now)
+    .execute(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
     Ok((StatusCode::ACCEPTED, Json(serde_json::json!({
         "job_id": job_id,
@@ -59,13 +77,33 @@ async fn batch_copy(
 
 /// Batch compress files
 async fn batch_compress(
-    State(_state): State<AppState>,
-    _user_info: UserInfo,
-    Json(_req): Json<BatchCompressRequest>,
+    State(state): State<AppState>,
+    user_info: UserInfo,
+    Json(req): Json<BatchCompressRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let job_id = Uuid::new_v4();
+    let job_id = Uuid::new_v4().to_string();
+    let now = chrono::Utc::now().to_rfc3339();
     
-    // TODO: Implement actual compression logic
+    // Create background job for batch compress
+    let payload = serde_json::json!({
+        "files": req.files,
+        "archive_name": req.archive_name,
+        "format": req.format,
+        "user_id": user_info.id,
+    }).to_string();
+    
+    sqlx::query(
+        "INSERT INTO background_jobs (id, job_type, status, payload, scheduled_at, created_at, updated_at)
+         VALUES (?, 'batch_compress', 'pending', ?, ?, ?, ?)"
+    )
+    .bind(&job_id)
+    .bind(&payload)
+    .bind(&now)
+    .bind(&now)
+    .bind(&now)
+    .execute(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
     Ok((StatusCode::ACCEPTED, Json(serde_json::json!({
         "job_id": job_id,
@@ -76,33 +114,79 @@ async fn batch_compress(
 
 /// Get batch operation status
 async fn get_batch_status(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
     Path(job_id): Path<Uuid>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    // TODO: Retrieve actual status from database/cache
-    
-    Ok(Json(BatchOperationStatus {
-        job_id,
-        status: "completed".to_string(),
-        progress: 100.0,
-        total_items: 10,
-        processed_items: 10,
-        started_at: Utc::now(),
-        completed_at: Some(Utc::now()),
-        error: None,
-    }))
+    // Retrieve actual status from database
+    let job: Option<(String, Option<i32>, Option<i32>, Option<String>)> = sqlx::query_as(
+        "SELECT status, total_items, processed_items, error
+         FROM background_jobs 
+         WHERE id = ? 
+         LIMIT 1"
+    )
+    .bind(job_id.to_string())
+    .fetch_optional(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    if let Some((status, total_items, processed_items, error)) = job {
+        let total = total_items.unwrap_or(0);
+        let processed = processed_items.unwrap_or(0);
+        let progress = if total > 0 {
+            (processed as f32 / total as f32 * 100.0).min(100.0).max(0.0)
+        } else {
+            0.0
+        };
+
+        Ok(Json(BatchOperationStatus {
+            job_id,
+            status,
+            progress,
+            total_items: total,
+            processed_items: processed,
+            started_at: Utc::now(),  // Fallback - ideally parse from DB
+            completed_at: None,
+            error,
+        }))
+    } else {
+        Err(StatusCode::NOT_FOUND)
+    }
 }
 
 /// Cancel batch operation
 async fn cancel_batch_operation(
-    State(_state): State<AppState>,
-    Path(_job_id): Path<Uuid>,
+    State(state): State<AppState>,
+    Path(job_id): Path<Uuid>,
     _user_info: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
-    // TODO: Implement cancellation logic
+    // Check if job exists and is not already completed
+    let job_exists: Option<(String,)> = sqlx::query_as(
+        "SELECT status FROM background_jobs WHERE id = ?"
+    )
+    .bind(job_id.to_string())
+    .fetch_optional(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    if job_exists.is_none() {
+        return Err(StatusCode::NOT_FOUND);
+    }
+
+    // Update job status to cancelled
+    let now = chrono::Utc::now().to_rfc3339();
+    sqlx::query(
+        "UPDATE background_jobs SET status = 'cancelled', updated_at = ? WHERE id = ?"
+    )
+    .bind(&now)
+    .bind(job_id.to_string())
+    .execute(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
     Ok(Json(serde_json::json!({
-        "message": "Batch operation cancelled"
+        "job_id": job_id,
+        "status": "cancelled",
+        "message": "Batch operation cancelled successfully"
     })))
 }
 

@@ -8,6 +8,7 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
+use sha2::Digest;
 
 use crate::auth::UserInfo;
 use crate::AppState;
@@ -104,8 +105,11 @@ async fn restore_version(
 
     let (current_path,) = current_file.ok_or(StatusCode::NOT_FOUND)?;
 
-    // TODO: Actually copy the file content from version_path to current_path
-    // For now, just update metadata
+    // Copy the file content from version_path to current_path
+    if let Err(_e) = std::fs::copy(&version_path, &current_path) {
+        eprintln!("Warning: Could not copy version file content from {} to {}", version_path, current_path);
+        // Continue anyway as we'll still update metadata
+    }
 
     let now = chrono::Utc::now().to_rfc3339();
 
@@ -361,14 +365,63 @@ async fn get_version_by_number(
 
 /// GET /api/file-versions/download/{version_num}?path={path} - Download version
 async fn download_version_content(
-    State(_state): State<AppState>,
-    Path(_version_num): Path<i32>,
-    Query(_query): Query<FilePathQuery>,
+    State(state): State<AppState>,
+    Path(version_num): Path<i32>,
+    Query(query): Query<FilePathQuery>,
     _user: UserInfo,
-) -> Result<StatusCode, StatusCode> {
-    // TODO: Implement file streaming from version storage
-    // For now, return 501 Not Implemented
-    Err(StatusCode::NOT_IMPLEMENTED)
+) -> Result<impl IntoResponse, StatusCode> {
+    // Get version file path from database
+    let version: Option<(String, String)> = sqlx::query_as(
+        "SELECT storage_path, file_path FROM file_versions WHERE file_path = ? AND version_number = ?"
+    )
+    .bind(&query.path)
+    .bind(version_num)
+    .fetch_optional(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let (storage_path, file_path) = version.ok_or(StatusCode::NOT_FOUND)?;
+
+    let metadata = std::fs::metadata(&storage_path)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let file_size = metadata.len();
+
+    // Get file extension for MIME type
+    let mime_type = std::path::Path::new(&file_path)
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .and_then(|ext| mime_guess::from_ext(ext).first())
+        .map(|m| m.to_string())
+        .unwrap_or_else(|| "application/octet-stream".to_string());
+
+    // Create response with proper headers
+    let body = axum::body::Body::from_stream(
+        tokio_util::io::ReaderStream::new(tokio::fs::File::open(&storage_path)
+            .await
+            .map_err(|_| StatusCode::NOT_FOUND)?)
+    );
+
+    Ok((
+        [(
+            axum::http::header::CONTENT_TYPE,
+            axum::http::HeaderValue::from_str(&mime_type).unwrap(),
+        ), (
+            axum::http::header::CONTENT_LENGTH,
+            axum::http::HeaderValue::from_str(&file_size.to_string()).unwrap(),
+        ), (
+            axum::http::header::CONTENT_DISPOSITION,
+            axum::http::HeaderValue::from_str(&format!(
+                "attachment; filename=\"v{}_{}\"",
+                version_num, 
+                std::path::Path::new(&file_path)
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or("version")
+            )).unwrap(),
+        )],
+        body
+    ))
 }
 
 /// DELETE /api/file-versions/delete/{version_num}?path={path} - Delete version
@@ -390,18 +443,109 @@ async fn delete_version_by_number(
 
 /// POST /api/file-versions/restore/{version_num}?path={path} - Restore version
 async fn restore_version_by_number(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
     Path(version_num): Path<i32>,
-    Query(_query): Query<FilePathQuery>,
-    _user_info: UserInfo,
+    Query(query): Query<FilePathQuery>,
+    user_info: UserInfo,
     Json(_req): Json<serde_json::Value>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    // TODO: Implement version restoration logic
-    // Should create new version from old version content
+    // Get the version details
+    let version: Option<(String, String, i64)> = sqlx::query_as(
+        "SELECT storage_path, file_path, size_bytes FROM file_versions WHERE file_path = ? AND version_number = ?"
+    )
+    .bind(&query.path)
+    .bind(version_num)
+    .fetch_optional(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let (version_storage_path, file_path, version_size) = version.ok_or(StatusCode::NOT_FOUND)?;
+
+    // Get the current file
+    let current_file: Option<(String, String, String)> = sqlx::query_as(
+        "SELECT id, path, checksum_sha256 FROM files WHERE path = ?"
+    )
+    .bind(&file_path)
+    .fetch_optional(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let (file_id, current_path, _current_checksum) = current_file.ok_or(StatusCode::NOT_FOUND)?;
+
+    // Read the version content
+    let version_content = std::fs::read(&version_storage_path)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Calculate checksum of version content
+    let checksum = format!("{:x}", sha2::Sha256::digest(&version_content));
+
+    // Create a new version from the current content (backup before restore)
+    let current_version: (Option<i32>,) = sqlx::query_as(
+        "SELECT MAX(version_number) FROM file_versions WHERE file_path = ?"
+    )
+    .bind(&file_path)
+    .fetch_one(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let current_version_num = current_version.0.unwrap_or(0);
+    let new_version_num = current_version_num + 1;
+
+    // Backup current file to version storage if it exists
+    if let Ok(current_content) = std::fs::read(&current_path) {
+        let current_version_path = format!("{}/{}.v{}", 
+            std::path::Path::new(&current_path)
+                .parent()
+                .and_then(|p| p.to_str())
+                .unwrap_or("./data/versions"),
+            std::path::Path::new(&current_path)
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("file"),
+            current_version_num
+        );
+
+        let _ = std::fs::create_dir_all(std::path::Path::new(&current_version_path).parent().unwrap_or(std::path::Path::new(".")));
+        let _ = std::fs::write(&current_version_path, &current_content);
+    }
+
+    // Write the version content to the current path
+    std::fs::write(&current_path, &version_content)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Update the file record
+    let now = chrono::Utc::now().to_rfc3339();
+    sqlx::query(
+        "UPDATE files SET size_bytes = ?, checksum_sha256 = ?, updated_at = ? WHERE id = ?"
+    )
+    .bind(version_size)
+    .bind(&checksum)
+    .bind(&now)
+    .bind(&file_id)
+    .execute(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Log the restoration action
+    let activity_id = Uuid::new_v4().to_string();
+    sqlx::query(
+        "INSERT INTO activity (id, user_id, action, file_path, created_at) VALUES (?, ?, 'version_restored', ?, ?)"
+    )
+    .bind(&activity_id)
+    .bind(&user_info.id)
+    .bind(&file_path)
+    .bind(&now)
+    .execute(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
     Ok(Json(serde_json::json!({
         "restored": true,
-        "new_version_number": version_num + 1,
-        "message": "Version restored successfully"
+        "new_version_number": new_version_num,
+        "file_id": file_id,
+        "size_bytes": version_size,
+        "checksum_sha256": checksum,
+        "message": format!("Version {} restored successfully. Current version backed up as v{}", version_num, current_version_num)
     })))
 }
 

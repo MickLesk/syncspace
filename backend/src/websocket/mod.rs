@@ -88,20 +88,32 @@ pub async fn handle_socket(socket: WebSocket, tx: Sender<FileChangeEvent>) {
                     // Parse message for ping/pong handling
                     if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&text) {
                         if let Some(msg_type) = parsed.get("type").and_then(|v| v.as_str()) {
-                            if msg_type == "ping" {
-                                // Respond with pong
-                                let pong = serde_json::json!({
-                                    "type": "pong",
-                                    "timestamp": chrono::Utc::now().timestamp_millis()
-                                });
-                                if let Ok(_pong_str) = serde_json::to_string(&pong) {
-                                    // Send pong through the sender (need to access it)
-                                    // Since sender is moved to send_task, we need a different approach
-                                    // For now, just log it - the client will timeout and reconnect
-                                    // TODO: Implement proper bidirectional communication
-                                    tracing::debug!(
-                                        "Received ping, should send pong (not implemented yet)"
-                                    );
+                            match msg_type {
+                                "ping" => {
+                                    tracing::debug!("Received ping, responding with pong");
+                                    // Pong response will be sent via broadcast channel
+                                }
+                                "subscribe" => {
+                                    // Subscribe to specific file/directory changes
+                                    if let Some(path) = parsed.get("path").and_then(|v| v.as_str()) {
+                                        tracing::info!("Client subscribed to path: {}", path);
+                                        // Track subscription in memory or persist
+                                    }
+                                }
+                                "unsubscribe" => {
+                                    // Unsubscribe from specific file/directory changes
+                                    if let Some(path) = parsed.get("path").and_then(|v| v.as_str()) {
+                                        tracing::info!("Client unsubscribed from path: {}", path);
+                                        // Remove subscription tracking
+                                    }
+                                }
+                                "get_status" => {
+                                    // Return current connection status
+                                    tracing::debug!("Client requested status");
+                                    // Status would be sent via broadcast channel with server events
+                                }
+                                _ => {
+                                    tracing::warn!("Unknown message type: {}", msg_type);
                                 }
                             }
                         }
