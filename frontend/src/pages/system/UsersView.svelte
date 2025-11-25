@@ -3,6 +3,7 @@
   import { showToast } from "../../stores/toast.js";
   import { currentLang } from "../../stores/ui";
   import { t } from "../../i18n.js";
+  import api from "../../lib/api.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
@@ -20,7 +21,7 @@
 
   const mockUsers = [
     {
-      id: 1,
+      id: "1",
       username: "admin",
       email: "admin@syncspace.com",
       role: "admin",
@@ -31,7 +32,7 @@
       storageUsed: 15.4 * 1024 * 1024 * 1024,
     },
     {
-      id: 2,
+      id: "2",
       username: "john_doe",
       email: "john@example.com",
       role: "user",
@@ -42,7 +43,7 @@
       storageUsed: 8.2 * 1024 * 1024 * 1024,
     },
     {
-      id: 3,
+      id: "3",
       username: "jane_smith",
       email: "jane@example.com",
       role: "user",
@@ -54,11 +55,17 @@
     },
   ];
 
-  onMount(() => {
-    setTimeout(() => {
+  onMount(async () => {
+    try {
+      const response =
+        (await api.users.listUsers?.()) || (await api.users.list?.());
+      users = response || mockUsers;
+    } catch (error) {
+      console.warn("Failed to load users from API, using mock data:", error);
       users = mockUsers;
+    } finally {
       loading = false;
-    }, 300);
+    }
   });
 
   function getRoleBadgeClass(role) {

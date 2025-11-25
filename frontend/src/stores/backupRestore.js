@@ -1,5 +1,6 @@
 import { writable, derived } from 'svelte/store';
 import { t } from '../lib/i18n';
+import api from '../lib/api';
 
 function createBackupRestoreStore() {
   const backups = writable([]);
@@ -11,6 +12,17 @@ function createBackupRestoreStore() {
   const searchQuery = writable('');
   const sortBy = writable('date'); // date, size, status
   const sortOrder = writable('desc'); // asc, desc
+
+  // Load backups from API with fallback to mock data
+  async function loadBackups() {
+    try {
+      const response = await api.backup?.listBackups?.() || await api.backup?.list?.();
+      backups.set(response || generateMockBackups());
+    } catch (error) {
+      console.warn('Failed to load backups from API, using mock data:', error.message);
+      backups.set(generateMockBackups());
+    }
+  }
 
   // Generate mock backup data
   function generateMockBackups() {

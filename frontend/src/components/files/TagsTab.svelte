@@ -20,8 +20,17 @@
     try {
       const data = await api.tags.list();
       allTags = Array.isArray(data) ? data : [];
-      // TODO: Load file-specific tags when endpoint available
-      fileTags = [];
+      // Load file-specific tags when endpoint available
+      if (file && (file.id || file.path || file.name)) {
+        try {
+          const fileId = file.id || file.path || file.name;
+          const tags = await api.tags.getFileTags(fileId);
+          fileTags = Array.isArray(tags) ? tags : [];
+        } catch (err) {
+          console.warn("Could not load file-specific tags:", err);
+          fileTags = [];
+        }
+      }
     } catch (err) {
       console.error("Failed to load tags:", err);
       errorToast("Failed to load tags");

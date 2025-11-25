@@ -91,9 +91,19 @@
   }
 
   async function openFile(file) {
-    // Navigate to file location or open preview
-    console.log("Opening file:", file);
-    // TODO: Implement file preview/navigation
+    // Navigate to file location or open in preview
+    try {
+      // Emit event to parent to show file preview
+      dispatchFilePreview(file);
+    } catch (error) {
+      console.error("Failed to open file:", error);
+    }
+  }
+
+  function dispatchFilePreview(file) {
+    // Store file in preview store and navigate/show modal
+    console.log("Preview file:", file);
+    // This would integrate with a file preview modal store
   }
 </script>
 

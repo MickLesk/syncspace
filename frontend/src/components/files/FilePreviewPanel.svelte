@@ -251,13 +251,24 @@
   async function loadMetadata() {
     // Load comments and tags from backend
     try {
-      // These endpoints should exist based on the backend structure
       const fileId = file.id || file.name;
-      // Placeholder - implement when backend endpoints are ready
-      comments = [];
-      tags = [];
+      // Try to load comments and tags from API
+      try {
+        const [commentsData, tagsData] = await Promise.all([
+          api.files.getComments(fileId).catch(() => []),
+          api.files.getTags(fileId).catch(() => []),
+        ]);
+        comments = commentsData || [];
+        tags = tagsData || [];
+      } catch (err) {
+        // Graceful fallback
+        comments = [];
+        tags = [];
+      }
     } catch (err) {
       console.error("Failed to load metadata:", err);
+      comments = [];
+      tags = [];
     }
   }
 

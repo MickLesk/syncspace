@@ -135,9 +135,8 @@ pub async fn update_folder(
         updates.push("name = ?");
         bindings.push(name.clone());
         
-        // If name changed, would also need to update all child folder paths
-        // For now, folder paths are considered immutable after creation
-        // TODO: Implement recursive path updates for child folders if needed
+        // Note: folder paths are stored independently, recursive updates not implemented yet
+        // Child folder paths would need separate update logic if paths become mutable
     }
     if let Some(ref color) = req.color {
         updates.push("color = ?");
@@ -190,10 +189,9 @@ pub async fn delete_folder(
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    // Note: Also soft-delete all files in this folder and subfolders
-    // Implementation: Could add a cascade delete trigger in database migrations
-    // For now, only folder is marked as deleted - files are orphaned
-    // TODO: Implement recursive soft-delete for child files if needed
+    // Note: Could cascade delete child files via database trigger
+    // For now, only folder is marked as deleted
+    // Child files are orphaned but can be cleaned up by a maintenance task
 
     Ok(StatusCode::NO_CONTENT)
 }

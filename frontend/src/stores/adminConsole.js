@@ -1,6 +1,7 @@
 /**
  * Admin Console Store
- * Mock data for user management, roles, audit log, quota management
+ * Provides user management, roles, audit log, quota management
+ * Falls back to mock data if API unavailable
  * 
  * Usage:
  * import { adminConsole } from './stores/adminConsole.js';
@@ -8,6 +9,7 @@
  */
 
 import { writable, derived } from 'svelte/store';
+import api from '../lib/api';
 
 // Mock admin data
 const mockUsers = [

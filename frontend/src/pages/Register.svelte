@@ -22,8 +22,11 @@
     try {
       const response = await fetch("http://localhost:8080/api/setup/status");
       const data = await response.json();
-      // TODO: Add separate endpoint to check if registration is allowed
-      registrationEnabled = true; // Temporary
+      // Check if registration is allowed via API response
+      registrationEnabled =
+        data.setup_required === false &&
+        (data.registration_enabled === true ||
+          data.allow_registration === true);
     } catch (err) {
       console.error("Failed to check registration status:", err);
       registrationEnabled = false;

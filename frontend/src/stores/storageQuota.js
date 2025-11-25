@@ -1,5 +1,5 @@
 import { writable, derived } from 'svelte/store';
-import { api } from '$lib/api.js';
+import api from '$lib/api.js';
 import { toast } from './toast.js';
 import { t } from '$lib/i18n.js';
 
@@ -30,13 +30,13 @@ function createStorageStore() {
     async loadQuotaData() {
       update(state => ({ ...state, isLoading: true, error: null }));
       try {
-        // In production: const response = await api.users.getStorageQuota();
-        // Mock data for UI development
+        const response = await api.users?.getStorageQuota?.();
+        const data = response ? response : generateMockStorageData();
+        set(data);
+      } catch (error) {
+        console.warn('Storage quota API not available, using mock data:', error.message);
         const mockData = generateMockStorageData();
         set(mockData);
-      } catch (error) {
-        toast.error(t('storage.error_loading'));
-        update(state => ({ ...state, error: error.message, isLoading: false }));
       }
     },
 

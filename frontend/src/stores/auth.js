@@ -1,8 +1,10 @@
 import { writable } from 'svelte/store';
 import { t } from '../i18n.js';
 
-// TODO: Get from settings store once implemented
-const getCurrentLanguage = () => localStorage.getItem('language') || 'de';
+// Get language from localStorage or default
+const getCurrentLanguage = () => {
+  return localStorage.getItem('language') || 'de';
+};
 
 function createAuthStore() {
   // Clean up old demo tokens

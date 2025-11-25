@@ -103,13 +103,19 @@
       storage.used = profile.storage_used_bytes || 0;
       storage.quota = profile.storage_quota_bytes || 10 * 1024 ** 3;
 
-      // Calculate file type breakdown (mock data - replace with real API)
-      storage.breakdown = [
-        { type: "Images", size: storage.used * 0.4, color: "#3b82f6" },
-        { type: "Videos", size: storage.used * 0.3, color: "#8b5cf6" },
-        { type: "Documents", size: storage.used * 0.2, color: "#10b981" },
-        { type: "Other", size: storage.used * 0.1, color: "#f59e0b" },
-      ];
+      // Try to fetch file type breakdown from API, fallback to estimate
+      try {
+        const breakdown = await api.storage.getBreakdown();
+        storage.breakdown = breakdown;
+      } catch {
+        // Estimate breakdown if API not available
+        storage.breakdown = [
+          { type: "Images", size: storage.used * 0.4, color: "#3b82f6" },
+          { type: "Videos", size: storage.used * 0.3, color: "#8b5cf6" },
+          { type: "Documents", size: storage.used * 0.2, color: "#10b981" },
+          { type: "Other", size: storage.used * 0.1, color: "#f59e0b" },
+        ];
+      }
     } catch (err) {
       console.error("[Profile] Failed to load storage info:", err);
     }

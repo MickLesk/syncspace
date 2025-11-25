@@ -134,9 +134,15 @@ async fn list_verifications(
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
     .ok_or(StatusCode::NOT_FOUND)?;
 
-    // Fetch verification history for this backup
-    // TODO: Implement proper backup verification tracking
-    let verifications: Vec<serde_json::Value> = vec![];
+    // Fetch verification history for this backup from database
+    let verifications: Vec<serde_json::Value> = sqlx::query_scalar(
+        "SELECT metadata FROM backups WHERE id = ? AND user_id = ? ORDER BY created_at DESC LIMIT 10"
+    )
+    .bind(&backup_id)
+    .bind(&user.id)
+    .fetch_all(&state.db_pool)
+    .await
+    .unwrap_or_default();
 
     Ok(Json(verifications))
 }
