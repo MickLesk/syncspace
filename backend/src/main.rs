@@ -44,6 +44,7 @@ use tower_http::cors::{Any, CorsLayer};
 
 use auth::RateLimiter;
 use database_monitor::DatabaseMonitor;
+use search::SearchIndex;
 use websocket::FileChangeEvent;
 
 // Performance and caching imports
@@ -100,6 +101,7 @@ pub struct AppState {
     pub job_processor: JobProcessor,
     pub performance_monitor: Arc<PerformanceMonitor>,
     pub db_health_monitor: Arc<DatabaseMonitor>,
+    pub search_index: Arc<SearchIndex>,
 }
 
 impl std::fmt::Debug for AppState {
@@ -113,6 +115,7 @@ impl std::fmt::Debug for AppState {
             .field("job_processor", &"JobProcessor")
             .field("performance_monitor", &"Arc<PerformanceMonitor>")
             .field("db_health_monitor", &"Arc<DatabaseMonitor>")
+            .field("search_index", &"Arc<SearchIndex>")
             .finish()
     }
 }
@@ -317,6 +320,7 @@ async fn main() {
         job_processor,
         performance_monitor,
         db_health_monitor: db_health_monitor.clone(),
+        search_index: search_index.clone(),
     };
 
     // Optional: Start pool monitoring task (commented out - requires db_monitor)
