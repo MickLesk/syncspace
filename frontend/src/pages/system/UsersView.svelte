@@ -19,50 +19,18 @@
   let selectedUsers = $state(new Set());
   let filterRole = $state("all");
 
-  const mockUsers = [
-    {
-      id: "1",
-      username: "admin",
-      email: "admin@syncspace.com",
-      role: "admin",
-      status: "online",
-      avatar: null,
-      lastActive: new Date(),
-      filesCount: 1247,
-      storageUsed: 15.4 * 1024 * 1024 * 1024,
-    },
-    {
-      id: "2",
-      username: "john_doe",
-      email: "john@example.com",
-      role: "user",
-      status: "offline",
-      avatar: null,
-      lastActive: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      filesCount: 532,
-      storageUsed: 8.2 * 1024 * 1024 * 1024,
-    },
-    {
-      id: "3",
-      username: "jane_smith",
-      email: "jane@example.com",
-      role: "user",
-      status: "online",
-      avatar: null,
-      lastActive: new Date(),
-      filesCount: 891,
-      storageUsed: 12.1 * 1024 * 1024 * 1024,
-    },
-  ];
-
   onMount(async () => {
     try {
       const response =
         (await api.users.listUsers?.()) || (await api.users.list?.());
-      users = response || mockUsers;
+      if (!response) {
+        throw new Error("User list API not available");
+      }
+      users = response;
     } catch (error) {
-      console.warn("Failed to load users from API, using mock data:", error);
-      users = mockUsers;
+      console.error("Failed to load users from API:", error);
+      showToast(tr("users.error_loading"), "error");
+      users = [];
     } finally {
       loading = false;
     }

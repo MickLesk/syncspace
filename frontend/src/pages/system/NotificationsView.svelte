@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { t } from "../../i18n.js";
   import { currentLang } from "../../stores/ui.js";
+  import api from "../../lib/api.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
@@ -10,62 +11,33 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  // Mock notifications data (should be from API in production)
-  let notifications = $state([
-    {
-      id: 1,
-      type: "success",
-      icon: "check-circle-fill",
-      title: "fileUploadedSuccessfully",
-      message: "Document.pdf has been uploaded to /documents/",
-      time: new Date(Date.now() - 2 * 60 * 1000),
-      read: false,
-      avatar: null,
-    },
-    {
-      id: 2,
-      type: "info",
-      icon: "share-fill",
-      title: "newShareRequest",
-      message: 'John Doe shared "Project Files" with you',
-      time: new Date(Date.now() - 60 * 60 * 1000),
-      read: false,
-      avatar: "JD",
-    },
-    {
-      id: 3,
-      type: "warning",
-      icon: "exclamation-triangle-fill",
-      title: "storageAlmostFull",
-      message: "85% of storage capacity used. Consider cleaning up old files.",
-      time: new Date(Date.now() - 3 * 60 * 60 * 1000),
-      read: true,
-      avatar: null,
-    },
-    {
-      id: 4,
-      type: "error",
-      icon: "x-circle-fill",
-      title: "uploadFailed",
-      message: "Failed to upload large-file.zip. File exceeds size limit.",
-      time: new Date(Date.now() - 6 * 60 * 60 * 1000),
-      read: true,
-      avatar: null,
-    },
-    {
-      id: 5,
-      type: "info",
-      icon: "people-fill",
-      title: "newUserAdded",
-      message: "Jane Smith was added to your workspace",
-      time: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      read: true,
-      avatar: "JS",
-    },
-  ]);
+  // Load notifications from API
+  let notifications = $state([]);
+  let loading = $state(true);
+
+  onMount(async () => {
+    await loadNotifications();
+  });
+
+  async function loadNotifications() {
+    try {
+      const data = await api.notifications?.list?.();
+      if (!data) {
+        throw new Error('Notifications API not available');
+      }
+      notifications = data.map(n => ({
+        ...n,
+        time: new Date(n.created_at || n.time)
+      }));
+    } catch (error) {
+      console.error('Failed to load notifications:', error);
+      notifications = [];
+    } finally {
+      loading = false;
+    }
+  }
 
   let filterType = $state("all"); // all, unread, read
-  let loading = $state(false);
 
   let filteredNotifications = $derived(() => {
     if (filterType === "unread") {
@@ -78,18 +50,33 @@
 
   let unreadCount = $derived(() => notifications.filter((n) => !n.read).length);
 
-  function markAsRead(id) {
-    notifications = notifications.map((n) =>
-      n.id === id ? { ...n, read: true } : n
-    );
+  async function markAsRead(id) {
+    try {
+      await api.notifications?.markRead?.(id);
+      notifications = notifications.map((n) =>
+        n.id === id ? { ...n, read: true } : n
+      );
+    } catch (error) {
+      console.error('Failed to mark as read:', error);
+    }
   }
 
-  function markAllAsRead() {
-    notifications = notifications.map((n) => ({ ...n, read: true }));
+  async function markAllAsRead() {
+    try {
+      await api.notifications?.markAllRead?.();
+      notifications = notifications.map((n) => ({ ...n, read: true }));
+    } catch (error) {
+      console.error('Failed to mark all as read:', error);
+    }
   }
 
-  function deleteNotification(id) {
-    notifications = notifications.filter((n) => n.id !== id);
+  async function deleteNotification(id) {
+    try {
+      await api.notifications?.delete?.(id);
+      notifications = notifications.filter((n) => n.id !== id);
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+    }
   }
 
   function clearAll() {

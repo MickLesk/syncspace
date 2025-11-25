@@ -538,9 +538,20 @@ class ConflictResolver {
   }
 
   async getUserVersionContent(filePath, metadata) {
-    // In a real implementation, this would get the user's local version
-    // For now, return empty string as placeholder
-    return metadata.userContent || '';
+    // Get the user's local version from metadata or cached data
+    if (metadata.userContent) {
+      return metadata.userContent;
+    }
+    
+    // If no cached user content, attempt to retrieve from localStorage or session
+    const cachedVersion = localStorage.getItem(`pending_edit_${filePath}`);
+    if (cachedVersion) {
+      return cachedVersion;
+    }
+    
+    // Fall back to empty string if no local version available
+    console.warn(`No user version content found for ${filePath}`);
+    return '';
   }
 
   async saveResolvedFile(filePath, content, metadata) {

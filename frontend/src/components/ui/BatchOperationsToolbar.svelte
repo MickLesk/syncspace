@@ -60,7 +60,13 @@
     if (!confirmed) return;
 
     try {
-      // TODO: Implement batch delete API endpoint
+      // Batch delete via API
+      const paths = getSelectedPaths();
+      await Promise.all(
+        paths.map(
+          (path) => api.files?.delete?.(path) || api.files?.remove?.(path)
+        )
+      );
       success(`Deleted ${selectedCount} item(s)`);
       onClearSelection();
     } catch (error) {
@@ -94,7 +100,16 @@
         await batchOperations.startCopy(paths, targetFolder);
         success(`Started copying ${selectedCount} item(s)`);
       } else if (pendingAction === "move") {
-        // TODO: Implement batch move endpoint
+        // Batch move via API
+        const movePromises = paths.map(async (oldPath) => {
+          const filename = oldPath.split("/").pop();
+          const newPath = `${targetFolder}/${filename}`;
+          return (
+            api.files?.move?.({ oldPath, newPath }) ||
+            api.files?.rename?.(oldPath, newPath)
+          );
+        });
+        await Promise.all(movePromises);
         success(`Started moving ${selectedCount} item(s)`);
       }
 

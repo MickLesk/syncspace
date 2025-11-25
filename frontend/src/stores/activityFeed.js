@@ -1,5 +1,6 @@
 import { writable, derived } from 'svelte/store';
 import { t } from '$lib/i18n.js';
+import api from '$lib/api.js';
 
 /**
  * Activity Feed Store
@@ -38,16 +39,18 @@ function createActivityStore() {
   return {
     subscribe,
 
-    // Load activities from mock data
+    // Load activities from API
     async loadActivities() {
       update(state => ({ ...state, isLoading: true, error: null }));
       try {
-        // In production: const response = await api.activity.getActivities();
-        const mockData = generateMockActivities();
-        const stats = calculateStats(mockData);
+        const response = await api.activity?.getActivities?.();
+        if (!response) {
+          throw new Error('Activity API not available');
+        }
+        const stats = calculateStats(response);
         set({
-          activities: mockData,
-          filtered: mockData,
+          activities: response,
+          filtered: response,
           selectedFilter: 'all',
           searchQuery: '',
           dateRange: { start: null, end: null },
@@ -56,7 +59,12 @@ function createActivityStore() {
           stats,
         });
       } catch (error) {
-        update(state => ({ ...state, error: error.message, isLoading: false }));
+        console.error('Failed to load activities:', error);
+        update(state => ({ 
+          ...state, 
+          error: error.message || 'Failed to load activities', 
+          isLoading: false 
+        }));
       }
     },
 
@@ -145,48 +153,6 @@ function createActivityStore() {
 }
 
 /**
- * Generate mock activity data
- */
-function generateMockActivities() {
-  const now = new Date();
-  const types = Object.keys(ACTIVITY_TYPES);
-  const users = ['John Doe', 'Jane Smith', 'Admin User', 'You'];
-  const files = [
-    'document.pdf',
-    'presentation.pptx',
-    'image.jpg',
-    'video.mp4',
-    'spreadsheet.xlsx',
-    'archive.zip',
-    'report.docx',
-  ];
-
-  const activities = [];
-  for (let i = 0; i < 50; i++) {
-    const date = new Date(now);
-    date.setHours(date.getHours() - Math.floor(Math.random() * 720)); // Last 30 days
-    
-    activities.push({
-      id: `activity-${i}`,
-      type: types[Math.floor(Math.random() * types.length)],
-      filename: files[Math.floor(Math.random() * files.length)],
-      filePath: `/files/folder-${Math.floor(Math.random() * 5)}/${files[Math.floor(Math.random() * files.length)]}`,
-      user: users[Math.floor(Math.random() * users.length)],
-      timestamp: date.toISOString(),
-      metadata: {
-        size: Math.floor(Math.random() * 10000000),
-        duration: Math.floor(Math.random() * 1000),
-        description: `${types[Math.floor(Math.random() * types.length)]} operation`,
-      },
-    });
-  }
-
-  return activities.sort((a, b) => 
-    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  );
-}
-
-/**
  * Calculate activity statistics
  */
 function calculateStats(activities) {
@@ -209,6 +175,9 @@ function calculateStats(activities) {
   activities.forEach(a => {
     stats.byType[a.type] = (stats.byType[a.type] || 0) + 1;
   });
+
+  return stats;
+}
 
   return stats;
 }

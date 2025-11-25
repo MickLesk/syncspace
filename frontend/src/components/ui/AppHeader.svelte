@@ -110,52 +110,61 @@
     dispatch("navigate", view);
   }
 
-  // Mock notifications data
-  let notifications = $state([
-    {
-      id: 1,
-      type: "success",
-      icon: "check-circle-fill",
-      title: "File uploaded successfully",
-      message: "Document.pdf has been uploaded",
-      time: "2 minutes ago",
-      read: false,
-      avatar: null,
-    },
-    {
-      id: 2,
-      type: "info",
-      icon: "share-fill",
-      title: "New share request",
-      message: 'John Doe shared "Project Files" with you',
-      time: "1 hour ago",
-      read: false,
-      avatar: "JD",
-    },
-    {
-      id: 3,
-      type: "warning",
-      icon: "exclamation-triangle-fill",
-      title: "Storage almost full",
-      message: "85% of storage capacity used",
-      time: "3 hours ago",
-      read: true,
-      avatar: null,
-    },
-  ]);
+  // Load notifications from API
+  let notifications = $state([]);
 
-  function markAsRead(id) {
-    notifications = notifications.map((n) =>
-      n.id === id ? { ...n, read: true } : n
-    );
+  async function loadNotifications() {
+    try {
+      const data = (await api.notifications?.list?.()) || [];
+      notifications = data.map((n) => ({
+        id: n.id,
+        type: n.type || "info",
+        icon: n.icon || "info-circle-fill",
+        title: n.title,
+        message: n.message,
+        time: n.created_at || "Just now",
+        read: n.read || false,
+        avatar: n.avatar || null,
+      }));
+    } catch (error) {
+      console.error("Failed to load notifications:", error);
+      notifications = [];
+    }
   }
 
-  function markAllAsRead() {
-    notifications = notifications.map((n) => ({ ...n, read: true }));
+  onMount(() => {
+    loadNotifications();
+    const interval = setInterval(loadNotifications, 60000); // Refresh every minute
+    return () => clearInterval(interval);
+  });
+
+  async function markAsRead(id) {
+    try {
+      await api.notifications?.markRead?.(id);
+      notifications = notifications.map((n) =>
+        n.id === id ? { ...n, read: true } : n
+      );
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
   }
 
-  function clearAllNotifications() {
-    notifications = [];
+  async function markAllAsRead() {
+    try {
+      await api.notifications?.markAllRead?.();
+      notifications = notifications.map((n) => ({ ...n, read: true }));
+    } catch (error) {
+      console.error("Failed to mark all as read:", error);
+    }
+  }
+
+  async function clearAllNotifications() {
+    try {
+      await api.notifications?.clearAll?.();
+      notifications = [];
+    } catch (error) {
+      console.error("Failed to clear notifications:", error);
+    }
   }
 
   let unreadNotifications = $derived(notifications.filter((n) => !n.read));

@@ -13,55 +13,18 @@ function createBackupRestoreStore() {
   const sortBy = writable('date'); // date, size, status
   const sortOrder = writable('desc'); // asc, desc
 
-  // Load backups from API with fallback to mock data
+  // Load backups from API
   async function loadBackups() {
     try {
       const response = await api.backup?.listBackups?.() || await api.backup?.list?.();
-      backups.set(response || generateMockBackups());
+      if (!response) {
+        throw new Error('Backup API not available');
+      }
+      backups.set(response);
     } catch (error) {
-      console.warn('Failed to load backups from API, using mock data:', error.message);
-      backups.set(generateMockBackups());
-    }
-  }
-
-  // Generate mock backup data
-  function generateMockBackups() {
-    const now = Date.now();
-    const types = ['full', 'incremental', 'differential'];
-    const statuses = ['success', 'in_progress', 'failed'];
-    
-    const mockData = [];
-    for (let i = 0; i < 12; i++) {
-      const backupDate = new Date(now - i * 24 * 60 * 60 * 1000);
-      const type = types[i % 3];
-      const sizeGB = Math.random() * 50 + 5;
-      
-      mockData.push({
-        id: `backup-${i}`,
-        name: `Backup ${backupDate.toLocaleDateString('de-DE')} ${type === 'full' ? '(Full)' : '(Inc)'}`,
-        date: backupDate.getTime(),
-        timestamp: backupDate.toISOString(),
-        type,
-        size: sizeGB * 1024 * 1024 * 1024,
-        status: i === 0 ? 'success' : statuses[Math.floor(Math.random() * statuses.length)],
-        fileCount: Math.floor(Math.random() * 5000 + 1000),
-        duration: Math.floor(Math.random() * 3600 + 300), // seconds
-        notes: i % 3 === 0 ? 'Manual backup before system update' : '',
-        retentionDays: [7, 14, 30, 90][Math.floor(Math.random() * 4)],
-        compressionRatio: (Math.random() * 0.4 + 0.4).toFixed(2), // 0.4-0.8
-        encryptionEnabled: Math.random() > 0.3,
-        verificationStatus: i === 0 ? 'verified' : (Math.random() > 0.2 ? 'verified' : 'pending')
-      });
-    }
-    return mockData;
-  }
-
-  // Load backups (mock)
-  async function loadBackups() {
-    try {
-      backups.set(generateMockBackups());
-    } catch (error) {
-      restoreError.set(error.message);
+      console.error('Failed to load backups from API:', error.message);
+      restoreError.set(error.message || 'Failed to load backups');
+      backups.set([]);
     }
   }
 

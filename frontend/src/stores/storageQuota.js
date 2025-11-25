@@ -31,12 +31,22 @@ function createStorageStore() {
       update(state => ({ ...state, isLoading: true, error: null }));
       try {
         const response = await api.users?.getStorageQuota?.();
-        const data = response ? response : generateMockStorageData();
-        set(data);
+        if (!response) {
+          throw new Error('Storage quota API not available');
+        }
+        set({
+          ...response,
+          isLoading: false,
+          error: null,
+          lastUpdated: new Date().toISOString()
+        });
       } catch (error) {
-        console.warn('Storage quota API not available, using mock data:', error.message);
-        const mockData = generateMockStorageData();
-        set(mockData);
+        console.error('Failed to load storage quota:', error);
+        update(state => ({ 
+          ...state, 
+          isLoading: false, 
+          error: error.message || 'Failed to load storage data'
+        }));
       }
     },
 
@@ -111,104 +121,6 @@ export const typeBreakdown = derived(
       .sort((a, b) => b.size - a.size);
   }
 );
-
-/**
- * Generate mock storage data for UI development
- */
-function generateMockStorageData() {
-  const now = new Date();
-  const totalQuota = 10 * 1024 * 1024 * 1024; // 10GB
-
-  // Generate realistic file type distribution
-  const types = {
-    'Images (JPG, PNG)': {
-      size: 3.5 * 1024 * 1024 * 1024, // 3.5GB
-      count: 2150,
-      icon: 'bi-image',
-      color: '#3B82F6', // Blue
-    },
-    'Videos (MP4, WebM)': {
-      size: 4.2 * 1024 * 1024 * 1024, // 4.2GB
-      count: 45,
-      icon: 'bi-play-circle',
-      color: '#EF4444', // Red
-    },
-    'Documents (PDF, DOCX)': {
-      size: 1.2 * 1024 * 1024 * 1024, // 1.2GB
-      count: 3420,
-      icon: 'bi-file-text',
-      color: '#F59E0B', // Amber
-    },
-    'Archives (ZIP, RAR)': {
-      size: 800 * 1024 * 1024, // 800MB
-      count: 128,
-      icon: 'bi-file-zip',
-      color: '#10B981', // Green
-    },
-    'Audio (MP3, WAV)': {
-      size: 300 * 1024 * 1024, // 300MB
-      count: 512,
-      icon: 'bi-music-note',
-      color: '#8B5CF6', // Purple
-    },
-    'Other': {
-      size: 180 * 1024 * 1024, // 180MB
-      count: 340,
-      icon: 'bi-file',
-      color: '#6B7280', // Gray
-    },
-  };
-
-  const totalUsed = Object.values(types).reduce((sum, t) => sum + t.size, 0);
-  const percentUsed = Math.round((totalUsed / totalQuota) * 100);
-
-  // Calculate percentages
-  const byType = {};
-  Object.entries(types).forEach(([name, data]) => {
-    byType[name] = {
-      size: data.size,
-      count: data.count,
-      icon: data.icon,
-      color: data.color,
-      percentage: Math.round((data.size / totalUsed) * 100),
-    };
-  });
-
-  // Generate folder distribution
-  const folders = [
-    { path: '/Projects', size: 3.2 * 1024 * 1024 * 1024, percentage: 28 },
-    { path: '/Photos', size: 3.8 * 1024 * 1024 * 1024, percentage: 33 },
-    { path: '/Videos', size: 2.1 * 1024 * 1024 * 1024, percentage: 18 },
-    { path: '/Documents', size: 900 * 1024 * 1024, percentage: 8 },
-    { path: '/Downloads', size: 700 * 1024 * 1024, percentage: 6 },
-    { path: '/Other', size: 420 * 1024 * 1024, percentage: 7 },
-  ];
-
-  // Generate trend data (last 30 days)
-  const trend = [];
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date(now);
-    date.setDate(date.getDate() - i);
-    const variation = Math.random() * 0.3 - 0.15; // ±15% variation
-    trend.push({
-      date: date.toISOString().split('T')[0],
-      used: Math.max(0, totalUsed * (0.7 + variation)),
-      quota: totalQuota,
-    });
-  }
-
-  return {
-    totalUsed,
-    totalQuota,
-    percentUsed,
-    byType,
-    byFolder: folders,
-    trend,
-    lastUpdated: now.toISOString(),
-    isLoading: false,
-    error: null,
-  };
-}
 
 /**
  * Format storage size to human readable format
