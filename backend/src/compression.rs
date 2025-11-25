@@ -3,6 +3,10 @@ use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use std::path::Path;
 use uuid::Uuid;
+use tokio::io::AsyncWriteExt;
+use async_compression::tokio::write::{GzipEncoder, BrotliEncoder, ZstdEncoder};
+use async_compression::tokio::bufread::{GzipDecoder, BrotliDecoder, ZstdDecoder};
+use tokio::io::{AsyncReadExt, BufReader};
 
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct CompressionRule {
@@ -68,7 +72,7 @@ pub async fn add_compression_rule(
         .await
 }
 
-/// Compress file (placeholder - requires compression crates)
+/// Compress file using specified algorithm
 pub async fn compress_file(
     pool: &SqlitePool,
     file_id: &str,
@@ -79,64 +83,44 @@ pub async fn compress_file(
     let compressed_path = format!("{}.{}", file_path, 
         match algorithm {
             "gzip" => "gz",
-            "bzip2" => "bz2",
+            "brotli" => "br",
             "zstd" => "zst",
-            "lz4" => "lz4",
             _ => "gz",
         }
     );
     
-    let original_size = std::fs::metadata(file_path)?.len() as i64;
+    let original_size = tokio::fs::metadata(file_path).await?.len() as i64;
     
-    // Placeholder - in production use compression crates
-    /*
-    Example with gzip (flate2):
+    // Read input file
+    let input_data = tokio::fs::read(file_path).await?;
     
-    use flate2::write::GzEncoder;
-    use flate2::Compression;
-    use std::fs::File;
-    use std::io::{Read, Write};
+    // Compress based on algorithm
+    let compressed_data = match algorithm {
+        "gzip" => {
+            let mut encoder = GzipEncoder::new(Vec::new());
+            encoder.write_all(&input_data).await?;
+            encoder.shutdown().await?;
+            encoder.into_inner()
+        },
+        "brotli" => {
+            let mut encoder = BrotliEncoder::new(Vec::new());
+            encoder.write_all(&input_data).await?;
+            encoder.shutdown().await?;
+            encoder.into_inner()
+        },
+        "zstd" => {
+            let mut encoder = ZstdEncoder::new(Vec::new());
+            encoder.write_all(&input_data).await?;
+            encoder.shutdown().await?;
+            encoder.into_inner()
+        },
+        _ => return Err("Unsupported compression algorithm".into()),
+    };
     
-    let mut input = File::open(file_path)?;
-    let output = File::create(&compressed_path)?;
-    let mut encoder = GzEncoder::new(output, Compression::default());
+    // Write compressed file
+    tokio::fs::write(&compressed_path, &compressed_data).await?;
     
-    let mut buffer = Vec::new();
-    input.read_to_end(&mut buffer)?;
-    encoder.write_all(&buffer)?;
-    encoder.finish()?;
-    */
-    
-    /*
-    Example with zstd:
-    
-    use zstd::stream::copy_encode;
-    use std::fs::File;
-    
-    let mut input = File::open(file_path)?;
-    let output = File::create(&compressed_path)?;
-    copy_encode(&mut input, output, 0)?; // 0 = default compression level
-    */
-    
-    /*
-    Example with lz4:
-    
-    use lz4::EncoderBuilder;
-    use std::fs::File;
-    use std::io::Read;
-    
-    let mut input = File::open(file_path)?;
-    let output = File::create(&compressed_path)?;
-    let mut encoder = EncoderBuilder::new().level(4).build(output)?;
-    
-    let mut buffer = Vec::new();
-    input.read_to_end(&mut buffer)?;
-    encoder.write_all(&buffer)?;
-    let (_, result) = encoder.finish();
-    result?;
-    */
-    
-    let compressed_size = 0i64; // Placeholder
+    let compressed_size = compressed_data.len() as i64;
     let compression_ratio = if original_size > 0 {
         compressed_size as f64 / original_size as f64
     } else {
@@ -160,9 +144,6 @@ pub async fn compress_file(
     .execute(pool)
     .await?;
     
-    // Optionally delete original file after compression
-    // std::fs::remove_file(file_path)?;
-    
     sqlx::query_as("SELECT * FROM compressed_files WHERE id = ?")
         .bind(&compressed_id)
         .fetch_one(pool)
@@ -170,7 +151,7 @@ pub async fn compress_file(
         .map_err(|e| e.into())
 }
 
-/// Decompress file (placeholder)
+/// Decompress file
 pub async fn decompress_file(
     pool: &SqlitePool,
     compressed_id: &str,
@@ -182,22 +163,37 @@ pub async fn decompress_file(
     .fetch_one(pool)
     .await?;
     
-    // Placeholder - in production use compression crates
-    /*
-    Example with gzip (flate2):
+    // Read compressed file
+    let compressed_data = tokio::fs::read(&compressed_file.compressed_path).await?;
     
-    use flate2::read::GzDecoder;
-    use std::fs::File;
-    use std::io::{Read, Write};
+    // Decompress based on algorithm
+    let decompressed_data = match compressed_file.algorithm.as_str() {
+        "gzip" => {
+            let reader = BufReader::new(&compressed_data[..]);
+            let mut decoder = GzipDecoder::new(reader);
+            let mut output = Vec::new();
+            decoder.read_to_end(&mut output).await?;
+            output
+        },
+        "brotli" => {
+            let reader = BufReader::new(&compressed_data[..]);
+            let mut decoder = BrotliDecoder::new(reader);
+            let mut output = Vec::new();
+            decoder.read_to_end(&mut output).await?;
+            output
+        },
+        "zstd" => {
+            let reader = BufReader::new(&compressed_data[..]);
+            let mut decoder = ZstdDecoder::new(reader);
+            let mut output = Vec::new();
+            decoder.read_to_end(&mut output).await?;
+            output
+        },
+        _ => return Err("Unsupported decompression algorithm".into()),
+    };
     
-    let input = File::open(&compressed_file.compressed_path)?;
-    let mut decoder = GzDecoder::new(input);
-    let mut buffer = Vec::new();
-    decoder.read_to_end(&mut buffer)?;
-    
-    let mut output = File::create(&compressed_file.original_path)?;
-    output.write_all(&buffer)?;
-    */
+    // Write decompressed file
+    tokio::fs::write(&compressed_file.original_path, &decompressed_data).await?;
     
     sqlx::query(
         "UPDATE compressed_files SET is_decompressed = 1 WHERE id = ?"

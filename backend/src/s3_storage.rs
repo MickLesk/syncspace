@@ -3,6 +3,11 @@
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use uuid::Uuid;
+use aws_config::{BehaviorVersion, Region};
+use aws_sdk_s3::{Client, primitives::ByteStream};
+use aws_sdk_s3::config::{Credentials, SharedCredentialsProvider};
+use std::path::Path;
+use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
 
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct S3Config {
@@ -41,7 +46,7 @@ pub async fn add_s3_config(
     
     // Encrypt secret_key properly using base64 encoding
     // In production, should use actual encryption (AES-256) with KMS
-    let secret_encrypted = base64::encode(&req.secret_key);
+    let secret_encrypted = BASE64.encode(&req.secret_key);
     
     sqlx::query(
         "INSERT INTO s3_configs 
@@ -66,33 +71,46 @@ pub async fn add_s3_config(
         .await
 }
 
-/// Upload file to S3 (placeholder - requires aws-sdk-s3)
+/// Upload file to S3
 pub async fn upload_to_s3(
-    _config: &S3Config,
-    _file_path: &str,
-    _s3_key: &str,
+    config: &S3Config,
+    file_path: &str,
+    s3_key: &str,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    // Placeholder implementation
-    // In production: use `aws-sdk-s3` crate
-    /*
-    Example with aws-sdk-s3:
+    // Decrypt secret key (for now just base64 decode)
+    let secret_key = String::from_utf8(BASE64.decode(&config.secret_key_encrypted)?)?;
     
-    let shared_config = aws_config::from_env()
+    // Create AWS credentials
+    let credentials = Credentials::new(
+        &config.access_key,
+        &secret_key,
+        None,
+        None,
+        "s3_storage",
+    );
+    
+    // Build AWS config
+    let mut aws_config = aws_config::defaults(BehaviorVersion::latest())
         .region(Region::new(config.region.clone()))
-        .endpoint_url(&config.endpoint)
-        .credentials_provider(Credentials::new(
-            &config.access_key,
-            &secret_key,
-            None,
-            None,
-            "custom"
-        ))
-        .load()
-        .await;
+        .credentials_provider(SharedCredentialsProvider::new(credentials));
     
-    let client = aws_sdk_s3::Client::new(&shared_config);
+    // Set custom endpoint if not AWS
+    if !config.endpoint.is_empty() && !config.endpoint.contains("amazonaws.com") {
+        aws_config = aws_config.endpoint_url(&config.endpoint);
+    }
     
-    let body = ByteStream::from_path(file_path).await?;
+    let sdk_config = aws_config.load().await;
+    let mut s3_config = aws_sdk_s3::config::Builder::from(&sdk_config);
+    
+    // Enable path-style for MinIO and others
+    if config.use_path_style {
+        s3_config = s3_config.force_path_style(true);
+    }
+    
+    let client = Client::from_conf(s3_config.build());
+    
+    // Read file and upload
+    let body = ByteStream::from_path(Path::new(file_path)).await?;
     
     client
         .put_object()
@@ -101,18 +119,55 @@ pub async fn upload_to_s3(
         .body(body)
         .send()
         .await?;
-    */
     
-    Ok("s3://placeholder".to_string())
+    Ok(format!("s3://{}/{}", config.bucket, s3_key))
 }
 
-/// Download file from S3 (placeholder)
+/// Download file from S3
 pub async fn download_from_s3(
-    _config: &S3Config,
-    _s3_key: &str,
-    _local_path: &str,
+    config: &S3Config,
+    s3_key: &str,
+    local_path: &str,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    // Placeholder implementation
+    // Decrypt secret key
+    let secret_key = String::from_utf8(base64::decode(&config.secret_key_encrypted)?)?;
+    
+    let credentials = Credentials::new(
+        &config.access_key,
+        &secret_key,
+        None,
+        None,
+        "s3_storage",
+    );
+    
+    let mut aws_config = aws_config::defaults(BehaviorVersion::latest())
+        .region(Region::new(config.region.clone()))
+        .credentials_provider(SharedCredentialsProvider::new(credentials));
+    
+    if !config.endpoint.is_empty() && !config.endpoint.contains("amazonaws.com") {
+        aws_config = aws_config.endpoint_url(&config.endpoint);
+    }
+    
+    let sdk_config = aws_config.load().await;
+    let mut s3_config = aws_sdk_s3::config::Builder::from(&sdk_config);
+    
+    if config.use_path_style {
+        s3_config = s3_config.force_path_style(true);
+    }
+    
+    let client = Client::from_conf(s3_config.build());
+    
+    // Get object
+    let resp = client
+        .get_object()
+        .bucket(&config.bucket)
+        .key(s3_key)
+        .send()
+        .await?;
+    
+    // Write to file
+    let data = resp.body.collect().await?;
+    tokio::fs::write(local_path, data.into_bytes()).await?;
     
     Ok(())
 }
@@ -208,8 +263,48 @@ pub async fn delete_s3_config(
 
 /// Test S3 connection
 pub async fn test_s3_connection(
-    _config: &S3Config,
+    config: &S3Config,
 ) -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
-    // Placeholder - would test connection and list bucket
-    Ok(true)
+    // Decrypt secret key
+    let secret_key = String::from_utf8(base64::decode(&config.secret_key_encrypted)?)?;
+    
+    let credentials = Credentials::new(
+        &config.access_key,
+        &secret_key,
+        None,
+        None,
+        "s3_storage",
+    );
+    
+    let mut aws_config = aws_config::defaults(BehaviorVersion::latest())
+        .region(Region::new(config.region.clone()))
+        .credentials_provider(SharedCredentialsProvider::new(credentials));
+    
+    if !config.endpoint.is_empty() && !config.endpoint.contains("amazonaws.com") {
+        aws_config = aws_config.endpoint_url(&config.endpoint);
+    }
+    
+    let sdk_config = aws_config.load().await;
+    let mut s3_config = aws_sdk_s3::config::Builder::from(&sdk_config);
+    
+    if config.use_path_style {
+        s3_config = s3_config.force_path_style(true);
+    }
+    
+    let client = Client::from_conf(s3_config.build());
+    
+    // Try to list bucket to test connection
+    match client
+        .list_objects_v2()
+        .bucket(&config.bucket)
+        .max_keys(1)
+        .send()
+        .await
+    {
+        Ok(_) => Ok(true),
+        Err(e) => {
+            tracing::warn!("S3 connection test failed: {}", e);
+            Ok(false)
+        }
+    }
 }

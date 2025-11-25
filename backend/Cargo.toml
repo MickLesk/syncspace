@@ -59,11 +59,22 @@ reqwest = { version = "0.12", features = ["json"] }
 zip = "6.0"
 tar = "0.4"
 flate2 = "1.1"
+async-compression = { version = "0.4", features = ["tokio", "gzip", "brotli", "zstd"] }
 image = "0.25"
 tempfile = "3.23"
 sysinfo = "0.37"  # System information (CPU, memory, disk usage)
 regex = "1.11"  # Input validation
 rustc_version_runtime = "0.3"  # Runtime Rust version detection
+
+# Cloud Storage & External Integrations
+aws-config = { version = "1.5", features = ["behavior-version-latest"] }
+aws-sdk-s3 = "1.68"
+oauth2 = "5.0"
+ldap3 = { version = "0.12", default-features = false, features = ["tls"] }
+suppaftp = { version = "7.0", features = ["async-secure"] }
+async-imap = { version = "0.11", default-features = false, features = ["runtime-tokio"] }
+async-native-tls = "0.5"
+dotext = "0.1"  # DOCX text extraction for search indexing
 
 # Performance & Caching
 redis = { version = "0.32", features = ["tokio-comp", "connection-manager"] }
