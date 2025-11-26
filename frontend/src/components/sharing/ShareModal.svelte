@@ -4,6 +4,7 @@
   import { currentLang } from "../../stores/ui";
   import { t } from "../../i18n.js";
   import Modal from "../ui/Modal.svelte";
+  import FileBrowserModal from "../files/FileBrowserModal.svelte";
   import api from "../../lib/api.js";
 
   const dispatch = createEventDispatcher();
@@ -32,8 +33,13 @@
   let availableUsers = $state([]);
   let loadingUsers = $state(false);
 
+  // File selection state (when no file prop provided)
+  let showFileBrowser = $state(false);
+  let selectedFilePaths = $state([]);
+
   const isFile = $derived(file && !file.is_dir);
   const isFolder = $derived(file && file.is_dir);
+  const needsFileSelection = $derived(!file && selectedFilePaths.length === 0);
 
   // Load users when modal opens
   $effect(() => {
@@ -85,38 +91,63 @@
   }
 
   async function handleCreateShare() {
-    if (!file) return;
+    // Get file paths to share
+    const filePaths = file ? [file.path || file.file_path] : selectedFilePaths;
+
+    if (filePaths.length === 0) {
+      errorToast(tr("pleaseSelectAtLeastOneFile"));
+      return;
+    }
 
     loading = true;
     try {
-      const requestData = {
-        file_path: file.path || file.file_path,
-        permission: allowExternal ? "read" : "none",
-        expires_at: expiresAt || undefined,
-        password: requirePassword && sharePassword ? sharePassword : undefined,
-        user_ids:
-          shareType === "users" ? selectedUsers.map((u) => u.id) : undefined,
-        permissions:
-          shareType === "users"
-            ? selectedUsers.map((u) => userPermissions[u.id] || "read")
-            : undefined,
-        allow_external: allowExternal,
-      };
+      // Create shares for all selected files
+      const shareResponses = [];
+      for (const filePath of filePaths) {
+        const requestData = {
+          file_path: filePath,
+          permission: allowExternal ? "read" : "none",
+          expires_at: expiresAt || undefined,
+          password:
+            requirePassword && sharePassword ? sharePassword : undefined,
+          user_ids:
+            shareType === "users" ? selectedUsers.map((u) => u.id) : undefined,
+          permissions:
+            shareType === "users"
+              ? selectedUsers.map((u) => userPermissions[u.id] || "read")
+              : undefined,
+          allow_external: allowExternal,
+        };
 
-      const response = await api.sharing.create(requestData);
-      const share = response.data || response;
+        const response = await api.sharing.create(requestData);
+        shareResponses.push(response.data || response);
+      }
 
-      // Generate shareable URL
-      shareUrl = `${window.location.origin}/share/${share.id || share.share_id || share.token}`;
+      // Use first share for URL display
+      const firstShare = shareResponses[0];
+      shareUrl = `${window.location.origin}/share/${firstShare.id || firstShare.share_id || firstShare.token}`;
       showShareResult = true;
 
-      success(tr("shareCreatedSuccessfully"));
+      success(
+        filePaths.length === 1
+          ? tr("shareCreatedSuccessfully")
+          : tr("sharesCreatedSuccessfully", filePaths.length)
+      );
     } catch (err) {
       console.error("Share error:", err);
       errorToast(err.message || tr("failedToCreateShare"));
     } finally {
       loading = false;
     }
+  }
+
+  function handleFileSelection(selectedFiles) {
+    selectedFilePaths = selectedFiles;
+    showFileBrowser = false;
+  }
+
+  function removeFileFromSelection(filePath) {
+    selectedFilePaths = selectedFilePaths.filter((p) => p !== filePath);
   }
 
   async function copyShareUrl() {

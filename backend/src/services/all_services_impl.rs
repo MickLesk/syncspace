@@ -35,7 +35,7 @@ pub mod directory {
         // Determine parent_id by looking up parent folder in database
         let parent_id: Option<String> = if let Some(parent) = parent_path {
             sqlx::query_scalar::<_, String>(
-                "SELECT id FROM folders WHERE path = ? AND owner_id = ? AND is_deleted = 0"
+                "SELECT id FROM folders WHERE path = ? AND owner_id = ? AND is_deleted = 0",
             )
             .bind(parent)
             .bind(&user.id)
@@ -74,7 +74,7 @@ pub mod directory {
             path.to_string(),
             "mkdir".to_string(),
         ));
-        
+
         Ok(DirectoryInfo {
             id: folder_id,
             name: dirname,
@@ -187,25 +187,50 @@ pub mod sharing {
                 .bind(&user.id)
                 .fetch_all(&state.db_pool)
                 .await?;
-        Ok(rows
-            .iter()
-            .map(|r| Share {
+
+        // Convert SharedLink to Share
+        let mut shares = Vec::new();
+        for r in rows {
+            // Parse created_at - try RFC3339 first, fall back to SQLite datetime format
+            let created_at = chrono::DateTime::parse_from_rfc3339(&r.created_at)
+                .ok()
+                .map(|dt| dt.with_timezone(&Utc))
+                .or_else(|| {
+                    chrono::NaiveDateTime::parse_from_str(&r.created_at, "%Y-%m-%d %H:%M:%S")
+                        .ok()
+                        .map(|ndt| Utc.from_utc_datetime(&ndt))
+                })
+                .unwrap_or_else(|| Utc::now());
+
+            // Parse expires_at if present
+            let expires_at = r.expires_at.and_then(|s| {
+                chrono::DateTime::parse_from_rfc3339(&s)
+                    .ok()
+                    .map(|dt| dt.with_timezone(&Utc))
+                    .or_else(|| {
+                        chrono::NaiveDateTime::parse_from_str(&s, "%Y-%m-%d %H:%M:%S")
+                            .ok()
+                            .map(|ndt| Utc.from_utc_datetime(&ndt))
+                    })
+            });
+
+            shares.push(Share {
                 id: Uuid::parse_str(&r.id).unwrap_or_default(),
                 file_path: r.item_id.clone(),
                 token: r.id.clone(),
-                permission: "read".to_string(),
+                permission: if r.allow_upload {
+                    "write".to_string()
+                } else {
+                    "read".to_string()
+                },
                 created_by: Uuid::parse_str(&r.created_by).unwrap_or_default(),
-                created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at)
-                    .unwrap_or_else(|_| Utc::now().into())
-                    .with_timezone(&Utc),
-                expires_at: r.expires_at.clone().and_then(|s| {
-                    chrono::DateTime::parse_from_rfc3339(&s)
-                        .ok()
-                        .map(|dt| dt.with_timezone(&Utc))
-                }),
-                password_hash: None,
-            })
-            .collect())
+                created_at,
+                expires_at,
+                password_hash: r.password_hash,
+            });
+        }
+
+        Ok(shares)
     }
 
     pub async fn delete_share(state: &AppState, user: &UserInfo, share_id: &str) -> Result<()> {
