@@ -52,9 +52,9 @@ async fn set_folder_color(
     // Update folder color in database
     let result = sqlx::query(
         r#"
-        UPDATE files
+        UPDATE folders
         SET color = ?
-        WHERE path = ? AND owner_id = ? AND is_deleted = 0 AND is_directory = 1
+        WHERE path = ? AND owner_id = ? AND is_deleted = 0
         "#,
     )
     .bind(&req.color)
@@ -88,8 +88,8 @@ async fn get_folder_color(
     let row = sqlx::query(
         r#"
         SELECT path, color
-        FROM files
-        WHERE path = ? AND is_deleted = 0 AND is_directory = 1
+        FROM folders
+        WHERE path = ? AND is_deleted = 0
         "#,
     )
     .bind(file_path)
@@ -121,9 +121,9 @@ async fn remove_folder_color(
 
     let result = sqlx::query(
         r#"
-        UPDATE files
+        UPDATE folders
         SET color = NULL
-        WHERE path = ? AND owner_id = ? AND is_deleted = 0 AND is_directory = 1
+        WHERE path = ? AND owner_id = ? AND is_deleted = 0
         "#,
     )
     .bind(file_path)

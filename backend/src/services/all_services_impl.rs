@@ -20,8 +20,51 @@ pub mod directory {
         let full = Path::new(DATA_DIR).join(path);
         fs::create_dir_all(&full).await?;
 
-        // Log activity
+        // Get folder name and determine parent
         let dirname = full.file_name().unwrap().to_string_lossy().to_string();
+        let parent_path = Path::new(path)
+            .parent()
+            .and_then(|p| p.to_str())
+            .filter(|p| !p.is_empty());
+
+        // Generate UUID for the new folder
+        let folder_id = Uuid::new_v4();
+        let owner_uuid = Uuid::parse_str(&user.id).unwrap_or_default();
+        let now = Utc::now().to_rfc3339();
+
+        // Determine parent_id by looking up parent folder in database
+        let parent_id: Option<String> = if let Some(parent) = parent_path {
+            sqlx::query_scalar::<_, String>(
+                "SELECT id FROM folders WHERE path = ? AND owner_id = ? AND is_deleted = 0"
+            )
+            .bind(parent)
+            .bind(&user.id)
+            .fetch_optional(&state.db_pool)
+            .await
+            .ok()
+            .flatten()
+        } else {
+            None
+        };
+
+        // Insert folder into database
+        sqlx::query(
+            r#"
+            INSERT INTO folders (id, name, path, parent_id, owner_id, is_deleted, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, 0, ?, ?)
+            "#
+        )
+        .bind(folder_id.to_string())
+        .bind(&dirname)
+        .bind(path)
+        .bind(parent_id.as_deref())
+        .bind(&user.id)
+        .bind(&now)
+        .bind(&now)
+        .execute(&state.db_pool)
+        .await?;
+
+        // Log activity
         let _ = super::activity::log(
             state, &user.id, "create", path, &dirname, None, None, "success", None, None,
         )
@@ -31,12 +74,13 @@ pub mod directory {
             path.to_string(),
             "mkdir".to_string(),
         ));
+        
         Ok(DirectoryInfo {
-            id: Uuid::new_v4(),
+            id: folder_id,
             name: dirname,
             path: path.to_string(),
-            parent_id: None,
-            owner_id: Uuid::parse_str(&user.id).unwrap_or_default(),
+            parent_id: parent_id.and_then(|p| Uuid::parse_str(&p).ok()),
+            owner_id: owner_uuid,
             created_at: Utc::now(),
         })
     }
