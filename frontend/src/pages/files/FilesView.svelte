@@ -9,7 +9,7 @@
   import PageWrapper from "../../components/PageWrapper.svelte";
   import Breadcrumbs from "../../components/Breadcrumbs.svelte";
   import SearchFilters from "../../components/search/SearchFilters.svelte";
-  import UploadProgress from "../../components/files/UploadProgress.svelte";
+  import UploadManager from "../../components/files/UploadManager.svelte";
   import Modal from "../../components/ui/Modal.svelte";
   import EmptyState from "../../components/ui/EmptyState.svelte";
   import LoadingState from "../../components/ui/LoadingState.svelte";
@@ -577,7 +577,7 @@
       // Navigate to the folder - use file.path for search results, construct path otherwise
       const folderPath = isSearchMode
         ? file.path
-        : $currentPath + file.name + "/";
+        : `${$currentPath.replace(/\/$/, "")}/${file.name}/`;
       navigateTo(folderPath);
     } else {
       // Show preview panel instead of modal
@@ -602,27 +602,114 @@
     }
   }
 
-  async function handleUpload(filesToUpload) {
+  // Handle dropped items (files and folders)
+  async function handleDroppedItems(dataTransfer) {
+    const items = dataTransfer.items;
+    const files = [];
+    let folderName = null;
+
+    if (items) {
+      // Use webkitGetAsEntry API to handle folders
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i].webkitGetAsEntry();
+        if (item) {
+          // Track folder name if uploading a folder
+          if (item.isDirectory && !folderName) {
+            folderName = item.name;
+          }
+          await traverseFileTree(item, "", files);
+        }
+      }
+    } else {
+      // Fallback to regular files
+      files.push(...Array.from(dataTransfer.files || []));
+    }
+
+    if (files.length > 0) {
+      handleUpload(files, folderName, files.length);
+    }
+  }
+
+  // Recursively traverse file tree for folder uploads
+  async function traverseFileTree(item, path, files) {
+    if (item.isFile) {
+      // Get the file
+      const file = await new Promise((resolve) => {
+        item.file((f) => {
+          // Add relative path to file object
+          Object.defineProperty(f, "relativePath", {
+            value: path + f.name,
+            writable: false,
+          });
+          resolve(f);
+        });
+      });
+      files.push(file);
+    } else if (item.isDirectory) {
+      // Create directory first
+      const dirPath = path + item.name;
+      try {
+        // Properly construct the full path
+        const fullPath = $currentPath
+          ? `${$currentPath.replace(/\/$/, "")}/${dirPath}`
+          : dirPath;
+        await api.files.createDir(fullPath);
+        console.log("[Upload] Created directory:", fullPath);
+      } catch (err) {
+        console.error("[Upload] Failed to create directory:", dirPath, err);
+        // Continue anyway, backend might create it on file upload
+      }
+
+      // Read directory contents
+      const dirReader = item.createReader();
+      const entries = await new Promise((resolve) => {
+        dirReader.readEntries((entries) => resolve(entries));
+      });
+
+      // Recursively process subdirectories and files
+      for (const entry of entries) {
+        await traverseFileTree(entry, dirPath + "/", files);
+      }
+    }
+  }
+
+  async function handleUpload(
+    filesToUpload,
+    batchName = null,
+    totalFiles = null
+  ) {
     const fileList = Array.from(filesToUpload);
     const MAX_RETRIES = 3;
     const RETRY_DELAY_MS = 1000;
+
+    // Generate batch ID for folder uploads
+    const batchId = batchName ? Date.now() + Math.random() : null;
 
     for (let file of fileList) {
       const uploadId = Date.now() + Math.random();
       let retryCount = 0;
       let uploadSuccess = false;
 
+      // Get relative path if available (for folder uploads)
+      const relativePath =
+        file.relativePath || file.webkitRelativePath || file.name;
+      const displayName = relativePath.includes("/") ? relativePath : file.name;
+
       // Initialize upload progress entry
       uploadProgress = [
         ...uploadProgress,
         {
           id: uploadId,
-          name: file.name,
+          name: displayName,
           progress: 0,
           status: "uploading",
           retries: 0,
           error: null,
           size: file.size,
+          batchId: batchId,
+          batchName: batchName,
+          batchTotal: totalFiles,
+          batchIndex: fileList.indexOf(file) + 1,
         },
       ];
 
@@ -647,8 +734,21 @@
             );
           }
 
+          // Determine upload path (include subdirectory if present)
+          let uploadPath = $currentPath;
+          if (relativePath.includes("/")) {
+            // Extract directory path from relative path
+            const pathParts = relativePath.split("/");
+            pathParts.pop(); // Remove filename
+            const subdir = pathParts.join("/");
+            // Properly construct path with normalized slashes
+            uploadPath = $currentPath
+              ? `${$currentPath.replace(/\/$/, "")}/${subdir}`
+              : subdir;
+          }
+
           // Perform upload with progress tracking
-          await api.files.uploadWithProgress($currentPath, file, (percent) => {
+          await api.files.uploadWithProgress(uploadPath, file, (percent) => {
             uploadProgress = uploadProgress.map((up) =>
               up.id === uploadId
                 ? { ...up, progress: percent, status: "uploading" }
@@ -663,7 +763,7 @@
               : up
           );
 
-          success(tr("uploadedFile", file.name));
+          // Success is shown in UploadManager, no toast needed
           uploadSuccess = true;
         } catch (err) {
           retryCount++;
@@ -719,12 +819,44 @@
     // Reload files to show newly uploaded files
     await loadFiles();
 
-    // Clean up completed uploads after 5 seconds (increased from 3s)
-    setTimeout(() => {
-      uploadProgress = uploadProgress.filter(
-        (up) => up.status === "uploading" || up.status === "retrying"
-      );
-    }, 5000);
+    // User can manually clear completed uploads via UploadManager
+  }
+
+  function handleUploadClear(type) {
+    if (type === "completed") {
+      uploadProgress = uploadProgress.filter((up) => up.status !== "complete");
+    } else if (type === "all") {
+      uploadProgress = [];
+    }
+  }
+
+  function handleUploadRetry(uploadId) {
+    const upload = uploadProgress.find((up) => up.id === uploadId);
+    if (upload && upload.file) {
+      // Reset the upload and retry
+      upload.status = "uploading";
+      upload.progress = 0;
+      upload.retries = (upload.retries || 0) + 1;
+      uploadFiles([upload.file]);
+    }
+  }
+
+  function handleUploadCancel(uploadId) {
+    // Remove the upload from progress
+    uploadProgress = uploadProgress.filter((up) => up.id !== uploadId);
+  }
+
+  function handleFileClick(upload) {
+    // Reload files and try to select the uploaded file
+    loadFiles().then(() => {
+      // Find the file in the current list
+      const uploadedFile = files.find((f) => f.name === upload.name);
+      if (uploadedFile) {
+        // If we have a file details modal, open it
+        currentFile = uploadedFile;
+        showFileModal = true;
+      }
+    });
   }
 
   async function createNewFolder(data) {
@@ -997,10 +1129,9 @@
   ondrop={(e) => {
     e.preventDefault();
     document.body.classList.remove("dragging-files");
-    const files = Array.from(e.dataTransfer?.files || []);
-    if (files.length > 0) {
-      handleUpload(files);
-    }
+
+    // Handle both files and folders
+    handleDroppedItems(e.dataTransfer);
   }}
   ondragover={(e) => e.preventDefault()}
 />
@@ -1090,12 +1221,14 @@
       </div>
     {/if}
 
-    <!-- Upload Progress -->
-    {#if uploadProgress.length > 0}
-      <div class="mb-4">
-        <UploadProgress uploads={uploadProgress} />
-      </div>
-    {/if}
+    <!-- Upload Manager -->
+    <UploadManager
+      uploads={uploadProgress}
+      onClear={handleUploadClear}
+      onRetry={handleUploadRetry}
+      onCancel={handleUploadCancel}
+      onFileClick={handleFileClick}
+    />
 
     <!-- File Grid/List -->
     {#if loading || searchLoading}

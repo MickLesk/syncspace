@@ -121,41 +121,43 @@ async fn permanent_delete(
     Path(path): Path<String>,
     user_info: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
-    // First get the item to find the storage path
-    let item: Option<TrashItem> = sqlx::query_as(
-        r#"
-        SELECT id, original_path, storage_path, item_type, name, size_bytes, deleted_by, deleted_at
-        FROM trash_items
-        WHERE original_path = ? AND deleted_by = ?
-        "#,
-    )
-    .bind(&path)
-    .bind(&user_info.id)
-    .fetch_optional(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    // First get the item to find the file path
+    #[derive(sqlx::FromRow)]
+    struct FileItem {
+        path: String,
+    }
+
+    let item: Option<FileItem> =
+        sqlx::query_as("SELECT path FROM files WHERE path = ? AND owner_id = ? AND is_deleted = 1")
+            .bind(&path)
+            .bind(&user_info.id)
+            .fetch_optional(&state.db_pool)
+            .await
+            .map_err(|e| {
+                tracing::error!("Failed to fetch file: {}", e);
+                StatusCode::INTERNAL_SERVER_ERROR
+            })?;
 
     let item = item.ok_or(StatusCode::NOT_FOUND)?;
 
     // Delete from database
-    let result = sqlx::query(
-        r#"
-        DELETE FROM trash_items
-        WHERE original_path = ? AND deleted_by = ?
-        "#,
-    )
-    .bind(&path)
-    .bind(&user_info.id)
-    .execute(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let result =
+        sqlx::query("DELETE FROM files WHERE path = ? AND owner_id = ? AND is_deleted = 1")
+            .bind(&path)
+            .bind(&user_info.id)
+            .execute(&state.db_pool)
+            .await
+            .map_err(|e| {
+                tracing::error!("Failed to delete file from database: {}", e);
+                StatusCode::INTERNAL_SERVER_ERROR
+            })?;
 
     if result.rows_affected() == 0 {
         return Err(StatusCode::NOT_FOUND);
     }
 
-    // Delete actual file from filesystem using original_path
-    let file_path = std::path::Path::new("./data").join(&item.original_path);
+    // Delete actual file from filesystem
+    let file_path = std::path::Path::new("./data").join(&item.path);
     if file_path.exists() {
         if file_path.is_dir() {
             let _ = tokio::fs::remove_dir_all(&file_path).await;
@@ -175,17 +177,47 @@ async fn cleanup_trash(
     let thirty_days_ago = Utc::now() - chrono::Duration::days(30);
     let thirty_days_ago_str = thirty_days_ago.to_rfc3339();
 
-    let result = sqlx::query(
-        r#"
-        DELETE FROM trash_items
-        WHERE deleted_by = ? AND deleted_at < ?
-        "#,
+    // Get files to delete
+    #[derive(sqlx::FromRow)]
+    struct DeletedFile {
+        path: String,
+    }
+
+    let old_files: Vec<DeletedFile> = sqlx::query_as(
+        "SELECT path FROM files WHERE owner_id = ? AND is_deleted = 1 AND updated_at < ?",
     )
     .bind(&user_info.id)
     .bind(&thirty_days_ago_str)
-    .execute(&state.db_pool)
+    .fetch_all(&state.db_pool)
     .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .map_err(|e| {
+        tracing::error!("Failed to fetch old deleted files: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    // Delete physical files
+    for file in &old_files {
+        let file_path = std::path::Path::new("./data").join(&file.path);
+        if file_path.exists() {
+            if file_path.is_dir() {
+                let _ = tokio::fs::remove_dir_all(&file_path).await;
+            } else {
+                let _ = tokio::fs::remove_file(&file_path).await;
+            }
+        }
+    }
+
+    // Delete from database
+    let result =
+        sqlx::query("DELETE FROM files WHERE owner_id = ? AND is_deleted = 1 AND updated_at < ?")
+            .bind(&user_info.id)
+            .bind(&thirty_days_ago_str)
+            .execute(&state.db_pool)
+            .await
+            .map_err(|e| {
+                tracing::error!("Failed to cleanup old files: {}", e);
+                StatusCode::INTERNAL_SERVER_ERROR
+            })?;
 
     Ok(Json(serde_json::json!({
         "deleted_count": result.rows_affected()
@@ -197,19 +229,47 @@ async fn empty_trash(
     State(state): State<AppState>,
     user_info: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let result = sqlx::query(
-        r#"
-        DELETE FROM trash_items
-        WHERE deleted_by = ?
-        "#,
-    )
-    .bind(&user_info.id)
-    .execute(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    // Get all files marked as deleted for this user
+    #[derive(sqlx::FromRow)]
+    struct DeletedFile {
+        path: String,
+    }
+
+    let deleted_files: Vec<DeletedFile> =
+        sqlx::query_as("SELECT path FROM files WHERE is_deleted = 1 AND owner_id = ?")
+            .bind(&user_info.id)
+            .fetch_all(&state.db_pool)
+            .await
+            .map_err(|e| {
+                tracing::error!("Failed to fetch deleted files: {}", e);
+                StatusCode::INTERNAL_SERVER_ERROR
+            })?;
+
+    // Delete physical files from filesystem
+    for file in &deleted_files {
+        let file_path = std::path::Path::new("./data").join(&file.path);
+        if file_path.exists() {
+            if file_path.is_dir() {
+                let _ = tokio::fs::remove_dir_all(&file_path).await;
+            } else {
+                let _ = tokio::fs::remove_file(&file_path).await;
+            }
+        }
+    }
+
+    // Delete from database
+    let result = sqlx::query("DELETE FROM files WHERE is_deleted = 1 AND owner_id = ?")
+        .bind(&user_info.id)
+        .execute(&state.db_pool)
+        .await
+        .map_err(|e| {
+            tracing::error!("Failed to delete files from database: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
 
     Ok(Json(serde_json::json!({
-        "deleted_count": result.rows_affected()
+        "deleted_count": result.rows_affected(),
+        "message": "Trash emptied successfully"
     })))
 }
 
@@ -222,4 +282,3 @@ pub fn router() -> Router<AppState> {
         .route("/trash/cleanup", delete(cleanup_trash))
         .route("/trash/empty", delete(empty_trash))
 }
-

@@ -41,16 +41,46 @@
     if (!items) return;
 
     const files = [];
+
+    // Use webkitGetAsEntry API to handle folders
     for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.kind === "file") {
-        const file = item.getAsFile();
-        if (file) files.push(file);
+      const item = items[i].webkitGetAsEntry();
+      if (item) {
+        await traverseFileTree(item, "", files);
       }
     }
 
     if (files.length > 0) {
       onFilesSelected?.(files);
+    }
+  }
+
+  // Recursively traverse file tree for folder uploads
+  async function traverseFileTree(item, path, files) {
+    if (item.isFile) {
+      // Get the file
+      const file = await new Promise((resolve) => {
+        item.file((f) => {
+          // Add relative path to file object
+          Object.defineProperty(f, "relativePath", {
+            value: path + f.name,
+            writable: false,
+          });
+          resolve(f);
+        });
+      });
+      files.push(file);
+    } else if (item.isDirectory) {
+      // Read directory contents
+      const dirReader = item.createReader();
+      const entries = await new Promise((resolve) => {
+        dirReader.readEntries((entries) => resolve(entries));
+      });
+
+      // Recursively process subdirectories and files
+      for (const entry of entries) {
+        await traverseFileTree(entry, path + item.name + "/", files);
+      }
     }
   }
 
@@ -87,6 +117,7 @@
     type="file"
     {accept}
     {multiple}
+    webkitdirectory={false}
     onchange={handleFileSelect}
     class="hidden"
     id="file-upload-input"
@@ -97,7 +128,7 @@
       <i class="bi bi-download text-6xl text-blue-500 mb-4 block animate-bounce"
       ></i>
       <p class="text-xl font-semibold text-blue-600 dark:text-blue-400 mb-2">
-        Drop files here
+        Drop files or folders here
       </p>
       <p class="text-sm text-gray-500 dark:text-gray-400">
         Release to upload to {currentPath || "root"}
@@ -107,7 +138,7 @@
         class="bi bi-cloud-upload text-6xl text-gray-400 dark:text-gray-500 mb-4 block"
       ></i>
       <p class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">
-        Drag & drop files here
+        Drag & drop files or folders here
       </p>
       <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">or</p>
       <button

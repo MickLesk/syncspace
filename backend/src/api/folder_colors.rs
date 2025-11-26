@@ -2,21 +2,32 @@
 //! Allows users to customize folder appearance with colors
 
 use axum::{
-    extract::{Path, State},
+    extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
-    routing::{get, put},
+    routing::{post, put},
     Router,
 };
 use serde::{Deserialize, Serialize};
 use sqlx::Row;
 
-use crate::AppState;
 use crate::auth::UserInfo;
+use crate::AppState;
 
 #[derive(Debug, Deserialize)]
 pub struct SetFolderColorRequest {
+    pub file_path: String,
     pub color: String, // Hex color like #FF5733
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GetFolderColorRequest {
+    pub file_path: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RemoveFolderColorRequest {
+    pub file_path: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -28,7 +39,6 @@ pub struct FolderColorResponse {
 /// Set folder color
 async fn set_folder_color(
     State(state): State<AppState>,
-    Path(file_path): Path<String>,
     user_info: UserInfo,
     Json(req): Json<SetFolderColorRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
@@ -37,16 +47,18 @@ async fn set_folder_color(
         return Err(StatusCode::BAD_REQUEST);
     }
 
+    let file_path = req.file_path.trim_start_matches('/').trim_end_matches('/');
+
     // Update folder color in database
     let result = sqlx::query(
         r#"
-        UPDATE folders
+        UPDATE files
         SET color = ?
-        WHERE path = ? AND owner_id = ? AND is_deleted = 0
+        WHERE path = ? AND owner_id = ? AND is_deleted = 0 AND is_directory = 1
         "#,
     )
     .bind(&req.color)
-    .bind(&file_path)
+    .bind(file_path)
     .bind(&user_info.id)
     .execute(&state.db_pool)
     .await
@@ -69,16 +81,18 @@ async fn set_folder_color(
 /// Get folder color
 async fn get_folder_color(
     State(state): State<AppState>,
-    Path(file_path): Path<String>,
+    Json(req): Json<GetFolderColorRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
+    let file_path = req.file_path.trim_start_matches('/').trim_end_matches('/');
+
     let row = sqlx::query(
         r#"
         SELECT path, color
-        FROM folders
-        WHERE path = ? AND is_deleted = 0
+        FROM files
+        WHERE path = ? AND is_deleted = 0 AND is_directory = 1
         "#,
     )
-    .bind(&file_path)
+    .bind(file_path)
     .fetch_optional(&state.db_pool)
     .await
     .map_err(|e| {
@@ -100,17 +114,19 @@ async fn get_folder_color(
 /// Remove folder color
 async fn remove_folder_color(
     State(state): State<AppState>,
-    Path(file_path): Path<String>,
     user_info: UserInfo,
+    Json(req): Json<RemoveFolderColorRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
+    let file_path = req.file_path.trim_start_matches('/').trim_end_matches('/');
+
     let result = sqlx::query(
         r#"
-        UPDATE folders
+        UPDATE files
         SET color = NULL
-        WHERE path = ? AND owner_id = ? AND is_deleted = 0
+        WHERE path = ? AND owner_id = ? AND is_deleted = 0 AND is_directory = 1
         "#,
     )
-    .bind(&file_path)
+    .bind(file_path)
     .bind(&user_info.id)
     .execute(&state.db_pool)
     .await
@@ -129,11 +145,7 @@ async fn remove_folder_color(
 /// Build folder colors router
 pub fn router() -> Router<AppState> {
     Router::new()
-        .route("/folders/{file_path}/color", 
-            get(get_folder_color)
-            .put(set_folder_color)
-        )
-        .route("/folders/{file_path}/color/remove", 
-            put(remove_folder_color)
-        )
+        .route("/folders/color", put(set_folder_color))
+        .route("/folders/color/get", post(get_folder_color))
+        .route("/folders/color/remove", post(remove_folder_color))
 }

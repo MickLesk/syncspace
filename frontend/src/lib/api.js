@@ -890,8 +890,12 @@ export const folderColors = {
    */
   async get(folderPath) {
     const response = await fetch(
-      `${API_BASE}/folders/${encodeURIComponent(folderPath)}/color`,
-      { headers: getHeaders() }
+      `${API_BASE}/folders/color/get`,
+      { 
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify({ file_path: folderPath })
+      }
     );
     return handleResponse(response);
   },
@@ -901,11 +905,11 @@ export const folderColors = {
    */
   async set(folderPath, color) {
     const response = await fetch(
-      `${API_BASE}/folders/${encodeURIComponent(folderPath)}/color`,
+      `${API_BASE}/folders/color`,
       {
         method: "PUT",
         headers: getHeaders(),
-        body: JSON.stringify({ color }),
+        body: JSON.stringify({ file_path: folderPath, color }),
       }
     );
     return handleResponse(response);
@@ -916,10 +920,11 @@ export const folderColors = {
    */
   async remove(folderPath) {
     const response = await fetch(
-      `${API_BASE}/folders/${encodeURIComponent(folderPath)}/color/remove`,
+      `${API_BASE}/folders/color/remove`,
       {
-        method: "PUT",
+        method: "POST",
         headers: getHeaders(),
+        body: JSON.stringify({ file_path: folderPath }),
       }
     );
     return handleResponse(response);
