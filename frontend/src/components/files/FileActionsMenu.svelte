@@ -13,6 +13,7 @@
     onCopy,
     onShare,
     onDownload,
+    onEdit,
     onVersionHistory,
     onPreview,
     onChangeFolderColor,
@@ -107,6 +108,17 @@
       >
         <i class="bi bi-download text-green-600"></i>
         <span>{tr("download")}</span>
+      </button>
+    {/if}
+
+    {#if !file.is_directory && onEdit}
+      <button
+        type="button"
+        class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
+        onclick={() => handleAction(onEdit)}
+      >
+        <i class="bi bi-file-earmark-code text-blue-500"></i>
+        <span>{tr("editFile")}</span>
       </button>
     {/if}
 

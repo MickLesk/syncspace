@@ -10,12 +10,22 @@ use axum::{
     Router,
 };
 use chrono::Utc;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
 use crate::auth::UserInfo;
 use crate::AppState;
+
+/// Extract @mentions from comment text
+/// Matches @username patterns and returns list of usernames
+fn extract_mentions(text: &str) -> Vec<String> {
+    let re = Regex::new(r"@([a-zA-Z0-9_]+)").unwrap();
+    re.captures_iter(text)
+        .filter_map(|cap| cap.get(1).map(|m| m.as_str().to_string()))
+        .collect()
+}
 
 #[derive(Debug, Deserialize)]
 pub struct FilePathQuery {
@@ -292,6 +302,11 @@ async fn create_file_comment(
     Json(req): Json<CreateCommentRequest>,
 ) -> Result<(StatusCode, Json<serde_json::Value>), StatusCode> {
     let sanitized_content = crate::security::sanitize_html(&req.content);
+
+    // Extract @mentions from comment
+    let mentions = extract_mentions(&req.content);
+    let mentions_json = serde_json::to_string(&mentions).unwrap_or_else(|_| "[]".to_string());
+
     let comment_id = Uuid::new_v4().to_string();
     let now = Utc::now().to_rfc3339();
 
@@ -299,20 +314,24 @@ async fn create_file_comment(
         r#"
         INSERT INTO comments (
             id, item_type, item_id, file_path, author_id, 
-            text, is_resolved, created_at, updated_at
+            text, mentions, is_resolved, created_at, updated_at
         )
-        VALUES (?, 'file', '', ?, ?, ?, 0, ?, ?)
+        VALUES (?, 'file', '', ?, ?, ?, ?, 0, ?, ?)
         "#,
     )
     .bind(&comment_id)
     .bind(&query.path)
     .bind(&user_info.id)
     .bind(&sanitized_content)
+    .bind(&mentions_json)
     .bind(&now)
     .bind(&now)
     .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // TODO: Send notifications to mentioned users via WebSocket
+    // For each username in mentions, look up user_id and send notification
 
     Ok((
         StatusCode::CREATED,
@@ -322,6 +341,7 @@ async fn create_file_comment(
             "author_id": user_info.id,
             "created_at": now,
             "updated_at": now,
+            "mentions": mentions,
         })),
     ))
 }
@@ -418,4 +438,3 @@ async fn add_reaction(
 pub struct ReactionRequest {
     pub emoji: String,
 }
-

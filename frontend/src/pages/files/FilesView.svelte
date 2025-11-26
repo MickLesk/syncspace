@@ -20,6 +20,7 @@
   import FilePreviewPanel from "../../components/files/FilePreviewPanel.svelte";
   import CopyFileModal from "../../components/modals/CopyFileModal.svelte";
   import MoveFileModal from "../../components/modals/MoveFileModal.svelte";
+  import FileEditorModal from "../../components/editor/FileEditorModal.svelte";
   import api from "../../lib/api";
   import { websocketManager } from "@stores/websocket.js";
 
@@ -58,6 +59,10 @@
   let selectedFileForCopy = $state(null);
   let showMoveModal = $state(false);
   let selectedFileForMove = $state(null);
+
+  // File Editor Modal State
+  let showEditorModal = $state(false);
+  let fileToEdit = $state(null);
 
   let searchFilters = $state({
     type: "all",
@@ -1052,6 +1057,61 @@
     }
   }
 
+  function openFileEditor(file) {
+    // Only open editor for text-based files
+    const editableExtensions = [
+      "txt",
+      "md",
+      "json",
+      "js",
+      "jsx",
+      "ts",
+      "tsx",
+      "py",
+      "rs",
+      "go",
+      "java",
+      "cpp",
+      "c",
+      "cs",
+      "php",
+      "rb",
+      "swift",
+      "kt",
+      "scala",
+      "sh",
+      "bash",
+      "sql",
+      "html",
+      "css",
+      "scss",
+      "sass",
+      "less",
+      "xml",
+      "yaml",
+      "yml",
+      "log",
+      "toml",
+      "ini",
+      "cfg",
+      "conf",
+    ];
+
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    if (!editableExtensions.includes(ext)) {
+      errorToast(tr("fileNotEditable"));
+      return;
+    }
+
+    fileToEdit = file;
+    showEditorModal = true;
+  }
+
+  function handleEditorSave() {
+    // Reload files after save
+    loadFiles($currentPath);
+  }
+
   function selectAll() {
     selectedFiles = new Set(displayFiles().map((f) => f.file_path || f.name));
   }
@@ -1344,6 +1404,10 @@
     }}
     onShare={() => modals.openShare(currentFile)}
     onDownload={() => downloadFile(currentFile)}
+    onEdit={() => {
+      openFileEditor(currentFile);
+      closeContextMenu();
+    }}
     onVersionHistory={() => modals.openVersionHistory(currentFile)}
     onPreview={() => openFile(currentFile)}
     onChangeFolderColor={() => modals.openChangeFolderColor(currentFile)}
@@ -1379,6 +1443,16 @@
     selectedFileForMove = null;
   }}
 />
+
+<!-- File Editor Modal -->
+{#if showEditorModal && fileToEdit}
+  <FileEditorModal
+    bind:isOpen={showEditorModal}
+    filePath={fileToEdit.file_path || fileToEdit.path}
+    fileId={fileToEdit.id}
+    onSave={handleEditorSave}
+  />
+{/if}
 
 <!-- All modals now rendered globally in ModalPortal.svelte -->
 

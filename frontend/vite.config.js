@@ -29,6 +29,11 @@ export default defineConfig({
           return 'assets/[name]-[hash][extname]';
         },
         manualChunks: (id) => {
+          // Monaco Editor - separate chunk
+          if (id.includes('node_modules/monaco-editor')) {
+            return 'vendor-monaco';
+          }
+          
           // Vendor chunks - separate large dependencies
           if (id.includes('node_modules/svelte')) {
             return 'vendor-svelte';
@@ -54,7 +59,7 @@ export default defineConfig({
         }
       }
     },
-    chunkSizeWarningLimit: 600, // Increase from default 500KB
+    chunkSizeWarningLimit: 1000, // Increase for Monaco Editor
     sourcemap: false // Disable sourcemaps in production for smaller builds
   },
   resolve: {
@@ -66,5 +71,9 @@ export default defineConfig({
       '@lib': resolve(__dirname, 'src/lib')
     },
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.svelte']
+  },
+  // Monaco Editor Worker configuration
+  optimizeDeps: {
+    include: ['monaco-editor']
   }
 })

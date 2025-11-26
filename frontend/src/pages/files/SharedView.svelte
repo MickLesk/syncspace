@@ -9,6 +9,7 @@
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import ShareModal from "../../components/sharing/ShareModal.svelte";
+  import ShareAnalyticsView from "../sharing/ShareAnalyticsView.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -18,6 +19,8 @@
   let showShareModal = $state(false);
   let showEditModal = $state(false);
   let showDeleteModal = $state(false);
+  let showAnalytics = $state(false);
+  let analyticsShareId = $state(null);
   let selectedShare = $state(null);
 
   onMount(async () => {
@@ -83,6 +86,16 @@
   function openDeleteModal(share) {
     selectedShare = share;
     showDeleteModal = true;
+  }
+
+  function openAnalytics(shareId) {
+    analyticsShareId = shareId;
+    showAnalytics = true;
+  }
+
+  function closeAnalytics() {
+    showAnalytics = false;
+    analyticsShareId = null;
   }
 
   function formatDate(dateString) {
@@ -262,6 +275,14 @@
                               onclick={() => copyShareLink(share.id)}
                             >
                               {tr("copy")}
+                            </ModernButton>
+                            <ModernButton
+                              variant="ghost"
+                              size="sm"
+                              icon="graph-up"
+                              onclick={() => openAnalytics(share.id)}
+                            >
+                              {tr("analytics")}
                             </ModernButton>
                             <ModernButton
                               variant="secondary"
@@ -474,6 +495,34 @@
           </div>
         {/snippet}
       </ModernCard>
+    </div>
+  {/if}
+
+  <!-- Analytics Modal -->
+  {#if showAnalytics && analyticsShareId}
+    <div
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop"
+      onclick={closeAnalytics}
+    >
+      <div
+        class="max-w-7xl w-full max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 rounded-2xl shadow-2xl modal-content"
+        onclick={(e) => e.stopPropagation()}
+      >
+        <div
+          class="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between z-10"
+        >
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+            {tr("shareAnalytics")}
+          </h2>
+          <button
+            onclick={closeAnalytics}
+            class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <i class="bi bi-x-lg text-2xl text-gray-600 dark:text-gray-400"></i>
+          </button>
+        </div>
+        <ShareAnalyticsView shareId={analyticsShareId} />
+      </div>
     </div>
   {/if}
 </PageWrapper>

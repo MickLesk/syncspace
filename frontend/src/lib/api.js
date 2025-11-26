@@ -1300,6 +1300,22 @@ export const sharing = {
         body: JSON.stringify({ permission })
       });
       return handleResponse(response);
+    },
+
+    // Get share analytics summary
+    async getShareAnalytics(shareId) {
+      const response = await fetch(`${API_BASE}/shares/${shareId}/analytics`, {
+        headers: getHeaders()
+      });
+      return handleResponse(response);
+    },
+
+    // Get detailed access log for share
+    async getShareAccessLog(shareId) {
+      const response = await fetch(`${API_BASE}/shares/${shareId}/access-log`, {
+        headers: getHeaders()
+      });
+      return handleResponse(response);
     }
   };
   

@@ -165,15 +165,15 @@ pub async fn list_users(
 ) -> Result<Vec<serde_json::Value>> {
     let mut query = String::from(
         "SELECT id, username, email, display_name, avatar_base64, role, is_active, created_at 
-         FROM users WHERE 1=1"
+         FROM users WHERE 1=1",
     );
-    
+
     let mut conditions = Vec::new();
-    
+
     if let Some(role) = &role_filter {
         conditions.push(format!("role = '{}'", role));
     }
-    
+
     if let Some(status) = &status_filter {
         if status == "active" {
             conditions.push("is_active = 1".to_string());
@@ -181,14 +181,14 @@ pub async fn list_users(
             conditions.push("is_active = 0".to_string());
         }
     }
-    
+
     if !conditions.is_empty() {
         query.push_str(" AND ");
         query.push_str(&conditions.join(" AND "));
     }
-    
+
     query.push_str(" ORDER BY username ASC");
-    
+
     #[derive(sqlx::FromRow)]
     struct UserRow {
         id: String,
@@ -200,11 +200,9 @@ pub async fn list_users(
         is_active: i32,
         created_at: String,
     }
-    
-    let users: Vec<UserRow> = sqlx::query_as(&query)
-        .fetch_all(&state.db_pool)
-        .await?;
-    
+
+    let users: Vec<UserRow> = sqlx::query_as(&query).fetch_all(&state.db_pool).await?;
+
     Ok(users
         .into_iter()
         .map(|u| {
