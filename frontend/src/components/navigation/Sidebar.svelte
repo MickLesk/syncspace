@@ -69,6 +69,12 @@
       category: "main",
     },
     {
+      id: "favorites",
+      icon: "star-fill",
+      label: t($currentLang, "favorites"),
+      category: "main",
+    },
+    {
       id: "recent",
       icon: "clock-history",
       label: t($currentLang, "recentFiles"),

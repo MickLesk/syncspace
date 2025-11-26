@@ -358,6 +358,18 @@ export const translations = {
     pleaseSelectAtLeastOneFile: 'Bitte wählen Sie mindestens eine Datei aus',
     sharesCreatedSuccessfully: '{0} Freigaben erfolgreich erstellt',
     
+    // Favorites
+    addToFavorites: 'Zu Favoriten hinzufügen',
+    removeFromFavorites: 'Aus Favoriten entfernen',
+    addedToFavorites: 'Zu Favoriten hinzugefügt',
+    removedFromFavorites: 'Aus Favoriten entfernt',
+    noFavoritesYet: 'Noch keine Favoriten',
+    addFavoritesForQuickAccess: 'Fügen Sie Dateien und Ordner zu Favoriten hinzu für schnellen Zugriff',
+    yourFavoriteFilesAndFolders: 'Ihre bevorzugten Dateien und Ordner',
+    failedToLoadFavorites: 'Fehler beim Laden der Favoriten',
+    failedToAddFavorite: 'Fehler beim Hinzufügen zu Favoriten',
+    failedToRemoveFavorite: 'Fehler beim Entfernen aus Favoriten',
+    
     // ShareModal
     shareFileName: 'Teilen: {0}',
     shareType: 'Freigabe-Typ',
@@ -1725,6 +1737,18 @@ export const translations = {
     noFilesSelected: 'No files selected',
     pleaseSelectAtLeastOneFile: 'Please select at least one file',
     sharesCreatedSuccessfully: '{0} shares created successfully',
+    
+    // Favorites
+    addToFavorites: 'Add to Favorites',
+    removeFromFavorites: 'Remove from Favorites',
+    addedToFavorites: 'Added to favorites',
+    removedFromFavorites: 'Removed from favorites',
+    noFavoritesYet: 'No favorites yet',
+    addFavoritesForQuickAccess: 'Add files and folders to favorites for quick access',
+    yourFavoriteFilesAndFolders: 'Your favorite files and folders',
+    failedToLoadFavorites: 'Failed to load favorites',
+    failedToAddFavorite: 'Failed to add to favorites',
+    failedToRemoveFavorite: 'Failed to remove from favorites',
     
     // ShareModal
     shareFileName: 'Share: {0}',

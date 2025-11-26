@@ -26,6 +26,7 @@
   import FilesView from "./pages/files/FilesView.svelte";
   import SharedView from "./pages/files/SharedView.svelte";
   import RecentFilesView from "./pages/files/RecentFilesView.svelte";
+  import FavoritesView from "./pages/files/FavoritesView.svelte";
 
   // System Views
   import TrashView from "./pages/trash/TrashView.svelte";
@@ -338,6 +339,8 @@
                 <FilesView />
               {:else if $currentView === "shared"}
                 <SharedView />
+              {:else if $currentView === "favorites"}
+                <FavoritesView />
               {:else if $currentView === "trash"}
                 <TrashView />
               {:else if $currentView === "users"}

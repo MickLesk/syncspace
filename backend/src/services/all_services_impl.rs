@@ -973,34 +973,51 @@ pub mod tag {
 // FAVORITES SERVICE
 pub mod favorites {
     use super::*;
-    use crate::database::Favorite;
+    use crate::database::UserFavorite;
 
     pub async fn add_favorite(
         state: &AppState,
         user: &UserInfo,
         item_type: &str,
         item_id: &str,
-    ) -> Result<Favorite> {
+    ) -> Result<UserFavorite> {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now().to_rfc3339();
-        sqlx::query("INSERT INTO favorites (id, user_id, item_type, item_id, sort_order, created_at) VALUES (?, ?, ?, ?, 0, ?)")
-            .bind(&id).bind(&user.id).bind(item_type).bind(item_id).bind(&now).execute(&state.db_pool).await?;
-        Ok(Favorite {
+
+        // Get item path based on type
+        let item_path = if item_type == "file" {
+            sqlx::query_scalar::<_, String>("SELECT file_path FROM files WHERE id = ?")
+                .bind(item_id)
+                .fetch_optional(&state.db_pool)
+                .await?
+                .unwrap_or_default()
+        } else {
+            sqlx::query_scalar::<_, String>("SELECT path FROM folders WHERE id = ?")
+                .bind(item_id)
+                .fetch_optional(&state.db_pool)
+                .await?
+                .unwrap_or_default()
+        };
+
+        sqlx::query("INSERT INTO user_favorites (id, user_id, item_type, item_id, item_path, created_at) VALUES (?, ?, ?, ?, ?, ?)")
+            .bind(&id).bind(&user.id).bind(item_type).bind(item_id).bind(&item_path).bind(&now).execute(&state.db_pool).await?;
+        Ok(UserFavorite {
             id,
             user_id: user.id.clone(),
             item_type: item_type.to_string(),
             item_id: item_id.to_string(),
-            sort_order: 0,
+            item_path,
             created_at: now,
         })
     }
 
-    pub async fn list_favorites(state: &AppState, user: &UserInfo) -> Result<Vec<Favorite>> {
-        let rows: Vec<crate::database::Favorite> =
-            sqlx::query_as("SELECT * FROM favorites WHERE user_id = ?")
-                .bind(&user.id)
-                .fetch_all(&state.db_pool)
-                .await?;
+    pub async fn list_favorites(state: &AppState, user: &UserInfo) -> Result<Vec<UserFavorite>> {
+        let rows: Vec<UserFavorite> = sqlx::query_as(
+            "SELECT * FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC",
+        )
+        .bind(&user.id)
+        .fetch_all(&state.db_pool)
+        .await?;
         Ok(rows)
     }
 
@@ -1009,7 +1026,7 @@ pub mod favorites {
         user: &UserInfo,
         favorite_id: &str,
     ) -> Result<()> {
-        sqlx::query("DELETE FROM favorites WHERE id = ? AND user_id = ?")
+        sqlx::query("DELETE FROM user_favorites WHERE id = ? AND user_id = ?")
             .bind(favorite_id)
             .bind(&user.id)
             .execute(&state.db_pool)
@@ -1023,11 +1040,11 @@ pub mod favorites {
         user: &UserInfo,
         item_type: &str,
         item_id: &str,
-    ) -> Result<Favorite> {
+    ) -> Result<UserFavorite> {
         add_favorite(state, user, item_type, item_id).await
     }
 
-    pub async fn list(state: &AppState, user: &UserInfo) -> Result<Vec<Favorite>> {
+    pub async fn list(state: &AppState, user: &UserInfo) -> Result<Vec<UserFavorite>> {
         list_favorites(state, user).await
     }
 

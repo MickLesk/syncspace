@@ -604,6 +604,64 @@ pub struct UserPreferences {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct UserFavorite {
+    pub id: String,
+    pub user_id: String,
+    pub item_id: String,
+    pub item_type: String, // 'file' or 'folder'
+    pub item_path: String,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FavoriteItem {
+    pub id: String,
+    pub item_id: String,
+    pub item_type: String,
+    pub item_path: String,
+    pub name: String,
+    pub size_bytes: Option<i64>,
+    pub mime_type: Option<String>,
+    pub is_directory: bool,
+    pub created_at: String,
+    pub favorited_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct CommentReaction {
+    pub id: String,
+    pub comment_id: String,
+    pub user_id: String,
+    pub emoji: String,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FileCommentWithDetails {
+    pub id: String,
+    pub file_path: String,
+    pub user_id: String,
+    pub user_display_name: String,
+    pub user_avatar_base64: Option<String>,
+    pub parent_comment_id: Option<String>,
+    pub content: String,
+    pub mentions: Vec<String>, // Parsed from JSON
+    pub reactions: Vec<CommentReactionSummary>,
+    pub created_at: String,
+    pub updated_at: Option<String>,
+    pub is_edited: bool,
+    pub reply_count: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CommentReactionSummary {
+    pub emoji: String,
+    pub count: i32,
+    pub users: Vec<String>, // Display names of users who reacted
+    pub current_user_reacted: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct FileVersionNew {
     pub id: String,
     pub file_id: String,
@@ -685,6 +743,11 @@ pub struct Comment {
     pub edited_by: Option<String>,
     pub created_at: String,
     pub updated_at: String,
+    // New fields from migration 034
+    pub parent_comment_id: Option<String>, // Threading support
+    pub mentions: Option<String>, // JSON array of user_ids
+    pub is_deleted: i32, // Soft delete flag
+    pub deleted_at: Option<String>, // Soft delete timestamp
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
@@ -695,15 +758,6 @@ pub struct Tag {
     pub owner_id: String,
     pub created_at: String,
     pub updated_at: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
-pub struct CommentReaction {
-    pub id: String,
-    pub comment_id: String,
-    pub emoji: String,
-    pub user_id: String,
-    pub created_at: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
