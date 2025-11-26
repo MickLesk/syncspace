@@ -2,6 +2,9 @@
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use uuid::Uuid;
+use base64::{Engine as _, engine::general_purpose};
+use suppaftp::{FtpStream, Mode};
+use std::io::Cursor;
 
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct FtpConnection {
@@ -46,7 +49,7 @@ pub async fn add_ftp_connection(
     req: CreateFtpConnectionRequest,
 ) -> Result<FtpConnection, sqlx::Error> {
     let id = Uuid::new_v4().to_string();
-    let password_encrypted = base64::encode(&req.password);
+    let password_encrypted = general_purpose::STANDARD.encode(&req.password);
     
     sqlx::query(
         "INSERT INTO ftp_connections 
@@ -77,62 +80,131 @@ pub async fn add_ftp_connection(
         .await
 }
 
-/// Sync with FTP server (placeholder - requires ftp crate)
+/// Sync with FTP server
 pub async fn sync_ftp(
-    _connection: &FtpConnection,
+    connection: &FtpConnection,
 ) -> Result<SyncResult, Box<dyn std::error::Error + Send + Sync>> {
-    // Placeholder implementation
-    // In production: use `suppaftp` or `async-ftp` crate
-    /*
-    Example with suppaftp:
+    let password_bytes = general_purpose::STANDARD.decode(&connection.password_encrypted)?;
+    let password = String::from_utf8(password_bytes)?;
     
-    let mut ftp_stream = if connection.use_ftps {
-        FtpStream::connect_secure((connection.host.as_str(), connection.port as u16))?
-    } else {
-        FtpStream::connect((connection.host.as_str(), connection.port as u16))?
-    };
-    
+    // Connect to FTP server
+    let mut ftp_stream = FtpStream::connect(format!("{}:{}", connection.host, connection.port))?;
     ftp_stream.login(&connection.username, &password)?;
     
+    // Set passive mode if requested
     if connection.passive_mode {
-        ftp_stream.pasv()?;
+        ftp_stream.set_mode(Mode::Passive);
+    } else {
+        ftp_stream.set_mode(Mode::Active);
     }
     
+    // Change to remote directory
     ftp_stream.cwd(&connection.remote_path)?;
+    
+    let mut result = SyncResult {
+        uploaded: 0,
+        downloaded: 0,
+        errors: 0,
+    };
     
     match connection.sync_direction.as_str() {
         "upload" => {
             // Upload files from local to remote
-            let files = std::fs::read_dir(&connection.local_path)?;
-            for file in files {
-                let file = file?;
-                let filename = file.file_name().to_string_lossy().to_string();
-                let mut file_data = std::fs::read(file.path())?;
-                ftp_stream.put(&filename, &mut file_data.as_slice())?;
+            if let Ok(entries) = std::fs::read_dir(&connection.local_path) {
+                for entry in entries {
+                    if let Ok(entry) = entry {
+                        if let Ok(metadata) = entry.metadata() {
+                            if metadata.is_file() {
+                                let filename = entry.file_name().to_string_lossy().to_string();
+                                match std::fs::read(entry.path()) {
+                                    Ok(file_data) => {
+                                        let mut cursor = Cursor::new(file_data);
+                                        match ftp_stream.put_file(&filename, &mut cursor) {
+                                            Ok(_) => result.uploaded += 1,
+                                            Err(_) => result.errors += 1,
+                                        }
+                                    },
+                                    Err(_) => result.errors += 1,
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "download" => {
             // Download files from remote to local
-            let files = ftp_stream.nlst(None)?;
-            for filename in files {
-                let data = ftp_stream.retr_as_buffer(&filename)?;
-                std::fs::write(format!("{}/{}", connection.local_path, filename), data)?;
+            match ftp_stream.nlst(None) {
+                Ok(files) => {
+                    for filename in files {
+                        match ftp_stream.retr_as_buffer(&filename) {
+                            Ok(data) => {
+                                let local_path = format!("{}/{}", connection.local_path, filename);
+                                match std::fs::write(&local_path, data) {
+                                    Ok(_) => result.downloaded += 1,
+                                    Err(_) => result.errors += 1,
+                                }
+                            },
+                            Err(_) => result.errors += 1,
+                        }
+                    }
+                },
+                Err(_) => result.errors += 1,
             }
         },
         "bidirectional" => {
-            // Two-way sync with conflict resolution
+            // Two-way sync: upload first, then download
+            // Upload files
+            if let Ok(entries) = std::fs::read_dir(&connection.local_path) {
+                for entry in entries {
+                    if let Ok(entry) = entry {
+                        if let Ok(metadata) = entry.metadata() {
+                            if metadata.is_file() {
+                                let filename = entry.file_name().to_string_lossy().to_string();
+                                match std::fs::read(entry.path()) {
+                                    Ok(file_data) => {
+                                        let mut cursor = Cursor::new(file_data);
+                                        match ftp_stream.put_file(&filename, &mut cursor) {
+                                            Ok(_) => result.uploaded += 1,
+                                            Err(_) => result.errors += 1,
+                                        }
+                                    },
+                                    Err(_) => result.errors += 1,
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Download files
+            match ftp_stream.nlst(None) {
+                Ok(files) => {
+                    for filename in files {
+                        match ftp_stream.retr_as_buffer(&filename) {
+                            Ok(data) => {
+                                let local_path = format!("{}/{}", connection.local_path, filename);
+                                match std::fs::write(&local_path, data) {
+                                    Ok(_) => result.downloaded += 1,
+                                    Err(_) => result.errors += 1,
+                                }
+                            },
+                            Err(_) => result.errors += 1,
+                        }
+                    }
+                },
+                Err(_) => result.errors += 1,
+            }
         },
-        _ => {}
+        _ => {
+            return Err(format!("Unknown sync direction: {}", connection.sync_direction).into());
+        }
     }
     
-    ftp_stream.quit()?;
-    */
+    // Close connection
+    let _ = ftp_stream.quit();
     
-    Ok(SyncResult {
-        uploaded: 0,
-        downloaded: 0,
-        errors: 0,
-    })
+    Ok(result)
 }
 
 #[derive(Debug, Clone, Serialize)]

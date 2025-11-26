@@ -17,7 +17,9 @@ const REQUIRE_LOWERCASE: bool = true;
 const REQUIRE_NUMBER: bool = true;
 const REQUIRE_SPECIAL_CHAR: bool = true;
 
+/// Password policy violation errors
 #[derive(Debug)]
+#[allow(dead_code)] // RecentlyUsed variant prepared for password history feature
 pub enum PasswordPolicyError {
     TooShort,
     NoUppercase,

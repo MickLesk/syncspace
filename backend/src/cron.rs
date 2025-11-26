@@ -32,6 +32,8 @@ impl CronScheduler {
     }
 
     /// Process all enabled cron jobs - Placeholder until job module API finalized
+    /// This method is deferred pending job system refactoring and will be activated when the background job queue API is available
+    #[allow(dead_code)]
     async fn process_cron_jobs(&self) -> Result<(), sqlx::Error> {
         // Awaiting job module API finalization (enqueue_job, CronJob, JobType types)
         // Once available, this will:
@@ -56,6 +58,8 @@ impl CronScheduler {
 ///   - "0 0 * * *" - Daily at midnight
 ///   - "0 0 * * 0" - Weekly on Sunday at midnight
 ///   - "0 0 1 * *" - Monthly on the 1st at midnight
+/// Part of cron scheduling API - will be activated when job system is refactored
+#[allow(dead_code)]
 pub fn calculate_next_run(cron_expr: &str, from: DateTime<Utc>) -> Option<DateTime<Utc>> {
     let parts: Vec<&str> = cron_expr.split_whitespace().collect();
     if parts.len() != 5 {
@@ -95,6 +99,9 @@ pub fn calculate_next_run(cron_expr: &str, from: DateTime<Utc>) -> Option<DateTi
     None
 }
 
+/// Check if datetime matches all cron expression fields
+/// Helper function for calculate_next_run - part of deferred cron API
+#[allow(dead_code)]
 fn matches_cron(
     dt: DateTime<Utc>,
     minute_expr: &str,
@@ -116,6 +123,9 @@ fn matches_cron(
         && matches_field(weekday_expr, weekday, 0, 6)
 }
 
+/// Check if individual cron field matches value
+/// Helper function for matches_cron - part of deferred cron API
+#[allow(dead_code)]
 fn matches_field(expr: &str, value: u32, _min: u32, _max: u32) -> bool {
     // Wildcard
     if expr == "*" {

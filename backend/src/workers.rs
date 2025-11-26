@@ -68,6 +68,8 @@ impl WorkerPool {
     }
 
     /// Signal graceful shutdown
+    /// Part of worker pool API - will be used when background job processing is activated
+    #[allow(dead_code)]
     pub fn shutdown(&self) {
         tracing::info!("⏹️ Shutting down worker pool...");
         self.shutdown.store(true, Ordering::Relaxed);
@@ -303,7 +305,7 @@ async fn process_thumbnail_generation(_pool: &SqlitePool, job: &BackgroundJob) -
         Ok(img) => {
             // Create thumbnail with specified dimensions
             let thumbnail = img.thumbnail(max_width, max_height);
-            
+
             // Save as JPEG
             if let Err(e) = thumbnail.save_with_format(&thumbnail_path, image::ImageFormat::Jpeg) {
                 return Err(format!("Failed to save thumbnail: {}", e));
@@ -552,19 +554,19 @@ async fn process_email_notification(_pool: &SqlitePool, job: &BackgroundJob) -> 
             // Try to send via configured SMTP server
             let smtp_user = std::env::var("SMTP_USER").ok();
             let smtp_pass = std::env::var("SMTP_PASSWORD").ok();
-            
+
             match (smtp_user, smtp_pass) {
                 (Some(_user), Some(_pass)) => {
                     // Would use lettre crate for actual sending:
                     // use lettre::transport::smtp::authentication::Credentials;
                     // use lettre::{Message, SmtpTransport, Transport};
-                    // 
+                    //
                     // let email = Message::builder()
                     //     .from(from.parse()?).to(to.parse()?).subject(subject).body(body.to_string())?;
                     // let creds = Credentials::new(user, pass);
                     // let mailer = SmtpTransport::relay(&smtp_server)?.credentials(creds).build();
                     // mailer.send(&email)?;
-                    
+
                     tracing::info!("Would send email via SMTP: {}", smtp_server);
                 }
                 _ => {
@@ -601,7 +603,7 @@ async fn process_webhook_delivery(_pool: &SqlitePool, job: &BackgroundJob) -> Re
     let url = payload["url"].as_str().ok_or("Missing webhook URL")?;
     let event = payload["event"].as_str().unwrap_or("unknown");
     let secret = payload["secret"].as_str().unwrap_or("");
-    
+
     match reqwest::Client::builder()
         .timeout(Duration::from_secs(30))
         .build()
@@ -657,7 +659,7 @@ async fn process_file_compression(_pool: &SqlitePool, job: &BackgroundJob) -> Re
     // Implement actual file compression using flate2 and tar
     let input_file = payload["input"].as_str().ok_or("Missing input file")?;
     let output_file = payload["output"].as_str().ok_or("Missing output file")?;
-    
+
     let input_path = std::path::Path::new(input_file);
     if !input_path.exists() {
         return Err(format!("Input file not found: {}", input_file));
@@ -670,12 +672,12 @@ async fn process_file_compression(_pool: &SqlitePool, job: &BackgroundJob) -> Re
                     // Compress with gzip
                     let encoder = flate2::GzEncoder::new(output, flate2::Compression::default());
                     let mut archive = tar::Builder::new(encoder);
-                    
+
                     let filename = input_path
                         .file_name()
                         .and_then(|n| n.to_str())
                         .unwrap_or("file");
-                    
+
                     match archive.append_file(filename, &mut std::io::BufReader::new(file)) {
                         Ok(_) => {
                             match archive.finish() {
@@ -717,7 +719,7 @@ async fn process_virus_scan(_pool: &SqlitePool, job: &BackgroundJob) -> Result<O
 
     // Implement virus scanning (basic checks + ClamAV integration ready)
     let file_path = payload["file_path"].as_str().ok_or("Missing file_path")?;
-    
+
     let path = std::path::Path::new(file_path);
     if !path.exists() {
         return Err(format!("File not found: {}", file_path));
@@ -730,7 +732,7 @@ async fn process_virus_scan(_pool: &SqlitePool, job: &BackgroundJob) -> Result<O
     ];
 
     let mut threats_found = 0;
-    
+
     if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
         if suspicious_extensions.contains(&ext.to_lowercase().as_str()) {
             tracing::warn!("Suspicious file extension detected: {}", ext);
@@ -759,4 +761,4 @@ async fn process_virus_scan(_pool: &SqlitePool, job: &BackgroundJob) -> Result<O
     }).to_string()))
 }
 */
- // End of commented old worker system
+// End of commented old worker system

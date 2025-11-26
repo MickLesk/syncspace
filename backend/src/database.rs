@@ -1,6 +1,8 @@
 //! Database module for SyncSpace
 //!
 //! Provides SQLite database connection and models for all tables.
+//! Many models are part of the database API and may not be actively used yet.
+#![allow(dead_code)]
 
 use chrono::Utc;
 use serde::{Deserialize, Serialize};

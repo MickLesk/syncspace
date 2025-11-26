@@ -63,6 +63,8 @@ pub struct SearchIndex {
     index: Index,
     reader: IndexReader,
     writer: Arc<Mutex<IndexWriter>>,
+    /// Schema is stored for potential future use in schema validation or migration
+    #[allow(dead_code)]
     schema: Schema,
     // Field handles for fast access
     file_id_field: Field,
@@ -727,9 +729,7 @@ impl SearchIndex {
             let actual_end = if end >= content.len() {
                 content.len()
             } else {
-                content[..end]
-                    .rfind(char::is_whitespace)
-                    .unwrap_or(end)
+                content[..end].rfind(char::is_whitespace).unwrap_or(end)
             };
 
             let mut snippet = content[actual_start..actual_end].to_string();
@@ -747,10 +747,8 @@ impl SearchIndex {
 
         // No match found, return beginning of content
         let end = max_length.min(content.len());
-        let actual_end = content[..end]
-            .rfind(char::is_whitespace)
-            .unwrap_or(end);
-        
+        let actual_end = content[..end].rfind(char::is_whitespace).unwrap_or(end);
+
         let snippet = if actual_end < content.len() {
             format!("{}...", &content[..actual_end])
         } else {
@@ -989,7 +987,7 @@ async fn extract_pdf_content(file_path: &Path) -> Option<String> {
 /// DOCX files are ZIP archives containing XML files
 async fn extract_docx_content(file_path: &Path) -> Option<String> {
     use std::io::Read;
-    
+
     let path = file_path.to_path_buf();
     tokio::task::spawn_blocking(move || {
         // Open DOCX file as ZIP
@@ -1001,7 +999,7 @@ async fn extract_docx_content(file_path: &Path) -> Option<String> {
         if let Ok(mut doc_xml) = archive.by_name("word/document.xml") {
             let mut content = String::new();
             doc_xml.read_to_string(&mut content).ok()?;
-            
+
             // Simple XML tag stripping (remove <...> tags)
             let text_only: String = content
                 .chars()
@@ -1018,7 +1016,7 @@ async fn extract_docx_content(file_path: &Path) -> Option<String> {
                     }
                 })
                 .0;
-            
+
             text.push_str(&text_only);
         }
 
@@ -1040,6 +1038,7 @@ async fn extract_docx_content(file_path: &Path) -> Option<String> {
     .ok()
     .flatten()
 }
+#[cfg(test)]
 mod tests {
     use super::*;
 

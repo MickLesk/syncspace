@@ -2,6 +2,8 @@
 //!
 //! Provides user management, JWT tokens, password hashing, and TOTP 2FA.
 //! All data stored in SQLite database - NO JSON files.
+//! Some types are part of the auth API and may not be actively used yet.
+#![allow(dead_code)]
 
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},

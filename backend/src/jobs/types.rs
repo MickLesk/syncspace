@@ -1,4 +1,6 @@
 //! Job types and structures
+//! Part of background job system - some features deferred pending refactoring
+#![allow(dead_code)]
 
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};

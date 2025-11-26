@@ -44,19 +44,19 @@ pub fn router() -> Router<AppState> {
 /// GET /api/duplicates?min_size_bytes=1048576
 async fn find_duplicates(
     user: User,
-    State(state): State<AppState>,
+    State(_state): State<AppState>,
     Query(query): Query<FindDuplicatesQuery>,
 ) -> Result<Json<Vec<DuplicateGroup>>, StatusCode> {
     // Query files by user with file hashing for duplicate detection
     let min_size = query.min_size_bytes.unwrap_or(0);
     
-    // Group files by hash to find duplicates
-    let mut hash_groups: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
-    
     tracing::debug!("Finding duplicates for user {} with min size {}", user.id, min_size);
     
-    // Would query database for files with hash field and group by hash
-    // For now, return empty - actual implementation requires file_hash field in database
+    // TODO: Actual implementation requires file_hash field in database
+    // When file_hash is added to files table, implement grouping by hash:
+    // 1. Query: SELECT file_hash, COUNT(*) FROM files WHERE owner_id = ? AND size_bytes >= ? GROUP BY file_hash HAVING COUNT(*) > 1
+    // 2. For each hash group, fetch all file details
+    // 3. Build DuplicateGroup response
     Ok(Json(vec![]))
 }
 

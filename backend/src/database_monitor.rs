@@ -1,6 +1,8 @@
 //! Database monitoring and diagnostics module
 //! 
 //! Provides health checks, performance monitoring, and connection leak detection.
+//! Many monitoring features are prepared for future observability integration.
+#![allow(dead_code)]
 
 use sqlx::{SqlitePool, Row};
 use std::time::{Duration, Instant};
@@ -174,7 +176,6 @@ pub async fn check_health(pool: &SqlitePool, monitor: &DatabaseMonitor) -> Resul
     let wal_size_mb = match wal_info {
         Ok(Some(_)) => {
             // WAL size estimation via file metadata
-            use std::path::Path;
             if let Ok(metadata) = std::fs::metadata("./data/syncspace.db-wal") {
                 metadata.len() as f64 / 1024.0 / 1024.0 // Convert to MB
             } else {

@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use uuid::Uuid;
 use chrono::{DateTime, Utc, Duration};
+use base64::{Engine as _, engine::general_purpose};
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct OAuthProvider {
@@ -83,8 +85,8 @@ pub async fn store_oauth_token(
     scope: &str,
 ) -> Result<OAuthToken, sqlx::Error> {
     let id = Uuid::new_v4().to_string();
-    let access_token_encrypted = base64::encode(access_token);
-    let refresh_token_encrypted = refresh_token.map(|t| base64::encode(&t));
+    let access_token_encrypted = general_purpose::STANDARD.encode(access_token);
+    let refresh_token_encrypted = refresh_token.map(|t| general_purpose::STANDARD.encode(&t));
     let expires_at = (Utc::now() + Duration::seconds(expires_in as i64)).to_rfc3339();
     
     // Delete old tokens for this provider
@@ -131,102 +133,130 @@ pub async fn get_oauth_token(
     .await
 }
 
-/// Refresh OAuth token (placeholder - requires oauth2 crate)
+/// Refresh OAuth token
 pub async fn refresh_oauth_token(
-    _pool: &SqlitePool,
-    _provider: &OAuthProvider,
-    _refresh_token: &str,
+    pool: &SqlitePool,
+    provider: &OAuthProvider,
+    refresh_token: &str,
 ) -> Result<OAuthTokenResponse, Box<dyn std::error::Error + Send + Sync>> {
-    // Placeholder implementation
-    // In production: use `oauth2` crate
-    /*
-    Example with oauth2 crate:
+    // Implementation note: This is a simplified version
+    // For production OAuth2, uncomment the oauth2 crate implementation below
     
-    use oauth2::{
-        AuthUrl, ClientId, ClientSecret, RefreshToken, TokenUrl,
-        basic::BasicClient, reqwest::async_http_client,
-    };
+    let client = reqwest::Client::new();
+    let token_url = get_token_url(&provider.provider)?;
+    let client_secret = decrypt_secret(&provider.client_secret_encrypted)?;
     
-    let client = BasicClient::new(
-        ClientId::new(provider.client_id.clone()),
-        Some(ClientSecret::new(decrypt_secret(&provider.client_secret_encrypted)?)),
-        AuthUrl::new(get_auth_url(&provider.provider))?,
-        Some(TokenUrl::new(get_token_url(&provider.provider))?)
-    );
+    let mut params = HashMap::new();
+    params.insert("grant_type", "refresh_token");
+    params.insert("refresh_token", refresh_token);
+    params.insert("client_id", &provider.client_id);
+    params.insert("client_secret", &client_secret);
     
-    let token_result = client
-        .exchange_refresh_token(&RefreshToken::new(refresh_token.to_string()))
-        .request_async(async_http_client)
+    let response = client
+        .post(&token_url)
+        .form(&params)
+        .send()
         .await?;
     
-    Ok(OAuthTokenResponse {
-        access_token: token_result.access_token().secret().clone(),
-        refresh_token: token_result.refresh_token().map(|t| t.secret().clone()),
-        expires_in: token_result.expires_in()
-            .map(|d| d.as_secs())
-            .unwrap_or(3600),
-        token_type: "Bearer".to_string(),
-    })
-    */
+    if !response.status().is_success() {
+        return Err(format!("Token refresh failed: {}", response.status()).into());
+    }
     
-    Err("OAuth token refresh not implemented - requires oauth2 crate".into())
+    let token_data: serde_json::Value = response.json().await?;
+    
+    Ok(OAuthTokenResponse {
+        access_token: token_data["access_token"].as_str().unwrap_or("").to_string(),
+        refresh_token: token_data["refresh_token"].as_str().map(|s| s.to_string()),
+        expires_in: token_data["expires_in"].as_u64().unwrap_or(3600),
+        token_type: token_data["token_type"].as_str().unwrap_or("Bearer").to_string(),
+    })
 }
 
-/// Exchange authorization code for access token (placeholder)
+/// Exchange authorization code for access token
 pub async fn exchange_code_for_token(
-    _provider: &OAuthProvider,
-    _code: &str,
+    provider: &OAuthProvider,
+    code: &str,
 ) -> Result<OAuthTokenResponse, Box<dyn std::error::Error + Send + Sync>> {
-    // Placeholder implementation
-    // In production: use `oauth2` crate
-    /*
-    Example:
+    let client = reqwest::Client::new();
+    let token_url = get_token_url(&provider.provider)?;
+    let client_secret = decrypt_secret(&provider.client_secret_encrypted)?;
     
-    let client = BasicClient::new(
-        ClientId::new(provider.client_id.clone()),
-        Some(ClientSecret::new(decrypt_secret(&provider.client_secret_encrypted)?)),
-        AuthUrl::new(get_auth_url(&provider.provider))?,
-        Some(TokenUrl::new(get_token_url(&provider.provider))?)
-    ).set_redirect_uri(RedirectUrl::new(provider.redirect_uri.clone())?);
+    let mut params = HashMap::new();
+    params.insert("grant_type", "authorization_code");
+    params.insert("code", code);
+    params.insert("client_id", &provider.client_id);
+    params.insert("client_secret", &client_secret);
+    params.insert("redirect_uri", &provider.redirect_uri);
     
-    let token_result = client
-        .exchange_code(AuthorizationCode::new(code.to_string()))
-        .request_async(async_http_client)
+    let response = client
+        .post(&token_url)
+        .form(&params)
+        .send()
         .await?;
     
-    Ok(OAuthTokenResponse {
-        access_token: token_result.access_token().secret().clone(),
-        refresh_token: token_result.refresh_token().map(|t| t.secret().clone()),
-        expires_in: token_result.expires_in().map(|d| d.as_secs()).unwrap_or(3600),
-        token_type: "Bearer".to_string(),
-    })
-    */
+    if !response.status().is_success() {
+        return Err(format!("Code exchange failed: {}", response.status()).into());
+    }
     
-    Err("OAuth code exchange not implemented - requires oauth2 crate".into())
+    let token_data: serde_json::Value = response.json().await?;
+    
+    Ok(OAuthTokenResponse {
+        access_token: token_data["access_token"].as_str().unwrap_or("").to_string(),
+        refresh_token: token_data["refresh_token"].as_str().map(|s| s.to_string()),
+        expires_in: token_data["expires_in"].as_u64().unwrap_or(3600),
+        token_type: token_data["token_type"].as_str().unwrap_or("Bearer").to_string(),
+    })
 }
 
-/// Get user info from OAuth provider (placeholder)
+/// Get user info from OAuth provider
 pub async fn get_oauth_user_info(
     provider: &str,
-    _access_token: &str,
+    access_token: &str,
 ) -> Result<OAuthUserInfo, Box<dyn std::error::Error + Send + Sync>> {
-    // Placeholder - would make API calls to provider
-    /*
-    match provider {
-        "google" => {
-            // GET https://www.googleapis.com/oauth2/v2/userinfo
-        },
-        "github" => {
-            // GET https://api.github.com/user
-        },
-        "microsoft" => {
-            // GET https://graph.microsoft.com/v1.0/me
-        },
-        _ => return Err("Unknown provider".into())
-    }
-    */
+    let client = reqwest::Client::new();
+    let user_info_url = get_user_info_url(provider);
     
-    Err(format!("OAuth user info not implemented for provider: {}", provider).into())
+    if user_info_url.is_empty() {
+        return Err(format!("Unknown OAuth provider: {}", provider).into());
+    }
+    
+    let response = client
+        .get(&user_info_url)
+        .header("Authorization", format!("Bearer {}", access_token))
+        .header("User-Agent", "SyncSpace")
+        .send()
+        .await?;
+    
+    if !response.status().is_success() {
+        return Err(format!("Failed to get user info: {}", response.status()).into());
+    }
+    
+    let user_data: serde_json::Value = response.json().await?;
+    
+    // Parse provider-specific response
+    let user_info = match provider {
+        "google" => OAuthUserInfo {
+            id: user_data["id"].as_str().unwrap_or("").to_string(),
+            email: user_data["email"].as_str().unwrap_or("").to_string(),
+            name: user_data["name"].as_str().unwrap_or("").to_string(),
+            picture: user_data["picture"].as_str().map(|s| s.to_string()),
+        },
+        "github" => OAuthUserInfo {
+            id: user_data["id"].to_string(),
+            email: user_data["email"].as_str().unwrap_or("").to_string(),
+            name: user_data["name"].as_str().unwrap_or(user_data["login"].as_str().unwrap_or("")).to_string(),
+            picture: user_data["avatar_url"].as_str().map(|s| s.to_string()),
+        },
+        "microsoft" => OAuthUserInfo {
+            id: user_data["id"].as_str().unwrap_or("").to_string(),
+            email: user_data["userPrincipalName"].as_str().unwrap_or("").to_string(),
+            name: user_data["displayName"].as_str().unwrap_or("").to_string(),
+            picture: None, // Microsoft Graph requires separate photo endpoint
+        },
+        _ => return Err(format!("Unsupported provider: {}", provider).into()),
+    };
+    
+    Ok(user_info)
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,5 +1,7 @@
 //! Data models
 //! Database entities and DTOs
+//! Many models are part of the API and may not be actively constructed yet
+#![allow(dead_code)]
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -93,7 +95,9 @@ pub struct Tag {
     pub created_at: DateTime<Utc>,
 }
 
+/// File-Tag association model - part of tagging API (future implementation)
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+#[allow(dead_code)]
 pub struct FileTag {
     pub id: Uuid,
     pub file_path: String,
@@ -104,7 +108,9 @@ pub struct FileTag {
 
 // ==================== FAVORITE MODELS ====================
 
+/// Favorite item model - part of favorites API (future implementation)
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+#[allow(dead_code)]
 pub struct Favorite {
     pub id: Uuid,
     pub user_id: Uuid,

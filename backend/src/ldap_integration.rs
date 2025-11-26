@@ -2,6 +2,10 @@
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use uuid::Uuid;
+use base64::{Engine as _, engine::general_purpose};
+use ldap3::{LdapConn, Scope, SearchEntry};
+use base64::{Engine as _, engine::general_purpose};
+use ldap3::{LdapConn, Scope, SearchEntry};
 
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct LdapConfig {
@@ -49,7 +53,7 @@ pub async fn add_ldap_config(
     req: CreateLdapConfigRequest,
 ) -> Result<LdapConfig, sqlx::Error> {
     let id = Uuid::new_v4().to_string();
-    let password_encrypted = base64::encode(&req.bind_password);
+    let password_encrypted = general_purpose::STANDARD.encode(&req.bind_password);
     
     sqlx::query(
         "INSERT INTO ldap_configs 
@@ -78,23 +82,17 @@ pub async fn add_ldap_config(
         .await
 }
 
-/// Authenticate user via LDAP (placeholder - requires ldap3 crate)
+/// Authenticate user via LDAP
 pub async fn ldap_authenticate(
     config: &LdapConfig,
     username: &str,
     password: &str,
 ) -> Result<LdapUser, Box<dyn std::error::Error + Send + Sync>> {
-    // Placeholder implementation
-    // In production: use `ldap3` crate
-    /*
-    Example with ldap3:
+    // Decode bind password
+    let bind_password_bytes = general_purpose::STANDARD.decode(&config.bind_password_encrypted)?;
+    let bind_password = String::from_utf8(bind_password_bytes)?;
     
-    use ldap3::{LdapConn, Scope, SearchEntry};
-    
-    // Bind with service account
-    let bind_password = base64::decode(&config.bind_password_encrypted)?;
-    let bind_password = String::from_utf8(bind_password)?;
-    
+    // Connect and bind with service account
     let mut ldap = LdapConn::new(&config.server_url)?;
     ldap.simple_bind(&config.bind_dn, &bind_password)?.success()?;
     
@@ -108,20 +106,22 @@ pub async fn ldap_authenticate(
     )?.success()?;
     
     if rs.is_empty() {
-        return Err("User not found".into());
+        return Err("User not found in LDAP directory".into());
     }
     
     let entry = SearchEntry::construct(rs[0].clone());
-    let user_dn = entry.dn;
+    let user_dn = entry.dn.clone();
     
-    // Try to bind with user credentials
-    drop(ldap); // Close admin connection
+    // Close admin connection
+    drop(ldap);
+    
+    // Authenticate user by binding with their credentials
     let mut ldap = LdapConn::new(&config.server_url)?;
     match ldap.simple_bind(&user_dn, password) {
         Ok(res) => {
             res.success()?;
             
-            // Search for groups
+            // Search for user's groups
             let group_filter = config.group_filter.replace("{user_dn}", &user_dn);
             let (groups_rs, _) = ldap.search(
                 &config.base_dn,
@@ -149,12 +149,8 @@ pub async fn ldap_authenticate(
                 groups,
             })
         },
-        Err(e) => Err(format!("Authentication failed: {}", e).into())
+        Err(e) => Err(format!("LDAP authentication failed: {}", e).into())
     }
-    */
-    
-    // Placeholder return
-    Err("LDAP authentication not implemented - requires ldap3 crate".into())
 }
 
 /// List LDAP configurations
@@ -185,7 +181,7 @@ pub async fn update_ldap_config(
     config_id: &str,
     req: CreateLdapConfigRequest,
 ) -> Result<(), sqlx::Error> {
-    let password_encrypted = base64::encode(&req.bind_password);
+    let password_encrypted = general_purpose::STANDARD.encode(&req.bind_password);
     
     sqlx::query(
         "UPDATE ldap_configs 
@@ -229,18 +225,16 @@ pub async fn delete_ldap_config(
 pub async fn test_ldap_connection(
     config: &LdapConfig,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    // Placeholder - in production, attempt bind with service account
-    /*
-    use ldap3::LdapConn;
+    // Decode bind password
+    let bind_password_bytes = general_purpose::STANDARD.decode(&config.bind_password_encrypted)?;
+    let bind_password = String::from_utf8(bind_password_bytes)?;
     
-    let bind_password = base64::decode(&config.bind_password_encrypted)?;
-    let bind_password = String::from_utf8(bind_password)?;
-    
+    // Attempt connection and bind
     let mut ldap = LdapConn::new(&config.server_url)?;
     ldap.simple_bind(&config.bind_dn, &bind_password)?.success()?;
     
-    Ok("Connection successful".to_string())
-    */
+    // Connection successful, close it
+    let _ = ldap.unbind();
     
-    Err("LDAP connection test not implemented - requires ldap3 crate".into())
+    Ok(format!("Successfully connected to LDAP server at {}", config.server_url))
 }

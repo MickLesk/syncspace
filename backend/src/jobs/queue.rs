@@ -1,4 +1,6 @@
 //! Job queue management with SQLite backend
+//! Part of background job processing system - some features deferred pending refactoring
+#![allow(dead_code)]
 
 use super::types::{Job, JobStatus};
 use sqlx::SqlitePool;

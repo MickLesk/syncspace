@@ -87,6 +87,8 @@ pub async fn security_headers_middleware(
 
 /// Simple CSRF token validation
 /// For production, use a proper CSRF library
+/// Currently unused but part of security API for future CSRF implementation
+#[allow(dead_code)]
 pub fn validate_csrf_token(headers: &HeaderMap, expected_token: &str) -> Result<(), StatusCode> {
     let token = headers
         .get("X-CSRF-Token")
@@ -289,6 +291,8 @@ pub fn validate_search_query(query: &str) -> Result<String, StatusCode> {
 // ==================== RATE LIMITING HELPERS ====================
 
 /// Check if request is from localhost (for rate limit exemption)
+/// Currently unused but prepared for advanced rate limiting features
+#[allow(dead_code)]
 pub fn is_localhost(headers: &HeaderMap) -> bool {
     if let Some(forwarded) = headers.get("X-Forwarded-For") {
         if let Ok(addr) = forwarded.to_str() {

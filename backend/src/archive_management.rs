@@ -2,7 +2,14 @@
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use std::path::{Path, PathBuf};
+use std::fs::File;
+use std::io::{Read, Write};
 use uuid::Uuid;
+use zip::write::{FileOptions, ZipWriter};
+use zip::CompressionMethod;
+use tar::Builder;
+use flate2::write::GzEncoder;
+use flate2::Compression;
 
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Archive {
@@ -30,7 +37,7 @@ pub struct ExtractArchiveRequest {
     pub extract_to: String,
 }
 
-/// Create archive from files (placeholder - requires zip/tar crates)
+/// Create archive from files
 pub async fn create_archive(
     pool: &SqlitePool,
     user_id: &str,
@@ -43,89 +50,59 @@ pub async fn create_archive(
     // Create archives directory
     std::fs::create_dir_all(format!("./data/archives/{}", user_id))?;
     
-    // Placeholder - in production use zip-rs or tar crate
-    /*
-    Example with zip:
-    
-    use zip::write::{FileOptions, ZipWriter};
-    use std::fs::File;
-    use std::io::{Read, Write};
-    
-    let file = File::create(&archive_path)?;
-    let mut zip = ZipWriter::new(file);
-    let options = FileOptions::default()
-        .compression_method(zip::CompressionMethod::Deflated);
-    
     let mut total_size = 0i64;
+    let file_count = req.file_paths.len() as i32;
     
-    for file_path in &req.file_paths {
-        let full_path = format!("./data/{}", file_path);
-        let path = Path::new(&full_path);
-        
-        if path.is_file() {
-            let mut f = File::open(&full_path)?;
-            let mut buffer = Vec::new();
-            f.read_to_end(&mut buffer)?;
-            total_size += buffer.len() as i64;
+    match req.archive_type.as_str() {
+        "zip" => {
+            let file = File::create(&archive_path)?;
+            let mut zip = ZipWriter::new(file);
+            let options = FileOptions::default()
+                .compression_method(CompressionMethod::Deflated);
             
-            zip.start_file(file_path, options)?;
-            zip.write_all(&buffer)?;
-        } else if path.is_dir() {
-            for entry in walkdir::WalkDir::new(&full_path) {
-                let entry = entry?;
-                let path = entry.path();
-                let name = path.strip_prefix("./data/")?.to_string_lossy();
+            for file_path in &req.file_paths {
+                let full_path = format!("./data/{}", file_path);
+                let path = Path::new(&full_path);
                 
                 if path.is_file() {
-                    let mut f = File::open(path)?;
+                    let mut f = File::open(&full_path)?;
                     let mut buffer = Vec::new();
                     f.read_to_end(&mut buffer)?;
                     total_size += buffer.len() as i64;
                     
-                    zip.start_file(name.as_ref(), options)?;
+                    zip.start_file(file_path, options)?;
                     zip.write_all(&buffer)?;
-                } else if !name.is_empty() {
-                    zip.add_directory(name.as_ref(), options)?;
                 }
             }
+            
+            zip.finish()?;
         }
+        "tar" | "tar.gz" => {
+            let tar_file = File::create(&archive_path)?;
+            let mut tar_builder = if req.archive_type == "tar.gz" {
+                let encoder = GzEncoder::new(tar_file, Compression::default());
+                Builder::new(Box::new(encoder) as Box<dyn Write>)
+            } else {
+                Builder::new(Box::new(tar_file) as Box<dyn Write>)
+            };
+            
+            for file_path in &req.file_paths {
+                let full_path = format!("./data/{}", file_path);
+                let path = Path::new(&full_path);
+                
+                if path.is_file() {
+                    let mut file = File::open(&full_path)?;
+                    let metadata = file.metadata()?;
+                    total_size += metadata.len() as i64;
+                    tar_builder.append_file(file_path, &mut file)?;
+                }
+            }
+            
+            tar_builder.finish()?;
+        }
+        _ => return Err("Unsupported archive type".into()),
     }
     
-    zip.finish()?;
-    */
-    
-    /*
-    Example with tar:
-    
-    use tar::Builder;
-    use flate2::write::GzEncoder;
-    use flate2::Compression;
-    use std::fs::File;
-    
-    let tar_file = File::create(&archive_path)?;
-    let enc = GzEncoder::new(tar_file, Compression::default());
-    let mut tar = Builder::new(enc);
-    
-    let mut total_size = 0i64;
-    
-    for file_path in &req.file_paths {
-        let full_path = format!("./data/{}", file_path);
-        let path = Path::new(&full_path);
-        
-        if path.is_file() {
-            let mut f = File::open(&full_path)?;
-            tar.append_file(file_path, &mut f)?;
-            total_size += f.metadata()?.len() as i64;
-        } else if path.is_dir() {
-            tar.append_dir_all(file_path, &full_path)?;
-        }
-    }
-    
-    tar.finish()?;
-    */
-    
-    let total_size = 0i64; // Placeholder
-    let file_count = req.file_paths.len() as i32;
     let original_paths = serde_json::to_string(&req.file_paths)?;
     
     sqlx::query(
@@ -151,7 +128,7 @@ pub async fn create_archive(
         .map_err(|e| e.into())
 }
 
-/// Extract archive (placeholder - requires zip/tar crates)
+/// Extract archive
 pub async fn extract_archive(
     pool: &SqlitePool,
     user_id: &str,
@@ -162,51 +139,69 @@ pub async fn extract_archive(
     
     std::fs::create_dir_all(&extract_path)?;
     
-    // Placeholder - in production use zip-rs or tar crate
-    /*
-    Example with zip:
-    
-    use zip::ZipArchive;
-    use std::fs::File;
-    use std::io::Write;
-    
-    let file = File::open(&archive_path)?;
-    let mut archive = ZipArchive::new(file)?;
     let mut extracted_files = Vec::new();
     
-    for i in 0..archive.len() {
-        let mut file = archive.by_index(i)?;
-        let outpath = Path::new(&extract_path).join(file.name());
-        
-        if file.name().ends_with('/') {
-            std::fs::create_dir_all(&outpath)?;
-        } else {
-            if let Some(parent) = outpath.parent() {
-                std::fs::create_dir_all(parent)?;
+    // Detect archive type by extension
+    let archive_type = if archive_path.ends_with(".zip") {
+        "zip"
+    } else if archive_path.ends_with(".tar.gz") || archive_path.ends_with(".tgz") {
+        "tar.gz"
+    } else if archive_path.ends_with(".tar") {
+        "tar"
+    } else {
+        return Err("Unsupported archive type".into());
+    };
+    
+    match archive_type {
+        "zip" => {
+            use zip::ZipArchive;
+            let file = File::open(&archive_path)?;
+            let mut archive = ZipArchive::new(file)?;
+            
+            for i in 0..archive.len() {
+                let mut file = archive.by_index(i)?;
+                let outpath = PathBuf::from(&extract_path).join(file.name());
+                
+                if file.is_dir() {
+                    std::fs::create_dir_all(&outpath)?;
+                } else {
+                    if let Some(p) = outpath.parent() {
+                        std::fs::create_dir_all(p)?;
+                    }
+                    let mut outfile = File::create(&outpath)?;
+                    std::io::copy(&mut file, &mut outfile)?;
+                    extracted_files.push(outpath.to_string_lossy().to_string());
+                }
             }
-            let mut outfile = File::create(&outpath)?;
-            std::io::copy(&mut file, &mut outfile)?;
-            extracted_files.push(outpath.to_string_lossy().to_string());
         }
+        "tar" | "tar.gz" => {
+            use tar::Archive;
+            use flate2::read::GzDecoder;
+            
+            let file = File::open(&archive_path)?;
+            let mut archive = if archive_type == "tar.gz" {
+                let decoder = GzDecoder::new(file);
+                Archive::new(Box::new(decoder) as Box<dyn Read>)
+            } else {
+                Archive::new(Box::new(file) as Box<dyn Read>)
+            };
+            
+            archive.unpack(&extract_path)?;
+            
+            // List extracted files
+            for entry in std::fs::read_dir(&extract_path)? {
+                let entry = entry?;
+                extracted_files.push(entry.path().to_string_lossy().to_string());
+            }
+        }
+        _ => return Err("Unsupported archive type".into()),
     }
     
     Ok(extracted_files)
-    */
-    
-    /*
-    Example with tar:
-    
-    use tar::Archive;
-    use flate2::read::GzDecoder;
-    use std::fs::File;
-    
-    let tar_file = File::open(&archive_path)?;
-    let tar = GzDecoder::new(tar_file);
-    let mut archive = Archive::new(tar);
-    
-    archive.unpack(&extract_path)?;
-    
-    let mut extracted_files = Vec::new();
+}
+
+/// List archives for user
+pub async fn list_archives(
     for entry in archive.entries()? {
         let entry = entry?;
         if let Ok(path) = entry.path() {
@@ -278,26 +273,43 @@ pub async fn get_archive_info(
     .await
 }
 
-/// List archive contents without extracting (placeholder)
+/// List archive contents without extracting
 pub async fn list_archive_contents(
     archive_path: &str,
 ) -> Result<Vec<String>, Box<dyn std::error::Error + Send + Sync>> {
-    // Placeholder - in production use zip-rs or tar crate to list contents
-    /*
-    Example with zip:
-    
-    use zip::ZipArchive;
-    use std::fs::File;
-    
-    let file = File::open(archive_path)?;
-    let archive = ZipArchive::new(file)?;
-    
     let mut files = Vec::new();
-    for i in 0..archive.len() {
-        let file = archive.by_index(i)?;
-        files.push(file.name().to_string());
+    
+    if archive_path.ends_with(".zip") {
+        use zip::ZipArchive;
+        let file = File::open(archive_path)?;
+        let mut archive = ZipArchive::new(file)?;
+        
+        for i in 0..archive.len() {
+            let file = archive.by_index(i)?;
+            files.push(file.name().to_string());
+        }
+    } else if archive_path.ends_with(".tar") || archive_path.ends_with(".tar.gz") {
+        use tar::Archive;
+        use flate2::read::GzDecoder;
+        
+        let file = File::open(archive_path)?;
+        let mut archive = if archive_path.ends_with(".tar.gz") {
+            let decoder = GzDecoder::new(file);
+            Archive::new(Box::new(decoder) as Box<dyn Read>)
+        } else {
+            Archive::new(Box::new(file) as Box<dyn Read>)
+        };
+        
+        for entry in archive.entries()? {
+            let entry = entry?;
+            if let Ok(path) = entry.path() {
+                files.push(path.to_string_lossy().to_string());
+            }
+        }
     }
     
+    Ok(files)
+}
     Ok(files)
     */
     
