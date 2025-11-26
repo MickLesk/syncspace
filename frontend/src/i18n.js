@@ -353,6 +353,10 @@ export const translations = {
     shareDeletedSuccessfully: 'Freigabe erfolgreich gelöscht',
     failedToDeleteShare: 'Fehler beim Löschen der Freigabe',
     shareLinkCopiedToClipboard: 'Freigabe-Link in Zwischenablage kopiert',
+    selectFilesToShare: 'Dateien zum Teilen auswählen',
+    noFilesSelected: 'Keine Dateien ausgewählt',
+    pleaseSelectAtLeastOneFile: 'Bitte wählen Sie mindestens eine Datei aus',
+    sharesCreatedSuccessfully: '{0} Freigaben erfolgreich erstellt',
     
     // ShareModal
     shareFileName: 'Teilen: {0}',
@@ -1717,6 +1721,10 @@ export const translations = {
     shareDeletedSuccessfully: 'Share deleted successfully',
     failedToDeleteShare: 'Failed to delete share',
     shareLinkCopiedToClipboard: 'Share link copied to clipboard',
+    selectFilesToShare: 'Select files to share',
+    noFilesSelected: 'No files selected',
+    pleaseSelectAtLeastOneFile: 'Please select at least one file',
+    sharesCreatedSuccessfully: '{0} shares created successfully',
     
     // ShareModal
     shareFileName: 'Share: {0}',

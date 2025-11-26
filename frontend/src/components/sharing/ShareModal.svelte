@@ -182,14 +182,77 @@
 
 <Modal
   visible={isOpen}
-  title={tr("shareFileName", file?.name || "")}
+  title={file ? tr("shareFileName", file.name) : tr("createShare")}
   icon="share"
   size="lg"
   variant="primary"
   onclose={close}
 >
   {#snippet children()}
+    <!-- File Browser Modal (when no file provided) -->
+    <FileBrowserModal
+      bind:isOpen={showFileBrowser}
+      onSelect={handleFileSelection}
+      mode="both"
+      title={tr("selectFilesToShare")}
+    />
+
     {#if !showShareResult}
+      <!-- File Selection Section (when no file prop) -->
+      {#if !file}
+        <div
+          class="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <h3
+              class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2"
+            >
+              <i class="bi bi-folder2-open text-lg text-primary"></i>
+              {tr("selectedFiles")} ({selectedFilePaths.length})
+            </h3>
+            <button
+              type="button"
+              class="btn btn-sm btn-primary"
+              onclick={() => (showFileBrowser = true)}
+            >
+              <i class="bi bi-plus-circle"></i>
+              {tr("selectFiles")}
+            </button>
+          </div>
+
+          {#if selectedFilePaths.length === 0}
+            <p
+              class="text-sm text-gray-500 dark:text-gray-400 text-center py-4"
+            >
+              {tr("noFilesSelected")}
+            </p>
+          {:else}
+            <div class="space-y-2 max-h-48 overflow-y-auto">
+              {#each selectedFilePaths as filePath}
+                <div
+                  class="flex items-center justify-between p-2 bg-white dark:bg-gray-700 rounded-lg"
+                >
+                  <div class="flex items-center gap-2 min-w-0 flex-1">
+                    <i class="bi bi-file-earmark text-primary flex-shrink-0"
+                    ></i>
+                    <span class="text-sm font-medium truncate"
+                      >{filePath.split("/").pop()}</span
+                    >
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-sm btn-circle"
+                    onclick={() => removeFileFromSelection(filePath)}
+                  >
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      {/if}
+
       <!-- Share Configuration - ENHANCED -->
       <div class="space-y-5">
         <!-- Share Type -->
