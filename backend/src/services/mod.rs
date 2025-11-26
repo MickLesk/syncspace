@@ -29,7 +29,8 @@ pub use file_service_impl::{
 pub use user_service_impl::{
     get_profile, update_profile,
     get_settings, update_settings,
-    get_preferences, update_preferences
+    get_preferences, update_preferences,
+    list_users
 };
 
 // Re-export search service

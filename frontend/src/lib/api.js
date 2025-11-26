@@ -212,8 +212,13 @@ export const users = {
   /**
    * List all users (for sharing dialogs)
    */
-  async listAll() {
-    const response = await fetch(`${API_BASE}/users`, {
+  async listAll(roleFilter = null, statusFilter = null) {
+    const params = new URLSearchParams();
+    if (roleFilter) params.append('role', roleFilter);
+    if (statusFilter) params.append('status', statusFilter);
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+    
+    const response = await fetch(`${API_BASE}/users/list${queryString}`, {
       headers: getHeaders(),
     });
     return handleResponse(response);

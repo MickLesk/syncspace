@@ -1,6 +1,6 @@
 //! User management API endpoints
 
-use axum::{extract::State, http::StatusCode, routing::get, Json, Router};
+use axum::{extract::{State, Query}, http::StatusCode, routing::get, Json, Router};
 use serde::Deserialize;
 use crate::{auth::UserInfo, services, AppState};
 
@@ -24,9 +24,16 @@ pub struct UpdatePreferencesRequest {
     pub preferences: serde_json::Value,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct ListUsersQuery {
+    pub role: Option<String>,
+    pub status: Option<String>,
+}
+
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/users/me", get(get_current_user))
+        .route("/users/list", get(list_all_users))
         .route("/users/profile", get(get_profile).put(update_profile))
         .route("/users/settings", get(get_settings).put(update_settings))
         .route("/users/preferences", get(get_preferences).put(update_preferences))
@@ -69,4 +76,19 @@ async fn get_preferences(State(state): State<AppState>, user: UserInfo) -> Resul
 
 async fn update_preferences(State(state): State<AppState>, user: UserInfo, Json(req): Json<UpdatePreferencesRequest>) -> Result<StatusCode, StatusCode> {
     services::update_preferences(&state, &user, req.preferences).await.map(|_| StatusCode::OK).map_err(|_| StatusCode::BAD_REQUEST)
+}
+
+async fn list_all_users(
+    State(state): State<AppState>,
+    user: UserInfo,
+    Query(query): Query<ListUsersQuery>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let users = services::list_users(&state, &user, query.role, query.status)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    Ok(Json(serde_json::json!({
+        "data": users,
+        "count": users.len()
+    })))
 }

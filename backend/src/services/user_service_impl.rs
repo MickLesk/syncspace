@@ -156,3 +156,68 @@ pub async fn update_preferences(
     }
     Ok(())
 }
+
+pub async fn list_users(
+    state: &AppState,
+    _requester: &UserInfo,
+    role_filter: Option<String>,
+    status_filter: Option<String>,
+) -> Result<Vec<serde_json::Value>> {
+    let mut query = String::from(
+        "SELECT id, username, email, display_name, avatar_base64, role, is_active, created_at 
+         FROM users WHERE 1=1"
+    );
+    
+    let mut conditions = Vec::new();
+    
+    if let Some(role) = &role_filter {
+        conditions.push(format!("role = '{}'", role));
+    }
+    
+    if let Some(status) = &status_filter {
+        if status == "active" {
+            conditions.push("is_active = 1".to_string());
+        } else if status == "inactive" {
+            conditions.push("is_active = 0".to_string());
+        }
+    }
+    
+    if !conditions.is_empty() {
+        query.push_str(" AND ");
+        query.push_str(&conditions.join(" AND "));
+    }
+    
+    query.push_str(" ORDER BY username ASC");
+    
+    #[derive(sqlx::FromRow)]
+    struct UserRow {
+        id: String,
+        username: String,
+        email: Option<String>,
+        display_name: Option<String>,
+        avatar_base64: Option<String>,
+        role: String,
+        is_active: i32,
+        created_at: String,
+    }
+    
+    let users: Vec<UserRow> = sqlx::query_as(&query)
+        .fetch_all(&state.db_pool)
+        .await?;
+    
+    Ok(users
+        .into_iter()
+        .map(|u| {
+            serde_json::json!({
+                "id": u.id,
+                "username": u.username,
+                "email": u.email,
+                "display_name": u.display_name,
+                "avatar_base64": u.avatar_base64,
+                "role": u.role,
+                "is_active": u.is_active == 1,
+                "created_at": u.created_at,
+            })
+        })
+        .collect())
+}

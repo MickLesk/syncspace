@@ -5,6 +5,7 @@
   import { t } from "../../i18n.js";
   import Modal from "../ui/Modal.svelte";
   import FileBrowserModal from "../files/FileBrowserModal.svelte";
+  import UserSearchModal from "../user/UserSearchModal.svelte";
   import api from "../../lib/api.js";
 
   const dispatch = createEventDispatcher();
@@ -28,6 +29,7 @@
   let loading = $state(false);
   let shareUrl = $state("");
   let showShareResult = $state(false);
+  let showUserSearchModal = $state(false);
 
   // User list from backend
   let availableUsers = $state([]);
@@ -67,6 +69,10 @@
     } finally {
       loadingUsers = false;
     }
+  }
+
+  function handleUserSelect(user) {
+    toggleUserSelection(user);
   }
 
   function toggleUserSelection(user) {
@@ -342,53 +348,41 @@
                 <i class="bi bi-person-plus text-lg"></i>
                 {tr("selectUsers")}
               </label>
-              <span
-                class="text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full"
+              <button
+                type="button"
+                onclick={() => (showUserSearchModal = true)}
+                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
               >
-                {selectedUsers.length}
-                {tr("selected")}
-              </span>
+                <i class="bi bi-search"></i>
+                {tr("searchUsers")}
+              </button>
             </div>
 
-            {#if loadingUsers}
-              <div
-                class="flex items-center justify-center py-12 border shadow-sm rounded-lg bg-gray-50 dark:bg-gray-800"
-              >
-                <div class="text-center">
-                  <span class="loading loading-spinner loading-lg text-primary"
-                  ></span>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
-                    {tr("loadingUsers")}...
-                  </p>
-                </div>
-              </div>
-            {:else if availableUsers.length === 0}
-              <div
-                class="flex items-center justify-center py-12 border shadow-sm rounded-lg bg-gray-50 dark:bg-gray-800"
-              >
-                <div class="text-center">
-                  <i class="bi bi-people text-4xl text-gray-400"></i>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
-                    {tr("noUsersAvailable")}
-                  </p>
-                </div>
-              </div>
-            {:else}
-              <div
-                class="max-h-64 overflow-y-auto border shadow-inner rounded-lg bg-gray-50 dark:bg-gray-800 p-2"
-              >
-                {#each availableUsers as user}
+            <!-- Selected Users Display -->
+            {#if selectedUsers.length > 0}
+              <div class="space-y-2 mb-4">
+                {#each selectedUsers as user}
                   <div
-                    class="flex items-center gap-3 p-4 hover:bg-white dark:hover:bg-gray-700 transition-colors rounded-lg cursor-pointer border-b last:border-b-0 border-gray-200 dark:border-gray-700"
-                    onclick={() => toggleUserSelection(user)}
+                    class="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500 rounded-lg"
                   >
-                    <input
-                      type="checkbox"
-                      class="checkbox checkbox-primary flex-shrink-0"
-                      checked={isUserSelected(user.id)}
-                      onclick={(e) => e.stopPropagation()}
-                      onchange={() => toggleUserSelection(user)}
-                    />
+                    <!-- User Avatar -->
+                    <div class="flex-shrink-0">
+                      {#if user.avatar_base64}
+                        <img
+                          src={`data:image/png;base64,${user.avatar_base64}`}
+                          alt={user.display_name || user.username}
+                          class="w-10 h-10 rounded-full object-cover"
+                        />
+                      {:else}
+                        <div
+                          class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold"
+                        >
+                          {(user.display_name || user.username).slice(0, 2).toUpperCase()}
+                        </div>
+                      {/if}
+                    </div>
+
+                    <!-- User Info -->
                     <div class="flex-1 min-w-0">
                       <div
                         class="font-medium text-gray-900 dark:text-white truncate"
@@ -399,19 +393,33 @@
                         @{user.username}
                       </div>
                     </div>
-                    {#if isUserSelected(user.id)}
-                      <select
-                        bind:value={userPermissions[user.id]}
-                        class="select select-sm select-bordered w-28 bg-white dark:bg-gray-700"
-                        onclick={(e) => e.stopPropagation()}
-                      >
-                        <option value="read">{tr("read")}</option>
-                        <option value="write">{tr("write")}</option>
-                        <option value="admin">{tr("admin")}</option>
-                      </select>
-                    {/if}
+
+                    <!-- Permission Selector -->
+                    <select
+                      bind:value={userPermissions[user.id]}
+                      class="px-3 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm"
+                    >
+                      <option value="read">{tr("read")}</option>
+                      <option value="write">{tr("write")}</option>
+                      <option value="admin">{tr("admin")}</option>
+                    </select>
+
+                    <!-- Remove Button -->
+                    <button
+                      type="button"
+                      onclick={() => toggleUserSelection(user)}
+                      class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      title={tr("remove")}
+                    >
+                      <i class="bi bi-x-lg"></i>
+                    </button>
                   </div>
                 {/each}
+              </div>
+            {:else}
+              <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                <i class="bi bi-person-plus-fill text-3xl mb-2"></i>
+                <p class="text-sm">{tr("clickSearchToAddUsers")}</p>
               </div>
             {/if}
           </div>
@@ -781,3 +789,10 @@
     {/if}
   {/snippet}
 </Modal>
+
+<!-- User Search Modal -->
+<UserSearchModal
+  bind:isOpen={showUserSearchModal}
+  {selectedUsers}
+  onSelect={handleUserSelect}
+/>
