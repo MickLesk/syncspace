@@ -1,6 +1,7 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import * as api from "../lib/api.js";
+  import { modals, modalEvents } from "../stores/modals.js";
 
   // Import createWebSocket from api
   const { createWebSocket } = api;
@@ -31,15 +32,7 @@
 
   // WebSocket
   let ws = null;
-
-  // Create cron modal
-  let showCreateCronModal = $state(false);
-  let newCronJob = $state({
-    name: "",
-    job_type: "FileCleanup",
-    cron_expression: "0 0 * * *", // Daily at midnight
-    payload: {},
-  });
+  let unsubscribe;
 
   // ========================================================================
   // Job Type Display Names
@@ -69,6 +62,11 @@
       ws.addEventListener("message", handleWebSocketMessage);
     }
 
+    // Listen for modal save events
+    unsubscribe = modalEvents.on("cronJobSaved", async () => {
+      await loadData();
+    });
+
     // Refresh every 10 seconds
     const interval = setInterval(loadData, 10000);
 
@@ -84,6 +82,7 @@
     if (ws) {
       ws.removeEventListener("message", handleWebSocketMessage);
     }
+    if (unsubscribe) unsubscribe();
   });
 
   // ========================================================================
@@ -186,31 +185,8 @@
     }
   }
 
-  async function createCronJob() {
-    try {
-      const res = await api.cron.create(
-        newCronJob.name,
-        newCronJob.job_type,
-        newCronJob.cron_expression,
-        newCronJob.payload
-      );
-
-      if (res.ok) {
-        showCreateCronModal = false;
-        newCronJob = {
-          name: "",
-          job_type: "FileCleanup",
-          cron_expression: "0 0 * * *",
-          payload: {},
-        };
-        await loadData();
-      } else {
-        alert("Failed to create cron job");
-      }
-    } catch (err) {
-      console.error("Failed to create cron job:", err);
-      alert("Failed to create cron job");
-    }
+  function openCreateCronJob() {
+    modals.openCronJobEditor(null);
   }
 
   async function toggleCronJob(cronJob) {
@@ -280,387 +256,446 @@
   }
 </script>
 
-<div class="p-6 max-w-7xl mx-auto">
-  <!-- Header -->
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold mb-2">Background Jobs Dashboard</h1>
-    <p class="text-base-content/70">
-      Monitor and manage background jobs, cron schedules, and system tasks
-    </p>
-  </div>
-
-  <!-- Error Alert -->
-  {#if error}
-    <div class="alert alert-error mb-6">
-      <i class="bi bi-exclamation-triangle"></i>
-      <span>Error: {error}</span>
-    </div>
-  {/if}
-
-  <!-- Stats Cards -->
-  {#if !loading}
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-      <div class="stat bg-base-200 rounded-lg">
-        <div class="stat-title">Pending</div>
-        <div class="stat-value text-info">{stats.pending}</div>
-      </div>
-
-      <div class="stat bg-base-200 rounded-lg">
-        <div class="stat-title">Running</div>
-        <div class="stat-value text-warning">{stats.running}</div>
-      </div>
-
-      <div class="stat bg-base-200 rounded-lg">
-        <div class="stat-title">Completed</div>
-        <div class="stat-value text-success">{stats.completed}</div>
-      </div>
-
-      <div class="stat bg-base-200 rounded-lg">
-        <div class="stat-title">Failed</div>
-        <div class="stat-value text-error">{stats.failed}</div>
-      </div>
-
-      <div class="stat bg-base-200 rounded-lg">
-        <div class="stat-title">Total</div>
-        <div class="stat-value">{stats.total}</div>
+<div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Modern Header with Glass Effect -->
+    <div
+      class="mb-8 bg-base-100/50 backdrop-blur-xl rounded-2xl shadow-2xl border border-base-300 p-8"
+    >
+      <div class="flex items-center gap-4 mb-4">
+        <div
+          class="p-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl shadow-lg"
+        >
+          <i class="bi bi-gear-wide-connected text-3xl text-white"></i>
+        </div>
+        <div>
+          <h1
+            class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
+          >
+            Background Jobs Dashboard
+          </h1>
+          <p class="text-base-content/60 mt-1 text-lg">
+            Monitor and manage background jobs, cron schedules, and system tasks
+          </p>
+        </div>
       </div>
     </div>
-  {/if}
 
-  <!-- Tabs -->
-  <div class="tabs tabs-boxed mb-6">
-    <button
-      class="tab {selectedTab === 'overview' ? 'tab-active' : ''}"
-      onclick={() => (selectedTab = "overview")}
-    >
-      <i class="bi bi-speedometer2 mr-2"></i> Overview
-    </button>
-    <button
-      class="tab {selectedTab === 'active' ? 'tab-active' : ''}"
-      onclick={() => (selectedTab = "active")}
-    >
-      <i class="bi bi-play-circle mr-2"></i> Active Jobs ({activeJobs.length})
-    </button>
-    <button
-      class="tab {selectedTab === 'history' ? 'tab-active' : ''}"
-      onclick={() => (selectedTab = "history")}
-    >
-      <i class="bi bi-clock-history mr-2"></i> History
-    </button>
-    <button
-      class="tab {selectedTab === 'cron' ? 'tab-active' : ''}"
-      onclick={() => (selectedTab = "cron")}
-    >
-      <i class="bi bi-calendar-event mr-2"></i> Cron Jobs ({cronJobs.length})
-    </button>
-  </div>
+    <!-- Error Alert -->
+    {#if error}
+      <div class="alert alert-error mb-6">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span>Error: {error}</span>
+      </div>
+    {/if}
 
-  <!-- Tab Content -->
-  {#if loading}
-    <div class="flex justify-center items-center py-12">
-      <span class="loading loading-spinner loading-lg"></span>
+    <!-- Stats Cards with Modern Design -->
+    {#if !loading}
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <!-- Pending Card -->
+        <div
+          class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <i class="bi bi-clock-history text-3xl text-blue-500"></i>
+            <span
+              class="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-500/20 px-3 py-1 rounded-full"
+              >Pending</span
+            >
+          </div>
+          <div class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+            {stats.pending}
+          </div>
+          <div class="text-sm text-base-content/60">Waiting to start</div>
+        </div>
+
+        <!-- Running Card -->
+        <div
+          class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <i class="bi bi-arrow-repeat text-3xl text-orange-500 animate-spin"
+            ></i>
+            <span
+              class="text-xs font-semibold text-orange-600 dark:text-orange-400 bg-orange-500/20 px-3 py-1 rounded-full"
+              >Running</span
+            >
+          </div>
+          <div
+            class="text-4xl font-bold text-orange-600 dark:text-orange-400 mb-1"
+          >
+            {stats.running}
+          </div>
+          <div class="text-sm text-base-content/60">Currently active</div>
+        </div>
+
+        <!-- Completed Card -->
+        <div
+          class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <i class="bi bi-check-circle-fill text-3xl text-green-500"></i>
+            <span
+              class="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-500/20 px-3 py-1 rounded-full"
+              >Success</span
+            >
+          </div>
+          <div
+            class="text-4xl font-bold text-green-600 dark:text-green-400 mb-1"
+          >
+            {stats.completed}
+          </div>
+          <div class="text-sm text-base-content/60">Finished successfully</div>
+        </div>
+
+        <!-- Failed Card -->
+        <div
+          class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-500/10 to-red-600/10 border border-red-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <i class="bi bi-exclamation-triangle-fill text-3xl text-red-500"
+            ></i>
+            <span
+              class="text-xs font-semibold text-red-600 dark:text-red-400 bg-red-500/20 px-3 py-1 rounded-full"
+              >Failed</span
+            >
+          </div>
+          <div class="text-4xl font-bold text-red-600 dark:text-red-400 mb-1">
+            {stats.failed}
+          </div>
+          <div class="text-sm text-base-content/60">Errors occurred</div>
+        </div>
+
+        <!-- Total Card -->
+        <div
+          class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <i class="bi bi-layers-fill text-3xl text-purple-500"></i>
+            <span
+              class="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full"
+              >Total</span
+            >
+          </div>
+          <div
+            class="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-1"
+          >
+            {stats.total}
+          </div>
+          <div class="text-sm text-base-content/60">All jobs tracked</div>
+        </div>
+      </div>
+    {/if}
+
+    <!-- Modern Tabs with Glass Effect -->
+    <div
+      class="flex flex-wrap gap-3 mb-8 p-2 bg-base-100/50 backdrop-blur-xl rounded-2xl border border-base-300 shadow-lg"
+    >
+      <button
+        class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 {selectedTab ===
+        'overview'
+          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105'
+          : 'bg-base-200/50 hover:bg-base-300 text-base-content'}"
+        onclick={() => (selectedTab = "overview")}
+      >
+        <i class="bi bi-speedometer2"></i>
+        <span>Overview</span>
+      </button>
+      <button
+        class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 {selectedTab ===
+        'active'
+          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105'
+          : 'bg-base-200/50 hover:bg-base-300 text-base-content'}"
+        onclick={() => (selectedTab = "active")}
+      >
+        <i class="bi bi-play-circle"></i>
+        <span>Active Jobs</span>
+        {#if activeJobs.length > 0}
+          <span class="badge badge-sm bg-orange-500 text-white border-0"
+            >{activeJobs.length}</span
+          >
+        {/if}
+      </button>
+      <button
+        class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 {selectedTab ===
+        'history'
+          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105'
+          : 'bg-base-200/50 hover:bg-base-300 text-base-content'}"
+        onclick={() => (selectedTab = "history")}
+      >
+        <i class="bi bi-clock-history"></i>
+        <span>History</span>
+      </button>
+      <button
+        class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 {selectedTab ===
+        'cron'
+          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105'
+          : 'bg-base-200/50 hover:bg-base-300 text-base-content'}"
+        onclick={() => (selectedTab = "cron")}
+      >
+        <i class="bi bi-calendar-event"></i>
+        <span>Cron Jobs</span>
+        {#if cronJobs.length > 0}
+          <span class="badge badge-sm bg-purple-500 text-white border-0"
+            >{cronJobs.length}</span
+          >
+        {/if}
+      </button>
     </div>
-  {:else}
-    <!-- Overview Tab -->
-    {#if selectedTab === "overview"}
-      <div class="space-y-6">
-        <div class="card bg-base-200">
-          <div class="card-body">
-            <h2 class="card-title">System Status</h2>
-            <div class="stats stats-vertical lg:stats-horizontal shadow">
-              <div class="stat">
-                <div class="stat-figure text-success">
-                  <i class="bi bi-check-circle text-4xl"></i>
+
+    <!-- Tab Content -->
+    {#if loading}
+      <div class="flex justify-center items-center py-12">
+        <span class="loading loading-spinner loading-lg"></span>
+      </div>
+    {:else}
+      <!-- Overview Tab -->
+      {#if selectedTab === "overview"}
+        <div class="space-y-6">
+          <div class="card bg-base-200">
+            <div class="card-body">
+              <h2 class="card-title">System Status</h2>
+              <div class="stats stats-vertical lg:stats-horizontal shadow">
+                <div class="stat">
+                  <div class="stat-figure text-success">
+                    <i class="bi bi-check-circle text-4xl"></i>
+                  </div>
+                  <div class="stat-title">Worker Pool</div>
+                  <div class="stat-value text-success">Active</div>
+                  <div class="stat-desc">4 workers running</div>
                 </div>
-                <div class="stat-title">Worker Pool</div>
-                <div class="stat-value text-success">Active</div>
-                <div class="stat-desc">4 workers running</div>
-              </div>
 
-              <div class="stat">
-                <div class="stat-figure text-info">
-                  <i class="bi bi-clock text-4xl"></i>
-                </div>
-                <div class="stat-title">Cron Scheduler</div>
-                <div class="stat-value text-info">Active</div>
-                <div class="stat-desc">
-                  {cronJobs.filter((j) => j.enabled).length} enabled jobs
+                <div class="stat">
+                  <div class="stat-figure text-info">
+                    <i class="bi bi-clock text-4xl"></i>
+                  </div>
+                  <div class="stat-title">Cron Scheduler</div>
+                  <div class="stat-value text-info">Active</div>
+                  <div class="stat-desc">
+                    {cronJobs.filter((j) => j.enabled).length} enabled jobs
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="flex gap-4">
-          <button
-            class="btn btn-primary"
-            onclick={() => (selectedTab = "active")}
-          >
-            <i class="bi bi-play-circle"></i>
-            View Active Jobs
-          </button>
-          <button
-            class="btn btn-secondary"
-            onclick={() => (selectedTab = "cron")}
-          >
-            <i class="bi bi-calendar-event"></i>
-            Manage Cron Jobs
-          </button>
-          <button class="btn btn-outline" onclick={cleanupOldJobs}>
-            <i class="bi bi-trash"></i>
-            Cleanup Old Jobs
-          </button>
-        </div>
-      </div>
-    {/if}
-
-    <!-- Active Jobs Tab -->
-    {#if selectedTab === "active"}
-      <div class="card bg-base-200">
-        <div class="card-body">
-          <h2 class="card-title mb-4">Active Jobs</h2>
-
-          {#if activeJobs.length === 0}
-            <div class="text-center py-8 text-base-content/50">
-              <i class="bi bi-inbox text-6xl mb-4"></i>
-              <p>No active jobs</p>
-            </div>
-          {:else}
-            <div class="overflow-x-auto">
-              <table class="table table-zebra w-full">
-                <thead>
-                  <tr>
-                    <th>Job Type</th>
-                    <th>Status</th>
-                    <th>Priority</th>
-                    <th>Started</th>
-                    <th>Attempts</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {#each activeJobs as job}
-                    <tr>
-                      <td>
-                        <div class="font-semibold">
-                          {JOB_TYPE_NAMES[job.job_type] || job.job_type}
-                        </div>
-                        <div class="text-sm text-base-content/50">{job.id}</div>
-                      </td>
-                      <td>
-                        <span class="badge {getStatusBadgeClass(job.status)}"
-                          >{job.status}</span
-                        >
-                      </td>
-                      <td>
-                        <span class="badge badge-outline">{job.priority}</span>
-                      </td>
-                      <td class="text-sm">{formatDate(job.started_at)}</td>
-                      <td>{job.attempts} / {job.max_attempts}</td>
-                      <td>
-                        <button
-                          class="btn btn-sm btn-error"
-                          onclick={() => cancelJob(job.id)}
-                        >
-                          Cancel
-                        </button>
-                      </td>
-                    </tr>
-                  {/each}
-                </tbody>
-              </table>
-            </div>
-          {/if}
-        </div>
-      </div>
-    {/if}
-
-    <!-- History Tab -->
-    {#if selectedTab === "history"}
-      <div class="card bg-base-200">
-        <div class="card-body">
-          <h2 class="card-title mb-4">Job History</h2>
-
-          {#if jobHistory.length === 0}
-            <div class="text-center py-8 text-base-content/50">
-              <i class="bi bi-inbox text-6xl mb-4"></i>
-              <p>No job history</p>
-            </div>
-          {:else}
-            <div class="overflow-x-auto">
-              <table class="table table-zebra w-full">
-                <thead>
-                  <tr>
-                    <th>Job Type</th>
-                    <th>Status</th>
-                    <th>Priority</th>
-                    <th>Created</th>
-                    <th>Completed</th>
-                    <th>Attempts</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {#each jobHistory as job}
-                    <tr>
-                      <td>
-                        <div class="font-semibold">
-                          {JOB_TYPE_NAMES[job.job_type] || job.job_type}
-                        </div>
-                        <div class="text-sm text-base-content/50">{job.id}</div>
-                      </td>
-                      <td>
-                        <span class="badge {getStatusBadgeClass(job.status)}"
-                          >{job.status}</span
-                        >
-                      </td>
-                      <td>
-                        <span class="badge badge-outline">{job.priority}</span>
-                      </td>
-                      <td class="text-sm">{formatDate(job.created_at)}</td>
-                      <td class="text-sm">{formatDate(job.completed_at)}</td>
-                      <td>{job.attempts}</td>
-                    </tr>
-                  {/each}
-                </tbody>
-              </table>
-            </div>
-          {/if}
-        </div>
-      </div>
-    {/if}
-
-    <!-- Cron Jobs Tab -->
-    {#if selectedTab === "cron"}
-      <div class="card bg-base-200">
-        <div class="card-body">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="card-title">Cron Jobs</h2>
+          <div class="flex gap-4">
             <button
-              class="btn btn-primary btn-sm"
-              onclick={() => (showCreateCronModal = true)}
+              class="btn btn-primary"
+              onclick={() => (selectedTab = "active")}
             >
-              <i class="bi bi-plus-circle"></i>
-              Create Cron Job
+              <i class="bi bi-play-circle"></i>
+              View Active Jobs
+            </button>
+            <button
+              class="btn btn-secondary"
+              onclick={() => (selectedTab = "cron")}
+            >
+              <i class="bi bi-calendar-event"></i>
+              Manage Cron Jobs
+            </button>
+            <button class="btn btn-outline" onclick={cleanupOldJobs}>
+              <i class="bi bi-trash"></i>
+              Cleanup Old Jobs
             </button>
           </div>
-
-          {#if cronJobs.length === 0}
-            <div class="text-center py-8 text-base-content/50">
-              <i class="bi bi-calendar-x text-6xl mb-4"></i>
-              <p>No cron jobs configured</p>
-            </div>
-          {:else}
-            <div class="overflow-x-auto">
-              <table class="table table-zebra w-full">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Job Type</th>
-                    <th>Schedule</th>
-                    <th>Enabled</th>
-                    <th>Last Run</th>
-                    <th>Next Run</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {#each cronJobs as cronJob}
-                    <tr>
-                      <td class="font-semibold">{cronJob.name}</td>
-                      <td
-                        >{JOB_TYPE_NAMES[cronJob.job_type] ||
-                          cronJob.job_type}</td
-                      >
-                      <td>
-                        <code class="text-sm">{cronJob.cron_expression}</code>
-                      </td>
-                      <td>
-                        <input
-                          type="checkbox"
-                          class="toggle toggle-success"
-                          checked={cronJob.enabled}
-                          onchange={() => toggleCronJob(cronJob)}
-                        />
-                      </td>
-                      <td class="text-sm">{formatDate(cronJob.last_run_at)}</td>
-                      <td class="text-sm">{formatDate(cronJob.next_run_at)}</td>
-                      <td>
-                        <button
-                          class="btn btn-sm btn-error"
-                          onclick={() => deleteCronJob(cronJob.id)}
-                        >
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  {/each}
-                </tbody>
-              </table>
-            </div>
-          {/if}
         </div>
-      </div>
+      {/if}
+
+      <!-- Active Jobs Tab -->
+      {#if selectedTab === "active"}
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h2 class="card-title mb-4">Active Jobs</h2>
+
+            {#if activeJobs.length === 0}
+              <div class="text-center py-8 text-base-content/50">
+                <i class="bi bi-inbox text-6xl mb-4"></i>
+                <p>No active jobs</p>
+              </div>
+            {:else}
+              <div class="overflow-x-auto">
+                <table class="table table-zebra w-full">
+                  <thead>
+                    <tr>
+                      <th>Job Type</th>
+                      <th>Status</th>
+                      <th>Priority</th>
+                      <th>Started</th>
+                      <th>Attempts</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each activeJobs as job}
+                      <tr>
+                        <td>
+                          <div class="font-semibold">
+                            {JOB_TYPE_NAMES[job.job_type] || job.job_type}
+                          </div>
+                          <div class="text-sm text-base-content/50">
+                            {job.id}
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge {getStatusBadgeClass(job.status)}"
+                            >{job.status}</span
+                          >
+                        </td>
+                        <td>
+                          <span class="badge badge-outline">{job.priority}</span
+                          >
+                        </td>
+                        <td class="text-sm">{formatDate(job.started_at)}</td>
+                        <td>{job.attempts} / {job.max_attempts}</td>
+                        <td>
+                          <button
+                            class="btn btn-sm btn-error"
+                            onclick={() => cancelJob(job.id)}
+                          >
+                            Cancel
+                          </button>
+                        </td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+            {/if}
+          </div>
+        </div>
+      {/if}
+
+      <!-- History Tab -->
+      {#if selectedTab === "history"}
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h2 class="card-title mb-4">Job History</h2>
+
+            {#if jobHistory.length === 0}
+              <div class="text-center py-8 text-base-content/50">
+                <i class="bi bi-inbox text-6xl mb-4"></i>
+                <p>No job history</p>
+              </div>
+            {:else}
+              <div class="overflow-x-auto">
+                <table class="table table-zebra w-full">
+                  <thead>
+                    <tr>
+                      <th>Job Type</th>
+                      <th>Status</th>
+                      <th>Priority</th>
+                      <th>Created</th>
+                      <th>Completed</th>
+                      <th>Attempts</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each jobHistory as job}
+                      <tr>
+                        <td>
+                          <div class="font-semibold">
+                            {JOB_TYPE_NAMES[job.job_type] || job.job_type}
+                          </div>
+                          <div class="text-sm text-base-content/50">
+                            {job.id}
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge {getStatusBadgeClass(job.status)}"
+                            >{job.status}</span
+                          >
+                        </td>
+                        <td>
+                          <span class="badge badge-outline">{job.priority}</span
+                          >
+                        </td>
+                        <td class="text-sm">{formatDate(job.created_at)}</td>
+                        <td class="text-sm">{formatDate(job.completed_at)}</td>
+                        <td>{job.attempts}</td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+            {/if}
+          </div>
+        </div>
+      {/if}
+
+      <!-- Cron Jobs Tab -->
+      {#if selectedTab === "cron"}
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="card-title">Cron Jobs</h2>
+              <button class="btn btn-primary gap-2" onclick={openCreateCronJob}>
+                <i class="bi bi-plus-circle"></i>
+                Create Cron Job
+              </button>
+            </div>
+
+            {#if cronJobs.length === 0}
+              <div class="text-center py-8 text-base-content/50">
+                <i class="bi bi-calendar-x text-6xl mb-4"></i>
+                <p>No cron jobs configured</p>
+              </div>
+            {:else}
+              <div class="overflow-x-auto">
+                <table class="table table-zebra w-full">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Job Type</th>
+                      <th>Schedule</th>
+                      <th>Enabled</th>
+                      <th>Last Run</th>
+                      <th>Next Run</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {#each cronJobs as cronJob}
+                      <tr>
+                        <td class="font-semibold">{cronJob.name}</td>
+                        <td
+                          >{JOB_TYPE_NAMES[cronJob.job_type] ||
+                            cronJob.job_type}</td
+                        >
+                        <td>
+                          <code class="text-sm">{cronJob.cron_expression}</code>
+                        </td>
+                        <td>
+                          <input
+                            type="checkbox"
+                            class="toggle toggle-success"
+                            checked={cronJob.enabled}
+                            onchange={() => toggleCronJob(cronJob)}
+                          />
+                        </td>
+                        <td class="text-sm"
+                          >{formatDate(cronJob.last_run_at)}</td
+                        >
+                        <td class="text-sm"
+                          >{formatDate(cronJob.next_run_at)}</td
+                        >
+                        <td>
+                          <button
+                            class="btn btn-sm btn-error"
+                            onclick={() => deleteCronJob(cronJob.id)}
+                          >
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+            {/if}
+          </div>
+        </div>
+      {/if}
     {/if}
-  {/if}
-</div>
-
-<!-- Create Cron Job Modal -->
-{#if showCreateCronModal}
-  <div class="modal modal-open">
-    <div class="modal-box">
-      <h3 class="font-bold text-lg mb-4">Create Cron Job</h3>
-
-      <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text">Name</span>
-        </label>
-        <input
-          type="text"
-          class="input input-bordered"
-          bind:value={newCronJob.name}
-          placeholder="Daily Cleanup"
-        />
-      </div>
-
-      <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text">Job Type</span>
-        </label>
-        <select class="select select-bordered" bind:value={newCronJob.job_type}>
-          <option value="SearchIndexing">Search Indexing</option>
-          <option value="ThumbnailGeneration">Thumbnail Generation</option>
-          <option value="FileCleanup">File Cleanup</option>
-          <option value="BackupTask">Backup Task</option>
-          <option value="EmailNotification">Email Notification</option>
-          <option value="WebhookDelivery">Webhook Delivery</option>
-          <option value="FileCompression">File Compression</option>
-          <option value="VirusScan">Virus Scan</option>
-        </select>
-      </div>
-
-      <div class="form-control mb-4">
-        <label class="label">
-          <span class="label-text">Cron Expression</span>
-        </label>
-        <input
-          type="text"
-          class="input input-bordered"
-          bind:value={newCronJob.cron_expression}
-          placeholder="0 0 * * *"
-        />
-        <label class="label">
-          <span class="label-text-alt"
-            >Format: minute hour day month weekday</span
-          >
-        </label>
-      </div>
-
-      <div class="modal-action">
-        <button class="btn" onclick={() => (showCreateCronModal = false)}
-          >Cancel</button
-        >
-        <button class="btn btn-primary" onclick={createCronJob}>Create</button>
-      </div>
-    </div>
   </div>
-{/if}
+</div>

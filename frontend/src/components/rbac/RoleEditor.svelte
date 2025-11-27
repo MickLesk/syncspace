@@ -2,6 +2,7 @@
   import api from "../../lib/api.js";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
+  import Modal from "../ui/Modal.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -108,12 +109,14 @@
   });
 </script>
 
-<div class="modal modal-open" role="dialog">
-  <div class="modal-box max-w-4xl">
-    <h2 class="text-2xl font-bold mb-4">
-      {role ? tr("rbac.editRole") : tr("rbac.createRole")}
-    </h2>
-
+<Modal
+  visible={true}
+  title={role ? tr("rbac.editRole") : tr("rbac.createRole")}
+  icon="shield-check"
+  size="xl"
+  onclose={onCancel}
+>
+  {#snippet children()}
     {#if error}
       <div class="alert alert-error mb-4">
         <i class="bi bi-exclamation-triangle"></i>
@@ -235,19 +238,22 @@
           </label>
         </div>
       </div>
-
-      <div class="modal-action">
-        <button type="button" onclick={onCancel} class="btn" disabled={loading}>
-          {tr("common.cancel")}
-        </button>
-        <button type="submit" class="btn btn-primary" disabled={loading}>
-          {#if loading}
-            <span class="loading loading-spinner"></span>
-          {/if}
-          {role ? tr("common.save") : tr("common.create")}
-        </button>
-      </div>
     </form>
-  </div>
-  <div class="modal-backdrop" onclick={onCancel}></div>
-</div>
+  {/snippet}
+  {#snippet actions()}
+    <button type="button" onclick={onCancel} class="btn" disabled={loading}>
+      {tr("common.cancel")}
+    </button>
+    <button
+      type="submit"
+      class="btn btn-primary"
+      disabled={loading}
+      onclick={handleSubmit}
+    >
+      {#if loading}
+        <span class="loading loading-spinner"></span>
+      {/if}
+      {role ? tr("common.save") : tr("common.create")}
+    </button>
+  {/snippet}
+</Modal>

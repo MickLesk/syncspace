@@ -1,6 +1,7 @@
 <script>
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
+  import Modal from "../ui/Modal.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -37,12 +38,14 @@
   });
 </script>
 
-<div class="modal modal-open" role="dialog">
-  <div class="modal-box max-w-5xl">
-    <h2 class="text-2xl font-bold mb-4">
-      {tr("rbac.permissionMatrix")} - {role.display_name}
-    </h2>
-
+<Modal
+  visible={true}
+  title="{tr('rbac.permissionMatrix')} - {role.display_name}"
+  icon="table"
+  size="xl"
+  onclose={onClose}
+>
+  {#snippet children()}
     <div class="mb-4">
       <p class="text-sm text-gray-600 dark:text-gray-400">
         {role.description || tr("rbac.noDescription")}
@@ -104,12 +107,10 @@
         </span>
       </div>
     </div>
-
-    <div class="modal-action">
-      <button onclick={onClose} class="btn">
-        {tr("common.close")}
-      </button>
-    </div>
-  </div>
-  <div class="modal-backdrop" onclick={onClose}></div>
-</div>
+  {/snippet}
+  {#snippet actions()}
+    <button onclick={onClose} class="btn">
+      {tr("common.close")}
+    </button>
+  {/snippet}
+</Modal>

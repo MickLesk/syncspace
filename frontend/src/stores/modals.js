@@ -18,6 +18,11 @@ const initialState = {
   versionHistory: { visible: false, data: null },
   advancedSearch: { visible: false, data: null },
   changeFolderColor: { visible: false, data: null },
+  // Admin modals
+  roleEditor: { visible: false, data: null },
+  permissionMatrix: { visible: false, data: null },
+  workflowEditor: { visible: false, data: null },
+  cronJobEditor: { visible: false, data: null },
 };
 
 /**
@@ -152,6 +157,35 @@ function createModalStore() {
       update(state => ({
         ...state,
         changeFolderColor: { visible: true, data: file }
+      }));
+    },
+    
+    // Admin modals
+    openRoleEditor: (role = null, permissions = []) => {
+      update(state => ({
+        ...state,
+        roleEditor: { visible: true, data: { role, permissions } }
+      }));
+    },
+    
+    openPermissionMatrix: (role, permissions = []) => {
+      update(state => ({
+        ...state,
+        permissionMatrix: { visible: true, data: { role, permissions } }
+      }));
+    },
+    
+    openWorkflowEditor: (rule = null, triggerTypes = [], actionTypes = []) => {
+      update(state => ({
+        ...state,
+        workflowEditor: { visible: true, data: { rule, triggerTypes, actionTypes } }
+      }));
+    },
+    
+    openCronJobEditor: (cronJob = null) => {
+      update(state => ({
+        ...state,
+        cronJobEditor: { visible: true, data: cronJob }
       }));
     },
   };

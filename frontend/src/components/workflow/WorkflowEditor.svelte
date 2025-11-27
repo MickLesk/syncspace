@@ -2,6 +2,7 @@
   import { workflow } from "../../lib/api.js";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
+  import Modal from "../ui/Modal.svelte";
 
   let { rule, triggerTypes, actionTypes, onSave, onCancel } = $props();
 
@@ -296,290 +297,311 @@
   });
 </script>
 
-<div class="modal modal-open">
-  <div class="modal-box max-w-4xl">
-    <h3 class="font-bold text-2xl mb-4">
-      {rule
-        ? t($currentLang, "workflow.editRule")
-        : t($currentLang, "workflow.createRule")}
-    </h3>
-
-    <form onsubmit={handleSubmit}>
+<Modal
+  visible={true}
+  title={rule
+    ? t($currentLang, "workflow.editRule")
+    : t($currentLang, "workflow.createRule")}
+  icon="diagram-3"
+  size="xl"
+  onclose={onCancel}
+>
+  {#snippet children()}
+    <form onsubmit={handleSubmit} class="space-y-6">
       <!-- Basic Info -->
-      <div class="space-y-4 mb-6">
+      <div class="space-y-4">
         <div>
-          <label class="label">
-            <span class="label-text font-semibold"
-              >{t($currentLang, "workflow.ruleName")}</span
-            >
+          <label
+            class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+            for="rule-name"
+          >
+            {t($currentLang, "workflow.ruleName")}
           </label>
           <input
+            id="rule-name"
             type="text"
             bind:value={formData.display_name}
             placeholder={t($currentLang, "workflow.ruleNamePlaceholder")}
-            class="input input-bordered w-full"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           />
         </div>
 
         <div>
-          <label class="label">
-            <span class="label-text font-semibold"
-              >{t($currentLang, "workflow.description")}</span
-            >
+          <label
+            class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+            for="rule-desc"
+          >
+            {t($currentLang, "workflow.description")}
           </label>
           <textarea
+            id="rule-desc"
             bind:value={formData.description}
             placeholder={t($currentLang, "workflow.descriptionPlaceholder")}
-            class="textarea textarea-bordered w-full"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             rows="2"
           ></textarea>
         </div>
 
-        <div class="flex gap-4">
+        <div class="flex gap-4 items-end">
           <div class="flex-1">
-            <label class="label">
-              <span class="label-text font-semibold"
-                >{t($currentLang, "workflow.priority")}</span
-              >
+            <label
+              class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
+              for="rule-priority"
+            >
+              {t($currentLang, "workflow.priority")}
             </label>
             <input
+              id="rule-priority"
               type="number"
               bind:value={formData.priority}
-              class="input input-bordered w-full"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               min="1"
               max="1000"
             />
-            <label class="label">
-              <span class="label-text-alt"
-                >{t($currentLang, "workflow.priorityHint")}</span
-              >
-            </label>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              {t($currentLang, "workflow.priorityHint")}
+            </p>
           </div>
 
-          <div class="flex items-center">
-            <label class="label cursor-pointer">
-              <input
-                type="checkbox"
-                bind:checked={formData.is_active}
-                class="checkbox checkbox-primary mr-2"
-              />
-              <span class="label-text font-semibold"
-                >{t($currentLang, "workflow.activeRule")}</span
-              >
-            </label>
-          </div>
+          <label class="flex items-center gap-2 cursor-pointer pb-2">
+            <input
+              type="checkbox"
+              bind:checked={formData.is_active}
+              class="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+            />
+            <span class="font-semibold text-gray-700 dark:text-gray-300">
+              {t($currentLang, "workflow.activeRule")}
+            </span>
+          </label>
         </div>
       </div>
 
       <!-- IFTTT-Style Workflow Builder -->
-      <div class="space-y-6">
-        <!-- Trigger Section -->
-        <div class="bg-primary/10 p-4 rounded-lg border-2 border-primary/30">
-          <div class="flex items-center gap-2 mb-3">
-            <i class="bi bi-lightning-charge text-primary text-xl"></i>
-            <h4 class="font-bold text-lg">
-              {t($currentLang, "workflow.whenThis")}
-            </h4>
-          </div>
+      <!-- Trigger Section -->
+      <div
+        class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-2 border-blue-200 dark:border-blue-700"
+      >
+        <div class="flex items-center gap-2 mb-3">
+          <i class="bi bi-lightning-charge text-blue-500 text-xl"></i>
+          <h4 class="font-bold text-lg text-blue-700 dark:text-blue-300">
+            {t($currentLang, "workflow.whenThis")}
+          </h4>
+        </div>
 
-          <div>
-            <label class="label">
-              <span class="label-text"
-                >{t($currentLang, "workflow.triggerType")}</span
-              >
-            </label>
-            <select
-              bind:value={formData.trigger_type}
-              class="select select-bordered w-full"
-              required
+        <div>
+          <label
+            class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+            for="trigger-type"
+          >
+            {t($currentLang, "workflow.triggerType")}
+          </label>
+          <select
+            id="trigger-type"
+            bind:value={formData.trigger_type}
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            required
+          >
+            <option value="">{t($currentLang, "workflow.selectTrigger")}</option
             >
-              <option value=""
-                >{t($currentLang, "workflow.selectTrigger")}</option
-              >
-              {#each triggerTypes as triggerType}
-                <option value={triggerType.value}>{triggerType.label}</option>
-              {/each}
-            </select>
-            {#if formData.trigger_type}
-              <label class="label">
-                <span class="label-text-alt text-primary"
-                  >{getTriggerDescription(formData.trigger_type)}</span
-                >
-              </label>
-            {/if}
-          </div>
-
-          {#if formData.trigger_type && getTriggerConfigFields().length > 0}
-            <div class="mt-4 space-y-3">
-              {#each getTriggerConfigFields() as field}
-                <div>
-                  <label class="label">
-                    <span class="label-text">{field.label}</span>
-                  </label>
-                  {#if field.type === "checkbox"}
-                    <input
-                      type="checkbox"
-                      bind:checked={formData.trigger_config[field.key]}
-                      class="checkbox checkbox-primary"
-                    />
-                  {:else}
-                    <input
-                      type={field.type}
-                      bind:value={formData.trigger_config[field.key]}
-                      placeholder={field.placeholder}
-                      class="input input-bordered w-full input-sm"
-                    />
-                  {/if}
-                </div>
-              {/each}
-            </div>
+            {#each triggerTypes as triggerType}
+              <option value={triggerType.value}>{triggerType.label}</option>
+            {/each}
+          </select>
+          {#if formData.trigger_type}
+            <p class="mt-1 text-sm text-blue-600 dark:text-blue-400">
+              {getTriggerDescription(formData.trigger_type)}
+            </p>
           {/if}
         </div>
 
-        <!-- Condition Section (Optional) -->
-        <div class="bg-warning/10 p-4 rounded-lg border-2 border-warning/30">
-          <div class="flex items-center gap-2 mb-3">
-            <i class="bi bi-filter text-warning text-xl"></i>
-            <h4 class="font-bold text-lg">
-              {t($currentLang, "workflow.ifThis")}
-            </h4>
-            <span class="badge badge-sm badge-ghost"
-              >{t($currentLang, "workflow.optional")}</span
-            >
-          </div>
-
-          <div class="space-y-3">
-            {#each getConditionConfigFields() as field}
+        {#if formData.trigger_type && getTriggerConfigFields().length > 0}
+          <div class="mt-4 space-y-3">
+            {#each getTriggerConfigFields() as field}
               <div>
-                <label class="label">
-                  <span class="label-text">{field.label}</span>
+                <label
+                  class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300"
+                  for="trigger-{field.key}"
+                >
+                  {field.label}
                 </label>
-                <input
-                  type={field.type}
-                  bind:value={formData.condition_config[field.key]}
-                  placeholder={field.placeholder}
-                  class="input input-bordered w-full input-sm"
-                />
+                {#if field.type === "checkbox"}
+                  <input
+                    id="trigger-{field.key}"
+                    type="checkbox"
+                    bind:checked={formData.trigger_config[field.key]}
+                    class="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                  />
+                {:else}
+                  <input
+                    id="trigger-{field.key}"
+                    type={field.type}
+                    bind:value={formData.trigger_config[field.key]}
+                    placeholder={field.placeholder}
+                    class="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  />
+                {/if}
               </div>
             {/each}
           </div>
+        {/if}
+      </div>
+
+      <!-- Condition Section (Optional) -->
+      <div
+        class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border-2 border-yellow-200 dark:border-yellow-700"
+      >
+        <div class="flex items-center gap-2 mb-3">
+          <i class="bi bi-filter text-yellow-600 text-xl"></i>
+          <h4 class="font-bold text-lg text-yellow-700 dark:text-yellow-300">
+            {t($currentLang, "workflow.ifThis")}
+          </h4>
+          <span
+            class="px-2 py-0.5 text-xs bg-gray-200 dark:bg-gray-700 rounded text-gray-600 dark:text-gray-300"
+          >
+            {t($currentLang, "workflow.optional")}
+          </span>
         </div>
 
-        <!-- Action Section -->
-        <div
-          class="bg-secondary/10 p-4 rounded-lg border-2 border-secondary/30"
-        >
-          <div class="flex items-center gap-2 mb-3">
-            <i class="bi bi-gear text-secondary text-xl"></i>
-            <h4 class="font-bold text-lg">
-              {t($currentLang, "workflow.thenThat")}
-            </h4>
-          </div>
-
-          <div>
-            <label class="label">
-              <span class="label-text"
-                >{t($currentLang, "workflow.actionType")}</span
+        <div class="space-y-3">
+          {#each getConditionConfigFields() as field}
+            <div>
+              <label
+                class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300"
+                for="condition-{field.key}"
               >
-            </label>
-            <select
-              bind:value={formData.action_type}
-              class="select select-bordered w-full"
-              required
-            >
-              <option value=""
-                >{t($currentLang, "workflow.selectAction")}</option
-              >
-              {#each actionTypes as actionType}
-                <option value={actionType.value}>{actionType.label}</option>
-              {/each}
-            </select>
-            {#if formData.action_type}
-              <label class="label">
-                <span class="label-text-alt text-secondary"
-                  >{getActionDescription(formData.action_type)}</span
-                >
+                {field.label}
               </label>
-            {/if}
-          </div>
-
-          {#if formData.action_type && getActionConfigFields().length > 0}
-            <div class="mt-4 space-y-3">
-              {#each getActionConfigFields() as field}
-                <div>
-                  <label class="label">
-                    <span class="label-text">{field.label}</span>
-                  </label>
-                  {#if field.type === "checkbox"}
-                    <input
-                      type="checkbox"
-                      bind:checked={formData.action_config[field.key]}
-                      class="checkbox checkbox-secondary"
-                    />
-                  {:else if field.type === "select"}
-                    <select
-                      bind:value={formData.action_config[field.key]}
-                      class="select select-bordered w-full select-sm"
-                    >
-                      {#each field.options as option}
-                        <option value={option}>{option}</option>
-                      {/each}
-                    </select>
-                  {:else if field.type === "textarea"}
-                    <textarea
-                      bind:value={formData.action_config[field.key]}
-                      placeholder={field.placeholder}
-                      class="textarea textarea-bordered w-full textarea-sm"
-                      rows="3"
-                    ></textarea>
-                  {:else}
-                    <input
-                      type={field.type}
-                      bind:value={formData.action_config[field.key]}
-                      placeholder={field.placeholder}
-                      class="input input-bordered w-full input-sm"
-                    />
-                  {/if}
-                </div>
-              {/each}
+              <input
+                id="condition-{field.key}"
+                type={field.type}
+                bind:value={formData.condition_config[field.key]}
+                placeholder={field.placeholder}
+                class="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              />
             </div>
+          {/each}
+        </div>
+      </div>
+
+      <!-- Action Section -->
+      <div
+        class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border-2 border-purple-200 dark:border-purple-700"
+      >
+        <div class="flex items-center gap-2 mb-3">
+          <i class="bi bi-gear text-purple-500 text-xl"></i>
+          <h4 class="font-bold text-lg text-purple-700 dark:text-purple-300">
+            {t($currentLang, "workflow.thenThat")}
+          </h4>
+        </div>
+
+        <div>
+          <label
+            class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+            for="action-type"
+          >
+            {t($currentLang, "workflow.actionType")}
+          </label>
+          <select
+            id="action-type"
+            bind:value={formData.action_type}
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            required
+          >
+            <option value="">{t($currentLang, "workflow.selectAction")}</option>
+            {#each actionTypes as actionType}
+              <option value={actionType.value}>{actionType.label}</option>
+            {/each}
+          </select>
+          {#if formData.action_type}
+            <p class="mt-1 text-sm text-purple-600 dark:text-purple-400">
+              {getActionDescription(formData.action_type)}
+            </p>
           {/if}
         </div>
+
+        {#if formData.action_type && getActionConfigFields().length > 0}
+          <div class="mt-4 space-y-3">
+            {#each getActionConfigFields() as field}
+              <div>
+                <label
+                  class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300"
+                  for="action-{field.key}"
+                >
+                  {field.label}
+                </label>
+                {#if field.type === "checkbox"}
+                  <input
+                    id="action-{field.key}"
+                    type="checkbox"
+                    bind:checked={formData.action_config[field.key]}
+                    class="w-4 h-4 rounded border-gray-300 text-purple-500 focus:ring-purple-500"
+                  />
+                {:else if field.type === "select"}
+                  <select
+                    id="action-{field.key}"
+                    bind:value={formData.action_config[field.key]}
+                    class="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    {#each field.options as option}
+                      <option value={option}>{option}</option>
+                    {/each}
+                  </select>
+                {:else if field.type === "textarea"}
+                  <textarea
+                    id="action-{field.key}"
+                    bind:value={formData.action_config[field.key]}
+                    placeholder={field.placeholder}
+                    class="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    rows="3"
+                  ></textarea>
+                {:else}
+                  <input
+                    id="action-{field.key}"
+                    type={field.type}
+                    bind:value={formData.action_config[field.key]}
+                    placeholder={field.placeholder}
+                    class="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  />
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {/if}
       </div>
 
       {#if error}
-        <div class="alert alert-error mt-4">
-          <i class="bi bi-exclamation-triangle"></i>
+        <div
+          class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg"
+        >
+          <i class="bi bi-exclamation-triangle mr-2"></i>
           <span>{error}</span>
         </div>
       {/if}
-
-      <!-- Actions -->
-      <div class="modal-action">
-        <button
-          type="button"
-          onclick={onCancel}
-          class="btn btn-ghost"
-          disabled={loading}
-        >
-          {t($currentLang, "workflow.cancel")}
-        </button>
-        <button type="submit" class="btn btn-primary" disabled={loading}>
-          {#if loading}
-            <span class="loading loading-spinner loading-sm"></span>
-          {/if}
-          {rule
-            ? t($currentLang, "workflow.saveRule")
-            : t($currentLang, "workflow.createRule")}
-        </button>
-      </div>
     </form>
-  </div>
-</div>
+  {/snippet}
 
-<style>
-  .label {
-    padding: 0.25rem 0;
-  }
-</style>
+  {#snippet actions()}
+    <button
+      type="button"
+      onclick={onCancel}
+      class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+      disabled={loading}
+    >
+      {t($currentLang, "workflow.cancel")}
+    </button>
+    <button
+      type="submit"
+      class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+      disabled={loading}
+      onclick={handleSubmit}
+    >
+      {#if loading}
+        <span class="loading loading-spinner loading-sm mr-2"></span>
+      {/if}
+      {rule
+        ? t($currentLang, "workflow.saveRule")
+        : t($currentLang, "workflow.createRule")}
+    </button>
+  {/snippet}
+</Modal>

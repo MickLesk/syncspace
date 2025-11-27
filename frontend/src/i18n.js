@@ -461,7 +461,7 @@ export const translations = {
     
     // Jobs Queue
     jobs: {
-      title: 'Auftrags-Warteschlange',
+      title: 'Hintergrund-Aufträge',
       description: 'Verwalten Sie Massenoperationen und Hintergrundaufträge',
       noJobs: 'Keine Aufträge vorhanden',
       type: 'Typ',
@@ -484,6 +484,13 @@ export const translations = {
       status_completed: 'Abgeschlossen',
       status_failed: 'Fehlgeschlagen',
       status_cancelled: 'Abgebrochen',
+      // Cron job editor
+      createCronJob: 'Cron-Auftrag erstellen',
+      editCronJob: 'Cron-Auftrag bearbeiten',
+      name: 'Name',
+      jobType: 'Auftragstyp',
+      cronExpression: 'Cron-Ausdruck',
+      cronExpressionHint: 'Format: Minute Stunde Tag Monat Wochentag (z.B. 0 0 * * * = täglich um Mitternacht)',
     },
     
     // File Comparison
@@ -2055,7 +2062,7 @@ export const translations = {
     
     // Jobs Queue
     jobs: {
-      title: 'Jobs Queue',
+      title: 'Background Jobs',
       description: 'Manage bulk operations and background jobs',
       noJobs: 'No jobs found',
       type: 'Type',
@@ -2078,6 +2085,13 @@ export const translations = {
       status_completed: 'Completed',
       status_failed: 'Failed',
       status_cancelled: 'Cancelled',
+      // Cron job editor
+      createCronJob: 'Create Cron Job',
+      editCronJob: 'Edit Cron Job',
+      name: 'Name',
+      jobType: 'Job Type',
+      cronExpression: 'Cron Expression',
+      cronExpressionHint: 'Format: minute hour day month weekday (e.g. 0 0 * * * = daily at midnight)',
     },
     
     // File Comparison
@@ -3657,7 +3671,37 @@ export const translations = {
 
 // Translation helper function
 export function t(lang, key, ...args) {
-  let text = translations[lang]?.[key] || translations['en'][key] || key;
+  // Handle nested keys like 'rbac.title'
+  const keys = key.split('.');
+  let text = translations[lang];
+  
+  // Traverse the nested object
+  for (const k of keys) {
+    if (text && typeof text === 'object') {
+      text = text[k];
+    } else {
+      text = undefined;
+      break;
+    }
+  }
+  
+  // Fallback to English if not found in current language
+  if (text === undefined) {
+    text = translations['en'];
+    for (const k of keys) {
+      if (text && typeof text === 'object') {
+        text = text[k];
+      } else {
+        text = undefined;
+        break;
+      }
+    }
+  }
+  
+  // If still not found, return the key itself
+  if (text === undefined || typeof text === 'object') {
+    text = key;
+  }
   
   // Replace placeholders {0}, {1}, etc.
   if (args.length > 0) {

@@ -1,26 +1,33 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import api from "../../lib/api.js";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import { success, error as errorToast } from "../../stores/toast.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
-  import RoleEditor from "../../components/rbac/RoleEditor.svelte";
-  import PermissionMatrix from "../../components/rbac/PermissionMatrix.svelte";
+  import { modals, modalEvents } from "../../stores/modals.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let roles = $state([]);
   let availablePermissions = $state([]);
   let loading = $state(true);
-  let showRoleEditor = $state(false);
-  let editingRole = $state(null);
-  let showPermissionMatrix = $state(false);
-  let selectedRole = $state(null);
+
+  let unsubscribe;
 
   onMount(async () => {
     await Promise.all([loadRoles(), loadAvailablePermissions()]);
     loading = false;
+
+    // Listen for modal save events
+    unsubscribe = modalEvents.on("roleSaved", async () => {
+      await loadRoles();
+      success(tr("rbac.roleSaved"));
+    });
+  });
+
+  onDestroy(() => {
+    if (unsubscribe) unsubscribe();
   });
 
   async function loadRoles() {
@@ -41,19 +48,11 @@
   }
 
   function openCreateRole() {
-    editingRole = null;
-    showRoleEditor = true;
+    modals.openRoleEditor(null, availablePermissions);
   }
 
   function openEditRole(role) {
-    editingRole = role;
-    showRoleEditor = true;
-  }
-
-  async function handleRoleSaved() {
-    showRoleEditor = false;
-    await loadRoles();
-    success(tr("rbac.roleSaved"));
+    modals.openRoleEditor(role, availablePermissions);
   }
 
   async function handleDeleteRole(role) {
@@ -70,8 +69,7 @@
   }
 
   function openPermissionMatrix(role) {
-    selectedRole = role;
-    showPermissionMatrix = true;
+    modals.openPermissionMatrix(role, availablePermissions);
   }
 
   function getRoleBadgeColor(role) {
@@ -91,27 +89,47 @@
 </script>
 
 <PageWrapper>
-  <div class="role-management-view">
-    <div class="mb-6">
-      <div class="flex justify-between items-center mb-4">
-        <div>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-            {tr("rbac.title")}
-          </h1>
-          <p class="text-gray-600 dark:text-gray-400 mt-2">
-            {tr("rbac.description")}
-          </p>
+  <div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
+    <!-- Modern Header with Glass Effect -->
+    <div
+      class="mb-8 bg-base-100/50 backdrop-blur-xl rounded-2xl shadow-2xl border border-base-300 p-8"
+    >
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div
+            class="p-4 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl shadow-lg"
+          >
+            <i class="bi bi-shield-check text-3xl text-white"></i>
+          </div>
+          <div>
+            <h1
+              class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
+            >
+              {tr("rbac.title")}
+            </h1>
+            <p class="text-base-content/60 mt-1 text-lg">
+              {tr("rbac.description")}
+            </p>
+          </div>
         </div>
-        <button onclick={openCreateRole} class="btn btn-primary">
-          <i class="bi bi-plus-circle mr-2"></i>
+        <button class="btn btn-primary gap-2" onclick={openCreateRole}>
+          <i class="bi bi-plus-circle"></i>
           {tr("rbac.createRole")}
         </button>
       </div>
     </div>
 
+    <!-- Roles Grid with Modern Cards -->
     {#if loading}
-      <div class="flex justify-center py-12">
-        <span class="loading loading-spinner loading-lg"></span>
+      <div class="flex justify-center items-center py-20">
+        <span class="loading loading-spinner loading-lg text-purple-500"></span>
+      </div>
+    {:else if roles.length === 0}
+      <div
+        class="text-center py-20 bg-base-100/50 backdrop-blur-xl rounded-2xl border border-base-300"
+      >
+        <i class="bi bi-shield-x text-6xl text-base-content/30 mb-4"></i>
+        <p class="text-lg text-base-content/60">{tr("rbac.noRoles")}</p>
       </div>
     {:else}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -190,33 +208,3 @@
     {/if}
   </div>
 </PageWrapper>
-
-<!-- Role Editor Modal -->
-{#if showRoleEditor}
-  <RoleEditor
-    role={editingRole}
-    {availablePermissions}
-    onSave={handleRoleSaved}
-    onCancel={() => (showRoleEditor = false)}
-  />
-{/if}
-
-<!-- Permission Matrix Modal -->
-{#if showPermissionMatrix && selectedRole}
-  <PermissionMatrix
-    role={selectedRole}
-    {availablePermissions}
-    onClose={() => {
-      showPermissionMatrix = false;
-      selectedRole = null;
-    }}
-  />
-{/if}
-
-<style>
-  .role-management-view {
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-</style>

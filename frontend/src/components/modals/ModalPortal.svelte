@@ -17,6 +17,11 @@
   import FilePreviewModal from "../files/FilePreviewModal.svelte";
   import ShareModal from "../sharing/ShareModal.svelte";
   import VersionHistoryModal from "../files/VersionHistoryModal.svelte";
+  // Admin modals
+  import RoleEditor from "../rbac/RoleEditor.svelte";
+  import PermissionMatrix from "../rbac/PermissionMatrix.svelte";
+  import WorkflowEditor from "../workflow/WorkflowEditor.svelte";
+  import CronJobEditor from "../jobs/CronJobEditor.svelte";
 
   let newFolderName = $state("");
   let newFileName = $state("");
@@ -789,3 +794,53 @@
   file={$modals.versionHistory.data}
   onClose={() => modals.close("versionHistory")}
 />
+
+<!-- ADMIN MODALS -->
+
+<!-- Role Editor Modal -->
+{#if $modals.roleEditor.visible}
+  <RoleEditor
+    role={$modals.roleEditor.data?.role}
+    availablePermissions={$modals.roleEditor.data?.permissions || []}
+    onSave={() => {
+      modalEvents.emit("roleSaved");
+      modals.close("roleEditor");
+    }}
+    onCancel={() => modals.close("roleEditor")}
+  />
+{/if}
+
+<!-- Permission Matrix Modal -->
+{#if $modals.permissionMatrix.visible}
+  <PermissionMatrix
+    role={$modals.permissionMatrix.data?.role}
+    availablePermissions={$modals.permissionMatrix.data?.permissions || []}
+    onClose={() => modals.close("permissionMatrix")}
+  />
+{/if}
+
+<!-- Workflow Editor Modal -->
+{#if $modals.workflowEditor.visible}
+  <WorkflowEditor
+    rule={$modals.workflowEditor.data?.rule}
+    triggerTypes={$modals.workflowEditor.data?.triggerTypes || []}
+    actionTypes={$modals.workflowEditor.data?.actionTypes || []}
+    onSave={() => {
+      modalEvents.emit("workflowRuleSaved");
+      modals.close("workflowEditor");
+    }}
+    onCancel={() => modals.close("workflowEditor")}
+  />
+{/if}
+
+<!-- Cron Job Editor Modal -->
+{#if $modals.cronJobEditor.visible}
+  <CronJobEditor
+    cronJob={$modals.cronJobEditor.data}
+    onSave={() => {
+      modalEvents.emit("cronJobSaved");
+      modals.close("cronJobEditor");
+    }}
+    onCancel={() => modals.close("cronJobEditor")}
+  />
+{/if}
