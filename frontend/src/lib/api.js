@@ -2057,24 +2057,27 @@ export const backup = {
     const response = await fetch(`${API_BASE}/backups`, {
       headers: getHeaders(),
     });
-    return handleResponse(response);
+    return { data: await handleResponse(response) };
   },
 
   /**
    * Create a new backup
-   * @param {string} backupType - Type of backup: 'full', 'database', 'files'
-   * @param {boolean} includeVersions - Include version history
+   * @param {Object} options - Backup options
    */
-  async create(backupType = 'full', includeVersions = true) {
+  async create(options = {}) {
     const response = await fetch(`${API_BASE}/backups/create`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ 
-        backup_type: backupType,
-        include_versions: includeVersions 
+        backup_type: options.backup_type || 'full',
+        include_versions: options.include_versions !== false,
+        include_database: options.include_database !== false,
+        description: options.description || null,
+        encrypt: options.encrypt || false,
+        destination_id: options.destination_id || null,
       }),
     });
-    return handleResponse(response);
+    return { data: await handleResponse(response) };
   },
 
   /**
@@ -2085,7 +2088,7 @@ export const backup = {
     const response = await fetch(`${API_BASE}/backups/${backupId}`, {
       headers: getHeaders(),
     });
-    return handleResponse(response);
+    return { data: await handleResponse(response) };
   },
 
   /**
@@ -2097,7 +2100,7 @@ export const backup = {
       method: 'DELETE',
       headers: getHeaders(),
     });
-    return handleResponse(response);
+    return { data: await handleResponse(response) };
   },
 
   /**
@@ -2111,7 +2114,7 @@ export const backup = {
       headers: getHeaders(),
       body: JSON.stringify({ verification_type: verificationType }),
     });
-    return handleResponse(response);
+    return { data: await handleResponse(response) };
   },
 
   /**
@@ -2122,7 +2125,7 @@ export const backup = {
     const response = await fetch(`${API_BASE}/backups/${backupId}/verifications`, {
       headers: getHeaders(),
     });
-    return handleResponse(response);
+    return { data: await handleResponse(response) };
   },
 
   /**
@@ -2133,7 +2136,179 @@ export const backup = {
       method: 'POST',
       headers: getHeaders(),
     });
-    return handleResponse(response);
+    return { data: await handleResponse(response) };
+  },
+
+  /**
+   * Restore a backup
+   * @param {string} backupId - Backup ID
+   * @param {Object} options - Restore options
+   */
+  async restore(backupId, options = {}) {
+    const response = await fetch(`${API_BASE}/backups/${backupId}/restore`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        restore_type: options.restore_type || 'full',
+        restore_path: options.restore_path || null,
+      }),
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  /**
+   * Get backup statistics
+   */
+  async getStats() {
+    const response = await fetch(`${API_BASE}/backups/stats`, {
+      headers: getHeaders(),
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  /**
+   * List restore history
+   */
+  async listRestores() {
+    const response = await fetch(`${API_BASE}/backups/restores`, {
+      headers: getHeaders(),
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  // === Schedule Methods ===
+
+  /**
+   * List all backup schedules
+   */
+  async listSchedules() {
+    const response = await fetch(`${API_BASE}/backups/schedules`, {
+      headers: getHeaders(),
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  /**
+   * Create a new backup schedule
+   * @param {Object} schedule - Schedule configuration
+   */
+  async createSchedule(schedule) {
+    const response = await fetch(`${API_BASE}/backups/schedules`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(schedule),
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  /**
+   * Get schedule details
+   * @param {string} scheduleId - Schedule ID
+   */
+  async getSchedule(scheduleId) {
+    const response = await fetch(`${API_BASE}/backups/schedules/${scheduleId}`, {
+      headers: getHeaders(),
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  /**
+   * Update a backup schedule
+   * @param {string} scheduleId - Schedule ID
+   * @param {Object} updates - Schedule updates
+   */
+  async updateSchedule(scheduleId, updates) {
+    const response = await fetch(`${API_BASE}/backups/schedules/${scheduleId}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(updates),
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  /**
+   * Delete a backup schedule
+   * @param {string} scheduleId - Schedule ID
+   */
+  async deleteSchedule(scheduleId) {
+    const response = await fetch(`${API_BASE}/backups/schedules/${scheduleId}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  /**
+   * Toggle a schedule on/off
+   * @param {string} scheduleId - Schedule ID
+   */
+  async toggleSchedule(scheduleId) {
+    const response = await fetch(`${API_BASE}/backups/schedules/${scheduleId}/toggle`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  /**
+   * Trigger a schedule manually
+   * @param {string} scheduleId - Schedule ID
+   */
+  async triggerSchedule(scheduleId) {
+    const response = await fetch(`${API_BASE}/backups/schedules/${scheduleId}/trigger`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  // === Remote Destination Methods ===
+
+  /**
+   * List all remote destinations
+   */
+  async listDestinations() {
+    const response = await fetch(`${API_BASE}/backups/remote-destinations`, {
+      headers: getHeaders(),
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  /**
+   * Create a new remote destination
+   * @param {Object} destination - Destination configuration
+   */
+  async createDestination(destination) {
+    const response = await fetch(`${API_BASE}/backups/remote-destinations`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(destination),
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  /**
+   * Delete a remote destination
+   * @param {string} destinationId - Destination ID
+   */
+  async deleteDestination(destinationId) {
+    const response = await fetch(`${API_BASE}/backups/remote-destinations/${destinationId}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  /**
+   * Test remote destination connection
+   * @param {string} destinationId - Destination ID
+   */
+  async testDestination(destinationId) {
+    const response = await fetch(`${API_BASE}/backups/remote-destinations/${destinationId}/test`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    return { data: await handleResponse(response) };
   },
 };
 
@@ -2493,10 +2668,14 @@ export const cron = {
 // SETUP WIZARD API
 // ============================================================================
 
+// ============================================================================
+// SETUP WIZARD API
+// ============================================================================
+
 /**
  * Setup wizard endpoints (first-time installation)
  */
-const setup = {
+export const setup = {
   /**
    * Check if setup is required
    */
@@ -2708,6 +2887,323 @@ export const metadata = {
 };
 
 // ============================================================================
+// AUDIT & COMPLIANCE
+// ============================================================================
+
+export const audit = {
+  // --- Audit Logs ---
+  /**
+   * List audit logs with filtering and pagination
+   */
+  async listLogs(params = {}) {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append('page', params.page);
+    if (params.limit) queryParams.append('limit', params.limit);
+    if (params.user_id) queryParams.append('user_id', params.user_id);
+    if (params.category) queryParams.append('category', params.category);
+    if (params.severity) queryParams.append('severity', params.severity);
+    if (params.action) queryParams.append('action', params.action);
+    if (params.from_date) queryParams.append('from_date', params.from_date);
+    if (params.to_date) queryParams.append('to_date', params.to_date);
+    if (params.search) queryParams.append('search', params.search);
+    
+    const response = await fetch(`${API_BASE}/audit/logs?${queryParams}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get audit log statistics
+   */
+  async getStats() {
+    const response = await fetch(`${API_BASE}/audit/logs/stats`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Export audit logs
+   */
+  async exportLogs(params = {}) {
+    const queryParams = new URLSearchParams();
+    if (params.format) queryParams.append('format', params.format);
+    if (params.from_date) queryParams.append('from_date', params.from_date);
+    if (params.to_date) queryParams.append('to_date', params.to_date);
+    if (params.user_id) queryParams.append('user_id', params.user_id);
+    if (params.category) queryParams.append('category', params.category);
+    if (params.severity) queryParams.append('severity', params.severity);
+    
+    const response = await fetch(`${API_BASE}/audit/logs/export?${queryParams}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  // --- Compliance Reports ---
+  /**
+   * List compliance reports
+   */
+  async listReports() {
+    const response = await fetch(`${API_BASE}/audit/compliance/reports`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Generate a new compliance report
+   */
+  async generateReport(data) {
+    const response = await fetch(`${API_BASE}/audit/compliance/reports`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get a specific compliance report
+   */
+  async getReport(id) {
+    const response = await fetch(`${API_BASE}/audit/compliance/reports/${id}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  // --- Retention Policies ---
+  /**
+   * List retention policies
+   */
+  async listPolicies() {
+    const response = await fetch(`${API_BASE}/audit/retention-policies`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a retention policy
+   */
+  async createPolicy(data) {
+    const response = await fetch(`${API_BASE}/audit/retention-policies`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update a retention policy
+   */
+  async updatePolicy(id, data) {
+    const response = await fetch(`${API_BASE}/audit/retention-policies/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a retention policy
+   */
+  async deletePolicy(id) {
+    const response = await fetch(`${API_BASE}/audit/retention-policies/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Apply retention policies now
+   */
+  async applyPolicies() {
+    const response = await fetch(`${API_BASE}/audit/retention-policies/apply`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  // --- Alert Rules ---
+  /**
+   * List alert rules
+   */
+  async listAlertRules() {
+    const response = await fetch(`${API_BASE}/audit/alert-rules`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create an alert rule
+   */
+  async createAlertRule(data) {
+    const response = await fetch(`${API_BASE}/audit/alert-rules`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update an alert rule
+   */
+  async updateAlertRule(id, data) {
+    const response = await fetch(`${API_BASE}/audit/alert-rules/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete an alert rule
+   */
+  async deleteAlertRule(id) {
+    const response = await fetch(`${API_BASE}/audit/alert-rules/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  // --- Alerts ---
+  /**
+   * List triggered alerts
+   */
+  async listAlerts(params = {}) {
+    const queryParams = new URLSearchParams();
+    if (params.acknowledged !== undefined) queryParams.append('acknowledged', params.acknowledged);
+    if (params.severity) queryParams.append('severity', params.severity);
+    if (params.limit) queryParams.append('limit', params.limit);
+    
+    const response = await fetch(`${API_BASE}/audit/alerts?${queryParams}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Acknowledge an alert
+   */
+  async acknowledgeAlert(id) {
+    const response = await fetch(`${API_BASE}/audit/alerts/${id}/acknowledge`, {
+      method: 'PUT',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  // --- Sessions ---
+  /**
+   * List active sessions
+   */
+  async listSessions() {
+    const response = await fetch(`${API_BASE}/audit/sessions`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Terminate a session
+   */
+  async terminateSession(id) {
+    const response = await fetch(`${API_BASE}/audit/sessions/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  // --- Templates ---
+  /**
+   * List report templates
+   */
+  async listTemplates() {
+    const response = await fetch(`${API_BASE}/audit/templates`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Download a compliance report
+   */
+  async downloadReport(id) {
+    const response = await fetch(`${API_BASE}/audit/compliance/reports/${id}/download`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Apply a specific retention policy
+   */
+  async applyPolicy(id) {
+    const response = await fetch(`${API_BASE}/audit/retention-policies/${id}/apply`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Apply all active retention policies
+   */
+  async applyAllPolicies() {
+    const response = await fetch(`${API_BASE}/audit/retention-policies/apply-all`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  // --- Archives ---
+  /**
+   * List audit archives
+   */
+  async listArchives() {
+    const response = await fetch(`${API_BASE}/audit/archives`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create an audit archive
+   */
+  async createArchive() {
+    const response = await fetch(`${API_BASE}/audit/archives`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete an archive
+   */
+  async deleteArchive(id) {
+    const response = await fetch(`${API_BASE}/audit/archives/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================================================
 // DEFAULT EXPORT - All API modules
 // ============================================================================
 
@@ -2741,4 +3237,5 @@ export default {
   performance,
   cloudStorage,
   metadata,
+  audit,
 };

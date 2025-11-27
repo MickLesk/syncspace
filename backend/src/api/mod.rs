@@ -2,6 +2,7 @@
 //! Centralizes all API route definitions
 
 pub mod activity;
+pub mod audit_compliance;
 pub mod auth;
 pub mod auth_security;
 pub mod backup;
@@ -99,6 +100,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(workflow::router())
                 .merge(cloud_storage::router())
                 .merge(metadata::router()) // File metadata extraction (EXIF, ID3, PDF)
+                .merge(audit_compliance::router()) // Audit logs & compliance reports
                 .merge(errors::router()) // Error reporting endpoint
                 .merge(jobs::router()) // Background jobs management
                 .merge(cron::router()) // Cron scheduler management

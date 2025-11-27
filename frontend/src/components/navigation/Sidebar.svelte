@@ -129,6 +129,12 @@
       category: "system",
     },
     {
+      id: "audit",
+      icon: "shield-check",
+      label: t($currentLang, "audit.title"),
+      category: "system",
+    },
+    {
       id: "trash",
       icon: "trash-fill",
       label: t($currentLang, "trash"),
