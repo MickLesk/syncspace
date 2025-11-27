@@ -1,7 +1,8 @@
 <script>
   import { onMount } from "svelte";
-  import { api } from "../../lib/api.js";
-  import { currentLang, t } from "../../i18n.js";
+  import api from "../../lib/api.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import { success, error as errorToast } from "../../stores/toast.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import RoleEditor from "../../components/rbac/RoleEditor.svelte";

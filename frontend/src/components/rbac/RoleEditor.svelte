@@ -1,6 +1,7 @@
 <script>
-  import { api } from "../../lib/api.js";
-  import { currentLang, t } from "../../i18n.js";
+  import api from "../../lib/api.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -35,7 +36,8 @@
     }
   });
 
-  async function handleSubmit() {
+  async function handleSubmit(e) {
+    e.preventDefault();
     error = "";
 
     if (!formData.name.trim() || !formData.display_name.trim()) {
@@ -119,7 +121,7 @@
       </div>
     {/if}
 
-    <form onsubmit|preventDefault={handleSubmit}>
+    <form onsubmit={handleSubmit}>
       <div class="space-y-4">
         <!-- Role Name -->
         <div class="form-control">

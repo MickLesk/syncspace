@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { api } from "../../lib/api.js";
+  import api from "../../lib/api.js";
   import { t } from "../../i18n.js";
   import DiffMatchPatch from "diff-match-patch";
 

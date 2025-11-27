@@ -9,7 +9,11 @@
   const dispatch = createEventDispatcher();
   const tr = (key, ...args) => t($currentLang, key, ...args);
 
-  let { isOpen = $bindable(false), selectedUsers = [], onSelect = null } = $props();
+  let {
+    isOpen = $bindable(false),
+    selectedUsers = [],
+    onSelect = null,
+  } = $props();
 
   let users = $state([]);
   let filteredUsers = $state([]);
@@ -34,7 +38,9 @@
         const matchesSearch =
           !searchQuery ||
           user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.display_name
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
           user.email?.toLowerCase().includes(searchQuery.toLowerCase());
 
         const matchesRole = !roleFilter || user.role === roleFilter;
@@ -105,7 +111,9 @@
         placeholder={tr("searchUsers")}
         class="w-full px-4 py-2 pl-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       />
-      <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+      <i
+        class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+      ></i>
     </div>
 
     <!-- Filters -->
@@ -135,7 +143,9 @@
   <!-- User List -->
   {#if loading}
     <div class="flex justify-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"
+      ></div>
     </div>
   {:else if filteredUsers.length === 0}
     <div class="text-center py-12 text-gray-500 dark:text-gray-400">
@@ -151,9 +161,7 @@
           class="w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
           class:border-blue-500={isUserSelected(user)}
           class:bg-blue-50={isUserSelected(user)}
-          class:dark:bg-blue-900/20={isUserSelected(user)}
           class:border-gray-200={!isUserSelected(user)}
-          class:dark:border-gray-700={!isUserSelected(user)}
         >
           <!-- Avatar -->
           <div class="flex-shrink-0">
@@ -180,7 +188,9 @@
               </span>
               {#if user.role !== "user"}
                 <span
-                  class="px-2 py-0.5 text-xs font-medium rounded-full {getRoleBadgeColor(user.role)}"
+                  class="px-2 py-0.5 text-xs font-medium rounded-full {getRoleBadgeColor(
+                    user.role
+                  )}"
                 >
                   {user.role}
                 </span>

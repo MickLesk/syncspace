@@ -1,5 +1,6 @@
 <script>
-  import { t, currentLang } from "../../i18n.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
 
   let { rule, triggerTypes, actionTypes, onEdit, onDelete, onToggle } =
     $props();

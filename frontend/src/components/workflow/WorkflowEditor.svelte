@@ -1,6 +1,7 @@
 <script>
   import { workflow } from "../../lib/api.js";
-  import { t, currentLang } from "../../i18n.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
 
   let { rule, triggerTypes, actionTypes, onSave, onCancel } = $props();
 
@@ -20,7 +21,8 @@
   let loading = $state(false);
   let error = $state("");
 
-  async function handleSubmit() {
+  async function handleSubmit(e) {
+    e.preventDefault();
     // Validation
     if (
       !formData.display_name ||
@@ -302,7 +304,7 @@
         : t($currentLang, "workflow.createRule")}
     </h3>
 
-    <form onsubmit|preventDefault={handleSubmit}>
+    <form onsubmit={handleSubmit}>
       <!-- Basic Info -->
       <div class="space-y-4 mb-6">
         <div>
