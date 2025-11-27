@@ -315,12 +315,16 @@ async fn main() {
         database_monitor::monitor_background(monitor_pool_clone, monitor_health_clone).await;
     });
 
+    // Start background job worker for bulk operations
+    services::job_worker::spawn_worker(db_pool.clone());
+    println!("✅ Background job worker started");
+
     // Build application state
     let start_time = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_secs();
-    
+
     let app_state = AppState {
         config,
         fs_tx,

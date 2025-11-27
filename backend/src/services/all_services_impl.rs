@@ -1,7 +1,7 @@
 //! All remaining services - compact implementation
 use crate::{auth::UserInfo, AppState};
 use anyhow::{anyhow, Result};
-use chrono::Utc;
+use chrono::{TimeZone, Utc};
 use uuid::Uuid;
 
 // DIRECTORY SERVICE

@@ -41,6 +41,7 @@
 
   // Jobs & System Management
   import JobsDashboard from "./pages/JobsDashboard.svelte";
+  import JobsQueueView from "./pages/jobs/JobsQueueView.svelte";
 
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
@@ -363,6 +364,8 @@
                 <BackupView />
               {:else if $currentView === "jobs"}
                 <JobsDashboard />
+              {:else if $currentView === "jobs-queue"}
+                <JobsQueueView />
               {:else if $currentView === "notifications"}
                 <NotificationsView />
               {:else if $currentView === "recent"}

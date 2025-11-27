@@ -111,6 +111,12 @@
       category: "tools",
     },
     {
+      id: "jobs-queue",
+      icon: "stack",
+      label: t($currentLang, "jobs.title"),
+      category: "tools",
+    },
+    {
       id: "trash",
       icon: "trash-fill",
       label: t($currentLang, "trash"),

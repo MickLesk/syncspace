@@ -1043,6 +1043,73 @@ export const batch = {
 };
 
 // ============================================
+// BULK OPERATIONS
+// ============================================
+
+export const bulk = {
+  /**
+   * Create bulk operation job
+   */
+  async createJob(jobType, filePaths, operation, destination = null, priority = 5) {
+    const response = await fetch(`${API_BASE}/bulk/jobs`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({
+        job_type: jobType,
+        file_paths: filePaths,
+        operation: operation,
+        destination: destination,
+        priority: priority
+      }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List all jobs for current user
+   */
+  async listJobs() {
+    const response = await fetch(`${API_BASE}/bulk/jobs`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get specific job status
+   */
+  async getJobStatus(jobId) {
+    const response = await fetch(`${API_BASE}/bulk/jobs/${jobId}`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Cancel a job
+   */
+  async cancelJob(jobId) {
+    const response = await fetch(`${API_BASE}/bulk/jobs/${jobId}/cancel`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ reason: "User cancelled" }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a completed job
+   */
+  async deleteJob(jobId) {
+    const response = await fetch(`${API_BASE}/bulk/jobs/${jobId}`, {
+      method: "DELETE",
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================
 // WEBSOCKET
 // ============================================
 

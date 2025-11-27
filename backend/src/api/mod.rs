@@ -1,12 +1,12 @@
 //! API Router Module
 //! Centralizes all API route definitions
 
+pub mod activity;
 pub mod auth;
 pub mod auth_security;
-pub mod setup;
-pub mod activity;
 pub mod backup;
 pub mod batch;
+pub mod bulk_operations;
 pub mod collaboration;
 pub mod comments;
 pub mod config;
@@ -17,6 +17,7 @@ pub mod directories;
 pub mod duplicates;
 pub mod errors;
 pub mod favorites;
+pub mod file_comparison;
 pub mod file_versions;
 pub mod files;
 pub mod folder_colors;
@@ -28,6 +29,7 @@ pub mod performance;
 pub mod quota;
 pub mod recent;
 pub mod search;
+pub mod setup;
 pub mod sharing;
 pub mod system;
 pub mod tags;
@@ -80,11 +82,13 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(comments::router())
                 .merge(trash::router())
                 .merge(batch::router())
+                .merge(bulk_operations::router())
                 .merge(config::router())
                 .merge(peers::router())
                 .merge(recent::router())
                 .merge(duplicates::router())
                 .merge(folder_colors::router())
+                .merge(file_comparison::router())
                 .merge(errors::router()) // Error reporting endpoint
                 .merge(jobs::router()) // Background jobs management
                 .merge(cron::router()) // Cron scheduler management
