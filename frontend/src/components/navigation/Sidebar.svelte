@@ -123,6 +123,12 @@
       category: "system",
     },
     {
+      id: "cloud-storage",
+      icon: "cloud",
+      label: t($currentLang, "cloudStorage.title"),
+      category: "system",
+    },
+    {
       id: "trash",
       icon: "trash-fill",
       label: t($currentLang, "trash"),

@@ -44,6 +44,7 @@
   import JobsQueueView from "./pages/jobs/JobsQueueView.svelte";
   import RoleManagementView from "./pages/rbac/RoleManagementView.svelte";
   import WorkflowBuilderView from "./pages/workflow/WorkflowBuilderView.svelte";
+  import CloudStorageView from "./pages/admin/CloudStorageView.svelte";
 
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
@@ -372,6 +373,8 @@
                 <RoleManagementView />
               {:else if $currentView === "workflows"}
                 <WorkflowBuilderView />
+              {:else if $currentView === "cloud-storage"}
+                <CloudStorageView />
               {:else if $currentView === "notifications"}
                 <NotificationsView />
               {:else if $currentView === "recent"}

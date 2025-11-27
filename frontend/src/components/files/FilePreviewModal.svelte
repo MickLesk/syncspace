@@ -7,6 +7,7 @@
   import CommentsTab from "./CommentsTab.svelte";
   import TagsTab from "./TagsTab.svelte";
   import DetailsTab from "./DetailsTab.svelte";
+  import MetadataTab from "./MetadataTab.svelte";
 
   let {
     visible = $bindable(false),
@@ -61,6 +62,9 @@
         previewUrl = URL.createObjectURL(blob);
       } else if (["mp3", "wav", "flac", "aac", "ogg", "m4a"].includes(ext)) {
         previewType = "audio";
+        previewUrl = URL.createObjectURL(blob);
+      } else if (["stl", "obj"].includes(ext)) {
+        previewType = "3d-model";
         previewUrl = URL.createObjectURL(blob);
       } else if (ext === "pdf") {
         previewType = "pdf";
@@ -380,6 +384,13 @@
         onclick={() => (activeTab = "details")}
         ><i class="bi bi-info-circle mr-2"></i>Details</button
       >
+      <button
+        class="tab transition-all duration-200 {activeTab === 'metadata'
+          ? 'tab-active'
+          : ''}"
+        onclick={() => (activeTab = "metadata")}
+        ><i class="bi bi-card-list mr-2"></i>Metadata</button
+      >
     </div>
 
     <!-- Content Area with smooth scrolling -->
@@ -394,6 +405,7 @@
       {:else if activeTab === "comments"}<CommentsTab {file} />
       {:else if activeTab === "tags"}<TagsTab {file} />
       {:else if activeTab === "details"}<DetailsTab {file} />
+      {:else if activeTab === "metadata"}<MetadataTab {file} />
       {/if}
     </div>
 

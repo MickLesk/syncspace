@@ -2499,6 +2499,187 @@ const setup = {
     }).then(handleResponse),
 };
 
+// ============================================
+// CLOUD STORAGE ENDPOINTS
+// ============================================
+
+export const cloudStorage = {
+  /**
+   * List all storage backends
+   */
+  async listBackends() {
+    const response = await fetch(`${API_BASE}/storage/backends`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get single storage backend
+   */
+  async getBackend(id) {
+    const response = await fetch(`${API_BASE}/storage/backends/${id}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create new storage backend
+   */
+  async createBackend(data) {
+    const response = await fetch(`${API_BASE}/storage/backends`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update storage backend
+   */
+  async updateBackend(id, data) {
+    const response = await fetch(`${API_BASE}/storage/backends/${id}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete storage backend
+   */
+  async deleteBackend(id) {
+    const response = await fetch(`${API_BASE}/storage/backends/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    if (!response.ok) {
+      if (response.status === 409) {
+        throw new Error("Cannot delete backend with files");
+      }
+      throw new Error("Failed to delete backend");
+    }
+    return true;
+  },
+
+  /**
+   * Check backend health
+   */
+  async checkHealth(id) {
+    const response = await fetch(`${API_BASE}/storage/backends/${id}/health`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Test backend connection
+   */
+  async testConnection(id) {
+    const response = await fetch(`${API_BASE}/storage/backends/${id}/test`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Set default backend
+   */
+  async setDefault(id) {
+    const response = await fetch(`${API_BASE}/storage/backends/${id}/set-default`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to set default backend");
+    return true;
+  },
+
+  /**
+   * Get storage statistics
+   */
+  async getStats() {
+    const response = await fetch(`${API_BASE}/storage/stats`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  // Migration endpoints
+  /**
+   * List migration jobs
+   */
+  async listMigrations() {
+    const response = await fetch(`${API_BASE}/storage/migration/jobs`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get migration job details
+   */
+  async getMigration(id) {
+    const response = await fetch(`${API_BASE}/storage/migration/jobs/${id}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create migration job
+   */
+  async createMigration(data) {
+    const response = await fetch(`${API_BASE}/storage/migration`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Cancel migration job
+   */
+  async cancelMigration(id) {
+    const response = await fetch(`${API_BASE}/storage/migration/jobs/${id}/cancel`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to cancel migration");
+    return true;
+  },
+};
+
+// ============================================================================
+// FILE METADATA EXTRACTION
+// ============================================================================
+
+export const metadata = {
+  /**
+   * Get metadata for a file (EXIF, ID3, PDF info, etc.)
+   */
+  async get(path) {
+    const response = await fetch(`${API_BASE}/metadata/${encodeURIComponent(path)}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get supported metadata file types
+   */
+  async getSupportedTypes() {
+    const response = await fetch(`${API_BASE}/metadata-types`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
 // ============================================================================
 // DEFAULT EXPORT - All API modules
 // ============================================================================
@@ -2531,4 +2712,6 @@ export default {
   trash,
   setup,
   performance,
+  cloudStorage,
+  metadata,
 };

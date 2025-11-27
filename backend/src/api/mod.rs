@@ -25,6 +25,7 @@ pub mod files;
 pub mod folder_colors;
 pub mod groups;
 pub mod jobs;
+pub mod metadata;
 pub mod notifications;
 pub mod peers;
 pub mod performance;
@@ -97,6 +98,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(rbac::router())
                 .merge(workflow::router())
                 .merge(cloud_storage::router())
+                .merge(metadata::router()) // File metadata extraction (EXIF, ID3, PDF)
                 .merge(errors::router()) // Error reporting endpoint
                 .merge(jobs::router()) // Background jobs management
                 .merge(cron::router()) // Cron scheduler management

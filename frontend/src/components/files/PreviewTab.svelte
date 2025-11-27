@@ -1,7 +1,16 @@
 <script>
   import { getFileIcon } from "../../utils/fileIcons";
+  import ModelViewer from "./preview/ModelViewer.svelte";
+  import AudioPlayer from "./preview/AudioPlayer.svelte";
+  import VideoPlayer from "./preview/VideoPlayer.svelte";
 
   let { file, previewUrl, previewType, loading, error } = $props();
+
+  // Check if file is a 3D model
+  function is3DModel() {
+    const ext = file?.name?.split(".").pop()?.toLowerCase();
+    return ["stl", "obj"].includes(ext);
+  }
 </script>
 
 {#if loading}
@@ -13,6 +22,8 @@
     <i class="bi bi-exclamation-triangle"></i>
     <span>{error}</span>
   </div>
+{:else if is3DModel()}
+  <ModelViewer {file} {previewUrl} />
 {:else if previewType === "image"}
   <div class="flex justify-center bg-base-200 rounded-xl p-4">
     <img
@@ -22,21 +33,9 @@
     />
   </div>
 {:else if previewType === "video"}
-  <div class="bg-base-200 rounded-xl p-4">
-    <!-- svelte-ignore a11y_media_has_caption -->
-    <video controls class="w-full max-h-[70vh] rounded-lg shadow-lg">
-      <source src={previewUrl} type="video/{file?.name.split('.').pop()}" />
-      Your browser does not support video playback.
-    </video>
-  </div>
+  <VideoPlayer {file} {previewUrl} />
 {:else if previewType === "audio"}
-  <div class="flex flex-col items-center gap-6 p-12">
-    <i class="bi bi-music-note-beamed text-8xl text-primary"></i>
-    <audio controls class="w-full max-w-md">
-      <source src={previewUrl} type="audio/{file?.name.split('.').pop()}" />
-      Your browser does not support audio playback.
-    </audio>
-  </div>
+  <AudioPlayer {file} {previewUrl} />
 {:else if previewType === "pdf"}
   <div class="bg-base-200 rounded-xl p-4">
     <iframe
