@@ -40,7 +40,7 @@
 
       const path = fileA.path || fileA;
       const response = await fetch(
-        `http://localhost:8080/api/files/${encodeURIComponent(path)}/compare?${params}`,
+        `http://localhost:8080/api/compare/${encodeURIComponent(path)}?${params}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,

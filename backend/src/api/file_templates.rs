@@ -16,13 +16,13 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/templates", post(create_template).get(list_templates))
         .route(
-            "/templates/:id",
+            "/templates/{id}",
             get(get_template)
                 .put(update_template)
                 .delete(delete_template),
         )
-        .route("/templates/:id/use", post(use_template))
-        .route("/templates/:id/favorite", post(toggle_favorite))
+        .route("/templates/{id}/use", post(use_template))
+        .route("/templates/{id}/favorite", post(toggle_favorite))
         .route("/template-categories", get(list_categories))
 }
 

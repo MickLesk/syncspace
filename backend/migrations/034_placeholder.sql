@@ -1,0 +1,3 @@
+-- Migration 034: Placeholder
+-- This migration was skipped in the original numbering sequence
+-- No changes needed - migrations 033 and 035 are already in place

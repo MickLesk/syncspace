@@ -53,7 +53,9 @@ CREATE INDEX IF NOT EXISTS idx_permission_audit_action ON permission_audit(actio
 CREATE INDEX IF NOT EXISTS idx_permission_audit_created ON permission_audit(created_at);
 
 -- Insert system roles with comprehensive permissions
-INSERT OR IGNORE INTO roles (id, name, display_name, description, permissions, is_system, is_default, created_at, updated_at) VALUES
+-- Note: Migration 038 adds display_name, updated_at, is_default columns
+-- This will run after 038, so these columns will exist
+INSERT OR REPLACE INTO roles (id, name, display_name, description, permissions, is_system, is_default, created_at, updated_at) VALUES
     (
         'role-super-admin',
         'super_admin',

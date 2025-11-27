@@ -117,9 +117,9 @@ async fn get_job_status(
     .ok_or(StatusCode::NOT_FOUND)?;
 
     // Parse payload to check ownership
-    let payload: serde_json::Value = serde_json::from_str(&job.payload)
-        .unwrap_or_else(|_| serde_json::json!({}));
-    
+    let payload: serde_json::Value =
+        serde_json::from_str(&job.payload).unwrap_or_else(|_| serde_json::json!({}));
+
     if let Some(owner_id) = payload.get("user_id").and_then(|v| v.as_str()) {
         if owner_id != user.id {
             return Err(StatusCode::FORBIDDEN);
@@ -133,7 +133,8 @@ async fn get_job_status(
         // Try to parse progress from result field
         if let Some(ref result) = job.result {
             if let Ok(result_json) = serde_json::from_str::<serde_json::Value>(result) {
-                result_json.get("progress")
+                result_json
+                    .get("progress")
                     .and_then(|v| v.as_i64())
                     .unwrap_or(50) as i32
             } else {
@@ -215,19 +216,17 @@ async fn cancel_job(
     Path(job_id): Path<String>,
     Json(_req): Json<CancelJobRequest>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let job = sqlx::query_as::<_, BackgroundJob>(
-        "SELECT * FROM background_jobs WHERE id = ?"
-    )
-    .bind(&job_id)
-    .fetch_optional(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-    .ok_or(StatusCode::NOT_FOUND)?;
+    let job = sqlx::query_as::<_, BackgroundJob>("SELECT * FROM background_jobs WHERE id = ?")
+        .bind(&job_id)
+        .fetch_optional(&state.db_pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .ok_or(StatusCode::NOT_FOUND)?;
 
     // Check ownership
-    let payload: serde_json::Value = serde_json::from_str(&job.payload)
-        .unwrap_or_else(|_| serde_json::json!({}));
-    
+    let payload: serde_json::Value =
+        serde_json::from_str(&job.payload).unwrap_or_else(|_| serde_json::json!({}));
+
     if let Some(owner_id) = payload.get("user_id").and_then(|v| v.as_str()) {
         if owner_id != user.id {
             return Err(StatusCode::FORBIDDEN);
@@ -268,19 +267,17 @@ async fn delete_job(
     user: UserInfo,
     Path(job_id): Path<String>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let job = sqlx::query_as::<_, BackgroundJob>(
-        "SELECT * FROM background_jobs WHERE id = ?"
-    )
-    .bind(&job_id)
-    .fetch_optional(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-    .ok_or(StatusCode::NOT_FOUND)?;
+    let job = sqlx::query_as::<_, BackgroundJob>("SELECT * FROM background_jobs WHERE id = ?")
+        .bind(&job_id)
+        .fetch_optional(&state.db_pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .ok_or(StatusCode::NOT_FOUND)?;
 
     // Check ownership
-    let payload: serde_json::Value = serde_json::from_str(&job.payload)
-        .unwrap_or_else(|_| serde_json::json!({}));
-    
+    let payload: serde_json::Value =
+        serde_json::from_str(&job.payload).unwrap_or_else(|_| serde_json::json!({}));
+
     if let Some(owner_id) = payload.get("user_id").and_then(|v| v.as_str()) {
         if owner_id != user.id {
             return Err(StatusCode::FORBIDDEN);
@@ -299,6 +296,9 @@ async fn delete_job(
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/bulk/jobs", post(create_bulk_job).get(list_jobs))
-        .route("/bulk/jobs/:job_id", get(get_job_status).delete(delete_job))
-        .route("/bulk/jobs/:job_id/cancel", post(cancel_job))
+        .route(
+            "/bulk/jobs/{job_id}",
+            get(get_job_status).delete(delete_job),
+        )
+        .route("/bulk/jobs/{job_id}/cancel", post(cancel_job))
 }

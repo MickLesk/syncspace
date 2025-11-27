@@ -16,16 +16,16 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/roles", get(list_roles).post(create_role))
         .route(
-            "/roles/:id",
+            "/roles/{id}",
             get(get_role).put(update_role).delete(delete_role),
         )
-        .route("/roles/:id/permissions", get(get_role_permissions))
+        .route("/roles/{id}/permissions", get(get_role_permissions))
         .route(
-            "/users/:user_id/roles",
+            "/users/{user_id}/roles",
             get(get_user_roles).post(assign_user_role),
         )
-        .route("/users/:user_id/roles/:role_id", delete(revoke_user_role))
-        .route("/users/:user_id/permissions", get(get_user_permissions))
+        .route("/users/{user_id}/roles/{role_id}", delete(revoke_user_role))
+        .route("/users/{user_id}/permissions", get(get_user_permissions))
         .route("/permissions/available", get(list_available_permissions))
         .route("/permissions/audit", get(get_permission_audit))
 }

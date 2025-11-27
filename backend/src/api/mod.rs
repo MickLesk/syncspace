@@ -7,6 +7,7 @@ pub mod auth_security;
 pub mod backup;
 pub mod batch;
 pub mod bulk_operations;
+pub mod cloud_storage;
 pub mod collaboration;
 pub mod comments;
 pub mod config;
@@ -70,6 +71,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(file_versions::router())
                 // 2FA functionality now integrated into auth::protected_router()
                 .merge(versions::router()) // MUST come before files::router() (more specific routes first)
+                .merge(file_comparison::router()) // /files/{path}/compare - must come before files::router()
                 .merge(files::router()) // Has catch-all /files/{*path}, must be last for /files/*
                 .merge(directories::router())
                 .merge(search::router())
@@ -91,10 +93,10 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(recent::router())
                 .merge(duplicates::router())
                 .merge(folder_colors::router())
-                .merge(file_comparison::router())
                 .merge(file_templates::router())
                 .merge(rbac::router())
                 .merge(workflow::router())
+                .merge(cloud_storage::router())
                 .merge(errors::router()) // Error reporting endpoint
                 .merge(jobs::router()) // Background jobs management
                 .merge(cron::router()) // Cron scheduler management

@@ -148,5 +148,5 @@ fn is_text_file(mime_type: &str) -> bool {
 }
 
 pub fn router() -> Router<AppState> {
-    Router::new().route("/files/:path/compare", get(compare_files))
+    Router::new().route("/compare/{*path}", get(compare_files))
 }

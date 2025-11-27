@@ -119,11 +119,7 @@
       }
 
       // Load cron jobs
-      const cronRes = await fetch("/api/cron", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
+      const cronRes = await api.cron.list();
       if (cronRes.ok) {
         cronJobs = await cronRes.json();
       }
@@ -192,14 +188,12 @@
 
   async function createCronJob() {
     try {
-      const res = await fetch("/api/cron", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-        body: JSON.stringify(newCronJob),
-      });
+      const res = await api.cron.create(
+        newCronJob.name,
+        newCronJob.job_type,
+        newCronJob.cron_expression,
+        newCronJob.payload
+      );
 
       if (res.ok) {
         showCreateCronModal = false;
@@ -221,13 +215,9 @@
 
   async function toggleCronJob(cronJob) {
     try {
-      const endpoint = cronJob.enabled ? "disable" : "enable";
-      const res = await fetch(`/api/cron/${cronJob.id}/${endpoint}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
+      const res = cronJob.enabled
+        ? await api.cron.disable(cronJob.id)
+        : await api.cron.enable(cronJob.id);
 
       if (res.ok) {
         await loadData();
@@ -244,12 +234,7 @@
     if (!confirm("Delete this cron job?")) return;
 
     try {
-      const res = await fetch(`/api/cron/${cronJobId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
+      const res = await api.cron.delete(cronJobId);
 
       if (res.ok) {
         await loadData();
