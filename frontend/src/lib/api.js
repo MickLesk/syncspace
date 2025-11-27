@@ -1775,9 +1775,17 @@ export const sharing = {
   
   // File versioning endpoints
 export const versions = {
-    // List all versions for a file
-    async list(fileId) {
-      const response = await fetch(`${API_BASE}/files/${fileId}/versions`, {
+    // List all versions for a file (with tags)
+    async list(fileId, includeTags = true) {
+      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}?include_tags=${includeTags}`, {
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+
+    // Get version timeline with stats
+    async getTimeline(fileId) {
+      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/timeline`, {
         headers: getHeaders()
       });
       return { data: await handleResponse(response) };
@@ -1785,7 +1793,7 @@ export const versions = {
 
     // Create a new version of a file
     async create(fileId, versionData) {
-      const response = await fetch(`${API_BASE}/files/${fileId}/versions`, {
+      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}`, {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify(versionData)
@@ -1793,17 +1801,19 @@ export const versions = {
       return { data: await handleResponse(response) };
     },
 
-    // Get specific version details
-    async get(versionId) {
-      const response = await fetch(`${API_BASE}/versions/${versionId}`, {
-        headers: getHeaders()
+    // Update version (comment, pinned, starred)
+    async update(fileId, versionId, updateData) {
+      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(updateData)
       });
       return { data: await handleResponse(response) };
     },
 
     // Delete a version (not current)
-    async delete(versionId) {
-      const response = await fetch(`${API_BASE}/versions/${versionId}`, {
+    async delete(fileId, versionId) {
+      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}`, {
         method: 'DELETE',
         headers: getHeaders()
       });
@@ -1811,8 +1821,8 @@ export const versions = {
     },
 
     // Restore a version (creates new current version)
-    async restore(versionId, options = {}) {
-      const response = await fetch(`${API_BASE}/files/${versionId}/versions/restore`, {
+    async restore(fileId, versionId, options = {}) {
+      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}/restore`, {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify(options)
@@ -1821,8 +1831,43 @@ export const versions = {
     },
 
     // Get diff between two versions
-    async getDiff(fromVersionId, toVersionId) {
-      const response = await fetch(`${API_BASE}/versions/${fromVersionId}/diff/${toVersionId}`, {
+    async getDiff(fileId, fromVersionId, toVersionId) {
+      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${fromVersionId}/diff/${toVersionId}`, {
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+
+    // Add tag to version
+    async addTag(fileId, versionId, tagData) {
+      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}/tags`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(tagData)
+      });
+      return { data: await handleResponse(response) };
+    },
+
+    // Remove tag from version
+    async removeTag(fileId, versionId, tagId) {
+      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}/tags/${tagId}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+
+    // Get tag templates
+    async getTagTemplates() {
+      const response = await fetch(`${API_BASE}/version-tags/templates`, {
+        headers: getHeaders()
+      });
+      return { data: await handleResponse(response) };
+    },
+
+    // Get storage stats for all files
+    async getStorageStats() {
+      const response = await fetch(`${API_BASE}/version-storage-stats`, {
         headers: getHeaders()
       });
       return { data: await handleResponse(response) };
@@ -1837,24 +1882,6 @@ export const versions = {
         throw new Error(`Download failed: ${response.statusText}`);
       }
       return { data: await response.blob() };
-    },
-
-    // Get version metadata
-    async getMetadata(versionId) {
-      const response = await fetch(`${API_BASE}/versions/${versionId}/metadata`, {
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
-
-    // Update version metadata
-    async updateMetadata(versionId, metadata) {
-      const response = await fetch(`${API_BASE}/versions/${versionId}/metadata`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify({ metadata })
-      });
-      return { data: await handleResponse(response) };
     }
   };
   
