@@ -18,6 +18,7 @@ pub mod duplicates;
 pub mod errors;
 pub mod favorites;
 pub mod file_comparison;
+pub mod file_templates;
 pub mod file_versions;
 pub mod files;
 pub mod folder_colors;
@@ -89,6 +90,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(duplicates::router())
                 .merge(folder_colors::router())
                 .merge(file_comparison::router())
+                .merge(file_templates::router())
                 .merge(errors::router()) // Error reporting endpoint
                 .merge(jobs::router()) // Background jobs management
                 .merge(cron::router()) // Cron scheduler management

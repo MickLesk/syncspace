@@ -12,6 +12,7 @@
     onRefresh,
     onUpload,
     onNewFolder,
+    onNewFromTemplate,
     onAdvancedSearch,
     selectionMode = false,
     onSelectionToggle,
@@ -183,6 +184,19 @@
         <i class="bi bi-folder-plus text-lg"></i>
         <span class="hidden sm:inline">New Folder</span>
       </button>
+
+      {#if onNewFromTemplate}
+        <button
+          type="button"
+          class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+          onclick={onNewFromTemplate}
+          title={tr("templates.newFromTemplate")}
+        >
+          <i class="bi bi-file-earmark-plus text-lg"></i>
+          <span class="hidden md:inline">{tr("templates.newFromTemplate")}</span
+          >
+        </button>
+      {/if}
 
       <button
         type="button"

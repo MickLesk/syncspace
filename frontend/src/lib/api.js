@@ -1110,6 +1110,106 @@ export const bulk = {
 };
 
 // ============================================
+// TEMPLATE ENDPOINTS
+// ============================================
+
+export const templates = {
+  /**
+   * List templates with optional filters
+   */
+  async listTemplates(category = null, isPublic = null, search = null) {
+    const params = new URLSearchParams();
+    if (category) params.append('category', category);
+    if (isPublic !== null) params.append('is_public', isPublic);
+    if (search) params.append('search', search);
+    
+    const url = `${API_BASE}/templates${params.toString() ? '?' + params.toString() : ''}`;
+    const response = await fetch(url, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get a specific template
+   */
+  async getTemplate(templateId) {
+    const response = await fetch(`${API_BASE}/templates/${templateId}`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a new template
+   */
+  async createTemplate(data) {
+    const response = await fetch(`${API_BASE}/templates`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update a template
+   */
+  async updateTemplate(templateId, data) {
+    const response = await fetch(`${API_BASE}/templates/${templateId}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a template
+   */
+  async deleteTemplate(templateId) {
+    const response = await fetch(`${API_BASE}/templates/${templateId}`, {
+      method: "DELETE",
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Use a template to create a file
+   */
+  async useTemplate(templateId, data) {
+    const response = await fetch(`${API_BASE}/templates/${templateId}/use`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Toggle favorite status for a template
+   */
+  async toggleFavorite(templateId) {
+    const response = await fetch(`${API_BASE}/templates/${templateId}/favorite`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List template categories
+   */
+  async listCategories() {
+    const response = await fetch(`${API_BASE}/template-categories`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================
 // WEBSOCKET
 // ============================================
 

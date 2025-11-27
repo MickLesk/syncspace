@@ -21,6 +21,7 @@
   import CopyFileModal from "../../components/modals/CopyFileModal.svelte";
   import MoveFileModal from "../../components/modals/MoveFileModal.svelte";
   import FileEditorModal from "../../components/editor/FileEditorModal.svelte";
+  import TemplateLibraryModal from "../../components/templates/TemplateLibraryModal.svelte";
   import api from "../../lib/api";
   import { websocketManager } from "@stores/websocket.js";
 
@@ -63,6 +64,9 @@
   // File Editor Modal State
   let showEditorModal = $state(false);
   let fileToEdit = $state(null);
+
+  // Template Library Modal State
+  let showTemplateLibrary = $state(false);
 
   let searchFilters = $state({
     type: "all",
@@ -1263,6 +1267,7 @@
       onRefresh={loadFiles}
       onUpload={() => modals.openUpload()}
       onNewFolder={() => modals.openNewFolder()}
+      onNewFromTemplate={() => (showTemplateLibrary = true)}
       onAdvancedSearch={() => modals.openAdvancedSearch()}
       onSelectionToggle={toggleSelectionMode}
       onBatchDelete={batchDelete}
@@ -1453,6 +1458,15 @@
     onSave={handleEditorSave}
   />
 {/if}
+
+<!-- Template Library Modal -->
+<TemplateLibraryModal
+  bind:show={showTemplateLibrary}
+  onTemplateUsed={(filePath) => {
+    success(`File created from template: ${filePath}`);
+    loadFiles();
+  }}
+/>
 
 <!-- All modals now rendered globally in ModalPortal.svelte -->
 
