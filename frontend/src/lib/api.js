@@ -3204,6 +3204,82 @@ export const audit = {
 };
 
 // ============================================================================
+// ADMIN DASHBOARD
+// ============================================================================
+
+export const dashboard = {
+  /**
+   * Get comprehensive dashboard statistics
+   */
+  async getStats(range = '7d') {
+    const response = await fetch(`${API_BASE}/dashboard/stats?range=${range}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get storage overview
+   */
+  async getStorage() {
+    const response = await fetch(`${API_BASE}/dashboard/storage`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get activity overview
+   */
+  async getActivity() {
+    const response = await fetch(`${API_BASE}/dashboard/activity`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get users overview
+   */
+  async getUsers() {
+    const response = await fetch(`${API_BASE}/dashboard/users`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get jobs overview
+   */
+  async getJobs() {
+    const response = await fetch(`${API_BASE}/dashboard/jobs`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get system health status
+   */
+  async getHealth() {
+    const response = await fetch(`${API_BASE}/dashboard/health`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get real-time statistics
+   */
+  async getRealtime() {
+    const response = await fetch(`${API_BASE}/dashboard/realtime`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================================================
 // DEFAULT EXPORT - All API modules
 // ============================================================================
 
@@ -3238,4 +3314,5 @@ export default {
   cloudStorage,
   metadata,
   audit,
+  dashboard,
 };

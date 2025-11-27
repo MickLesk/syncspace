@@ -13,6 +13,7 @@ pub mod collaboration;
 pub mod comments;
 pub mod config;
 pub mod cron;
+pub mod dashboard;
 pub mod database_health;
 pub mod db_health;
 pub mod directories;
@@ -101,6 +102,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(cloud_storage::router())
                 .merge(metadata::router()) // File metadata extraction (EXIF, ID3, PDF)
                 .merge(audit_compliance::router()) // Audit logs & compliance reports
+                .merge(dashboard::router()) // Admin dashboard & analytics
                 .merge(errors::router()) // Error reporting endpoint
                 .merge(jobs::router()) // Background jobs management
                 .merge(cron::router()) // Cron scheduler management

@@ -46,6 +46,7 @@
   import WorkflowBuilderView from "./pages/workflow/WorkflowBuilderView.svelte";
   import CloudStorageView from "./pages/admin/CloudStorageView.svelte";
   import AuditComplianceView from "./pages/AuditComplianceView.svelte";
+  import AdminDashboardView from "./pages/admin/AdminDashboardView.svelte";
 
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
@@ -378,6 +379,8 @@
                 <CloudStorageView />
               {:else if $currentView === "audit"}
                 <AuditComplianceView />
+              {:else if $currentView === "dashboard"}
+                <AdminDashboardView />
               {:else if $currentView === "notifications"}
                 <NotificationsView />
               {:else if $currentView === "recent"}

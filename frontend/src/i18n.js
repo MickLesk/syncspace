@@ -2076,6 +2076,120 @@ export const translations = {
       reportDeleted: 'Bericht gelöscht',
       exportSuccess: 'Export erfolgreich',
     },
+
+    // Admin Dashboard
+    dashboard: {
+      title: 'Dashboard',
+      description: 'Systemübersicht und Statistiken',
+      systemStatus: 'Systemstatus',
+      allSystemsOperational: 'Alle Systeme betriebsbereit',
+      someIssuesDetected: 'Einige Probleme erkannt',
+      database: 'Datenbank',
+      storage: 'Speicher',
+      search: 'Suche',
+      websocket: 'WebSocket',
+      healthy: 'Gesund',
+      degraded: 'Beeinträchtigt',
+      unhealthy: 'Ungesund',
+      unknown: 'Unbekannt',
+      
+      // Time ranges
+      timeRange: 'Zeitraum',
+      last24Hours: 'Letzte 24 Stunden',
+      last7Days: 'Letzte 7 Tage',
+      last30Days: 'Letzte 30 Tage',
+      last90Days: 'Letzte 90 Tage',
+      
+      // Overview stats
+      totalUsers: 'Benutzer gesamt',
+      totalFiles: 'Dateien gesamt',
+      totalStorage: 'Speicher gesamt',
+      totalShares: 'Freigaben gesamt',
+      pendingJobs: 'Ausstehende Jobs',
+      activeSessions: 'Aktive Sitzungen',
+      backups: 'Backups',
+      actionsToday: 'Aktionen heute',
+      
+      // Trends
+      vsLastPeriod: 'vs. letzter Zeitraum',
+      increase: 'Anstieg',
+      decrease: 'Rückgang',
+      noChange: 'Keine Änderung',
+      
+      // Storage overview
+      storageOverview: 'Speicherübersicht',
+      usedStorage: 'Belegt',
+      freeStorage: 'Frei',
+      storageByType: 'Speicher nach Typ',
+      storageByUser: 'Speicher nach Benutzer',
+      documents: 'Dokumente',
+      images: 'Bilder',
+      videos: 'Videos',
+      audio: 'Audio',
+      archives: 'Archive',
+      other: 'Sonstige',
+      
+      // Activity overview
+      activityOverview: 'Aktivitätsübersicht',
+      actionsByType: 'Aktionen nach Typ',
+      hourlyBreakdown: 'Stündliche Aufschlüsselung',
+      recentActivity: 'Letzte Aktivität',
+      uploads: 'Uploads',
+      downloads: 'Downloads',
+      deletes: 'Löschungen',
+      shares: 'Freigaben',
+      edits: 'Bearbeitungen',
+      
+      // Users overview
+      usersOverview: 'Benutzerübersicht',
+      activeUsers: 'Aktive Benutzer',
+      newUsers: 'Neue Benutzer',
+      usersByRole: 'Benutzer nach Rolle',
+      admins: 'Administratoren',
+      moderators: 'Moderatoren',
+      regularUsers: 'Normale Benutzer',
+      guests: 'Gäste',
+      
+      // Jobs overview
+      jobsOverview: 'Jobs-Übersicht',
+      pending: 'Ausstehend',
+      running: 'Laufend',
+      completed: 'Abgeschlossen',
+      failed: 'Fehlgeschlagen',
+      recentJobs: 'Letzte Jobs',
+      scheduledJobs: 'Geplante Jobs',
+      noRecentJobs: 'Keine kürzlichen Jobs',
+      noScheduledJobs: 'Keine geplanten Jobs',
+      
+      // Top items
+      topUploaders: 'Top Uploader',
+      largestFiles: 'Größte Dateien',
+      mostShared: 'Am meisten geteilt',
+      mostActiveUsers: 'Aktivste Benutzer',
+      filesUploaded: 'Dateien hochgeladen',
+      
+      // System info
+      systemInfo: 'Systeminformationen',
+      version: 'Version',
+      uptime: 'Betriebszeit',
+      cpuUsage: 'CPU-Auslastung',
+      memoryUsage: 'Speicherauslastung',
+      diskUsage: 'Festplattennutzung',
+      
+      // Real-time
+      realTimeStats: 'Echtzeit-Statistiken',
+      activeConnections: 'Aktive Verbindungen',
+      requestsPerMinute: 'Anfragen/Minute',
+      uploadsInProgress: 'Uploads in Bearbeitung',
+      downloadsInProgress: 'Downloads in Bearbeitung',
+      
+      // Errors
+      loadError: 'Fehler beim Laden des Dashboards',
+      refreshError: 'Fehler beim Aktualisieren',
+      retry: 'Erneut versuchen',
+      autoRefresh: 'Auto-Aktualisierung',
+      lastUpdated: 'Zuletzt aktualisiert',
+    },
   },
   
   en: {
@@ -4088,6 +4202,120 @@ export const translations = {
       reportGenerated: 'Report generated successfully',
       reportDeleted: 'Report deleted',
       exportSuccess: 'Export successful',
+    },
+
+    // Admin Dashboard
+    dashboard: {
+      title: 'Dashboard',
+      description: 'System overview and statistics',
+      systemStatus: 'System Status',
+      allSystemsOperational: 'All systems operational',
+      someIssuesDetected: 'Some issues detected',
+      database: 'Database',
+      storage: 'Storage',
+      search: 'Search',
+      websocket: 'WebSocket',
+      healthy: 'Healthy',
+      degraded: 'Degraded',
+      unhealthy: 'Unhealthy',
+      unknown: 'Unknown',
+      
+      // Time ranges
+      timeRange: 'Time Range',
+      last24Hours: 'Last 24 Hours',
+      last7Days: 'Last 7 Days',
+      last30Days: 'Last 30 Days',
+      last90Days: 'Last 90 Days',
+      
+      // Overview stats
+      totalUsers: 'Total Users',
+      totalFiles: 'Total Files',
+      totalStorage: 'Total Storage',
+      totalShares: 'Total Shares',
+      pendingJobs: 'Pending Jobs',
+      activeSessions: 'Active Sessions',
+      backups: 'Backups',
+      actionsToday: 'Actions Today',
+      
+      // Trends
+      vsLastPeriod: 'vs. last period',
+      increase: 'increase',
+      decrease: 'decrease',
+      noChange: 'no change',
+      
+      // Storage overview
+      storageOverview: 'Storage Overview',
+      usedStorage: 'Used',
+      freeStorage: 'Free',
+      storageByType: 'Storage by Type',
+      storageByUser: 'Storage by User',
+      documents: 'Documents',
+      images: 'Images',
+      videos: 'Videos',
+      audio: 'Audio',
+      archives: 'Archives',
+      other: 'Other',
+      
+      // Activity overview
+      activityOverview: 'Activity Overview',
+      actionsByType: 'Actions by Type',
+      hourlyBreakdown: 'Hourly Breakdown',
+      recentActivity: 'Recent Activity',
+      uploads: 'Uploads',
+      downloads: 'Downloads',
+      deletes: 'Deletes',
+      shares: 'Shares',
+      edits: 'Edits',
+      
+      // Users overview
+      usersOverview: 'Users Overview',
+      activeUsers: 'Active Users',
+      newUsers: 'New Users',
+      usersByRole: 'Users by Role',
+      admins: 'Admins',
+      moderators: 'Moderators',
+      regularUsers: 'Regular Users',
+      guests: 'Guests',
+      
+      // Jobs overview
+      jobsOverview: 'Jobs Overview',
+      pending: 'Pending',
+      running: 'Running',
+      completed: 'Completed',
+      failed: 'Failed',
+      recentJobs: 'Recent Jobs',
+      scheduledJobs: 'Scheduled Jobs',
+      noRecentJobs: 'No recent jobs',
+      noScheduledJobs: 'No scheduled jobs',
+      
+      // Top items
+      topUploaders: 'Top Uploaders',
+      largestFiles: 'Largest Files',
+      mostShared: 'Most Shared',
+      mostActiveUsers: 'Most Active Users',
+      filesUploaded: 'files uploaded',
+      
+      // System info
+      systemInfo: 'System Info',
+      version: 'Version',
+      uptime: 'Uptime',
+      cpuUsage: 'CPU Usage',
+      memoryUsage: 'Memory Usage',
+      diskUsage: 'Disk Usage',
+      
+      // Real-time
+      realTimeStats: 'Real-time Stats',
+      activeConnections: 'Active Connections',
+      requestsPerMinute: 'Requests/min',
+      uploadsInProgress: 'Uploads in Progress',
+      downloadsInProgress: 'Downloads in Progress',
+      
+      // Errors
+      loadError: 'Failed to load dashboard',
+      refreshError: 'Failed to refresh',
+      retry: 'Retry',
+      autoRefresh: 'Auto-refresh',
+      lastUpdated: 'Last updated',
     },
   },
   

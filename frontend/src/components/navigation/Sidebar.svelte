@@ -129,6 +129,12 @@
       category: "system",
     },
     {
+      id: "dashboard",
+      icon: "speedometer2",
+      label: t($currentLang, "dashboard.title"),
+      category: "system",
+    },
+    {
       id: "audit",
       icon: "shield-check",
       label: t($currentLang, "audit.title"),
