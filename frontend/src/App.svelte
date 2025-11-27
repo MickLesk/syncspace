@@ -47,6 +47,7 @@
   import CloudStorageView from "./pages/admin/CloudStorageView.svelte";
   import AuditComplianceView from "./pages/AuditComplianceView.svelte";
   import AdminDashboardView from "./pages/admin/AdminDashboardView.svelte";
+  import WebhooksView from "./pages/admin/WebhooksView.svelte";
 
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
@@ -381,6 +382,8 @@
                 <AuditComplianceView />
               {:else if $currentView === "dashboard"}
                 <AdminDashboardView />
+              {:else if $currentView === "webhooks"}
+                <WebhooksView />
               {:else if $currentView === "notifications"}
                 <NotificationsView />
               {:else if $currentView === "recent"}

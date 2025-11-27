@@ -135,6 +135,12 @@
       category: "system",
     },
     {
+      id: "webhooks",
+      icon: "broadcast",
+      label: t($currentLang, "webhooks.title"),
+      category: "system",
+    },
+    {
       id: "audit",
       icon: "shield-check",
       label: t($currentLang, "audit.title"),

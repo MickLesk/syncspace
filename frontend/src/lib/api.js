@@ -3280,6 +3280,116 @@ export const dashboard = {
 };
 
 // ============================================================================
+// WEBHOOKS
+// ============================================================================
+
+export const webhooks = {
+  /**
+   * List all webhooks
+   */
+  async list() {
+    const response = await fetch(`${API_BASE}/webhooks`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get available webhook events
+   */
+  async getEvents() {
+    const response = await fetch(`${API_BASE}/webhooks/events`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get a specific webhook
+   */
+  async get(id) {
+    const response = await fetch(`${API_BASE}/webhooks/${id}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a new webhook
+   */
+  async create(data) {
+    const response = await fetch(`${API_BASE}/webhooks`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update a webhook
+   */
+  async update(id, data) {
+    const response = await fetch(`${API_BASE}/webhooks/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a webhook
+   */
+  async delete(id) {
+    const response = await fetch(`${API_BASE}/webhooks/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return true;
+  },
+
+  /**
+   * Test a webhook
+   */
+  async test(id, eventType = 'test.ping') {
+    const response = await fetch(`${API_BASE}/webhooks/${id}/test`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ event_type: eventType }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get webhook delivery history
+   */
+  async getDeliveries(id) {
+    const response = await fetch(`${API_BASE}/webhooks/${id}/deliveries`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Reset failure count
+   */
+  async resetFailures(id) {
+    const response = await fetch(`${API_BASE}/webhooks/${id}/reset-failures`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return true;
+  },
+};
+
+// ============================================================================
 // DEFAULT EXPORT - All API modules
 // ============================================================================
 
@@ -3315,4 +3425,5 @@ export default {
   metadata,
   audit,
   dashboard,
+  webhooks,
 };
