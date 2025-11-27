@@ -117,6 +117,18 @@
       category: "tools",
     },
     {
+      id: "roles",
+      icon: "shield-check",
+      label: t($currentLang, "rbac.title"),
+      category: "system",
+    },
+    {
+      id: "workflows",
+      icon: "gear-wide-connected",
+      label: t($currentLang, "workflow.title"),
+      category: "system",
+    },
+    {
       id: "trash",
       icon: "trash-fill",
       label: t($currentLang, "trash"),

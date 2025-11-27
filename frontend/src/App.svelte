@@ -42,6 +42,8 @@
   // Jobs & System Management
   import JobsDashboard from "./pages/JobsDashboard.svelte";
   import JobsQueueView from "./pages/jobs/JobsQueueView.svelte";
+  import RoleManagementView from "./pages/rbac/RoleManagementView.svelte";
+  import WorkflowBuilderView from "./pages/workflow/WorkflowBuilderView.svelte";
 
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
@@ -366,6 +368,10 @@
                 <JobsDashboard />
               {:else if $currentView === "jobs-queue"}
                 <JobsQueueView />
+              {:else if $currentView === "roles"}
+                <RoleManagementView />
+              {:else if $currentView === "workflows"}
+                <WorkflowBuilderView />
               {:else if $currentView === "notifications"}
                 <NotificationsView />
               {:else if $currentView === "recent"}

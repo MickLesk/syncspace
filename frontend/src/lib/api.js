@@ -1210,6 +1210,293 @@ export const templates = {
 };
 
 // ============================================
+// WORKFLOW AUTOMATION ENDPOINTS
+// ============================================
+
+export const workflow = {
+  /**
+   * Create a new workflow rule
+   */
+  async createRule(data) {
+    const response = await fetch(`${API_BASE}/workflows`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List workflow rules with optional filters
+   */
+  async listRules(triggerType, actionType, isActive, includeStats = false) {
+    const params = new URLSearchParams();
+    if (triggerType) params.append('trigger_type', triggerType);
+    if (actionType) params.append('action_type', actionType);
+    if (isActive !== null && isActive !== undefined) params.append('is_active', isActive);
+    if (includeStats) params.append('include_stats', 'true');
+    
+    const url = `${API_BASE}/workflows${params.toString() ? '?' + params.toString() : ''}`;
+    const response = await fetch(url, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get a specific workflow rule
+   */
+  async getRule(ruleId) {
+    const response = await fetch(`${API_BASE}/workflows/${ruleId}`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update a workflow rule
+   */
+  async updateRule(ruleId, data) {
+    const response = await fetch(`${API_BASE}/workflows/${ruleId}`, {
+      method: 'PUT',
+      headers: getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a workflow rule
+   */
+  async deleteRule(ruleId) {
+    const response = await fetch(`${API_BASE}/workflows/${ruleId}`, {
+      method: 'DELETE',
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Toggle workflow rule active status
+   */
+  async toggleRule(ruleId) {
+    const response = await fetch(`${API_BASE}/workflows/${ruleId}/toggle`, {
+      method: 'POST',
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Manually execute a workflow rule
+   */
+  async executeRule(ruleId, filePath, triggerContext) {
+    const response = await fetch(`${API_BASE}/workflows/${ruleId}/execute`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify({ file_path: filePath, trigger_context: triggerContext }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get execution history for a specific rule
+   */
+  async getExecutionHistory(ruleId, limit, offset, status) {
+    const params = new URLSearchParams();
+    if (limit) params.append('limit', limit);
+    if (offset) params.append('offset', offset);
+    if (status) params.append('status', status);
+    
+    const url = `${API_BASE}/workflows/${ruleId}/executions${params.toString() ? '?' + params.toString() : ''}`;
+    const response = await fetch(url, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get recent workflow executions across all rules
+   */
+  async getRecentExecutions(limit, offset, status) {
+    const params = new URLSearchParams();
+    if (limit) params.append('limit', limit);
+    if (offset) params.append('offset', offset);
+    if (status) params.append('status', status);
+    
+    const url = `${API_BASE}/workflows/executions/recent${params.toString() ? '?' + params.toString() : ''}`;
+    const response = await fetch(url, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List available trigger types
+   */
+  async listTriggerTypes() {
+    const response = await fetch(`${API_BASE}/workflows/trigger-types`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List available action types
+   */
+  async listActionTypes() {
+    const response = await fetch(`${API_BASE}/workflows/action-types`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================
+// RBAC ENDPOINTS
+// ============================================
+
+export const rbac = {
+  /**
+   * List all roles
+   */
+  async listRoles(includeSystem = true) {
+    const params = new URLSearchParams();
+    if (includeSystem !== null) params.append('include_system', includeSystem);
+    
+    const url = `${API_BASE}/roles${params.toString() ? '?' + params.toString() : ''}`;
+    const response = await fetch(url, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get a specific role
+   */
+  async getRole(roleId) {
+    const response = await fetch(`${API_BASE}/roles/${roleId}`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a new role
+   */
+  async createRole(data) {
+    const response = await fetch(`${API_BASE}/roles`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update a role
+   */
+  async updateRole(roleId, data) {
+    const response = await fetch(`${API_BASE}/roles/${roleId}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a role
+   */
+  async deleteRole(roleId) {
+    const response = await fetch(`${API_BASE}/roles/${roleId}`, {
+      method: "DELETE",
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get role permissions
+   */
+  async getRolePermissions(roleId) {
+    const response = await fetch(`${API_BASE}/roles/${roleId}/permissions`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get user's roles
+   */
+  async getUserRoles(userId) {
+    const response = await fetch(`${API_BASE}/users/${userId}/roles`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Assign role to user
+   */
+  async assignUserRole(userId, data) {
+    const response = await fetch(`${API_BASE}/users/${userId}/roles`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Revoke role from user
+   */
+  async revokeUserRole(userId, roleId) {
+    const response = await fetch(`${API_BASE}/users/${userId}/roles/${roleId}`, {
+      method: "DELETE",
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get user's effective permissions
+   */
+  async getUserPermissions(userId) {
+    const response = await fetch(`${API_BASE}/users/${userId}/permissions`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List available permissions
+   */
+  async listAvailablePermissions() {
+    const response = await fetch(`${API_BASE}/permissions/available`, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get permission audit log
+   */
+  async getPermissionAudit(userId = null, action = null, limit = 100) {
+    const params = new URLSearchParams();
+    if (userId) params.append('user_id', userId);
+    if (action) params.append('action', action);
+    if (limit) params.append('limit', limit);
+    
+    const url = `${API_BASE}/permissions/audit${params.toString() ? '?' + params.toString() : ''}`;
+    const response = await fetch(url, {
+      headers: getHeaders(false),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================
 // WEBSOCKET
 // ============================================
 

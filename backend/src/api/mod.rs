@@ -28,6 +28,7 @@ pub mod notifications;
 pub mod peers;
 pub mod performance;
 pub mod quota;
+pub mod rbac;
 pub mod recent;
 pub mod search;
 pub mod setup;
@@ -38,6 +39,7 @@ pub mod trash;
 pub mod upload_chunk;
 pub mod users;
 pub mod versions;
+pub mod workflow;
 
 use axum::{middleware, Router};
 
@@ -91,6 +93,8 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(folder_colors::router())
                 .merge(file_comparison::router())
                 .merge(file_templates::router())
+                .merge(rbac::router())
+                .merge(workflow::router())
                 .merge(errors::router()) // Error reporting endpoint
                 .merge(jobs::router()) // Background jobs management
                 .merge(cron::router()) // Cron scheduler management
