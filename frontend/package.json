@@ -26,7 +26,7 @@
     "bootstrap-icons": "^1.13.1",
     "fuse.js": "^7.1.0",
     "mammoth": "^1.11.0",
-    "monaco-editor": "^0.52.2",
+    "monaco-editor": "^0.55.1",
     "prismjs": "^1.30.0",
     "svelte-virtual-list": "^3.0.1",
     "three": "^0.181.2",
