@@ -45,6 +45,7 @@ pub mod users;
 pub mod versions;
 pub mod webhooks;
 pub mod workflow;
+pub mod system_health;
 
 use axum::{middleware, Router};
 
@@ -111,6 +112,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(database_health::router()) // Advanced database health check
                 .merge(upload_chunk::router()) // Chunked upload support
                 .merge(webhooks::router()) // Webhook management
+                .merge(system_health::router()) // System health monitoring
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

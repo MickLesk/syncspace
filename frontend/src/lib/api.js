@@ -3390,6 +3390,149 @@ export const webhooks = {
 };
 
 // ============================================================================
+// SYSTEM HEALTH - System Health Monitoring
+// ============================================================================
+
+export const systemHealth = {
+  /**
+   * Get overall system health status
+   */
+  async getHealth() {
+    const response = await fetch(`${API_BASE}/system/health`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get CPU metrics
+   */
+  async getCpu() {
+    const response = await fetch(`${API_BASE}/system/health/cpu`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get memory metrics
+   */
+  async getMemory() {
+    const response = await fetch(`${API_BASE}/system/health/memory`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get disk metrics
+   */
+  async getDisk() {
+    const response = await fetch(`${API_BASE}/system/health/disk`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get database health
+   */
+  async getDatabase() {
+    const response = await fetch(`${API_BASE}/system/health/database`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get connection pool statistics
+   */
+  async getConnections() {
+    const response = await fetch(`${API_BASE}/system/health/connections`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get search index health
+   */
+  async getSearch() {
+    const response = await fetch(`${API_BASE}/system/health/search`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get WebSocket health
+   */
+  async getWebsocket() {
+    const response = await fetch(`${API_BASE}/system/health/websocket`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get application metrics
+   */
+  async getMetrics() {
+    const response = await fetch(`${API_BASE}/system/health/metrics`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get historical metrics
+   * @param {string} range - 1h, 6h, 24h, 7d
+   */
+  async getHistory(range = '1h') {
+    const response = await fetch(`${API_BASE}/system/health/history?range=${range}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List health alerts
+   */
+  async listAlerts() {
+    const response = await fetch(`${API_BASE}/system/health/alerts`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a health alert
+   */
+  async createAlert(alert) {
+    const response = await fetch(`${API_BASE}/system/health/alerts`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(alert),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a health alert
+   */
+  async deleteAlert(id) {
+    const response = await fetch(`${API_BASE}/system/health/alerts/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return true;
+  },
+};
+
+// ============================================================================
 // DEFAULT EXPORT - All API modules
 // ============================================================================
 
@@ -3426,4 +3569,5 @@ export default {
   audit,
   dashboard,
   webhooks,
+  systemHealth,
 };
