@@ -1,41 +1,131 @@
 <script>
-  import { onMount } from "svelte";
-  import { currentLang } from "../../stores/ui.js";
+  import { onMount, onDestroy } from "svelte";
+  import { currentLang, currentPath } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
-  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
-  import { favorites } from "../../stores/favorites";
-  import { currentPath } from "../../stores/ui.js";
-  import { success, error } from "../../stores/toast";
+  import { favorites as favoritesStore } from "../../stores/favorites.js";
+  import { success, error as errorToast } from "../../stores/toast.js";
   import api from "../../lib/api.js";
-  import Loading from "../../components/ui/Loading.svelte";
+  import {
+    formatBytes,
+    formatRelativeTime,
+    getFileColor,
+    getFileIcon,
+  } from "../../lib/designSystem.js";
+  import PageLayout from "../../components/layout/PageLayout.svelte";
+  import ActionBar from "../../components/layout/ActionBar.svelte";
+  import ShareModal from "../../components/sharing/ShareModal.svelte";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let favoriteFiles = $state([]);
   let loading = $state(false);
   let errorMsg = $state(null);
+  let searchQuery = $state("");
+  let viewMode = $state("grid");
+  let filterType = $state("all");
+  let sortBy = $state("manual");
+  let sortOrder = $state("asc");
+  let dragId = $state(null);
+  let savingOrder = $state(false);
+  let showShareModal = $state(false);
+  let shareTarget = $state(null);
 
-  function getFileIconEmoji(mimeType) {
-    if (!mimeType) return "📄";
-    if (mimeType.startsWith("image/")) return "🖼️";
-    if (mimeType.startsWith("video/")) return "🎬";
-    if (mimeType.startsWith("audio/")) return "🎵";
-    if (mimeType.includes("pdf")) return "📕";
-    if (mimeType.includes("zip") || mimeType.includes("archive")) return "📦";
-    if (mimeType.includes("text")) return "📝";
-    if (mimeType.includes("word")) return "📘";
-    if (mimeType.includes("excel") || mimeType.includes("spreadsheet"))
-      return "📊";
-    if (mimeType.includes("powerpoint") || mimeType.includes("presentation"))
-      return "📽️";
-    return "📄";
-  }
-
-  onMount(async () => {
-    await loadFavorites();
+  const unsubscribeFavorites = favoritesStore.subscribe(() => {
+    loadFavorites();
   });
 
-  // Reload when favorites store changes
-  favorites.subscribe(() => {
-    loadFavorites();
+  onDestroy(() => unsubscribeFavorites?.());
+  onMount(loadFavorites);
+
+  const breadcrumbs = [
+    { label: "Files", path: "#/files" },
+    { label: "Favorites", path: "#/files/favorites" },
+  ];
+
+  const isReorderable = $derived(
+    () =>
+      filterType === "all" &&
+      !searchQuery &&
+      sortBy === "manual" &&
+      favoriteFiles.length > 1 &&
+      !loading
+  );
+
+  const filterChips = $derived(() => [
+    {
+      id: "all",
+      label: `All (${favoriteFiles.length})`,
+      icon: "stars",
+      active: filterType === "all",
+    },
+    {
+      id: "files",
+      label: "Files",
+      icon: "file-earmark",
+      active: filterType === "files",
+    },
+    {
+      id: "folders",
+      label: "Folders",
+      icon: "folder",
+      active: filterType === "folders",
+    },
+  ]);
+
+  const viewModeOptions = $derived(() => [
+    { id: "grid", label: "Grid", icon: "grid", active: viewMode === "grid" },
+    { id: "list", label: "List", icon: "list", active: viewMode === "list" },
+  ]);
+
+  const bulkActions = $derived(() => [
+    {
+      id: "refresh",
+      label: "Refresh",
+      icon: "arrow-clockwise",
+      primary: false,
+    },
+  ]);
+
+  let displayFavorites = $derived(() => {
+    let result = [...favoriteFiles];
+
+    if (filterType === "files") {
+      result = result.filter((file) => file.itemType !== "folder");
+    } else if (filterType === "folders") {
+      result = result.filter((file) => file.itemType === "folder");
+    }
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (file) =>
+          file.name.toLowerCase().includes(query) ||
+          file.fullPath.toLowerCase().includes(query)
+      );
+    }
+
+    if (sortBy === "manual") {
+      result.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    } else {
+      result.sort((a, b) => {
+        switch (sortBy) {
+          case "name":
+            return a.name.localeCompare(b.name);
+          case "added":
+            return new Date(a.createdAt) - new Date(b.createdAt);
+          case "size":
+            return (a.size || 0) - (b.size || 0);
+          default:
+            return 0;
+        }
+      });
+    }
+
+    if (sortOrder === "desc") {
+      result.reverse();
+    }
+
+    return result;
   });
 
   async function loadFavorites() {
@@ -44,247 +134,388 @@
 
     try {
       const favs = await api.favorites.list();
-      console.log("[FavoritesView] Loaded favorites from API:", favs);
-
-      favoriteFiles = (favs || []).map((fav) => ({
-        id: fav.id,
-        itemId: fav.item_id,
-        itemType: fav.item_type,
-        name: fav.item_id.split("/").pop() || fav.item_id,
-        fullPath: fav.item_id,
-        createdAt: fav.created_at,
-        size: fav.size_bytes,
-        mimeType: fav.mime_type,
-      }));
-
-      console.log("[FavoritesView] Display files:", favoriteFiles);
+      favoriteFiles = (favs || [])
+        .map((fav, index) => ({
+          id: fav.id || fav.favorite_id || `${fav.item_id}-${index}`,
+          itemId: fav.item_id,
+          itemType: fav.item_type,
+          name: fav.display_name || fav.item_id.split("/").pop() || fav.item_id,
+          fullPath: fav.item_id,
+          createdAt: fav.created_at,
+          size: fav.size_bytes,
+          mimeType: fav.mime_type,
+          order: fav.position ?? index,
+        }))
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     } catch (err) {
-      console.error("Failed to load favorites:", err);
-      errorMsg = "Failed to load favorites";
-      error("Failed to load favorites: " + err.message);
+      console.error("Failed to load favorites", err);
+      errorMsg = tr("failedToLoadFavorites") ?? "Failed to load favorites";
+      errorToast(err.message || errorMsg);
     } finally {
       loading = false;
     }
   }
 
-  async function removeFavorite(fav, e) {
-    e?.stopPropagation();
+  async function removeFavorite(file, event) {
+    event?.stopPropagation();
     try {
-      await favorites.remove(fav.itemId);
-      success(`${fav.name} removed from favorites`);
+      await favoritesStore.remove(file.itemId);
+      success(`${file.name} removed from favorites`);
       await loadFavorites();
     } catch (err) {
-      console.error("Failed to remove favorite:", err);
-      error("Failed to remove favorite");
+      console.error("Failed to remove favorite", err);
+      errorToast("Failed to remove favorite");
     }
   }
 
   function navigateToFile(filePath) {
-    const parts = filePath.split("/");
-    const fileName = parts.pop();
-    const dirPath = "/" + (parts.length > 0 ? parts.join("/") + "/" : "");
+    const segments = filePath.split("/");
+    segments.pop();
+    const dirPath = "/" + (segments.length ? `${segments.join("/")}/` : "");
     currentPath.set(dirPath);
   }
 
-  function formatPath(path) {
-    return path || "/";
+  function openShare(file, event) {
+    event?.stopPropagation();
+    shareTarget = {
+      name: file.name,
+      path: file.fullPath,
+      is_dir: file.itemType === "folder",
+    };
+    showShareModal = true;
   }
 
-  function formatFileSize(bytes) {
-    if (!bytes) return "";
-    if (bytes < 1024) return bytes + " B";
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-    if (bytes < 1024 * 1024 * 1024)
-      return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-    return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
+  function handleSearch(event) {
+    searchQuery = event.detail || "";
   }
 
-  function formatDate(dateString) {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
+  function handleFilter(event) {
+    filterType = event.detail?.id || "all";
+  }
 
-    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-    if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
-    return date.toLocaleDateString();
+  function handleViewChange(event) {
+    viewMode = event.detail?.id || "grid";
+  }
+
+  function handleBulkAction(event) {
+    const action = event.detail?.id;
+    if (action === "refresh") {
+      loadFavorites();
+    }
+  }
+
+  function handleSortChange(value) {
+    sortBy = value;
+    if (value !== "manual") {
+      dragId = null;
+    }
+  }
+
+  function toggleSortOrder() {
+    sortOrder = sortOrder === "asc" ? "desc" : "asc";
+  }
+
+  function handleDragStart(file) {
+    if (!isReorderable) return;
+    dragId = file.id;
+  }
+
+  function handleDragEnter(target) {
+    if (!isReorderable || dragId === null || dragId === target.id) return;
+    const from = favoriteFiles.findIndex((f) => f.id === dragId);
+    const to = favoriteFiles.findIndex((f) => f.id === target.id);
+    if (from === -1 || to === -1) return;
+    favoriteFiles = arrayMove(favoriteFiles, from, to).map((fav, index) => ({
+      ...fav,
+      order: index,
+    }));
+  }
+
+  async function handleDragEnd() {
+    if (!isReorderable || dragId === null) {
+      dragId = null;
+      return;
+    }
+    dragId = null;
+    await persistFavoriteOrder();
+  }
+
+  async function persistFavoriteOrder() {
+    savingOrder = true;
+    try {
+      if (typeof api.favorites.reorder === "function") {
+        await api.favorites.reorder(favoriteFiles.map((fav) => fav.itemId));
+      }
+      success("Favorites order updated");
+    } catch (err) {
+      console.error("Failed to save favorite order", err);
+      errorToast("Failed to save favorite order");
+    } finally {
+      savingOrder = false;
+    }
+  }
+
+  function arrayMove(list, from, to) {
+    const updated = [...list];
+    const [item] = updated.splice(from, 1);
+    updated.splice(to, 0, item);
+    return updated;
   }
 </script>
 
-{#if loading}
-  <!-- Skeleton Loading State -->
-  <div
-    class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6"
-  >
-    <div class="max-w-7xl mx-auto space-y-6">
-      <!-- Header Skeleton -->
-      <div class="skeleton h-24 w-full rounded-2xl"></div>
+<PageLayout
+  title="Favorites"
+  subtitle="Pin frequently accessed files and folders"
+  icon="star-fill"
+  {loading}
+  {breadcrumbs}
+  empty={!loading && !errorMsg && displayFavorites().length === 0}
+  emptyProps={{
+    icon: "star",
+    title: "No favorites yet",
+    message:
+      "Star files to see them here for instant access across every device.",
+  }}
+>
+  <svelte:fragment slot="header-actions">
+    <button
+      class="inline-flex items-center gap-2 rounded-2xl border border-white/30 bg-white/80 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-400 hover:text-indigo-600 dark:bg-slate-900/60 dark:text-slate-200"
+      onclick={loadFavorites}
+      disabled={loading}
+    >
+      <i class={`bi bi-arrow-clockwise ${loading ? "animate-spin" : ""}`}></i>
+      Refresh
+    </button>
+  </svelte:fragment>
 
-      <!-- Grid Skeleton -->
-      <div
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+  {#if !errorMsg && favoriteFiles.length > 0}
+    <div class="space-y-4">
+      <ActionBar
+        searchValue={searchQuery}
+        filterChips={filterChips()}
+        viewModes={viewModeOptions()}
+        bulkActions={bulkActions()}
+        sticky={false}
+        searchPlaceholder="Search favorites..."
+        searchEnabled={true}
+        on:search={handleSearch}
+        on:filter={handleFilter}
+        on:view={handleViewChange}
+        on:bulk={handleBulkAction}
       >
-        {#each Array(8) as _}
-          <div class="skeleton h-64 w-full rounded-2xl"></div>
-        {/each}
-      </div>
-    </div>
-  </div>
-{:else}
-  <!-- Main Container -->
-  <div
-    class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6"
-  >
-    <!-- Animated Background Blobs -->
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-
-    <!-- Page Header -->
-    <div class="max-w-7xl mx-auto mb-6">
-      <div class="glass-card p-6 animate-slide-down">
-        <div class="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h1
-              class="text-3xl font-bold gradient-text mb-2 flex items-center gap-3"
-            >
-              <i class="bi bi-star-fill text-yellow-500"></i>
-              Favorites
-            </h1>
-            <p class="text-sm text-gray-600 dark:text-gray-400">
-              {favoriteFiles.length}
-              {favoriteFiles.length === 1 ? "item" : "items"}
-            </p>
-          </div>
-
-          <button
-            onclick={loadFavorites}
-            disabled={loading}
-            class="px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        <div class="flex flex-wrap items-center gap-3">
+          <div
+            class="inline-flex items-center gap-2 rounded-2xl border border-slate-200/70 bg-white/70 px-3 py-1.5 text-sm font-medium dark:border-slate-700/70 dark:bg-slate-900/40"
           >
-            <i class="bi bi-arrow-clockwise {loading ? 'animate-spin' : ''}"
+            <span class="text-xs uppercase tracking-[0.2em] text-slate-400"
+              >Sort</span
+            >
+            <select
+              class="bg-transparent text-sm font-semibold focus:outline-none"
+              value={sortBy}
+              on:change={(event) => handleSortChange(event.currentTarget.value)}
+            >
+              <option value="manual">Manual order</option>
+              <option value="name">Name</option>
+              <option value="added">Added date</option>
+              <option value="size">Size</option>
+            </select>
+          </div>
+          <button
+            type="button"
+            class="rounded-2xl border border-slate-200/70 bg-white/70 px-3 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-slate-700/70 dark:bg-slate-900/40 dark:text-slate-200"
+            onclick={toggleSortOrder}
+            aria-label="Toggle sort order"
+          >
+            <i
+              class={`bi bi-sort-${sortOrder === "asc" ? "alpha-down" : "alpha-up"}`}
             ></i>
-            <span>Refresh</span>
           </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Content -->
-    <div class="max-w-7xl mx-auto">
-      {#if errorMsg}
-        <!-- Error State -->
-        <div class="glass-card p-12 text-center animate-slide-up">
-          <div class="mb-6">
-            <i class="bi bi-exclamation-triangle text-6xl text-red-500/30"></i>
-          </div>
-          <h3 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-3">
-            {errorMsg}
-          </h3>
-          <button
-            onclick={loadFavorites}
-            class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto"
-          >
-            <i class="bi bi-arrow-clockwise"></i>
-            Try Again
-          </button>
-        </div>
-      {:else if favoriteFiles.length === 0}
-        <!-- Empty State -->
-        <div class="glass-card p-12 text-center animate-slide-up">
-          <div class="mb-6">
-            <i class="bi bi-star text-6xl text-yellow-500/30"></i>
-          </div>
-          <h3 class="text-2xl font-bold mb-3">No favorites yet</h3>
-          <p class="text-gray-600 dark:text-gray-400">
-            Mark files as favorites to see them here
-          </p>
-        </div>
-      {:else}
-        <!-- Favorites Grid -->
-        <div
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-        >
-          {#each favoriteFiles as file, i}
-            <div
-              class="glass-card p-6 cursor-pointer hover:scale-105 transition-all duration-200 animate-slide-up"
-              style="animation-delay: {i * 30}ms"
-              role="button"
-              tabindex="0"
-              onclick={() => navigateToFile(file.fullPath)}
-              onkeydown={(e) =>
-                (e.key === "Enter" || e.key === " ") &&
-                navigateToFile(file.fullPath)}
+          {#if isReorderable}
+            <span
+              class="inline-flex items-center gap-2 rounded-2xl border border-emerald-200/60 bg-emerald-50/70 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-600 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200"
             >
-              <!-- File Icon -->
-              <div class="text-center mb-4">
-                <div class="text-6xl mb-3">
-                  {getFileIconEmoji(file.mimeType)}
-                </div>
-                <h3 class="font-bold text-lg mb-2 truncate" title={file.name}>
-                  {file.name}
-                </h3>
-              </div>
+              <i class="bi bi-arrows-move"></i>
+              Drag to reorder
+            </span>
+          {:else}
+            <span
+              class="inline-flex items-center gap-2 rounded-2xl border border-slate-200/60 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-slate-400"
+            >
+              <i class="bi bi-info-circle"></i>
+              Enable manual sort to reorder
+            </span>
+          {/if}
+        </div>
+        <div
+          slot="right"
+          class="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-300"
+        >
+          <span class="font-semibold text-slate-900 dark:text-white"
+            >{displayFavorites().length}</span
+          >
+          <span>items</span>
+        </div>
+      </ActionBar>
 
-              <!-- File Metadata -->
+      {#if savingOrder}
+        <div
+          class="flex items-center gap-2 rounded-2xl border border-indigo-200/60 bg-white/70 px-4 py-2 text-sm text-indigo-600 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-200"
+        >
+          <i class="bi bi-arrow-repeat animate-spin"></i>
+          Saving new order...
+        </div>
+      {/if}
+    </div>
+  {/if}
+
+  {#if errorMsg}
+    <section
+      class="rounded-3xl border border-red-200/60 bg-white/80 px-8 py-10 text-center text-red-600 shadow-sm dark:border-red-800/60 dark:bg-red-950/30 dark:text-red-200"
+    >
+      <div
+        class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/15 text-3xl"
+      >
+        <i class="bi bi-exclamation-octagon"></i>
+      </div>
+      <h3 class="text-2xl font-semibold">{errorMsg}</h3>
+      <p class="mt-2 text-sm text-red-500/80 dark:text-red-200/80">
+        Something interrupted your favorites feed. Try again in a moment.
+      </p>
+      <button
+        class="mt-6 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5"
+        onclick={loadFavorites}
+      >
+        <i class="bi bi-arrow-clockwise"></i>
+        Try again
+      </button>
+    </section>
+  {/if}
+
+  {#if !errorMsg && displayFavorites().length > 0}
+    <section
+      class={`grid gap-6 ${
+        viewMode === "grid"
+          ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
+          : "grid-cols-1"
+      }`}
+    >
+      {#each displayFavorites() as file (file.id)}
+        <article
+          class={`group relative overflow-hidden rounded-3xl border border-white/40 bg-white/80 p-5 text-left shadow-xl shadow-slate-900/5 transition duration-200 hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-2xl dark:border-slate-800/80 dark:bg-slate-900/70 ${
+            viewMode === "list"
+              ? "flex items-center gap-6"
+              : "flex flex-col gap-6"
+          } ${isReorderable ? "cursor-grab" : "cursor-pointer"}`}
+          role="button"
+          tabindex="0"
+          draggable={isReorderable}
+          on:click={() => navigateToFile(file.fullPath)}
+          on:keydown={(event) =>
+            (event.key === "Enter" || event.key === " ") &&
+            navigateToFile(file.fullPath)}
+          on:dragstart={() => handleDragStart(file)}
+          on:dragenter={() => handleDragEnter(file)}
+          on:dragend={handleDragEnd}
+        >
+          <div
+            class={`relative ${viewMode === "list" ? "flex items-center gap-6" : "flex flex-col items-center"}`}
+          >
+            <div
+              class={`relative flex h-20 w-20 items-center justify-center rounded-3xl text-3xl shadow-[0_20px_45px_rgba(15,23,42,0.12)] ${getFileColor(file.name)} bg-slate-50 dark:bg-slate-800/60`}
+            >
+              <i class={`bi bi-${getFileIcon(file.name)} text-3xl`}></i>
+              <span
+                class="absolute -top-2 -right-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-amber-400 shadow-lg dark:bg-slate-900"
+              >
+                <i class="bi bi-star-fill"></i>
+              </span>
+            </div>
+            <div
+              class={`mt-4 flex flex-col ${viewMode === "list" ? "mt-0" : "items-center text-center"}`}
+            >
+              <h3
+                class="text-lg font-semibold text-slate-900 dark:text-white"
+                title={file.name}
+              >
+                {file.name}
+              </h3>
+              <p
+                class="mt-1 truncate text-xs font-mono text-slate-500 dark:text-slate-400"
+              >
+                {file.fullPath}
+              </p>
               <div
-                class="flex flex-wrap gap-3 justify-center text-xs text-gray-600 dark:text-gray-400 mb-3"
+                class={`mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-300 ${viewMode === "list" ? "justify-start" : "justify-center"}`}
               >
                 {#if file.size}
                   <span
-                    class="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg"
+                    class="inline-flex items-center gap-1 rounded-full bg-slate-100/80 px-3 py-1 text-slate-700 dark:bg-slate-800/70 dark:text-slate-200"
                   >
-                    <i class="bi bi-file-earmark"></i>
-                    {formatFileSize(file.size)}
+                    <i class="bi bi-hdd"></i>
+                    {formatBytes(file.size)}
                   </span>
                 {/if}
                 {#if file.createdAt}
                   <span
-                    class="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg"
+                    class="inline-flex items-center gap-1 rounded-full bg-slate-100/80 px-3 py-1 text-slate-700 dark:bg-slate-800/70 dark:text-slate-200"
                   >
                     <i class="bi bi-clock"></i>
-                    {formatDate(file.createdAt)}
+                    {formatRelativeTime(file.createdAt)}
                   </span>
                 {/if}
+                <span
+                  class="inline-flex items-center gap-1 rounded-full bg-slate-100/80 px-3 py-1 capitalize text-slate-700 dark:bg-slate-800/70 dark:text-slate-200"
+                >
+                  <i class="bi bi-tag"></i>
+                  {file.itemType || "item"}
+                </span>
               </div>
-
-              <!-- File Path -->
-              <div
-                class="text-xs font-mono text-gray-500 dark:text-gray-500 mb-4 truncate text-center px-2"
-              >
-                {formatPath(file.fullPath)}
-              </div>
-
-              <!-- Remove Button -->
-              <button
-                onclick={(e) => removeFavorite(file, e)}
-                class="w-full px-4 py-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 font-semibold rounded-xl hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-all flex items-center justify-center gap-2"
-              >
-                <i class="bi bi-star-fill"></i>
-                <span>Remove Favorite</span>
-              </button>
             </div>
-          {/each}
-        </div>
-      {/if}
-    </div>
-  </div>
-{/if}
+          </div>
 
-<style>
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+          <div
+            class={`flex flex-wrap items-center gap-2 ${viewMode === "list" ? "ml-auto" : "w-full"}`}
+          >
+            <button
+              type="button"
+              class="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5"
+              onclick={(event) => {
+                event.stopPropagation();
+                navigateToFile(file.fullPath);
+              }}
+            >
+              <i class="bi bi-arrow-up-right"></i>
+              Open
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200/70 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-indigo-400 hover:text-indigo-500 dark:border-slate-700/70 dark:text-slate-200"
+              onclick={(event) => openShare(file, event)}
+            >
+              <i class="bi bi-share"></i>
+              Share
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-200/70 bg-amber-50/80 px-4 py-2 text-sm font-semibold text-amber-700 transition hover:border-amber-400 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200"
+              onclick={(event) => removeFavorite(file, event)}
+            >
+              <i class="bi bi-star"></i>
+              Unfavorite
+            </button>
+          </div>
+        </article>
+      {/each}
+    </section>
+  {/if}
+</PageLayout>
 
-  .animate-slide-up {
-    animation: slideUp 0.3s ease-out both;
-  }
-</style>
+<ShareModal
+  bind:isOpen={showShareModal}
+  file={shareTarget}
+  on:close={() => {
+    showShareModal = false;
+    shareTarget = null;
+  }}
+/>

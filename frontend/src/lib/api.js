@@ -1616,6 +1616,19 @@ export const favorites = {
   },
 
   /**
+   * Reorder favorites for the current user
+   * @param {string[]} order - Array of item IDs in desired order
+   */
+  async reorder(order) {
+    const response = await fetch(`${API_BASE}/favorites/reorder`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ order }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
    * Check if an item is favorited
    * @param {string} itemId - File or folder path/ID
    */
