@@ -3,9 +3,10 @@
   import { t } from "../../i18n.js";
   import { DEFAULT_SHORTCUTS, formatShortcut } from "../../lib/keyboardNavigation.js";
 
-  const tr = $derive((key, ...args) => t($currentLang, key, ...args));
-
+  /** @type {{ isOpen?: boolean, onClose?: (() => void) | null }} */
   let { isOpen = false, onClose = null } = $props();
+
+  const tr = (key, ...args) => t($currentLang, key, ...args);
 
   let os = $state("windows");
 

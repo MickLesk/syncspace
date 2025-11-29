@@ -72,7 +72,8 @@
         icon: "hdd-stack",
         label: tr("profile.storageFootprint") || "Storage footprint",
         value: formatSize(stats.storage || 0),
-        sublabel: tr("profile.storageFootprintHint") || "Used across all spaces",
+        sublabel:
+          tr("profile.storageFootprintHint") || "Used across all spaces",
         variant: "amber",
       },
       {
@@ -95,7 +96,11 @@
   });
 
   const completionFields = $derived(() => [
-    { id: "avatar", label: "Add a profile photo", complete: Boolean(user.avatar) },
+    {
+      id: "avatar",
+      label: "Add a profile photo",
+      complete: Boolean(user.avatar),
+    },
     {
       id: "bio",
       label: "Write a short bio",
@@ -178,8 +183,7 @@
       id: "activity",
       icon: "clock-history",
       label: tr("profile.shortcuts.activity") || "Activity log",
-      description:
-        tr("profile.shortcuts.activityDesc") || "Full audit trail",
+      description: tr("profile.shortcuts.activityDesc") || "Full audit trail",
       href: "#/activity",
     },
   ]);
@@ -265,7 +269,7 @@
   }
 
   function currentAvatar() {
-    return editMode ? profileDraft.avatar ?? user.avatar : user.avatar;
+    return editMode ? (profileDraft.avatar ?? user.avatar) : user.avatar;
   }
 
   function formatMemberSince(date) {
@@ -396,20 +400,23 @@
 
 <PageLayout
   title={tr("profile.title") || "Your profile"}
-  subtitle={
-    tr("profile.subtitle") || "Personalize your SyncSpace identity and presence"
-  }
+  subtitle={tr("profile.subtitle") ||
+    "Personalize your SyncSpace identity and presence"}
   icon="person-badge"
   {breadcrumbs}
-  loading={loading}
+  {loading}
   error={errorMsg}
 >
   <section class="space-y-8">
     <section
       class="relative overflow-hidden rounded-[32px] border border-white/30 bg-gradient-to-br from-indigo-500/90 via-indigo-600/80 to-slate-900 text-white shadow-[0_20px_45px_rgba(15,23,42,0.35)]"
     >
-      <div class="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_55%)]"></div>
-      <div class="relative flex flex-col gap-6 px-6 py-8 lg:flex-row lg:items-center">
+      <div
+        class="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_55%)]"
+      ></div>
+      <div
+        class="relative flex flex-col gap-6 px-6 py-8 lg:flex-row lg:items-center"
+      >
         <div class="flex items-center gap-6">
           <div class="relative">
             <div
@@ -431,7 +438,12 @@
               class="absolute -bottom-2 -right-2 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl bg-white/20 text-white shadow-lg backdrop-blur transition hover:bg-white/40"
             >
               <i class="bi bi-camera-fill"></i>
-              <input type="file" accept="image/*" onchange={handleAvatarUpload} hidden />
+              <input
+                type="file"
+                accept="image/*"
+                onchange={handleAvatarUpload}
+                hidden
+              />
             </label>
           </div>
           <div>
@@ -439,19 +451,32 @@
               <h1 class="text-3xl font-semibold tracking-tight">
                 {user.displayName || tr("loading") || "Loading"}
               </h1>
-              <span class="rounded-full border border-white/30 px-3 py-1 text-xs uppercase tracking-[0.4em] text-white/70">
+              <span
+                class="rounded-full border border-white/30 px-3 py-1 text-xs uppercase tracking-[0.4em] text-white/70"
+              >
                 {tr("profile.status.active") || "Active"}
               </span>
             </div>
-            <p class="text-white/80">{getHandle() || tr("unknown") || "Unknown"}</p>
+            <p class="text-white/80">
+              {getHandle() || tr("unknown") || "Unknown"}
+            </p>
             <p class="mt-2 max-w-2xl text-sm text-white/90">
-              {user.bio || tr("noBioYet") || "Let others know what you are working on."}
+              {user.bio ||
+                tr("noBioYet") ||
+                "Let others know what you are working on."}
             </p>
             <div class="mt-4 flex flex-wrap gap-4 text-xs text-white/80">
               {#each heroHighlights() as highlight}
-                <div class="rounded-full border border-white/25 px-4 py-1 backdrop-blur">
-                  <span class="uppercase tracking-[0.3em] text-[10px] text-white/60">{highlight.label}</span>
-                  <p class="text-sm font-semibold text-white">{highlight.value}</p>
+                <div
+                  class="rounded-full border border-white/25 px-4 py-1 backdrop-blur"
+                >
+                  <span
+                    class="uppercase tracking-[0.3em] text-[10px] text-white/60"
+                    >{highlight.label}</span
+                  >
+                  <p class="text-sm font-semibold text-white">
+                    {highlight.value}
+                  </p>
                 </div>
               {/each}
             </div>
@@ -467,13 +492,17 @@
             {tr("share") || "Share"}
           </button>
           <button
-            class={`inline-flex items-center gap-2 rounded-2xl px-5 py-2 text-sm font-semibold transition ${editMode
-              ? 'bg-rose-500 text-white hover:bg-rose-400'
-              : 'bg-white text-indigo-600 hover:-translate-y-0.5'}`}
+            class={`inline-flex items-center gap-2 rounded-2xl px-5 py-2 text-sm font-semibold transition ${
+              editMode
+                ? "bg-rose-500 text-white hover:bg-rose-400"
+                : "bg-white text-indigo-600 hover:-translate-y-0.5"
+            }`}
             onclick={editMode ? cancelEdit : startEditing}
           >
-            <i class={`bi ${editMode ? 'bi-x-lg' : 'bi-pencil-square'}`}></i>
-            {editMode ? tr("cancel") || "Cancel" : tr("editProfile") || "Edit profile"}
+            <i class={`bi ${editMode ? "bi-x-lg" : "bi-pencil-square"}`}></i>
+            {editMode
+              ? tr("cancel") || "Cancel"
+              : tr("editProfile") || "Edit profile"}
           </button>
         </div>
       </div>
@@ -493,10 +522,14 @@
 
     <section class="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
       <div class="space-y-6">
-        <article class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl dark:border-slate-800/60 dark:bg-slate-900/70">
+        <article
+          class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl dark:border-slate-800/60 dark:bg-slate-900/70"
+        >
           <header class="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+              <p
+                class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400"
+              >
                 {tr("profile.about") || "About"}
               </p>
               <h2 class="text-xl font-semibold text-slate-900 dark:text-white">
@@ -517,7 +550,9 @@
                   onclick={saveProfile}
                   disabled={!canSaveProfile()}
                 >
-                  {savingProfile ? tr("saving") || "Saving" : tr("save") || "Save"}
+                  {savingProfile
+                    ? tr("saving") || "Saving"
+                    : tr("save") || "Save"}
                 </button>
               </div>
             {:else}
@@ -534,7 +569,9 @@
           {#if editMode}
             <div class="mt-6 space-y-4">
               <div class="grid gap-4 md:grid-cols-2">
-                <label class="space-y-2 text-sm font-medium text-slate-600 dark:text-slate-200">
+                <label
+                  class="space-y-2 text-sm font-medium text-slate-600 dark:text-slate-200"
+                >
                   {tr("displayName") || "Display name"}
                   <input
                     type="text"
@@ -542,7 +579,9 @@
                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-slate-900 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                   />
                 </label>
-                <label class="space-y-2 text-sm font-medium text-slate-600 dark:text-slate-200">
+                <label
+                  class="space-y-2 text-sm font-medium text-slate-600 dark:text-slate-200"
+                >
                   {tr("email") || "Email"}
                   <input
                     type="email"
@@ -552,16 +591,22 @@
                 </label>
               </div>
 
-              <label class="space-y-2 text-sm font-medium text-slate-600 dark:text-slate-200">
+              <label
+                class="space-y-2 text-sm font-medium text-slate-600 dark:text-slate-200"
+              >
                 {tr("bio") || "Bio"}
                 <textarea
                   bind:value={profileDraft.bio}
                   rows="3"
-                  class={`w-full rounded-2xl border px-4 py-3 text-sm shadow-sm outline-none transition focus:ring-2 ${bioLength() > BIO_LIMIT
-                    ? 'border-rose-400 focus:border-rose-400 focus:ring-rose-100'
-                    : 'border-slate-200 focus:border-indigo-400 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white'}`}
+                  class={`w-full rounded-2xl border px-4 py-3 text-sm shadow-sm outline-none transition focus:ring-2 ${
+                    bioLength() > BIO_LIMIT
+                      ? "border-rose-400 focus:border-rose-400 focus:ring-rose-100"
+                      : "border-slate-200 focus:border-indigo-400 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  }`}
                 ></textarea>
-                <span class={`text-xs ${bioLength() > BIO_LIMIT ? 'text-rose-500' : 'text-slate-400'}`}>
+                <span
+                  class={`text-xs ${bioLength() > BIO_LIMIT ? "text-rose-500" : "text-slate-400"}`}
+                >
                   {bioLength()}/{BIO_LIMIT}
                 </span>
               </label>
@@ -572,19 +617,31 @@
                 {user.bio || tr("noBioYet") || "No bio provided yet."}
               </p>
               <dl class="grid gap-4 sm:grid-cols-2">
-                <div class="rounded-2xl border border-slate-100 bg-white/60 p-4 dark:border-slate-800 dark:bg-slate-900/60">
-                  <dt class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+                <div
+                  class="rounded-2xl border border-slate-100 bg-white/60 p-4 dark:border-slate-800 dark:bg-slate-900/60"
+                >
+                  <dt
+                    class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400"
+                  >
                     {tr("email") || "Email"}
                   </dt>
-                  <dd class="text-sm font-medium text-slate-900 dark:text-white">
+                  <dd
+                    class="text-sm font-medium text-slate-900 dark:text-white"
+                  >
                     {user.email || tr("noEmail") || "No email added"}
                   </dd>
                 </div>
-                <div class="rounded-2xl border border-slate-100 bg-white/60 p-4 dark:border-slate-800 dark:bg-slate-900/60">
-                  <dt class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+                <div
+                  class="rounded-2xl border border-slate-100 bg-white/60 p-4 dark:border-slate-800 dark:bg-slate-900/60"
+                >
+                  <dt
+                    class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400"
+                  >
                     {tr("memberSince") || "Member since"}
                   </dt>
-                  <dd class="text-sm font-medium text-slate-900 dark:text-white">
+                  <dd
+                    class="text-sm font-medium text-slate-900 dark:text-white"
+                  >
                     {formatMemberSince(user.joinedDate)}
                   </dd>
                 </div>
@@ -593,10 +650,14 @@
           {/if}
         </article>
 
-        <article class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl dark:border-slate-800/60 dark:bg-slate-900/70">
+        <article
+          class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl dark:border-slate-800/60 dark:bg-slate-900/70"
+        >
           <header class="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+              <p
+                class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400"
+              >
                 {tr("recentActivity") || "Recent activity"}
               </p>
               <h2 class="text-xl font-semibold text-slate-900 dark:text-white">
@@ -623,10 +684,14 @@
 
           {#if activityLoading}
             <div class="flex items-center justify-center py-12">
-              <span class="h-10 w-10 animate-spin rounded-full border-b-2 border-indigo-500"></span>
+              <span
+                class="h-10 w-10 animate-spin rounded-full border-b-2 border-indigo-500"
+              ></span>
             </div>
           {:else if activityError}
-            <div class="rounded-2xl border border-rose-200 bg-rose-50/70 p-5 text-sm text-rose-600 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
+            <div
+              class="rounded-2xl border border-rose-200 bg-rose-50/70 p-5 text-sm text-rose-600 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200"
+            >
               <p class="font-semibold">{activityError}</p>
               <button
                 class="mt-3 inline-flex items-center gap-2 rounded-2xl border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 dark:border-rose-800 dark:text-rose-200"
@@ -636,47 +701,74 @@
               </button>
             </div>
           {:else if !recentActivity.length}
-            <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-10 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-300">
+            <div
+              class="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-10 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-300"
+            >
               {tr("profile.noActivity") || "No recent actions yet."}
             </div>
           {:else}
             <ul class="mt-6 space-y-4">
               {#each activityItems() as entry (entry.id)}
                 <li class="relative pl-10">
-                  <span class="absolute left-0 top-3 h-3 w-3 rounded-full bg-indigo-200"></span>
-                  <div class="rounded-3xl border border-slate-100 bg-white/70 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                      <div class="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
-                        <span class={`inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 ${entry.meta.color}`}>
+                  <span
+                    class="absolute left-0 top-3 h-3 w-3 rounded-full bg-indigo-200"
+                  ></span>
+                  <div
+                    class="rounded-3xl border border-slate-100 bg-white/70 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/70"
+                  >
+                    <div
+                      class="flex flex-wrap items-center justify-between gap-3"
+                    >
+                      <div
+                        class="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white"
+                      >
+                        <span
+                          class={`inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 ${entry.meta.color}`}
+                        >
                           <i class={`bi bi-${entry.meta.icon}`}></i>
                         </span>
                         {entry.meta.label}
                       </div>
-                      <span class="text-xs font-medium uppercase tracking-[0.3em] text-slate-400">
+                      <span
+                        class="text-xs font-medium uppercase tracking-[0.3em] text-slate-400"
+                      >
                         {formatRelativeTime(entry.created_at)}
                       </span>
                     </div>
-                    <p class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
-                      {entry.file_name || entry.file_path || tr("unknown") || "Unknown"}
+                    <p
+                      class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200"
+                    >
+                      {entry.file_name ||
+                        entry.file_path ||
+                        tr("unknown") ||
+                        "Unknown"}
                     </p>
                     <p class="text-xs text-slate-500 dark:text-slate-400">
                       {entry.file_path || tr("noPath") || "No path reported"}
                     </p>
-                    <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                    <div
+                      class="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500"
+                    >
                       {#if entry.status}
-                        <span class="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 font-semibold uppercase tracking-[0.3em] text-slate-500 dark:border-slate-700">
+                        <span
+                          class="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 font-semibold uppercase tracking-[0.3em] text-slate-500 dark:border-slate-700"
+                        >
                           <i class="bi bi-activity"></i>
                           {entry.status}
                         </span>
                       {/if}
                       {#if entry.file_size}
-                        <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                        <span
+                          class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                        >
                           <i class="bi bi-hdd"></i>
                           {formatSize(entry.file_size)}
                         </span>
                       {/if}
                       {#if entry.metadata?.client}
-                        <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                        <span
+                          class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                        >
                           <i class="bi bi-pc-display"></i>
                           {entry.metadata.client}
                         </span>
@@ -698,8 +790,12 @@
       </div>
 
       <div class="space-y-6">
-        <article class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl dark:border-slate-800/60 dark:bg-slate-900/70">
-          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+        <article
+          class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl dark:border-slate-800/60 dark:bg-slate-900/70"
+        >
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400"
+          >
             {tr("profile.completion") || "Profile completion"}
           </p>
           <div class="mt-3 flex items-end justify-between">
@@ -712,7 +808,9 @@
               {tr("profile.stepsRemaining") || "steps remaining"}
             </span>
           </div>
-          <div class="mt-4 h-3 w-full rounded-full bg-slate-100 dark:bg-slate-800">
+          <div
+            class="mt-4 h-3 w-full rounded-full bg-slate-100 dark:bg-slate-800"
+          >
             <div
               class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
               style={`width:${completionProgress()}%;`}
@@ -720,7 +818,9 @@
           </div>
           <ul class="mt-4 space-y-3 text-sm">
             {#each pendingCompletion().slice(0, 3) as task}
-              <li class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+              <li
+                class="flex items-center gap-2 text-slate-600 dark:text-slate-300"
+              >
                 <i class="bi bi-circle text-xs text-slate-300"></i>
                 {task.label}
               </li>
@@ -728,21 +828,31 @@
           </ul>
         </article>
 
-        <article class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl dark:border-slate-800/60 dark:bg-slate-900/70">
-          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+        <article
+          class="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl dark:border-slate-800/60 dark:bg-slate-900/70"
+        >
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400"
+          >
             {tr("profile.contact") || "Contact & presence"}
           </p>
           <div class="mt-4 space-y-4">
             {#each contactMethods() as method}
-              <div class="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/70 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/80">
-                <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500 dark:bg-indigo-500/10 dark:text-indigo-200">
+              <div
+                class="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/70 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/80"
+              >
+                <span
+                  class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500 dark:bg-indigo-500/10 dark:text-indigo-200"
+                >
                   <i class={`bi bi-${method.icon}`}></i>
                 </span>
                 <div>
                   <p class="text-xs uppercase tracking-[0.3em] text-slate-400">
                     {method.label}
                   </p>
-                  <p class="text-sm font-semibold text-slate-900 dark:text-white">
+                  <p
+                    class="text-sm font-semibold text-slate-900 dark:text-white"
+                  >
                     {method.value}
                   </p>
                 </div>
@@ -757,7 +867,9 @@
                 onclick={() => openShortcut(shortcut)}
               >
                 <div class="flex items-center gap-3">
-                  <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-200">
+                  <span
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-200"
+                  >
                     <i class={`bi bi-${shortcut.icon}`}></i>
                   </span>
                   <div>
