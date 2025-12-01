@@ -77,10 +77,11 @@ CREATE INDEX idx_workflow_executions_status ON workflow_executions(status, creat
 CREATE INDEX idx_workflow_executions_triggered_by ON workflow_executions(triggered_by, created_at DESC);
 
 -- Insert 3 default workflow templates for common use cases
+-- Only insert if users table has entries; otherwise skip with INSERT OR IGNORE
 
 -- 1. Auto-compress images on upload
-INSERT INTO workflow_rules (id, name, display_name, description, trigger_type, trigger_config, condition_config, action_type, action_config, is_active, priority, created_by)
-VALUES (
+INSERT OR IGNORE INTO workflow_rules (id, name, display_name, description, trigger_type, trigger_config, condition_config, action_type, action_config, is_active, priority, created_by)
+SELECT 
     'default_compress_images',
     'auto_compress_images',
     'Auto Compress Images',
@@ -90,14 +91,14 @@ VALUES (
     '{"file_size_min": 5242880}',
     'compress_file',
     '{"quality": 85, "keep_original": false}',
-    0, -- Disabled by default
+    0,
     100,
-    (SELECT id FROM users ORDER BY created_at ASC LIMIT 1)
-);
+    id
+FROM users ORDER BY created_at ASC LIMIT 1;
 
 -- 2. Move videos to media folder on upload
-INSERT INTO workflow_rules (id, name, display_name, description, trigger_type, trigger_config, condition_config, action_type, action_config, is_active, priority, created_by)
-VALUES (
+INSERT OR IGNORE INTO workflow_rules (id, name, display_name, description, trigger_type, trigger_config, condition_config, action_type, action_config, is_active, priority, created_by)
+SELECT 
     'default_organize_videos',
     'organize_videos',
     'Organize Videos',
@@ -107,14 +108,14 @@ VALUES (
     '{}',
     'move_file',
     '{"target_path": "/Media/Videos", "create_folders": true}',
-    0, -- Disabled by default
+    0,
     90,
-    (SELECT id FROM users ORDER BY created_at ASC LIMIT 1)
-);
+    id
+FROM users ORDER BY created_at ASC LIMIT 1;
 
 -- 3. Send notification when large file shared
-INSERT INTO workflow_rules (id, name, display_name, description, trigger_type, trigger_config, condition_config, action_type, action_config, is_active, priority, created_by)
-VALUES (
+INSERT OR IGNORE INTO workflow_rules (id, name, display_name, description, trigger_type, trigger_config, condition_config, action_type, action_config, is_active, priority, created_by)
+SELECT 
     'default_notify_large_share',
     'notify_large_share',
     'Notify on Large Share',
@@ -124,7 +125,7 @@ VALUES (
     '{"file_size_min": 104857600}',
     'send_notification',
     '{"notification_type": "info", "title": "Large File Shared", "message": "A large file has been shared with you"}',
-    0, -- Disabled by default
+    0,
     80,
-    (SELECT id FROM users ORDER BY created_at ASC LIMIT 1)
-);
+    id
+FROM users ORDER BY created_at ASC LIMIT 1;

@@ -105,6 +105,12 @@
       category: "tools",
     },
     {
+      id: "tag-cloud",
+      icon: "cloud",
+      label: t($currentLang, "tagCloud.title"),
+      category: "tools",
+    },
+    {
       id: "jobs",
       icon: "gear-wide-connected",
       label: t($currentLang, "jobs.title"),

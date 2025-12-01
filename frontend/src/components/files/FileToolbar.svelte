@@ -18,6 +18,7 @@
     onSelectionToggle,
     selectedCount = 0,
     onBatchDelete,
+    onBatchTag,
   } = $props();
 
   const sortOptions = $derived([
@@ -245,6 +246,16 @@
         >
           {selectedCount} selected
         </div>
+        {#if onBatchTag}
+          <button
+            type="button"
+            class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-all duration-200 flex items-center gap-2"
+            onclick={onBatchTag}
+          >
+            <i class="bi bi-tags text-lg"></i>
+            <span class="hidden sm:inline">Tag</span>
+          </button>
+        {/if}
         <button
           type="button"
           class="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-all duration-200 flex items-center gap-2"

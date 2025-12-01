@@ -1,32 +1,19 @@
 -- Enhanced Audit & Compliance System Migration
 -- Adds comprehensive audit logging, compliance reports, and retention policies
 
--- Enhanced audit_logs table with more fields
-CREATE TABLE IF NOT EXISTS audit_logs (
-    id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    username TEXT,
-    action TEXT NOT NULL,
-    action_category TEXT DEFAULT 'general', -- 'auth', 'file', 'admin', 'sharing', 'security'
-    resource_type TEXT NOT NULL,
-    resource_id TEXT,
-    resource_name TEXT,
-    ip_address TEXT,
-    user_agent TEXT,
-    session_id TEXT,
-    request_method TEXT,
-    request_path TEXT,
-    response_status INTEGER,
-    metadata TEXT, -- JSON
-    old_value TEXT, -- JSON - for tracking changes
-    new_value TEXT, -- JSON - for tracking changes
-    severity TEXT DEFAULT 'info', -- 'debug', 'info', 'warning', 'error', 'critical'
-    is_sensitive BOOLEAN DEFAULT 0,
-    is_compliance_relevant BOOLEAN DEFAULT 0,
-    retention_until TEXT,
-    created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
-);
+-- Add new columns to existing audit_logs table
+ALTER TABLE audit_logs ADD COLUMN username TEXT;
+ALTER TABLE audit_logs ADD COLUMN action_category TEXT DEFAULT 'general';
+ALTER TABLE audit_logs ADD COLUMN resource_name TEXT;
+ALTER TABLE audit_logs ADD COLUMN session_id TEXT;
+ALTER TABLE audit_logs ADD COLUMN request_method TEXT;
+ALTER TABLE audit_logs ADD COLUMN request_path TEXT;
+ALTER TABLE audit_logs ADD COLUMN response_status INTEGER;
+ALTER TABLE audit_logs ADD COLUMN old_value TEXT;
+ALTER TABLE audit_logs ADD COLUMN new_value TEXT;
+ALTER TABLE audit_logs ADD COLUMN is_sensitive BOOLEAN DEFAULT 0;
+ALTER TABLE audit_logs ADD COLUMN is_compliance_relevant BOOLEAN DEFAULT 0;
+ALTER TABLE audit_logs ADD COLUMN retention_until TEXT;
 
 -- Indexes for faster queries
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
@@ -37,24 +24,15 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_severity ON audit_logs(severity);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_is_compliance ON audit_logs(is_compliance_relevant);
 
--- Data retention policies table
-CREATE TABLE IF NOT EXISTS data_retention_policies (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE,
-    description TEXT,
-    resource_type TEXT NOT NULL,
-    retention_days INTEGER NOT NULL DEFAULT 365,
-    auto_delete BOOLEAN DEFAULT 0,
-    archive_before_delete BOOLEAN DEFAULT 1,
-    notify_before_delete BOOLEAN DEFAULT 1,
-    notify_days_before INTEGER DEFAULT 7,
-    is_active BOOLEAN DEFAULT 1,
-    created_by TEXT,
-    created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    updated_at TEXT,
-    last_applied_at TEXT,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
-);
+-- Enhance existing data_retention_policies table
+ALTER TABLE data_retention_policies ADD COLUMN description TEXT;
+ALTER TABLE data_retention_policies ADD COLUMN archive_before_delete BOOLEAN DEFAULT 1;
+ALTER TABLE data_retention_policies ADD COLUMN notify_before_delete BOOLEAN DEFAULT 1;
+ALTER TABLE data_retention_policies ADD COLUMN notify_days_before INTEGER DEFAULT 7;
+ALTER TABLE data_retention_policies ADD COLUMN is_active BOOLEAN DEFAULT 1;
+ALTER TABLE data_retention_policies ADD COLUMN created_by TEXT;
+ALTER TABLE data_retention_policies ADD COLUMN updated_at TEXT;
+ALTER TABLE data_retention_policies ADD COLUMN last_applied_at TEXT;
 
 -- Compliance reports table
 CREATE TABLE IF NOT EXISTS compliance_reports (

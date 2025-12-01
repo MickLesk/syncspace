@@ -241,23 +241,23 @@ pub fn router() -> Router<AppState> {
         // Audit Logs
         .route("/audit/logs", get(list_audit_logs))
         .route("/audit/logs", post(create_audit_log))
-        .route("/audit/logs/:id", get(get_audit_log))
+        .route("/audit/logs/{id}", get(get_audit_log))
         .route("/audit/logs/export", get(export_audit_logs))
         .route("/audit/stats", get(get_audit_stats))
         // Retention Policies
         .route("/audit/retention-policies", get(list_retention_policies))
         .route("/audit/retention-policies", post(create_retention_policy))
-        .route("/audit/retention-policies/:id", get(get_retention_policy))
+        .route("/audit/retention-policies/{id}", get(get_retention_policy))
         .route(
-            "/audit/retention-policies/:id",
+            "/audit/retention-policies/{id}",
             put(update_retention_policy),
         )
         .route(
-            "/audit/retention-policies/:id",
+            "/audit/retention-policies/{id}",
             delete(delete_retention_policy),
         )
         .route(
-            "/audit/retention-policies/:id/apply",
+            "/audit/retention-policies/{id}/apply",
             post(apply_retention_policy),
         )
         .route(
@@ -267,19 +267,19 @@ pub fn router() -> Router<AppState> {
         // Compliance Reports
         .route("/audit/reports", get(list_compliance_reports))
         .route("/audit/reports", post(generate_compliance_report))
-        .route("/audit/reports/:id", get(get_compliance_report))
-        .route("/audit/reports/:id", delete(delete_compliance_report))
+        .route("/audit/reports/{id}", get(get_compliance_report))
+        .route("/audit/reports/{id}", delete(delete_compliance_report))
         .route(
-            "/audit/reports/:id/download",
+            "/audit/reports/{id}/download",
             get(download_compliance_report),
         )
         // Templates
         .route("/audit/templates", get(list_compliance_templates))
-        .route("/audit/templates/:id", get(get_compliance_template))
+        .route("/audit/templates/{id}", get(get_compliance_template))
         // Archives
         .route("/audit/archives", get(list_audit_archives))
         .route("/audit/archives", post(create_audit_archive))
-        .route("/audit/archives/:id", delete(delete_audit_archive))
+        .route("/audit/archives/{id}", delete(delete_audit_archive))
 }
 
 // ============================================================================

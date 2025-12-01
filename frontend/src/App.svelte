@@ -38,6 +38,7 @@
 
   // Tools Views
   import DuplicatesView from "./pages/tools/DuplicatesView.svelte";
+  import TagCloudView from "./pages/TagCloudView.svelte";
 
   // Jobs & System Management
   import JobsDashboard from "./pages/JobsDashboard.svelte";
@@ -368,6 +369,8 @@
                 <ActivityView />
               {:else if $currentView === "duplicates"}
                 <DuplicatesView />
+              {:else if $currentView === "tag-cloud"}
+                <TagCloudView />
               {:else if $currentView === "backup"}
                 <BackupView />
               {:else if $currentView === "jobs"}

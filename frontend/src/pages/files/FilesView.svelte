@@ -18,6 +18,7 @@
   import FileToolbar from "../../components/files/FileToolbar.svelte";
   import FileActionsMenu from "../../components/files/FileActionsMenu.svelte";
   import FilePreviewPanel from "../../components/files/FilePreviewPanel.svelte";
+  import BulkTaggingModal from "../../components/files/BulkTaggingModal.svelte";
   import CopyFileModal from "../../components/modals/CopyFileModal.svelte";
   import MoveFileModal from "../../components/modals/MoveFileModal.svelte";
   import FileEditorModal from "../../components/editor/FileEditorModal.svelte";
@@ -67,6 +68,9 @@
 
   // Template Library Modal State
   let showTemplateLibrary = $state(false);
+
+  // Bulk Tagging Modal State
+  let showBulkTaggingModal = $state(false);
 
   let searchFilters = $state({
     type: "all",
@@ -1271,6 +1275,7 @@
       onAdvancedSearch={() => modals.openAdvancedSearch()}
       onSelectionToggle={toggleSelectionMode}
       onBatchDelete={batchDelete}
+      onBatchTag={() => (showBulkTaggingModal = true)}
     />
 
     <!-- Breadcrumbs (below toolbar) -->
@@ -1467,6 +1472,22 @@
     loadFiles();
   }}
 />
+
+<!-- Bulk Tagging Modal -->
+{#if showBulkTaggingModal}
+  <BulkTaggingModal
+    selectedFiles={Array.from(selectedFiles)
+      .map((path) => displayFiles.find((f) => f.path === path))
+      .filter(Boolean)}
+    onClose={() => {
+      showBulkTaggingModal = false;
+      selectedFiles.clear();
+      selectedFiles = selectedFiles;
+      selectionMode = false;
+      loadFiles();
+    }}
+  />
+{/if}
 
 <!-- All modals now rendered globally in ModalPortal.svelte -->
 
