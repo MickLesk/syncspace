@@ -133,16 +133,33 @@
       }
     }
 
-    // Initialize theme from server state (Backend-First)
-    if (!localStorage.getItem("theme")) {
-      localStorage.setItem("theme", "light");
-    }
-    
+    // Apply initial theme immediately (before server state loads)
+    applyThemeToDocument($isDarkMode);
+
     // Set initial dashboard view if user is logged in
     if ($auth.isLoggedIn) {
       currentView.set("dashboard");
     }
   });
+
+  // Helper function to apply theme to document
+  function applyThemeToDocument(isDark) {
+    if (typeof document !== "undefined") {
+      const html = document.documentElement;
+      html.classList.remove("dark", "light");
+
+      if (isDark) {
+        html.classList.add("dark");
+        html.setAttribute("data-theme", "dark");
+        html.style.colorScheme = "dark";
+      } else {
+        html.classList.add("light");
+        html.setAttribute("data-theme", "light");
+        html.style.colorScheme = "light";
+      }
+      console.log(`[Theme] Applied: ${isDark ? "dark" : "light"}`);
+    }
+  }
 
   // Load server state when user logs in
   $effect(() => {
@@ -165,30 +182,9 @@
   });
 
   // Apply theme to document - Tailwind v4 compatible (Backend-First)
+  // This effect runs whenever isDarkMode changes
   $effect(() => {
-    if (typeof document !== "undefined") {
-      const isDark = $isDarkMode;
-
-      const html = document.documentElement;
-
-      // Remove all theme classes first
-      html.classList.remove("dark", "light");
-
-      // Set the appropriate class for Tailwind v4
-      if (isDark) {
-        html.classList.add("dark");
-        html.setAttribute("data-theme", "dark");
-        html.style.colorScheme = "dark";
-      } else {
-        html.classList.add("light");
-        html.setAttribute("data-theme", "light");
-        html.style.colorScheme = "light";
-      }
-
-      console.log(
-        `[App.svelte] Theme applied: ${isDark ? "dark" : "light"}, classes: ${html.className}`
-      );
-    }
+    applyThemeToDocument($isDarkMode);
   });
 
   function handleNavigate(event) {

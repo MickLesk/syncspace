@@ -331,7 +331,11 @@
     flex-direction: column;
     width: 260px;
     height: 100vh;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.95),
+      rgba(248, 250, 252, 0.9)
+    );
     backdrop-filter: blur(20px) saturate(180%);
     border-right: 1px solid rgba(59, 130, 246, 0.1);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -340,7 +344,11 @@
   }
 
   :global(.dark) .sidebar-container {
-    background: linear-gradient(135deg, rgba(31, 41, 55, 0.95), rgba(17, 24, 39, 0.9));
+    background: linear-gradient(
+      135deg,
+      rgba(31, 41, 55, 0.95),
+      rgba(17, 24, 39, 0.9)
+    );
     border-right: 1px solid rgba(59, 130, 246, 0.15);
     box-shadow: 2px 0 16px rgba(59, 130, 246, 0.12);
   }

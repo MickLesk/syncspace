@@ -260,7 +260,9 @@
             </p>
 
             <!-- QR Code -->
-            <div class="bg-white p-6 rounded-xl inline-block shadow-lg mb-6">
+            <div
+              class="bg-white dark:bg-gray-700 p-6 rounded-xl inline-block shadow-lg mb-6"
+            >
               {#if qrCodeDataUrl}
                 <img src={qrCodeDataUrl} alt="2FA QR Code" class="w-64 h-64" />
               {:else}

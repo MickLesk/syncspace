@@ -129,3 +129,16 @@ yarn-error.log*
 *.bak
 *.cache
 backend/target/debug/syncbackend.pdb
+FINAL_STATUS_V1.md
+fix_accessibility.py
+fix_all_accessibility.py
+fix_corrupted.py
+fix_final_batch.py
+fix_final_cleanup.py
+fix_phase2.py
+fix_remaining_errors.py
+frontend/V1_STYLING_COMPLETE.md
+frontend/V1_TESTING_GUIDE.md
+TODO.md
+ultra_safe_fixer.py
+universal_a11y_fixer.py

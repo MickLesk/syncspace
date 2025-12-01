@@ -2,9 +2,9 @@
  * SyncSpace Design System v2
  * Unified design tokens for dark/light mode
  * Tailwind v4 compatible
+ * 
+ * NOTE: Tailwind is imported in tailwind.css, not here!
  */
-
-@import "tailwindcss";
 
 /* ===========================
    CSS Custom Properties

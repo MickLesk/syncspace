@@ -116,12 +116,16 @@
     onkeydown={(e) => e.key === "Escape" && handleBackdropClick(e)}
   >
     <!-- Enhanced backdrop with blur -->
-    <div class="modal-backdrop-enhanced"></div>
+    <div
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm animate-fadeIn z-40"
+    ></div>
 
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div
       bind:this={modalElement}
-      class="relative {sizeClasses[size]} w-full material-modal"
+      class="relative {sizeClasses[
+        size
+      ]} w-full z-50 mx-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-slideIn"
       class:modal-primary={variant === "primary"}
       class:modal-success={variant === "success"}
       class:modal-warning={variant === "warning"}
@@ -132,21 +136,30 @@
       tabindex="-1"
     >
       <!-- Header with gradient -->
-      <div class="modal-header bg-gradient-to-r {variantGradients[variant]}">
+      <div
+        class="px-6 py-5 border-b-2 border-gray-200 dark:border-gray-700 flex-shrink-0 bg-gradient-to-r {variantGradients[
+          variant
+        ]}"
+      >
         {#if showCloseButton}
           <button
-            class="modal-close-btn-new"
+            class="absolute right-4 top-4 w-10 h-10 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-all hover:rotate-90"
             onclick={handleClose}
             aria-label="Close modal"
             type="button"
           >
-            <i class="bi bi-x-lg"></i>
+            <i class="bi bi-x-lg text-xl"></i>
           </button>
         {/if}
 
-        <h3 id="modal-title" class="font-bold text-xl flex items-center gap-3">
+        <h3
+          id="modal-title"
+          class="font-bold text-xl flex items-center gap-3 text-gray-900 dark:text-white"
+        >
           {#if icon}
-            <div class="modal-icon">
+            <div
+              class="w-12 h-12 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400"
+            >
               <i class="bi bi-{icon} text-2xl"></i>
             </div>
           {/if}
@@ -155,13 +168,15 @@
       </div>
 
       <!-- Content -->
-      <div class="modal-content">
+      <div class="p-6 overflow-y-auto flex-1 text-gray-900 dark:text-gray-100">
         {@render children?.()}
       </div>
 
       <!-- Actions (if provided) -->
       {#if actions}
-        <div class="modal-actions">
+        <div
+          class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-end gap-3"
+        >
           {@render actions?.()}
         </div>
       {/if}

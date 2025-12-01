@@ -791,7 +791,11 @@
     top: 0;
     z-index: 1000;
     height: 64px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.95),
+      rgba(248, 250, 252, 0.9)
+    );
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-bottom: 1px solid rgba(59, 130, 246, 0.1);
@@ -801,7 +805,11 @@
 
   /* Dark Mode */
   :global(.dark) .app-header {
-    background: linear-gradient(135deg, rgba(31, 41, 55, 0.95), rgba(17, 24, 39, 0.9));
+    background: linear-gradient(
+      135deg,
+      rgba(31, 41, 55, 0.95),
+      rgba(17, 24, 39, 0.9)
+    );
     border-bottom: 1px solid rgba(59, 130, 246, 0.15);
     box-shadow: 0 4px 20px rgba(59, 130, 246, 0.12);
     color: #f9fafb;
@@ -890,14 +898,22 @@
   }
 
   .search-button:hover {
-    background: linear-gradient(135deg, rgba(248, 250, 252, 1), rgba(243, 244, 246, 1));
+    background: linear-gradient(
+      135deg,
+      rgba(248, 250, 252, 1),
+      rgba(243, 244, 246, 1)
+    );
     border-color: rgba(59, 130, 246, 0.3);
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
   }
 
   :global(.dark) .search-button:hover {
-    background: linear-gradient(135deg, rgba(55, 65, 81, 1), rgba(31, 41, 55, 1));
+    background: linear-gradient(
+      135deg,
+      rgba(55, 65, 81, 1),
+      rgba(31, 41, 55, 1)
+    );
     box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
   }
 
@@ -958,7 +974,11 @@
     display: flex;
     align-items: center;
     height: 44px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(248, 250, 252, 0.7));
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.8),
+      rgba(248, 250, 252, 0.7)
+    );
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(59, 130, 246, 0.15);
@@ -969,19 +989,31 @@
   }
 
   :global(.dark) .search-input-wrapper {
-    background: linear-gradient(135deg, rgba(31, 41, 55, 0.8), rgba(17, 24, 39, 0.7));
+    background: linear-gradient(
+      135deg,
+      rgba(31, 41, 55, 0.8),
+      rgba(17, 24, 39, 0.7)
+    );
     border-color: rgba(59, 130, 246, 0.2);
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
   }
 
   .search-input-wrapper:focus-within {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.95),
+      rgba(248, 250, 252, 0.9)
+    );
     border-color: rgba(59, 130, 246, 0.4);
     box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
   }
 
   :global(.dark) .search-input-wrapper:focus-within {
-    background: linear-gradient(135deg, rgba(55, 65, 81, 0.95), rgba(31, 41, 55, 0.9));
+    background: linear-gradient(
+      135deg,
+      rgba(55, 65, 81, 0.95),
+      rgba(31, 41, 55, 0.9)
+    );
     border-color: rgba(59, 130, 246, 0.5);
     box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
   }

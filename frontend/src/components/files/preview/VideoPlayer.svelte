@@ -213,7 +213,13 @@
 
     <!-- Big play button overlay -->
     {#if !isPlaying && !loading}
-      <div class="absolute inset-0 flex items-center justify-center cursor-pointer" onclick={togglePlay} role="button" tabindex="0" onkeydown={(e) => e.key === " " && togglePlay()}>
+      <div
+        class="absolute inset-0 flex items-center justify-center cursor-pointer"
+        onclick={togglePlay}
+        role="button"
+        tabindex="0"
+        onkeydown={(e) => e.key === " " && togglePlay()}
+      >
         <div
           class="w-20 h-20 rounded-full bg-primary/80 flex items-center justify-center shadow-lg hover:bg-primary transition-colors"
         >
@@ -229,7 +235,13 @@
       class:opacity-100={showControls}
     >
       <!-- Progress bar -->
-      <div class="relative h-1.5 bg-white/20 rounded-full mb-4 cursor-pointer group" onclick={seek} role="slider" onkeydown={(e) => { if (e.key === "ArrowLeft" || e.key === "ArrowRight") handleSeek(e); }}
+      <div
+        class="relative h-1.5 bg-white/20 rounded-full mb-4 cursor-pointer group"
+        onclick={seek}
+        role="slider"
+        onkeydown={(e) => {
+          if (e.key === "ArrowLeft" || e.key === "ArrowRight") handleSeek(e);
+        }}
         aria-label="Video progress"
         aria-valuemin="0"
         aria-valuemax={duration}
@@ -323,7 +335,8 @@
             >
               {playbackRate}x
             </button>
-            <ul class="dropdown-content menu bg-base-300 rounded-box shadow-xl mb-2 z-10"
+            <ul
+              class="dropdown-content menu bg-base-300 rounded-box shadow-xl mb-2 z-10"
             >
               {#each [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] as rate}
                 <li>
