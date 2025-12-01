@@ -284,6 +284,25 @@ export const translations = {
     noFavorites: 'Noch keine Favoriten',
     markFilesAsFavorite: 'Markieren Sie Dateien als Favoriten',
     
+    // Comments
+    comments: {
+      title: 'Kommentare',
+      placeholder: 'Kommentar hinzufügen... (Tipp: Verwende @Benutzername zum Erwähnen)',
+      mentionTip: 'Verwende @Benutzername um andere Benutzer zu erwähnen',
+      post: 'Kommentar posten',
+      reply: 'Antworten',
+      replyPlaceholder: 'Schreibe eine Antwort...',
+      react: 'Reagieren',
+      delete: 'Löschen',
+      deleteConfirm: 'Diesen Kommentar löschen?',
+      deleteError: 'Fehler beim Löschen des Kommentars',
+      postError: 'Fehler beim Posten des Kommentars',
+      loadError: 'Fehler beim Laden der Kommentare',
+      noComments: 'Noch keine Kommentare. Sei der Erste, der kommentiert!',
+      mentions: 'Erwähnungen',
+      justNow: 'Gerade eben',
+    },
+    
     // NotFound page
     pageNotFound: 'Seite nicht gefunden',
     pageNotFoundDescription: 'Oops! Die gesuchte Seite existiert nicht. Sie wurde möglicherweise verschoben oder gelöscht.',
@@ -2745,6 +2764,25 @@ export const translations = {
     // Favorites view
     noFavorites: 'No favorites yet',
     markFilesAsFavorite: 'Mark files as favorites',
+    
+    // Comments
+    comments: {
+      title: 'Comments',
+      placeholder: 'Add a comment... (Tip: use @username to mention)',
+      mentionTip: 'Use @username to mention other users',
+      post: 'Post Comment',
+      reply: 'Reply',
+      replyPlaceholder: 'Write a reply...',
+      react: 'React',
+      delete: 'Delete',
+      deleteConfirm: 'Delete this comment?',
+      deleteError: 'Failed to delete comment',
+      postError: 'Failed to post comment',
+      loadError: 'Failed to load comments',
+      noComments: 'No comments yet. Be the first to comment!',
+      mentions: 'Mentions',
+      justNow: 'Just now',
+    },
     
     // NotFound page
     pageNotFound: 'Page Not Found',
