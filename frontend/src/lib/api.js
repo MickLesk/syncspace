@@ -3650,4 +3650,62 @@ export default {
   webhooks,
   systemHealth,
   apiTokens,
+  smartFolders: {
+    /**
+     * List all smart folders for current user
+     */
+    async list() {
+      const response = await fetch(`${API_BASE}/smart-folders`, {
+        method: "GET",
+        headers: getHeaders(),
+      });
+      return handleResponse(response);
+    },
+
+    /**
+     * Create a new smart folder
+     */
+    async create(payload) {
+      const response = await fetch(`${API_BASE}/smart-folders`, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify(payload),
+      });
+      return handleResponse(response);
+    },
+
+    /**
+     * Update an existing smart folder
+     */
+    async update(id, payload) {
+      const response = await fetch(`${API_BASE}/smart-folders/${id}`, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify(payload),
+      });
+      return handleResponse(response);
+    },
+
+    /**
+     * Delete a smart folder
+     */
+    async delete(id) {
+      const response = await fetch(`${API_BASE}/smart-folders/${id}`, {
+        method: "DELETE",
+        headers: getHeaders(),
+      });
+      return handleResponse(response);
+    },
+
+    /**
+     * Preview files matching a smart folder's rules
+     */
+    async preview(id) {
+      const response = await fetch(`${API_BASE}/smart-folders/${id}/preview`, {
+        method: "POST",
+        headers: getHeaders(),
+      });
+      return handleResponse(response);
+    },
+  },
 };

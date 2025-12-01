@@ -19,6 +19,7 @@
   import FileActionsMenu from "../../components/files/FileActionsMenu.svelte";
   import FilePreviewPanel from "../../components/files/FilePreviewPanel.svelte";
   import BulkTaggingModal from "../../components/files/BulkTaggingModal.svelte";
+  import BatchRenameModal from "../../components/files/BatchRenameModal.svelte";
   import CopyFileModal from "../../components/modals/CopyFileModal.svelte";
   import MoveFileModal from "../../components/modals/MoveFileModal.svelte";
   import FileEditorModal from "../../components/editor/FileEditorModal.svelte";
@@ -71,6 +72,9 @@
 
   // Bulk Tagging Modal State
   let showBulkTaggingModal = $state(false);
+
+  // Batch Rename Modal State
+  let showBatchRenameModal = $state(false);
 
   let searchFilters = $state({
     type: "all",
@@ -1268,6 +1272,7 @@
       bind:showFavoritesOnly
       {selectionMode}
       selectedCount={selectedFiles.size}
+      selectedFiles={Array.from(selectedFiles)}
       onRefresh={loadFiles}
       onUpload={() => modals.openUpload()}
       onNewFolder={() => modals.openNewFolder()}
@@ -1276,6 +1281,7 @@
       onSelectionToggle={toggleSelectionMode}
       onBatchDelete={batchDelete}
       onBatchTag={() => (showBulkTaggingModal = true)}
+      onBatchRename={() => (showBatchRenameModal = true)}
     />
 
     <!-- Breadcrumbs (below toolbar) -->
@@ -1481,6 +1487,25 @@
       .filter(Boolean)}
     onClose={() => {
       showBulkTaggingModal = false;
+      selectedFiles.clear();
+      selectedFiles = selectedFiles;
+      selectionMode = false;
+      loadFiles();
+    }}
+  />
+{/if}
+
+<!-- Batch Rename Modal -->
+{#if showBatchRenameModal}
+  <BatchRenameModal
+    isOpen={showBatchRenameModal}
+    files={Array.from(selectedFiles)
+      .map((path) => displayFiles.find((f) => f.path === path))
+      .filter(Boolean)}
+    onClose={() => {
+      showBatchRenameModal = false;
+    }}
+    onComplete={() => {
       selectedFiles.clear();
       selectedFiles = selectedFiles;
       selectionMode = false;

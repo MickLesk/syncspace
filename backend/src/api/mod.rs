@@ -9,6 +9,7 @@ pub mod auth_security;
 pub mod backup;
 pub mod batch;
 pub mod bulk_operations;
+pub mod cleanup;
 pub mod cloud_storage;
 pub mod collaboration;
 pub mod comments;
@@ -38,6 +39,7 @@ pub mod recent;
 pub mod search;
 pub mod setup;
 pub mod sharing;
+pub mod smart_folders;
 pub mod system;
 pub mod system_health;
 pub mod tags;
@@ -115,6 +117,8 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(webhooks::router()) // Webhook management
                 .merge(system_health::router()) // System health monitoring
                 .merge(api_tokens::router()) // Personal Access Token management
+                .merge(cleanup::router()) // Auto-cleanup of deleted files
+                .merge(smart_folders::router()) // Smart folders with dynamic rules
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

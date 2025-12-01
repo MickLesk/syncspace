@@ -430,6 +430,28 @@ async fn main() {
                 }
                 Err(e) => tracing::error!("Failed to cleanup old file versions: {}", e),
             }
+
+            // Cleanup expired deleted files (soft-deleted older than 30 days)
+            let cleanup_config = services::cleanup_service::CleanupConfig::default();
+            match services::cleanup_service::cleanup_expired_deleted_files(
+                &cleanup_pool,
+                &cleanup_config,
+            )
+            .await
+            {
+                Ok(stats) => {
+                    if stats.files_deleted > 0 {
+                        let gb = stats.storage_freed_bytes as f64 / (1024.0 * 1024.0 * 1024.0);
+                        tracing::info!(
+                            "🧹 Auto-Cleanup: Deleted {} files, freed {:.2} GB in {:.0}ms",
+                            stats.files_deleted,
+                            gb,
+                            stats.duration_ms
+                        );
+                    }
+                }
+                Err(e) => tracing::error!("Failed to cleanup expired deleted files: {}", e),
+            }
         }
     });
 

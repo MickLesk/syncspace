@@ -69,6 +69,8 @@
   import ModalPortal from "./components/modals/ModalPortal.svelte";
   import WebSocketStatus from "./components/system/WebSocketStatus.svelte";
   import UploadQueue from "./components/ui/UploadQueue.svelte";
+  import CommandPalette from "./components/ui/CommandPalette.svelte";
+  import ShortcutsModal from "./components/ui/ShortcutsModal.svelte";
 
   // PWA Components
   import PWAInstallPrompt from "./components/pwa/PWAInstallPrompt.svelte";
@@ -77,6 +79,11 @@
   // State für Setup-Check
   let setupCompleted = $state(null); // null = loading, true = completed, false = needs setup
   let setupCheckDone = $state(false);
+
+  // Command Palette state
+  let commandPaletteOpen = $state(false);
+  let shortcutsModalOpen = $state(false);
+  let currentViewState = $state("files"); // Track current view for commands
 
   // Check if setup is needed
   async function checkSetupStatus() {
@@ -256,11 +263,69 @@
     checkMobile();
     window.addEventListener("resize", checkMobile);
 
+    // Global keyboard shortcuts
+    const handleGlobalKeydown = (e) => {
+      // Ctrl+? or Cmd+? for help
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "?") {
+        e.preventDefault();
+        shortcutsModalOpen = true;
+      }
+    };
+    window.addEventListener("keydown", handleGlobalKeydown);
+
     return () => {
       window.removeEventListener("hashchange", checkRoute);
       window.removeEventListener("resize", checkMobile);
+      window.removeEventListener("keydown", handleGlobalKeydown);
     };
   });
+
+  // Handle Command Palette selection
+  function handleCommandSelect(cmd) {
+    commandPaletteOpen = false;
+
+    switch (cmd.type) {
+      case "navigate":
+        currentView.set(cmd.view);
+        currentViewState = cmd.view;
+        break;
+      case "toggle-theme":
+        // Toggle theme - would need isDarkMode store implementation
+        const html = document.documentElement;
+        const isDark = html.dataset.theme === "dark";
+        html.dataset.theme = isDark ? "light" : "dark";
+        localStorage.setItem("theme", isDark ? "light" : "dark");
+        break;
+      case "help":
+        shortcutsModalOpen = true;
+        break;
+      case "new-folder":
+        console.log("Create new folder");
+        // TODO: Trigger folder creation modal
+        break;
+      case "upload-file":
+        console.log("Upload file");
+        // TODO: Trigger upload
+        break;
+      case "bulk-delete":
+        console.log("Bulk delete");
+        // TODO: Show bulk delete UI
+        break;
+      case "search":
+        currentView.set("search");
+        break;
+      case "advanced-search":
+        console.log("Advanced search");
+        // TODO: Show advanced search modal
+        break;
+      case "saved-searches":
+        console.log("Saved searches");
+        // TODO: Show saved searches modal
+        break;
+      default:
+        break;
+    }
+  }
 </script>
 
 {#if !setupCheckDone || $auth.isValidating}
@@ -429,6 +494,18 @@
 <!-- Global Components -->
 <Toast />
 <LoadingOverlay />
+
+<!-- Command Palette -->
+<CommandPalette
+  bind:isOpen={commandPaletteOpen}
+  onCommandSelect={(cmd) => handleCommandSelect(cmd)}
+/>
+
+<!-- Shortcuts Modal -->
+<ShortcutsModal
+  bind:isOpen={shortcutsModalOpen}
+  onClose={() => (shortcutsModalOpen = false)}
+/>
 
 <!-- Global Modal Portal - All modals rendered here -->
 {#if $auth.isLoggedIn}

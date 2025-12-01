@@ -19,6 +19,8 @@
     selectedCount = 0,
     onBatchDelete,
     onBatchTag,
+    onBatchRename,
+    selectedFiles = [],
   } = $props();
 
   const sortOptions = $derived([
@@ -246,6 +248,16 @@
         >
           {selectedCount} selected
         </div>
+        {#if onBatchRename}
+          <button
+            type="button"
+            class="px-4 py-2 bg-purple-500 text-white rounded-lg font-medium hover:bg-purple-600 transition-all duration-200 flex items-center gap-2"
+            onclick={onBatchRename}
+          >
+            <i class="bi bi-type text-lg"></i>
+            <span class="hidden sm:inline">Rename</span>
+          </button>
+        {/if}
         {#if onBatchTag}
           <button
             type="button"

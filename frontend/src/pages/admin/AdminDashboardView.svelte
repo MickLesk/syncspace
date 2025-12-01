@@ -4,6 +4,7 @@
   import { success, error as errorToast } from "../../stores/toast.js";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
+  import CleanupManagementPanel from "../../components/admin/CleanupManagementPanel.svelte";
 
   const tr = (key, ...args) => t($currentLang, key, ...args);
 
@@ -815,6 +816,11 @@
           </div>
         </div>
       {/if}
+    </div>
+
+    <!-- Cleanup Management Panel -->
+    <div class="mt-8">
+      <CleanupManagementPanel />
     </div>
 
     <!-- Recent Activity Stream -->
