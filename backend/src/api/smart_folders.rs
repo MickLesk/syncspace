@@ -251,8 +251,8 @@ pub fn router() -> Router<AppState> {
             get(list_smart_folders).post(create_smart_folder),
         )
         .route(
-            "/smart-folders/:id",
+            "/smart-folders/{id}",
             put(update_smart_folder).delete(delete_smart_folder),
         )
-        .route("/smart-folders/:id/preview", post(preview_smart_folder))
+        .route("/smart-folders/{id}/preview", post(preview_smart_folder))
 }

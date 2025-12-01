@@ -2,70 +2,89 @@
 
 /* ======================
    Tailwind v4 Dark Mode Configuration
+   Using .dark class on :root (html element)
    ====================== */
 
-/* Define dark variant to use .dark class on :root */
-@variant dark (:root.dark &);
-
-/* Set color-scheme on root */
-:root.light {
-  color-scheme: light;
-}
-
-:root.dark {
-  color-scheme: dark;
-}
-
-/* Fallback if no class is set - use system preference */
-@media (prefers-color-scheme: dark) {
-  :root:not(.light):not(.dark) {
-    color-scheme: dark;
-  }
-}
+/* Define dark variant - compatible with .dark class on html */
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* ======================
-   Theme Variables
+   Theme Variables with Tailwind v4 @layer theme
    ====================== */
 
-:root {
-  /* Brand Colors */
-  --color-brand-primary: #667eea;
-  --color-brand-secondary: #764ba2;
-  --gradient-brand: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  
-  /* Surface Colors - Light Mode */
-  --surface-base: #ffffff;
-  --surface-container: #f9fafb;
-  --surface-elevated: #ffffff;
-  
-  /* Text Colors - Light Mode */
-  --text-primary: #111827;
-  --text-secondary: #6b7280;
-  --text-tertiary: #9ca3af;
-  
-  /* Border Colors */
-  --border-primary: #e5e7eb;
-  --border-secondary: #d1d5db;
-}
+@layer theme {
+  /* Light Mode (Default) */
+  :root {
+    color-scheme: light;
+    
+    /* Brand Colors */
+    --color-brand-primary: #667eea;
+    --color-brand-secondary: #764ba2;
+    --gradient-brand: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    
+    /* Surface Colors - Light Mode */
+    --surface-base: #ffffff;
+    --surface-container: #f8fafc;
+    --surface-elevated: #ffffff;
+    --surface-overlay: rgba(255, 255, 255, 0.95);
+    
+    /* Text Colors - Light Mode */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #94a3b8;
+    --text-muted: #cbd5e1;
+    
+    /* Border Colors - Light Mode */
+    --border-primary: #e2e8f0;
+    --border-secondary: #cbd5e1;
+    --border-accent: #667eea;
+    
+    /* Sidebar Colors - Light Mode */
+    --sidebar-bg: #f8fafc;
+    --sidebar-text: #334155;
+    --sidebar-hover: rgba(102, 126, 234, 0.08);
+    --sidebar-active: rgba(102, 126, 234, 0.15);
+    
+    /* Card Colors - Light Mode */
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --card-hover: #f1f5f9;
+  }
 
-/* Dark Mode */
-.dark,
-[data-theme="dark"] {
-  color-scheme: dark;
-  
-  /* Surface Colors - Dark Mode */
-  --surface-base: #111827;
-  --surface-container: #1f2937;
-  --surface-elevated: #374151;
-  
-  /* Text Colors - Dark Mode */
-  --text-primary: #f9fafb;
-  --text-secondary: #d1d5db;
-  --text-tertiary: #9ca3af;
-  
-  /* Border Colors */
-  --border-primary: #374151;
-  --border-secondary: #4b5563;
+  /* Dark Mode - Using @variant dark syntax for Tailwind v4 */
+  :root {
+    @variant dark {
+      color-scheme: dark;
+      
+      /* Surface Colors - Dark Mode */
+      --surface-base: #0f172a;
+      --surface-container: #1e293b;
+      --surface-elevated: #334155;
+      --surface-overlay: rgba(15, 23, 42, 0.95);
+      
+      /* Text Colors - Dark Mode */
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-tertiary: #94a3b8;
+      --text-muted: #64748b;
+      
+      /* Border Colors - Dark Mode */
+      --border-primary: #334155;
+      --border-secondary: #475569;
+      --border-accent: #818cf8;
+      
+      /* Sidebar Colors - Dark Mode */
+      --sidebar-bg: #0f172a;
+      --sidebar-text: #e2e8f0;
+      --sidebar-hover: rgba(129, 140, 248, 0.1);
+      --sidebar-active: rgba(129, 140, 248, 0.2);
+      
+      /* Card Colors - Dark Mode */
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --card-hover: #334155;
+    }
+  }
 }
 
 /* ======================
@@ -76,7 +95,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevent scrollbars on html/body */
+  overflow: hidden;
   height: 100vh;
   width: 100vw;
 }
@@ -88,19 +107,14 @@ body {
 }
 
 /* ======================
-   Utility Enhancements
+   Glass Effect Utilities
    ====================== */
 
 .glass-effect {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--surface-overlay);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.dark .glass-effect {
-  background: rgba(17, 24, 39, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-primary);
 }
 
 .gradient-text {

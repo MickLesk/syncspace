@@ -11,6 +11,7 @@
     initializeServerState,
     isDarkMode,
     currentLanguage,
+    toggleDarkMode,
   } from "./stores/serverState";
 
   // Setup & Auth Views
@@ -83,7 +84,7 @@
   // Command Palette state
   let commandPaletteOpen = $state(false);
   let shortcutsModalOpen = $state(false);
-  let currentViewState = $state("files"); // Track current view for commands
+  let currentViewState = $state("dashboard"); // Track current view for commands (start with dashboard)
 
   // Check if setup is needed
   async function checkSetupStatus() {
@@ -132,11 +133,14 @@
       }
     }
 
-    // Initialize theme from server state
+    // Initialize theme from server state (Backend-First)
     if (!localStorage.getItem("theme")) {
       localStorage.setItem("theme", "light");
-      document.documentElement.classList.remove("dark");
-      document.documentElement.setAttribute("data-theme", "light");
+    }
+    
+    // Set initial dashboard view if user is logged in
+    if ($auth.isLoggedIn) {
+      currentView.set("dashboard");
     }
   });
 
@@ -281,7 +285,7 @@
   });
 
   // Handle Command Palette selection
-  function handleCommandSelect(cmd) {
+  async function handleCommandSelect(cmd) {
     commandPaletteOpen = false;
 
     switch (cmd.type) {
@@ -290,11 +294,8 @@
         currentViewState = cmd.view;
         break;
       case "toggle-theme":
-        // Toggle theme - would need isDarkMode store implementation
-        const html = document.documentElement;
-        const isDark = html.dataset.theme === "dark";
-        html.dataset.theme = isDark ? "light" : "dark";
-        localStorage.setItem("theme", isDark ? "light" : "dark");
+        // Toggle theme through serverState store (Backend-First)
+        await toggleDarkMode();
         break;
       case "help":
         shortcutsModalOpen = true;

@@ -564,6 +564,22 @@ export function exportState() {
 }
 
 /**
+ * Toggle Dark Mode (Backend-First)
+ * Switches theme between 'light' and 'dark'
+ * Automatically syncs to backend
+ */
+export async function toggleDarkMode() {
+  try {
+    const currentTheme = _currentSettings.theme;
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    return await updateSettings({ theme: newTheme });
+  } catch (err) {
+    console.error('Failed to toggle dark mode:', err);
+    throw err;
+  }
+}
+
+/**
  * Get current state values (synchronous)
  * Use this only when you need immediate values outside of reactive context
  */
@@ -597,6 +613,7 @@ export default {
   updatePreference,
   updatePreferences,
   updateProfile,
+  toggleDarkMode,
   addRecentSearch,
   clearRecentSearches,
   saveFilter,

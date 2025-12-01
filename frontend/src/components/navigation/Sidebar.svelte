@@ -60,8 +60,17 @@
     return null;
   }
 
-  // Navigation items - Storage & Backup sind jetzt in Settings-Tabs
+  // Navigation items - Sinnvoll organisiert
+  // Main (primäre Navigation - immer sichtbar)
+  // Tools (optionale Features - collapsible)
+  // System (Settings, Admin - in separatem Settings-Tab)
   let navItems = $derived([
+    {
+      id: "dashboard",
+      icon: "speedometer2",
+      label: t($currentLang, "dashboard.title"),
+      category: "main",
+    },
     {
       id: "files",
       icon: "folder-fill",
@@ -99,76 +108,10 @@
         "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200",
     },
     {
-      id: "duplicates",
-      icon: "files",
-      label: t($currentLang, "duplicates"),
-      category: "tools",
-    },
-    {
-      id: "tag-cloud",
-      icon: "cloud",
-      label: t($currentLang, "tagCloud.title"),
-      category: "tools",
-    },
-    {
-      id: "jobs",
-      icon: "gear-wide-connected",
-      label: t($currentLang, "jobs.title"),
-      category: "tools",
-    },
-    {
-      id: "roles",
-      icon: "shield-check",
-      label: t($currentLang, "rbac.title"),
-      category: "system",
-    },
-    {
-      id: "workflows",
-      icon: "gear-wide-connected",
-      label: t($currentLang, "workflow.title"),
-      category: "system",
-    },
-    {
-      id: "cloud-storage",
-      icon: "cloud",
-      label: t($currentLang, "cloudStorage.title"),
-      category: "system",
-    },
-    {
-      id: "dashboard",
-      icon: "speedometer2",
-      label: t($currentLang, "dashboard.title"),
-      category: "system",
-    },
-    {
-      id: "webhooks",
-      icon: "broadcast",
-      label: t($currentLang, "webhooks.title"),
-      category: "system",
-    },
-    {
-      id: "system-health",
-      icon: "heart-pulse",
-      label: t($currentLang, "systemHealth.title"),
-      category: "system",
-    },
-    {
-      id: "api-tokens",
-      icon: "key",
-      label: t($currentLang, "apiTokens.title"),
-      category: "system",
-    },
-    {
-      id: "audit",
-      icon: "shield-check",
-      label: t($currentLang, "audit.title"),
-      category: "system",
-    },
-    {
       id: "trash",
       icon: "trash-fill",
       label: t($currentLang, "trash"),
-      category: "system",
+      category: "tools",
       badge: trashCount,
       badgeClass:
         "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200",

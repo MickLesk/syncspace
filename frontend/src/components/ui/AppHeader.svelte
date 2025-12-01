@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { currentTheme, currentLang, currentView } from "../../stores/ui";
+  import { currentLang, currentView } from "../../stores/ui";
   import { auth } from "../../stores/auth";
   import { t } from "../../i18n.js";
   import AdvancedSearchModal from "../search/AdvancedSearchModal.svelte";
@@ -11,6 +11,7 @@
   import HelpDialog from "./HelpDialog.svelte";
   import { userPreferences } from "../../stores/preferences.js";
   import { wsConnected } from "@stores/websocket.js";
+  import { isDarkMode, toggleDarkMode } from "../../stores/serverState.js";
   import api from "../../lib/api.js";
   import { onMount } from "svelte";
 
@@ -97,7 +98,7 @@
   let searchInputRef = $state(null);
   let searchDropdownRef = $state(null); // Reference for outside click detection
 
-  let isDark = $derived($currentTheme === "dark");
+  let isDark = $derived($isDarkMode);
   let userInitials = $derived(
     $auth.username ? $auth.username.substring(0, 2).toUpperCase() : "AD"
   );
@@ -289,10 +290,9 @@
     dispatch("search", { query });
   }
 
-  function toggleTheme() {
-    const newTheme = isDark ? "light" : "dark";
-    currentTheme.set(newTheme);
-    // Store handles .dark class automatically
+  async function toggleTheme() {
+    // Backend-First: Use serverState toggleDarkMode
+    await toggleDarkMode();
   }
 
   function handleLogout() {
