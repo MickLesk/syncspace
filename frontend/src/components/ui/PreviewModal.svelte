@@ -190,7 +190,7 @@
     <div
       class="preview-modal"
       onclick={(e) => e.stopPropagation()}
-      role="dialog"
+      role="dialog" tabindex="0"
       tabindex="-1"
     >
       <div class="preview-header">

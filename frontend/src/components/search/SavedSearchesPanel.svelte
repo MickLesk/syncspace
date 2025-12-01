@@ -25,7 +25,7 @@
     );
   });
 
-  export let onSearchSelect = null;
+  let { onSearchSelect = null } = $props();
 
   function handleSaveCurrentSearch() {
     if (!searchName.trim()) return;

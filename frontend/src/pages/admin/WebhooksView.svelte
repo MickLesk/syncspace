@@ -326,10 +326,10 @@
       </p>
     </div>
     <button
+      aria-label="Add"
       onclick={openCreateModal}
       class="btn btn-primary flex items-center gap-2"
-    >
-      <i class="bi bi-plus-lg"></i>
+      ><i class="bi bi-plus-lg" aria-hidden="true"></i>
       {tr("webhooks.create")}
     </button>
   </div>
@@ -342,11 +342,11 @@
       <i class="bi bi-exclamation-circle"></i>
       {error}
       <button
+        aria-label="Close"
         onclick={() => (error = null)}
         class="ml-auto text-red-500 hover:text-red-700"
+        ><i class="bi bi-x-lg" aria-hidden="true"></i></button
       >
-        <i class="bi bi-x-lg"></i>
-      </button>
     </div>
   {/if}
 
@@ -454,12 +454,12 @@
 
             <div class="flex items-center gap-2 ml-4">
               <button
+                aria-label="Test webhook"
                 onclick={() => testWebhook(webhook)}
                 class="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title={tr("webhooks.test")}
+                ><i class="bi bi-play-fill" aria-hidden="true"></i></button
               >
-                <i class="bi bi-play-fill"></i>
-              </button>
               <button
                 onclick={() => loadDeliveries(webhook)}
                 class="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -733,11 +733,11 @@
           </p>
         </div>
         <button
+          aria-label="Close"
           onclick={() => (showDeliveriesModal = false)}
           class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg"
+          ><i class="bi bi-x-lg" aria-hidden="true"></i></button
         >
-          <i class="bi bi-x-lg"></i>
-        </button>
       </div>
 
       <!-- Body -->
@@ -835,11 +835,11 @@
           {tr("webhooks.testResult")}
         </h2>
         <button
+          aria-label="Close"
           onclick={() => (showTestModal = false)}
           class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg"
+          ><i class="bi bi-x-lg" aria-hidden="true"></i></button
         >
-          <i class="bi bi-x-lg"></i>
-        </button>
       </div>
 
       <!-- Body -->

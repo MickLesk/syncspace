@@ -27,9 +27,9 @@
   import ContextMenu from './ui/ContextMenu.svelte';
 
   // Props
-  export let item = null;
-  export let context = {};
-  export let onAction = () => {};
+  let { item = null } = $props();
+  let { context = {} } = $props();
+  let { onAction = () => {} } = $props();
 
   // State
   let isOpen = false;

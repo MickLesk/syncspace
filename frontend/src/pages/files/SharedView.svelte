@@ -514,12 +514,7 @@
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
             {tr("shareAnalytics")}
           </h2>
-          <button
-            onclick={closeAnalytics}
-            class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-          >
-            <i class="bi bi-x-lg text-2xl text-gray-600 dark:text-gray-400"></i>
-          </button>
+          <button aria-label="Close" onclick={closeAnalytics} class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
         </div>
         <ShareAnalyticsView shareId={analyticsShareId} />
       </div>

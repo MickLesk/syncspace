@@ -214,8 +214,7 @@
       </h1>
       <p class="text-base-content/60 mt-1">{$t("apiTokens.description")}</p>
     </div>
-    <button onclick={openCreateModal} class="btn btn-primary gap-2">
-      <i class="bi bi-plus-lg"></i>
+    <button aria-label="Add" onclick={openCreateModal} class="btn btn-primary gap-2"><i class="bi bi-plus-lg" aria-hidden="true"></i>
       {$t("apiTokens.create")}
     </button>
   </div>
@@ -225,9 +224,7 @@
     <div class="alert alert-error mb-4">
       <i class="bi bi-exclamation-triangle"></i>
       <span>{error}</span>
-      <button onclick={() => (error = null)} class="btn btn-ghost btn-sm">
-        <i class="bi bi-x-lg"></i>
-      </button>
+      <button aria-label="Close" onclick={() => (error = null)} class="btn btn-ghost btn-sm"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
     </div>
   {/if}
 
@@ -248,8 +245,7 @@
         <p class="text-base-content/60 max-w-md">
           {$t("apiTokens.noTokensDesc")}
         </p>
-        <button onclick={openCreateModal} class="btn btn-primary mt-4 gap-2">
-          <i class="bi bi-plus-lg"></i>
+        <button aria-label="Add" onclick={openCreateModal} class="btn btn-primary mt-4 gap-2"><i class="bi bi-plus-lg" aria-hidden="true"></i>
           {$t("apiTokens.createFirst")}
         </button>
       </div>

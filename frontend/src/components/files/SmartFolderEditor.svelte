@@ -143,9 +143,7 @@
     <!-- Basic Info -->
     <div class="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          {tr('name')}
-        </label>
+        <div class="block text-sm font-medium">{tr('name')} *</div>
         <input
           bind:value={name}
           type="text"
@@ -155,9 +153,7 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          {tr('description')}
-        </label>
+        <div class="block text-sm font-medium">{tr('description')} *</div>
         <textarea
           bind:value={description}
           placeholder="Optional description..."
@@ -168,9 +164,7 @@
 
       <div class="grid grid-cols-3 gap-3">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            {tr('icon')}
-          </label>
+          <div class="block text-sm font-medium">{tr('icon')} *</div>
           <input
             bind:value={icon}
             type="text"
@@ -180,9 +174,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            {tr('color')}
-          </label>
+          <div class="block text-sm font-medium">{tr('color')} *</div>
           <div class="flex gap-2">
             <input
               bind:value={color}
@@ -198,9 +190,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            {tr('smartFolders.logic')}
-          </label>
+          <div class="block text-sm font-medium">{tr('smartFolders.logic')} *</div>
           <select
             bind:value={logic}
             class="w-full px-3 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
@@ -265,12 +255,7 @@
                 <span class="font-mono text-blue-600 dark:text-blue-400">"{condition.value}"</span>
               </span>
 
-              <button
-                onclick={() => removeCondition(idx)}
-                class="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition"
-              >
-                <i class="bi bi-trash"></i>
-              </button>
+              <button aria-label="Delete" onclick={() => removeCondition(idx)} class="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition"><i class="bi bi-trash" aria-hidden="true"></i></button>
             </div>
 
             {#if idx < conditions.length - 1}

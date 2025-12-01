@@ -12,7 +12,7 @@
     performanceUtils,
   } from "../../stores/performance.js";
 
-  export let compact = false;
+  let { compact = false } = $props();
 
   let isMonitoring = false;
   let updateInterval = 30000; // 30 seconds
@@ -92,13 +92,15 @@
   }
 
   // Update chart data when performance history changes
-  $: if ($performanceHistory.length > 0) {
-    chartData = $performanceHistory.map((point, index) => ({
-      x: point.timestamp,
-      y: point.cpu_usage,
-      index,
-    }));
-  }
+  $effect(() => {
+    if ($performanceHistory.length > 0) {
+      chartData = $performanceHistory.map((point, index) => ({
+        x: point.timestamp,
+        y: point.cpu_usage,
+        index,
+      }));
+    }
+  });
 </script>
 
 <div class="performance-monitor" class:compact>

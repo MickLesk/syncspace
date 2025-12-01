@@ -234,8 +234,7 @@
             <p class="text-lg text-base-content/70 mb-4">
               {t($currentLang, "workflow.noRules")}
             </p>
-            <button onclick={openCreateRule} class="btn btn-primary">
-              <i class="bi bi-plus-lg"></i>
+            <button aria-label="Add" onclick={openCreateRule} class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i>
               {t($currentLang, "workflow.createFirstRule")}
             </button>
           </div>

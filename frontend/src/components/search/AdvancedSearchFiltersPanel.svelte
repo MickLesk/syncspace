@@ -10,7 +10,7 @@
 
   $: activeCount = $advancedFilters.activeFilterCount;
 
-  export let onFiltersChange = null;
+  let { onFiltersChange = null } = $props();
 
   async function loadFileTypes() {
     // Common file types

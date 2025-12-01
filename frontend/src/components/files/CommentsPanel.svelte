@@ -188,7 +188,7 @@
     <div
       class="comments-panel"
       onclick={(e) => e.stopPropagation()}
-      role="dialog"
+      role="dialog" tabindex="0"
       aria-modal="true"
       tabindex="-1"
     >

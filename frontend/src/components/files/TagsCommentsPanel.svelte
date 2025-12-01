@@ -25,8 +25,8 @@
   } from "../stores/tagsComments.js";
   import { serverState } from "../stores/serverState.js";
 
-  export let filePath = "";
-  export let readOnly = false;
+  let { filePath = "" } = $props();
+  let { readOnly = false } = $props();
 
   let activeTab = "tags"; // 'tags' | 'comments'
   let newTagName = "";

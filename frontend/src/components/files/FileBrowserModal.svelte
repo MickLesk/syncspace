@@ -152,12 +152,7 @@
           <div
             class="flex items-center gap-2 mt-3 text-sm text-gray-600 dark:text-gray-400"
           >
-            <button
-              onclick={() => loadDirectory("")}
-              class="hover:text-primary-600 dark:hover:text-primary-400"
-            >
-              <i class="bi bi-house-fill"></i>
-            </button>
+            <button aria-label="Home" onclick={() => loadDirectory("")} class="hover:text-primary-600 dark:hover:text-primary-400"><i class="bi bi-house-fill" aria-hidden="true"></i></button>
             {#each currentPath.split("/").filter((p) => p) as part, i}
               <i class="bi bi-chevron-right text-xs"></i>
               <button

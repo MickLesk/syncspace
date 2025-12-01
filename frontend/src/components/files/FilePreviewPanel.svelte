@@ -775,8 +775,7 @@
                     placeholder="Add a tag..."
                     onkeydown={(e) => e.key === "Enter" && addTag()}
                   />
-                  <button onclick={addTag} class="btn-add">
-                    <i class="bi bi-plus-lg"></i>
+                  <button aria-label="Add" onclick={addTag} class="btn-add"><i class="bi bi-plus-lg" aria-hidden="true"></i>
                     Add
                   </button>
                 </div>

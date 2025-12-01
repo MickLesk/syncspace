@@ -20,8 +20,8 @@
     isDownloadLimitReached,
   } from "../stores/advancedSharing.js";
 
-  export let filePath = "";
-  export let readOnly = false;
+  let { filePath = "" } = $props();
+  let { readOnly = false } = $props();
 
   let showCreateForm = false;
   let permission = "read";

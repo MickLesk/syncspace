@@ -13,9 +13,9 @@
   let searchQuery = $state("");
   let filteredItems = $state([]);
 
-  export let onSelect = null;
-  export let onCancel = null;
-  export let excludePaths = [];
+  let { onSelect = null } = $props();
+  let { onCancel = null } = $props();
+  let { excludePaths = [] } = $props();
 
   const MAX_BREADCRUMB_LENGTH = 50;
 

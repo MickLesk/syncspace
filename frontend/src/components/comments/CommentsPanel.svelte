@@ -334,12 +334,7 @@
                           </div>
                         </div>
                         {#if $auth.user?.id === reply.user_id}
-                          <button
-                            onclick={() => deleteComment(reply.id)}
-                            class="btn btn-ghost btn-xs text-error"
-                          >
-                            <i class="bi bi-trash text-xs"></i>
-                          </button>
+                          <button aria-label="Delete" onclick={() => deleteComment(reply.id)} class="btn btn-ghost btn-xs text-error"><i class="bi bi-trash" aria-hidden="true"></i></button>
                         {/if}
                       </div>
                       <p

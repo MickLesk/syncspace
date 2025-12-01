@@ -959,9 +959,7 @@
         }}
       >
         <div class="form-control mb-4">
-          <label class="label">
-            <span class="label-text">{$t("systemHealth.alertName")}</span>
-          </label>
+          <div class="label"><span class="label-text">{$t("systemHealth.alertName")}</span></div>
           <input
             type="text"
             class="input input-bordered"
@@ -970,9 +968,7 @@
           />
         </div>
         <div class="form-control mb-4">
-          <label class="label">
-            <span class="label-text">{$t("systemHealth.alertMetric")}</span>
-          </label>
+          <div class="label"><span class="label-text">{$t("systemHealth.alertMetric")}</span></div>
           <select class="select select-bordered" bind:value={alertForm.metric}>
             {#each metricOptions as option}
               <option value={option.value}>{option.label()}</option>

@@ -3,10 +3,10 @@
   import { getFileIcon, getFileIconColor } from "../../utils/fileIcons.js";
   import api from "../../lib/api.js";
 
-  export let file = null;
-  export let size = "md"; // sm, md, lg
-  export let showIcon = true;
-  export let fallbackToIcon = true;
+  let { file = null } = $props();
+  let { size = "md" } = $props(); // sm, md, lg
+  let { showIcon = true } = $props();
+  let { fallbackToIcon = true } = $props();
 
   let thumbnailUrl = null;
   let thumbnailError = false;

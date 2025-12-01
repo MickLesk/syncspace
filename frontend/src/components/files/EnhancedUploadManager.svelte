@@ -140,9 +140,7 @@
         {/if}
 
         <!-- Minimize/Expand -->
-        <button class="btn-icon" onclick={() => (isMinimized = !isMinimized)}>
-          <i class="bi bi-{isMinimized ? 'chevron-up' : 'chevron-down'}"></i>
-        </button>
+        <button aria-label="Toggle" class="btn-icon" onclick={() => (isMinimized = !isMinimized)}><i class="bi bi-{isMinimized ? \'chevron-up\' : \'chevron-down\'}"></i></button>
 
         <!-- Close (only when no active uploads) -->
         {#if stats.uploading === 0 && stats.queued === 0}

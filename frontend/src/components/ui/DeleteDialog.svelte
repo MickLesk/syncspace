@@ -27,10 +27,10 @@
   import { t, currentLang } from '../i18n.js';
 
   // Props
-  export let items = [];
-  export let isPermanent = false;
-  export let onConfirm = () => {};
-  export let onCancel = () => {};
+  let { items = [] } = $props();
+  let { isPermanent = false } = $props();
+  let { onConfirm = () => {} } = $props();
+  let { onCancel = () => {} } = $props();
 
   // State
   let isOpen = true;

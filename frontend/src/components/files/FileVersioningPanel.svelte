@@ -20,8 +20,8 @@
     getVersionStats,
   } from "../stores/fileVersioning.js";
 
-  export let filePath = "";
-  export let readOnly = false;
+  let { filePath = "" } = $props();
+  let { readOnly = false } = $props();
 
   let compareMode = false;
   let selectedV1 = null;

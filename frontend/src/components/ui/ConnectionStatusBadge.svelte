@@ -19,7 +19,7 @@
   import { websocketManager } from '../stores/websocket.js';
 
   // Props
-  export let position = 'bottom-left'; // bottom-left, bottom-right, top-left, top-right
+  let { position = 'bottom-left' } = $props(); // bottom-left, bottom-right, top-left, top-right
 
   // State
   let nextRetryIn = 0;

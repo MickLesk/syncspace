@@ -814,10 +814,7 @@
             min="1"
             max="1000"
           />
-          <label class="label">
-            <span class="label-text-alt">{tr("cloudStorage.priorityHint")}</span
-            >
-          </label>
+          <div class="label"><span class="label-text-alt">{tr("cloudStorage.priorityHint")}</span></div>
         </div>
 
         <!-- Active Toggle -->

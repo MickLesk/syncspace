@@ -28,8 +28,8 @@
     RENAME: "rename",
   };
 
-  export let onComplete = null;
-  export let onCancel = null;
+  let { onComplete = null } = $props();
+  let { onCancel = null } = $props();
 
   function open(type, filesToMove, destination) {
     operationType = type;

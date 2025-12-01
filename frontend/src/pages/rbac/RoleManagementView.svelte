@@ -178,18 +178,8 @@
                   {tr("rbac.viewPermissions")}
                 </button>
                 {#if !role.is_system}
-                  <button
-                    onclick={() => openEditRole(role)}
-                    class="btn btn-sm btn-ghost"
-                  >
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button
-                    onclick={() => handleDeleteRole(role)}
-                    class="btn btn-sm btn-ghost text-error"
-                  >
-                    <i class="bi bi-trash"></i>
-                  </button>
+                  <button aria-label="Edit" onclick={() => openEditRole(role)} class="btn btn-sm btn-ghost"><i class="bi bi-pencil" aria-hidden="true"></i></button>
+                  <button aria-label="Delete" onclick={() => handleDeleteRole(role)} class="btn btn-sm btn-ghost text-error"><i class="bi bi-trash" aria-hidden="true"></i></button>
                 {/if}
               </div>
             </div>

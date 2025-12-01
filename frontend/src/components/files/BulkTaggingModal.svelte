@@ -152,12 +152,7 @@
       <div class="alert alert-error mb-4 gap-2">
         <i class="bi bi-exclamation-triangle"></i>
         <span class="text-sm">{error}</span>
-        <button
-          onclick={() => (error = null)}
-          class="btn btn-ghost btn-sm ml-auto"
-        >
-          <i class="bi bi-x-lg"></i>
-        </button>
+        <button aria-label="Close" onclick={() => (error = null)} class="btn btn-ghost btn-sm ml-auto"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
       </div>
     {/if}
 
