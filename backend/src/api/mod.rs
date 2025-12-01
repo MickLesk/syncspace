@@ -2,6 +2,7 @@
 //! Centralizes all API route definitions
 
 pub mod activity;
+pub mod api_tokens;
 pub mod audit_compliance;
 pub mod auth;
 pub mod auth_security;
@@ -38,6 +39,7 @@ pub mod search;
 pub mod setup;
 pub mod sharing;
 pub mod system;
+pub mod system_health;
 pub mod tags;
 pub mod trash;
 pub mod upload_chunk;
@@ -45,7 +47,6 @@ pub mod users;
 pub mod versions;
 pub mod webhooks;
 pub mod workflow;
-pub mod system_health;
 
 use axum::{middleware, Router};
 
@@ -113,6 +114,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(upload_chunk::router()) // Chunked upload support
                 .merge(webhooks::router()) // Webhook management
                 .merge(system_health::router()) // System health monitoring
+                .merge(api_tokens::router()) // Personal Access Token management
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

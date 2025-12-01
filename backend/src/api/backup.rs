@@ -800,7 +800,7 @@ async fn update_schedule(
         UserInfo {
             id: String::new(),
             username: String::new(),
-            role: String::new(),
+            totp_enabled: false,
         },
         Path(schedule_id),
     )
@@ -1031,7 +1031,7 @@ async fn update_destination(
         UserInfo {
             id: String::new(),
             username: String::new(),
-            role: String::new(),
+            totp_enabled: false,
         },
         Path(destination_id),
     )

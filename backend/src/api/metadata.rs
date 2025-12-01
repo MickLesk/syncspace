@@ -5,10 +5,11 @@ use axum::{
     routing::get,
     Json, Router,
 };
+use id3::TagLike; // Required for tag.title(), tag.artist(), etc.
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{BufReader, Read};
+use std::io::BufReader;
 use std::path::PathBuf;
 
 use crate::AppState;
@@ -168,7 +169,7 @@ fn extract_exif_metadata(path: &PathBuf) -> (String, HashMap<String, MetadataVal
                     exif::Tag::DateTimeOriginal => "date_taken",
                     exif::Tag::ExposureTime => "exposure_time",
                     exif::Tag::FNumber => "f_number",
-                    exif::Tag::ISOSpeedRatings => "iso",
+                    exif::Tag::PhotographicSensitivity => "iso",
                     exif::Tag::FocalLength => "focal_length",
                     exif::Tag::ImageWidth => "width",
                     exif::Tag::ImageLength => "height",
@@ -330,7 +331,7 @@ fn extract_pdf_metadata(path: &PathBuf) -> (String, HashMap<String, MetadataValu
             // PDF version
             metadata.insert(
                 "pdf_version".to_string(),
-                MetadataValue::String(format!("{}.{}", doc.version.0, doc.version.1)),
+                MetadataValue::String(doc.version.clone()),
             );
         }
         Err(_) => {

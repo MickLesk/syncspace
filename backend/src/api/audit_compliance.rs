@@ -347,15 +347,17 @@ async fn list_audit_logs(
     if let Some(ref ed) = query.end_date {
         q = q.bind(ed);
     }
-    if let Some(ref search) = query.search {
-        let pattern = format!("%{}%", search);
-        q = q.bind(&pattern).bind(&pattern).bind(&pattern);
+
+    // Create pattern outside if block to extend its lifetime
+    let search_pattern = query.search.as_ref().map(|s| format!("%{}%", s));
+    if let Some(ref pattern) = search_pattern {
+        q = q.bind(pattern).bind(pattern).bind(pattern);
     }
 
     q = q.bind(query.limit).bind(query.offset);
 
     let logs = q
-        .fetch_all(&*state.db)
+        .fetch_all(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -369,7 +371,7 @@ async fn get_audit_log(
 ) -> Result<Json<AuditLogEntry>, StatusCode> {
     let log: AuditLogEntry = sqlx::query_as("SELECT * FROM audit_logs WHERE id = ?")
         .bind(&id)
-        .fetch_optional(&*state.db)
+        .fetch_optional(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .ok_or(StatusCode::NOT_FOUND)?;
@@ -402,7 +404,7 @@ async fn create_audit_log(
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(&id)
-    .bind(&user.user_id)
+    .bind(&user.user_id())
     .bind(&user.username)
     .bind(&req.action)
     .bind(&req.action_category.unwrap_or_else(|| "general".to_string()))
@@ -416,13 +418,13 @@ async fn create_audit_log(
     .bind(req.is_sensitive.unwrap_or(false))
     .bind(req.is_compliance_relevant.unwrap_or(false))
     .bind(&now)
-    .execute(&*state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let log: AuditLogEntry = sqlx::query_as("SELECT * FROM audit_logs WHERE id = ?")
         .bind(&id)
-        .fetch_one(&*state.db)
+        .fetch_one(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -461,7 +463,7 @@ async fn export_audit_logs(
     }
 
     let logs = q
-        .fetch_all(&*state.db)
+        .fetch_all(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -482,52 +484,52 @@ async fn get_audit_stats(
 
     // Total counts
     let total: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM audit_logs")
-        .fetch_one(&*state.db)
+        .fetch_one(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let today_count: (i64,) =
         sqlx::query_as("SELECT COUNT(*) FROM audit_logs WHERE date(created_at) = date(?)")
             .bind(&today)
-            .fetch_one(&*state.db)
+            .fetch_one(&state.db_pool)
             .await
             .unwrap_or((0,));
 
     let week_count: (i64,) =
         sqlx::query_as("SELECT COUNT(*) FROM audit_logs WHERE created_at >= ?")
             .bind(&week_ago)
-            .fetch_one(&*state.db)
+            .fetch_one(&state.db_pool)
             .await
             .unwrap_or((0,));
 
     let month_count: (i64,) =
         sqlx::query_as("SELECT COUNT(*) FROM audit_logs WHERE created_at >= ?")
             .bind(&month_ago)
-            .fetch_one(&*state.db)
+            .fetch_one(&state.db_pool)
             .await
             .unwrap_or((0,));
 
     // Severity counts
     let critical: (i64,) =
         sqlx::query_as("SELECT COUNT(*) FROM audit_logs WHERE severity = 'critical'")
-            .fetch_one(&*state.db)
+            .fetch_one(&state.db_pool)
             .await
             .unwrap_or((0,));
 
     let error: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM audit_logs WHERE severity = 'error'")
-        .fetch_one(&*state.db)
+        .fetch_one(&state.db_pool)
         .await
         .unwrap_or((0,));
 
     let warning: (i64,) =
         sqlx::query_as("SELECT COUNT(*) FROM audit_logs WHERE severity = 'warning'")
-            .fetch_one(&*state.db)
+            .fetch_one(&state.db_pool)
             .await
             .unwrap_or((0,));
 
     let compliance: (i64,) =
         sqlx::query_as("SELECT COUNT(*) FROM audit_logs WHERE is_compliance_relevant = 1")
-            .fetch_one(&*state.db)
+            .fetch_one(&state.db_pool)
             .await
             .unwrap_or((0,));
 
@@ -536,7 +538,7 @@ async fn get_audit_stats(
         "SELECT action_category as category, COUNT(*) as count FROM audit_logs 
          GROUP BY action_category ORDER BY count DESC LIMIT 10",
     )
-    .fetch_all(&*state.db)
+    .fetch_all(&state.db_pool)
     .await
     .unwrap_or_default();
 
@@ -545,7 +547,7 @@ async fn get_audit_stats(
         "SELECT action, COUNT(*) as count FROM audit_logs 
          GROUP BY action ORDER BY count DESC LIMIT 10",
     )
-    .fetch_all(&*state.db)
+    .fetch_all(&state.db_pool)
     .await
     .unwrap_or_default();
 
@@ -554,7 +556,7 @@ async fn get_audit_stats(
         "SELECT user_id, username, COUNT(*) as count FROM audit_logs 
          GROUP BY user_id ORDER BY count DESC LIMIT 10",
     )
-    .fetch_all(&*state.db)
+    .fetch_all(&state.db_pool)
     .await
     .unwrap_or_default();
 
@@ -583,7 +585,7 @@ async fn list_retention_policies(
 ) -> Result<Json<Vec<RetentionPolicy>>, StatusCode> {
     let policies: Vec<RetentionPolicy> =
         sqlx::query_as("SELECT * FROM data_retention_policies ORDER BY name")
-            .fetch_all(&*state.db)
+            .fetch_all(&state.db_pool)
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -598,7 +600,7 @@ async fn get_retention_policy(
     let policy: RetentionPolicy =
         sqlx::query_as("SELECT * FROM data_retention_policies WHERE id = ?")
             .bind(&id)
-            .fetch_optional(&*state.db)
+            .fetch_optional(&state.db_pool)
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
             .ok_or(StatusCode::NOT_FOUND)?;
@@ -629,16 +631,16 @@ async fn create_retention_policy(
     .bind(req.archive_before_delete.unwrap_or(true))
     .bind(req.notify_before_delete.unwrap_or(true))
     .bind(req.notify_days_before.unwrap_or(7))
-    .bind(&user.user_id)
+    .bind(&user.user_id())
     .bind(&now)
-    .execute(&*state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let policy: RetentionPolicy =
         sqlx::query_as("SELECT * FROM data_retention_policies WHERE id = ?")
             .bind(&id)
-            .fetch_one(&*state.db)
+            .fetch_one(&state.db_pool)
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -656,7 +658,7 @@ async fn update_retention_policy(
     // Check exists
     let _: RetentionPolicy = sqlx::query_as("SELECT * FROM data_retention_policies WHERE id = ?")
         .bind(&id)
-        .fetch_optional(&*state.db)
+        .fetch_optional(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .ok_or(StatusCode::NOT_FOUND)?;
@@ -721,14 +723,14 @@ async fn update_retention_policy(
     }
 
     q.bind(&id)
-        .execute(&*state.db)
+        .execute(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let policy: RetentionPolicy =
         sqlx::query_as("SELECT * FROM data_retention_policies WHERE id = ?")
             .bind(&id)
-            .fetch_one(&*state.db)
+            .fetch_one(&state.db_pool)
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -742,7 +744,7 @@ async fn delete_retention_policy(
 ) -> Result<StatusCode, StatusCode> {
     sqlx::query("DELETE FROM data_retention_policies WHERE id = ?")
         .bind(&id)
-        .execute(&*state.db)
+        .execute(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -757,7 +759,7 @@ async fn apply_retention_policy(
     let policy: RetentionPolicy =
         sqlx::query_as("SELECT * FROM data_retention_policies WHERE id = ?")
             .bind(&id)
-            .fetch_optional(&*state.db)
+            .fetch_optional(&state.db_pool)
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
             .ok_or(StatusCode::NOT_FOUND)?;
@@ -766,13 +768,13 @@ async fn apply_retention_policy(
     let deleted = match policy.resource_type.as_str() {
         "audit_logs" => sqlx::query("DELETE FROM audit_logs WHERE created_at < ?")
             .bind(&cutoff)
-            .execute(&*state.db)
+            .execute(&state.db_pool)
             .await
             .map(|r| r.rows_affected())
             .unwrap_or(0),
         "trash" => sqlx::query("DELETE FROM trash WHERE deleted_at < ?")
             .bind(&cutoff)
-            .execute(&*state.db)
+            .execute(&state.db_pool)
             .await
             .map(|r| r.rows_affected())
             .unwrap_or(0),
@@ -783,7 +785,7 @@ async fn apply_retention_policy(
     sqlx::query("UPDATE data_retention_policies SET last_applied_at = ? WHERE id = ?")
         .bind(Utc::now().to_rfc3339())
         .bind(&id)
-        .execute(&*state.db)
+        .execute(&state.db_pool)
         .await
         .ok();
 
@@ -802,7 +804,7 @@ async fn apply_all_retention_policies(
     let policies: Vec<RetentionPolicy> = sqlx::query_as(
         "SELECT * FROM data_retention_policies WHERE is_active = 1 AND auto_delete = 1",
     )
-    .fetch_all(&*state.db)
+    .fetch_all(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -813,13 +815,13 @@ async fn apply_all_retention_policies(
         let deleted = match policy.resource_type.as_str() {
             "audit_logs" => sqlx::query("DELETE FROM audit_logs WHERE created_at < ?")
                 .bind(&cutoff)
-                .execute(&*state.db)
+                .execute(&state.db_pool)
                 .await
                 .map(|r| r.rows_affected())
                 .unwrap_or(0),
             "trash" => sqlx::query("DELETE FROM trash WHERE deleted_at < ?")
                 .bind(&cutoff)
-                .execute(&*state.db)
+                .execute(&state.db_pool)
                 .await
                 .map(|r| r.rows_affected())
                 .unwrap_or(0),
@@ -829,7 +831,7 @@ async fn apply_all_retention_policies(
         sqlx::query("UPDATE data_retention_policies SET last_applied_at = ? WHERE id = ?")
             .bind(Utc::now().to_rfc3339())
             .bind(&policy.id)
-            .execute(&*state.db)
+            .execute(&state.db_pool)
             .await
             .ok();
 
@@ -854,7 +856,7 @@ async fn list_compliance_reports(
 ) -> Result<Json<Vec<ComplianceReport>>, StatusCode> {
     let reports: Vec<ComplianceReport> =
         sqlx::query_as("SELECT * FROM compliance_reports ORDER BY created_at DESC")
-            .fetch_all(&*state.db)
+            .fetch_all(&state.db_pool)
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -868,7 +870,7 @@ async fn get_compliance_report(
 ) -> Result<Json<ComplianceReport>, StatusCode> {
     let report: ComplianceReport = sqlx::query_as("SELECT * FROM compliance_reports WHERE id = ?")
         .bind(&id)
-        .fetch_optional(&*state.db)
+        .fetch_optional(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .ok_or(StatusCode::NOT_FOUND)?;
@@ -892,7 +894,7 @@ async fn generate_compliance_report(
         sqlx::query_as("SELECT COUNT(*) FROM audit_logs WHERE created_at >= ? AND created_at <= ?")
             .bind(&req.start_date)
             .bind(&req.end_date)
-            .fetch_one(&*state.db)
+            .fetch_one(&state.db_pool)
             .await
             .unwrap_or((0,));
 
@@ -912,16 +914,16 @@ async fn generate_compliance_report(
     .bind(&filters_json)
     .bind(count.0 as i32)
     .bind(req.file_format.unwrap_or_else(|| "json".to_string()))
-    .bind(&user.user_id)
+    .bind(&user.user_id())
     .bind(&now)
     .bind(&now)
-    .execute(&*state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let report: ComplianceReport = sqlx::query_as("SELECT * FROM compliance_reports WHERE id = ?")
         .bind(&id)
-        .fetch_one(&*state.db)
+        .fetch_one(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -935,7 +937,7 @@ async fn delete_compliance_report(
 ) -> Result<StatusCode, StatusCode> {
     sqlx::query("DELETE FROM compliance_reports WHERE id = ?")
         .bind(&id)
-        .execute(&*state.db)
+        .execute(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -949,7 +951,7 @@ async fn download_compliance_report(
 ) -> Result<Json<Vec<AuditLogEntry>>, StatusCode> {
     let report: ComplianceReport = sqlx::query_as("SELECT * FROM compliance_reports WHERE id = ?")
         .bind(&id)
-        .fetch_optional(&*state.db)
+        .fetch_optional(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .ok_or(StatusCode::NOT_FOUND)?;
@@ -960,14 +962,14 @@ async fn download_compliance_report(
     )
     .bind(&report.start_date)
     .bind(&report.end_date)
-    .fetch_all(&*state.db)
+    .fetch_all(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     // Update download count
     sqlx::query("UPDATE compliance_reports SET download_count = download_count + 1 WHERE id = ?")
         .bind(&id)
-        .execute(&*state.db)
+        .execute(&state.db_pool)
         .await
         .ok();
 
@@ -984,7 +986,7 @@ async fn list_compliance_templates(
 ) -> Result<Json<Vec<ComplianceTemplate>>, StatusCode> {
     let templates: Vec<ComplianceTemplate> =
         sqlx::query_as("SELECT * FROM compliance_templates ORDER BY name")
-            .fetch_all(&*state.db)
+            .fetch_all(&state.db_pool)
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -999,7 +1001,7 @@ async fn get_compliance_template(
     let template: ComplianceTemplate =
         sqlx::query_as("SELECT * FROM compliance_templates WHERE id = ?")
             .bind(&id)
-            .fetch_optional(&*state.db)
+            .fetch_optional(&state.db_pool)
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
             .ok_or(StatusCode::NOT_FOUND)?;
@@ -1017,7 +1019,7 @@ async fn list_audit_archives(
 ) -> Result<Json<Vec<AuditArchive>>, StatusCode> {
     let archives: Vec<AuditArchive> =
         sqlx::query_as("SELECT * FROM audit_log_archives ORDER BY created_at DESC")
-            .fetch_all(&*state.db)
+            .fetch_all(&state.db_pool)
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -1035,12 +1037,12 @@ async fn create_audit_archive(
     // Get date range of logs
     let dates: (Option<String>, Option<String>) =
         sqlx::query_as("SELECT MIN(created_at), MAX(created_at) FROM audit_logs")
-            .fetch_one(&*state.db)
+            .fetch_one(&state.db_pool)
             .await
             .unwrap_or((None, None));
 
     let count: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM audit_logs")
-        .fetch_one(&*state.db)
+        .fetch_one(&state.db_pool)
         .await
         .unwrap_or((0,));
 
@@ -1058,15 +1060,15 @@ async fn create_audit_archive(
     .bind(dates.1.unwrap_or_else(|| now.to_rfc3339()))
     .bind(count.0 as i32)
     .bind(&file_path)
-    .bind(&user.user_id)
+    .bind(&user.user_id())
     .bind(now.to_rfc3339())
-    .execute(&*state.db)
+    .execute(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let archive: AuditArchive = sqlx::query_as("SELECT * FROM audit_log_archives WHERE id = ?")
         .bind(&id)
-        .fetch_one(&*state.db)
+        .fetch_one(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -1080,7 +1082,7 @@ async fn delete_audit_archive(
 ) -> Result<StatusCode, StatusCode> {
     sqlx::query("DELETE FROM audit_log_archives WHERE id = ?")
         .bind(&id)
-        .execute(&*state.db)
+        .execute(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 

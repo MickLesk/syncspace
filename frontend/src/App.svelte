@@ -48,12 +48,14 @@
   import AuditComplianceView from "./pages/AuditComplianceView.svelte";
   import AdminDashboardView from "./pages/admin/AdminDashboardView.svelte";
   import WebhooksView from "./pages/admin/WebhooksView.svelte";
+  import SystemHealthView from "./pages/admin/SystemHealthView.svelte";
 
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
   import UserProfileView from "./pages/user/UserProfileView.svelte";
   import UserSettingsView from "./pages/user/UserSettingsView.svelte";
   import SecurityView from "./pages/user/SecurityView.svelte";
+  import ApiTokensView from "./pages/user/ApiTokensView.svelte";
 
   // Showcase (Development)
   import DesignShowcase from "./pages/showcase/DesignShowcase.svelte";
@@ -384,6 +386,10 @@
                 <AdminDashboardView />
               {:else if $currentView === "webhooks"}
                 <WebhooksView />
+              {:else if $currentView === "system-health"}
+                <SystemHealthView />
+              {:else if $currentView === "api-tokens"}
+                <ApiTokensView />
               {:else if $currentView === "notifications"}
                 <NotificationsView />
               {:else if $currentView === "recent"}

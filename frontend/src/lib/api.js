@@ -3533,6 +3533,85 @@ export const systemHealth = {
 };
 
 // ============================================================================
+// API TOKENS (Personal Access Tokens)
+// ============================================================================
+
+export const apiTokens = {
+  /**
+   * List all API tokens for the current user
+   */
+  async list() {
+    const response = await fetch(`${API_BASE}/tokens`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a new API token
+   * @param {Object} data - { name, scopes, expires_in_days }
+   * @returns {Object} - Token details including plain text token (only shown once)
+   */
+  async create(data) {
+    const response = await fetch(`${API_BASE}/tokens`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get details of a specific token
+   * @param {string} id - Token ID
+   */
+  async get(id) {
+    const response = await fetch(`${API_BASE}/tokens/${encodeURIComponent(id)}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update a token's name or scopes
+   * @param {string} id - Token ID
+   * @param {Object} data - { name, scopes }
+   */
+  async update(id, data) {
+    const response = await fetch(`${API_BASE}/tokens/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a token permanently
+   * @param {string} id - Token ID
+   */
+  async delete(id) {
+    const response = await fetch(`${API_BASE}/tokens/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Revoke a token (soft delete - keeps record but marks as revoked)
+   * @param {string} id - Token ID
+   */
+  async revoke(id) {
+    const response = await fetch(`${API_BASE}/tokens/${encodeURIComponent(id)}/revoke`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================================================
 // DEFAULT EXPORT - All API modules
 // ============================================================================
 
@@ -3570,4 +3649,5 @@ export default {
   dashboard,
   webhooks,
   systemHealth,
+  apiTokens,
 };

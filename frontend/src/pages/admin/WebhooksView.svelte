@@ -936,12 +936,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-colors;
-  }
-  .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700;
-  }
-</style>

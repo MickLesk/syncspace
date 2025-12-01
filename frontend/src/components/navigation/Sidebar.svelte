@@ -141,6 +141,18 @@
       category: "system",
     },
     {
+      id: "system-health",
+      icon: "heart-pulse",
+      label: t($currentLang, "systemHealth.title"),
+      category: "system",
+    },
+    {
+      id: "api-tokens",
+      icon: "key",
+      label: t($currentLang, "apiTokens.title"),
+      category: "system",
+    },
+    {
       id: "audit",
       icon: "shield-check",
       label: t($currentLang, "audit.title"),

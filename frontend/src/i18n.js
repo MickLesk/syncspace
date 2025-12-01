@@ -2394,6 +2394,72 @@ export const translations = {
       alertDeleteError: 'Fehler beim Löschen der Warnung',
       retry: 'Erneut versuchen',
     },
+
+    // API Tokens (Personal Access Tokens)
+    apiTokens: {
+      title: 'API-Zugriffstoken',
+      description: 'Verwalte persönliche Zugriffstoken für programmatischen API-Zugriff',
+      create: 'Token erstellen',
+      createToken: 'Neues Token erstellen',
+      noTokens: 'Keine API-Token',
+      noTokensDesc: 'Erstelle API-Token für Skripte, CI/CD-Pipelines oder Drittanbieter-Integrationen',
+      createFirst: 'Erstes Token erstellen',
+      
+      // Token form
+      name: 'Token-Name',
+      namePlaceholder: 'z.B. CI/CD-Pipeline',
+      scopes: 'Berechtigungen',
+      scopesHelp: 'Wähle die Berechtigungen für dieses Token',
+      expiresIn: 'Gültigkeitsdauer',
+      neverExpires: 'Nie ablaufend',
+      days30: '30 Tage',
+      days60: '60 Tage',
+      days90: '90 Tage',
+      days365: '1 Jahr',
+      
+      // Scopes
+      scopeReadFiles: 'Dateien lesen',
+      scopeWriteFiles: 'Dateien schreiben',
+      scopeDeleteFiles: 'Dateien löschen',
+      scopeManageShares: 'Freigaben verwalten',
+      scopeManageUsers: 'Benutzer verwalten',
+      scopeAdmin: 'Administrator',
+      scopeFull: 'Vollzugriff',
+      
+      // Token display
+      token: 'Token',
+      tokenCreated: 'Token erfolgreich erstellt',
+      copyToken: 'Token kopieren',
+      tokenCopied: 'Token in Zwischenablage kopiert',
+      tokenWarning: 'Wichtig: Das Token wird nur einmal angezeigt. Kopiere es jetzt und speichere es sicher!',
+      lastUsed: 'Zuletzt verwendet',
+      neverUsed: 'Noch nie verwendet',
+      created: 'Erstellt',
+      expires: 'Läuft ab',
+      expired: 'Abgelaufen',
+      noExpiration: 'Kein Ablauf',
+      
+      // Actions
+      revoke: 'Widerrufen',
+      revokeToken: 'Token widerrufen',
+      revokeConfirm: 'Token "{0}" wirklich widerrufen? Diese Aktion kann nicht rückgängig gemacht werden.',
+      revoked: 'Widerrufen',
+      delete: 'Löschen',
+      deleteToken: 'Token löschen',
+      deleteConfirm: 'Token "{0}" wirklich dauerhaft löschen?',
+      
+      // Status
+      active: 'Aktiv',
+      inactive: 'Inaktiv',
+      
+      // Errors
+      loadError: 'Fehler beim Laden der Token',
+      createError: 'Fehler beim Erstellen des Tokens',
+      revokeError: 'Fehler beim Widerrufen des Tokens',
+      deleteError: 'Fehler beim Löschen des Tokens',
+      nameRequired: 'Token-Name ist erforderlich',
+      scopeRequired: 'Mindestens eine Berechtigung ist erforderlich',
+    },
   },
   
   en: {
@@ -4724,6 +4790,72 @@ export const translations = {
       alertCreateError: 'Failed to create alert',
       alertDeleteError: 'Failed to delete alert',
       retry: 'Retry',
+    },
+
+    // API Tokens (Personal Access Tokens)
+    apiTokens: {
+      title: 'API Access Tokens',
+      description: 'Manage personal access tokens for programmatic API access',
+      create: 'Create Token',
+      createToken: 'Create New Token',
+      noTokens: 'No API Tokens',
+      noTokensDesc: 'Create API tokens for scripts, CI/CD pipelines, or third-party integrations',
+      createFirst: 'Create First Token',
+      
+      // Token form
+      name: 'Token Name',
+      namePlaceholder: 'e.g., CI/CD Pipeline',
+      scopes: 'Permissions',
+      scopesHelp: 'Select the permissions for this token',
+      expiresIn: 'Expiration',
+      neverExpires: 'Never expires',
+      days30: '30 days',
+      days60: '60 days',
+      days90: '90 days',
+      days365: '1 year',
+      
+      // Scopes
+      scopeReadFiles: 'Read Files',
+      scopeWriteFiles: 'Write Files',
+      scopeDeleteFiles: 'Delete Files',
+      scopeManageShares: 'Manage Shares',
+      scopeManageUsers: 'Manage Users',
+      scopeAdmin: 'Administrator',
+      scopeFull: 'Full Access',
+      
+      // Token display
+      token: 'Token',
+      tokenCreated: 'Token created successfully',
+      copyToken: 'Copy Token',
+      tokenCopied: 'Token copied to clipboard',
+      tokenWarning: 'Important: The token is only displayed once. Copy it now and store it securely!',
+      lastUsed: 'Last Used',
+      neverUsed: 'Never used',
+      created: 'Created',
+      expires: 'Expires',
+      expired: 'Expired',
+      noExpiration: 'No expiration',
+      
+      // Actions
+      revoke: 'Revoke',
+      revokeToken: 'Revoke Token',
+      revokeConfirm: 'Really revoke token "{0}"? This action cannot be undone.',
+      revoked: 'Revoked',
+      delete: 'Delete',
+      deleteToken: 'Delete Token',
+      deleteConfirm: 'Really permanently delete token "{0}"?',
+      
+      // Status
+      active: 'Active',
+      inactive: 'Inactive',
+      
+      // Errors
+      loadError: 'Failed to load tokens',
+      createError: 'Failed to create token',
+      revokeError: 'Failed to revoke token',
+      deleteError: 'Failed to delete token',
+      nameRequired: 'Token name is required',
+      scopeRequired: 'At least one permission is required',
     },
   },
   
