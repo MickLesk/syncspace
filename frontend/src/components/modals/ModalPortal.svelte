@@ -25,7 +25,8 @@
 
   let newFolderName = $state("");
   let newFileName = $state("");
-  let folderColor = $state("#3B82F6"); // Default to first color
+  let folderColor = $state("#3B82F6"); // The actual selected color value
+  let colorSelectionMode = $state("random"); // 'preset' | 'random' | 'custom' - tracks which button is selected
   let randomButtonColor = $state("#3B82F6"); // Random button's own generated color
   let customColor = $state("#3B82F6"); // Custom picker's color
 
@@ -56,6 +57,21 @@
     const randomHex = `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
     randomButtonColor = randomHex;
     folderColor = randomHex;
+    colorSelectionMode = "random";
+  }
+
+  // Select a preset color
+  function selectPresetColor(colorValue) {
+    folderColor = colorValue;
+    colorSelectionMode = "preset";
+  }
+
+  // Check if a preset color is currently selected (case-insensitive)
+  function isPresetSelected(colorValue) {
+    return (
+      colorSelectionMode === "preset" &&
+      folderColor.toUpperCase() === colorValue.toUpperCase()
+    );
   }
 
   // Filtered folders for Move Modal (excludes source file/folder and descendants)
@@ -98,12 +114,18 @@
     return filtered.sort((a, b) => a.path.localeCompare(b.path));
   });
 
-  // Initialize on New Folder modal open
+  // Initialize on New Folder modal open - default to random color
   $effect(() => {
     if ($modals.newFolder.visible) {
-      folderColor = folderColors[0].value;
-      randomButtonColor = folderColors[0].value;
-      customColor = folderColors[0].value;
+      // Generate a random color by default for new folders
+      const r = Math.floor(Math.random() * 256);
+      const g = Math.floor(Math.random() * 256);
+      const b = Math.floor(Math.random() * 256);
+      const randomHex = `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+      randomButtonColor = randomHex;
+      folderColor = randomHex;
+      colorSelectionMode = "random";
+      customColor = randomHex;
     }
   });
 
@@ -123,15 +145,33 @@
       const currentColor =
         savedColors[$modals.changeFolderColor.data?.file_path];
 
-      // Set to current color if exists, otherwise default
+      // Set to current color if exists, determine selection mode
       if (currentColor) {
         folderColor = currentColor;
         customColor = currentColor;
         randomButtonColor = currentColor;
+
+        // Check if it's a preset color (case-insensitive comparison)
+        const normalizedColor = currentColor.toUpperCase();
+        const isPreset = folderColors.some(
+          (c) => c.value.toUpperCase() === normalizedColor
+        );
+        if (isPreset) {
+          colorSelectionMode = "preset";
+        } else {
+          // If not a preset, treat as custom color
+          colorSelectionMode = "custom";
+        }
       } else {
-        folderColor = folderColors[0].value;
-        randomButtonColor = folderColors[0].value;
-        customColor = folderColors[0].value;
+        // No saved color - default to random
+        const r = Math.floor(Math.random() * 256);
+        const g = Math.floor(Math.random() * 256);
+        const b = Math.floor(Math.random() * 256);
+        const randomHex = `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+        randomButtonColor = randomHex;
+        folderColor = randomHex;
+        customColor = randomHex;
+        colorSelectionMode = "random";
       }
     }
   });
@@ -250,13 +290,13 @@
           <button
             type="button"
             class="aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center gap-0.5 p-1.5"
-            class:border-gray-300={folderColor !== color.value}
-            class:dark:border-gray-600={folderColor !== color.value}
-            class:border-primary-500={folderColor === color.value}
-            class:ring-2={folderColor === color.value}
-            class:ring-primary-500={folderColor === color.value}
+            class:border-gray-300={!isPresetSelected(color.value)}
+            class:dark:border-gray-600={!isPresetSelected(color.value)}
+            class:border-primary-500={isPresetSelected(color.value)}
+            class:ring-2={isPresetSelected(color.value)}
+            class:ring-primary-500={isPresetSelected(color.value)}
             style="background-color: {color.value}20;"
-            onclick={() => (folderColor = color.value)}
+            onclick={() => selectPresetColor(color.value)}
             title={tr(color.nameKey)}
           >
             <span class="text-xl">{color.emoji}</span>
@@ -271,11 +311,11 @@
         <button
           type="button"
           class="aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center gap-0.5 p-1.5"
-          class:border-gray-300={folderColor !== randomButtonColor}
-          class:dark:border-gray-600={folderColor !== randomButtonColor}
-          class:border-primary-500={folderColor === randomButtonColor}
-          class:ring-2={folderColor === randomButtonColor}
-          class:ring-primary-500={folderColor === randomButtonColor}
+          class:border-gray-300={colorSelectionMode !== "random"}
+          class:dark:border-gray-600={colorSelectionMode !== "random"}
+          class:border-primary-500={colorSelectionMode === "random"}
+          class:ring-2={colorSelectionMode === "random"}
+          class:ring-primary-500={colorSelectionMode === "random"}
           style="background-color: {randomButtonColor}20;"
           onclick={generateRandomColor}
           title={tr("randomColor")}
@@ -289,18 +329,21 @@
         <!-- Custom Color Button - Shows user's selected color -->
         <label
           class="aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center gap-0.5 p-1.5 cursor-pointer"
-          class:border-gray-300={folderColor !== customColor}
-          class:dark:border-gray-600={folderColor !== customColor}
-          class:border-primary-500={folderColor === customColor}
-          class:ring-2={folderColor === customColor}
-          class:ring-primary-500={folderColor === customColor}
+          class:border-gray-300={colorSelectionMode !== "custom"}
+          class:dark:border-gray-600={colorSelectionMode !== "custom"}
+          class:border-primary-500={colorSelectionMode === "custom"}
+          class:ring-2={colorSelectionMode === "custom"}
+          class:ring-primary-500={colorSelectionMode === "custom"}
           style="background-color: {customColor}20;"
           title={tr("customColor")}
         >
           <input
             type="color"
             bind:value={customColor}
-            onchange={() => (folderColor = customColor)}
+            onchange={() => {
+              folderColor = customColor;
+              colorSelectionMode = "custom";
+            }}
             class="opacity-0 absolute pointer-events-none"
           />
           <span class="text-xl">🎨</span>
@@ -455,13 +498,13 @@
           <button
             type="button"
             class="aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center gap-0.5 p-1.5"
-            class:border-gray-300={folderColor !== color.value}
-            class:dark:border-gray-600={folderColor !== color.value}
-            class:border-primary-500={folderColor === color.value}
-            class:ring-2={folderColor === color.value}
-            class:ring-primary-500={folderColor === color.value}
+            class:border-gray-300={!isPresetSelected(color.value)}
+            class:dark:border-gray-600={!isPresetSelected(color.value)}
+            class:border-primary-500={isPresetSelected(color.value)}
+            class:ring-2={isPresetSelected(color.value)}
+            class:ring-primary-500={isPresetSelected(color.value)}
             style="background-color: {color.value}20;"
-            onclick={() => (folderColor = color.value)}
+            onclick={() => selectPresetColor(color.value)}
             title={tr(color.nameKey)}
           >
             <span class="text-xl">{color.emoji}</span>
@@ -476,11 +519,11 @@
         <button
           type="button"
           class="aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center gap-0.5 p-1.5"
-          class:border-gray-300={folderColor !== randomButtonColor}
-          class:dark:border-gray-600={folderColor !== randomButtonColor}
-          class:border-primary-500={folderColor === randomButtonColor}
-          class:ring-2={folderColor === randomButtonColor}
-          class:ring-primary-500={folderColor === randomButtonColor}
+          class:border-gray-300={colorSelectionMode !== "random"}
+          class:dark:border-gray-600={colorSelectionMode !== "random"}
+          class:border-primary-500={colorSelectionMode === "random"}
+          class:ring-2={colorSelectionMode === "random"}
+          class:ring-primary-500={colorSelectionMode === "random"}
           style="background-color: {randomButtonColor}20;"
           onclick={generateRandomColor}
           title={tr("randomColor")}
@@ -494,18 +537,21 @@
         <!-- Custom Color Button - Shows user's selected color -->
         <label
           class="aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 flex flex-col items-center justify-center gap-0.5 p-1.5 cursor-pointer"
-          class:border-gray-300={folderColor !== customColor}
-          class:dark:border-gray-600={folderColor !== customColor}
-          class:border-primary-500={folderColor === customColor}
-          class:ring-2={folderColor === customColor}
-          class:ring-primary-500={folderColor === customColor}
+          class:border-gray-300={colorSelectionMode !== "custom"}
+          class:dark:border-gray-600={colorSelectionMode !== "custom"}
+          class:border-primary-500={colorSelectionMode === "custom"}
+          class:ring-2={colorSelectionMode === "custom"}
+          class:ring-primary-500={colorSelectionMode === "custom"}
           style="background-color: {customColor}20;"
           title={tr("customColor")}
         >
           <input
             type="color"
             bind:value={customColor}
-            onchange={() => (folderColor = customColor)}
+            onchange={() => {
+              folderColor = customColor;
+              colorSelectionMode = "custom";
+            }}
             class="opacity-0 absolute pointer-events-none"
           />
           <span class="text-xl">🎨</span>
