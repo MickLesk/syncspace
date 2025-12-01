@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyncSpace - Settings Mockup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .toggle-bg { transition: background-color 0.2s; }
+    .toggle-dot { transition: transform 0.2s; }
+    input:checked + .toggle-bg { background-color: rgb(139, 92, 246); }
+    input:checked + .toggle-bg .toggle-dot { transform: translateX(100%); }
+  </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen">
+  <!-- Background Effects -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-1/3 -right-40 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 left-1/4 w-80 h-80 bg-blue-500/15 rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="relative flex min-h-screen">
+    <!-- Sidebar (Collapsed Version) -->
+    <aside class="w-20 border-r border-slate-800/50 glass bg-slate-900/50 flex flex-col items-center py-6">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-8">
+        <i class="bi bi-cloud-fill text-lg"></i>
+      </div>
+      
+      <nav class="flex-1 flex flex-col items-center gap-2">
+        <a href="mockup-dashboard.html" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Dashboard">
+          <i class="bi bi-grid-1x2-fill text-xl"></i>
+        </a>
+        <a href="mockup-files.html" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Files">
+          <i class="bi bi-folder-fill text-xl"></i>
+        </a>
+        <a href="#" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Shared">
+          <i class="bi bi-share-fill text-xl"></i>
+        </a>
+        <a href="#" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Favorites">
+          <i class="bi bi-star-fill text-xl"></i>
+        </a>
+      </nav>
+
+      <div class="mt-auto flex flex-col items-center gap-2">
+        <a href="#" class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-r from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 text-emerald-300" title="Settings">
+          <i class="bi bi-gear-fill text-xl"></i>
+        </a>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-medium text-sm">
+          ML
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-auto">
+      <!-- Header -->
+      <header class="glass bg-slate-900/70 border-b border-slate-800/50">
+        <div class="flex items-center justify-between px-8 py-6">
+          <div>
+            <h1 class="text-2xl font-bold">Settings</h1>
+            <p class="text-slate-500 text-sm mt-1">Manage your account and preferences</p>
+          </div>
+          <button class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/25 text-sm font-medium">
+            <i class="bi bi-check2"></i>
+            Save Changes
+          </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex items-center gap-1 px-8">
+          <button class="px-5 py-3 text-sm font-medium text-emerald-300 border-b-2 border-emerald-500">
+            General
+          </button>
+          <button class="px-5 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:border-slate-700 transition-colors">
+            Account
+          </button>
+          <button class="px-5 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:border-slate-700 transition-colors">
+            Security
+          </button>
+          <button class="px-5 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:border-slate-700 transition-colors">
+            Notifications
+          </button>
+          <button class="px-5 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:border-slate-700 transition-colors">
+            Storage
+          </button>
+          <button class="px-5 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:border-slate-700 transition-colors">
+            API
+          </button>
+        </div>
+      </header>
+
+      <!-- Settings Content -->
+      <div class="max-w-4xl mx-auto p-8 space-y-8">
+        <!-- Appearance Section -->
+        <section class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
+              <i class="bi bi-palette text-purple-400"></i>
+            </div>
+            <div>
+              <h2 class="font-semibold text-lg">Appearance</h2>
+              <p class="text-sm text-slate-500">Customize how SyncSpace looks</p>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <!-- Theme -->
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium">Theme</p>
+                <p class="text-sm text-slate-500">Choose your preferred color scheme</p>
+              </div>
+              <div class="flex items-center gap-2 bg-slate-800/50 rounded-xl p-1 border border-slate-700/50">
+                <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white transition-colors">
+                  <i class="bi bi-sun"></i>
+                  Light
+                </button>
+                <button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 text-emerald-300 text-sm">
+                  <i class="bi bi-moon-stars"></i>
+                  Dark
+                </button>
+                <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white transition-colors">
+                  <i class="bi bi-circle-half"></i>
+                  System
+                </button>
+              </div>
+            </div>
+
+            <!-- Accent Color -->
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium">Accent Color</p>
+                <p class="text-sm text-slate-500">Primary color for buttons and links</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="w-8 h-8 rounded-full bg-blue-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-blue-500"></button>
+                <button class="w-8 h-8 rounded-full bg-purple-500 hover:ring-2 hover:ring-offset-2 hover:ring-offset-slate-900 hover:ring-purple-500 transition-all"></button>
+                <button class="w-8 h-8 rounded-full bg-emerald-500 hover:ring-2 hover:ring-offset-2 hover:ring-offset-slate-900 hover:ring-emerald-500 transition-all"></button>
+                <button class="w-8 h-8 rounded-full bg-amber-500 hover:ring-2 hover:ring-offset-2 hover:ring-offset-slate-900 hover:ring-amber-500 transition-all"></button>
+                <button class="w-8 h-8 rounded-full bg-pink-500 hover:ring-2 hover:ring-offset-2 hover:ring-offset-slate-900 hover:ring-pink-500 transition-all"></button>
+                <button class="w-8 h-8 rounded-full bg-slate-500 hover:ring-2 hover:ring-offset-2 hover:ring-offset-slate-900 hover:ring-slate-500 transition-all"></button>
+              </div>
+            </div>
+
+            <!-- Sidebar Mode -->
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium">Compact Sidebar</p>
+                <p class="text-sm text-slate-500">Use icons-only sidebar for more space</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" checked class="sr-only peer">
+                <div class="toggle-bg w-11 h-6 bg-slate-700 rounded-full peer">
+                  <div class="toggle-dot absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full"></div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Language & Region -->
+        <section class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+              <i class="bi bi-globe2 text-blue-400"></i>
+            </div>
+            <div>
+              <h2 class="font-semibold text-lg">Language & Region</h2>
+              <p class="text-sm text-slate-500">Set your language and timezone</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-6">
+            <!-- Language -->
+            <div>
+              <label class="block text-sm font-medium mb-2">Language</label>
+              <div class="relative">
+                <select class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-sm appearance-none focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all">
+                  <option>English (US)</option>
+                  <option>Deutsch</option>
+                  <option>Français</option>
+                  <option>Español</option>
+                </select>
+                <i class="bi bi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+              </div>
+            </div>
+
+            <!-- Timezone -->
+            <div>
+              <label class="block text-sm font-medium mb-2">Timezone</label>
+              <div class="relative">
+                <select class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-sm appearance-none focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all">
+                  <option>Europe/Berlin (UTC+1)</option>
+                  <option>America/New_York (UTC-5)</option>
+                  <option>America/Los_Angeles (UTC-8)</option>
+                  <option>Asia/Tokyo (UTC+9)</option>
+                </select>
+                <i class="bi bi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+              </div>
+            </div>
+
+            <!-- Date Format -->
+            <div>
+              <label class="block text-sm font-medium mb-2">Date Format</label>
+              <div class="relative">
+                <select class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-sm appearance-none focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all">
+                  <option>DD/MM/YYYY</option>
+                  <option>MM/DD/YYYY</option>
+                  <option>YYYY-MM-DD</option>
+                </select>
+                <i class="bi bi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+              </div>
+            </div>
+
+            <!-- Time Format -->
+            <div>
+              <label class="block text-sm font-medium mb-2">Time Format</label>
+              <div class="flex items-center gap-3">
+                <label class="flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 cursor-pointer hover:bg-slate-700/50 transition-colors flex-1">
+                  <input type="radio" name="time" class="w-4 h-4 text-blue-500 bg-slate-700 border-slate-600 focus:ring-blue-500">
+                  <span class="text-sm">24 Hour</span>
+                </label>
+                <label class="flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-800/50 border border-blue-500/50 ring-2 ring-blue-500/20 cursor-pointer flex-1">
+                  <input type="radio" name="time" checked class="w-4 h-4 text-blue-500 bg-slate-700 border-slate-600 focus:ring-blue-500">
+                  <span class="text-sm">12 Hour</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- File Browser Settings -->
+        <section class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+              <i class="bi bi-folder2-open text-emerald-400"></i>
+            </div>
+            <div>
+              <h2 class="font-semibold text-lg">File Browser</h2>
+              <p class="text-sm text-slate-500">Customize file browsing behavior</p>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <!-- Default View -->
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium">Default View</p>
+                <p class="text-sm text-slate-500">How files are displayed by default</p>
+              </div>
+              <div class="flex items-center gap-2 bg-slate-800/50 rounded-xl p-1 border border-slate-700/50">
+                <button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 text-emerald-300 text-sm">
+                  <i class="bi bi-grid-3x3-gap"></i>
+                  Grid
+                </button>
+                <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white transition-colors">
+                  <i class="bi bi-list"></i>
+                  List
+                </button>
+              </div>
+            </div>
+
+            <!-- Show Hidden Files -->
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium">Show Hidden Files</p>
+                <p class="text-sm text-slate-500">Display files starting with a dot</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer">
+                <div class="toggle-bg w-11 h-6 bg-slate-700 rounded-full peer">
+                  <div class="toggle-dot absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full"></div>
+                </div>
+              </label>
+            </div>
+
+            <!-- Thumbnail Size -->
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <p class="font-medium">Thumbnail Size</p>
+                  <p class="text-sm text-slate-500">Size of file previews in grid view</p>
+                </div>
+                <span class="text-sm text-slate-400">Medium</span>
+              </div>
+              <input type="range" min="0" max="100" value="50" class="w-full h-2 bg-slate-700 rounded-full appearance-none cursor-pointer accent-emerald-500">
+            </div>
+
+            <!-- Auto-upload -->
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium">Auto-upload Screenshots</p>
+                <p class="text-sm text-slate-500">Automatically upload screenshots to SyncSpace</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" checked class="sr-only peer">
+                <div class="toggle-bg w-11 h-6 bg-slate-700 rounded-full peer">
+                  <div class="toggle-dot absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full"></div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Danger Zone -->
+        <section class="p-6 rounded-2xl bg-red-950/30 border border-red-900/50">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
+              <i class="bi bi-exclamation-triangle text-red-400"></i>
+            </div>
+            <div>
+              <h2 class="font-semibold text-lg text-red-300">Danger Zone</h2>
+              <p class="text-sm text-red-400/70">Irreversible actions</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 rounded-xl bg-slate-900/50 border border-red-900/30">
+              <div>
+                <p class="font-medium">Clear All Data</p>
+                <p class="text-sm text-slate-500">Remove all files and settings</p>
+              </div>
+              <button class="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors text-sm font-medium">
+                Clear Data
+              </button>
+            </div>
+
+            <div class="flex items-center justify-between p-4 rounded-xl bg-slate-900/50 border border-red-900/30">
+              <div>
+                <p class="font-medium">Delete Account</p>
+                <p class="text-sm text-slate-500">Permanently delete your account</p>
+              </div>
+              <button class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors text-sm font-medium">
+                Delete Account
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

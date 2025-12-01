@@ -217,8 +217,9 @@
             />
             <defs>
               <linearGradient id="logo-gradient" x1="3" y1="2" x2="21" y2="22">
-                <stop offset="0%" stop-color="#667eea" />
-                <stop offset="100%" stop-color="#764ba2" />
+                <stop offset="0%" stop-color="#3b82f6" />
+                <stop offset="50%" stop-color="#a855f7" />
+                <stop offset="100%" stop-color="#ec4899" />
               </linearGradient>
             </defs>
           </svg>
@@ -246,8 +247,9 @@
               x2="21"
               y2="22"
             >
-              <stop offset="0%" stop-color="#667eea" />
-              <stop offset="100%" stop-color="#764ba2" />
+              <stop offset="0%" stop-color="#3b82f6" />
+              <stop offset="50%" stop-color="#a855f7" />
+              <stop offset="100%" stop-color="#ec4899" />
             </linearGradient>
           </defs>
         </svg>
@@ -386,18 +388,18 @@
     flex-direction: column;
     width: 260px;
     height: 100vh;
-    background: rgba(255, 255, 255, 0.95);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
     backdrop-filter: blur(20px) saturate(180%);
-    border-right: 1px solid rgba(229, 231, 235, 0.5);
+    border-right: 1px solid rgba(59, 130, 246, 0.1);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
-    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.05);
+    box-shadow: 2px 0 16px rgba(59, 130, 246, 0.08);
   }
 
   :global(.dark) .sidebar-container {
-    background: rgba(17, 24, 39, 0.95);
-    border-right: 1px solid rgba(55, 65, 81, 0.5);
-    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, rgba(31, 41, 55, 0.95), rgba(17, 24, 39, 0.9));
+    border-right: 1px solid rgba(59, 130, 246, 0.15);
+    box-shadow: 2px 0 16px rgba(59, 130, 246, 0.12);
   }
 
   .sidebar-container.collapsed {
@@ -433,13 +435,13 @@
     width: 36px;
     height: 36px;
     flex-shrink: 0;
-    filter: drop-shadow(0 2px 8px rgba(102, 126, 234, 0.3));
+    filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.35));
   }
 
   .logo-icon-collapsed {
     width: 32px;
     height: 32px;
-    filter: drop-shadow(0 2px 8px rgba(102, 126, 234, 0.3));
+    filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.35));
   }
 
   .brand-text {
@@ -450,7 +452,7 @@
   .brand-name {
     font-size: 1.25rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #a855f7 50%, #ec4899 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -563,8 +565,8 @@
   .menu-item:hover {
     background: linear-gradient(
       135deg,
-      rgba(102, 126, 234, 0.08),
-      rgba(118, 75, 162, 0.08)
+      rgba(59, 130, 246, 0.08),
+      rgba(168, 85, 247, 0.08)
     );
     color: rgb(59 130 246);
   }
@@ -572,8 +574,8 @@
   :global(.dark) .menu-item:hover {
     background: linear-gradient(
       135deg,
-      rgba(102, 126, 234, 0.15),
-      rgba(118, 75, 162, 0.15)
+      rgba(59, 130, 246, 0.15),
+      rgba(168, 85, 247, 0.15)
     );
     color: rgb(96 165 250);
   }
@@ -588,10 +590,10 @@
   }
 
   .menu-item.active {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #3b82f6, #a855f7);
     color: white;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
   }
 
   .menu-item.active i {

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyncSpace - V3 Minimalist</title>
+    <script src="https://cdn.tailwindcss.com/4"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; }
+        
+        body {
+            background: #0f172a;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <div class="min-h-screen">
+        <!-- Navigation -->
+        <nav class="border-b border-slate-800 bg-slate-950">
+            <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded bg-blue-600 flex items-center justify-center">
+                        <i class="bi bi-cloud-check text-white text-lg"></i>
+                    </div>
+                    <span class="text-lg font-semibold">SyncSpace V3</span>
+                </div>
+                <div class="flex gap-2">
+                    <a href="dark.html" class="px-4 py-2 text-sm rounded border border-slate-700 hover:bg-slate-800 transition">Dark</a>
+                    <a href="light.html" class="px-4 py-2 text-sm rounded border border-slate-700 hover:bg-slate-800 transition">Light</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero -->
+        <div class="max-w-6xl mx-auto px-6 py-20 text-center">
+            <h1 class="text-5xl font-bold mb-6">V3: Minimalist</h1>
+            <p class="text-lg text-slate-400 mb-16 max-w-2xl mx-auto">Sauberes, reduziertes Design mit Fokus auf Funktionalität und Lesbarkeit</p>
+            
+            <div class="grid grid-cols-2 gap-8 max-w-xl mx-auto mb-20">
+                <a href="dark.html" class="border border-slate-700 p-8 rounded hover:border-slate-600 hover:bg-slate-950/50 transition">
+                    <i class="bi bi-moon text-2xl text-slate-400 mb-4 block"></i>
+                    <h3 class="font-semibold mb-2">Dark Mode</h3>
+                    <p class="text-slate-500 text-sm">Minimale dunkle Variante</p>
+                </a>
+                <a href="light.html" class="border border-slate-700 p-8 rounded hover:border-slate-600 hover:bg-slate-950/50 transition">
+                    <i class="bi bi-sun text-2xl text-slate-400 mb-4 block"></i>
+                    <h3 class="font-semibold mb-2">Light Mode</h3>
+                    <p class="text-slate-500 text-sm">Minimale helle Variante</p>
+                </a>
+            </div>
+
+            <!-- Features -->
+            <div class="grid grid-cols-3 gap-12">
+                <div class="text-left">
+                    <i class="bi bi-layout-split text-2xl text-slate-600 mb-4 block"></i>
+                    <h3 class="font-semibold mb-2">Reduziert</h3>
+                    <p class="text-slate-500 text-sm">Nur das Nötigste – keine Ablenkung</p>
+                </div>
+                <div class="text-left">
+                    <i class="bi bi-eye text-2xl text-slate-600 mb-4 block"></i>
+                    <h3 class="font-semibold mb-2">Klar</h3>
+                    <p class="text-slate-500 text-sm">Großzügige Abstände und Kontraste</p>
+                </div>
+                <div class="text-left">
+                    <i class="bi bi-speedometer2 text-2xl text-slate-600 mb-4 block"></i>
+                    <h3 class="font-semibold mb-2">Schnell</h3>
+                    <p class="text-slate-500 text-sm">Optimiert für Performance</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyncSpace - Dashboard Mockup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .glow { box-shadow: 0 0 60px rgba(59, 130, 246, 0.15); }
+  </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen">
+  <!-- Background Effects -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/2 -left-40 w-80 h-80 bg-purple-500/15 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 right-1/4 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="relative flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-72 border-r border-slate-800/50 glass bg-slate-900/50 flex flex-col">
+      <!-- Logo -->
+      <div class="p-6 border-b border-slate-800/50">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+            <i class="bi bi-cloud-fill text-lg"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-lg">SyncSpace</h1>
+            <p class="text-xs text-slate-500">Enterprise Edition</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 p-4 space-y-1">
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500/20 to-purple-500/10 border border-blue-500/30 text-blue-300">
+          <i class="bi bi-grid-1x2-fill text-lg"></i>
+          <span class="font-medium">Dashboard</span>
+        </a>
+        <a href="mockup-files.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all">
+          <i class="bi bi-folder-fill text-lg"></i>
+          <span>Files</span>
+          <span class="ml-auto text-xs bg-slate-700 px-2 py-0.5 rounded-full">2.4k</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all">
+          <i class="bi bi-share-fill text-lg"></i>
+          <span>Shared</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all">
+          <i class="bi bi-star-fill text-lg"></i>
+          <span>Favorites</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all">
+          <i class="bi bi-clock-history text-lg"></i>
+          <span>Recent</span>
+        </a>
+
+        <div class="pt-4 mt-4 border-t border-slate-800/50">
+          <p class="px-4 text-xs font-medium text-slate-600 uppercase tracking-wider mb-2">Smart Folders</p>
+          <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all">
+            <i class="bi bi-folder-fill text-blue-400"></i>
+            <span class="text-sm">Documents</span>
+            <span class="ml-auto text-xs text-slate-500">124</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all">
+            <i class="bi bi-folder-fill text-purple-400"></i>
+            <span class="text-sm">Images</span>
+            <span class="ml-auto text-xs text-slate-500">892</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all">
+            <i class="bi bi-folder-fill text-emerald-400"></i>
+            <span class="text-sm">Large Files</span>
+            <span class="ml-auto text-xs text-slate-500">23</span>
+          </a>
+        </div>
+      </nav>
+
+      <!-- Storage -->
+      <div class="p-4 border-t border-slate-800/50">
+        <div class="p-4 rounded-xl bg-slate-800/50">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm text-slate-400">Storage</span>
+            <span class="text-sm font-medium">78%</span>
+          </div>
+          <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-full w-[78%] bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+          </div>
+          <p class="text-xs text-slate-500 mt-2">78.4 GB of 100 GB used</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-auto">
+      <!-- Header -->
+      <header class="sticky top-0 z-10 glass bg-slate-900/70 border-b border-slate-800/50">
+        <div class="flex items-center justify-between px-8 py-4">
+          <div>
+            <h2 class="text-2xl font-bold">Dashboard</h2>
+            <p class="text-slate-500 text-sm">Welcome back, Mickey 👋</p>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <!-- Search -->
+            <div class="relative">
+              <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+              <input type="text" placeholder="Search files..." class="w-80 pl-11 pr-4 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-sm focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all">
+              <kbd class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-600 bg-slate-700/50 px-2 py-0.5 rounded">⌘K</kbd>
+            </div>
+
+            <!-- Notifications -->
+            <button class="relative p-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-colors">
+              <i class="bi bi-bell text-lg text-slate-400"></i>
+              <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+
+            <!-- User -->
+            <div class="flex items-center gap-3 pl-4 border-l border-slate-700/50">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-medium">
+                ML
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="p-8">
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-4 gap-6 mb-8">
+          <div class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50 glow">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                <i class="bi bi-files text-xl text-blue-400"></i>
+              </div>
+              <span class="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">+12%</span>
+            </div>
+            <p class="text-3xl font-bold">2,847</p>
+            <p class="text-sm text-slate-500 mt-1">Total Files</p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                <i class="bi bi-share text-xl text-purple-400"></i>
+              </div>
+              <span class="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">+8%</span>
+            </div>
+            <p class="text-3xl font-bold">156</p>
+            <p class="text-sm text-slate-500 mt-1">Shared Items</p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                <i class="bi bi-cloud-upload text-xl text-emerald-400"></i>
+              </div>
+              <span class="text-xs text-slate-400 bg-slate-700/50 px-2 py-1 rounded-full">Today</span>
+            </div>
+            <p class="text-3xl font-bold">48</p>
+            <p class="text-sm text-slate-500 mt-1">Uploads Today</p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50">
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                <i class="bi bi-people text-xl text-amber-400"></i>
+              </div>
+              <span class="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">+3</span>
+            </div>
+            <p class="text-3xl font-bold">12</p>
+            <p class="text-sm text-slate-500 mt-1">Active Users</p>
+          </div>
+        </div>
+
+        <!-- Two Columns -->
+        <div class="grid grid-cols-3 gap-6">
+          <!-- Quick Actions -->
+          <div class="col-span-1 p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50">
+            <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+            <div class="space-y-3">
+              <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg shadow-blue-500/25">
+                <i class="bi bi-cloud-upload text-lg"></i>
+                <span class="font-medium">Upload Files</span>
+              </button>
+              <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-all">
+                <i class="bi bi-folder-plus text-lg text-purple-400"></i>
+                <span>New Folder</span>
+              </button>
+              <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-all">
+                <i class="bi bi-share text-lg text-emerald-400"></i>
+                <span>Share Link</span>
+              </button>
+              <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-all">
+                <i class="bi bi-magic text-lg text-amber-400"></i>
+                <span>Smart Folder</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="col-span-2 p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold">Recent Activity</h3>
+              <button class="text-sm text-blue-400 hover:text-blue-300">View all</button>
+            </div>
+            <div class="space-y-4">
+              <div class="flex items-center gap-4 p-4 rounded-xl bg-slate-800/30 hover:bg-slate-800/50 transition-colors">
+                <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                  <i class="bi bi-file-earmark-pdf text-blue-400"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium truncate">Q4_Financial_Report.pdf</p>
+                  <p class="text-sm text-slate-500">Uploaded by Mickey • 2.4 MB</p>
+                </div>
+                <span class="text-xs text-slate-500">2 min ago</span>
+              </div>
+
+              <div class="flex items-center gap-4 p-4 rounded-xl bg-slate-800/30 hover:bg-slate-800/50 transition-colors">
+                <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                  <i class="bi bi-folder-fill text-purple-400"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium truncate">Project Assets</p>
+                  <p class="text-sm text-slate-500">Folder shared with 3 users</p>
+                </div>
+                <span class="text-xs text-slate-500">15 min ago</span>
+              </div>
+
+              <div class="flex items-center gap-4 p-4 rounded-xl bg-slate-800/30 hover:bg-slate-800/50 transition-colors">
+                <div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                  <i class="bi bi-image text-emerald-400"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium truncate">hero-banner-v3.png</p>
+                  <p class="text-sm text-slate-500">Downloaded by Sarah</p>
+                </div>
+                <span class="text-xs text-slate-500">1 hour ago</span>
+              </div>
+
+              <div class="flex items-center gap-4 p-4 rounded-xl bg-slate-800/30 hover:bg-slate-800/50 transition-colors">
+                <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                  <i class="bi bi-file-earmark-zip text-amber-400"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium truncate">source-code-backup.zip</p>
+                  <p class="text-sm text-slate-500">Moved to Archive</p>
+                </div>
+                <span class="text-xs text-slate-500">3 hours ago</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

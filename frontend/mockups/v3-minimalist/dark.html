@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyncSpace - V3 Dark Mode</title>
+    <script src="https://cdn.tailwindcss.com/4"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; }
+        
+        body {
+            background: #0f172a;
+        }
+        
+        .row-hover:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+    </style>
+</head>
+<body class="text-white">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 border-r border-slate-800 bg-slate-950 flex flex-col">
+            <div class="p-6 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center">
+                        <i class="bi bi-cloud-check text-white text-sm"></i>
+                    </div>
+                    <span class="font-semibold">SyncSpace</span>
+                </div>
+            </div>
+            
+            <nav class="flex-1 p-6 space-y-1">
+                <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm rounded bg-slate-800 text-white">
+                    <i class="bi bi-folder w-5"></i> Dateien
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm rounded text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
+                    <i class="bi bi-search w-5"></i> Suchen
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm rounded text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
+                    <i class="bi bi-star w-5"></i> Favoriten
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm rounded text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
+                    <i class="bi bi-share w-5"></i> Geteilt
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm rounded text-slate-400 hover:text-white hover:bg-slate-800/50 transition">
+                    <i class="bi bi-trash w-5"></i> Papierkorb
+                </a>
+            </nav>
+            
+            <div class="p-6 border-t border-slate-800">
+                <a href="index.html" class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition">
+                    <i class="bi bi-arrow-left"></i> Zurück
+                </a>
+                <a href="light.html" class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition mt-2">
+                    <i class="bi bi-sun"></i> Light Mode
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="flex-1 flex flex-col bg-slate-900/50">
+            <!-- Top Bar -->
+            <header class="border-b border-slate-800 bg-slate-950 px-8 py-4 flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-semibold">Dateien</h1>
+                </div>
+                <button class="px-4 py-2 text-sm rounded bg-blue-600 hover:bg-blue-700 transition font-medium">
+                    <i class="bi bi-plus-lg"></i> Hochladen
+                </button>
+            </header>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto p-8">
+                <!-- Stats Row -->
+                <div class="grid grid-cols-4 gap-6 mb-8">
+                    <div class="bg-slate-800/50 border border-slate-700 p-4 rounded">
+                        <p class="text-slate-400 text-sm mb-1">Speicherplatz</p>
+                        <p class="text-2xl font-semibold">2.4 GB</p>
+                        <p class="text-xs text-slate-500 mt-1">von 100 GB</p>
+                    </div>
+                    <div class="bg-slate-800/50 border border-slate-700 p-4 rounded">
+                        <p class="text-slate-400 text-sm mb-1">Dateien</p>
+                        <p class="text-2xl font-semibold">247</p>
+                        <p class="text-xs text-slate-500 mt-1">Gesamt</p>
+                    </div>
+                    <div class="bg-slate-800/50 border border-slate-700 p-4 rounded">
+                        <p class="text-slate-400 text-sm mb-1">Syncs</p>
+                        <p class="text-2xl font-semibold">5</p>
+                        <p class="text-xs text-slate-500 mt-1">Aktiv</p>
+                    </div>
+                    <div class="bg-slate-800/50 border border-slate-700 p-4 rounded">
+                        <p class="text-slate-400 text-sm mb-1">Geändert</p>
+                        <p class="text-2xl font-semibold">2h</p>
+                        <p class="text-xs text-slate-500 mt-1">Kürzlich</p>
+                    </div>
+                </div>
+
+                <!-- File List -->
+                <div class="border border-slate-700 rounded overflow-hidden">
+                    <div class="bg-slate-800/50 px-6 py-4 border-b border-slate-700 grid grid-cols-4 gap-4 text-sm font-semibold text-slate-400">
+                        <div>Name</div>
+                        <div>Größe</div>
+                        <div>Geändert</div>
+                        <div class="text-right">Aktionen</div>
+                    </div>
+                    
+                    <div class="divide-y divide-slate-700">
+                        <div class="px-6 py-4 grid grid-cols-4 gap-4 items-center row-hover transition">
+                            <div class="flex items-center gap-3">
+                                <i class="bi bi-file-pdf text-slate-400"></i>
+                                <span class="text-sm">Bericht-2024.pdf</span>
+                            </div>
+                            <div class="text-sm text-slate-400">2.1 MB</div>
+                            <div class="text-sm text-slate-400">vor 2h</div>
+                            <div class="text-right">
+                                <button class="text-slate-400 hover:text-white transition">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="px-6 py-4 grid grid-cols-4 gap-4 items-center row-hover transition">
+                            <div class="flex items-center gap-3">
+                                <i class="bi bi-table text-slate-400"></i>
+                                <span class="text-sm">Daten-Q4.xlsx</span>
+                            </div>
+                            <div class="text-sm text-slate-400">542 KB</div>
+                            <div class="text-sm text-slate-400">vor 5h</div>
+                            <div class="text-right">
+                                <button class="text-slate-400 hover:text-white transition">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="px-6 py-4 grid grid-cols-4 gap-4 items-center row-hover transition">
+                            <div class="flex items-center gap-3">
+                                <i class="bi bi-image text-slate-400"></i>
+                                <span class="text-sm">Präsentation.png</span>
+                            </div>
+                            <div class="text-sm text-slate-400">1.8 MB</div>
+                            <div class="text-sm text-slate-400">vor 1d</div>
+                            <div class="text-right">
+                                <button class="text-slate-400 hover:text-white transition">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="px-6 py-4 grid grid-cols-4 gap-4 items-center row-hover transition">
+                            <div class="flex items-center gap-3">
+                                <i class="bi bi-folder text-slate-400"></i>
+                                <span class="text-sm">Projekte</span>
+                            </div>
+                            <div class="text-sm text-slate-400">—</div>
+                            <div class="text-sm text-slate-400">vor 3d</div>
+                            <div class="text-right">
+                                <button class="text-slate-400 hover:text-white transition">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

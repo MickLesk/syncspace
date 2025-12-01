@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyncSpace - Settings Mockup (Interaktiv)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .toggle { transition: all 0.3s ease; }
+    input[type="checkbox"]:checked + .toggle-bg { background-color: rgb(139, 92, 246); }
+    input[type="checkbox"]:checked + .toggle-bg .toggle-dot { transform: translateX(100%); }
+  </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen" id="app">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-1/3 -right-40 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 left-1/4 w-80 h-80 bg-blue-500/15 rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="relative flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-20 border-r border-slate-800/50 glass bg-slate-900/50 flex flex-col items-center py-6">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-8">
+        <i class="bi bi-cloud-fill text-lg"></i>
+      </div>
+      
+      <nav class="flex-1 flex flex-col items-center gap-2">
+        <a href="mockup-dashboard-interactive.html" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Dashboard">
+          <i class="bi bi-grid-1x2-fill text-xl"></i>
+        </a>
+        <a href="mockup-files-interactive.html" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Files">
+          <i class="bi bi-folder-fill text-xl"></i>
+        </a>
+        <a href="#" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Shared">
+          <i class="bi bi-share-fill text-xl"></i>
+        </a>
+        <a href="#" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Favorites">
+          <i class="bi bi-star-fill text-xl"></i>
+        </a>
+      </nav>
+
+      <div class="mt-auto flex flex-col items-center gap-2">
+        <a href="#" class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-r from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 text-emerald-300" title="Settings">
+          <i class="bi bi-gear-fill text-xl"></i>
+        </a>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-medium text-sm">ML</div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-auto">
+      <!-- Header -->
+      <header class="glass bg-slate-900/70 border-b border-slate-800/50">
+        <div class="flex items-center justify-between px-8 py-6">
+          <div>
+            <h1 class="text-2xl font-bold">Einstellungen</h1>
+            <p class="text-slate-500 text-sm mt-1">Verwalte dein Konto und Voreinstellungen</p>
+          </div>
+          <button id="saveBtn" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/25 text-sm font-medium">
+            <i class="bi bi-check2"></i>
+            Speichern
+          </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex items-center gap-1 px-8 border-t border-slate-800/30">
+          <button class="settings-tab px-5 py-3 text-sm font-medium text-emerald-300 border-b-2 border-emerald-500 tab-active" data-tab="general">
+            Allgemein
+          </button>
+          <button class="settings-tab px-5 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:border-slate-700 transition-colors" data-tab="account">
+            Konto
+          </button>
+          <button class="settings-tab px-5 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:border-slate-700 transition-colors" data-tab="security">
+            Sicherheit
+          </button>
+          <button class="settings-tab px-5 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent hover:border-slate-700 transition-colors" data-tab="notifications">
+            Benachrichtigungen
+          </button>
+        </div>
+      </header>
+
+      <!-- Settings Content -->
+      <div class="max-w-4xl mx-auto p-8 space-y-8">
+        <!-- General Settings -->
+        <div class="settings-section" data-section="general">
+          <!-- Appearance -->
+          <section class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                <i class="bi bi-palette text-purple-400"></i>
+              </div>
+              <div>
+                <h2 class="font-semibold text-lg">Erscheinungsbild</h2>
+                <p class="text-sm text-slate-500">Passe an, wie SyncSpace aussieht</p>
+              </div>
+            </div>
+
+            <div class="space-y-6">
+              <!-- Theme -->
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium">Design-Theme</p>
+                  <p class="text-sm text-slate-500">Wähle dein bevorzugtes Farbschema</p>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-800/50 rounded-xl p-1 border border-slate-700/50">
+                  <button class="theme-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white transition-colors" data-theme="light">
+                    <i class="bi bi-sun"></i> Hell
+                  </button>
+                  <button class="theme-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 text-emerald-300 text-sm theme-active" data-theme="dark">
+                    <i class="bi bi-moon-stars"></i> Dunkel
+                  </button>
+                  <button class="theme-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white transition-colors" data-theme="system">
+                    <i class="bi bi-circle-half"></i> System
+                  </button>
+                </div>
+              </div>
+
+              <!-- Accent Color -->
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium">Akzentfarbe</p>
+                  <p class="text-sm text-slate-500">Primärfarbe für Schaltflächen und Links</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button class="color-btn w-8 h-8 rounded-full bg-blue-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-blue-500" data-color="blue"></button>
+                  <button class="color-btn w-8 h-8 rounded-full bg-purple-500 hover:ring-2 hover:ring-offset-2 hover:ring-offset-slate-900 hover:ring-purple-500 transition-all" data-color="purple"></button>
+                  <button class="color-btn w-8 h-8 rounded-full bg-emerald-500 hover:ring-2 hover:ring-offset-2 hover:ring-offset-slate-900 hover:ring-emerald-500 transition-all" data-color="emerald"></button>
+                  <button class="color-btn w-8 h-8 rounded-full bg-amber-500 hover:ring-2 hover:ring-offset-2 hover:ring-offset-slate-900 hover:ring-amber-500 transition-all" data-color="amber"></button>
+                </div>
+              </div>
+
+              <!-- Compact Sidebar -->
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium">Kompakte Seitenleiste</p>
+                  <p class="text-sm text-slate-500">Verwende nur Symbole für mehr Platz</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="compactSidebar" class="sr-only peer" checked>
+                  <div class="toggle-bg w-11 h-6 bg-slate-700 rounded-full peer">
+                    <div class="toggle-dot absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full"></div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <!-- Language & Region -->
+          <section class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50 mt-6">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                <i class="bi bi-globe2 text-blue-400"></i>
+              </div>
+              <div>
+                <h2 class="font-semibold text-lg">Sprache & Region</h2>
+                <p class="text-sm text-slate-500">Stelle deine Sprache und Zeitzone ein</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+              <!-- Language -->
+              <div>
+                <label class="block text-sm font-medium mb-2">Sprache</label>
+                <select id="language" class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-sm focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all">
+                  <option selected>Deutsch</option>
+                  <option>English</option>
+                  <option>Français</option>
+                  <option>Español</option>
+                </select>
+              </div>
+
+              <!-- Timezone -->
+              <div>
+                <label class="block text-sm font-medium mb-2">Zeitzone</label>
+                <select id="timezone" class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-sm focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all">
+                  <option selected>Europe/Berlin (UTC+1)</option>
+                  <option>America/New_York (UTC-5)</option>
+                  <option>America/Los_Angeles (UTC-8)</option>
+                  <option>Asia/Tokyo (UTC+9)</option>
+                </select>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Account Settings -->
+        <div class="settings-section hidden" data-section="account">
+          <section class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50">
+            <h2 class="font-semibold text-lg mb-6">Kontoinformationen</h2>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium mb-2">E-Mail</label>
+                <input type="email" value="admin@syncspace.de" class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-sm focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2">Anzeigename</label>
+                <input type="text" value="Mickey Leskowitz" class="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-sm focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all">
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Security Settings -->
+        <div class="settings-section hidden" data-section="security">
+          <section class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50">
+            <h2 class="font-semibold text-lg mb-6">Sicherheit</h2>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                <div>
+                  <p class="font-medium">Zwei-Faktor-Authentifizierung</p>
+                  <p class="text-sm text-slate-500">Erhöhe deine Kontosicherheit</p>
+                </div>
+                <button class="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-colors">
+                  Aktivieren
+                </button>
+              </div>
+              <div class="flex items-center justify-between p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                <div>
+                  <p class="font-medium">Passwort ändern</p>
+                  <p class="text-sm text-slate-500">Aktualisiere dein Passwort</p>
+                </div>
+                <button class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium transition-colors">
+                  Ändern
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Notification Settings -->
+        <div class="settings-section hidden" data-section="notifications">
+          <section class="p-6 rounded-2xl bg-slate-900/50 border border-slate-800/50">
+            <h2 class="font-semibold text-lg mb-6">Benachrichtigungen</h2>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium">E-Mail-Benachrichtigungen</p>
+                  <p class="text-sm text-slate-500">Erhalte Updates per E-Mail</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" checked>
+                  <div class="toggle-bg w-11 h-6 bg-slate-700 rounded-full peer">
+                    <div class="toggle-dot absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full"></div>
+                  </div>
+                </label>
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium">Push-Benachrichtigungen</p>
+                  <p class="text-sm text-slate-500">Erhalte Browser-Benachrichtigungen</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer">
+                  <div class="toggle-bg w-11 h-6 bg-slate-700 rounded-full peer">
+                    <div class="toggle-dot absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full"></div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Tab switching
+    document.querySelectorAll('.settings-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+        
+        // Remove active state from all tabs
+        document.querySelectorAll('.settings-tab').forEach(t => {
+          t.classList.remove('tab-active', 'text-emerald-300', 'border-emerald-500');
+          t.classList.add('text-slate-400', 'border-transparent');
+        });
+        
+        // Add active state to clicked tab
+        tab.classList.add('tab-active', 'text-emerald-300', 'border-emerald-500');
+        tab.classList.remove('text-slate-400', 'border-transparent');
+        
+        // Hide all sections
+        document.querySelectorAll('.settings-section').forEach(section => {
+          section.classList.add('hidden');
+        });
+        
+        // Show selected section
+        document.querySelector(`[data-section="${tabName}"]`)?.classList.remove('hidden');
+      });
+    });
+
+    // Theme switching
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.theme-btn').forEach(b => {
+          b.classList.remove('theme-active', 'bg-emerald-500/20', 'text-emerald-300');
+          b.classList.add('text-slate-400');
+        });
+        btn.classList.add('theme-active', 'bg-emerald-500/20', 'text-emerald-300');
+        btn.classList.remove('text-slate-400');
+      });
+    });
+
+    // Color picker
+    document.querySelectorAll('.color-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.color-btn').forEach(b => {
+          b.classList.remove('ring-2', 'ring-offset-2');
+        });
+        btn.classList.add('ring-2', 'ring-offset-2', 'ring-offset-slate-900');
+      });
+    });
+
+    // Save button
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      const saveBtn = document.getElementById('saveBtn');
+      const originalText = saveBtn.innerHTML;
+      saveBtn.innerHTML = '<i class="bi bi-check-circle"></i> Gespeichert!';
+      saveBtn.classList.add('bg-emerald-600');
+      
+      setTimeout(() => {
+        saveBtn.innerHTML = originalText;
+        saveBtn.classList.remove('bg-emerald-600');
+      }, 2000);
+    });
+  </script>
+</body>
+</html>

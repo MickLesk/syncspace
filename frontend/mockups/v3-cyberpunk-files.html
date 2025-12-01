@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyncSpace V3 - Cyberpunk Files</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Audiowide&display=swap');
+    body { font-family: 'Space Mono', monospace; background: #0a0e27; color: #e0f2fe; }
+    main { background-image: 
+      linear-gradient(0deg, transparent 24%, rgba(0, 255, 150, 0.05) 25%, rgba(0, 255, 150, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 150, 0.05) 75%, rgba(0, 255, 150, 0.05) 76%, transparent 77%, transparent),
+      linear-gradient(90deg, transparent 24%, rgba(0, 255, 150, 0.05) 25%, rgba(0, 255, 150, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 150, 0.05) 75%, rgba(0, 255, 150, 0.05) 76%, transparent 77%, transparent);
+      background-size: 50px 50px; }
+    .neon-border { border: 2px solid; background-clip: padding-box; }
+    .neon-cyan { border-color: #00ff9f; box-shadow: 0 0 10px rgba(0, 255, 159, 0.5); }
+    .neon-pink { border-color: #ff006e; box-shadow: 0 0 10px rgba(255, 0, 110, 0.5); }
+    .neon-text-cyan { color: #00ff9f; text-shadow: 0 0 10px rgba(0, 255, 159, 0.8); }
+    .file-hover { transition: all 0.2s; border-color: #ff006e !important; box-shadow: 0 0 20px rgba(255, 0, 110, 0.6) !important; }
+    .glitch { font-family: 'Audiowide', cursive; font-weight: bold; }
+    .scanlines { background: repeating-linear-gradient(0deg, rgba(0, 255, 159, 0.05), rgba(0, 255, 159, 0.05) 1px, transparent 1px, transparent 2px); }
+  </style>
+</head>
+<body class="min-h-screen" id="app">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-20 flex flex-col items-center py-6 gap-4 border-r-2 border-cyan-400" style="background: rgba(10, 14, 39, 0.8);">
+      <div class="w-14 h-14 rounded-lg neon-border neon-cyan flex items-center justify-center">
+        <i class="bi bi-cloud text-2xl neon-text-cyan"></i>
+      </div>
+      
+      <nav class="flex-1 flex flex-col items-center gap-3">
+        <a href="v3-cyberpunk-dashboard.html" class="w-12 h-12 rounded-lg neon-border neon-pink flex items-center justify-center text-pink-500 hover:neon-cyan">
+          <i class="bi bi-grid-3x3 text-lg"></i>
+        </a>
+        <button class="w-12 h-12 rounded-lg neon-border neon-cyan flex items-center justify-center neon-text-cyan">
+          <i class="bi bi-folder2 text-lg"></i>
+        </button>
+        <button class="w-12 h-12 rounded-lg neon-border neon-pink flex items-center justify-center text-pink-500">
+          <i class="bi bi-share2 text-lg"></i>
+        </button>
+      </nav>
+
+      <a href="v3-cyberpunk-settings.html" class="w-12 h-12 rounded-lg neon-border neon-cyan flex items-center justify-center neon-text-cyan">
+        <i class="bi bi-gear text-lg"></i>
+      </a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 scanlines">
+      <!-- Header -->
+      <div class="mb-8 flex items-center justify-between">
+        <div>
+          <h1 class="glitch text-3xl neon-text-cyan tracking-widest">&gt; DATEIEN</h1>
+          <p class="text-cyan-300 opacity-75 font-mono text-xs mt-2">&lt; Alle deine Dateien an einem Ort &gt;</p>
+        </div>
+        <div class="flex gap-3">
+          <div class="p-3 rounded neon-border neon-cyan bg-slate-900 bg-opacity-50 flex items-center gap-2">
+            <i class="bi bi-search neon-text-cyan"></i>
+            <input type="text" id="search" placeholder="SUCHE..." class="bg-transparent outline-none w-48 text-sm text-cyan-300 placeholder-cyan-500 placeholder-opacity-50 font-mono">
+          </div>
+          <button class="p-3 rounded neon-border neon-pink bg-gradient-to-r from-cyan-500 to-pink-500 text-gray-900 hover:shadow-lg transition-all font-bold">
+            <i class="bi bi-cloud-upload"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Files Grid -->
+      <div class="grid grid-cols-5 gap-4" id="filesGrid">
+        <!-- Files will be inserted here -->
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const mockFiles = [
+      { name: 'Report Q4.pdf', size: '2.4 MB', icon: 'bi-file-pdf', color: 'cyan' },
+      { name: 'Budget 2024.xlsx', size: '856 KB', icon: 'bi-table', color: 'pink' },
+      { name: 'Design Files', size: '—', icon: 'bi-folder2', color: 'cyan' },
+      { name: 'hero-banner.png', size: '3.2 MB', icon: 'bi-image', color: 'pink' },
+      { name: 'Contract.docx', size: '124 KB', icon: 'bi-file-text', color: 'cyan' },
+      { name: 'Presentation.pptx', size: '15.5 MB', icon: 'bi-file-play', color: 'pink' },
+      { name: 'Data Export.csv', size: '2.1 MB', icon: 'bi-table', color: 'cyan' },
+      { name: 'Backup.zip', size: '45.8 MB', icon: 'bi-archive', color: 'pink' },
+      { name: 'Video.mp4', size: '128 MB', icon: 'bi-film', color: 'cyan' },
+      { name: 'Config.json', size: '4.2 KB', icon: 'bi-gear', color: 'pink' },
+    ];
+
+    const grid = document.getElementById('filesGrid');
+    const searchInput = document.getElementById('search');
+    let filteredFiles = [...mockFiles];
+
+    function renderFiles() {
+      grid.innerHTML = '';
+      filteredFiles.forEach(file => {
+        const card = document.createElement('div');
+        const borderColor = file.color === 'cyan' ? 'neon-cyan' : 'neon-pink';
+        const textColor = file.color === 'cyan' ? 'neon-text-cyan' : 'text-pink-500';
+        card.className = `p-4 rounded-lg neon-border ${borderColor} bg-slate-900 bg-opacity-50 flex flex-col items-center cursor-pointer hover:file-hover`;
+        card.innerHTML = `
+          <div class="w-12 h-12 rounded neon-border ${borderColor} flex items-center justify-center mb-3">
+            <i class="bi ${file.icon} text-xl ${textColor}"></i>
+          </div>
+          <p class="text-xs font-mono font-bold ${textColor} text-center truncate w-full">${file.name.toUpperCase()}</p>
+          <p class="text-xs text-cyan-300 opacity-50 mt-2 font-mono">${file.size}</p>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      filteredFiles = mockFiles.filter(f => f.name.toLowerCase().includes(query));
+      renderFiles();
+    });
+
+    renderFiles();
+  </script>
+</body>
+</html>

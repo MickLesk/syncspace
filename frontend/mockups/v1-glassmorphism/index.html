@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyncSpace - V1 Glassmorphism</title>
+    <script src="https://cdn.tailwindcss.com/4"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; }
+        
+        :root {
+            --glass-light: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+        
+        html[data-theme="dark"] {
+            @apply bg-slate-950 text-white;
+            --glass-light: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+        
+        html[data-theme="light"] {
+            @apply bg-white text-slate-900;
+            --glass-light: rgba(0, 0, 0, 0.05);
+            --glass-border: rgba(0, 0, 0, 0.1);
+        }
+        
+        .glass {
+            background: var(--glass-light);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .animation-fade {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="transition-colors duration-300">
+    <div class="min-h-screen">
+        <!-- Navigation -->
+        <nav class="glass sticky top-0 z-50 border-b">
+            <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
+                        <i class="bi bi-cloud-check text-white text-lg"></i>
+                    </div>
+                    <span class="text-xl font-bold gradient-text">SyncSpace V1</span>
+                </div>
+                <div class="flex gap-4 items-center">
+                    <button onclick="toggleTheme()" class="p-2 hover:bg-white/10 rounded-lg transition">
+                        <i class="bi bi-moon-stars text-xl"></i>
+                    </button>
+                    <a href="dark.html" class="px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 transition">Dark</a>
+                    <a href="light.html" class="px-4 py-2 rounded-lg bg-slate-500/20 hover:bg-slate-500/30 text-slate-400 transition">Light</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Header -->
+        <header class="relative pt-20 pb-32 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-purple-500/10"></div>
+            <div class="relative max-w-5xl mx-auto px-6 text-center animation-fade">
+                <h1 class="text-5xl font-bold mb-6">V1: Glassmorphism</h1>
+                <p class="text-xl text-slate-400 mb-8">Elegantes Design mit durchsichtigen Glas-Effekten und subtilen Übergängen</p>
+                <div class="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
+                    <a href="dark.html" class="glass p-4 rounded-xl hover:bg-white/15 transition group">
+                        <i class="bi bi-moon-stars text-2xl text-blue-400 mb-3 block group-hover:scale-110 transition"></i>
+                        <div class="font-semibold">Dark Mode</div>
+                        <div class="text-sm text-slate-400">Elegante dunkle Variante</div>
+                    </a>
+                    <a href="light.html" class="glass p-4 rounded-xl hover:bg-white/15 transition group">
+                        <i class="bi bi-brightness-high text-2xl text-yellow-400 mb-3 block group-hover:scale-110 transition"></i>
+                        <div class="font-semibold">Light Mode</div>
+                        <div class="text-sm text-slate-400">Helle moderne Variante</div>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Features -->
+        <section class="max-w-6xl mx-auto px-6 py-16">
+            <div class="grid grid-cols-3 gap-6">
+                <div class="glass p-8 rounded-2xl hover:bg-white/15 transition">
+                    <i class="bi bi-layers text-3xl text-blue-400 mb-4 block"></i>
+                    <h3 class="font-bold text-lg mb-2">Glasmorphic UI</h3>
+                    <p class="text-slate-400">Transparente Karten mit Blur-Effekten für elegante Tiefenwirkung</p>
+                </div>
+                <div class="glass p-8 rounded-2xl hover:bg-white/15 transition">
+                    <i class="bi bi-palette text-3xl text-purple-400 mb-4 block"></i>
+                    <h3 class="font-bold text-lg mb-2">Gradient Accents</h3>
+                    <p class="text-slate-400">Subtile Farbverläufe für visuelle Hierarchie und Dynamik</p>
+                </div>
+                <div class="glass p-8 rounded-2xl hover:bg-white/15 transition">
+                    <i class="bi bi-sparkles text-3xl text-emerald-400 mb-4 block"></i>
+                    <h3 class="font-bold text-lg mb-2">Smooth Transitions</h3>
+                    <p class="text-slate-400">Sanfte Animationen für nahtlose Benutzerinteraktion</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const theme = html.getAttribute('data-theme');
+            const newTheme = theme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+        
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyncSpace - Files Mockup (Interaktiv)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .file-card:hover { transform: translateY(-4px); }
+    .file-card.selected { border-color: rgb(59, 130, 246); background: rgba(59, 130, 246, 0.1); }
+  </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen" id="app">
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 -left-40 w-80 h-80 bg-blue-500/15 rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="relative flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-20 border-r border-slate-800/50 glass bg-slate-900/50 flex flex-col items-center py-6">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-8">
+        <i class="bi bi-cloud-fill text-lg"></i>
+      </div>
+      
+      <nav class="flex-1 flex flex-col items-center gap-2">
+        <a href="mockup-dashboard-interactive.html" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Dashboard">
+          <i class="bi bi-grid-1x2-fill text-xl"></i>
+        </a>
+        <a href="#" class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-r from-purple-500/20 to-pink-500/10 border border-purple-500/30 text-purple-300" title="Files">
+          <i class="bi bi-folder-fill text-xl"></i>
+        </a>
+        <a href="#" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Shared">
+          <i class="bi bi-share-fill text-xl"></i>
+        </a>
+        <a href="#" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Favorites">
+          <i class="bi bi-star-fill text-xl"></i>
+        </a>
+        <a href="#" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Trash">
+          <i class="bi bi-trash3 text-xl"></i>
+        </a>
+      </nav>
+
+      <div class="mt-auto flex flex-col items-center gap-2">
+        <a href="mockup-settings-interactive.html" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Settings">
+          <i class="bi bi-gear text-xl"></i>
+        </a>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-medium text-sm">ML</div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+      <!-- Header -->
+      <header class="glass bg-slate-900/70 border-b border-slate-800/50">
+        <div class="flex items-center justify-between px-8 py-4">
+          <!-- Breadcrumbs -->
+          <div class="flex items-center gap-2 text-sm">
+            <a href="#" class="text-slate-500 hover:text-white transition-colors">Home</a>
+            <i class="bi bi-chevron-right text-slate-600 text-xs"></i>
+            <span class="text-white font-medium">Alle Dateien</span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <!-- Search -->
+            <div class="relative">
+              <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+              <input type="text" id="searchInput" placeholder="Dateien durchsuchen..." class="w-72 pl-11 pr-4 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-sm focus:outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all">
+            </div>
+
+            <!-- View Toggle -->
+            <div class="flex items-center bg-slate-800/50 rounded-xl border border-slate-700/50 p-1">
+              <button id="gridViewBtn" class="p-2 rounded-lg bg-purple-500/20 text-purple-300">
+                <i class="bi bi-grid-3x3-gap"></i>
+              </button>
+              <button id="listViewBtn" class="p-2 rounded-lg text-slate-400 hover:text-white transition-colors">
+                <i class="bi bi-list"></i>
+              </button>
+            </div>
+
+            <!-- Sort -->
+            <button id="sortBtn" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-sm hover:bg-slate-700/50 transition-colors">
+              <i class="bi bi-sort-down text-slate-400"></i>
+              <span>Name</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="flex items-center justify-between px-8 py-3 border-t border-slate-800/30">
+          <div class="flex items-center gap-3">
+            <button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg shadow-purple-500/25 text-sm font-medium">
+              <i class="bi bi-cloud-upload"></i>
+              <span>Upload</span>
+            </button>
+            <button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-colors text-sm">
+              <i class="bi bi-folder-plus text-purple-400"></i>
+              <span>Neuer Ordner</span>
+            </button>
+            <div class="w-px h-6 bg-slate-700/50 mx-2"></div>
+            <button id="selectAllBtn" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Select all">
+              <i class="bi bi-check2-square"></i>
+            </button>
+            <button class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all" title="Refresh">
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 text-sm text-slate-500">
+            <span id="itemCount">0 items</span>
+            <span>•</span>
+            <span id="sizeTotal">0 MB</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Files Grid -->
+      <div class="flex-1 overflow-auto p-8">
+        <div id="filesContainer" class="grid grid-cols-6 gap-4">
+          <!-- Files werden mit JS eingefügt -->
+        </div>
+        <div id="emptyState" class="text-center py-12 hidden">
+          <i class="bi bi-inbox text-5xl text-slate-600 mb-4 block"></i>
+          <p class="text-slate-500">Keine Dateien gefunden</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Preview Panel -->
+    <aside id="previewPanel" class="w-80 border-l border-slate-800/50 glass bg-slate-900/50 overflow-auto hidden">
+      <div class="p-6 border-b border-slate-800/50">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold">Vorschau</h3>
+          <button id="closePreview" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <!-- File Preview -->
+        <div id="previewContainer" class="aspect-video rounded-xl bg-slate-800/50 overflow-hidden mb-4 flex items-center justify-center">
+          <i class="bi bi-file-earmark text-4xl text-slate-600"></i>
+        </div>
+
+        <h4 id="previewName" class="font-medium text-lg">Dateiname</h4>
+        <p id="previewDate" class="text-sm text-slate-500 mt-1">Zuletzt geändert: —</p>
+      </div>
+
+      <!-- Details -->
+      <div class="p-6 space-y-4">
+        <div>
+          <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Größe</p>
+          <p id="previewSize" class="text-sm">—</p>
+        </div>
+        <div>
+          <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Typ</p>
+          <p id="previewType" class="text-sm">—</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="pt-4 space-y-2">
+          <button id="downloadBtn" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-500 hover:bg-purple-600 transition-colors text-sm font-medium">
+            <i class="bi bi-download"></i>
+            Download
+          </button>
+          <button id="favoriteBtn" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-colors text-sm">
+            <i class="bi bi-star"></i>
+            Favorit
+          </button>
+          <button id="deleteBtn" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:bg-red-500/20 hover:border-red-500/30 hover:text-red-400 transition-colors text-sm">
+            <i class="bi bi-trash3"></i>
+            Löschen
+          </button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    // Mock data
+    const mockFiles = [
+      { id: 1, name: 'Bericht Q4 2024.pdf', size: 2.4, type: 'pdf', date: '2024-11-28', icon: 'bi-file-pdf', color: 'red', favorite: false },
+      { id: 2, name: 'Budget 2024.xlsx', size: 0.856, type: 'xlsx', date: '2024-11-25', icon: 'bi-table', color: 'green', favorite: false },
+      { id: 3, name: 'Design Assets', size: 0, type: 'folder', date: '2024-11-30', icon: 'bi-folder', color: 'blue', favorite: true },
+      { id: 4, name: 'Marketing Campaign', size: 0, type: 'folder', date: '2024-11-29', icon: 'bi-folder', color: 'purple', favorite: false },
+      { id: 5, name: 'hero-banner.png', size: 3.2, type: 'png', date: '2024-11-27', icon: 'bi-image', color: 'yellow', favorite: false },
+      { id: 6, name: 'Contract Draft.docx', size: 0.124, type: 'docx', date: '2024-11-26', icon: 'bi-file-word', color: 'blue', favorite: false },
+      { id: 7, name: 'Video Tutorial.mp4', size: 128, type: 'mp4', date: '2024-11-24', icon: 'bi-film', color: 'pink', favorite: false },
+      { id: 8, name: 'API Documentation.md', size: 0.45, type: 'md', date: '2024-11-23', icon: 'bi-file-text', color: 'cyan', favorite: false },
+      { id: 9, name: 'Config.json', size: 0.004, type: 'json', date: '2024-11-22', icon: 'bi-gear', color: 'slate', favorite: false },
+      { id: 10, name: 'Backup.zip', size: 45.8, type: 'zip', date: '2024-11-21', icon: 'bi-archive', color: 'amber', favorite: false },
+      { id: 11, name: 'Presentation.pptx', size: 15.5, type: 'pptx', date: '2024-11-20', icon: 'bi-file-play', color: 'orange', favorite: true },
+      { id: 12, name: 'Data Export.csv', size: 2.1, type: 'csv', date: '2024-11-19', icon: 'bi-table', color: 'green', favorite: false },
+    ];
+
+    let files = [...mockFiles];
+    let selectedFiles = new Set();
+    let viewMode = 'grid';
+    let currentPreview = null;
+
+    const filesContainer = document.getElementById('filesContainer');
+    const emptyState = document.getElementById('emptyState');
+    const searchInput = document.getElementById('searchInput');
+    const itemCount = document.getElementById('itemCount');
+    const sizeTotal = document.getElementById('sizeTotal');
+    const previewPanel = document.getElementById('previewPanel');
+    const gridViewBtn = document.getElementById('gridViewBtn');
+    const listViewBtn = document.getElementById('listViewBtn');
+
+    function formatSize(mb) {
+      if (mb === 0) return '—';
+      if (mb < 1) return (mb * 1024).toFixed(0) + ' KB';
+      if (mb < 1024) return mb.toFixed(1) + ' MB';
+      return (mb / 1024).toFixed(1) + ' GB';
+    }
+
+    function renderFiles() {
+      filesContainer.innerHTML = '';
+      
+      if (files.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      
+      emptyState.classList.add('hidden');
+
+      files.forEach(file => {
+        const card = document.createElement('div');
+        card.className = `file-card p-4 rounded-2xl bg-slate-900/50 border border-slate-800/50 hover:border-purple-500/30 cursor-pointer transition-all ${selectedFiles.has(file.id) ? 'selected' : ''}`;
+        
+        card.innerHTML = `
+          <div class="absolute top-3 right-3 opacity-0 hover:opacity-100 transition-opacity flex gap-1">
+            <button class="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 transition-colors favorite-btn" data-id="${file.id}">
+              <i class="bi bi-star${file.favorite ? '-fill text-yellow-400' : ''}"></i>
+            </button>
+            <button class="p-1.5 rounded-lg bg-slate-800/80 hover:bg-red-500/50 transition-colors delete-btn" data-id="${file.id}">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+          <div class="w-14 h-14 mx-auto mb-3 rounded-xl bg-${file.color}-500/20 flex items-center justify-center">
+            <i class="bi ${file.icon} text-3xl text-${file.color}-400"></i>
+          </div>
+          <p class="text-sm font-medium text-center truncate">${file.name}</p>
+          <p class="text-xs text-slate-500 text-center mt-1">${formatSize(file.size)}</p>
+        `;
+
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.favorite-btn') || e.target.closest('.delete-btn')) return;
+          toggleSelect(file.id);
+          showPreview(file);
+        });
+
+        card.querySelector('.favorite-btn')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleFavorite(file.id);
+        });
+
+        card.querySelector('.delete-btn')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteFile(file.id);
+        });
+
+        filesContainer.appendChild(card);
+      });
+
+      updateStats();
+    }
+
+    function toggleSelect(id) {
+      if (selectedFiles.has(id)) {
+        selectedFiles.delete(id);
+      } else {
+        selectedFiles.add(id);
+      }
+      renderFiles();
+    }
+
+    function toggleFavorite(id) {
+      const file = files.find(f => f.id === id);
+      if (file) file.favorite = !file.favorite;
+      renderFiles();
+    }
+
+    function deleteFile(id) {
+      files = files.filter(f => f.id !== id);
+      selectedFiles.delete(id);
+      renderFiles();
+    }
+
+    function showPreview(file) {
+      currentPreview = file;
+      previewPanel.classList.remove('hidden');
+      document.getElementById('previewName').textContent = file.name;
+      document.getElementById('previewSize').textContent = formatSize(file.size);
+      document.getElementById('previewType').textContent = file.type.toUpperCase();
+      document.getElementById('previewDate').textContent = `Zuletzt geändert: ${new Date(file.date).toLocaleDateString('de-DE')}`;
+      
+      const container = document.getElementById('previewContainer');
+      container.innerHTML = `<i class="bi ${file.icon} text-5xl text-${file.color}-400"></i>`;
+    }
+
+    function updateStats() {
+      itemCount.textContent = `${files.length} items`;
+      const total = files.reduce((sum, f) => sum + f.size, 0);
+      sizeTotal.textContent = formatSize(total);
+    }
+
+    // Search
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      files = mockFiles.filter(f => f.name.toLowerCase().includes(query));
+      renderFiles();
+    });
+
+    // View toggle
+    gridViewBtn.addEventListener('click', () => {
+      viewMode = 'grid';
+      filesContainer.className = 'grid grid-cols-6 gap-4';
+      gridViewBtn.classList.add('bg-purple-500/20', 'text-purple-300');
+      listViewBtn.classList.remove('bg-purple-500/20', 'text-purple-300');
+      listViewBtn.classList.add('text-slate-400');
+    });
+
+    listViewBtn.addEventListener('click', () => {
+      viewMode = 'list';
+      filesContainer.className = 'space-y-2';
+      listViewBtn.classList.add('bg-purple-500/20', 'text-purple-300');
+      gridViewBtn.classList.remove('bg-purple-500/20', 'text-purple-300');
+      gridViewBtn.classList.add('text-slate-400');
+    });
+
+    // Close preview
+    document.getElementById('closePreview').addEventListener('click', () => {
+      previewPanel.classList.add('hidden');
+    });
+
+    // Initial render
+    renderFiles();
+  </script>
+</body>
+</html>

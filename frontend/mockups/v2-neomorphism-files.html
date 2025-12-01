@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyncSpace V2 - Neomorphism Files</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background: #f5f7fa; }
+    .neomorph { box-shadow: 8px 8px 16px #d1d5db, -8px -8px 16px #ffffff; }
+    .neomorph-inset { box-shadow: inset 6px 6px 12px #d1d5db, inset -6px -6px 12px #ffffff; }
+    .file-card { transition: all 0.3s ease; }
+    .file-card:hover { transform: translateY(-4px); box-shadow: 12px 12px 24px #d1d5db, -12px -12px 24px #ffffff; }
+  </style>
+</head>
+<body class="min-h-screen" id="app">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-20 flex flex-col items-center py-6 gap-4">
+      <div class="w-14 h-14 rounded-2xl neomorph flex items-center justify-center bg-white">
+        <i class="bi bi-cloud text-2xl text-blue-500"></i>
+      </div>
+      
+      <nav class="flex-1 flex flex-col items-center gap-3">
+        <a href="v2-neomorphism-dashboard.html" class="w-12 h-12 rounded-xl neomorph bg-white flex items-center justify-center text-gray-400 hover:text-blue-500 transition-colors">
+          <i class="bi bi-grid-3x3 text-lg"></i>
+        </a>
+        <button class="w-12 h-12 rounded-xl neomorph bg-white flex items-center justify-center text-blue-500">
+          <i class="bi bi-folder2 text-lg"></i>
+        </button>
+        <button class="w-12 h-12 rounded-xl neomorph bg-white flex items-center justify-center text-gray-400 hover:text-blue-500 transition-colors">
+          <i class="bi bi-share2 text-lg"></i>
+        </button>
+      </nav>
+
+      <a href="v2-neomorphism-settings.html" class="w-12 h-12 rounded-xl neomorph bg-white flex items-center justify-center text-gray-600 hover:text-blue-500 transition-colors">
+        <i class="bi bi-gear text-lg"></i>
+      </a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+      <!-- Header -->
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-light text-gray-800">Dateien</h1>
+          <p class="text-gray-500 text-sm mt-1">Alle deine Dateien an einem Ort</p>
+        </div>
+        <div class="flex gap-3">
+          <div class="p-3 rounded-xl neomorph bg-white flex items-center gap-2">
+            <i class="bi bi-search text-gray-600"></i>
+            <input type="text" id="search" placeholder="Suchen..." class="bg-transparent outline-none w-48 text-sm text-gray-800 placeholder-gray-500">
+          </div>
+          <button class="p-3 rounded-xl neomorph bg-blue-500 text-white hover:shadow-lg transition-all">
+            <i class="bi bi-cloud-upload"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Files Grid -->
+      <div class="grid grid-cols-5 gap-6" id="filesGrid">
+        <!-- Files will be inserted here -->
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const mockFiles = [
+      { name: 'Report Q4.pdf', size: '2.4 MB', icon: 'bi-file-pdf', color: 'red' },
+      { name: 'Budget 2024.xlsx', size: '856 KB', icon: 'bi-table', color: 'green' },
+      { name: 'Design Files', size: '—', icon: 'bi-folder2', color: 'blue' },
+      { name: 'hero-banner.png', size: '3.2 MB', icon: 'bi-image', color: 'purple' },
+      { name: 'Contract.docx', size: '124 KB', icon: 'bi-file-text', color: 'blue' },
+      { name: 'Presentation.pptx', size: '15.5 MB', icon: 'bi-file-play', color: 'orange' },
+      { name: 'Data Export.csv', size: '2.1 MB', icon: 'bi-table', color: 'emerald' },
+      { name: 'Backup.zip', size: '45.8 MB', icon: 'bi-archive', color: 'yellow' },
+      { name: 'Video.mp4', size: '128 MB', icon: 'bi-film', color: 'pink' },
+      { name: 'Config.json', size: '4.2 KB', icon: 'bi-gear', color: 'slate' },
+    ];
+
+    const grid = document.getElementById('filesGrid');
+    const searchInput = document.getElementById('search');
+    let filteredFiles = [...mockFiles];
+
+    function renderFiles() {
+      grid.innerHTML = '';
+      filteredFiles.forEach(file => {
+        const card = document.createElement('div');
+        card.className = 'file-card p-4 rounded-2xl neomorph bg-white flex flex-col items-center';
+        card.innerHTML = `
+          <div class="w-16 h-16 rounded-xl neomorph-inset bg-white flex items-center justify-center mb-3">
+            <i class="bi ${file.icon} text-2xl text-${file.color}-500"></i>
+          </div>
+          <p class="text-sm font-medium text-gray-800 text-center truncate w-full">${file.name}</p>
+          <p class="text-xs text-gray-500 mt-2">${file.size}</p>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      filteredFiles = mockFiles.filter(f => f.name.toLowerCase().includes(query));
+      renderFiles();
+    });
+
+    renderFiles();
+  </script>
+</body>
+</html>

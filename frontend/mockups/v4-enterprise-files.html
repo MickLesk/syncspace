@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyncSpace V4 - Enterprise Files</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+    body { font-family: 'IBM Plex Sans', sans-serif; background: #fafbfc; }
+    .corporate-shadow { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+    .corporate-hover { transition: all 0.2s; }
+    .corporate-hover:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+    table tbody tr:hover { background-color: #f3f4f6; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <!-- Logo -->
+      <div class="p-6 border-b border-gray-200">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <i class="bi bi-cloud text-white text-lg"></i>
+          </div>
+          <div>
+            <p class="font-bold text-gray-900">SyncSpace</p>
+            <p class="text-xs text-gray-500">Enterprise</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 p-4 space-y-2">
+        <a href="v4-enterprise-dashboard.html" class="w-full px-4 py-3 rounded-lg text-gray-700 font-medium text-sm flex items-center gap-3 corporate-hover hover:bg-gray-50">
+          <i class="bi bi-grid-3x3 text-lg"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="w-full px-4 py-3 rounded-lg bg-blue-50 text-blue-600 font-medium text-sm flex items-center gap-3 corporate-shadow">
+          <i class="bi bi-folder2 text-lg"></i>
+          <span>Dateien</span>
+        </a>
+        <a href="#" class="w-full px-4 py-3 rounded-lg text-gray-700 font-medium text-sm flex items-center gap-3 corporate-hover hover:bg-gray-50">
+          <i class="bi bi-share2 text-lg"></i>
+          <span>Freigaben</span>
+        </a>
+        <a href="#" class="w-full px-4 py-3 rounded-lg text-gray-700 font-medium text-sm flex items-center gap-3 corporate-hover hover:bg-gray-50">
+          <i class="bi bi-graph-up text-lg"></i>
+          <span>Berichte</span>
+        </a>
+      </nav>
+
+      <!-- User Section -->
+      <div class="p-4 border-t border-gray-200 space-y-3">
+        <a href="v4-enterprise-settings.html" class="w-full px-4 py-3 rounded-lg text-gray-700 font-medium text-sm flex items-center gap-3 corporate-hover hover:bg-gray-50">
+          <i class="bi bi-gear text-lg"></i>
+          <span>Einstellungen</span>
+        </a>
+        <button class="w-full px-4 py-3 rounded-lg text-gray-700 font-medium text-sm flex items-center gap-3 corporate-hover hover:bg-gray-50">
+          <i class="bi bi-box-arrow-right text-lg"></i>
+          <span>Abmelden</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+      <!-- Header -->
+      <div class="mb-8 flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Dateien</h1>
+          <p class="text-gray-600 text-sm mt-1">Verwaltung deiner Dateien und Verzeichnisse</p>
+        </div>
+        <div class="flex gap-3">
+          <div class="relative">
+            <i class="bi bi-search absolute left-3 top-3 text-gray-400"></i>
+            <input type="text" id="search" placeholder="Dateien suchen..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors flex items-center gap-2">
+            <i class="bi bi-cloud-upload"></i>
+            Hochladen
+          </button>
+        </div>
+      </div>
+
+      <!-- Files Table -->
+      <div class="bg-white rounded-lg corporate-shadow overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-gray-200 bg-gray-50">
+              <th class="px-6 py-4 text-left font-semibold text-gray-700">
+                <input type="checkbox" class="w-4 h-4 rounded cursor-pointer">
+              </th>
+              <th class="px-6 py-4 text-left font-semibold text-gray-700 cursor-pointer hover:text-gray-900">
+                Name
+                <i class="bi bi-arrow-down-up text-xs ml-1 opacity-50"></i>
+              </th>
+              <th class="px-6 py-4 text-left font-semibold text-gray-700">Größe</th>
+              <th class="px-6 py-4 text-left font-semibold text-gray-700 cursor-pointer hover:text-gray-900">
+                Geändert
+                <i class="bi bi-arrow-down-up text-xs ml-1 opacity-50"></i>
+              </th>
+              <th class="px-6 py-4 text-left font-semibold text-gray-700">Status</th>
+              <th class="px-6 py-4 text-right font-semibold text-gray-700">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="filesTable">
+            <!-- Files will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const mockFiles = [
+      { name: 'Report Q4.pdf', size: '2.4 MB', date: '12. Dez 2024', status: 'Synchronisiert', icon: 'bi-file-pdf' },
+      { name: 'Budget 2024.xlsx', size: '856 KB', date: '10. Dez 2024', status: 'Synchronisiert', icon: 'bi-table' },
+      { name: 'Design Files', size: '—', date: '8. Dez 2024', status: 'Synchronisiert', icon: 'bi-folder2' },
+      { name: 'hero-banner.png', size: '3.2 MB', date: '6. Dez 2024', status: 'Synchronisiert', icon: 'bi-image' },
+      { name: 'Contract.docx', size: '124 KB', date: '5. Dez 2024', status: 'Synchronisiert', icon: 'bi-file-text' },
+      { name: 'Presentation.pptx', size: '15.5 MB', date: '3. Dez 2024', status: 'Synchronisiert', icon: 'bi-file-play' },
+      { name: 'Data Export.csv', size: '2.1 MB', date: '1. Dez 2024', status: 'Synchronisiert', icon: 'bi-table' },
+      { name: 'Backup.zip', size: '45.8 MB', date: '28. Nov 2024', status: 'Archiviert', icon: 'bi-archive' },
+    ];
+
+    const table = document.getElementById('filesTable');
+    const searchInput = document.getElementById('search');
+    let filteredFiles = [...mockFiles];
+
+    function getStatusColor(status) {
+      if (status === 'Synchronisiert') return 'bg-green-100 text-green-700';
+      if (status === 'Archiviert') return 'bg-gray-100 text-gray-700';
+      return 'bg-blue-100 text-blue-700';
+    }
+
+    function renderFiles() {
+      table.innerHTML = '';
+      filteredFiles.forEach(file => {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-200 corporate-hover';
+        row.innerHTML = `
+          <td class="px-6 py-4">
+            <input type="checkbox" class="w-4 h-4 rounded cursor-pointer">
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              <i class="bi ${file.icon} text-lg text-gray-600"></i>
+              <span class="font-medium text-gray-900">${file.name}</span>
+            </div>
+          </td>
+          <td class="px-6 py-4 text-gray-600">${file.size}</td>
+          <td class="px-6 py-4 text-gray-600 text-xs">${file.date}</td>
+          <td class="px-6 py-4">
+            <span class="px-2 py-1 rounded text-xs font-medium ${getStatusColor(file.status)}">${file.status}</span>
+          </td>
+          <td class="px-6 py-4 text-right">
+            <button class="text-gray-500 hover:text-gray-700 transition-colors">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      filteredFiles = mockFiles.filter(f => f.name.toLowerCase().includes(query));
+      renderFiles();
+    });
+
+    renderFiles();
+  </script>
+</body>
+</html>

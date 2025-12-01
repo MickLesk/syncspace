@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyncSpace V4 - Enterprise Settings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+    body { font-family: 'IBM Plex Sans', sans-serif; background: #fafbfc; }
+    .corporate-shadow { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+    .corporate-hover { transition: all 0.2s; }
+    .corporate-hover:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+    .tab-active { border-bottom: 3px solid rgb(37, 99, 235); color: rgb(37, 99, 235); }
+    .tab-inactive { border-bottom: 3px solid transparent; color: rgb(107, 114, 128); }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <!-- Logo -->
+      <div class="p-6 border-b border-gray-200">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <i class="bi bi-cloud text-white text-lg"></i>
+          </div>
+          <div>
+            <p class="font-bold text-gray-900">SyncSpace</p>
+            <p class="text-xs text-gray-500">Enterprise</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 p-4 space-y-2">
+        <a href="v4-enterprise-dashboard.html" class="w-full px-4 py-3 rounded-lg text-gray-700 font-medium text-sm flex items-center gap-3 corporate-hover hover:bg-gray-50">
+          <i class="bi bi-grid-3x3 text-lg"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="v4-enterprise-files.html" class="w-full px-4 py-3 rounded-lg text-gray-700 font-medium text-sm flex items-center gap-3 corporate-hover hover:bg-gray-50">
+          <i class="bi bi-folder2 text-lg"></i>
+          <span>Dateien</span>
+        </a>
+        <a href="#" class="w-full px-4 py-3 rounded-lg text-gray-700 font-medium text-sm flex items-center gap-3 corporate-hover hover:bg-gray-50">
+          <i class="bi bi-share2 text-lg"></i>
+          <span>Freigaben</span>
+        </a>
+        <a href="#" class="w-full px-4 py-3 rounded-lg text-gray-700 font-medium text-sm flex items-center gap-3 corporate-hover hover:bg-gray-50">
+          <i class="bi bi-graph-up text-lg"></i>
+          <span>Berichte</span>
+        </a>
+      </nav>
+
+      <!-- User Section -->
+      <div class="p-4 border-t border-gray-200 space-y-3">
+        <a href="#" class="w-full px-4 py-3 rounded-lg bg-blue-50 text-blue-600 font-medium text-sm flex items-center gap-3 corporate-shadow">
+          <i class="bi bi-gear text-lg"></i>
+          <span>Einstellungen</span>
+        </a>
+        <button class="w-full px-4 py-3 rounded-lg text-gray-700 font-medium text-sm flex items-center gap-3 corporate-hover hover:bg-gray-50">
+          <i class="bi bi-box-arrow-right text-lg"></i>
+          <span>Abmelden</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+      <!-- Header -->
+      <div class="mb-8 flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Einstellungen</h1>
+          <p class="text-gray-600 text-sm mt-1">Verwalte dein Konto und Voreinstellungen</p>
+        </div>
+        <button class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors">
+          Speichern
+        </button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="mb-8 flex gap-1 border-b border-gray-200">
+        <button class="px-6 py-4 font-medium text-sm tab-active" data-tab="general">
+          <i class="bi bi-gear mr-2"></i>Allgemein
+        </button>
+        <button class="px-6 py-4 font-medium text-sm tab-inactive hover:text-gray-700" data-tab="appearance">
+          <i class="bi bi-palette mr-2"></i>Erscheinungsbild
+        </button>
+        <button class="px-6 py-4 font-medium text-sm tab-inactive hover:text-gray-700" data-tab="notifications">
+          <i class="bi bi-bell mr-2"></i>Benachrichtigungen
+        </button>
+        <button class="px-6 py-4 font-medium text-sm tab-inactive hover:text-gray-700" data-tab="security">
+          <i class="bi bi-shield-lock mr-2"></i>Sicherheit
+        </button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="space-y-6">
+        <!-- General Tab -->
+        <div id="tab-general" class="space-y-6">
+          <div class="bg-white rounded-lg p-6 corporate-shadow">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Benutzerdaten</h2>
+            <div class="grid grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Vollständiger Name</label>
+                <input type="text" value="Mickey Leskowski" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">E-Mail-Adresse</label>
+                <input type="email" value="mickey@syncspace.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg p-6 corporate-shadow">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Sprache und Region</h2>
+            <div class="grid grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Sprache</label>
+                <select class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option>Deutsch</option>
+                  <option>Englisch</option>
+                  <option>Französisch</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Zeitzone</label>
+                <select class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option>CET (UTC+1)</option>
+                  <option>UTC</option>
+                  <option>EST (UTC-5)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appearance Tab -->
+        <div id="tab-appearance" class="space-y-6 hidden">
+          <div class="bg-white rounded-lg p-6 corporate-shadow">
+            <h2 class="text-lg font-bold text-gray-900 mb-6">Design-Optionen</h2>
+            
+            <div class="space-y-4">
+              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <p class="font-medium text-gray-900">Design-Theme</p>
+                  <p class="text-sm text-gray-600 mt-1">Wähle zwischen Helles und Dunkles Design</p>
+                </div>
+                <div class="flex gap-3">
+                  <button class="px-4 py-2 rounded-lg border-2 border-blue-600 bg-blue-50 text-blue-600 font-medium text-sm">
+                    <i class="bi bi-sun mr-2"></i>Hell
+                  </button>
+                  <button class="px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-700 font-medium text-sm hover:border-blue-600 transition-colors">
+                    <i class="bi bi-moon mr-2"></i>Dunkel
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <p class="font-medium text-gray-900">Kompakte Ansicht</p>
+                  <p class="text-sm text-gray-600 mt-1">Reduzierte Abstände in der Benutzeroberfläche</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer">
+                  <div class="w-11 h-6 bg-gray-300 peer-checked:bg-blue-600 rounded-full peer transition-colors"></div>
+                  <span class="absolute left-1 w-4 h-4 bg-white rounded-full peer-checked:translate-x-5 transition-transform"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div id="tab-notifications" class="space-y-6 hidden">
+          <div class="bg-white rounded-lg p-6 corporate-shadow">
+            <h2 class="text-lg font-bold text-gray-900 mb-6">Benachrichtigungsoptionen</h2>
+            
+            <div class="space-y-4">
+              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <p class="font-medium text-gray-900">E-Mail-Benachrichtigungen</p>
+                  <p class="text-sm text-gray-600 mt-1">Erhalte Updates per E-Mail</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" checked>
+                  <div class="w-11 h-6 bg-gray-300 peer-checked:bg-blue-600 rounded-full peer transition-colors"></div>
+                  <span class="absolute left-1 w-4 h-4 bg-white rounded-full peer-checked:translate-x-5 transition-transform"></span>
+                </label>
+              </div>
+
+              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <p class="font-medium text-gray-900">Push-Benachrichtigungen</p>
+                  <p class="text-sm text-gray-600 mt-1">Browser-Benachrichtigungen für wichtige Ereignisse</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer">
+                  <div class="w-11 h-6 bg-gray-300 peer-checked:bg-blue-600 rounded-full peer transition-colors"></div>
+                  <span class="absolute left-1 w-4 h-4 bg-white rounded-full peer-checked:translate-x-5 transition-transform"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Tab -->
+        <div id="tab-security" class="space-y-6 hidden">
+          <div class="bg-white rounded-lg p-6 corporate-shadow">
+            <h2 class="text-lg font-bold text-gray-900 mb-6">Sicherheitsoptionen</h2>
+            
+            <div class="space-y-4">
+              <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="font-medium text-blue-900">Zwei-Faktor-Authentifizierung</p>
+                <p class="text-sm text-blue-800 mt-2">Erhöhe die Sicherheit deines Kontos mit 2FA</p>
+                <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors">
+                  2FA aktivieren
+                </button>
+              </div>
+
+              <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="font-medium text-gray-900">Passwort</p>
+                    <p class="text-sm text-gray-600 mt-1">Zuletzt geändert vor 90 Tagen</p>
+                  </div>
+                  <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium text-sm hover:bg-gray-100 transition-colors">
+                    Ändern
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.querySelectorAll('[data-tab]').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.getAttribute('data-tab');
+        
+        // Hide all tabs
+        document.querySelectorAll('[id^="tab-"]').forEach(content => {
+          content.classList.add('hidden');
+        });
+        
+        // Show selected tab
+        document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+        
+        // Update button styles
+        document.querySelectorAll('[data-tab]').forEach(btn => {
+          btn.classList.remove('tab-active');
+          btn.classList.add('tab-inactive');
+        });
+        tab.classList.add('tab-active');
+        tab.classList.remove('tab-inactive');
+      });
+    });
+  </script>
+</body>
+</html>

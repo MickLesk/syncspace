@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyncSpace V2 - Neomorphism Settings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background: #f5f7fa; }
+    .neomorph { box-shadow: 8px 8px 16px #d1d5db, -8px -8px 16px #ffffff; }
+    .neomorph-inset { box-shadow: inset 6px 6px 12px #d1d5db, inset -6px -6px 12px #ffffff; }
+    .toggle { transition: all 0.3s ease; }
+    input[type="checkbox"]:checked + .toggle-bg { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); }
+    input[type="checkbox"]:checked + .toggle-bg .toggle-dot { transform: translateX(100%); }
+  </style>
+</head>
+<body class="min-h-screen" id="app">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-20 flex flex-col items-center py-6 gap-4">
+      <div class="w-14 h-14 rounded-2xl neomorph flex items-center justify-center bg-white">
+        <i class="bi bi-cloud text-2xl text-blue-500"></i>
+      </div>
+      
+      <nav class="flex-1 flex flex-col items-center gap-3">
+        <a href="v2-neomorphism-dashboard.html" class="w-12 h-12 rounded-xl neomorph bg-white flex items-center justify-center text-gray-400 hover:text-blue-500 transition-colors">
+          <i class="bi bi-grid-3x3 text-lg"></i>
+        </a>
+        <a href="v2-neomorphism-files.html" class="w-12 h-12 rounded-xl neomorph bg-white flex items-center justify-center text-gray-400 hover:text-blue-500 transition-colors">
+          <i class="bi bi-folder2 text-lg"></i>
+        </a>
+        <button class="w-12 h-12 rounded-xl neomorph bg-white flex items-center justify-center text-gray-400 hover:text-blue-500 transition-colors">
+          <i class="bi bi-share2 text-lg"></i>
+        </button>
+      </nav>
+
+      <button class="w-12 h-12 rounded-xl neomorph bg-white flex items-center justify-center text-blue-500">
+        <i class="bi bi-gear text-lg"></i>
+      </button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+      <!-- Header -->
+      <div class="mb-8 flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-light text-gray-800">Einstellungen</h1>
+          <p class="text-gray-500 text-sm mt-1">Verwalte dein Konto</p>
+        </div>
+        <button class="px-6 py-3 rounded-xl neomorph bg-blue-500 text-white font-medium hover:shadow-lg transition-all">
+          Speichern
+        </button>
+      </div>
+
+      <!-- Settings Sections -->
+      <div class="space-y-6">
+        <!-- Appearance -->
+        <div class="p-8 rounded-2xl neomorph bg-white">
+          <h2 class="text-lg font-semibold text-gray-800 mb-6">Erscheinungsbild</h2>
+          
+          <div class="space-y-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium text-gray-800">Design-Theme</p>
+                <p class="text-sm text-gray-500 mt-1">Helle oder dunkle Ansicht</p>
+              </div>
+              <div class="flex gap-2">
+                <button class="px-4 py-2 rounded-lg neomorph bg-white text-gray-600 text-sm hover:text-blue-500 transition-colors">
+                  <i class="bi bi-sun mr-2"></i>Hell
+                </button>
+                <button class="px-4 py-2 rounded-lg neomorph-pressed bg-blue-100 text-blue-600 text-sm">
+                  <i class="bi bi-moon mr-2"></i>Dunkel
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium text-gray-800">Kompakte Seitenleiste</p>
+                <p class="text-sm text-gray-500 mt-1">Verwende nur Symbole</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" checked>
+                <div class="toggle-bg w-12 h-7 bg-gray-300 rounded-full peer flex items-center">
+                  <div class="toggle-dot absolute left-1 bg-white w-5 h-5 rounded-full"></div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="p-8 rounded-2xl neomorph bg-white">
+          <h2 class="text-lg font-semibold text-gray-800 mb-6">Benachrichtigungen</h2>
+          
+          <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 rounded-xl neomorph-inset bg-white">
+              <div>
+                <p class="font-medium text-gray-800 text-sm">E-Mail-Benachrichtigungen</p>
+                <p class="text-xs text-gray-500 mt-1">Erhalte Updates per E-Mail</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" checked>
+                <div class="toggle-bg w-12 h-7 bg-gray-300 rounded-full peer flex items-center">
+                  <div class="toggle-dot absolute left-1 bg-white w-5 h-5 rounded-full"></div>
+                </div>
+              </label>
+            </div>
+
+            <div class="flex items-center justify-between p-4 rounded-xl neomorph-inset bg-white">
+              <div>
+                <p class="font-medium text-gray-800 text-sm">Push-Benachrichtigungen</p>
+                <p class="text-xs text-gray-500 mt-1">Browser-Benachrichtigungen</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer">
+                <div class="toggle-bg w-12 h-7 bg-gray-300 rounded-full peer flex items-center">
+                  <div class="toggle-dot absolute left-1 bg-white w-5 h-5 rounded-full"></div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Storage -->
+        <div class="p-8 rounded-2xl neomorph bg-white">
+          <h2 class="text-lg font-semibold text-gray-800 mb-6">Speicherplatz</h2>
+          
+          <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm text-gray-600">2.4 GB von 100 GB verwendet</span>
+              <span class="text-sm font-semibold text-gray-800">2.4%</span>
+            </div>
+            <div class="w-full h-3 bg-gray-200 rounded-full neomorph-inset overflow-hidden">
+              <div class="h-full w-6 bg-gradient-to-r from-blue-400 to-blue-600"></div>
+            </div>
+          </div>
+          
+          <button class="px-4 py-2 rounded-lg neomorph bg-white text-blue-600 text-sm font-medium hover:shadow-md transition-all mt-4">
+            Speicherpläne ansehen
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
