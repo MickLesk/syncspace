@@ -47,7 +47,7 @@
             />
           </div>
           <p class="text-xs text-gray-500 dark:text-gray-400">
-            Path where files are stored
+            {tr("pathWhereFilesStored")}
           </p>
         </div>
 
@@ -56,7 +56,7 @@
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             for="max-file-size"
           >
-            Max File Size (MB)
+            {tr("maxFileSizeMB")}
           </label>
           <div class="flex items-center gap-2">
             <i
@@ -70,7 +70,7 @@
             />
           </div>
           <p class="text-xs text-gray-500 dark:text-gray-400">
-            Maximum size for uploaded files
+            {tr("maxUploadSizeDesc")}
           </p>
         </div>
 
@@ -79,15 +79,15 @@
         >
           <div>
             <div class="font-semibold text-gray-900 dark:text-gray-100">
-              Cache Size
+              {tr("cacheSize")}
             </div>
             <div class="text-sm text-gray-500 dark:text-gray-400">
-              Currently using 245 MB
+              {tr("currentlyUsing", "245 MB")}
             </div>
           </div>
           <ModernButton variant="danger" onclick={handleClearCache} size="sm">
             <i class="bi bi-trash-fill mr-1"></i>
-            Clear Cache
+            {tr("clearCacheBtn")}
           </ModernButton>
         </div>
       </div>
@@ -102,7 +102,7 @@
       >
         <i class="bi bi-pie-chart-fill text-purple-600 dark:text-purple-400"
         ></i>
-        Storage Usage
+        {tr("storageUsage")}
       </h2>
 
       <div class="space-y-4">
@@ -117,13 +117,13 @@
               <div
                 class="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1"
               >
-                Total Space
+                {tr("totalSpace")}
               </div>
               <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">
                 50 GB
               </div>
               <div class="text-sm text-gray-500 dark:text-gray-500 mt-1">
-                Allocated storage
+                {tr("totalStorage")}
               </div>
             </div>
           </div>
@@ -140,7 +140,7 @@
               <div
                 class="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1"
               >
-                Used Space
+                {tr("usedStorage")}
               </div>
               <div
                 class="text-3xl font-bold text-purple-600 dark:text-purple-400"
@@ -148,7 +148,7 @@
                 42.5 GB
               </div>
               <div class="text-sm text-gray-500 dark:text-gray-500 mt-1">
-                85% of total space
+                {tr("storageUsagePercentage", "85")}
               </div>
             </div>
           </div>
@@ -165,7 +165,7 @@
               <div
                 class="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1"
               >
-                Available
+                {tr("availableStorage")}
               </div>
               <div
                 class="text-3xl font-bold text-green-600 dark:text-green-400"
@@ -173,7 +173,7 @@
                 7.5 GB
               </div>
               <div class="text-sm text-gray-500 dark:text-gray-500 mt-1">
-                Free space remaining
+                {tr("availableStorage")}
               </div>
             </div>
           </div>
@@ -183,7 +183,7 @@
           <div
             class="flex justify-between text-sm mb-2 text-gray-700 dark:text-gray-300"
           >
-            <span>Storage Usage</span>
+            <span>{tr("storageUsage")}</span>
             <span class="font-semibold">85%</span>
           </div>
           <div

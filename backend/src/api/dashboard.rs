@@ -10,6 +10,7 @@ use axum::{
 };
 use chrono::{Duration, Utc};
 use serde::{Deserialize, Serialize};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::auth::UserInfo;
 use crate::AppState;
@@ -359,7 +360,10 @@ async fn get_dashboard_stats(
         },
         system_info: SystemInfo {
             version: env!("CARGO_PKG_VERSION").to_string(),
-            uptime_seconds: 0, // TODO: Track actual uptime
+            uptime_seconds: SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .map(|d| d.as_secs().saturating_sub(state.start_time))
+                .unwrap_or(0),
             database_size_bytes: db_size,
             search_index_size_bytes: 0,
             cache_hit_rate: 0.0,

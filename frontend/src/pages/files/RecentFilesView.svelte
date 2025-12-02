@@ -12,6 +12,7 @@
     getFileAccent,
   } from "../../lib/designSystem.js";
   import { currentPath } from "../../stores/ui.js";
+  import { modals } from "../../stores/modals.js";
 
   let loading = $state(true);
   let errorMessage = $state(null);
@@ -210,8 +211,24 @@
 
   function quickPreview(file, event) {
     event?.stopPropagation();
-    // TODO: Hook up universal preview modal.
-    console.debug("Preview", file);
+    // Konvertiere das Recent-File Format in das erwartete Format für Preview Modal
+    const previewFile = {
+      name: file.name,
+      path: file.path,
+      size_bytes: file.size,
+      mime_type: file.mimeType,
+      is_directory: false,
+    };
+    // Alle Dateien für Navigation vorbereiten
+    const allPreviewFiles = filteredFiles().map((f) => ({
+      name: f.name,
+      path: f.path,
+      size_bytes: f.size,
+      mime_type: f.mimeType,
+      is_directory: false,
+    }));
+    const currentIndex = filteredFiles().findIndex((f) => f.id === file.id);
+    modals.openPreview(previewFile, allPreviewFiles, currentIndex >= 0 ? currentIndex : 0);
   }
 </script>
 

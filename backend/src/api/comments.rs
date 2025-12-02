@@ -27,6 +27,44 @@ fn extract_mentions(text: &str) -> Vec<String> {
         .collect()
 }
 
+/// Send notifications to mentioned users
+async fn send_mention_notifications(
+    pool: &sqlx::SqlitePool,
+    mentions: &[String],
+    comment_author_id: &str,
+    comment_author_name: &str,
+    file_path: &str,
+) {
+    for username in mentions {
+        // Look up user_id by username
+        let user_result: Result<Option<(String,)>, _> =
+            sqlx::query_as("SELECT id FROM users WHERE username = ? AND id != ?")
+                .bind(username)
+                .bind(comment_author_id)
+                .fetch_optional(pool)
+                .await;
+
+        if let Ok(Some((user_id,))) = user_result {
+            let notification_id = Uuid::new_v4().to_string();
+            let now = Utc::now().to_rfc3339();
+            let title = format!("@{} mentioned you", comment_author_name);
+            let message = format!("You were mentioned in a comment on {}", file_path);
+
+            let _ = sqlx::query(
+                r#"INSERT INTO notifications (id, user_id, type, title, message, read_status, created_at)
+                   VALUES (?, ?, 'mention', ?, ?, 0, ?)"#
+            )
+            .bind(&notification_id)
+            .bind(&user_id)
+            .bind(&title)
+            .bind(&message)
+            .bind(&now)
+            .execute(pool)
+            .await;
+        }
+    }
+}
+
 #[derive(Debug, Deserialize)]
 pub struct FilePathQuery {
     pub path: String,
@@ -330,8 +368,17 @@ async fn create_file_comment(
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    // TODO: Send notifications to mentioned users via WebSocket
-    // For each username in mentions, look up user_id and send notification
+    // Send notifications to mentioned users
+    if !mentions.is_empty() {
+        send_mention_notifications(
+            &state.db_pool,
+            &mentions,
+            &user_info.id,
+            &user_info.username,
+            &query.path,
+        )
+        .await;
+    }
 
     Ok((
         StatusCode::CREATED,

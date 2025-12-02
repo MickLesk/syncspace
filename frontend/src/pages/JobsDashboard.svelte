@@ -2,6 +2,11 @@
   import { onMount, onDestroy } from "svelte";
   import * as api from "../lib/api.js";
   import { modals, modalEvents } from "../stores/modals.js";
+  import { success, error as errorToast } from "../stores/toast.js";
+  import { currentLang } from "../stores/ui.js";
+  import { t } from "../i18n.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   // Import createWebSocket from api
   const { createWebSocket } = api;
@@ -152,36 +157,36 @@
   // ========================================================================
 
   async function cancelJob(jobId) {
-    if (!confirm("Cancel this job?")) return;
+    if (!confirm(tr("jobs.confirmCancel"))) return;
 
     try {
       const res = await api.jobs.cancel(jobId);
       if (res.ok) {
         await loadData();
+        success(tr("jobs.jobCancelled"));
       } else {
-        alert("Failed to cancel job");
+        errorToast(tr("jobs.failedToCancel"));
       }
     } catch (err) {
       console.error("Failed to cancel job:", err);
-      alert("Failed to cancel job");
+      errorToast(tr("jobs.failedToCancel"));
     }
   }
 
   async function cleanupOldJobs() {
-    if (!confirm("Remove old completed/failed jobs (older than 30 days)?"))
-      return;
+    if (!confirm(tr("jobs.confirmCleanup"))) return;
 
     try {
       const res = await api.jobs.cleanup();
       if (res.ok) {
         await loadData();
-        alert("Cleanup completed");
+        success(tr("jobs.cleanupCompleted"));
       } else {
-        alert("Failed to cleanup jobs");
+        errorToast(tr("jobs.failedToCleanup"));
       }
     } catch (err) {
       console.error("Failed to cleanup jobs:", err);
-      alert("Failed to cleanup jobs");
+      errorToast(tr("jobs.failedToCleanup"));
     }
   }
 
@@ -197,29 +202,33 @@
 
       if (res.ok) {
         await loadData();
+        success(
+          cronJob.enabled ? tr("jobs.cronDisabled") : tr("jobs.cronEnabled")
+        );
       } else {
-        alert("Failed to toggle cron job");
+        errorToast(tr("jobs.failedToToggle"));
       }
     } catch (err) {
       console.error("Failed to toggle cron job:", err);
-      alert("Failed to toggle cron job");
+      errorToast(tr("jobs.failedToToggle"));
     }
   }
 
   async function deleteCronJob(cronJobId) {
-    if (!confirm("Delete this cron job?")) return;
+    if (!confirm(tr("jobs.confirmDeleteCron"))) return;
 
     try {
       const res = await api.cron.delete(cronJobId);
 
       if (res.ok) {
         await loadData();
+        success(tr("jobs.cronDeleted"));
       } else {
-        alert("Failed to delete cron job");
+        errorToast(tr("jobs.failedToDelete"));
       }
     } catch (err) {
       console.error("Failed to delete cron job:", err);
-      alert("Failed to delete cron job");
+      errorToast(tr("jobs.failedToDelete"));
     }
   }
 

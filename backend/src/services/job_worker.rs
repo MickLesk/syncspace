@@ -340,20 +340,107 @@ async fn process_bulk_copy(
 }
 
 async fn process_bulk_compress(
-    _db_pool: &SqlitePool,
+    db_pool: &SqlitePool,
     job: &PendingJob,
 ) -> Result<String, String> {
+    use std::io::{Read, Write};
+    use zip::write::SimpleFileOptions;
+    use zip::ZipWriter;
+
     let payload: serde_json::Value = serde_json::from_str(&job.payload)
         .map_err(|e| format!("Invalid payload: {}", e))?;
 
-    let file_paths = payload.get("file_paths")
+    let file_paths: Vec<String> = payload.get("file_paths")
         .and_then(|v| v.as_array())
-        .ok_or("Missing file_paths")?;
+        .ok_or("Missing file_paths")?
+        .iter()
+        .filter_map(|v| v.as_str().map(String::from))
+        .collect();
 
-    // TODO: Implement compression using zip crate
+    let output_path = payload.get("output_path")
+        .and_then(|v| v.as_str())
+        .unwrap_or("bulk_archive.zip");
+
+    // Create the archive in the data directory
+    let archive_path = format!("./data/{}", output_path);
+    
+    // Ensure parent directory exists
+    if let Some(parent) = std::path::Path::new(&archive_path).parent() {
+        let _ = std::fs::create_dir_all(parent);
+    }
+
+    let file = std::fs::File::create(&archive_path)
+        .map_err(|e| format!("Failed to create archive: {}", e))?;
+    
+    let mut zip = ZipWriter::new(file);
+    let options = SimpleFileOptions::default()
+        .compression_method(zip::CompressionMethod::Deflated)
+        .compression_level(Some(6));
+
+    let mut compressed = 0;
+    let mut failed = 0;
+    let total = file_paths.len();
+
+    for (idx, file_path) in file_paths.iter().enumerate() {
+        let full_path = format!("./data/{}", file_path);
+        
+        match std::fs::File::open(&full_path) {
+            Ok(mut source_file) => {
+                // Use only the filename in the archive (not full path)
+                let file_name = std::path::Path::new(file_path)
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or(file_path);
+
+                if let Err(e) = zip.start_file(file_name, options) {
+                    eprintln!("Failed to add {} to archive: {}", file_path, e);
+                    failed += 1;
+                    continue;
+                }
+
+                let mut buffer = Vec::new();
+                if let Err(e) = source_file.read_to_end(&mut buffer) {
+                    eprintln!("Failed to read {}: {}", file_path, e);
+                    failed += 1;
+                    continue;
+                }
+
+                if let Err(e) = zip.write_all(&buffer) {
+                    eprintln!("Failed to write {} to archive: {}", file_path, e);
+                    failed += 1;
+                    continue;
+                }
+
+                compressed += 1;
+            }
+            Err(e) => {
+                eprintln!("Failed to open {}: {}", file_path, e);
+                failed += 1;
+            }
+        }
+
+        // Update progress
+        let progress = ((idx + 1) * 100 / total) as i32;
+        let _ = sqlx::query("UPDATE background_jobs SET result = ? WHERE id = ?")
+            .bind(serde_json::json!({"progress": progress}).to_string())
+            .bind(&job.id)
+            .execute(db_pool)
+            .await;
+    }
+
+    let _ = zip.finish().map_err(|e| format!("Failed to finish archive: {}", e))?;
+
+    // Get final archive size
+    let archive_size = std::fs::metadata(&archive_path)
+        .map(|m| m.len())
+        .unwrap_or(0);
+
     Ok(serde_json::json!({
-        "compressed": file_paths.len(),
-        "archive_path": "bulk_archive.zip",
+        "compressed": compressed,
+        "failed": failed,
+        "total": total,
+        "archive_path": output_path,
+        "archive_size": archive_size,
     }).to_string())
 }
 

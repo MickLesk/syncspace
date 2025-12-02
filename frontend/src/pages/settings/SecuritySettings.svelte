@@ -226,7 +226,7 @@
                 class="flex-1"
               >
                 <i class="bi bi-shield-plus mr-2"></i>
-                {loading ? "Loading..." : "Enable 2FA"}
+                {loading ? tr("loading") : tr("enable2FA")}
               </ModernButton>
             {:else}
               <ModernButton
@@ -236,7 +236,7 @@
                 class="flex-1"
               >
                 <i class="bi bi-shield-x mr-2"></i>
-                {loading ? "Disabling..." : "Disable 2FA"}
+                {loading ? tr("disabling") : tr("disable2FA")}
               </ModernButton>
             {/if}
           </div>
@@ -252,11 +252,10 @@
         <div class="p-6 space-y-6">
           <div class="text-center">
             <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Scan QR Code
+              {tr("scanQRCode")}
             </h3>
             <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
-              Use an authenticator app like Google Authenticator, Authy, or
-              Microsoft Authenticator to scan this QR code
+              {tr("useAuthenticatorApp")}
             </p>
 
             <!-- QR Code -->
@@ -277,13 +276,13 @@
               <summary
                 class="cursor-pointer text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
               >
-                Can't scan? Enter manually
+                {tr("cantScanEnterManually")}
               </summary>
               <div
                 class="mt-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
               >
                 <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                  Secret Key:
+                  {tr("secretKey")}:
                 </p>
                 <code
                   class="block p-3 bg-white dark:bg-gray-900 rounded font-mono text-sm break-all border border-gray-300 dark:border-gray-600"
@@ -301,7 +300,7 @@
                 for="verification-code"
                 class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
               >
-                Enter 6-digit code from your authenticator app
+                {tr("enter6DigitCode")}
               </label>
               <input
                 id="verification-code"
@@ -324,7 +323,7 @@
                 onclick={cancelSetup}
                 class="flex-1"
               >
-                Cancel
+                {tr("cancel")}
               </ModernButton>
               <ModernButton
                 variant="primary"
@@ -332,7 +331,7 @@
                 disabled={loading || verificationCode.length !== 6}
                 class="flex-1"
               >
-                {loading ? "Verifying..." : "Verify & Enable"}
+                {loading ? tr("verifying") : tr("verifyAndEnable")}
               </ModernButton>
             </div>
           </div>
@@ -350,30 +349,26 @@
             class="bi bi-info-circle-fill text-2xl text-blue-600 dark:text-blue-400"
           ></i>
           <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
-            Security Tips
+            {tr("securityTips")}
           </h3>
         </div>
 
         <ul class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
           <li class="flex gap-3">
             <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
-            <span
-              >Use a strong, unique password with at least 12 characters</span
-            >
+            <span>{tr("securityTip1")}</span>
           </li>
           <li class="flex gap-3">
             <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
-            <span>Enable 2FA for enhanced account security</span>
+            <span>{tr("securityTip2")}</span>
           </li>
           <li class="flex gap-3">
             <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
-            <span
-              >Save your 2FA backup codes in a secure location (coming soon)</span
-            >
+            <span>{tr("securityTip3")}</span>
           </li>
           <li class="flex gap-3">
             <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
-            <span>Regularly review your active sessions and devices</span>
+            <span>{tr("securityTip4")}</span>
           </li>
         </ul>
       </div>
@@ -390,17 +385,17 @@
           ></i>
           <div>
             <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
-              Change Password
+              {tr("changePassword")}
             </h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-              Update your account password
+              {tr("updateAccountPassword")}
             </p>
           </div>
         </div>
 
         <ModernButton variant="secondary" class="w-full">
           <i class="bi bi-arrow-clockwise mr-2"></i>
-          Change Password
+          {tr("changePassword")}
         </ModernButton>
       </div>
     {/snippet}

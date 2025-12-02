@@ -7,12 +7,7 @@
 //! - Background job queue status
 //! - Real-time system metrics
 
-use axum::{
-    extract::State,
-    http::StatusCode,
-    routing::get,
-    Json, Router,
-};
+use axum::{extract::State, http::StatusCode, routing::get, Json, Router};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
@@ -26,7 +21,7 @@ use crate::{auth::UserInfo, AppState};
 /// Comprehensive system health response
 #[derive(Debug, Serialize)]
 pub struct SystemHealth {
-    pub status: String,               // "healthy", "degraded", "unhealthy"
+    pub status: String, // "healthy", "degraded", "unhealthy"
     pub uptime_seconds: u64,
     pub timestamp: DateTime<Utc>,
     pub server: ServerMetrics,
@@ -175,34 +170,35 @@ async fn get_system_health(
     _user: UserInfo,
 ) -> Result<Json<SystemHealth>, StatusCode> {
     let start = Instant::now();
-    
+
     // Get uptime
     let uptime_seconds = state.start_time.elapsed().as_secs();
-    
+
     // Check database health
     let db_health = check_database_health(&state).await;
-    
+
     // Check storage health
     let storage_health = check_storage_health(&state).await;
-    
+
     // Check search health
     let search_health = check_search_health(&state).await;
-    
+
     // Check jobs health
     let jobs_health = check_jobs_health(&state).await;
-    
+
     // Check websocket health
     let ws_health = check_websocket_health(&state).await;
-    
+
     // Get server metrics
     let server_metrics = get_server_metrics();
-    
+
     // Check individual services
     let services = check_services(&state).await;
-    
+
     // Determine overall status
-    let status = determine_overall_status(&db_health, &storage_health, &search_health, &jobs_health);
-    
+    let status =
+        determine_overall_status(&db_health, &storage_health, &search_health, &jobs_health);
+
     let health = SystemHealth {
         status,
         uptime_seconds,
@@ -215,7 +211,7 @@ async fn get_system_health(
         websocket: ws_health,
         services,
     };
-    
+
     tracing::debug!("Health check completed in {:?}", start.elapsed());
     Ok(Json(health))
 }
@@ -226,10 +222,10 @@ async fn get_detailed_health(
     _user: UserInfo,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let health = get_system_health(State(state.clone()), _user).await?;
-    
+
     // Add additional detailed metrics
     let table_stats = get_table_statistics(&state).await;
-    
+
     Ok(Json(serde_json::json!({
         "health": health.0,
         "tables": table_stats,
@@ -248,22 +244,22 @@ async fn get_system_metrics(
     _user: UserInfo,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let server = get_server_metrics();
-    
+
     // Get recent activity counts
     let activity_1h: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM activity WHERE timestamp > datetime('now', '-1 hour')"
+        "SELECT COUNT(*) FROM activity WHERE timestamp > datetime('now', '-1 hour')",
     )
     .fetch_one(&state.db_pool)
     .await
     .unwrap_or((0,));
-    
+
     let activity_24h: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM activity WHERE timestamp > datetime('now', '-24 hours')"
+        "SELECT COUNT(*) FROM activity WHERE timestamp > datetime('now', '-24 hours')",
     )
     .fetch_one(&state.db_pool)
     .await
     .unwrap_or((0,));
-    
+
     // Get upload/download counts
     let uploads_24h: (i64,) = sqlx::query_as(
         "SELECT COUNT(*) FROM activity WHERE action = 'upload' AND timestamp > datetime('now', '-24 hours')"
@@ -271,14 +267,14 @@ async fn get_system_metrics(
     .fetch_one(&state.db_pool)
     .await
     .unwrap_or((0,));
-    
+
     let downloads_24h: (i64,) = sqlx::query_as(
         "SELECT COUNT(*) FROM activity WHERE action = 'download' AND timestamp > datetime('now', '-24 hours')"
     )
     .fetch_one(&state.db_pool)
     .await
     .unwrap_or((0,));
-    
+
     Ok(Json(serde_json::json!({
         "timestamp": Utc::now(),
         "server": server,
@@ -298,20 +294,20 @@ async fn get_database_stats(
     _user: UserInfo,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let tables = get_table_statistics(&state).await;
-    
+
     // Get database file size
     let db_size = std::fs::metadata("./data/syncspace.db")
         .map(|m| m.len())
         .unwrap_or(0);
-    
+
     // Get WAL size
     let wal_size = std::fs::metadata("./data/syncspace.db-wal")
         .map(|m| m.len())
         .unwrap_or(0);
-    
+
     // Get total row counts
     let total_rows: i64 = tables.iter().map(|t| t.row_count).sum();
-    
+
     Ok(Json(serde_json::json!({
         "database_size_bytes": db_size,
         "wal_size_bytes": wal_size,
@@ -343,7 +339,7 @@ async fn get_active_processes(
     .fetch_all(&state.db_pool)
     .await
     .unwrap_or_default();
-    
+
     // Get running jobs
     let jobs: Vec<(String, String, String, String)> = sqlx::query_as(
         "SELECT id, job_type, status, created_at FROM background_jobs WHERE status IN ('pending', 'running') ORDER BY created_at DESC LIMIT 20"
@@ -351,7 +347,7 @@ async fn get_active_processes(
     .fetch_all(&state.db_pool)
     .await
     .unwrap_or_default();
-    
+
     Ok(Json(serde_json::json!({
         "active_sessions": sessions.len(),
         "sessions": sessions.iter().map(|(user_id, ip, last)| {
@@ -379,21 +375,21 @@ async fn get_active_processes(
 
 fn get_server_metrics() -> ServerMetrics {
     use std::process;
-    
+
     // Get system info
     let hostname = hostname::get()
         .map(|h| h.to_string_lossy().to_string())
         .unwrap_or_else(|_| "unknown".to_string());
-    
+
     let os = std::env::consts::OS.to_string();
     let arch = std::env::consts::ARCH.to_string();
-    
+
     // Get memory info (simplified - in production use sysinfo crate)
     let memory_used_mb = 0.0; // Would need sysinfo crate
     let memory_total_mb = 0.0;
     let memory_percent = 0.0;
     let cpu_usage_percent = 0.0;
-    
+
     ServerMetrics {
         hostname,
         os,
@@ -413,32 +409,33 @@ fn get_server_metrics() -> ServerMetrics {
 
 async fn check_database_health(state: &AppState) -> DatabaseHealth {
     let start = Instant::now();
-    
+
     // Simple ping query
-    let ping_result = sqlx::query("SELECT 1")
-        .execute(&state.db_pool)
-        .await;
-    
+    let ping_result = sqlx::query("SELECT 1").execute(&state.db_pool).await;
+
     let latency_ms = start.elapsed().as_secs_f64() * 1000.0;
-    let status = if ping_result.is_ok() { "healthy" } else { "unhealthy" };
-    
+    let status = if ping_result.is_ok() {
+        "healthy"
+    } else {
+        "unhealthy"
+    };
+
     // Get table count
-    let tables_count: (i32,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM sqlite_master WHERE type='table'"
-    )
-    .fetch_one(&state.db_pool)
-    .await
-    .unwrap_or((0,));
-    
+    let tables_count: (i32,) =
+        sqlx::query_as("SELECT COUNT(*) FROM sqlite_master WHERE type='table'")
+            .fetch_one(&state.db_pool)
+            .await
+            .unwrap_or((0,));
+
     // Get database size
     let db_size = std::fs::metadata("./data/syncspace.db")
         .map(|m| m.len() as f64 / 1024.0 / 1024.0)
         .unwrap_or(0.0);
-    
+
     let wal_size = std::fs::metadata("./data/syncspace.db-wal")
         .map(|m| m.len() as f64 / 1024.0 / 1024.0)
         .unwrap_or(0.0);
-    
+
     DatabaseHealth {
         status: status.to_string(),
         connection_pool_size: state.db_pool.options().get_max_connections(),
@@ -454,7 +451,7 @@ async fn check_database_health(state: &AppState) -> DatabaseHealth {
 
 async fn check_storage_health(state: &AppState) -> StorageHealth {
     let data_path = "./data";
-    
+
     // Get disk usage (simplified)
     let (total, used, available) = get_disk_usage(data_path);
     let usage_percent = if total > 0 {
@@ -462,27 +459,25 @@ async fn check_storage_health(state: &AppState) -> StorageHealth {
     } else {
         0.0
     };
-    
+
     // Get file counts
     let files_count: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM files WHERE is_deleted = 0")
         .fetch_one(&state.db_pool)
         .await
         .unwrap_or((0,));
-    
-    let dirs_count: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM files WHERE is_deleted = 0 AND is_directory = 1"
-    )
-    .fetch_one(&state.db_pool)
-    .await
-    .unwrap_or((0,));
-    
-    let total_size: (i64,) = sqlx::query_as(
-        "SELECT COALESCE(SUM(size_bytes), 0) FROM files WHERE is_deleted = 0"
-    )
-    .fetch_one(&state.db_pool)
-    .await
-    .unwrap_or((0,));
-    
+
+    let dirs_count: (i64,) =
+        sqlx::query_as("SELECT COUNT(*) FROM files WHERE is_deleted = 0 AND is_directory = 1")
+            .fetch_one(&state.db_pool)
+            .await
+            .unwrap_or((0,));
+
+    let total_size: (i64,) =
+        sqlx::query_as("SELECT COALESCE(SUM(size_bytes), 0) FROM files WHERE is_deleted = 0")
+            .fetch_one(&state.db_pool)
+            .await
+            .unwrap_or((0,));
+
     let status = if usage_percent > 90.0 {
         "critical"
     } else if usage_percent > 75.0 {
@@ -490,7 +485,7 @@ async fn check_storage_health(state: &AppState) -> StorageHealth {
     } else {
         "healthy"
     };
-    
+
     StorageHealth {
         status: status.to_string(),
         data_path: data_path.to_string(),
@@ -506,16 +501,17 @@ async fn check_storage_health(state: &AppState) -> StorageHealth {
 
 async fn check_search_health(state: &AppState) -> SearchHealth {
     let index_path = "./data/search_index";
-    
+
     // Get index size
     let index_size = get_directory_size(index_path);
-    
+
     // Get documents count from search index stats
-    let docs_count = state.search_index
+    let docs_count = state
+        .search_index
         .stats()
         .map(|s| s.indexed_docs as i64)
         .unwrap_or(0);
-    
+
     SearchHealth {
         status: "healthy".to_string(),
         index_path: index_path.to_string(),
@@ -527,34 +523,32 @@ async fn check_search_health(state: &AppState) -> SearchHealth {
 }
 
 async fn check_jobs_health(state: &AppState) -> JobsHealth {
-    let pending: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM background_jobs WHERE status = 'pending'"
-    )
-    .fetch_one(&state.db_pool)
-    .await
-    .unwrap_or((0,));
-    
-    let running: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM background_jobs WHERE status = 'running'"
-    )
-    .fetch_one(&state.db_pool)
-    .await
-    .unwrap_or((0,));
-    
+    let pending: (i64,) =
+        sqlx::query_as("SELECT COUNT(*) FROM background_jobs WHERE status = 'pending'")
+            .fetch_one(&state.db_pool)
+            .await
+            .unwrap_or((0,));
+
+    let running: (i64,) =
+        sqlx::query_as("SELECT COUNT(*) FROM background_jobs WHERE status = 'running'")
+            .fetch_one(&state.db_pool)
+            .await
+            .unwrap_or((0,));
+
     let completed_today: (i64,) = sqlx::query_as(
         "SELECT COUNT(*) FROM background_jobs WHERE status = 'completed' AND updated_at > datetime('now', '-24 hours')"
     )
     .fetch_one(&state.db_pool)
     .await
     .unwrap_or((0,));
-    
+
     let failed_today: (i64,) = sqlx::query_as(
         "SELECT COUNT(*) FROM background_jobs WHERE status = 'failed' AND updated_at > datetime('now', '-24 hours')"
     )
     .fetch_one(&state.db_pool)
     .await
     .unwrap_or((0,));
-    
+
     let status = if failed_today.0 > 10 {
         "degraded"
     } else if pending.0 > 100 {
@@ -562,7 +556,7 @@ async fn check_jobs_health(state: &AppState) -> JobsHealth {
     } else {
         "healthy"
     };
-    
+
     JobsHealth {
         status: status.to_string(),
         pending_count: pending.0,
@@ -585,10 +579,13 @@ async fn check_websocket_health(_state: &AppState) -> WebSocketHealth {
 
 async fn check_services(state: &AppState) -> Vec<ServiceHealth> {
     let mut services = Vec::new();
-    
+
     // Database service
     let db_start = Instant::now();
-    let db_ok = sqlx::query("SELECT 1").execute(&state.db_pool).await.is_ok();
+    let db_ok = sqlx::query("SELECT 1")
+        .execute(&state.db_pool)
+        .await
+        .is_ok();
     services.push(ServiceHealth {
         name: "database".to_string(),
         status: if db_ok { "healthy" } else { "unhealthy" }.to_string(),
@@ -596,7 +593,7 @@ async fn check_services(state: &AppState) -> Vec<ServiceHealth> {
         last_check: Utc::now(),
         message: None,
     });
-    
+
     // Search service
     let search_ok = state.search_index.stats().is_ok();
     services.push(ServiceHealth {
@@ -606,7 +603,7 @@ async fn check_services(state: &AppState) -> Vec<ServiceHealth> {
         last_check: Utc::now(),
         message: None,
     });
-    
+
     // Storage service
     let storage_ok = std::fs::metadata("./data").is_ok();
     services.push(ServiceHealth {
@@ -616,7 +613,7 @@ async fn check_services(state: &AppState) -> Vec<ServiceHealth> {
         last_check: Utc::now(),
         message: None,
     });
-    
+
     services
 }
 
@@ -627,7 +624,7 @@ async fn get_table_statistics(state: &AppState) -> Vec<TableStats> {
     .fetch_all(&state.db_pool)
     .await
     .unwrap_or_default();
-    
+
     let mut stats = Vec::new();
     for (table_name,) in tables {
         // Get row count
@@ -636,7 +633,7 @@ async fn get_table_statistics(state: &AppState) -> Vec<TableStats> {
             .fetch_one(&state.db_pool)
             .await
             .unwrap_or((0,));
-        
+
         // Get index count
         let index_query = format!(
             "SELECT COUNT(*) FROM sqlite_master WHERE type='index' AND tbl_name='{}'",
@@ -646,7 +643,7 @@ async fn get_table_statistics(state: &AppState) -> Vec<TableStats> {
             .fetch_one(&state.db_pool)
             .await
             .unwrap_or((0,));
-        
+
         stats.push(TableStats {
             name: table_name,
             row_count: row_count.0,
@@ -654,15 +651,34 @@ async fn get_table_statistics(state: &AppState) -> Vec<TableStats> {
             index_count: index_count.0,
         });
     }
-    
+
     stats
 }
 
 fn get_disk_usage(path: &str) -> (u64, u64, u64) {
-    // Simplified - in production use sys-info or sysinfo crate
-    // For now, return placeholder values
-    let total: u64 = 100 * 1024 * 1024 * 1024; // 100 GB placeholder
+    use sysinfo::Disks;
+
+    // Try to get actual disk info using sysinfo
+    let disks = Disks::new_with_refreshed_list();
+
+    // Find the disk that contains our path
+    let path_buf = std::path::Path::new(path)
+        .canonicalize()
+        .unwrap_or_else(|_| std::path::PathBuf::from(path));
+
+    for disk in disks.list() {
+        let mount_point = disk.mount_point();
+        if path_buf.starts_with(mount_point) {
+            let total = disk.total_space();
+            let available = disk.available_space();
+            let used = total.saturating_sub(available);
+            return (total, used, available);
+        }
+    }
+
+    // Fallback: calculate used space from directory and estimate total
     let used: u64 = get_directory_size(path);
+    let total: u64 = 100 * 1024 * 1024 * 1024; // 100 GB fallback
     let available = total.saturating_sub(used);
     (total, used, available)
 }
@@ -685,10 +701,10 @@ fn determine_overall_status(
 ) -> String {
     if db.status == "unhealthy" || storage.status == "critical" {
         "unhealthy".to_string()
-    } else if db.status == "degraded" 
-        || storage.status == "warning" 
-        || search.status == "degraded" 
-        || jobs.status == "degraded" 
+    } else if db.status == "degraded"
+        || storage.status == "warning"
+        || search.status == "degraded"
+        || jobs.status == "degraded"
     {
         "degraded".to_string()
     } else {

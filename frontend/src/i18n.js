@@ -622,6 +622,15 @@ export const translations = {
       jobType: 'Auftragstyp',
       cronExpression: 'Cron-Ausdruck',
       cronExpressionHint: 'Format: Minute Stunde Tag Monat Wochentag (z.B. 0 0 * * * = täglich um Mitternacht)',
+      jobCancelled: 'Auftrag abgebrochen',
+      confirmCleanup: 'Alte abgeschlossene/fehlgeschlagene Aufträge entfernen (älter als 30 Tage)?',
+      cleanupCompleted: 'Bereinigung abgeschlossen',
+      failedToCleanup: 'Bereinigung fehlgeschlagen',
+      cronEnabled: 'Cron-Auftrag aktiviert',
+      cronDisabled: 'Cron-Auftrag deaktiviert',
+      failedToToggle: 'Umschalten fehlgeschlagen',
+      confirmDeleteCron: 'Diesen Cron-Auftrag löschen?',
+      cronDeleted: 'Cron-Auftrag gelöscht',
     },
     
     // File Comparison
@@ -1415,6 +1424,14 @@ export const translations = {
     disabling: 'Deaktiviert...',
     enabling: 'Aktiviert...',
     verifying: 'Überprüft...',
+    cantScanEnterManually: 'Kann nicht scannen? Manuell eingeben',
+    secretKey: 'Geheimer Schlüssel',
+    enter6DigitCode: 'Geben Sie den 6-stelligen Code aus Ihrer Authenticator-App ein',
+    verifyAndEnable: 'Überprüfen & Aktivieren',
+    securityTip1: 'Verwenden Sie ein starkes, einzigartiges Passwort mit mindestens 12 Zeichen',
+    securityTip2: 'Aktivieren Sie 2FA für erhöhte Kontosicherheit',
+    securityTip3: 'Melden Sie sich niemals bei nicht vertrauenswürdigen Geräten an',
+    securityTip4: 'Sichern Sie Ihre 2FA-Wiederherstellungscodes sicher auf',
     
     // Storage View
     used: 'Verwendet',
@@ -1783,6 +1800,12 @@ export const translations = {
     storageUsagePercentage: 'Speichernutzung: {0}%',
     cleanupOldFiles: 'Alte Dateien bereinigen',
     archiveInactiveData: 'Inaktive Daten archivieren',
+    pathWhereFilesStored: 'Pfad, wo Dateien gespeichert werden',
+    maxFileSizeMB: 'Max. Dateigröße (MB)',
+    maxUploadSizeDesc: 'Maximale Größe für hochgeladene Dateien',
+    cacheSize: 'Cache-Größe',
+    currentlyUsing: 'Aktuell verwendet: {0}',
+    clearCacheBtn: 'Cache löschen',
     
     // BackupSettings
     backupConfigDescription: 'Konfigurieren Sie Sicherungen und Wiederherstellungen',
@@ -2980,6 +3003,15 @@ export const translations = {
       jobType: 'Job Type',
       cronExpression: 'Cron Expression',
       cronExpressionHint: 'Format: minute hour day month weekday (e.g. 0 0 * * * = daily at midnight)',
+      jobCancelled: 'Job cancelled',
+      confirmCleanup: 'Remove old completed/failed jobs (older than 30 days)?',
+      cleanupCompleted: 'Cleanup completed',
+      failedToCleanup: 'Cleanup failed',
+      cronEnabled: 'Cron job enabled',
+      cronDisabled: 'Cron job disabled',
+      failedToToggle: 'Toggle failed',
+      confirmDeleteCron: 'Delete this cron job?',
+      cronDeleted: 'Cron job deleted',
     },
     
     // File Comparison
@@ -3709,6 +3741,14 @@ export const translations = {
     disabling: 'Disabling...',
     enabling: 'Enabling...',
     verifying: 'Verifying...',
+    cantScanEnterManually: "Can't scan? Enter manually",
+    secretKey: 'Secret Key',
+    enter6DigitCode: 'Enter 6-digit code from your authenticator app',
+    verifyAndEnable: 'Verify & Enable',
+    securityTip1: 'Use a strong, unique password with at least 12 characters',
+    securityTip2: 'Enable 2FA for enhanced account security',
+    securityTip3: 'Never log in from untrusted devices',
+    securityTip4: 'Backup your 2FA recovery codes securely',
     
     // Storage View
     used: 'Used',
@@ -4098,6 +4138,12 @@ export const translations = {
     storageUsagePercentage: 'Storage usage: {0}%',
     cleanupOldFiles: 'Clean up old files',
     archiveInactiveData: 'Archive inactive data',
+    pathWhereFilesStored: 'Path where files are stored',
+    maxFileSizeMB: 'Max File Size (MB)',
+    maxUploadSizeDesc: 'Maximum size for uploaded files',
+    cacheSize: 'Cache Size',
+    currentlyUsing: 'Currently using {0}',
+    clearCacheBtn: 'Clear Cache',
     
     // BackupSettings
     backupConfigDescription: 'Configure backups and restore points',

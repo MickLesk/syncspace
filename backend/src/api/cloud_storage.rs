@@ -302,16 +302,118 @@ async fn check_backend_health(
     UserInfo { .. }: UserInfo,
     Path(id): Path<String>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    // TODO: Implement actual health check logic for each backend type
-    // For now, return a placeholder response
+    // Fetch backend configuration
+    let backend =
+        sqlx::query_as::<_, StorageBackend>("SELECT * FROM storage_backends WHERE id = ?")
+            .bind(&id)
+            .fetch_optional(&state.db_pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .ok_or(StatusCode::NOT_FOUND)?;
+
+    let config: serde_json::Value = serde_json::from_str(&backend.config).unwrap_or_default();
+
+    // Perform health checks based on backend type
+    let (connectivity, read_status, write_status, details) = match backend.backend_type.as_str() {
+        "local" => {
+            // Check local filesystem path
+            let path = config
+                .get("path")
+                .and_then(|p| p.as_str())
+                .unwrap_or("./data");
+            let path_exists = std::path::Path::new(path).exists();
+            let is_writable = std::fs::metadata(path)
+                .map(|m| !m.permissions().readonly())
+                .unwrap_or(false);
+            (
+                if path_exists { "pass" } else { "fail" },
+                if path_exists { "pass" } else { "fail" },
+                if is_writable { "pass" } else { "fail" },
+                serde_json::json!({ "path": path, "exists": path_exists, "writable": is_writable }),
+            )
+        }
+        "s3" | "minio" => {
+            // For S3/MinIO, check if configuration is complete
+            let has_endpoint = config.get("endpoint").is_some();
+            let has_bucket = config.get("bucket").is_some();
+            let has_credentials =
+                config.get("access_key").is_some() && config.get("secret_key").is_some();
+            let config_complete = has_endpoint && has_bucket && has_credentials;
+            (
+                if config_complete {
+                    "pass"
+                } else {
+                    "config_incomplete"
+                },
+                if config_complete { "pending" } else { "skip" },
+                if config_complete { "pending" } else { "skip" },
+                serde_json::json!({
+                    "has_endpoint": has_endpoint,
+                    "has_bucket": has_bucket,
+                    "has_credentials": has_credentials
+                }),
+            )
+        }
+        "gcs" => {
+            let has_bucket = config.get("bucket").is_some();
+            let has_project = config.get("project_id").is_some();
+            let config_complete = has_bucket && has_project;
+            (
+                if config_complete {
+                    "pass"
+                } else {
+                    "config_incomplete"
+                },
+                if config_complete { "pending" } else { "skip" },
+                if config_complete { "pending" } else { "skip" },
+                serde_json::json!({
+                    "has_bucket": has_bucket,
+                    "has_project": has_project
+                }),
+            )
+        }
+        "azure_blob" => {
+            let has_account = config.get("account_name").is_some();
+            let has_container = config.get("container").is_some();
+            let has_key = config.get("account_key").is_some();
+            let config_complete = has_account && has_container && has_key;
+            (
+                if config_complete {
+                    "pass"
+                } else {
+                    "config_incomplete"
+                },
+                if config_complete { "pending" } else { "skip" },
+                if config_complete { "pending" } else { "skip" },
+                serde_json::json!({
+                    "has_account": has_account,
+                    "has_container": has_container,
+                    "has_key": has_key
+                }),
+            )
+        }
+        _ => ("unknown", "skip", "skip", serde_json::json!({})),
+    };
+
+    let overall_status =
+        if connectivity == "pass" && read_status != "fail" && write_status != "fail" {
+            "healthy"
+        } else if connectivity == "config_incomplete" {
+            "unconfigured"
+        } else {
+            "unhealthy"
+        };
+
     Ok(Json(serde_json::json!({
         "backend_id": id,
-        "status": "healthy",
+        "backend_type": backend.backend_type,
+        "status": overall_status,
         "checks": {
-            "connectivity": "pass",
-            "read": "pass",
-            "write": "pass"
+            "connectivity": connectivity,
+            "read": read_status,
+            "write": write_status
         },
+        "details": details,
         "last_check": chrono::Utc::now().to_rfc3339()
     })))
 }
@@ -330,11 +432,160 @@ async fn test_backend_connection(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    // TODO: Implement actual connection test
+    // Fetch backend configuration
+    let backend =
+        sqlx::query_as::<_, StorageBackend>("SELECT * FROM storage_backends WHERE id = ?")
+            .bind(&id)
+            .fetch_optional(&state.db_pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .ok_or(StatusCode::NOT_FOUND)?;
+
+    let config: serde_json::Value = serde_json::from_str(&backend.config).unwrap_or_default();
+    let start = std::time::Instant::now();
+
+    // Perform connection test based on backend type
+    let (success, message, details) = match backend.backend_type.as_str() {
+        "local" => {
+            let path = config
+                .get("path")
+                .and_then(|p| p.as_str())
+                .unwrap_or("./data");
+            let test_path = std::path::Path::new(path);
+
+            if !test_path.exists() {
+                (
+                    false,
+                    "Path does not exist".to_string(),
+                    serde_json::json!({ "path": path }),
+                )
+            } else {
+                // Try to create a test file
+                let test_file = test_path.join(".syncspace_connection_test");
+                match std::fs::write(&test_file, "test") {
+                    Ok(_) => {
+                        let _ = std::fs::remove_file(&test_file);
+                        (
+                            true,
+                            "Local storage connection successful".to_string(),
+                            serde_json::json!({
+                                "path": path,
+                                "readable": true,
+                                "writable": true
+                            }),
+                        )
+                    }
+                    Err(e) => (
+                        false,
+                        format!("Write test failed: {}", e),
+                        serde_json::json!({ "error": e.to_string() }),
+                    ),
+                }
+            }
+        }
+        "s3" | "minio" => {
+            // Validate S3 configuration completeness
+            let endpoint = config.get("endpoint").and_then(|e| e.as_str());
+            let bucket = config.get("bucket").and_then(|b| b.as_str());
+            let access_key = config.get("access_key").and_then(|k| k.as_str());
+            let secret_key = config.get("secret_key").and_then(|k| k.as_str());
+
+            match (endpoint, bucket, access_key, secret_key) {
+                (Some(ep), Some(bkt), Some(_), Some(_)) => {
+                    // Configuration is complete - would normally make API call here
+                    (
+                        true,
+                        format!("S3 configuration valid for endpoint: {}", ep),
+                        serde_json::json!({
+                            "endpoint": ep,
+                            "bucket": bkt,
+                            "note": "Full connectivity test requires aws-sdk integration"
+                        }),
+                    )
+                }
+                _ => (
+                    false,
+                    "Incomplete S3 configuration".to_string(),
+                    serde_json::json!({
+                        "missing": {
+                            "endpoint": endpoint.is_none(),
+                            "bucket": bucket.is_none(),
+                            "access_key": access_key.is_none(),
+                            "secret_key": secret_key.is_none()
+                        }
+                    }),
+                ),
+            }
+        }
+        "gcs" => {
+            let bucket = config.get("bucket").and_then(|b| b.as_str());
+            let project_id = config.get("project_id").and_then(|p| p.as_str());
+
+            match (bucket, project_id) {
+                (Some(bkt), Some(proj)) => (
+                    true,
+                    format!("GCS configuration valid for project: {}", proj),
+                    serde_json::json!({
+                        "bucket": bkt,
+                        "project_id": proj,
+                        "note": "Full connectivity test requires GCS SDK integration"
+                    }),
+                ),
+                _ => (
+                    false,
+                    "Incomplete GCS configuration".to_string(),
+                    serde_json::json!({
+                        "missing": {
+                            "bucket": bucket.is_none(),
+                            "project_id": project_id.is_none()
+                        }
+                    }),
+                ),
+            }
+        }
+        "azure_blob" => {
+            let account = config.get("account_name").and_then(|a| a.as_str());
+            let container = config.get("container").and_then(|c| c.as_str());
+            let key = config.get("account_key").and_then(|k| k.as_str());
+
+            match (account, container, key) {
+                (Some(acc), Some(cont), Some(_)) => (
+                    true,
+                    format!("Azure Blob configuration valid for account: {}", acc),
+                    serde_json::json!({
+                        "account_name": acc,
+                        "container": cont,
+                        "note": "Full connectivity test requires Azure SDK integration"
+                    }),
+                ),
+                _ => (
+                    false,
+                    "Incomplete Azure Blob configuration".to_string(),
+                    serde_json::json!({
+                        "missing": {
+                            "account_name": account.is_none(),
+                            "container": container.is_none(),
+                            "account_key": key.is_none()
+                        }
+                    }),
+                ),
+            }
+        }
+        _ => (
+            false,
+            format!("Unknown backend type: {}", backend.backend_type),
+            serde_json::json!({}),
+        ),
+    };
+
+    let latency_ms = start.elapsed().as_millis() as u64;
+
     Ok(Json(serde_json::json!({
-        "success": true,
-        "message": "Connection test successful",
-        "latency_ms": 45
+        "success": success,
+        "message": message,
+        "latency_ms": latency_ms,
+        "backend_type": backend.backend_type,
+        "details": details
     })))
 }
 

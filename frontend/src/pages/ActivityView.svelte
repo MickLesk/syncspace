@@ -278,13 +278,13 @@
           <div class="relative">
             <input
               type="text"
-              placeholder="Search activities..."
+              placeholder={tr("searchActivities")}
               class="glass-input w-full md:w-64 pr-10"
               bind:value={searchQuery}
             />
             <button
               class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"
-              aria-label="Search activities"
+              aria-label={tr("searchActivities")}
             >
               <i class="bi bi-search"></i>
             </button>
