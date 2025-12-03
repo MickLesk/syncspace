@@ -117,6 +117,12 @@
         "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200",
     },
     {
+      id: "storage-analytics",
+      icon: "bar-chart-line-fill",
+      label: t($currentLang, "storageAnalytics"),
+      category: "system",
+    },
+    {
       id: "settings",
       icon: "gear-fill",
       label: t($currentLang, "settings"),

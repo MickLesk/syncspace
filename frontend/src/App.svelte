@@ -51,6 +51,7 @@
   import AdminDashboardView from "./pages/admin/AdminDashboardView.svelte";
   import WebhooksView from "./pages/admin/WebhooksView.svelte";
   import SystemHealthView from "./pages/admin/SystemHealthView.svelte";
+  import StorageAnalyticsView from "./pages/analytics/StorageAnalyticsView.svelte";
 
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
@@ -453,6 +454,8 @@
                 <WebhooksView />
               {:else if $currentView === "system-health"}
                 <SystemHealthView />
+              {:else if $currentView === "storage-analytics"}
+                <StorageAnalyticsView />
               {:else if $currentView === "api-tokens"}
                 <ApiTokensView />
               {:else if $currentView === "notifications"}

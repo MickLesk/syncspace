@@ -3650,6 +3650,82 @@ export default {
   webhooks,
   systemHealth,
   apiTokens,
+  storageAnalytics: {
+    /**
+     * Get storage overview statistics
+     */
+    async getOverview() {
+      const response = await fetch(`${API_BASE}/storage/analytics/overview`, {
+        method: "GET",
+        headers: getHeaders(),
+      });
+      return handleResponse(response);
+    },
+
+    /**
+     * Get storage statistics by user
+     */
+    async getByUser() {
+      const response = await fetch(`${API_BASE}/storage/analytics/by-user`, {
+        method: "GET",
+        headers: getHeaders(),
+      });
+      return handleResponse(response);
+    },
+
+    /**
+     * Get storage statistics by folder
+     */
+    async getByFolder() {
+      const response = await fetch(`${API_BASE}/storage/analytics/by-folder`, {
+        method: "GET",
+        headers: getHeaders(),
+      });
+      return handleResponse(response);
+    },
+
+    /**
+     * Get top largest files
+     */
+    async getTopFiles(limit = 100) {
+      const response = await fetch(
+        `${API_BASE}/storage/analytics/top-files?limit=${limit}`,
+        {
+          method: "GET",
+          headers: getHeaders(),
+        }
+      );
+      return handleResponse(response);
+    },
+
+    /**
+     * Get storage growth over time
+     */
+    async getGrowth(days = 30) {
+      const response = await fetch(
+        `${API_BASE}/storage/analytics/growth?days=${days}`,
+        {
+          method: "GET",
+          headers: getHeaders(),
+        }
+      );
+      return handleResponse(response);
+    },
+
+    /**
+     * Get duplicate file statistics
+     */
+    async getDuplicateWaste() {
+      const response = await fetch(
+        `${API_BASE}/storage/analytics/duplicates`,
+        {
+          method: "GET",
+          headers: getHeaders(),
+        }
+      );
+      return handleResponse(response);
+    },
+  },
   smartFolders: {
     /**
      * List all smart folders for current user

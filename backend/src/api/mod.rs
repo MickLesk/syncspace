@@ -40,6 +40,7 @@ pub mod search;
 pub mod setup;
 pub mod sharing;
 pub mod smart_folders;
+pub mod storage_analytics;
 pub mod system;
 pub mod system_health;
 pub mod tags;
@@ -119,6 +120,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(api_tokens::router()) // Personal Access Token management
                 .merge(cleanup::router()) // Auto-cleanup of deleted files
                 .merge(smart_folders::router()) // Smart folders with dynamic rules
+                .merge(storage_analytics::router()) // Storage analytics and statistics
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

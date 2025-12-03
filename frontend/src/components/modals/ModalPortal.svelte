@@ -145,28 +145,43 @@
         $modals.changeFolderColor.data?.file_path;
 
       // Load color from backend API
-      api.folderColors.get(filePath).then((response) => {
-        const currentColor = response?.color;
+      api.folderColors
+        .get(filePath)
+        .then((response) => {
+          const currentColor = response?.color;
 
-        // Set to current color if exists, determine selection mode
-        if (currentColor) {
-          folderColor = currentColor;
-          customColor = currentColor;
-          randomButtonColor = currentColor;
+          // Set to current color if exists, determine selection mode
+          if (currentColor) {
+            folderColor = currentColor;
+            customColor = currentColor;
+            randomButtonColor = currentColor;
 
-          // Check if it's a preset color (case-insensitive comparison)
-          const normalizedColor = currentColor.toUpperCase();
-          const isPreset = folderColors.some(
-            (c) => c.value.toUpperCase() === normalizedColor
-          );
-          if (isPreset) {
-            colorSelectionMode = "preset";
+            // Check if it's a preset color (case-insensitive comparison)
+            const normalizedColor = currentColor.toUpperCase();
+            const isPreset = folderColors.some(
+              (c) => c.value.toUpperCase() === normalizedColor
+            );
+            if (isPreset) {
+              colorSelectionMode = "preset";
+            } else {
+              // If not a preset, treat as custom color
+              colorSelectionMode = "custom";
+            }
           } else {
-            // If not a preset, treat as custom color
-            colorSelectionMode = "custom";
+            // No saved color - default to random
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            const randomHex = `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+            randomButtonColor = randomHex;
+            folderColor = randomHex;
+            customColor = randomHex;
+            colorSelectionMode = "random";
           }
-        } else {
-          // No saved color - default to random
+        })
+        .catch((err) => {
+          console.error("Failed to load folder color:", err);
+          // Default to random on error
           const r = Math.floor(Math.random() * 256);
           const g = Math.floor(Math.random() * 256);
           const b = Math.floor(Math.random() * 256);
@@ -175,19 +190,7 @@
           folderColor = randomHex;
           customColor = randomHex;
           colorSelectionMode = "random";
-        }
-      }).catch((err) => {
-        console.error("Failed to load folder color:", err);
-        // Default to random on error
-        const r = Math.floor(Math.random() * 256);
-        const g = Math.floor(Math.random() * 256);
-        const b = Math.floor(Math.random() * 256);
-        const randomHex = `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
-        randomButtonColor = randomHex;
-        folderColor = randomHex;
-        customColor = randomHex;
-        colorSelectionMode = "random";
-      });
+        });
     }
   });
 
