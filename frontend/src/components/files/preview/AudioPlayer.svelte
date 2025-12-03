@@ -170,7 +170,7 @@
     </div>
   {:else if error}
     <div class="alert alert-error">
-      <i class="bi bi-exclamation-triangle"></i>
+      <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
       <span>{error}</span>
     </div>
   {/if}
@@ -196,24 +196,20 @@
         class="btn btn-circle btn-ghost btn-lg"
         title="Skip back 10s"
       >
-        <i class="bi bi-skip-backward-fill text-2xl"></i>
+        <i class="bi bi-skip-backward-fill text-2xl" aria-hidden="true"></i>
       </button>
 
-      <button
-        onclick={togglePlay}
+      <button aria-label={isPlaying ? "Pause" : "Play"} onclick={togglePlay}
         class="btn btn-circle btn-primary btn-xl shadow-lg hover:shadow-xl transition-shadow"
         title={isPlaying ? "Pause" : "Play"}
-      >
-        <i class="bi {isPlaying ? 'bi-pause-fill' : 'bi-play-fill'} text-3xl"
-        ></i>
-      </button>
+      ><i class="bi" aria-hidden="true"></i><span class="sr-only">Toggle play</span></button>
 
       <button
         onclick={skipForward}
         class="btn btn-circle btn-ghost btn-lg"
         title="Skip forward 10s"
       >
-        <i class="bi bi-skip-forward-fill text-2xl"></i>
+        <i class="bi bi-skip-forward-fill text-2xl" aria-hidden="true"></i>
       </button>
 
       <button
@@ -221,7 +217,7 @@
         class="btn btn-circle btn-ghost btn-lg"
         title="Stop"
       >
-        <i class="bi bi-stop-fill text-2xl"></i>
+        <i class="bi bi-stop-fill text-2xl" aria-hidden="true"></i>
       </button>
     </div>
 

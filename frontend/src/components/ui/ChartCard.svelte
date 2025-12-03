@@ -17,7 +17,7 @@
     <div class="chart-header">
       {#if icon}
         <div class="chart-icon">
-          <i class="bi bi-{icon}"></i>
+          <i class="bi bi-{icon}" aria-hidden="true"></i>
         </div>
       {/if}
       <h3>{title}</h3>

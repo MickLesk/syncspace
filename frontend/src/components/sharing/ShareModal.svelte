@@ -213,7 +213,10 @@
             <h3
               class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2"
             >
-              <i class="bi bi-folder2-open text-lg text-primary"></i>
+              <i
+                class="bi bi-folder2-open text-lg text-primary"
+                aria-hidden="true"
+              ></i>
               {tr("selectedFiles")} ({selectedFilePaths.length})
             </h3>
             <button
@@ -221,7 +224,7 @@
               class="btn btn-sm btn-primary"
               onclick={() => (showFileBrowser = true)}
             >
-              <i class="bi bi-plus-circle"></i>
+              <i class="bi bi-plus-circle" aria-hidden="true"></i>
               {tr("selectFiles")}
             </button>
           </div>
@@ -239,7 +242,9 @@
                   class="flex items-center justify-between p-2 bg-white dark:bg-gray-700 rounded-lg"
                 >
                   <div class="flex items-center gap-2 min-w-0 flex-1">
-                    <i class="bi bi-file-earmark text-primary flex-shrink-0"
+                    <i
+                      class="bi bi-file-earmark text-primary flex-shrink-0"
+                      aria-hidden="true"
                     ></i>
                     <span class="text-sm font-medium truncate"
                       >{filePath.split("/").pop()}</span
@@ -249,9 +254,10 @@
                     type="button"
                     class="btn btn-ghost btn-sm btn-circle"
                     onclick={() => removeFileFromSelection(filePath)}
+                    ><i class="bi bi-x" aria-hidden="true"></i><span
+                      class="sr-only">Remove</span
+                    ></button
                   >
-                    <i class="bi bi-x-lg"></i>
-                  </button>
                 </div>
               {/each}
             </div>
@@ -263,12 +269,12 @@
       <div class="space-y-5">
         <!-- Share Type -->
         <div>
-          <label
+          <div
             class="block text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
           >
-            <i class="bi bi-share text-lg text-primary"></i>
+            <i class="bi bi-share text-lg text-primary" aria-hidden="true"></i>
             {tr("shareType")}
-          </label>
+          </div>
           <div class="grid grid-cols-2 gap-4">
             <!-- Public Link Card -->
             <div
@@ -288,7 +294,8 @@
                     ? 'ring-4 ring-blue-200 dark:ring-blue-800'
                     : ''}"
                 >
-                  <i class="bi bi-globe text-3xl text-white"></i>
+                  <i class="bi bi-globe text-3xl text-white" aria-hidden="true"
+                  ></i>
                 </div>
                 <div>
                   <div
@@ -321,7 +328,8 @@
                     ? 'ring-4 ring-purple-200 dark:ring-purple-800'
                     : ''}"
                 >
-                  <i class="bi bi-people text-3xl text-white"></i>
+                  <i class="bi bi-people text-3xl text-white" aria-hidden="true"
+                  ></i>
                 </div>
                 <div>
                   <div
@@ -342,18 +350,14 @@
         {#if shareType === "users"}
           <div>
             <div class="flex items-center justify-between mb-3">
-              <label
-                class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2"
-              >
-                <i class="bi bi-person-plus text-lg"></i>
-                {tr("selectUsers")}
-              </label>
+              <div class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2"><i class="bi bi-person-plus text-lg" aria-hidden="true"></i>
+                {tr("selectUsers")}</div>
               <button
                 type="button"
                 onclick={() => (showUserSearchModal = true)}
                 class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
               >
-                <i class="bi bi-search"></i>
+                <i class="bi bi-search" aria-hidden="true"></i>
                 {tr("searchUsers")}
               </button>
             </div>
@@ -413,14 +417,17 @@
                       class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                       title={tr("remove")}
                     >
-                      <i class="bi bi-x-lg"></i>
+                      <i class="bi bi-x-lg" aria-hidden="true"></i>
                     </button>
                   </div>
                 {/each}
               </div>
             {:else}
               <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-                <i class="bi bi-person-plus-fill text-3xl mb-2"></i>
+                <i
+                  class="bi bi-person-plus-fill text-3xl mb-2"
+                  aria-hidden="true"
+                ></i>
                 <p class="text-sm">{tr("clickSearchToAddUsers")}</p>
               </div>
             {/if}
@@ -437,7 +444,8 @@
             <div
               class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 flex items-center justify-center flex-shrink-0 shadow-md"
             >
-              <i class="bi bi-lock-fill text-2xl text-white"></i>
+              <i class="bi bi-lock-fill text-2xl text-white" aria-hidden="true"
+              ></i>
             </div>
             <div class="flex-1">
               <div
@@ -477,14 +485,15 @@
                 <div
                   class="mt-2 flex items-center gap-2 text-xs text-green-600 dark:text-green-400"
                 >
-                  <i class="bi bi-check-circle-fill"></i>
+                  <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
                   <span>{tr("passwordSet")}</span>
                 </div>
               {:else}
                 <div
                   class="mt-2 flex items-center gap-2 text-xs text-red-600 dark:text-red-400"
                 >
-                  <i class="bi bi-exclamation-triangle-fill"></i>
+                  <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"
+                  ></i>
                   <span>{tr("passwordRequired")}</span>
                 </div>
               {/if}
@@ -502,7 +511,10 @@
             <div
               class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 flex items-center justify-center flex-shrink-0 shadow-md"
             >
-              <i class="bi bi-calendar-event text-2xl text-white"></i>
+              <i
+                class="bi bi-calendar-event text-2xl text-white"
+                aria-hidden="true"
+              ></i>
             </div>
             <div class="flex-1">
               <div
@@ -520,7 +532,7 @@
                 class="btn btn-sm btn-ghost gap-1 text-purple-600 hover:text-purple-700 dark:text-purple-400"
                 onclick={() => (expiresAt = null)}
               >
-                <i class="bi bi-x-circle"></i>
+                <i class="bi bi-x-circle" aria-hidden="true"></i>
                 {tr("clear")}
               </button>
             {/if}
@@ -533,7 +545,7 @@
               class="btn btn-sm btn-outline gap-1"
               onclick={() => setExpirationDays(1)}
             >
-              <i class="bi bi-hourglass-split"></i>
+              <i class="bi bi-hourglass-split" aria-hidden="true"></i>
               <span>1 {tr("day")}</span>
             </button>
             <button
@@ -541,7 +553,7 @@
               class="btn btn-sm btn-outline gap-1"
               onclick={() => setExpirationDays(7)}
             >
-              <i class="bi bi-calendar-week"></i>
+              <i class="bi bi-calendar-week" aria-hidden="true"></i>
               <span>1 {tr("week")}</span>
             </button>
             <button
@@ -549,7 +561,7 @@
               class="btn btn-sm btn-outline gap-1"
               onclick={() => setExpirationDays(30)}
             >
-              <i class="bi bi-calendar-month"></i>
+              <i class="bi bi-calendar-month" aria-hidden="true"></i>
               <span>1 {tr("month")}</span>
             </button>
             <button
@@ -557,7 +569,7 @@
               class="btn btn-sm btn-outline gap-1"
               onclick={() => setExpirationDays(90)}
             >
-              <i class="bi bi-calendar3"></i>
+              <i class="bi bi-calendar3" aria-hidden="true"></i>
               <span>3 {tr("months")}</span>
             </button>
           </div>
@@ -585,7 +597,7 @@
         <!-- Permission Preview (for public shares) -->
         {#if shareType === "public"}
           <div class="alert alert-info rounded-xl shadow-sm">
-            <i class="bi bi-info-circle"></i>
+            <i class="bi bi-info-circle" aria-hidden="true"></i>
             <div class="text-sm">
               {tr("publicSharesHaveReadOnlyAccess")}
             </div>
@@ -597,7 +609,7 @@
       <div class="space-y-5">
         <!-- Success Message -->
         <div class="alert alert-success rounded-xl shadow-md">
-          <i class="bi bi-check-circle-fill text-3xl"></i>
+          <i class="bi bi-check-circle-fill text-3xl" aria-hidden="true"></i>
           <div>
             <h3 class="font-bold text-lg">{tr("shareCreatedSuccessfully")}!</h3>
             <div class="text-sm mt-1">
@@ -617,7 +629,7 @@
               <span
                 class="label-text font-semibold text-base flex items-center gap-2"
               >
-                <i class="bi bi-link-45deg"></i>
+                <i class="bi bi-link-45deg" aria-hidden="true"></i>
                 {tr("shareUrl")}
               </span>
             </label>
@@ -632,7 +644,7 @@
                 class="btn btn-sm btn-primary join-item gap-2"
                 onclick={copyShareUrl}
               >
-                <i class="bi bi-clipboard"></i>
+                <i class="bi bi-clipboard" aria-hidden="true"></i>
                 {tr("copy")}
               </button>
             </div>
@@ -649,10 +661,10 @@
             </div>
             <div class="font-semibold text-lg mt-1 flex items-center gap-2">
               {#if shareType === "public"}
-                <i class="bi bi-globe text-blue-500"></i>
+                <i class="bi bi-globe text-blue-500" aria-hidden="true"></i>
                 <span>{tr("public")}</span>
               {:else}
-                <i class="bi bi-people text-purple-500"></i>
+                <i class="bi bi-people text-purple-500" aria-hidden="true"></i>
                 <span>{tr("users")}</span>
               {/if}
             </div>
@@ -665,12 +677,15 @@
             </div>
             <div class="font-semibold text-lg mt-1 flex items-center gap-2">
               {#if expiresAt}
-                <i class="bi bi-calendar-event text-amber-500"></i>
+                <i
+                  class="bi bi-calendar-event text-amber-500"
+                  aria-hidden="true"
+                ></i>
                 <span
                   >{new Date(expiresAt).toLocaleDateString($currentLang)}</span
                 >
               {:else}
-                <i class="bi bi-infinity text-green-500"></i>
+                <i class="bi bi-infinity text-green-500" aria-hidden="true"></i>
                 <span>{tr("never")}</span>
               {/if}
             </div>
@@ -684,7 +699,7 @@
               <span
                 class="label-text font-semibold text-base flex items-center gap-2"
               >
-                <i class="bi bi-people-fill"></i>
+                <i class="bi bi-people-fill" aria-hidden="true"></i>
                 {tr("sharedWithUsers")}
               </span>
             </label>
@@ -716,11 +731,13 @@
                   </div>
                   <div class="badge badge-lg gap-1 border shadow-sm">
                     {#if userPermissions[user.id] === "read"}
-                      <i class="bi bi-eye"></i> {tr("read")}
+                      <i class="bi bi-eye" aria-hidden="true"></i> {tr("read")}
                     {:else if userPermissions[user.id] === "write"}
-                      <i class="bi bi-pencil"></i> {tr("write")}
+                      <i class="bi bi-pencil" aria-hidden="true"></i>
+                      {tr("write")}
                     {:else if userPermissions[user.id] === "admin"}
-                      <i class="bi bi-shield-check"></i> {tr("admin")}
+                      <i class="bi bi-shield-check" aria-hidden="true"></i>
+                      {tr("admin")}
                     {/if}
                   </div>
                 </div>
@@ -733,19 +750,19 @@
         <div class="flex flex-wrap gap-3">
           {#if requirePassword}
             <div class="badge badge-warning badge-lg gap-2 shadow-sm">
-              <i class="bi bi-lock-fill"></i>
+              <i class="bi bi-lock-fill" aria-hidden="true"></i>
               {tr("passwordProtected")}
             </div>
           {/if}
           {#if allowExternal}
             <div class="badge badge-info badge-lg gap-2 shadow-sm">
-              <i class="bi bi-box-arrow-up-right"></i>
+              <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
               {tr("externalSharingEnabled")}
             </div>
           {/if}
           {#if !allowExternal}
             <div class="badge badge-success badge-lg gap-2">
-              <i class="bi bi-shield-check"></i>
+              <i class="bi bi-shield-check" aria-hidden="true"></i>
               {tr("internalOnly")}
             </div>
           {/if}
@@ -757,7 +774,7 @@
   {#snippet actions()}
     {#if !showShareResult}
       <button class="btn btn-lg btn-ghost gap-2" onclick={close}>
-        <i class="bi bi-x-lg"></i>
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
         {tr("cancel")}
       </button>
       <button
@@ -770,7 +787,7 @@
         {#if loading}
           <span class="loading loading-spinner loading-md"></span>
         {:else}
-          <i class="bi bi-share-fill text-xl"></i>
+          <i class="bi bi-share-fill text-xl" aria-hidden="true"></i>
         {/if}
         <span class="font-semibold">{tr("createShare")}</span>
       </button>
@@ -780,12 +797,12 @@
           class="btn btn-lg btn-primary gap-2 shadow-lg"
           onclick={copyShareUrl}
         >
-          <i class="bi bi-clipboard-fill text-xl"></i>
+          <i class="bi bi-clipboard-fill text-xl" aria-hidden="true"></i>
           {tr("copyUrl")}
         </button>
       {/if}
       <button class="btn btn-lg btn-ghost gap-2" onclick={close}>
-        <i class="bi bi-check-lg text-xl"></i>
+        <i class="bi bi-check-lg text-xl" aria-hidden="true"></i>
         {tr("done")}
       </button>
     {/if}

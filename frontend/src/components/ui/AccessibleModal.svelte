@@ -80,7 +80,7 @@
     aria-modal="true"
     aria-labelledby="modal-title"
     aria-describedby={subtitle ? "modal-description" : null}
-  >
+   tabindex="0">
     <div
       class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full max-h-screen overflow-y-auto {className}"
       role="document"

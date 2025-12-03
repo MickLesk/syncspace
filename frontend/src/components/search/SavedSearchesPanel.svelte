@@ -111,7 +111,7 @@
     class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
   >
     <div class="flex items-center gap-2">
-      <i class="bi bi-bookmark"></i>
+      <i class="bi bi-bookmark" aria-hidden="true"></i>
       {t('savedSearches.title')}
       {#if $savedSearches.searches.length > 0}
         <span class="inline-block min-w-5 px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-semibold">
@@ -126,9 +126,9 @@
     <div class="border-t border-gray-200 p-4 dark:border-gray-700 space-y-4">
       <!-- Save Current Search -->
       <div class="space-y-2">
-        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">
+        <div class="block text-xs font-medium text-gray-700 dark:text-gray-300">
           {t('savedSearches.saveCurrent')}
-        </label>
+        </div>
         <div class="flex gap-2">
           <input
             type="text"
@@ -148,9 +148,9 @@
 
       <!-- Search & Filter -->
       <div class="space-y-2">
-        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">
+        <div class="block text-xs font-medium text-gray-700 dark:text-gray-300">
           {t('common.search')}
-        </label>
+        </div>
         <input
           type="text"
           bind:value={filterQuery}
@@ -162,9 +162,9 @@
       <!-- Tag Filter -->
       {#if allTags.length > 0}
         <div class="space-y-2">
-          <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">
+          <div class="block text-xs font-medium text-gray-700 dark:text-gray-300">
             {t('common.tags')}
-          </label>
+          </div>
           <div class="flex flex-wrap gap-2">
             {#each allTags as tag}
               <button
@@ -238,15 +238,15 @@
                   title={t('common.duplicate')}
                   class="p-1.5 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
-                  <i class="bi bi-files"></i>
+                  <i class="bi bi-files" aria-hidden="true"></i>
                 </button>
 
                 <button
                   onclick={() => handleDeleteSearch(search.id)}
                   title={t('common.delete')}
                   class="p-1.5 rounded text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                >
-                  <i class="bi bi-trash"></i>
+                 aria-label="Delete">
+                  <i class="bi bi-trash" aria-hidden="true"></i>
                 </button>
               </div>
             </div>
@@ -281,12 +281,12 @@
             disabled={$savedSearches.searches.length === 0}
             class="w-full px-3 py-2 rounded border border-gray-300 text-sm font-medium text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
           >
-            <i class="bi bi-download mr-1"></i>
+            <i class="bi bi-download mr-1" aria-hidden="true"></i>
             {t('common.export')}
           </button>
 
           <label class="w-full px-3 py-2 rounded border border-gray-300 text-sm font-medium text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer">
-            <i class="bi bi-upload mr-1"></i>
+            <i class="bi bi-upload mr-1" aria-hidden="true"></i>
             {t('common.import')}
             <input
               type="file"

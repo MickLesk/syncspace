@@ -236,7 +236,7 @@
         <h1
           class="text-4xl font-bold gradient-text mb-2 flex items-center gap-3"
         >
-          <i class="bi bi-pie-chart-fill"></i>
+          <i class="bi bi-pie-chart-fill" aria-hidden="true"></i>
           Storage Analytics
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
@@ -249,14 +249,14 @@
         <h2
           class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2"
         >
-          <i class="bi bi-device-hdd-fill text-blue-600"></i>
+          <i class="bi bi-device-hdd-fill text-blue-600" aria-hidden="true"></i>
           System Disk Usage
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div class="glass-card p-6 text-center">
             <div class="text-blue-600 dark:text-blue-400 mb-2">
-              <i class="bi bi-pie-chart-fill text-4xl"></i>
+              <i class="bi bi-pie-chart-fill text-4xl" aria-hidden="true"></i>
             </div>
             <div
               class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
@@ -275,7 +275,7 @@
 
           <div class="glass-card p-6 text-center">
             <div class="text-red-600 dark:text-red-400 mb-2">
-              <i class="bi bi-exclamation-triangle-fill text-4xl"></i>
+              <i class="bi bi-exclamation-triangle-fill text-4xl" aria-hidden="true"></i>
             </div>
             <div
               class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
@@ -292,7 +292,7 @@
 
           <div class="glass-card p-6 text-center">
             <div class="text-green-600 dark:text-green-400 mb-2">
-              <i class="bi bi-check-circle-fill text-4xl"></i>
+              <i class="bi bi-check-circle-fill text-4xl" aria-hidden="true"></i>
             </div>
             <div
               class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
@@ -316,7 +316,7 @@
             <h3
               class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100"
             >
-              <i class="bi bi-pie-chart-fill text-blue-600"></i>
+              <i class="bi bi-pie-chart-fill text-blue-600" aria-hidden="true"></i>
               Disk Distribution
             </h3>
             <Chart
@@ -332,7 +332,7 @@
             <h3
               class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100"
             >
-              <i class="bi bi-speedometer2 text-blue-600"></i>
+              <i class="bi bi-speedometer2 text-blue-600" aria-hidden="true"></i>
               Capacity Overview
             </h3>
             <div class="space-y-4">
@@ -395,7 +395,7 @@
           class="glass-card p-6 text-center hover:shadow-xl transition-all duration-300"
         >
           <div class="text-blue-600 dark:text-blue-400 mb-3">
-            <i class="bi bi-files text-5xl"></i>
+            <i class="bi bi-files text-5xl" aria-hidden="true"></i>
           </div>
           <div
             class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
@@ -414,7 +414,7 @@
           class="glass-card p-6 text-center hover:shadow-xl transition-all duration-300"
         >
           <div class="text-purple-600 dark:text-purple-400 mb-3">
-            <i class="bi bi-hdd-fill text-5xl"></i>
+            <i class="bi bi-hdd-fill text-5xl" aria-hidden="true"></i>
           </div>
           <div
             class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
@@ -433,7 +433,7 @@
           class="glass-card p-6 text-center hover:shadow-xl transition-all duration-300"
         >
           <div class="text-green-600 dark:text-green-400 mb-3">
-            <i class="bi bi-pie-chart-fill text-5xl"></i>
+            <i class="bi bi-pie-chart-fill text-5xl" aria-hidden="true"></i>
           </div>
           <div
             class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
@@ -455,7 +455,7 @@
           <h2
             class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2"
           >
-            <i class="bi bi-pie-chart-fill text-blue-600"></i>
+            <i class="bi bi-pie-chart-fill text-blue-600" aria-hidden="true"></i>
             File Type Distribution
           </h2>
           <div class="mt-4">
@@ -468,7 +468,7 @@
               />
             {:else}
               <div class="text-center py-12 text-gray-500 dark:text-gray-400">
-                <i class="bi bi-inbox text-5xl mb-3"></i>
+                <i class="bi bi-inbox text-5xl mb-3" aria-hidden="true"></i>
                 <p>No files yet</p>
               </div>
             {/if}
@@ -479,7 +479,7 @@
           <h2
             class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2"
           >
-            <i class="bi bi-bar-chart-fill text-blue-600"></i>
+            <i class="bi bi-bar-chart-fill text-blue-600" aria-hidden="true"></i>
             Storage by Category
           </h2>
           <div class="mt-4">
@@ -487,7 +487,7 @@
               <Chart data={fileTypeChartData} type="bar" size="md" />
             {:else}
               <div class="text-center py-12 text-gray-500 dark:text-gray-400">
-                <i class="bi bi-inbox text-5xl mb-3"></i>
+                <i class="bi bi-inbox text-5xl mb-3" aria-hidden="true"></i>
                 <p>No files yet</p>
               </div>
             {/if}
@@ -501,7 +501,7 @@
           <h2
             class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2"
           >
-            <i class="bi bi-list-ul text-blue-600"></i>
+            <i class="bi bi-list-ul text-blue-600" aria-hidden="true"></i>
             Detailed Breakdown
           </h2>
           <div class="space-y-4">
@@ -554,7 +554,7 @@
           <h2
             class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2"
           >
-            <i class="bi bi-graph-up text-blue-600"></i>
+            <i class="bi bi-graph-up text-blue-600" aria-hidden="true"></i>
             Storage Distribution
           </h2>
           <div class="grid grid-cols-3 gap-4">
@@ -618,7 +618,7 @@
           <h2
             class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2"
           >
-            <i class="bi bi-sort-down-alt text-blue-600"></i>
+            <i class="bi bi-sort-down-alt text-blue-600" aria-hidden="true"></i>
             Largest Files
           </h2>
           <div class="overflow-x-auto">
@@ -653,7 +653,7 @@
                     >
                     <td class="px-6 py-4">
                       <div class="flex items-center gap-2">
-                        <i class="bi bi-file-earmark-fill text-blue-600"></i>
+                        <i class="bi bi-file-earmark-fill text-blue-600" aria-hidden="true"></i>
                         <span
                           class="font-medium text-gray-900 dark:text-gray-100"
                           >{file.name}</span

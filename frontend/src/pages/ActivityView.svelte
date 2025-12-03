@@ -188,7 +188,7 @@
           {#snippet children()}
             <div class="text-center">
               <div class="text-primary-500 mb-3">
-                <i class="bi bi-activity text-5xl bounce-in"></i>
+                <i class="bi bi-activity text-5xl bounce-in" aria-hidden="true"></i>
               </div>
               <div
                 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
@@ -211,7 +211,7 @@
           {#snippet children()}
             <div class="text-center">
               <div class="text-green-500 mb-3">
-                <i class="bi bi-calendar-check text-5xl bounce-in"></i>
+                <i class="bi bi-calendar-check text-5xl bounce-in" aria-hidden="true"></i>
               </div>
               <div
                 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
@@ -268,7 +268,7 @@
                   : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300'}"
                 onclick={() => (selectedFilter = type.value)}
               >
-                <i class="bi bi-{type.icon}"></i>
+                <i class="bi bi-{type.icon}" aria-hidden="true"></i>
                 {type.label}
               </button>
             {/each}
@@ -286,7 +286,7 @@
               class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"
               aria-label="Search activities"
             >
-              <i class="bi bi-search"></i>
+              <i class="bi bi-search" aria-hidden="true"></i>
             </button>
           </div>
         </div>
@@ -299,7 +299,7 @@
         {#snippet children()}
           <div class="text-center animate-fade-in">
             <div class="text-primary-500/30 mb-6">
-              <i class="bi bi-clock-history text-8xl"></i>
+              <i class="bi bi-clock-history text-8xl" aria-hidden="true"></i>
             </div>
             <h3
               class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100"
@@ -352,7 +352,7 @@
                   ] ||
                     'bg-primary-500 text-white'} flex items-center justify-center shadow-lg"
                 >
-                  <i class="bi bi-{config.icon} text-lg"></i>
+                  <i class="bi bi-{config.icon} text-lg" aria-hidden="true"></i>
                 </div>
 
                 <!-- Time Stamp -->
@@ -368,7 +368,7 @@
                     <div class="flex items-start justify-between gap-2">
                       <div class="flex-1">
                         <div class="badge-glass-{config.color} mb-2">
-                          <i class="bi bi-{config.icon} mr-1"></i>
+                          <i class="bi bi-{config.icon} mr-1" aria-hidden="true"></i>
                           {config.label}
                         </div>
                         <h3

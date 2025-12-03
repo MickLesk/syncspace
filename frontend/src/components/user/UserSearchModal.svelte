@@ -149,7 +149,7 @@
     </div>
   {:else if filteredUsers.length === 0}
     <div class="text-center py-12 text-gray-500 dark:text-gray-400">
-      <i class="bi bi-people text-4xl mb-3"></i>
+      <i class="bi bi-people text-4xl mb-3" aria-hidden="true"></i>
       <p>{tr("noUsersFound")}</p>
     </div>
   {:else}
@@ -207,7 +207,7 @@
           <!-- Selection Indicator -->
           {#if isUserSelected(user)}
             <div class="flex-shrink-0">
-              <i class="bi bi-check-circle-fill text-blue-500 text-xl"></i>
+              <i class="bi bi-check-circle-fill text-blue-500 text-xl" aria-hidden="true"></i>
             </div>
           {/if}
         </button>

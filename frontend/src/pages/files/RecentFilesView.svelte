@@ -148,7 +148,7 @@
       <ModernCard variant="glass" padding="large">
         <div class="text-center animate-fade-in">
           <div class="mb-6">
-            <i class="bi bi-exclamation-triangle text-6xl text-red-500/30"></i>
+            <i class="bi bi-exclamation-triangle text-6xl text-red-500/30" aria-hidden="true"></i>
           </div>
           <h3 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-3">
             {error}
@@ -166,7 +166,7 @@
       <ModernCard variant="glass" padding="large">
         <div class="text-center animate-fade-in">
           <div class="mb-6">
-            <i class="bi bi-clock-history text-8xl opacity-20"></i>
+            <i class="bi bi-clock-history text-8xl opacity-20" aria-hidden="true"></i>
           </div>
           <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">
             {tr("recentNoFilesTitle")}
@@ -210,7 +210,7 @@
 
                 <div class="flex gap-2 flex-wrap items-center">
                   <span class="badge-glass-info text-xs">
-                    <i class="bi bi-eye"></i>
+                    <i class="bi bi-eye" aria-hidden="true"></i>
                     {tr(
                       file.access_count === 1
                         ? "recentAccessCountSingular"
@@ -222,7 +222,7 @@
                   {#if file.access_type}
                     {@const badge = getAccessTypeBadge(file.access_type)}
                     <span class="badge-glass-{badge.color} text-xs">
-                      <i class="bi bi-{badge.icon}"></i>
+                      <i class="bi bi-{badge.icon}" aria-hidden="true"></i>
                       {badge.label}
                     </span>
                   {/if}

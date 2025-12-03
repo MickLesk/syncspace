@@ -45,12 +45,12 @@
     <!-- Workflow Flow -->
     <div class="flex items-center gap-2 mb-3 text-sm">
       <div class="badge badge-primary badge-outline">
-        <i class="bi bi-lightning-charge mr-1"></i>
+        <i class="bi bi-lightning-charge mr-1" aria-hidden="true"></i>
         {getTriggerLabel(rule.trigger_type)}
       </div>
-      <i class="bi bi-arrow-right text-base-content/50"></i>
+      <i class="bi bi-arrow-right text-base-content/50" aria-hidden="true"></i>
       <div class="badge badge-secondary badge-outline">
-        <i class="bi bi-gear mr-1"></i>
+        <i class="bi bi-gear mr-1" aria-hidden="true"></i>
         {getActionLabel(rule.action_type)}
       </div>
     </div>
@@ -108,7 +108,10 @@
           ? t($currentLang, "workflow.disable")
           : t($currentLang, "workflow.enable")}
       >
-        <i class="bi bi-{rule.is_active ? 'pause' : 'play'}-circle"></i>
+        <i
+          class="bi bi-{rule.is_active ? 'pause' : 'play'}-circle"
+          aria-hidden="true"
+        ></i>
         {rule.is_active
           ? t($currentLang, "workflow.disable")
           : t($currentLang, "workflow.enable")}
@@ -118,15 +121,15 @@
         class="btn btn-sm btn-ghost"
         title={t($currentLang, "workflow.editRule")}
       >
-        <i class="bi bi-pencil"></i>
+        <i class="bi bi-pencil" aria-hidden="true"></i>
       </button>
       <button
+        aria-label="Delete"
         onclick={onDelete}
         class="btn btn-sm btn-ghost text-error"
         title={t($currentLang, "workflow.deleteRule")}
+        ><i class="bi bi-trash" aria-hidden="true"></i></button
       >
-        <i class="bi bi-trash"></i>
-      </button>
     </div>
   </div>
 </div>

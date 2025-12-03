@@ -320,11 +320,13 @@
     </div>
   {:else if error}
     <div class="alert alert-error mb-4">
-      <i class="bi bi-exclamation-triangle"></i>
+      <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
       <span>{error}</span>
     </div>
   {/if}
 
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
     bind:this={container}
     class="model-canvas rounded-xl overflow-hidden shadow-lg cursor-grab {mouseDown
@@ -348,11 +350,11 @@
           onclick={toggleRotation}
           class="btn btn-sm {controls.rotating ? 'btn-primary' : 'btn-ghost'}"
         >
-          <i class="bi bi-arrow-repeat mr-1"></i>
+          <i class="bi bi-arrow-repeat mr-1" aria-hidden="true"></i>
           {controls.rotating ? "Auto-Rotate On" : "Auto-Rotate Off"}
         </button>
         <button onclick={resetView} class="btn btn-sm btn-ghost">
-          <i class="bi bi-arrow-counterclockwise mr-1"></i>
+          <i class="bi bi-arrow-counterclockwise mr-1" aria-hidden="true"></i>
           Reset View
         </button>
       </div>

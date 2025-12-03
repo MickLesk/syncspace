@@ -178,7 +178,7 @@
           title="Seite neu laden"
           aria-label="Verbindung zurücksetzen durch Seite neu laden"
         >
-          <i class="bi bi-arrow-clockwise" />
+          <i class="bi bi-arrow-clockwise" / aria-hidden="true">
         </button>
       {/if}
     </div>

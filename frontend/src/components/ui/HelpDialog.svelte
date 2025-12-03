@@ -90,7 +90,8 @@
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <i class="bi bi-question-circle-fill text-3xl"></i>
+            <i class="bi bi-question-circle-fill text-3xl" aria-hidden="true"
+            ></i>
             <div>
               <h2 id="help-dialog-title" class="text-2xl font-bold">
                 Help & Support
@@ -99,12 +100,11 @@
             </div>
           </div>
           <button
+            aria-label="Close dialog"
             onclick={closeDialog}
             class="p-2 hover:bg-white/20 rounded-lg transition-colors"
-            aria-label="Close dialog"
+            ><i class="bi bi-x" aria-hidden="true"></i></button
           >
-            <i class="bi bi-x-lg text-xl"></i>
-          </button>
         </div>
       </div>
 
@@ -139,7 +139,10 @@
           <h3
             class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2"
           >
-            <i class="bi bi-book text-blue-600 dark:text-blue-400"></i>
+            <i
+              class="bi bi-book text-blue-600 dark:text-blue-400"
+              aria-hidden="true"
+            ></i>
             Need More Help?
           </h3>
           <p class="text-gray-700 dark:text-gray-300 mb-4">
@@ -151,7 +154,7 @@
               href="#/docs"
               class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
             >
-              <i class="bi bi-file-earmark-text"></i>
+              <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
               Documentation
             </a>
             <a
@@ -160,7 +163,7 @@
               rel="noopener noreferrer"
               class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
             >
-              <i class="bi bi-github"></i>
+              <i class="bi bi-github" aria-hidden="true"></i>
               GitHub Issues
             </a>
           </div>

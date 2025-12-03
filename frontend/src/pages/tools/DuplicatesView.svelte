@@ -154,14 +154,14 @@
             ></div>
             {tr("duplicateFinderScanInProgress")}
           {:else}
-            <i class="bi bi-search mr-2"></i>
+            <i class="bi bi-search mr-2" aria-hidden="true"></i>
             {tr("duplicateFinderScanCurrentFolder")}
           {/if}
         </ModernButton>
 
         {#if selectedDuplicates.size > 0}
           <ModernButton variant="danger" onclick={deleteDuplicates}>
-            <i class="bi bi-trash mr-2"></i>
+            <i class="bi bi-trash mr-2" aria-hidden="true"></i>
             {tr("duplicateFinderDeleteSelected", selectedDuplicates.size)}
           </ModernButton>
         {/if}
@@ -300,7 +300,7 @@
               )}
             </p>
             <ModernButton variant="primary" onclick={scanCurrentFolder}>
-              <i class="bi bi-search mr-2"></i>
+              <i class="bi bi-search mr-2" aria-hidden="true"></i>
               {tr("duplicateFinderStartScanning")}
             </ModernButton>
           </ModernCard>
@@ -319,7 +319,7 @@
                     <span
                       class="badge-glass-warning flex items-center gap-2 bounce-in"
                     >
-                      <i class="bi bi-files"></i>
+                      <i class="bi bi-files" aria-hidden="true"></i>
                       {tr("duplicateFinderCopiesBadge", group.count)}
                     </span>
                     <span class="badge-glass-info bounce-in">
@@ -341,7 +341,7 @@
                       size="sm"
                       onclick={() => selectAllInGroup(group)}
                     >
-                      <i class="bi bi-check-all mr-1"></i>
+                      <i class="bi bi-check-all mr-1" aria-hidden="true"></i>
                       {tr("selectAll")}
                     </ModernButton>
                     <ModernButton
@@ -349,7 +349,7 @@
                       size="sm"
                       onclick={() => deselectGroup(group)}
                     >
-                      <i class="bi bi-x mr-1"></i>
+                      <i class="bi bi-x mr-1" aria-hidden="true"></i>
                       {tr("deselect")}
                     </ModernButton>
                   </div>

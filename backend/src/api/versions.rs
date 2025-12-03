@@ -564,7 +564,7 @@ async fn get_tag_templates(
 /// Get diff between two versions
 async fn get_version_diff(
     State(state): State<AppState>,
-    Path((file_id, from_version_id, to_version_id)): Path<(String, String, String)>,
+    Path((_file_id, from_version_id, to_version_id)): Path<(String, String, String)>,
     _user: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
     // Check if diff is cached

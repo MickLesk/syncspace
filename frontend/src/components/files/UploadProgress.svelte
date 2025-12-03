@@ -28,7 +28,7 @@
   <div class="upload-panel">
     <div class="upload-header">
       <h3 class="upload-title">
-        <i class="bi bi-cloud-upload"></i>
+        <i class="bi bi-cloud-upload" aria-hidden="true"></i>
         {tr("uploads")} ({uploads.length})
       </h3>
       <button class="btn btn-ghost btn-sm">{tr("clearAll")}</button>
@@ -50,7 +50,7 @@
             {:else if upload.status === "retrying"}<i
                 class="bi bi-arrow-clockwise text-warning spinning"
               ></i>
-            {:else}<i class="bi bi-file-earmark-arrow-up text-primary"></i>{/if}
+            {:else}<i class="bi bi-file-earmark-arrow-up text-primary" aria-hidden="true"></i>{/if}
           </div>
 
           <div class="upload-details">
@@ -88,13 +88,13 @@
             {#if upload.status === "uploading"}
               <button
                 class="btn btn-ghost btn-xs btn-circle"
-                aria-label="Cancel upload"><i class="bi bi-x-lg"></i></button
+                aria-label="Cancel upload"><i class="bi bi-x-lg" aria-hidden="true"></i></button
               >
             {:else if upload.status === "error"}
               <button
                 class="btn btn-ghost btn-xs gap-1"
                 aria-label="Retry upload"
-                ><i class="bi bi-arrow-clockwise"></i> Retry</button
+                ><i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Retry</button
               >
             {/if}
           </div>

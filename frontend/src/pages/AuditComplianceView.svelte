@@ -350,7 +350,7 @@
             class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors"
             onclick={() => (showGenerateReportModal = true)}
           >
-            <i class="bi bi-file-earmark-plus"></i>
+            <i class="bi bi-file-earmark-plus" aria-hidden="true"></i>
             {tr("audit.generateReport")}
           </button>
         {:else if activeTab === "policies"}
@@ -358,7 +358,7 @@
             class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors"
             onclick={() => (showCreatePolicyModal = true)}
           >
-            <i class="bi bi-plus-lg"></i>
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
             {tr("audit.createPolicy")}
           </button>
         {:else if activeTab === "archives"}
@@ -366,7 +366,7 @@
             class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors"
             onclick={createArchive}
           >
-            <i class="bi bi-archive"></i>
+            <i class="bi bi-archive" aria-hidden="true"></i>
             {tr("audit.createArchive")}
           </button>
         {/if}
@@ -531,7 +531,7 @@
             class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium"
             onclick={applyFilters}
           >
-            <i class="bi bi-funnel mr-1"></i>
+            <i class="bi bi-funnel mr-1" aria-hidden="true"></i>
             {tr("audit.applyFilters")}
           </button>
         </div>
@@ -628,7 +628,7 @@
                     }}
                     title={tr("audit.viewDetails")}
                   >
-                    <i class="bi bi-eye"></i>
+                    <i class="bi bi-eye" aria-hidden="true"></i>
                   </button>
                 </td>
               </tr>
@@ -638,7 +638,7 @@
                   colspan="6"
                   class="px-4 py-12 text-center text-gray-500 dark:text-gray-400"
                 >
-                  <i class="bi bi-journal text-4xl mb-2"></i>
+                  <i class="bi bi-journal text-4xl mb-2" aria-hidden="true"></i>
                   <p>{tr("audit.noLogs")}</p>
                 </td>
               </tr>
@@ -699,15 +699,15 @@
               class="text-xs text-gray-500 dark:text-gray-400 mb-3 space-y-1"
             >
               <div>
-                <i class="bi bi-calendar mr-1"></i>{report.start_date} - {report.end_date}
+                <i class="bi bi-calendar mr-1" aria-hidden="true"></i>{report.start_date} - {report.end_date}
               </div>
               <div>
                 <i class="bi bi-file-text mr-1"
-                ></i>{report.total_records?.toLocaleString()}
+                 aria-hidden="true"></i>{report.total_records?.toLocaleString()}
                 {tr("audit.records")}
               </div>
               <div>
-                <i class="bi bi-download mr-1"></i>{report.download_count || 0}
+                <i class="bi bi-download mr-1" aria-hidden="true"></i>{report.download_count || 0}
                 {tr("audit.downloads")}
               </div>
             </div>
@@ -717,15 +717,15 @@
                   class="flex-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium"
                   onclick={() => downloadReport(report)}
                 >
-                  <i class="bi bi-download mr-1"></i>
+                  <i class="bi bi-download mr-1" aria-hidden="true"></i>
                   {tr("common.download")}
                 </button>
               {/if}
               <button
                 class="px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded-lg"
                 onclick={() => deleteReport(report)}
-              >
-                <i class="bi bi-trash"></i>
+               aria-label="Delete">
+                <i class="bi bi-trash" aria-hidden="true"></i>
               </button>
             </div>
           </div>
@@ -733,7 +733,7 @@
           <div
             class="col-span-full text-center py-12 text-gray-500 dark:text-gray-400"
           >
-            <i class="bi bi-file-earmark-x text-4xl mb-2"></i>
+            <i class="bi bi-file-earmark-x text-4xl mb-2" aria-hidden="true"></i>
             <p>{tr("audit.noReports")}</p>
           </div>
         {/each}
@@ -745,7 +745,7 @@
           class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium flex items-center gap-2"
           onclick={applyAllPolicies}
         >
-          <i class="bi bi-play-fill"></i>
+          <i class="bi bi-play-fill" aria-hidden="true"></i>
           {tr("audit.applyAllPolicies")}
         </button>
       </div>
@@ -783,21 +783,21 @@
                   {/if}
                   <div class="flex flex-wrap gap-3 mt-2 text-sm">
                     <span class="text-gray-600 dark:text-gray-300">
-                      <i class="bi bi-database mr-1"></i>{policy.resource_type}
+                      <i class="bi bi-database mr-1" aria-hidden="true"></i>{policy.resource_type}
                     </span>
                     <span class="text-gray-600 dark:text-gray-300">
                       <i class="bi bi-calendar-check mr-1"
-                      ></i>{policy.retention_days}
+                       aria-hidden="true"></i>{policy.retention_days}
                       {tr("audit.days")}
                     </span>
                     {#if policy.auto_delete}
                       <span class="text-red-600 dark:text-red-400">
-                        <i class="bi bi-trash mr-1"></i>{tr("audit.autoDelete")}
+                        <i class="bi bi-trash mr-1" aria-hidden="true"></i>{tr("audit.autoDelete")}
                       </span>
                     {/if}
                     {#if policy.archive_before_delete}
                       <span class="text-blue-600 dark:text-blue-400">
-                        <i class="bi bi-archive mr-1"></i>{tr(
+                        <i class="bi bi-archive mr-1" aria-hidden="true"></i>{tr(
                           "audit.archiveFirst"
                         )}
                       </span>
@@ -833,20 +833,20 @@
                   onclick={() => applyPolicy(policy)}
                   title={tr("audit.applyNow")}
                 >
-                  <i class="bi bi-play-fill"></i>
+                  <i class="bi bi-play-fill" aria-hidden="true"></i>
                 </button>
                 <button
                   class="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-red-500"
                   onclick={() => deletePolicy(policy)}
-                >
-                  <i class="bi bi-trash"></i>
+                 aria-label="Delete">
+                  <i class="bi bi-trash" aria-hidden="true"></i>
                 </button>
               </div>
             </div>
           </div>
         {:else}
           <div class="text-center py-12 text-gray-500 dark:text-gray-400">
-            <i class="bi bi-clock text-4xl mb-2"></i>
+            <i class="bi bi-clock text-4xl mb-2" aria-hidden="true"></i>
             <p>{tr("audit.noPolicies")}</p>
           </div>
         {/each}
@@ -882,7 +882,7 @@
               <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
-                    <i class="bi bi-archive text-indigo-500"></i>
+                    <i class="bi bi-archive text-indigo-500" aria-hidden="true"></i>
                     <span class="font-medium text-gray-900 dark:text-white"
                       >{archive.archive_name}</span
                     >
@@ -912,7 +912,7 @@
                   colspan="4"
                   class="px-4 py-12 text-center text-gray-500 dark:text-gray-400"
                 >
-                  <i class="bi bi-archive text-4xl mb-2"></i>
+                  <i class="bi bi-archive text-4xl mb-2" aria-hidden="true"></i>
                   <p>{tr("audit.noArchives")}</p>
                 </td>
               </tr>
@@ -941,9 +941,7 @@
         <!-- Templates -->
         {#if templates.length > 0}
           <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2"
-              >{tr("audit.useTemplate")}</label
+            <div class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{tr("audit.useTemplate")}</div
             >
             <div class="grid grid-cols-2 gap-2">
               {#each templates as template}
@@ -967,9 +965,7 @@
         {/if}
 
         <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
-            >{tr("audit.reportName")} *</label
+          <div class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tr("audit.reportName")} *</label
           >
           <input
             type="text"
@@ -1142,8 +1138,7 @@
             />
             <span class="text-sm text-gray-700 dark:text-gray-200"
               >{tr("audit.autoDeleteEnabled")}</span
-            >
-          </label>
+            ></div>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -1162,8 +1157,7 @@
             />
             <span class="text-sm text-gray-700 dark:text-gray-200"
               >{tr("audit.notifyBeforeDelete")}</span
-            >
-          </label>
+            ></div>
         </div>
       </div>
       <div
@@ -1205,13 +1199,14 @@
           {tr("audit.logDetails")}
         </h3>
         <button
+          aria-label="Close"
           class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           onclick={() => {
             showLogDetailModal = false;
             selectedLog = null;
           }}
         >
-          <i class="bi bi-x-lg"></i>
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
         </button>
       </div>
       <div class="p-6 space-y-4">

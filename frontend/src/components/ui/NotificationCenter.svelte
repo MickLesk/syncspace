@@ -106,7 +106,7 @@
       >
         <div class="flex items-center gap-3">
           <i class="bi bi-bell text-2xl text-primary-600 dark:text-primary-400"
-          ></i>
+           aria-hidden="true"></i>
           <div>
             <h2
               id="notification-center-title"
@@ -126,7 +126,7 @@
         <div class="flex items-center gap-2">
           {#if notifications.length > 0}
             <ModernButton variant="ghost" size="sm" onclick={clearAll}>
-              <i class="bi bi-trash mr-1"></i>
+              <i class="bi bi-trash mr-1" aria-hidden="true"></i>
               Clear All
             </ModernButton>
           {/if}
@@ -136,7 +136,7 @@
             class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             aria-label="Close notifications"
           >
-            <i class="bi bi-x-lg text-xl text-gray-600 dark:text-gray-400"></i>
+            <i class="bi bi-x-lg text-xl text-gray-600 dark:text-gray-400" aria-hidden="true"></i>
           </button>
         </div>
       </div>

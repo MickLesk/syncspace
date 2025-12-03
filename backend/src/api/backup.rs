@@ -21,6 +21,7 @@ pub struct CreateBackupRequest {
     pub description: Option<String>,
     pub destination_id: Option<String>,
     pub encrypt: Option<bool>,
+    #[allow(dead_code)]
     pub encryption_password: Option<String>,
 }
 
@@ -144,6 +145,7 @@ pub struct RestoreRequest {
     pub restore_type: String, // 'full', 'partial', 'selective'
     pub restore_path: Option<String>,
     pub file_paths: Option<Vec<String>>, // For selective restore
+    #[allow(dead_code)]
     pub encryption_password: Option<String>,
 }
 

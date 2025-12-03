@@ -57,7 +57,7 @@
   <!-- Header -->
   <div class="mb-8">
     <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-      <i class="bi bi-palette mr-2"></i>
+      <i class="bi bi-palette mr-2" aria-hidden="true"></i>
       {t("settings.theme_customization")}
     </h2>
     <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -103,7 +103,7 @@
             <div
               class="mt-2 text-xs text-blue-600 dark:text-blue-400 flex items-center"
             >
-              <i class="bi bi-check-circle mr-1"></i>
+              <i class="bi bi-check-circle mr-1" aria-hidden="true"></i>
               {t("theme.active")}
             </div>
           {/if}
@@ -120,11 +120,9 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- Primary Color -->
       <div>
-        <label
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-        >
+        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {t("theme.primary_color")}
-        </label>
+        </div>
         <div class="flex gap-2">
           <button
             on:click={() => toggleColorPicker("primaryColor")}
@@ -152,11 +150,9 @@
 
       <!-- Secondary Color -->
       <div>
-        <label
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-        >
+        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {t("theme.secondary_color")}
-        </label>
+        </div>
         <div class="flex gap-2">
           <button
             on:click={() => toggleColorPicker("secondaryColor")}
@@ -186,11 +182,9 @@
 
       <!-- Accent Color -->
       <div>
-        <label
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-        >
+        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {t("theme.accent_color")}
-        </label>
+        </div>
         <div class="flex gap-2">
           <button
             on:click={() => toggleColorPicker("accentColor")}
@@ -226,11 +220,9 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Density -->
       <div>
-        <label
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
-        >
+        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           {t("theme.density")}
-        </label>
+        </div>
         <div class="space-y-2">
           {#each ["compact", "comfortable", "spacious"] as option}
             <label class="flex items-center cursor-pointer">
@@ -252,11 +244,9 @@
 
       <!-- Font Size -->
       <div>
-        <label
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
-        >
+        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           {t("theme.font_size")}
-        </label>
+        </div>
         <div class="space-y-2">
           {#each ["sm", "base", "lg", "xl"] as option}
             <label class="flex items-center cursor-pointer">
@@ -278,11 +268,9 @@
 
       <!-- Border Radius -->
       <div>
-        <label
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
-        >
+        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           {t("theme.border_radius")}
-        </label>
+        </div>
         <div class="space-y-2">
           {#each ["none", "sm", "base", "lg", "xl"] as option}
             <label class="flex items-center cursor-pointer">
@@ -304,11 +292,9 @@
 
       <!-- Shadow Intensity -->
       <div>
-        <label
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
-        >
+        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           {t("theme.shadow_intensity")}
-        </label>
+        </div>
         <div class="space-y-2">
           {#each ["light", "normal", "strong"] as option}
             <label class="flex items-center cursor-pointer">
@@ -340,7 +326,7 @@
         on:click={() => customTheme.export()}
         class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center"
       >
-        <i class="bi bi-download mr-2"></i>
+        <i class="bi bi-download mr-2" aria-hidden="true"></i>
         {t("theme.export")}
       </button>
 
@@ -349,7 +335,7 @@
           on:click={() => importFile?.click()}
           class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors flex items-center justify-center cursor-pointer"
         >
-          <i class="bi bi-upload mr-2"></i>
+          <i class="bi bi-upload mr-2" aria-hidden="true"></i>
           {t("theme.import")}
         </button>
         <input
@@ -365,7 +351,7 @@
         on:click={() => customTheme.reset()}
         class="flex-1 px-4 py-2 bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg transition-colors flex items-center justify-center"
       >
-        <i class="bi bi-arrow-counterclockwise mr-2"></i>
+        <i class="bi bi-arrow-counterclockwise mr-2" aria-hidden="true"></i>
         {t("theme.reset")}
       </button>
     </div>

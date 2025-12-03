@@ -75,7 +75,7 @@ async fn compare_files(
 /// Get file content with optional version
 async fn get_file_content(
     state: &AppState,
-    user: &UserInfo,
+    _user: &UserInfo,
     file_path: &str,
     version_id: Option<&str>,
 ) -> Result<FileContent, StatusCode> {

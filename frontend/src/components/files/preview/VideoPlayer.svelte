@@ -173,6 +173,8 @@
   }
 </script>
 
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
   class="video-player-container relative bg-black rounded-xl overflow-hidden shadow-2xl"
   onmousemove={handleMouseMove}
@@ -186,7 +188,10 @@
 >
   {#if error}
     <div class="flex flex-col items-center justify-center h-96 text-white">
-      <i class="bi bi-exclamation-triangle text-6xl text-error mb-4"></i>
+      <i
+        class="bi bi-exclamation-triangle text-6xl text-error mb-4"
+        aria-hidden="true"
+      ></i>
       <p class="text-lg">{error}</p>
     </div>
   {:else}
@@ -223,7 +228,8 @@
         <div
           class="w-20 h-20 rounded-full bg-primary/80 flex items-center justify-center shadow-lg hover:bg-primary transition-colors"
         >
-          <i class="bi bi-play-fill text-4xl text-white ml-1"></i>
+          <i class="bi bi-play-fill text-4xl text-white ml-1" aria-hidden="true"
+          ></i>
         </div>
       </div>
     {/if}
@@ -272,12 +278,13 @@
         <div class="flex items-center gap-3">
           <!-- Play/Pause -->
           <button
+            aria-label={isPlaying ? "Pause" : "Play"}
             onclick={togglePlay}
             class="btn btn-circle btn-sm btn-ghost text-white hover:bg-white/20"
+            ><i class="bi" aria-hidden="true"></i><span class="sr-only"
+              >Toggle play</span
+            ></button
           >
-            <i class="bi {isPlaying ? 'bi-pause-fill' : 'bi-play-fill'} text-xl"
-            ></i>
-          </button>
 
           <!-- Skip buttons -->
           <button
@@ -285,14 +292,14 @@
             class="btn btn-circle btn-sm btn-ghost text-white hover:bg-white/20"
             title="Back 10s"
           >
-            <i class="bi bi-skip-backward text-lg"></i>
+            <i class="bi bi-skip-backward text-lg" aria-hidden="true"></i>
           </button>
           <button
             onclick={() => skip(10)}
             class="btn btn-circle btn-sm btn-ghost text-white hover:bg-white/20"
             title="Forward 10s"
           >
-            <i class="bi bi-skip-forward text-lg"></i>
+            <i class="bi bi-skip-forward text-lg" aria-hidden="true"></i>
           </button>
 
           <!-- Volume -->
@@ -300,15 +307,10 @@
             <button
               onclick={toggleMute}
               class="btn btn-circle btn-sm btn-ghost text-white hover:bg-white/20"
+              ><i class="bi" aria-hidden="true"></i><span class="sr-only"
+                >Toggle mute</span
+              ></button
             >
-              <i
-                class="bi {isMuted || volume === 0
-                  ? 'bi-volume-mute'
-                  : volume < 0.5
-                    ? 'bi-volume-down'
-                    : 'bi-volume-up'} text-lg"
-              ></i>
-            </button>
             <input
               type="range"
               min="0"

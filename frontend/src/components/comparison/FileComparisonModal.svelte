@@ -195,13 +195,18 @@
 
 {#if show}
   <div
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" tabindex="0"
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    role="dialog"
+    tabindex="0"
     onclick={close}
     onkeydown={handleKeydown}
   >
     <div
       class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-7xl w-full max-h-[90vh] flex flex-col"
       onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => e.stopPropagation()}
+      role="button"
+      tabindex="0"
     >
       <!-- Header -->
       <div
@@ -226,7 +231,7 @@
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}"
             >
-              <i class="bi bi-layout-split"></i>
+              <i class="bi bi-layout-split" aria-hidden="true"></i>
               {$t("comparison.sideBySide")}
             </button>
             <button
@@ -236,13 +241,18 @@
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}"
             >
-              <i class="bi bi-list-ul"></i>
+              <i class="bi bi-list-ul" aria-hidden="true"></i>
               {$t("comparison.unified")}
             </button>
           </div>
         {/if}
 
-        <button aria-label="Close" onclick={close} class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+        <button
+          aria-label="Close"
+          onclick={close}
+          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+          ><i class="bi bi-x-lg" aria-hidden="true"></i></button
+        >
       </div>
 
       <!-- Content -->

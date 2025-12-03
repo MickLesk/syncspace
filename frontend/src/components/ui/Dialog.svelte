@@ -44,7 +44,7 @@
   <div
     class="dialog-backdrop"
     onclick={handleBackdropClick}
-    onkeydown={(e) => e.key === "Escape" && handleCancel()}
+    onkeydown={(e) = role="button" tabindex="0"> e.key === "Escape" && handleCancel()}
     role="button"
     tabindex="-1"
   >

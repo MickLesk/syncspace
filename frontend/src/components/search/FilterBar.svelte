@@ -54,7 +54,7 @@
   <div class="filter-bar">
     <div class="filter-bar-content">
       <span class="filter-bar-title">
-        <i class="bi bi-funnel"></i>
+        <i class="bi bi-funnel" aria-hidden="true"></i>
         {tr("activeFilters")}:
       </span>
 
@@ -67,7 +67,7 @@
               onclick={() => handleRemove(filter.key)}
               title={tr("removeFilter")}
             >
-              <i class="bi bi-x"></i>
+              <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           </div>
         {/each}
@@ -77,7 +77,7 @@
         class="px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg transition-colors flex items-center gap-1"
         onclick={handleClearAll}
       >
-        <i class="bi bi-x-circle"></i>
+        <i class="bi bi-x-circle" aria-hidden="true"></i>
         {tr("clearAll")}
       </button>
     </div>

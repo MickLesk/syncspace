@@ -149,7 +149,7 @@
             <h1
               class="text-3xl font-bold gradient-text mb-2 flex items-center gap-3"
             >
-              <i class="bi bi-star-fill text-yellow-500"></i>
+              <i class="bi bi-star-fill text-yellow-500" aria-hidden="true"></i>
               Favorites
             </h1>
             <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -164,7 +164,7 @@
             class="px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <i class="bi bi-arrow-clockwise {loading ? 'animate-spin' : ''}"
-            ></i>
+             aria-hidden="true"></i>
             <span>Refresh</span>
           </button>
         </div>
@@ -177,7 +177,7 @@
         <!-- Error State -->
         <div class="glass-card p-12 text-center animate-slide-up">
           <div class="mb-6">
-            <i class="bi bi-exclamation-triangle text-6xl text-red-500/30"></i>
+            <i class="bi bi-exclamation-triangle text-6xl text-red-500/30" aria-hidden="true"></i>
           </div>
           <h3 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-3">
             {errorMsg}
@@ -186,7 +186,7 @@
             onclick={loadFavorites}
             class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto"
           >
-            <i class="bi bi-arrow-clockwise"></i>
+            <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
             Try Again
           </button>
         </div>
@@ -194,7 +194,7 @@
         <!-- Empty State -->
         <div class="glass-card p-12 text-center animate-slide-up">
           <div class="mb-6">
-            <i class="bi bi-star text-6xl text-yellow-500/30"></i>
+            <i class="bi bi-star text-6xl text-yellow-500/30" aria-hidden="true"></i>
           </div>
           <h3 class="text-2xl font-bold mb-3">No favorites yet</h3>
           <p class="text-gray-600 dark:text-gray-400">
@@ -235,7 +235,7 @@
                   <span
                     class="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg"
                   >
-                    <i class="bi bi-file-earmark"></i>
+                    <i class="bi bi-file-earmark" aria-hidden="true"></i>
                     {formatFileSize(file.size)}
                   </span>
                 {/if}
@@ -243,7 +243,7 @@
                   <span
                     class="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg"
                   >
-                    <i class="bi bi-clock"></i>
+                    <i class="bi bi-clock" aria-hidden="true"></i>
                     {formatDate(file.createdAt)}
                   </span>
                 {/if}
@@ -261,7 +261,7 @@
                 onclick={(e) => removeFavorite(file, e)}
                 class="w-full px-4 py-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 font-semibold rounded-xl hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-all flex items-center justify-center gap-2"
               >
-                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill" aria-hidden="true"></i>
                 <span>Remove Favorite</span>
               </button>
             </div>

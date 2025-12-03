@@ -98,7 +98,7 @@
   >
     {#snippet actions()}
       <ModernButton variant="gradient">
-        <i class="bi bi-plus-lg mr-2"></i>
+        <i class="bi bi-plus-lg mr-2" aria-hidden="true"></i>
         {tr("addUser")}
       </ModernButton>
     {/snippet}
@@ -119,7 +119,7 @@
               : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
             aria-label={tr("tableView")}
           >
-            <i class="bi bi-table"></i>
+            <i class="bi bi-table" aria-hidden="true"></i>
           </button>
           <button
             onclick={() => (viewMode = "cards")}
@@ -129,7 +129,7 @@
               : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
             aria-label={tr("cardsView")}
           >
-            <i class="bi bi-grid-3x3-gap"></i>
+            <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i>
           </button>
         </div>
       </div>
@@ -171,7 +171,7 @@
                 {tr("selectedCount", selectedUsers.size)}
               </span>
               <ModernButton variant="danger" size="sm">
-                <i class="bi bi-trash mr-1"></i>
+                <i class="bi bi-trash mr-1" aria-hidden="true"></i>
                 {tr("delete")}
               </ModernButton>
             </div>
@@ -307,14 +307,14 @@
                       size="sm"
                       aria-label={tr("editUser")}
                     >
-                      <i class="bi bi-pencil"></i>
+                      <i class="bi bi-pencil" aria-hidden="true"></i>
                     </ModernButton>
                     <ModernButton
                       variant="danger"
                       size="sm"
                       aria-label={tr("deleteUser")}
                     >
-                      <i class="bi bi-trash"></i>
+                      <i class="bi bi-trash" aria-hidden="true"></i>
                     </ModernButton>
                   </div>
                 </td>
@@ -376,7 +376,7 @@
                 <div
                   class="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400 mb-1"
                 >
-                  <i class="bi bi-files"></i>
+                  <i class="bi bi-files" aria-hidden="true"></i>
                   <span class="text-xs uppercase tracking-wider"
                     >{tr("userTableFiles")}</span
                   >
@@ -391,7 +391,7 @@
                 <div
                   class="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400 mb-1"
                 >
-                  <i class="bi bi-hdd"></i>
+                  <i class="bi bi-hdd" aria-hidden="true"></i>
                   <span class="text-xs uppercase tracking-wider"
                     >{tr("userTableStorage")}</span
                   >
@@ -417,14 +417,14 @@
                   size="sm"
                   aria-label={tr("editUser")}
                 >
-                  <i class="bi bi-pencil"></i>
+                  <i class="bi bi-pencil" aria-hidden="true"></i>
                 </ModernButton>
                 <ModernButton
                   variant="danger"
                   size="sm"
                   aria-label={tr("deleteUser")}
                 >
-                  <i class="bi bi-trash"></i>
+                  <i class="bi bi-trash" aria-hidden="true"></i>
                 </ModernButton>
               </div>
             </div>

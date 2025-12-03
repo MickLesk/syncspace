@@ -99,7 +99,7 @@
           <div
             class="p-4 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl shadow-lg"
           >
-            <i class="bi bi-shield-check text-3xl text-white"></i>
+            <i class="bi bi-shield-check text-3xl text-white" aria-hidden="true"></i>
           </div>
           <div>
             <h1
@@ -113,7 +113,7 @@
           </div>
         </div>
         <button class="btn btn-primary gap-2" onclick={openCreateRole}>
-          <i class="bi bi-plus-circle"></i>
+          <i class="bi bi-plus-circle" aria-hidden="true"></i>
           {tr("rbac.createRole")}
         </button>
       </div>
@@ -128,7 +128,7 @@
       <div
         class="text-center py-20 bg-base-100/50 backdrop-blur-xl rounded-2xl border border-base-300"
       >
-        <i class="bi bi-shield-x text-6xl text-base-content/30 mb-4"></i>
+        <i class="bi bi-shield-x text-6xl text-base-content/30 mb-4" aria-hidden="true"></i>
         <p class="text-lg text-base-content/60">{tr("rbac.noRoles")}</p>
       </div>
     {:else}
@@ -162,7 +162,7 @@
               {/if}
 
               <div class="flex items-center gap-2 mb-4">
-                <i class="bi bi-shield-check text-primary"></i>
+                <i class="bi bi-shield-check text-primary" aria-hidden="true"></i>
                 <span class="text-sm">
                   {getPermissionCount(role)}
                   {tr("rbac.permissions")}
@@ -174,12 +174,11 @@
                   onclick={() => openPermissionMatrix(role)}
                   class="btn btn-sm btn-ghost"
                 >
-                  <i class="bi bi-table mr-1"></i>
+                  <i class="bi bi-table mr-1" aria-hidden="true"></i>
                   {tr("rbac.viewPermissions")}
                 </button>
                 {#if !role.is_system}
                   <button aria-label="Edit" onclick={() => openEditRole(role)} class="btn btn-sm btn-ghost"><i class="bi bi-pencil" aria-hidden="true"></i></button>
-                  <button aria-label="Delete" onclick={() => handleDeleteRole(role)} class="btn btn-sm btn-ghost text-error"><i class="bi bi-trash" aria-hidden="true"></i></button>
                 {/if}
               </div>
             </div>
@@ -189,7 +188,7 @@
 
       {#if roles.length === 0}
         <div class="text-center py-12">
-          <i class="bi bi-shield-x text-4xl text-gray-400 mb-4"></i>
+          <i class="bi bi-shield-x text-4xl text-gray-400 mb-4" aria-hidden="true"></i>
           <p class="text-gray-600 dark:text-gray-400">
             {tr("rbac.noRoles")}
           </p>

@@ -205,11 +205,9 @@
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         {:else}
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >
+          <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {tr("selectDestination")}
-          </label>
+          </div>
           <!-- Folder Tree View -->
           <div
             class="max-h-60 overflow-y-auto border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 p-2"
@@ -224,7 +222,7 @@
                 : ''}"
             >
               <i class="bi bi-house-door text-blue-600 dark:text-blue-400 mr-2"
-              ></i>
+               aria-hidden="true"></i>
               {tr("rootDirectory")}
             </button>
 
@@ -272,7 +270,7 @@
                   : ''}"
                 style="padding-left: {depth * 20 + 12}px"
               >
-                <i class="bi bi-folder-fill text-amber-500 mr-2"></i>
+                <i class="bi bi-folder-fill text-amber-500 mr-2" aria-hidden="true"></i>
                 <span class="text-gray-900 dark:text-white text-sm"
                   >{folder.name}</span
                 >
@@ -289,7 +287,7 @@
               <div
                 class="text-center py-6 text-gray-500 dark:text-gray-400 text-sm"
               >
-                <i class="bi bi-folder-x text-3xl mb-2"></i>
+                <i class="bi bi-folder-x text-3xl mb-2" aria-hidden="true"></i>
                 <p>{tr("noFoldersFound")}</p>
               </div>
             {/if}
@@ -363,7 +361,7 @@
         </svg>
         {tr("moving")}
       {:else}
-        <i class="bi bi-arrow-right-square"></i>
+        <i class="bi bi-arrow-right-square" aria-hidden="true"></i>
         {tr("move")}
       {/if}
     </button>

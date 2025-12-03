@@ -120,7 +120,7 @@
       title={t($currentLang, "goUpOneLevel")}
       aria-label={t($currentLang, "goUpOneLevel")}
     >
-      <i class="bi bi-arrow-up"></i>
+      <i class="bi bi-arrow-up" aria-hidden="true"></i>
     </button>
   {/if}
 
@@ -131,7 +131,7 @@
       <li>
         <div class="breadcrumb-item-wrapper">
           <button class="breadcrumb-item" onclick={navigateToHome}>
-            <i class="bi bi-house-fill"></i>
+            <i class="bi bi-house-fill" aria-hidden="true"></i>
             <span class="ml-1">{t($currentLang, "home")}</span>
           </button>
           <div class="breadcrumb-actions">
@@ -143,17 +143,17 @@
               }}
               title={t($currentLang, "quickActions")}
             >
-              <i class="bi bi-three-dots-vertical"></i>
+              <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
             </button>
             {#if activeActionMenu === "home"}
               <div class="breadcrumb-action-menu">
                 <button onclick={() => copySegmentPath(-1)}>
-                  <i class="bi bi-clipboard"></i>
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
                   <span>{t($currentLang, "copyPath")}</span>
                   <kbd class="kbd kbd-xs">Ctrl+C</kbd>
                 </button>
                 <button onclick={() => addToFavorites(-1)}>
-                  <i class="bi bi-star"></i>
+                  <i class="bi bi-star" aria-hidden="true"></i>
                   <span>{t($currentLang, "addToFavorites")}</span>
                   <kbd class="kbd kbd-xs">F</kbd>
                 </button>
@@ -189,7 +189,7 @@
                 }}
                 aria-label={t($currentLang, "showHiddenPathSegments")}
               >
-                <i class="bi bi-three-dots"></i>
+                <i class="bi bi-three-dots" aria-hidden="true"></i>
               </button>
               {#if dropdownOpen}
                 <ul
@@ -203,7 +203,7 @@
                   {#each hiddenSegments as segment, i}
                     <li>
                       <button onclick={() => navigateToSegment(i + 1)}>
-                        <i class="bi bi-folder-fill text-warning"></i>
+                        <i class="bi bi-folder-fill text-warning" aria-hidden="true"></i>
                         {segment}
                       </button>
                     </li>
@@ -235,22 +235,22 @@
                     }}
                     title={t($currentLang, "quickActions")}
                   >
-                    <i class="bi bi-three-dots-vertical"></i>
+                    <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
                   </button>
                   {#if activeActionMenu === i}
                     <div class="breadcrumb-action-menu">
                       <button onclick={() => copySegmentPath(i)}>
-                        <i class="bi bi-clipboard"></i>
+                        <i class="bi bi-clipboard" aria-hidden="true"></i>
                         <span>{t($currentLang, "copyPath")}</span>
                         <kbd class="kbd kbd-xs">Ctrl+C</kbd>
                       </button>
                       <button onclick={() => openInNewTab(i)}>
-                        <i class="bi bi-box-arrow-up-right"></i>
+                        <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
                         <span>{t($currentLang, "openInNewTab")}</span>
                         <kbd class="kbd kbd-xs">Ctrl+T</kbd>
                       </button>
                       <button onclick={() => addToFavorites(i)}>
-                        <i class="bi bi-star"></i>
+                        <i class="bi bi-star" aria-hidden="true"></i>
                         <span>{t($currentLang, "addToFavorites")}</span>
                         <kbd class="kbd kbd-xs">F</kbd>
                       </button>
@@ -284,7 +284,7 @@
                     }}
                     title={t($currentLang, "quickActions")}
                   >
-                    <i class="bi bi-three-dots-vertical"></i>
+                    <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
                   </button>
                   {#if activeActionMenu === `last-${i}`}
                     <div class="breadcrumb-action-menu">
@@ -294,7 +294,7 @@
                             segments.length - (maxVisibleSegments - 1) + i
                           )}
                       >
-                        <i class="bi bi-clipboard"></i>
+                        <i class="bi bi-clipboard" aria-hidden="true"></i>
                         <span>{t($currentLang, "copyPath")}</span>
                         <kbd class="kbd kbd-xs">Ctrl+C</kbd>
                       </button>
@@ -304,7 +304,7 @@
                             segments.length - (maxVisibleSegments - 1) + i
                           )}
                       >
-                        <i class="bi bi-box-arrow-up-right"></i>
+                        <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
                         <span>{t($currentLang, "openInNewTab")}</span>
                         <kbd class="kbd kbd-xs">Ctrl+T</kbd>
                       </button>
@@ -314,7 +314,7 @@
                             segments.length - (maxVisibleSegments - 1) + i
                           )}
                       >
-                        <i class="bi bi-star"></i>
+                        <i class="bi bi-star" aria-hidden="true"></i>
                         <span>{t($currentLang, "addToFavorites")}</span>
                         <kbd class="kbd kbd-xs">F</kbd>
                       </button>
@@ -336,7 +336,7 @@
     title={t($currentLang, "copyFullPath")}
     aria-label={t($currentLang, "copyFullPath")}
   >
-    <i class="bi bi-clipboard"></i>
+    <i class="bi bi-clipboard" aria-hidden="true"></i>
     <span class="hidden sm:inline">{t($currentLang, "copy")}</span>
   </button>
 </div>

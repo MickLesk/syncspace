@@ -299,7 +299,7 @@
       {#snippet children()}
         <div class="animate-fade-in">
           <div class="text-primary/30 mb-6">
-            <i class="bi bi-trash3 text-8xl"></i>
+            <i class="bi bi-trash3 text-8xl" aria-hidden="true"></i>
           </div>
           <h3 class="text-2xl font-bold mb-3">Trash is Empty</h3>
           <p class="text-base-content/60 mb-6 max-w-md mx-auto">
@@ -309,7 +309,7 @@
           <div class="glass-card max-w-md mx-auto p-6 text-left">
             <div class="flex gap-3">
               <i class="bi bi-info-circle-fill text-info text-2xl flex-shrink-0"
-              ></i>
+               aria-hidden="true"></i>
               <div>
                 <p class="font-semibold text-sm mb-1">Auto-delete in 30 days</p>
                 <p class="text-xs text-base-content/70">
@@ -389,7 +389,7 @@
                         file
                       ).class}"
                     >
-                      <i class="bi bi-clock-history mr-1"></i>
+                      <i class="bi bi-clock-history mr-1" aria-hidden="true"></i>
                       {getAutoDeleteBadge(file).text}
                     </span>
                   </td>
@@ -428,19 +428,19 @@
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
     onclick={closeDeleteModal}
-    onkeydown={(e) => e.key === "Escape" && closeDeleteModal()}
+    onkeydown={(e) = role="button" tabindex="0"> e.key === "Escape" && closeDeleteModal()}
     role="button"
     tabindex="0"
   >
     <div
       class="relative max-w-2xl w-full bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6"
       onclick={(e) => e.stopPropagation()}
-      onkeydown={(e) => e.stopPropagation()}
+      onkeydown={(e) = role="button" tabindex="0"> e.stopPropagation()}
       role="dialog"
       tabindex="0"
     >
       <h3 class="font-bold text-2xl mb-6 text-error flex items-center gap-2">
-        <i class="bi bi-exclamation-triangle-fill"></i>
+        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
         Permanent Delete Warning
       </h3>
 
@@ -485,7 +485,7 @@
           >
             <div class="flex items-center gap-6">
               <div class="text-red-600 dark:text-red-400">
-                <i class="bi bi-files text-5xl"></i>
+                <i class="bi bi-files text-5xl" aria-hidden="true"></i>
               </div>
               <div class="flex-1">
                 <div
@@ -512,7 +512,7 @@
           >
             <div class="flex items-center gap-6">
               <div class="text-red-600 dark:text-red-400">
-                <i class="bi bi-trash3-fill text-5xl"></i>
+                <i class="bi bi-trash3-fill text-5xl" aria-hidden="true"></i>
               </div>
               <div class="flex-1">
                 <div
@@ -535,20 +535,20 @@
       <!-- Confirmation Checklist -->
       <div class="glass-card border-l-4 border-warning p-4 mb-6">
         <p class="font-bold mb-3 flex items-center gap-2">
-          <i class="bi bi-check2-all text-warning"></i>
+          <i class="bi bi-check2-all text-warning" aria-hidden="true"></i>
           Before you proceed:
         </p>
         <ul class="space-y-2">
           <li class="flex items-center gap-2 text-sm">
-            <i class="bi bi-check2-circle text-warning"></i>
+            <i class="bi bi-check2-circle text-warning" aria-hidden="true"></i>
             I understand these files will be permanently deleted
           </li>
           <li class="flex items-center gap-2 text-sm">
-            <i class="bi bi-check2-circle text-warning"></i>
+            <i class="bi bi-check2-circle text-warning" aria-hidden="true"></i>
             I have confirmed I don't need these files anymore
           </li>
           <li class="flex items-center gap-2 text-sm">
-            <i class="bi bi-check2-circle text-warning"></i>
+            <i class="bi bi-check2-circle text-warning" aria-hidden="true"></i>
             I understand this action cannot be undone
           </li>
         </ul>

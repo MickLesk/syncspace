@@ -65,7 +65,7 @@
   <!-- Header -->
   <div class="mb-8">
     <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-      <i class="bi bi-arrow-counterclockwise inline-block mr-3"></i>
+      <i class="bi bi-arrow-counterclockwise inline-block mr-3" aria-hidden="true"></i>
       {$t('backup.title')}
     </h1>
     <p class="text-gray-600 dark:text-gray-400">
@@ -98,7 +98,7 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <!-- Search -->
       <div class="relative">
-        <i class="bi bi-search absolute left-3 top-3 text-gray-400"></i>
+        <i class="bi bi-search absolute left-3 top-3 text-gray-400" aria-hidden="true"></i>
         <input
           type="text"
           placeholder={$t('backup.search_placeholder')}
@@ -145,7 +145,7 @@
         on:click={exportBackupList}
         class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center gap-2"
       >
-        <i class="bi bi-download"></i>
+        <i class="bi bi-download" aria-hidden="true"></i>
         {$t('backup.export_list')}
       </button>
     </div>
@@ -178,7 +178,7 @@
 
         {#if $restoreError}
           <div class="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-3 mb-4 text-red-700 dark:text-red-200">
-            <i class="bi bi-exclamation-circle mr-2"></i>
+            <i class="bi bi-exclamation-circle mr-2" aria-hidden="true"></i>
             {$restoreError}
           </div>
         {/if}
@@ -253,7 +253,7 @@
   <div class="space-y-4">
     {#if $filteredBackups.length === 0}
       <div class="bg-white dark:bg-gray-800 rounded-lg p-12 border border-gray-200 dark:border-gray-700 text-center">
-        <i class="bi bi-inbox text-4xl text-gray-400 mb-4 block"></i>
+        <i class="bi bi-inbox text-4xl text-gray-400 mb-4 block" aria-hidden="true"></i>
         <p class="text-gray-600 dark:text-gray-400">
           {$t('backup.no_backups')}
         </p>
@@ -270,11 +270,11 @@
               <!-- Type Icon -->
               <div class="text-2xl">
                 {#if backup.type === 'full'}
-                  <i class="bi bi-folder-fill text-blue-500"></i>
+                  <i class="bi bi-folder-fill text-blue-500" aria-hidden="true"></i>
                 {:else if backup.type === 'incremental'}
-                  <i class="bi bi-arrow-up-circle-fill text-green-500"></i>
+                  <i class="bi bi-arrow-up-circle-fill text-green-500" aria-hidden="true"></i>
                 {:else}
-                  <i class="bi bi-diagram-2-fill text-purple-500"></i>
+                  <i class="bi bi-diagram-2-fill text-purple-500" aria-hidden="true"></i>
                 {/if}
               </div>
 
@@ -290,17 +290,17 @@
               <div class="flex items-center gap-2">
                 {#if backup.status === 'success'}
                   <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
-                    <i class="bi bi-check-circle"></i>
+                    <i class="bi bi-check-circle" aria-hidden="true"></i>
                     {$t('backup.status_success')}
                   </span>
                 {:else if backup.status === 'failed'}
                   <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
-                    <i class="bi bi-x-circle"></i>
+                    <i class="bi bi-x-circle" aria-hidden="true"></i>
                     {$t('backup.status_failed')}
                   </span>
                 {:else if backup.status === 'in_progress'}
                   <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">
-                    <i class="bi bi-hourglass-split"></i>
+                    <i class="bi bi-hourglass-split" aria-hidden="true"></i>
                     {$t('backup.status_in_progress')}
                   </span>
                 {/if}
@@ -344,7 +344,7 @@
               {#if backup.notes}
                 <div class="mb-6 p-3 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg">
                   <div class="text-sm text-blue-900 dark:text-blue-200">
-                    <i class="bi bi-info-circle mr-2"></i>
+                    <i class="bi bi-info-circle mr-2" aria-hidden="true"></i>
                     {backup.notes}
                   </div>
                 </div>
@@ -355,28 +355,28 @@
                   on:click={() => handleRestore(backup)}
                   class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition flex items-center justify-center gap-2"
                 >
-                  <i class="bi bi-arrow-counterclockwise"></i>
+                  <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
                   {$t('backup.restore')}
                 </button>
                 <button
                   on:click={() => verifyBackup(backup.id)}
                   class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center justify-center gap-2"
                 >
-                  <i class="bi bi-shield-check"></i>
+                  <i class="bi bi-shield-check" aria-hidden="true"></i>
                   {$t('backup.verify')}
                 </button>
                 <button
                   on:click={() => handleDelete(backup)}
                   class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition flex items-center justify-center gap-2"
                 >
-                  <i class="bi bi-trash"></i>
+                  <i class="bi bi-trash" aria-hidden="true"></i>
                   {$t('common.delete')}
                 </button>
                 <button
                   class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition flex items-center justify-center gap-2"
                   title="Download backup"
                 >
-                  <i class="bi bi-download"></i>
+                  <i class="bi bi-download" aria-hidden="true"></i>
                   {$t('common.download')}
                 </button>
               </div>

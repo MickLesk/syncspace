@@ -133,7 +133,7 @@
       class="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm"
       style="z-index: 3;"
     >
-      <i class="bi bi-image text-2xl"></i>
+      <i class="bi bi-image text-2xl" aria-hidden="true"></i>
     </div>
   {/if}
 </picture>

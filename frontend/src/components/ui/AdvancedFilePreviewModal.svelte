@@ -87,18 +87,15 @@
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4"
     role="dialog"
     aria-modal="true"
-    ondragover={(e) => e.preventDefault()}
+    ondragover={(e) = tabindex="0"> e.preventDefault()}
     ondrop={(e) => e.preventDefault()}
   >
     <!-- Close Button -->
-    <button
-      type="button"
+    <button type="button"
       class="absolute top-4 right-4 p-2 text-white hover:bg-white/20 rounded-lg transition-colors z-50"
-      onclick={onClose}
+      aria-label="Close" onclick={onClose}
       title="Close (ESC)"
-    >
-      <i class="bi bi-x-lg text-2xl"></i>
-    </button>
+    ><i class="bi bi-x" aria-hidden="true"></i></button>
 
     <!-- Main Preview Container -->
     <div
@@ -109,7 +106,7 @@
       <div class="w-full max-h-96 overflow-auto rounded-lg bg-black flex items-center justify-center">
         {#if error}
           <div class="text-red-400 text-center p-8">
-            <i class="bi bi-exclamation-triangle-fill text-4xl block mb-2"></i>
+            <i class="bi bi-exclamation-triangle-fill text-4xl block mb-2" aria-hidden="true"></i>
             <p>{error}</p>
           </div>
         {:else if previewType === "image"}
@@ -133,7 +130,7 @@
           </video>
         {:else if previewType === "pdf"}
           <div class="text-white text-center p-8">
-            <i class="bi bi-file-pdf text-4xl block mb-2"></i>
+            <i class="bi bi-file-pdf text-4xl block mb-2" aria-hidden="true"></i>
             <p>{currentFile.name}</p>
             <a
               href={`/api/files/${currentFile.path || currentFile.name}`}
@@ -150,19 +147,19 @@
           </div>
         {:else if previewType === "document"}
           <div class="text-white text-center p-8">
-            <i class="bi bi-file-word text-4xl block mb-2"></i>
+            <i class="bi bi-file-word text-4xl block mb-2" aria-hidden="true"></i>
             <p>{currentFile.name}</p>
             <p class="text-sm text-gray-400 mt-2">Document preview coming soon</p>
           </div>
         {:else if previewType === "spreadsheet"}
           <div class="text-white text-center p-8">
-            <i class="bi bi-file-excel text-4xl block mb-2"></i>
+            <i class="bi bi-file-excel text-4xl block mb-2" aria-hidden="true"></i>
             <p>{currentFile.name}</p>
             <p class="text-sm text-gray-400 mt-2">Spreadsheet preview coming soon</p>
           </div>
         {:else}
           <div class="text-white text-center p-8">
-            <i class="bi bi-file text-4xl block mb-2"></i>
+            <i class="bi bi-file text-4xl block mb-2" aria-hidden="true"></i>
             <p>{currentFile.name}</p>
             <p class="text-sm text-gray-400 mt-2">Preview not available</p>
           </div>
@@ -187,7 +184,7 @@
             onclick={previousFile}
             class="px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 text-white rounded transition-colors"
           >
-            <i class="bi bi-chevron-left"></i> Previous
+            <i class="bi bi-chevron-left" aria-hidden="true"></i> Previous
           </button>
 
           <button
@@ -196,7 +193,7 @@
             onclick={nextFile}
             class="px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 text-white rounded transition-colors"
           >
-            Next <i class="bi bi-chevron-right"></i>
+            Next <i class="bi bi-chevron-right" aria-hidden="true"></i>
           </button>
 
           <button
@@ -209,7 +206,7 @@
             }}
             class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
           >
-            <i class="bi bi-download"></i> Download
+            <i class="bi bi-download" aria-hidden="true"></i> Download
           </button>
         </div>
       </div>

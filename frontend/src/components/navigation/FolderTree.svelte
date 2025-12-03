@@ -285,7 +285,7 @@
 
 <div class="folder-tree">
   <div class="folder-tree-header">
-    <i class="bi bi-folder-fill text-warning"></i>
+    <i class="bi bi-folder-fill text-warning" aria-hidden="true"></i>
     <span class="font-semibold">{tr("folders")}</span>
   </div>
 
@@ -296,7 +296,7 @@
     </div>
   {:else if flatFolders.length === 0}
     <div class="empty-state">
-      <i class="bi bi-folder-x text-base-content/40"></i>
+      <i class="bi bi-folder-x text-base-content/40" aria-hidden="true"></i>
       <span class="text-sm text-base-content/60">{tr("noFolders")}</span>
     </div>
   {:else}
@@ -313,7 +313,7 @@
             aria-label={tr("toggleFolder")}
           >
             <i class="bi bi-chevron-{isExpanded ? 'down' : 'right'} text-xs"
-            ></i>
+             aria-hidden="true"></i>
           </button>
 
           <button
@@ -322,7 +322,7 @@
             oncontextmenu={(e) => showContextMenu(e, folder)}
             title={folder.path}
           >
-            <i class="bi bi-{icon} {iconColor}"></i>
+            <i class="bi bi-{icon} {iconColor}" aria-hidden="true"></i>
             <span class="folder-name">{folder.name}</span>
           </button>
         </div>
@@ -341,7 +341,7 @@
       class="context-menu-item"
       onclick={() => handleNewSubfolder(contextMenu.folder)}
     >
-      <i class="bi bi-folder-plus"></i>
+      <i class="bi bi-folder-plus" aria-hidden="true"></i>
       <span>{tr("newSubfolder")}</span>
       <kbd class="kbd kbd-xs ml-auto">N</kbd>
     </button>
@@ -352,7 +352,7 @@
       class="context-menu-item"
       onclick={() => handleRename(contextMenu.folder)}
     >
-      <i class="bi bi-pencil"></i>
+      <i class="bi bi-pencil" aria-hidden="true"></i>
       <span>{tr("rename")}</span>
       <kbd class="kbd kbd-xs ml-auto">F2</kbd>
     </button>
@@ -361,7 +361,7 @@
       class="context-menu-item"
       onclick={() => handleShare(contextMenu.folder)}
     >
-      <i class="bi bi-share"></i>
+      <i class="bi bi-share" aria-hidden="true"></i>
       <span>{tr("share")}</span>
     </button>
 
@@ -369,7 +369,7 @@
       class="context-menu-item"
       onclick={() => handleFavorite(contextMenu.folder)}
     >
-      <i class="bi bi-star"></i>
+      <i class="bi bi-star" aria-hidden="true"></i>
       <span>{tr("addToFavorites")}</span>
       <kbd class="kbd kbd-xs ml-auto">⭐</kbd>
     </button>
@@ -380,7 +380,7 @@
       class="context-menu-item text-error"
       onclick={() => handleDelete(contextMenu.folder)}
     >
-      <i class="bi bi-trash"></i>
+      <i class="bi bi-trash" aria-hidden="true"></i>
       <span>{tr("delete")}</span>
       <kbd class="kbd kbd-xs ml-auto">Del</kbd>
     </button>

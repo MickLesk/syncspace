@@ -218,7 +218,7 @@
         class:dark:text-gray-400={activeTab !== "profile"}
         onclick={() => (activeTab = "profile")}
       >
-        <i class="bi bi-person-circle mr-2"></i>
+        <i class="bi bi-person-circle mr-2" aria-hidden="true"></i>
         Profile
       </button>
       <button
@@ -232,7 +232,7 @@
         class:dark:text-gray-400={activeTab !== "settings"}
         onclick={() => (activeTab = "settings")}
       >
-        <i class="bi bi-gear-fill mr-2"></i>
+        <i class="bi bi-gear-fill mr-2" aria-hidden="true"></i>
         Settings
       </button>
       <button
@@ -246,7 +246,7 @@
         class:dark:text-gray-400={activeTab !== "storage"}
         onclick={() => (activeTab = "storage")}
       >
-        <i class="bi bi-hdd-fill mr-2"></i>
+        <i class="bi bi-hdd-fill mr-2" aria-hidden="true"></i>
         Storage
       </button>
     </div>
@@ -275,7 +275,7 @@
               size="sm"
               class="absolute top-4 right-4 backdrop-blur-md bg-white/20 text-white hover:bg-white/30"
             >
-              <i class="bi bi-camera mr-1"></i>
+              <i class="bi bi-camera mr-1" aria-hidden="true"></i>
               Change Cover
             </ModernButton>
           </div>
@@ -305,7 +305,7 @@
                 <label
                   class="absolute bottom-0 right-0 w-10 h-10 rounded-full gradient-bg-primary border-4 border-white dark:border-gray-900 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-lg"
                 >
-                  <i class="bi bi-camera-fill text-white"></i>
+                  <i class="bi bi-camera-fill text-white" aria-hidden="true"></i>
                   <input
                     type="file"
                     accept="image/*"
@@ -350,11 +350,11 @@
                   class="flex flex-wrap gap-4 justify-center md:justify-start text-sm text-gray-600 dark:text-gray-400 mb-4"
                 >
                   <span class="flex items-center gap-2">
-                    <i class="bi bi-envelope"></i>
+                    <i class="bi bi-envelope" aria-hidden="true"></i>
                     {user.email}
                   </span>
                   <span class="flex items-center gap-2">
-                    <i class="bi bi-calendar"></i>
+                    <i class="bi bi-calendar" aria-hidden="true"></i>
                     Joined {formatDate(user.joinedDate)}
                   </span>
                 </div>
@@ -362,7 +362,7 @@
                 <div class="flex gap-3 justify-center md:justify-start">
                   {#if editMode}
                     <ModernButton variant="gradient" onclick={saveProfile}>
-                      <i class="bi bi-check-lg mr-2"></i>
+                      <i class="bi bi-check-lg mr-2" aria-hidden="true"></i>
                       Save Changes
                     </ModernButton>
                     <ModernButton
@@ -376,7 +376,7 @@
                       variant="gradient"
                       onclick={() => (editMode = true)}
                     >
-                      <i class="bi bi-pencil mr-2"></i>
+                      <i class="bi bi-pencil mr-2" aria-hidden="true"></i>
                       Edit Profile
                     </ModernButton>
                   {/if}
@@ -486,7 +486,7 @@
                     </div>
                   </div>
                   <ModernButton variant="ghost" size="sm">
-                    <i class="bi bi-three-dots-vertical"></i>
+                    <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
                   </ModernButton>
                 </div>
               </div>
@@ -499,7 +499,7 @@
       <div class="space-y-6">
         <ModernCard variant="glass">
           <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-            <i class="bi bi-gear-fill mr-2"></i>
+            <i class="bi bi-gear-fill mr-2" aria-hidden="true"></i>
             Preferences
           </h2>
 
@@ -564,7 +564,7 @@
             <!-- Save Button -->
             <div class="flex justify-end gap-3 pt-4">
               <ModernButton variant="gradient" onclick={saveSettings}>
-                <i class="bi bi-check-lg mr-2"></i>
+                <i class="bi bi-check-lg mr-2" aria-hidden="true"></i>
                 Save Settings
               </ModernButton>
             </div>
@@ -574,7 +574,7 @@
         <!-- Admin Tools -->
         <ModernCard variant="glass">
           <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-            <i class="bi bi-tools mr-2"></i>
+            <i class="bi bi-tools mr-2" aria-hidden="true"></i>
             Admin Tools
           </h2>
 
@@ -585,7 +585,7 @@
               <h3
                 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2"
               >
-                <i class="bi bi-search mr-2"></i>
+                <i class="bi bi-search mr-2" aria-hidden="true"></i>
                 Search Index
               </h3>
               <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
@@ -593,7 +593,7 @@
                 take a few moments.
               </p>
               <ModernButton variant="outline" onclick={reindexSearch}>
-                <i class="bi bi-arrow-clockwise mr-2"></i>
+                <i class="bi bi-arrow-clockwise mr-2" aria-hidden="true"></i>
                 Rebuild Search Index
               </ModernButton>
             </div>
@@ -606,7 +606,7 @@
         <!-- Storage Overview -->
         <ModernCard variant="glass">
           <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-            <i class="bi bi-hdd-fill mr-2"></i>
+            <i class="bi bi-hdd-fill mr-2" aria-hidden="true"></i>
             Storage Usage
           </h2>
 
@@ -687,19 +687,19 @@
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <ModernButton variant="outline" class="justify-start">
-              <i class="bi bi-trash mr-2"></i>
+              <i class="bi bi-trash mr-2" aria-hidden="true"></i>
               Clear Trash
             </ModernButton>
             <ModernButton variant="outline" class="justify-start">
-              <i class="bi bi-arrow-clockwise mr-2"></i>
+              <i class="bi bi-arrow-clockwise mr-2" aria-hidden="true"></i>
               Optimize Storage
             </ModernButton>
             <ModernButton variant="outline" class="justify-start">
-              <i class="bi bi-download mr-2"></i>
+              <i class="bi bi-download mr-2" aria-hidden="true"></i>
               Download All Files
             </ModernButton>
             <ModernButton variant="outline" class="justify-start">
-              <i class="bi bi-arrow-up-circle mr-2"></i>
+              <i class="bi bi-arrow-up-circle mr-2" aria-hidden="true"></i>
               Upgrade Storage
             </ModernButton>
           </div>

@@ -120,6 +120,7 @@ pub struct ServiceHealth {
 
 /// Database statistics
 #[derive(Debug, Serialize)]
+#[allow(dead_code)]
 pub struct DatabaseStats {
     pub table_name: String,
     pub row_count: i64,
@@ -128,6 +129,7 @@ pub struct DatabaseStats {
 
 /// System metrics history point
 #[derive(Debug, Serialize)]
+#[allow(dead_code)]
 pub struct MetricsPoint {
     pub timestamp: DateTime<Utc>,
     pub cpu_percent: f64,

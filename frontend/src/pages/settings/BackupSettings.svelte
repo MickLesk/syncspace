@@ -88,7 +88,7 @@
         >
           <div class="flex items-center gap-6">
             <div class="text-blue-600 dark:text-blue-400">
-              <i class="bi bi-clock-history text-5xl"></i>
+              <i class="bi bi-clock-history text-5xl" aria-hidden="true"></i>
             </div>
             <div class="flex-1">
               <div
@@ -109,7 +109,7 @@
 
       <div class="flex justify-end mt-6">
         <ModernButton variant="gradient" onclick={handleBackupNow}>
-          <i class="bi bi-cloud-arrow-up mr-2"></i>
+          <i class="bi bi-cloud-arrow-up mr-2" aria-hidden="true"></i>
           Backup Now
         </ModernButton>
       </div>
@@ -122,7 +122,7 @@
       <h2
         class="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900 dark:text-gray-100"
       >
-        <i class="bi bi-archive-fill text-purple-600 dark:text-purple-400"></i>
+        <i class="bi bi-archive-fill text-purple-600 dark:text-purple-400" aria-hidden="true"></i>
         Backup History
       </h2>
 
@@ -146,10 +146,10 @@
             </div>
             <div class="flex gap-2">
               <ModernButton variant="ghost" size="sm">
-                <i class="bi bi-download"></i>
+                <i class="bi bi-download" aria-hidden="true"></i>
               </ModernButton>
               <ModernButton variant="danger" size="sm">
-                <i class="bi bi-trash"></i>
+                <i class="bi bi-trash" aria-hidden="true"></i>
               </ModernButton>
             </div>
           </div>

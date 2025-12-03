@@ -105,7 +105,7 @@
   <div class="register-container">
     <div class="register-header">
       <div class="logo">
-        <i class="bi bi-person-plus-fill text-5xl text-primary-600"></i>
+        <i class="bi bi-person-plus-fill text-5xl text-primary-600" aria-hidden="true"></i>
       </div>
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
         Create Account
@@ -118,7 +118,7 @@
     {#if registrationEnabled === false}
       <ModernCard>
         <div class="text-center py-8">
-          <i class="bi bi-x-circle text-5xl text-error mb-4"></i>
+          <i class="bi bi-x-circle text-5xl text-error mb-4" aria-hidden="true"></i>
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
             Registration Disabled
           </h2>
@@ -145,7 +145,7 @@
           <div class="space-y-4">
             {#if error}
               <div class="alert alert-error">
-                <i class="bi bi-exclamation-triangle"></i>
+                <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
                 <span>{error}</span>
               </div>
             {/if}

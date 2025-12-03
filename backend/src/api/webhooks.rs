@@ -610,6 +610,7 @@ async fn reset_failure_count(
 // ============================================================================
 
 /// Dispatch a webhook event to all subscribed webhooks
+#[allow(dead_code)]
 pub async fn dispatch_webhook_event(
     state: &AppState,
     user_id: &str,
@@ -675,6 +676,7 @@ pub async fn dispatch_webhook_event(
 }
 
 /// Send a single webhook delivery
+#[allow(dead_code)]
 async fn send_webhook_delivery(
     state: &AppState,
     webhook: &Webhook,

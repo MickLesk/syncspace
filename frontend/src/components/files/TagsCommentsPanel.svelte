@@ -143,7 +143,7 @@
       class:dark:text-slate-400={activeTab !== "tags"}
       on:click={() => (activeTab = "tags")}
     >
-      <i class="bi bi-tag mr-2" />
+      <i class="bi bi-tag mr-2" / aria-hidden="true">
       Tags ({$currentFileMetadata.tags.length})
     </button>
 
@@ -158,7 +158,7 @@
       class:dark:text-slate-400={activeTab !== "comments"}
       on:click={() => (activeTab = "comments")}
     >
-      <i class="bi bi-chat-dots mr-2" />
+      <i class="bi bi-chat-dots mr-2" / aria-hidden="true">
       Comments ({$currentFileMetadata.comments.length})
     </button>
   </div>
@@ -168,14 +168,14 @@
     {#if $loading}
       <div class="flex items-center justify-center h-full">
         <div class="animate-spin">
-          <i class="bi bi-hourglass text-2xl text-blue-500" />
+          <i class="bi bi-hourglass text-2xl text-blue-500" / aria-hidden="true">
         </div>
       </div>
     {:else if $error}
       <div
         class="bg-red-50 dark:bg-red-900/20 p-3 rounded text-red-700 dark:text-red-200 text-sm"
       >
-        <i class="bi bi-exclamation-circle mr-2" />
+        <i class="bi bi-exclamation-circle mr-2" / aria-hidden="true">
         {$error}
       </div>
     {:else if activeTab === "tags"}
@@ -218,7 +218,7 @@
                 disabled={!newTagName.trim()}
                 class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-300 text-white rounded text-sm font-medium transition-colors"
               >
-                <i class="bi bi-plus" />
+                <i class="bi bi-plus" / aria-hidden="true">
               </button>
             </div>
           </div>
@@ -246,7 +246,7 @@
                     class="hover:opacity-75 transition-opacity"
                     title="Remove tag"
                   >
-                    <i class="bi bi-x" />
+                    <i class="bi bi-x" / aria-hidden="true">
                   </button>
                 {/if}
               </div>
@@ -297,14 +297,14 @@
                         class="text-blue-500 hover:text-blue-700 text-sm"
                         title="Edit"
                       >
-                        <i class="bi bi-pencil" />
+                        <i class="bi bi-pencil" / aria-hidden="true">
                       </button>
                       <button
                         on:click={() => handleDeleteComment(comment.id)}
                         class="text-red-500 hover:text-red-700 text-sm"
                         title="Delete"
                       >
-                        <i class="bi bi-trash" />
+                        <i class="bi bi-trash" / aria-hidden="true">
                       </button>
                     </div>
                   {/if}
@@ -340,7 +340,7 @@
 
                   {#if comment.isPending}
                     <p class="text-xs text-slate-500 dark:text-slate-400">
-                      <i class="bi bi-hourglass mr-1 animate-spin" />
+                      <i class="bi bi-hourglass mr-1 animate-spin" / aria-hidden="true">
                       Sending...
                     </p>
                   {/if}
@@ -355,7 +355,7 @@
                       on:click={() => startReply(comment.id)}
                       class="text-sm text-blue-500 hover:text-blue-700 flex items-center gap-1"
                     >
-                      <i class="bi bi-reply" />
+                      <i class="bi bi-reply" / aria-hidden="true">
                       Reply
                     </button>
                   {/if}
@@ -390,7 +390,7 @@
                           on:click={() => handleDeleteComment(reply.id)}
                           class="text-red-500 hover:text-red-700 text-xs"
                         >
-                          <i class="bi bi-trash" />
+                          <i class="bi bi-trash" / aria-hidden="true">
                         </button>
                       {/if}
                     </div>

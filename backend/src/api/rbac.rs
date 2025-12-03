@@ -44,6 +44,7 @@ pub struct Role {
 }
 
 #[derive(Debug, Serialize, FromRow)]
+#[allow(dead_code)]
 pub struct UserRole {
     pub user_id: String,
     pub role_id: String,

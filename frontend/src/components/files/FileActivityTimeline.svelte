@@ -171,7 +171,7 @@
     <h2
       class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2"
     >
-      <i class="bi bi-clock-history text-indigo-500"></i>
+      <i class="bi bi-clock-history text-indigo-500" aria-hidden="true"></i>
       {tr("activity.timeline")}
     </h2>
     <button
@@ -179,7 +179,7 @@
       class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
       title={tr("refresh")}
     >
-      <i class="bi bi-arrow-clockwise"></i>
+      <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
     </button>
   </div>
 
@@ -190,11 +190,9 @@
     <div class="grid grid-cols-2 gap-3">
       <!-- Time Range Filter -->
       <div>
-        <label
-          class="text-xs font-medium text-gray-700 dark:text-gray-300 block mb-2"
-        >
+        <div class="text-xs font-medium text-gray-700 dark:text-gray-300 block mb-2">
           {tr("activity.timeRange")}
-        </label>
+        </div>
         <select
           bind:value={timeRange}
           class="w-full px-2 py-1.5 text-sm bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded text-gray-900 dark:text-white"
@@ -208,11 +206,9 @@
 
       <!-- Group By Filter -->
       <div>
-        <label
-          class="text-xs font-medium text-gray-700 dark:text-gray-300 block mb-2"
-        >
+        <div class="text-xs font-medium text-gray-700 dark:text-gray-300 block mb-2">
           {tr("activity.groupBy")}
-        </label>
+        </div>
         <select
           bind:value={groupBy}
           class="w-full px-2 py-1.5 text-sm bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded text-gray-900 dark:text-white"

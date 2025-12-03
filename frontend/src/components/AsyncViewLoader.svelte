@@ -61,7 +61,7 @@
   {:else}
     <div class="flex items-center justify-center h-full min-h-96">
       <div class="text-center text-red-600 dark:text-red-400">
-        <i class="bi bi-exclamation-triangle-fill text-4xl mb-4"></i>
+        <i class="bi bi-exclamation-triangle-fill text-4xl mb-4" aria-hidden="true"></i>
         <p class="font-semibold">Failed to load component</p>
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{error.message}</p>
         <button

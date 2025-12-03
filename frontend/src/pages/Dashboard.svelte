@@ -239,7 +239,7 @@
           <div
             class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center"
           >
-            <i class="bi bi-pie-chart-fill text-blue-500"></i>
+            <i class="bi bi-pie-chart-fill text-blue-500" aria-hidden="true"></i>
           </div>
           <span
             class="text-xs bg-blue-500/20 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-full"
@@ -262,7 +262,7 @@
           <div
             class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center"
           >
-            <i class="bi bi-file-earmark-fill text-purple-500"></i>
+            <i class="bi bi-file-earmark-fill text-purple-500" aria-hidden="true"></i>
           </div>
           <span
             class="text-xs bg-green-500/20 text-green-600 dark:text-green-400 px-2 py-1 rounded-full"
@@ -283,7 +283,7 @@
           <div
             class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center"
           >
-            <i class="bi bi-arrow-repeat text-emerald-500"></i>
+            <i class="bi bi-arrow-repeat text-emerald-500" aria-hidden="true"></i>
           </div>
           <span
             class="text-xs bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-full"
@@ -306,7 +306,7 @@
           <div
             class="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center"
           >
-            <i class="bi bi-clock-history text-pink-500"></i>
+            <i class="bi bi-clock-history text-pink-500" aria-hidden="true"></i>
           </div>
           <span
             class="text-xs bg-slate-500/20 text-slate-600 dark:text-slate-400 px-2 py-1 rounded-full"
@@ -333,7 +333,7 @@
             <h2
               class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2"
             >
-              <i class="bi bi-lightning-fill text-amber-500"></i>
+              <i class="bi bi-lightning-fill text-amber-500" aria-hidden="true"></i>
               Aktuelle Aktivität
             </h2>
             <a
@@ -382,7 +382,7 @@
           <h2
             class="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-6 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center gap-2"
           >
-            <i class="bi bi-bookmark-fill text-blue-500"></i>
+            <i class="bi bi-bookmark-fill text-blue-500" aria-hidden="true"></i>
             Zuletzt geöffnet
           </h2>
           <div class="space-y-3">

@@ -147,7 +147,7 @@
               : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300'}"
             onclick={() => (filterType = "all")}
           >
-            <i class="bi bi-list-ul mr-2"></i>
+            <i class="bi bi-list-ul mr-2" aria-hidden="true"></i>
             All
             <span class="badge-glass-info ml-2">{notifications.length}</span>
           </button>
@@ -158,7 +158,7 @@
               : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300'}"
             onclick={() => (filterType = "unread")}
           >
-            <i class="bi bi-envelope mr-2"></i>
+            <i class="bi bi-envelope mr-2" aria-hidden="true"></i>
             Unread
             <span class="badge-glass-warning ml-2">{unreadCount()}</span>
           </button>
@@ -169,7 +169,7 @@
               : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300'}"
             onclick={() => (filterType = "read")}
           >
-            <i class="bi bi-envelope-open mr-2"></i>
+            <i class="bi bi-envelope-open mr-2" aria-hidden="true"></i>
             Read
             <span class="badge-glass-success ml-2"
               >{notifications.length - unreadCount()}</span
@@ -215,7 +215,7 @@
                           ? 'bg-red-500/20 text-red-500'
                           : ''}"
                       >
-                        <i class="bi bi-{notification.icon}"></i>
+                        <i class="bi bi-{notification.icon}" aria-hidden="true"></i>
                       </div>
                     {/if}
                   </div>
@@ -231,7 +231,7 @@
                         {tr(notification.title)}
                       </h3>
                       <span class="badge-glass-info flex-shrink-0 bounce-in">
-                        <i class="bi bi-clock mr-1"></i>
+                        <i class="bi bi-clock mr-1" aria-hidden="true"></i>
                         {formatRelativeTime(notification.time)}
                       </span>
                     </div>
@@ -267,7 +267,7 @@
         <ModernCard variant="glass" padding="large">
           {#snippet children()}
             <div class="text-center animate-fade-in">
-              <i class="bi bi-bell-slash text-6xl opacity-20 mb-4 block"></i>
+              <i class="bi bi-bell-slash text-6xl opacity-20 mb-4 block" aria-hidden="true"></i>
               <h3
                 class="text-xl font-bold mb-2 text-gray-900 dark:text-gray-100"
               >

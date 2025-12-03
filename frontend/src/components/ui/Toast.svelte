@@ -111,9 +111,8 @@
         <button
           class="toast-close-btn"
           onclick={() => removeToast(toast.id)}
-          aria-label="Close"
-        >
-          <i class="bi bi-x-lg"></i>
+          aria-label="Close">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
         </button>
       </div>
 

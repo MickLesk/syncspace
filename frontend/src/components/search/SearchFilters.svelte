@@ -160,7 +160,7 @@
         updateFilters();
       }}
     >
-      <i class="bi bi-x-circle"></i> Clear Filters
+      <i class="bi bi-x-circle" aria-hidden="true"></i> Clear Filters
     </button>
   {/if}
 </div>

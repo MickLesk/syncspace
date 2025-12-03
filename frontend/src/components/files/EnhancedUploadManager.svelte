@@ -17,12 +17,12 @@
 
   let isMinimized = $state(false);
   let showSettings = $state(false);
-  
+
   // Settings state
   let settingsForm = $state({
     speedLimit: $uploadSettings.speedLimit || 0,
     skipDuplicates: $uploadSettings.skipDuplicates || false,
-    duplicateAction: $uploadSettings.duplicateAction || 'ask'
+    duplicateAction: $uploadSettings.duplicateAction || "ask",
   });
 
   const stats = $derived($uploadStatistics);
@@ -113,7 +113,7 @@
     uploadSettings.set({
       speedLimit: settingsForm.speedLimit > 0 ? settingsForm.speedLimit : null,
       skipDuplicates: settingsForm.skipDuplicates,
-      duplicateAction: settingsForm.duplicateAction
+      duplicateAction: settingsForm.duplicateAction,
     });
     showSettings = false;
   }
@@ -124,7 +124,7 @@
     <!-- Header -->
     <div class="upload-header">
       <div class="header-left">
-        <i class="bi bi-cloud-upload-fill text-primary"></i>
+        <i class="bi bi-cloud-upload-fill text-primary" aria-hidden="true"></i>
         <span class="upload-title">
           {#if stats.uploading > 0}
             {$t("uploads.uploading")} {stats.uploading} {$t("files")}...
@@ -150,7 +150,7 @@
           onclick={() => (showSettings = true)}
           title={$t("uploads.settings")}
         >
-          <i class="bi bi-gear"></i>
+          <i class="bi bi-gear" aria-hidden="true"></i>
         </button>
 
         <!-- Pause/Resume All -->
@@ -160,18 +160,29 @@
             onclick={togglePauseAll}
             title={paused ? $t("uploads.resumeAll") : $t("uploads.pauseAll")}
           >
-            <i class="bi bi-{paused ? 'play-fill' : 'pause-fill'}"></i>
+            <i
+              class="bi bi-{paused ? 'play-fill' : 'pause-fill'}"
+              aria-hidden="true"
+            ></i>
           </button>
         {/if}
 
         <!-- Minimize/Expand -->
-        <button aria-label="Toggle" class="btn-icon" onclick={() => (isMinimized = !isMinimized)}><i class="bi bi-{isMinimized ? \'chevron-up\' : \'chevron-down\'}"></i></button>
+        <button
+          aria-label="Toggle"
+          class="btn-icon"
+          onclick={() => (isMinimized = !isMinimized)}
+          ><i
+            class="bi bi-{isMinimized ? 'chevron-up' : 'chevron-down'}"
+            aria-hidden="true"
+          ></i></button
+        >
 
         <!-- Close (only when no active uploads) -->
         {#if stats.uploading === 0 && stats.queued === 0}
-          <button class="btn-icon" onclick={clearAll}>
-            <i class="bi bi-x-lg"></i>
-          </button>
+          <button class="btn-icon" aria-label="Close" onclick={clearAll}
+            ><i class="bi bi-x" aria-hidden="true"></i></button
+          >
         {/if}
       </div>
     </div>
@@ -197,86 +208,110 @@
               class="progress-fill"
               style="width: {stats.overallProgress}%"
             ></div>
-    </div>
-  </div>
-{/if}
-
-<!-- Upload Settings Modal -->
-{#if showSettings}
-  <div class="modal-overlay" onclick={() => (showSettings = false)}>
-    <div class="modal-content" onclick={(e) => e.stopPropagation()}>
-      <div class="modal-header">
-        <h3>{$t("uploads.settings")}</h3>
-        <button class="btn-icon" onclick={() => (showSettings = false)}>
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <!-- Speed Limit -->
-        <div class="form-group">
-          <label>
-            <i class="bi bi-speedometer2"></i>
-            {$t("uploads.speedLimit")}
-          </label>
-          <div class="input-group">
-            <input
-              type="number"
-              bind:value={settingsForm.speedLimit}
-              min="0"
-              step="100"
-              placeholder="0 = {$t('uploads.unlimited')}"
-            />
-            <span class="input-suffix">KB/s</span>
           </div>
-          <small class="form-hint">
-            {$t("uploads.speedLimitHint")}
-          </small>
         </div>
+      {/if}
 
-        <!-- Duplicate Handling -->
-        <div class="form-group">
-          <label>
-            <i class="bi bi-files"></i>
-            {$t("uploads.duplicateHandling")}
-          </label>
-          <select bind:value={settingsForm.duplicateAction}>
-            <option value="ask">{$t("uploads.duplicateAsk")}</option>
-            <option value="skip">{$t("uploads.duplicateSkip")}</option>
-            <option value="replace">{$t("uploads.duplicateReplace")}</option>
-            <option value="keep-both">{$t("uploads.duplicateKeepBoth")}</option>
-          </select>
-          <small class="form-hint">
-            {$t("uploads.duplicateHandlingHint")}
-          </small>
+      <!-- Upload Settings Modal -->
+      {#if showSettings}
+        <div
+          class="modal-overlay"
+          onclick={() => (showSettings = false)}
+          onkeydown={(e) => e.key === "Escape" && (showSettings = false)}
+          role="button"
+          tabindex="0"
+        >
+          <div
+            class="modal-content"
+            onclick={(e) => e.stopPropagation()}
+            onkeydown={(e) => e.stopPropagation()}
+            role="button"
+            tabindex="0"
+          >
+            <div class="modal-header">
+              <h3>{$t("uploads.settings")}</h3>
+              <button
+                aria-label="Close"
+                class="btn-icon"
+                onclick={() => (showSettings = false)}
+              >
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="modal-body">
+              <!-- Speed Limit -->
+              <div class="form-group">
+                <label>
+                  <i class="bi bi-speedometer2" aria-hidden="true"></i>
+                  {$t("uploads.speedLimit")}
+                </label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    bind:value={settingsForm.speedLimit}
+                    min="0"
+                    step="100"
+                    placeholder="0 = {$t('uploads.unlimited')}"
+                  />
+                  <span class="input-suffix">KB/s</span>
+                </div>
+                <small class="form-hint">
+                  {$t("uploads.speedLimitHint")}
+                </small>
+              </div>
+
+              <!-- Duplicate Handling -->
+              <div class="form-group">
+                <label>
+                  <i class="bi bi-files" aria-hidden="true"></i>
+                  {$t("uploads.duplicateHandling")}
+                </label>
+                <select bind:value={settingsForm.duplicateAction}>
+                  <option value="ask">{$t("uploads.duplicateAsk")}</option>
+                  <option value="skip">{$t("uploads.duplicateSkip")}</option>
+                  <option value="replace"
+                    >{$t("uploads.duplicateReplace")}</option
+                  >
+                  <option value="keep-both"
+                    >{$t("uploads.duplicateKeepBoth")}</option
+                  >
+                </select>
+                <small class="form-hint">
+                  {$t("uploads.duplicateHandlingHint")}
+                </small>
+              </div>
+
+              <!-- Skip Duplicates Checkbox -->
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    bind:checked={settingsForm.skipDuplicates}
+                  />
+                  {$t("uploads.skipDuplicates")}
+                </label>
+                <small class="form-hint">
+                  {$t("uploads.skipDuplicatesHint")}
+                </small>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button
+                class="btn-secondary"
+                onclick={() => (showSettings = false)}
+              >
+                {$t("cancel")}
+              </button>
+              <button class="btn-primary" onclick={saveSettings}>
+                {$t("save")}
+              </button>
+            </div>
+          </div>
         </div>
-
-        <!-- Skip Duplicates Checkbox -->
-        <div class="form-group">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              bind:checked={settingsForm.skipDuplicates}
-            />
-            {$t("uploads.skipDuplicates")}
-          </label>
-          <small class="form-hint">
-            {$t("uploads.skipDuplicatesHint")}
-          </small>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn-secondary" onclick={() => (showSettings = false)}>
-          {$t("cancel")}
-        </button>
-        <button class="btn-primary" onclick={saveSettings}>
-          {$t("save")}
-        </button>
-      </div>
-    </div>
-  </div>
-{/if}      <!-- Upload List -->
+      {/if}
+      <!-- Upload List -->
       <div class="upload-list">
         {#each $uploadQueue as upload (upload.id)}
           <div
@@ -346,14 +381,15 @@
                   onclick={() => pauseUpload(upload.id)}
                   title={$t("uploads.pause")}
                 >
-                  <i class="bi bi-pause-fill"></i>
+                  <i class="bi bi-pause-fill" aria-hidden="true"></i>
                 </button>
                 <button
                   class="btn-icon-sm"
                   onclick={() => cancelUpload(upload.id)}
                   title={$t("cancel")}
+                  aria-label="Cancel"
                 >
-                  <i class="bi bi-x-lg"></i>
+                  <i class="bi bi-x-lg" aria-hidden="true"></i>
                 </button>
               {:else if upload.status === "paused"}
                 <button
@@ -361,14 +397,15 @@
                   onclick={() => resumeUpload(upload.id)}
                   title={$t("uploads.resume")}
                 >
-                  <i class="bi bi-play-fill"></i>
+                  <i class="bi bi-play-fill" aria-hidden="true"></i>
                 </button>
                 <button
                   class="btn-icon-sm"
                   onclick={() => cancelUpload(upload.id)}
                   title={$t("cancel")}
+                  aria-label="Cancel"
                 >
-                  <i class="bi bi-x-lg"></i>
+                  <i class="bi bi-x-lg" aria-hidden="true"></i>
                 </button>
               {:else if upload.status === "error"}
                 <button
@@ -376,14 +413,15 @@
                   onclick={() => retryUpload(upload.id)}
                   title={$t("retry")}
                 >
-                  <i class="bi bi-arrow-clockwise"></i>
+                  <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
                 </button>
                 <button
                   class="btn-icon-sm"
                   onclick={() => cancelUpload(upload.id)}
                   title={$t("remove")}
+                  aria-label="Cancel"
                 >
-                  <i class="bi bi-trash"></i>
+                  <i class="bi bi-trash" aria-hidden="true"></i>
                 </button>
               {/if}
             </div>

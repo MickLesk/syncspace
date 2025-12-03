@@ -34,7 +34,7 @@ pub async fn get_metrics(state: &AppState) -> Result<Value> {
     };
 
     // Get cache stats
-    let memory_entries = state.cache_manager.memory_cache.entry_count();
+    let _memory_entries = state.cache_manager.memory_cache.entry_count();
 
     // Calculate cache hit ratio (track actual hits/misses)
     // Note: Detailed cache stats require per-request tracking

@@ -90,7 +90,7 @@
         <h2
           class="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2"
         >
-          <i class="bi bi-palette text-primary-600 dark:text-primary-400"></i>
+          <i class="bi bi-palette text-primary-600 dark:text-primary-400" aria-hidden="true"></i>
           Appearance
         </h2>
 
@@ -180,7 +180,7 @@
         <h2
           class="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2"
         >
-          <i class="bi bi-bell text-primary-600 dark:text-primary-400"></i>
+          <i class="bi bi-bell text-primary-600 dark:text-primary-400" aria-hidden="true"></i>
           Notifications
         </h2>
 
@@ -249,7 +249,7 @@
   <!-- Save Button -->
   <div class="flex justify-end">
     <ModernButton variant="gradient" onclick={saveSettings} disabled={loading}>
-      <i class="bi bi-check-lg mr-2"></i>
+      <i class="bi bi-check-lg mr-2" aria-hidden="true"></i>
       {loading ? "Saving..." : "Save Changes"}
     </ModernButton>
   </div>

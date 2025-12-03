@@ -154,7 +154,7 @@
           >
             <button aria-label="Home" onclick={() => loadDirectory("")} class="hover:text-primary-600 dark:hover:text-primary-400"><i class="bi bi-house-fill" aria-hidden="true"></i></button>
             {#each currentPath.split("/").filter((p) => p) as part, i}
-              <i class="bi bi-chevron-right text-xs"></i>
+              <i class="bi bi-chevron-right text-xs" aria-hidden="true"></i>
               <button
                 onclick={() => {
                   const parts = currentPath
@@ -248,7 +248,7 @@
                       onchange={() => toggleSelection(file.path || file.name)}
                       class="checkbox checkbox-primary"
                     />
-                    <i class="bi bi-file-earmark text-gray-400 text-2xl"></i>
+                    <i class="bi bi-file-earmark text-gray-400 text-2xl" aria-hidden="true"></i>
                     <div class="flex-1">
                       <div class="font-medium text-gray-900 dark:text-gray-100">
                         {file.name}

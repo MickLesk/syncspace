@@ -187,6 +187,7 @@ pub struct GenerateReportRequest {
     pub end_date: String,
     pub file_format: Option<String>,
     pub filters: Option<serde_json::Value>,
+    #[allow(dead_code)]
     pub template_id: Option<String>,
 }
 

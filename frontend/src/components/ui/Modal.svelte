@@ -113,7 +113,8 @@
     aria-modal="true"
     aria-labelledby={title ? "modal-title" : undefined}
     onclick={handleBackdropClick}
-    onkeydown={(e) => e.key === "Escape" && handleBackdropClick(e)}
+    onkeydown={(e = tabindex =
+      "0" > e.key === "Escape" && handleBackdropClick(e))}
   >
     <!-- Enhanced backdrop with blur -->
     <div
@@ -144,12 +145,10 @@
         {#if showCloseButton}
           <button
             class="absolute right-4 top-4 w-10 h-10 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-all hover:rotate-90"
+            aria-label="Close"
             onclick={handleClose}
-            aria-label="Close modal"
-            type="button"
+            type="button"><i class="bi bi-x" aria-hidden="true"></i></button
           >
-            <i class="bi bi-x-lg text-xl"></i>
-          </button>
         {/if}
 
         <h3
@@ -160,7 +159,7 @@
             <div
               class="w-12 h-12 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400"
             >
-              <i class="bi bi-{icon} text-2xl"></i>
+              <i class="bi bi-{icon} text-2xl" aria-hidden="true"></i>
             </div>
           {/if}
           <span>{title}</span>

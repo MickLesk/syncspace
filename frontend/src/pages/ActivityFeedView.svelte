@@ -59,7 +59,7 @@
   <!-- Header -->
   <div class="mb-8">
     <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-      <i class="bi bi-clock-history mr-2"></i>
+      <i class="bi bi-clock-history mr-2" aria-hidden="true"></i>
       {t('activity.feed_title')}
     </h2>
     <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -105,7 +105,7 @@
     <!-- Search Bar -->
     <div class="mb-4">
       <div class="relative">
-        <i class="bi bi-search absolute left-3 top-3 text-gray-400"></i>
+        <i class="bi bi-search absolute left-3 top-3 text-gray-400" aria-hidden="true"></i>
         <input
           type="text"
           placeholder={t('activity.search_placeholder')}
@@ -121,7 +121,7 @@
       on:click={() => (showFilters = !showFilters)}
       class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mb-4"
     >
-      <i class="bi bi-funnel mr-2"></i>
+      <i class="bi bi-funnel mr-2" aria-hidden="true"></i>
       {showFilters ? t('activity.hide_filters') : t('activity.show_filters')}
     </button>
 
@@ -129,9 +129,9 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
         <!-- Date Range -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {t('activity.from_date')}
-          </label>
+          </div>
           <input
             type="date"
             bind:value={dateStart}
@@ -141,9 +141,9 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {t('activity.to_date')}
-          </label>
+          </div>
           <input
             type="date"
             bind:value={dateEnd}
@@ -153,9 +153,9 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {t('activity.action')}
-          </label>
+          </div>
           <select
             bind:value={selectedType}
             on:change={() => handleTypeFilter(selectedType)}
@@ -204,14 +204,14 @@
     <div class="flex items-center justify-center h-64">
       <div class="text-center">
         <div class="animate-spin mb-4">
-          <i class="bi bi-hourglass text-3xl text-gray-400"></i>
+          <i class="bi bi-hourglass text-3xl text-gray-400" aria-hidden="true"></i>
         </div>
         <p class="text-gray-600 dark:text-gray-400">{t('common.loading')}</p>
       </div>
     </div>
   {:else if $activityFeed.filtered.length === 0}
     <div class="text-center py-12">
-      <i class="bi bi-inbox text-5xl text-gray-300 dark:text-gray-600 mb-4 block"></i>
+      <i class="bi bi-inbox text-5xl text-gray-300 dark:text-gray-600 mb-4 block" aria-hidden="true"></i>
       <p class="text-gray-600 dark:text-gray-400 font-medium mb-2">{t('activity.no_activities')}</p>
       <p class="text-sm text-gray-500 dark:text-gray-500">{t('activity.check_filters')}</p>
     </div>
@@ -253,11 +253,11 @@
               <!-- User and Timestamp -->
               <div class="flex items-center gap-3 mt-2 text-xs text-gray-600 dark:text-gray-400">
                 <span class="flex items-center">
-                  <i class="bi bi-person-circle mr-1"></i>
+                  <i class="bi bi-person-circle mr-1" aria-hidden="true"></i>
                   {activity.user}
                 </span>
                 <span class="flex items-center">
-                  <i class="bi bi-calendar mr-1"></i>
+                  <i class="bi bi-calendar mr-1" aria-hidden="true"></i>
                   {new Date(activity.timestamp).toLocaleDateString()}
                 </span>
               </div>
@@ -312,7 +312,7 @@
         on:click={() => activityFeed.export()}
         class="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
       >
-        <i class="bi bi-download mr-2"></i>
+        <i class="bi bi-download mr-2" aria-hidden="true"></i>
         {t('activity.export')}
       </button>
     </div>

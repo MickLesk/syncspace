@@ -132,7 +132,7 @@
 <div class="modal modal-open">
   <div class="modal-box max-w-lg">
     <h3 class="font-bold text-lg flex items-center gap-2">
-      <i class="bi bi-tags"></i>
+      <i class="bi bi-tags" aria-hidden="true"></i>
       {$t("bulkTagging.title")}
     </h3>
 
@@ -150,9 +150,14 @@
     <!-- Error Alert -->
     {#if error}
       <div class="alert alert-error mb-4 gap-2">
-        <i class="bi bi-exclamation-triangle"></i>
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
         <span class="text-sm">{error}</span>
-        <button aria-label="Close" onclick={() => (error = null)} class="btn btn-ghost btn-sm ml-auto"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+        <button
+          aria-label="Close"
+          onclick={() => (error = null)}
+          class="btn btn-ghost btn-sm ml-auto"
+          ><i class="bi bi-x-lg" aria-hidden="true"></i></button
+        >
       </div>
     {/if}
 
@@ -191,7 +196,7 @@
             >
               <span class="text-xs font-medium">{tag.name}</span>
               {#if selectedTags.has(tag.id)}
-                <i class="bi bi-check-lg text-sm"></i>
+                <i class="bi bi-check-lg text-sm" aria-hidden="true"></i>
               {/if}
             </button>
           {/each}
@@ -224,7 +229,7 @@
             style="background-color: {newTagColor}; border-color: {newTagColor};"
             title={$t("bulkTagging.selectColor")}
           >
-            <i class="bi bi-palette"></i>
+            <i class="bi bi-palette" aria-hidden="true"></i>
           </button>
           <ul
             class="dropdown-content menu p-3 bg-base-100 border border-base-300 rounded-lg flex-row gap-2 flex-wrap"
@@ -248,7 +253,7 @@
           disabled={!newTagName.trim()}
           class="btn btn-primary btn-sm gap-1"
         >
-          <i class="bi bi-plus-lg"></i>
+          <i class="bi bi-plus-lg" aria-hidden="true"></i>
           {$t("add")}
         </button>
       </div>
@@ -272,7 +277,7 @@
                 }}
                 class="hover:opacity-70"
               >
-                <i class="bi bi-x-lg text-xs"></i>
+                <i class="bi bi-x-lg text-xs" aria-hidden="true"></i>
               </button>
             </div>
           {/each}
@@ -293,14 +298,18 @@
         {#if taggingInProgress}
           <span class="loading loading-spinner loading-sm"></span>
         {:else}
-          <i class="bi bi-check-lg"></i>
+          <i class="bi bi-check-lg" aria-hidden="true"></i>
         {/if}
         {$t("bulkTagging.apply")} ({selectedTags.size})
       </button>
     </div>
   </div>
   <div
-    class="modal-backdrop bg-black/50"
-    onclick={() => onClose?.(false)}
+    class="modal-backdrop"
+    role="dialog"
+    tabindex="0"
+    onclick={closeModal}
+    onkeydown={(e = tabindex =
+      "0" > e.key === "Escape" && (() => onClose?.(false)))}
   ></div>
 </div>

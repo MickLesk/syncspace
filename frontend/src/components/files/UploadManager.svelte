@@ -97,7 +97,7 @@
     <div class="upload-header">
       <div class="header-left">
         <i class="bi bi-{isBatchUpload() ? 'folder-fill' : 'cloud-upload-fill'}"
-        ></i>
+         aria-hidden="true"></i>
         <span class="upload-title">
           {#if isBatchUpload()}
             {#if activeUploads().length > 0}
@@ -133,12 +133,10 @@
           onclick={toggleMinimize}
           title={isMinimized ? "Expand" : "Minimize"}
         >
-          <i class="bi bi-{isMinimized ? 'chevron-up' : 'chevron-down'}"></i>
+          <i class="bi bi-{isMinimized ? 'chevron-up' : 'chevron-down'}" aria-hidden="true"></i>
         </button>
         {#if activeUploads().length === 0}
-          <button class="btn-icon" onclick={close} title="Close">
-            <i class="bi bi-x-lg"></i>
-          </button>
+          <button class="btn-icon" aria-label="Close" onclick={close} title="Close"><i class="bi bi-x" aria-hidden="true"></i></button>
         {/if}
       </div>
     </div>
@@ -167,19 +165,19 @@
             class:error={upload.status === "error"}
             class:clickable={upload.status === "complete"}
             onclick={() => handleFileClick(upload)}
-          >
+           role="button" tabindex="0">
             <!-- Icon -->
             <div class="upload-icon">
               {#if upload.status === "complete"}
-                <i class="bi bi-check-circle-fill text-success"></i>
+                <i class="bi bi-check-circle-fill text-success" aria-hidden="true"></i>
               {:else if upload.status === "error"}
-                <i class="bi bi-x-circle-fill text-error"></i>
+                <i class="bi bi-x-circle-fill text-error" aria-hidden="true"></i>
               {:else if upload.status === "retrying"}
-                <i class="bi bi-arrow-clockwise spinning text-warning"></i>
+                <i class="bi bi-arrow-clockwise spinning text-warning" aria-hidden="true"></i>
               {:else if upload.status === "uploading"}
-                <i class="bi bi-cloud-arrow-up text-primary"></i>
+                <i class="bi bi-cloud-arrow-up text-primary" aria-hidden="true"></i>
               {:else}
-                <i class="bi bi-dash-circle text-muted"></i>
+                <i class="bi bi-dash-circle text-muted" aria-hidden="true"></i>
               {/if}
             </div>
 
@@ -228,8 +226,8 @@
                   class="btn-icon-sm"
                   onclick={() => onCancel?.(upload.id)}
                   title="Cancel"
-                >
-                  <i class="bi bi-x-lg"></i>
+                 aria-label="Cancel">
+                  <i class="bi bi-x-lg" aria-hidden="true"></i>
                 </button>
               {:else if upload.status === "error"}
                 <button
@@ -237,7 +235,7 @@
                   onclick={() => onRetry?.(upload.id)}
                   title="Retry"
                 >
-                  <i class="bi bi-arrow-clockwise"></i>
+                  <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
                 </button>
               {/if}
             </div>

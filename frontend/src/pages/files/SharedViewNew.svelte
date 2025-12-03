@@ -208,7 +208,10 @@
               <div
                 class="flex items-center gap-3 border-l-4 border-red-500 pl-4"
               >
-                <i class="bi bi-exclamation-triangle text-red-500 text-2xl"></i>
+                <i
+                  class="bi bi-exclamation-triangle text-red-500 text-2xl"
+                  aria-hidden="true"
+                ></i>
                 <p class="font-semibold text-gray-900 dark:text-gray-100">
                   {errorMsg}
                 </p>
@@ -222,7 +225,7 @@
             {#snippet children()}
               <div class="text-center py-8 animate-fade-in">
                 <div class="text-8xl mb-6 opacity-30">
-                  <i class="bi bi-share"></i>
+                  <i class="bi bi-share" aria-hidden="true"></i>
                 </div>
                 <h2
                   class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100"
@@ -316,10 +319,15 @@
                         </td>
                         <td class="px-6 py-4">
                           {#if share.password_hash}
-                            <i class="bi bi-lock-fill text-yellow-500 text-lg"
+                            <i
+                              class="bi bi-lock-fill text-yellow-500 text-lg"
+                              aria-hidden="true"
                             ></i>
                           {:else}
-                            <i class="bi bi-unlock text-gray-400 text-lg"></i>
+                            <i
+                              class="bi bi-unlock text-gray-400 text-lg"
+                              aria-hidden="true"
+                            ></i>
                           {/if}
                         </td>
                         <td class="px-6 py-4">
@@ -365,14 +373,20 @@
                   </div>
                   <div class="flex gap-4 text-gray-600 dark:text-gray-400">
                     <div class="flex items-center gap-2">
-                      <i class="bi bi-lock-fill text-yellow-500"></i>
+                      <i
+                        class="bi bi-lock-fill text-yellow-500"
+                        aria-hidden="true"
+                      ></i>
                       <span
                         >{shares.filter((s) => s.password_hash).length}
                         {tr("protected")}</span
                       >
                     </div>
                     <div class="flex items-center gap-2">
-                      <i class="bi bi-exclamation-triangle text-red-500"></i>
+                      <i
+                        class="bi bi-exclamation-triangle text-red-500"
+                        aria-hidden="true"
+                      ></i>
                       <span
                         >{shares.filter((s) => isExpired(s.expires_at)).length}
                         {tr("expired")}</span
@@ -415,12 +429,12 @@
           >
             <!-- File Selection -->
             <div>
-              <label
+              <div
                 class="block text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300"
               >
-                <i class="bi bi-file-earmark-check mr-1"></i>
+                <i class="bi bi-file-earmark-check mr-1" aria-hidden="true"></i>
                 {tr("selectFilesToShare")}
-              </label>
+              </div>
 
               {#if newShare.file_paths.length > 0}
                 <div class="glass-card p-4 mb-3 space-y-2">
@@ -441,9 +455,10 @@
                         type="button"
                         onclick={() => removeFileFromSelection(filePath)}
                         class="text-red-500 hover:text-red-700 transition-colors"
+                        ><i class="bi bi-x" aria-hidden="true"></i><span
+                          class="sr-only">Remove</span
+                        ></button
                       >
-                        <i class="bi bi-x-circle-fill"></i>
-                      </button>
                     </div>
                   {/each}
                 </div>
@@ -464,12 +479,12 @@
 
             <!-- Permissions -->
             <div>
-              <label
+              <div
                 class="block text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300"
               >
-                <i class="bi bi-shield-lock mr-1"></i>
+                <i class="bi bi-shield-lock mr-1" aria-hidden="true"></i>
                 {tr("permissions")}
-              </label>
+              </div>
               <div class="glass-card p-4 space-y-3">
                 <label class="flex items-center gap-3 cursor-pointer group">
                   <input
@@ -570,7 +585,7 @@
                 for="expires_at"
                 class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
               >
-                <i class="bi bi-clock mr-1"></i>
+                <i class="bi bi-clock mr-1" aria-hidden="true"></i>
                 {tr("expirationDateOptional")}
               </label>
               <input
@@ -587,7 +602,7 @@
                 for="password"
                 class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
               >
-                <i class="bi bi-key mr-1"></i>
+                <i class="bi bi-key mr-1" aria-hidden="true"></i>
                 {tr("passwordOptional")}
               </label>
               <input
@@ -643,11 +658,11 @@
             class="space-y-5"
           >
             <div>
-              <label
+              <div
                 class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"
               >
                 {tr("filePath")}
-              </label>
+              </div>
               <input
                 type="text"
                 value={selectedShare.file_path}
@@ -722,7 +737,9 @@
           <div class="space-y-4">
             <div class="glass-card border-l-4 border-red-500 p-4">
               <div class="flex items-start gap-3">
-                <i class="bi bi-exclamation-triangle-fill text-red-500 text-2xl"
+                <i
+                  class="bi bi-exclamation-triangle-fill text-red-500 text-2xl"
+                  aria-hidden="true"
                 ></i>
                 <div class="flex-1">
                   <p

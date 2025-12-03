@@ -122,9 +122,9 @@
   <!-- Sorting -->
   <div class="grid grid-cols-2 gap-4">
     <div>
-      <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+      <div class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
         {t('common.sortBy')}
-      </label>
+      </div>
       <select
         bind:value={sortBy}
         onchange={handleSortChange}
@@ -137,9 +137,9 @@
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+      <div class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
         {t('common.order')}
-      </label>
+      </div>
       <select
         bind:value={sortOrder}
         onchange={handleSortChange}
@@ -186,9 +186,9 @@
 
   <!-- Search Settings -->
   <div>
-    <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+    <div class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
       {t('settings.defaultSearchType')}
-    </label>
+    </div>
     <select
       bind:value={defaultSearchType}
       onchange={() => {
@@ -240,9 +240,9 @@
 
   <!-- Items Per Page -->
   <div>
-    <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+    <div class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
       {t('settings.itemsPerPage')}
-    </label>
+    </div>
     <div class="flex items-center gap-3">
       <input
         type="range"

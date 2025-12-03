@@ -318,7 +318,7 @@
       <h1
         class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2"
       >
-        <i class="bi bi-broadcast text-primary-600"></i>
+        <i class="bi bi-broadcast text-primary-600" aria-hidden="true"></i>
         {tr("webhooks.title")}
       </h1>
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -339,7 +339,7 @@
     <div
       class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-200 flex items-center gap-2"
     >
-      <i class="bi bi-exclamation-circle"></i>
+      <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
       {error}
       <button
         aria-label="Close"
@@ -361,7 +361,7 @@
     <!-- Empty state -->
     <div class="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
       <i class="bi bi-broadcast text-4xl text-gray-400 dark:text-gray-500 mb-4"
-      ></i>
+       aria-hidden="true"></i>
       <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
         {tr("webhooks.noWebhooks")}
       </h3>
@@ -369,7 +369,7 @@
         {tr("webhooks.noWebhooksDesc")}
       </p>
       <button onclick={openCreateModal} class="btn btn-primary">
-        <i class="bi bi-plus-lg mr-2"></i>
+        <i class="bi bi-plus-lg mr-2" aria-hidden="true"></i>
         {tr("webhooks.createFirst")}
       </button>
     </div>
@@ -401,7 +401,7 @@
                   <span
                     class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                   >
-                    <i class="bi bi-shield-lock-fill mr-1"></i>
+                    <i class="bi bi-shield-lock-fill mr-1" aria-hidden="true"></i>
                     {tr("webhooks.signed")}
                   </span>
                 {/if}
@@ -409,7 +409,7 @@
                   <span
                     class="px-2 py-0.5 text-xs rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200"
                   >
-                    <i class="bi bi-exclamation-triangle mr-1"></i>
+                    <i class="bi bi-exclamation-triangle mr-1" aria-hidden="true"></i>
                     {webhook.failure_count}
                     {tr("webhooks.failures")}
                   </span>
@@ -465,7 +465,7 @@
                 class="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title={tr("webhooks.deliveries")}
               >
-                <i class="bi bi-clock-history"></i>
+                <i class="bi bi-clock-history" aria-hidden="true"></i>
               </button>
               <button
                 onclick={() => toggleWebhook(webhook)}
@@ -485,14 +485,14 @@
                 class="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title={tr("webhooks.edit")}
               >
-                <i class="bi bi-pencil"></i>
+                <i class="bi bi-pencil" aria-hidden="true"></i>
               </button>
               <button
                 onclick={() => deleteWebhook(webhook)}
                 class="p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title={tr("webhooks.delete")}
-              >
-                <i class="bi bi-trash"></i>
+               aria-label="Delete">
+                <i class="bi bi-trash" aria-hidden="true"></i>
               </button>
             </div>
           </div>
@@ -512,8 +512,10 @@
         showEditModal = false;
       }
     }}
+    onkeydown={(e) => e.key === "Escape" && (showCreateModal = false, showEditModal = false)}
     role="dialog"
     aria-modal="true"
+    tabindex="-1"
   >
     <div
       class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col"
@@ -528,13 +530,14 @@
             : tr("webhooks.editWebhook")}
         </h2>
         <button
+          aria-label="Close"
           onclick={() => {
             showCreateModal = false;
             showEditModal = false;
           }}
           class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg"
         >
-          <i class="bi bi-x-lg"></i>
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
         </button>
       </div>
 
@@ -542,11 +545,9 @@
       <div class="p-4 overflow-y-auto flex-1 space-y-4">
         <!-- Name -->
         <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
+          <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {tr("webhooks.name")} *
-          </label>
+          </div>
           <input
             type="text"
             bind:value={formName}
@@ -557,11 +558,9 @@
 
         <!-- URL -->
         <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
+          <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {tr("webhooks.url")} *
-          </label>
+          </div>
           <input
             type="url"
             bind:value={formUrl}
@@ -572,14 +571,11 @@
 
         <!-- Secret -->
         <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            {tr("webhooks.secret")}
+          <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{tr("webhooks.secret")}
             <span class="text-gray-400 font-normal ml-1"
               >({tr("webhooks.optional")})</span
             >
-          </label>
+          </div>
           <input
             type="password"
             bind:value={formSecret}
@@ -596,11 +592,9 @@
         <!-- Events -->
         <div>
           <div class="flex items-center justify-between mb-2">
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
+            <div class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {tr("webhooks.events")} *
-            </label>
+            </div>
             <div class="flex gap-2">
               <button
                 onclick={selectAllEvents}
@@ -633,8 +627,7 @@
                 <span class="text-sm text-gray-700 dark:text-gray-300">
                   <i class="{getEventIcon(event.id)} mr-1 text-gray-400"></i>
                   {event.label}
-                </span>
-              </label>
+                </span></div>
             {/each}
           </div>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -657,6 +650,7 @@
               </div>
             </div>
             <button
+              aria-label="Toggle enabled"
               onclick={() => (formIsActive = !formIsActive)}
               class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors {formIsActive
                 ? 'bg-primary-600'
@@ -714,8 +708,10 @@
         showDeliveriesModal = false;
       }
     }}
+    onkeydown={(e) => e.key === "Escape" && (showDeliveriesModal = false)}
     role="dialog"
     aria-modal="true"
+    tabindex="-1"
   >
     <div
       class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
@@ -744,7 +740,7 @@
       <div class="p-4 overflow-y-auto flex-1">
         {#if deliveries.length === 0}
           <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-            <i class="bi bi-clock-history text-3xl mb-2"></i>
+            <i class="bi bi-clock-history text-3xl mb-2" aria-hidden="true"></i>
             <p>{tr("webhooks.noDeliveries")}</p>
           </div>
         {:else}
@@ -821,8 +817,10 @@
         showTestModal = false;
       }
     }}
+    onkeydown={(e) => e.key === "Escape" && (showTestModal = false)}
     role="dialog"
     aria-modal="true"
+    tabindex="-1"
   >
     <div
       class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full overflow-hidden"

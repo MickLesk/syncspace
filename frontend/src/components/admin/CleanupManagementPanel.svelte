@@ -101,7 +101,7 @@
     <h2
       class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3 mb-2"
     >
-      <i class="bi bi-trash2 text-red-500"></i>{tr("cleanup.title")}
+      <i class="bi bi-trash2 text-red-500" aria-hidden="true"></i>{tr("cleanup.title")}
     </h2>
     <p class="text-gray-600 dark:text-gray-400">{tr("cleanup.description")}</p>
   </div>
@@ -116,7 +116,7 @@
     <div
       class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-200 mb-6"
     >
-      <i class="bi bi-exclamation-circle mr-2"></i>{error}
+      <i class="bi bi-exclamation-circle mr-2" aria-hidden="true"></i>{error}
     </div>
   {:else}
     <!-- Stats Grid -->
@@ -129,7 +129,7 @@
           <h3 class="font-semibold text-gray-900 dark:text-white">
             {tr("cleanup.eligibleFiles")}
           </h3>
-          <i class="bi bi-exclamation-triangle text-orange-500 text-xl"></i>
+          <i class="bi bi-exclamation-triangle text-orange-500 text-xl" aria-hidden="true"></i>
         </div>
         <p class="text-3xl font-bold text-orange-600 dark:text-orange-400">
           {eligibleCount}
@@ -149,7 +149,7 @@
           <h3 class="font-semibold text-gray-900 dark:text-white">
             {tr("cleanup.retentionPolicy")}
           </h3>
-          <i class="bi bi-calendar text-blue-500 text-xl"></i>
+          <i class="bi bi-calendar text-blue-500 text-xl" aria-hidden="true"></i>
         </div>
         <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">
           {retentionDays}
@@ -167,7 +167,7 @@
           <h3 class="font-semibold text-gray-900 dark:text-white">
             {tr("cleanup.lastCleanup")}
           </h3>
-          <i class="bi bi-check-circle text-green-500 text-xl"></i>
+          <i class="bi bi-check-circle text-green-500 text-xl" aria-hidden="true"></i>
         </div>
         <p class="text-lg font-bold text-green-600 dark:text-green-400">
           {lastCleanup ? lastCleanup.files_deleted : "—"}
@@ -189,7 +189,7 @@
         <h3
           class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
         >
-          <i class="bi bi-info-circle"></i>{tr("cleanup.lastCleanupDetails")}
+          <i class="bi bi-info-circle" aria-hidden="true"></i>{tr("cleanup.lastCleanupDetails")}
         </h3>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
@@ -243,7 +243,7 @@
         disabled={triggering || eligibleCount === 0}
         class="px-6 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <i class="bi bi-play-circle"></i>
+        <i class="bi bi-play-circle" aria-hidden="true"></i>
         {triggering ? tr("cleanup.running") : tr("cleanup.trigger")}
       </button>
 
@@ -252,7 +252,7 @@
         disabled={loading}
         class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 flex items-center gap-2 disabled:opacity-50"
       >
-        <i class="bi bi-arrow-clockwise"></i>{tr("cleanup.refresh")}
+        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>{tr("cleanup.refresh")}
       </button>
     </div>
 
@@ -260,7 +260,7 @@
     <div
       class="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm text-blue-700 dark:text-blue-200"
     >
-      <i class="bi bi-info-circle mr-2"></i>
+      <i class="bi bi-info-circle mr-2" aria-hidden="true"></i>
       <span>{tr("cleanup.info1")}</span><br />
       <span class="ml-6">{tr("cleanup.info2")}</span><br />
       <span class="ml-6">{tr("cleanup.info3")}</span>

@@ -279,7 +279,8 @@
           <button
             onclick={navigatePrev}
             class="btn btn-sm btn-ghost btn-square"
-            title="Previous (←)"><i class="bi bi-chevron-left"></i></button
+            title="Previous (←)"
+            ><i class="bi bi-chevron-left" aria-hidden="true"></i></button
           >
           <span class="text-xs text-base-content/60 px-2"
             >{currentIndex + 1} / {allFiles.length}</span
@@ -287,7 +288,8 @@
           <button
             onclick={navigateNext}
             class="btn btn-sm btn-ghost btn-square"
-            title="Next (→)"><i class="bi bi-chevron-right"></i></button
+            title="Next (→)"
+            ><i class="bi bi-chevron-right" aria-hidden="true"></i></button
           >
           <div class="divider divider-horizontal mx-1"></div>
         {/if}
@@ -296,37 +298,41 @@
         <button
           onclick={toggleFavorite}
           class="btn btn-sm btn-ghost btn-square"
-          title="Toggle Favorite"><i class="bi bi-star"></i></button
+          title="Toggle Favorite"
+          ><i class="bi bi-star" aria-hidden="true"></i></button
         >
         <button
           onclick={downloadFile}
           class="btn btn-sm btn-ghost btn-square"
-          title="Download"><i class="bi bi-download"></i></button
+          title="Download"
+          ><i class="bi bi-download" aria-hidden="true"></i></button
         >
         <button
           onclick={renameFile}
           class="btn btn-sm btn-ghost btn-square"
-          title="Rename"><i class="bi bi-pencil"></i></button
+          title="Rename"><i class="bi bi-pencil" aria-hidden="true"></i></button
         >
         <button
           onclick={moveFile}
           class="btn btn-sm btn-ghost btn-square"
-          title="Move"><i class="bi bi-folder2-open"></i></button
+          title="Move"
+          ><i class="bi bi-folder2-open" aria-hidden="true"></i></button
         >
         <button
           onclick={copyFile}
           class="btn btn-sm btn-ghost btn-square"
-          title="Copy"><i class="bi bi-files"></i></button
+          title="Copy"><i class="bi bi-files" aria-hidden="true"></i></button
         >
         <button
           onclick={shareFile}
           class="btn btn-sm btn-ghost btn-square"
-          title="Share"><i class="bi bi-share"></i></button
+          title="Share"><i class="bi bi-share" aria-hidden="true"></i></button
         >
         <button
           onclick={openVersionHistory}
           class="btn btn-sm btn-ghost btn-square"
-          title="Version History"><i class="bi bi-clock-history"></i></button
+          title="Version History"
+          ><i class="bi bi-clock-history" aria-hidden="true"></i></button
         >
         <button
           onclick={toggleFullscreen}
@@ -342,12 +348,13 @@
         <button
           onclick={deleteFile}
           class="btn btn-sm btn-ghost btn-square text-error hover:bg-error/10"
-          title="Delete"><i class="bi bi-trash"></i></button
+          title="Delete"><i class="bi bi-trash" aria-hidden="true"></i></button
         >
         <button
           onclick={close}
           class="btn btn-sm btn-circle btn-ghost ml-2 hover:bg-error/10 hover:text-error"
-          title="Close (ESC)"><i class="bi bi-x-lg"></i></button
+          title="Close (ESC)"
+          ><i class="bi bi-x-lg" aria-hidden="true"></i></button
         >
       </div>
     </div>
@@ -361,35 +368,36 @@
           ? 'tab-active'
           : ''}"
         onclick={() => (activeTab = "preview")}
-        ><i class="bi bi-eye mr-2"></i>Preview</button
+        ><i class="bi bi-eye mr-2" aria-hidden="true"></i>Preview</button
       >
       <button
         class="tab transition-all duration-200 {activeTab === 'comments'
           ? 'tab-active'
           : ''}"
         onclick={() => (activeTab = "comments")}
-        ><i class="bi bi-chat-dots mr-2"></i>Comments</button
+        ><i class="bi bi-chat-dots mr-2" aria-hidden="true"></i>Comments</button
       >
       <button
         class="tab transition-all duration-200 {activeTab === 'tags'
           ? 'tab-active'
           : ''}"
         onclick={() => (activeTab = "tags")}
-        ><i class="bi bi-tags mr-2"></i>Tags</button
+        ><i class="bi bi-tags mr-2" aria-hidden="true"></i>Tags</button
       >
       <button
         class="tab transition-all duration-200 {activeTab === 'details'
           ? 'tab-active'
           : ''}"
         onclick={() => (activeTab = "details")}
-        ><i class="bi bi-info-circle mr-2"></i>Details</button
+        ><i class="bi bi-info-circle mr-2" aria-hidden="true"
+        ></i>Details</button
       >
       <button
         class="tab transition-all duration-200 {activeTab === 'metadata'
           ? 'tab-active'
           : ''}"
         onclick={() => (activeTab = "metadata")}
-        ><i class="bi bi-card-list mr-2"></i>Metadata</button
+        ><i class="bi bi-card-list mr-2" aria-hidden="true"></i>Metadata</button
       >
     </div>
 

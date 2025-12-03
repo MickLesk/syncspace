@@ -18,7 +18,9 @@
   let filled = $derived(value.length > 0 || focused);
 
   // Generate unique ID if not provided
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  const inputId = $derived(
+    id || `input-${Math.random().toString(36).substr(2, 9)}`
+  );
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 </script>
 

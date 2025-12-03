@@ -45,6 +45,7 @@ pub struct CreateBulkJobRequest {
 
 #[derive(Debug, Deserialize)]
 pub struct CancelJobRequest {
+    #[allow(dead_code)]
     pub reason: Option<String>,
 }
 

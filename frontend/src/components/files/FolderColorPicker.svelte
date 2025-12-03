@@ -96,14 +96,14 @@
   <div
     class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
     onclick={close}
-    onkeydown={(e) => e.key === "Escape" && close()}
+    onkeydown={(e) = role="button" tabindex="0"> e.key === "Escape" && close()}
     role="button"
     tabindex="-1"
   >
     <div
       class="bg-base-100 rounded-2xl shadow-2xl w-full max-w-md"
       onclick={(e) => e.stopPropagation()}
-      onkeydown={(e) => e.stopPropagation()}
+      onkeydown={(e) = role="button" tabindex="0"> e.stopPropagation()}
       role="dialog"
       aria-modal="true"
       tabindex="0"
@@ -113,7 +113,7 @@
         class="flex items-center justify-between px-6 py-4 border-b border-base-300"
       >
         <div class="flex items-center gap-3">
-          <i class="bi bi-folder text-2xl" style="color: {selectedColor}"></i>
+          <i class="bi bi-folder text-2xl" style="color: {selectedColor}" aria-hidden="true"></i>
           <div>
             <h2 class="text-lg font-semibold">Folder Color</h2>
             <p class="text-sm text-base-content/60 truncate max-w-xs">
@@ -121,13 +121,10 @@
             </p>
           </div>
         </div>
-        <button
-          onclick={close}
+        <button aria-label="Close" onclick={close}
           class="btn btn-sm btn-circle btn-ghost"
           title="Close"
-        >
-          <i class="bi bi-x-lg"></i>
-        </button>
+        ><i class="bi bi-x" aria-hidden="true"></i></button>
       </div>
 
       <!-- Body -->
@@ -135,7 +132,7 @@
         <!-- Preview -->
         <div class="flex justify-center py-8">
           <i class="bi bi-folder-fill text-8xl" style="color: {selectedColor}"
-          ></i>
+           aria-hidden="true"></i>
         </div>
 
         <!-- Color Picker -->
@@ -190,7 +187,7 @@
           class="btn btn-ghost btn-sm text-error gap-2"
           disabled={loading}
         >
-          <i class="bi bi-trash"></i>
+          <i class="bi bi-trash" aria-hidden="true"></i>
           Remove Color
         </button>
         <div class="flex gap-2">
@@ -209,7 +206,7 @@
             {#if loading}
               <span class="loading loading-spinner loading-xs"></span>
             {:else}
-              <i class="bi bi-check-lg"></i>
+              <i class="bi bi-check-lg" aria-hidden="true"></i>
             {/if}
             Save Color
           </button>

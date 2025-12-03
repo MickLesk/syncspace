@@ -263,11 +263,11 @@
     </div>
     <div class="flex gap-2">
       <button class="btn btn-outline" onclick={() => cleanupOldBackups()}>
-        <i class="bi bi-trash"></i>
+        <i class="bi bi-trash" aria-hidden="true"></i>
         {$t("backup.cleanup")}
       </button>
       <button class="btn btn-primary" onclick={() => (showCreateModal = true)}>
-        <i class="bi bi-plus-lg"></i>
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
         {$t("backup.createSchedule")}
       </button>
       <button
@@ -275,7 +275,7 @@
         onclick={triggerManualBackup}
         disabled={loading}
       >
-        <i class="bi bi-play-fill"></i>
+        <i class="bi bi-play-fill" aria-hidden="true"></i>
         {$t("backup.runNow")}
       </button>
     </div>
@@ -284,10 +284,14 @@
   <!-- Error Alert -->
   {#if error}
     <div class="alert alert-error">
-      <i class="bi bi-exclamation-triangle"></i>
+      <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
       <span>{error}</span>
-      <button class="btn btn-sm btn-ghost" onclick={() => (error = null)}>
-        <i class="bi bi-x-lg"></i>
+      <button
+        class="btn btn-sm btn-ghost"
+        onclick={() => (error = null)}
+        aria-label="Close"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
       </button>
     </div>
   {/if}
@@ -298,7 +302,7 @@
       <div class="stats shadow">
         <div class="stat">
           <div class="stat-figure text-primary">
-            <i class="bi bi-calendar3 text-3xl"></i>
+            <i class="bi bi-calendar3 text-3xl" aria-hidden="true"></i>
           </div>
           <div class="stat-title">{$t("backup.totalSchedules")}</div>
           <div class="stat-value text-primary">{stats.total_schedules}</div>
@@ -312,7 +316,7 @@
       <div class="stats shadow">
         <div class="stat">
           <div class="stat-figure text-success">
-            <i class="bi bi-check-circle text-3xl"></i>
+            <i class="bi bi-check-circle text-3xl" aria-hidden="true"></i>
           </div>
           <div class="stat-title">{$t("backup.successfulBackups")}</div>
           <div class="stat-value text-success">{stats.successful_backups}</div>
@@ -327,7 +331,7 @@
       <div class="stats shadow">
         <div class="stat">
           <div class="stat-figure text-error">
-            <i class="bi bi-x-circle text-3xl"></i>
+            <i class="bi bi-x-circle text-3xl" aria-hidden="true"></i>
           </div>
           <div class="stat-title">{$t("backup.failedBackups")}</div>
           <div class="stat-value text-error">{stats.failed_backups}</div>
@@ -337,7 +341,7 @@
       <div class="stats shadow">
         <div class="stat">
           <div class="stat-figure text-info">
-            <i class="bi bi-hdd text-3xl"></i>
+            <i class="bi bi-hdd text-3xl" aria-hidden="true"></i>
           </div>
           <div class="stat-title">{$t("backup.totalSize")}</div>
           <div class="stat-value text-info text-2xl">
@@ -352,13 +356,16 @@
   <div class="card bg-base-100 shadow-lg">
     <div class="card-body">
       <h2 class="card-title">
-        <i class="bi bi-calendar-check"></i>
+        <i class="bi bi-calendar-check" aria-hidden="true"></i>
         {$t("backup.schedules")}
       </h2>
 
       {#if schedules.length === 0}
         <div class="text-center py-12">
-          <i class="bi bi-calendar-x text-6xl text-base-content/20"></i>
+          <i
+            class="bi bi-calendar-x text-6xl text-base-content/20"
+            aria-hidden="true"
+          ></i>
           <p class="mt-4 text-base-content/60">{$t("backup.noSchedules")}</p>
         </div>
       {:else}
@@ -439,8 +446,9 @@
                         class="btn btn-sm btn-error btn-outline"
                         onclick={() => deleteSchedule(schedule.id)}
                         title={$t("backup.delete")}
+                        aria-label="Delete"
                       >
-                        <i class="bi bi-trash"></i>
+                        <i class="bi bi-trash" aria-hidden="true"></i>
                       </button>
                     </div>
                   </td>
@@ -457,13 +465,16 @@
   <div class="card bg-base-100 shadow-lg">
     <div class="card-body">
       <h2 class="card-title">
-        <i class="bi bi-clock-history"></i>
+        <i class="bi bi-clock-history" aria-hidden="true"></i>
         {$t("backup.history")}
       </h2>
 
       {#if backups.length === 0}
         <div class="text-center py-12">
-          <i class="bi bi-inbox text-6xl text-base-content/20"></i>
+          <i
+            class="bi bi-inbox text-6xl text-base-content/20"
+            aria-hidden="true"
+          ></i>
           <p class="mt-4 text-base-content/60">{$t("backup.noBackups")}</p>
         </div>
       {:else}
@@ -540,7 +551,10 @@
                     </span>
                     {#if backup.error_message}
                       <div class="tooltip" data-tip={backup.error_message}>
-                        <i class="bi bi-exclamation-circle text-error"></i>
+                        <i
+                          class="bi bi-exclamation-circle text-error"
+                          aria-hidden="true"
+                        ></i>
                       </div>
                     {/if}
                   </td>
@@ -552,7 +566,10 @@
                           onclick={() => openRestoreModal(backup)}
                           title={$t("backup.restore")}
                         >
-                          <i class="bi bi-arrow-counterclockwise"></i>
+                          <i
+                            class="bi bi-arrow-counterclockwise"
+                            aria-hidden="true"
+                          ></i>
                         </button>
                       {/if}
                       {#if backup.status === "running"}
@@ -560,8 +577,9 @@
                           class="btn btn-sm btn-warning"
                           onclick={() => cancelBackup(backup.id)}
                           title={$t("backup.cancel")}
+                          aria-label="Cancel"
                         >
-                          <i class="bi bi-x-lg"></i>
+                          <i class="bi bi-x-lg" aria-hidden="true"></i>
                         </button>
                       {/if}
                     </div>
@@ -581,7 +599,7 @@
   <div class="modal modal-open">
     <div class="modal-box max-w-2xl">
       <h3 class="font-bold text-lg mb-4">
-        <i class="bi bi-calendar-plus"></i>
+        <i class="bi bi-calendar-plus" aria-hidden="true"></i>
         {$t("backup.createSchedule")}
       </h3>
 
@@ -593,9 +611,7 @@
         class="space-y-4"
       >
         <div class="form-control">
-          <label class="label">
-            <span class="label-text">{$t("backup.scheduleName")}</span>
-          </label>
+          <div class="label"><span>{$t("backup.scheduleName")}</span></div>
           <input
             type="text"
             class="input input-bordered"
@@ -605,9 +621,7 @@
         </div>
 
         <div class="form-control">
-          <label class="label">
-            <span class="label-text">{$t("backup.description")}</span>
-          </label>
+          <div class="label"><span>{$t("backup.description")}</span></div>
           <textarea
             class="textarea textarea-bordered"
             bind:value={scheduleForm.description}
@@ -617,9 +631,7 @@
 
         <div class="grid grid-cols-2 gap-4">
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">{$t("backup.frequency")}</span>
-            </label>
+            <div class="label"><span>{$t("backup.frequency")}</span></div>
             <select
               class="select select-bordered"
               bind:value={scheduleForm.frequency}
@@ -633,9 +645,7 @@
           </div>
 
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">{$t("backup.type")}</span>
-            </label>
+            <div class="label"><span>{$t("backup.type")}</span></div>
             <select
               class="select select-bordered"
               bind:value={scheduleForm.backup_type}
@@ -649,9 +659,7 @@
 
         {#if scheduleForm.frequency === "daily"}
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">{$t("backup.time")}</span>
-            </label>
+            <div class="label"><span>{$t("backup.time")}</span></div>
             <input
               type="time"
               class="input input-bordered"
@@ -662,9 +670,7 @@
 
         {#if scheduleForm.frequency === "weekly"}
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">{$t("backup.dayOfWeek")}</span>
-            </label>
+            <div class="label"><span>{$t("backup.dayOfWeek")}</span></div>
             <select
               class="select select-bordered"
               bind:value={scheduleForm.day_of_week}
@@ -682,9 +688,9 @@
 
         <div class="grid grid-cols-3 gap-4">
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">{$t("backup.compressionLevel")}</span>
-            </label>
+            <div class="label">
+              <span>{$t("backup.compressionLevel")}</span>
+            </div>
             <input
               type="number"
               min="0"
@@ -695,9 +701,7 @@
           </div>
 
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">{$t("backup.maxBackups")}</span>
-            </label>
+            <div class="label"><span>{$t("backup.maxBackups")}</span></div>
             <input
               type="number"
               min="1"
@@ -707,9 +711,7 @@
           </div>
 
           <div class="form-control">
-            <label class="label">
-              <span class="label-text">{$t("backup.retentionDays")}</span>
-            </label>
+            <div class="label"><span>{$t("backup.retentionDays")}</span></div>
             <input
               type="number"
               min="1"
@@ -766,7 +768,7 @@
   <div class="modal modal-open">
     <div class="modal-box max-w-xl">
       <h3 class="font-bold text-lg mb-4">
-        <i class="bi bi-arrow-counterclockwise"></i>
+        <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
         {$t("backup.restoreBackup")}
       </h3>
 
@@ -799,9 +801,7 @@
         class="space-y-4"
       >
         <div class="form-control">
-          <label class="label">
-            <span class="label-text">{$t("backup.restoreType")}</span>
-          </label>
+          <div class="label"><span>{$t("backup.restoreType")}</span></div>
           <select
             class="select select-bordered"
             bind:value={restoreForm.restore_type}
@@ -812,9 +812,7 @@
         </div>
 
         <div class="form-control">
-          <label class="label">
-            <span class="label-text">{$t("backup.destinationPath")}</span>
-          </label>
+          <div class="label"><span>{$t("backup.destinationPath")}</span></div>
           <input
             type="text"
             class="input input-bordered"
@@ -835,7 +833,7 @@
         </div>
 
         <div class="alert alert-warning">
-          <i class="bi bi-exclamation-triangle"></i>
+          <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
           <span>{$t("backup.restoreWarning")}</span>
         </div>
 

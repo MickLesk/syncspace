@@ -73,7 +73,7 @@
       <h1
         class="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3"
       >
-        <i class="bi bi-bar-chart-line"></i>
+        <i class="bi bi-bar-chart-line" aria-hidden="true"></i>
         {tr("storageAnalytics")}
       </h1>
       <p class="text-gray-600 dark:text-gray-400 mt-1">
@@ -86,9 +86,9 @@
       disabled={loading}
     >
       {#if loading}
-        <i class="bi bi-arrow-clockwise animate-spin"></i>
+        <i class="bi bi-arrow-clockwise animate-spin" aria-hidden="true"></i>
       {:else}
-        <i class="bi bi-arrow-clockwise"></i>
+        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
       {/if}
       {tr("refresh")}
     </button>
@@ -96,7 +96,7 @@
 
   {#if error}
     <div class="alert alert-error">
-      <i class="bi bi-exclamation-triangle"></i>
+      <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
       <span>{error}</span>
     </div>
   {/if}
@@ -105,7 +105,7 @@
     <div class="flex items-center justify-center py-20">
       <div class="flex flex-col items-center gap-3">
         <i class="bi bi-arrow-clockwise animate-spin text-4xl text-primary-500"
-        ></i>
+         aria-hidden="true"></i>
         <span class="text-gray-600 dark:text-gray-400"
           >{tr("loadingAnalytics")}</span
         >
@@ -118,42 +118,42 @@
         class="tab {activeTab === 'overview' ? 'tab-active' : ''}"
         onclick={() => (activeTab = "overview")}
       >
-        <i class="bi bi-pie-chart mr-2"></i>
+        <i class="bi bi-pie-chart mr-2" aria-hidden="true"></i>
         {tr("overview")}
       </button>
       <button
         class="tab {activeTab === 'users' ? 'tab-active' : ''}"
         onclick={() => (activeTab = "users")}
       >
-        <i class="bi bi-people mr-2"></i>
+        <i class="bi bi-people mr-2" aria-hidden="true"></i>
         {tr("byUser")}
       </button>
       <button
         class="tab {activeTab === 'folders' ? 'tab-active' : ''}"
         onclick={() => (activeTab = "folders")}
       >
-        <i class="bi bi-folder mr-2"></i>
+        <i class="bi bi-folder mr-2" aria-hidden="true"></i>
         {tr("byFolder")}
       </button>
       <button
         class="tab {activeTab === 'top-files' ? 'tab-active' : ''}"
         onclick={() => (activeTab = "top-files")}
       >
-        <i class="bi bi-file-earmark-fill mr-2"></i>
+        <i class="bi bi-file-earmark-fill mr-2" aria-hidden="true"></i>
         {tr("topFiles")}
       </button>
       <button
         class="tab {activeTab === 'growth' ? 'tab-active' : ''}"
         onclick={() => (activeTab = "growth")}
       >
-        <i class="bi bi-graph-up mr-2"></i>
+        <i class="bi bi-graph-up mr-2" aria-hidden="true"></i>
         {tr("growth")}
       </button>
       <button
         class="tab {activeTab === 'duplicates' ? 'tab-active' : ''}"
         onclick={() => (activeTab = "duplicates")}
       >
-        <i class="bi bi-files mr-2"></i>
+        <i class="bi bi-files mr-2" aria-hidden="true"></i>
         {tr("duplicates")}
       </button>
     </div>
@@ -166,7 +166,7 @@
           class="card bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg"
         >
           <div class="card-body">
-            <i class="bi bi-files text-4xl opacity-80"></i>
+            <i class="bi bi-files text-4xl opacity-80" aria-hidden="true"></i>
             <h2 class="card-title text-5xl font-bold">
               {overview.total_files.toLocaleString()}
             </h2>
@@ -179,7 +179,7 @@
           class="card bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg"
         >
           <div class="card-body">
-            <i class="bi bi-hdd text-4xl opacity-80"></i>
+            <i class="bi bi-hdd text-4xl opacity-80" aria-hidden="true"></i>
             <h2 class="card-title text-3xl font-bold">
               {overview.total_size_formatted}
             </h2>
@@ -192,7 +192,7 @@
           class="card bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg"
         >
           <div class="card-body">
-            <i class="bi bi-people text-4xl opacity-80"></i>
+            <i class="bi bi-people text-4xl opacity-80" aria-hidden="true"></i>
             <h2 class="card-title text-5xl font-bold">
               {overview.active_users.toLocaleString()}
             </h2>
@@ -205,7 +205,7 @@
           class="card bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg"
         >
           <div class="card-body">
-            <i class="bi bi-file-earmark-bar-graph text-4xl opacity-80"></i>
+            <i class="bi bi-file-earmark-bar-graph text-4xl opacity-80" aria-hidden="true"></i>
             <h2 class="card-title text-2xl font-bold">
               {(overview.avg_file_size_bytes / 1024 / 1024).toFixed(2)} MB
             </h2>
@@ -221,7 +221,7 @@
         >
           <div class="card-body">
             <h3 class="card-title text-gray-900 dark:text-gray-100">
-              <i class="bi bi-trophy text-yellow-500"></i>
+              <i class="bi bi-trophy text-yellow-500" aria-hidden="true"></i>
               {tr("largestFile")}
             </h3>
             <p class="text-3xl font-bold text-gray-700 dark:text-gray-300">
@@ -236,7 +236,7 @@
           >
             <div class="card-body">
               <h3 class="card-title text-gray-900 dark:text-gray-100">
-                <i class="bi bi-speedometer2 text-red-500"></i>
+                <i class="bi bi-speedometer2 text-red-500" aria-hidden="true"></i>
                 {tr("storageUsage")}
               </h3>
               <div class="flex items-center gap-3">
@@ -264,7 +264,7 @@
       >
         <div class="card-body">
           <h2 class="card-title text-gray-900 dark:text-gray-100">
-            <i class="bi bi-people"></i>
+            <i class="bi bi-people" aria-hidden="true"></i>
             {tr("storageByUser")}
           </h2>
           <div class="overflow-x-auto">
@@ -304,7 +304,7 @@
       >
         <div class="card-body">
           <h2 class="card-title text-gray-900 dark:text-gray-100">
-            <i class="bi bi-folder"></i>
+            <i class="bi bi-folder" aria-hidden="true"></i>
             {tr("storageByFolder")}
           </h2>
           <div class="overflow-x-auto">
@@ -320,7 +320,7 @@
                 {#each folderStats as folder}
                   <tr>
                     <td class="font-medium text-gray-900 dark:text-gray-100">
-                      <i class="bi bi-folder text-yellow-500 mr-2"></i>
+                      <i class="bi bi-folder text-yellow-500 mr-2" aria-hidden="true"></i>
                       {folder.folder_path || "(Root)"}
                     </td>
                     <td>{folder.file_count.toLocaleString()}</td>
@@ -341,7 +341,7 @@
       >
         <div class="card-body">
           <h2 class="card-title text-gray-900 dark:text-gray-100">
-            <i class="bi bi-file-earmark-fill"></i>
+            <i class="bi bi-file-earmark-fill" aria-hidden="true"></i>
             {tr("topLargestFiles")}
           </h2>
           <div class="overflow-x-auto">
@@ -396,7 +396,7 @@
       >
         <div class="card-body">
           <h2 class="card-title text-gray-900 dark:text-gray-100">
-            <i class="bi bi-graph-up"></i>
+            <i class="bi bi-graph-up" aria-hidden="true"></i>
             {tr("storageGrowth")}
           </h2>
           <div class="overflow-x-auto">
@@ -438,7 +438,7 @@
           class="card bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg"
         >
           <div class="card-body">
-            <i class="bi bi-files text-4xl opacity-80"></i>
+            <i class="bi bi-files text-4xl opacity-80" aria-hidden="true"></i>
             <h2 class="card-title text-4xl font-bold">
               {duplicateWaste.total_duplicates.toLocaleString()}
             </h2>
@@ -450,7 +450,7 @@
           class="card bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg"
         >
           <div class="card-body">
-            <i class="bi bi-exclamation-triangle text-4xl opacity-80"></i>
+            <i class="bi bi-exclamation-triangle text-4xl opacity-80" aria-hidden="true"></i>
             <h2 class="card-title text-3xl font-bold">
               {duplicateWaste.wasted_formatted}
             </h2>
@@ -462,7 +462,7 @@
           class="card bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg"
         >
           <div class="card-body">
-            <i class="bi bi-piggy-bank text-4xl opacity-80"></i>
+            <i class="bi bi-piggy-bank text-4xl opacity-80" aria-hidden="true"></i>
             <h2 class="card-title text-3xl font-bold">
               {duplicateWaste.savings_potential_formatted}
             </h2>
@@ -472,7 +472,7 @@
       </div>
 
       <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i>
+        <i class="bi bi-info-circle" aria-hidden="true"></i>
         <div>
           <p class="font-medium">{tr("duplicateInfo")}</p>
           <p class="text-sm opacity-80">{tr("duplicateInfoDescription")}</p>

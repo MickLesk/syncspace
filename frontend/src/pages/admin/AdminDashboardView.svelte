@@ -251,7 +251,7 @@
       <h1
         class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3"
       >
-        <i class="bi bi-speedometer2 text-indigo-500"></i>
+        <i class="bi bi-speedometer2 text-indigo-500" aria-hidden="true"></i>
         {tr("dashboard.title")}
       </h1>
       <p class="text-gray-500 dark:text-gray-400 mt-1">
@@ -281,7 +281,7 @@
         onclick={() => loadAllData()}
         disabled={loading}
       >
-        <i class="bi bi-arrow-clockwise {loading ? 'animate-spin' : ''}"></i>
+        <i class="bi bi-arrow-clockwise {loading ? 'animate-spin' : ''}" aria-hidden="true"></i>
         {tr("refresh")}
       </button>
     </div>
@@ -327,7 +327,7 @@
             </div>
             <div class="flex items-center gap-2">
               <i class="bi bi-hdd {getHealthColor(healthData.storage?.status)}"
-              ></i>
+               aria-hidden="true"></i>
               <span class="text-gray-600 dark:text-gray-400"
                 >{tr("dashboard.storage")}</span
               >
@@ -362,7 +362,7 @@
           class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-people text-2xl text-blue-500"></i>
+            <i class="bi bi-people text-2xl text-blue-500" aria-hidden="true"></i>
             <span class="text-xs text-green-500 font-medium"
               >+{stats.overview.active_users_today}
               {tr("dashboard.today")}</span
@@ -380,7 +380,7 @@
           class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-folder text-2xl text-indigo-500"></i>
+            <i class="bi bi-folder text-2xl text-indigo-500" aria-hidden="true"></i>
           </div>
           <div class="text-2xl font-bold text-gray-900 dark:text-white">
             {formatNumber(stats.overview.total_files)}
@@ -394,7 +394,7 @@
           class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-hdd text-2xl text-purple-500"></i>
+            <i class="bi bi-hdd text-2xl text-purple-500" aria-hidden="true"></i>
           </div>
           <div class="text-2xl font-bold text-gray-900 dark:text-white">
             {formatBytes(stats.overview.total_storage_bytes)}
@@ -408,7 +408,7 @@
           class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-share text-2xl text-green-500"></i>
+            <i class="bi bi-share text-2xl text-green-500" aria-hidden="true"></i>
           </div>
           <div class="text-2xl font-bold text-gray-900 dark:text-white">
             {formatNumber(stats.overview.total_shares)}
@@ -422,7 +422,7 @@
           class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-clock-history text-2xl text-amber-500"></i>
+            <i class="bi bi-clock-history text-2xl text-amber-500" aria-hidden="true"></i>
           </div>
           <div class="text-2xl font-bold text-gray-900 dark:text-white">
             {stats.overview.pending_jobs}
@@ -436,7 +436,7 @@
           class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-person-check text-2xl text-teal-500"></i>
+            <i class="bi bi-person-check text-2xl text-teal-500" aria-hidden="true"></i>
           </div>
           <div class="text-2xl font-bold text-gray-900 dark:text-white">
             {stats.overview.active_sessions}
@@ -450,7 +450,7 @@
           class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-cloud-check text-2xl text-cyan-500"></i>
+            <i class="bi bi-cloud-check text-2xl text-cyan-500" aria-hidden="true"></i>
           </div>
           <div class="text-2xl font-bold text-gray-900 dark:text-white">
             {stats.overview.backup_count}
@@ -464,7 +464,7 @@
           class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-activity text-2xl text-rose-500"></i>
+            <i class="bi bi-activity text-2xl text-rose-500" aria-hidden="true"></i>
           </div>
           <div class="text-2xl font-bold text-gray-900 dark:text-white">
             {activityData?.total_actions_today || 0}
@@ -486,7 +486,7 @@
           <h3
             class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
           >
-            <i class="bi bi-pie-chart text-indigo-500"></i>
+            <i class="bi bi-pie-chart text-indigo-500" aria-hidden="true"></i>
             {tr("dashboard.storageOverview")}
           </h3>
 
@@ -554,7 +554,7 @@
           <h3
             class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
           >
-            <i class="bi bi-activity text-green-500"></i>
+            <i class="bi bi-activity text-green-500" aria-hidden="true"></i>
             {tr("dashboard.activityOverview")}
           </h3>
 
@@ -586,7 +586,7 @@
               >
                 <div class="flex items-center gap-2">
                   <i class="bi bi-{action.icon}" style="color: {action.color}"
-                  ></i>
+                   aria-hidden="true"></i>
                   <span
                     class="text-sm text-gray-700 dark:text-gray-300 capitalize"
                     >{action.action}</span
@@ -609,7 +609,7 @@
           <h3
             class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
           >
-            <i class="bi bi-people text-blue-500"></i>
+            <i class="bi bi-people text-blue-500" aria-hidden="true"></i>
             {tr("dashboard.usersOverview")}
           </h3>
 
@@ -667,7 +667,7 @@
           <h3
             class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
           >
-            <i class="bi bi-gear text-amber-500"></i>
+            <i class="bi bi-gear text-amber-500" aria-hidden="true"></i>
             {tr("dashboard.jobsOverview")}
           </h3>
 
@@ -754,7 +754,7 @@
           <h3
             class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
           >
-            <i class="bi bi-trophy text-yellow-500"></i>
+            <i class="bi bi-trophy text-yellow-500" aria-hidden="true"></i>
             {tr("dashboard.topUploaders")}
           </h3>
           <div class="space-y-3">
@@ -792,7 +792,7 @@
           <h3
             class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
           >
-            <i class="bi bi-file-earmark-arrow-up text-purple-500"></i>
+            <i class="bi bi-file-earmark-arrow-up text-purple-500" aria-hidden="true"></i>
             {tr("dashboard.largestFiles")}
           </h3>
           <div class="space-y-3">
@@ -801,7 +801,7 @@
                 class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
               >
                 <div class="flex items-center gap-2 min-w-0">
-                  <i class="bi bi-file-earmark text-gray-400"></i>
+                  <i class="bi bi-file-earmark text-gray-400" aria-hidden="true"></i>
                   <span
                     class="text-sm text-gray-700 dark:text-gray-300 truncate"
                     >{file.filename}</span
@@ -831,7 +831,7 @@
         <h3
           class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
         >
-          <i class="bi bi-clock-history text-indigo-500"></i>
+          <i class="bi bi-clock-history text-indigo-500" aria-hidden="true"></i>
           {tr("dashboard.recentActivity")}
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -842,7 +842,7 @@
               <div
                 class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center"
               >
-                <i class="bi bi-person text-gray-500 dark:text-gray-400"></i>
+                <i class="bi bi-person text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
               </div>
               <div class="min-w-0 flex-1">
                 <div

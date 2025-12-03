@@ -53,7 +53,7 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby="shortcuts-title"
-    ondragover={(e) => e.preventDefault()}
+    ondragover={(e) = tabindex="0"> e.preventDefault()}
   >
     <div
       class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto"
@@ -63,14 +63,11 @@
         <h2 id="shortcuts-title" class="text-2xl font-bold text-gray-900 dark:text-gray-100">
           Keyboard Shortcuts
         </h2>
-        <button
-          type="button"
-          onclick={onClose}
+        <button type="button"
+          aria-label="Close" onclick={onClose}
           class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
           aria-label="Close"
-        >
-          <i class="bi bi-x-lg text-xl"></i>
-        </button>
+        ><i class="bi bi-x" aria-hidden="true"></i></button>
       </div>
 
       <!-- OS Selector -->

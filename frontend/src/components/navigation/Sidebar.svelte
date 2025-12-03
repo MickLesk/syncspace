@@ -211,7 +211,7 @@
       aria-label="Toggle sidebar"
     >
       <i class="bi bi-chevron-{$sidebarCollapsed ? 'right' : 'left'} text-lg"
-      ></i>
+       aria-hidden="true"></i>
     </button>
   </div>
 
@@ -231,7 +231,7 @@
             data-tip={$sidebarCollapsed ? item.label : ""}
             onclick={() => selectView(item.id)}
           >
-            <i class="bi bi-{item.icon} text-lg"></i>
+            <i class="bi bi-{item.icon} text-lg" aria-hidden="true"></i>
             {#if !$sidebarCollapsed}
               <span class="menu-label">{item.label}</span>
               {#if item.badge && item.badge > 0}
@@ -272,7 +272,7 @@
             data-tip={$sidebarCollapsed ? item.label : ""}
             onclick={() => selectView(item.id)}
           >
-            <i class="bi bi-{item.icon} text-lg"></i>
+            <i class="bi bi-{item.icon} text-lg" aria-hidden="true"></i>
             {#if !$sidebarCollapsed}
               <span class="menu-label">{item.label}</span>
               {#if item.badge && item.badge > 0}
@@ -308,7 +308,7 @@
             data-tip={$sidebarCollapsed ? item.label : ""}
             onclick={() => selectView(item.id)}
           >
-            <i class="bi bi-{item.icon} text-lg"></i>
+            <i class="bi bi-{item.icon} text-lg" aria-hidden="true"></i>
             {#if !$sidebarCollapsed}
               <span class="menu-label">{item.label}</span>
               {#if item.badge && item.badge > 0}

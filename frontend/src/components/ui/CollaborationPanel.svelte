@@ -174,7 +174,7 @@
             class="px-3 py-1.5 text-sm rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-200 transition-colors flex items-center gap-2"
             onclick={releaseLock}
           >
-            <i class="bi bi-unlock"></i>
+            <i class="bi bi-unlock" aria-hidden="true"></i>
             Unlock
           </button>
         {/if}
@@ -186,7 +186,7 @@
         class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
         onclick={acquireLock}
       >
-        <i class="bi bi-lock"></i>
+        <i class="bi bi-lock" aria-hidden="true"></i>
         Lock for Editing
       </button>
     </div>
@@ -201,7 +201,7 @@
         <h4
           class="text-sm font-bold mb-2 flex items-center gap-2 text-gray-900 dark:text-white"
         >
-          <i class="bi bi-people-fill"></i>
+          <i class="bi bi-people-fill" aria-hidden="true"></i>
           Active Users ({filePresence.length})
         </h4>
 
@@ -260,7 +260,7 @@
       class="px-3 py-1.5 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors w-full flex items-center justify-center gap-2"
       onclick={() => (showActivity ? (showActivity = false) : loadActivity())}
     >
-      <i class="bi bi-clock-history"></i>
+      <i class="bi bi-clock-history" aria-hidden="true"></i>
       {showActivity ? "Hide" : "Show"} Activity
     </button>
 

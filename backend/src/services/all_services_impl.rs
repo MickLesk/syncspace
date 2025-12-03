@@ -1058,6 +1058,7 @@ pub mod backup {
     use super::*;
     use crate::models::Backup;
 
+    #[allow(dead_code)]
     pub async fn create_backup(
         state: &AppState,
         user: &UserInfo,
@@ -1079,6 +1080,7 @@ pub mod backup {
         })
     }
 
+    #[allow(dead_code)]
     pub async fn list_backups(state: &AppState, user: &UserInfo) -> Result<Vec<Backup>> {
         let rows: Vec<crate::database::EnhancedBackup> = sqlx::query_as(
             "SELECT * FROM enhanced_backups WHERE created_by = ? ORDER BY created_at DESC",

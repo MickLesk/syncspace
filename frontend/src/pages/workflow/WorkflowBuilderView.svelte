@@ -134,7 +134,7 @@
             <div
               class="p-4 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl shadow-lg"
             >
-              <i class="bi bi-diagram-3-fill text-3xl text-white"></i>
+              <i class="bi bi-diagram-3-fill text-3xl text-white" aria-hidden="true"></i>
             </div>
             <div>
               <h1
@@ -148,7 +148,7 @@
             </div>
           </div>
           <button class="btn btn-primary gap-2" onclick={openCreateRule}>
-            <i class="bi bi-plus-circle"></i>
+            <i class="bi bi-plus-circle" aria-hidden="true"></i>
             {t($currentLang, "workflow.createRule")}
           </button>
         </div>
@@ -214,9 +214,9 @@
             </div>
 
             <div class="form-control">
-              <label class="label opacity-0">Actions</label>
+              <div class="label opacity-0">Actions</div>
               <button onclick={clearFilters} class="btn btn-outline w-full">
-                <i class="bi bi-x-circle"></i>
+                <i class="bi bi-x-circle" aria-hidden="true"></i>
                 {t($currentLang, "workflow.clearFilters")}
               </button>
             </div>
@@ -230,7 +230,7 @@
           </div>
         {:else if rules.length === 0}
           <div class="text-center py-12 bg-base-200 rounded-lg">
-            <i class="bi bi-gear-wide text-6xl text-base-content/30 mb-4"></i>
+            <i class="bi bi-gear-wide text-6xl text-base-content/30 mb-4" aria-hidden="true"></i>
             <p class="text-lg text-base-content/70 mb-4">
               {t($currentLang, "workflow.noRules")}
             </p>

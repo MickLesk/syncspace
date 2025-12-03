@@ -28,8 +28,7 @@
     RENAME: "rename",
   };
 
-  let { onComplete = null } = $props();
-  let { onCancel = null } = $props();
+  let { onComplete = null, onCancel = null } = $props();
 
   function open(type, filesToMove, destination) {
     operationType = type;
@@ -189,6 +188,7 @@
     aria-labelledby="batch-op-title"
     aria-modal="true"
     onkeydown={handleKeyDown}
+    tabindex="0"
   >
     <div
       class="w-full max-w-2xl rounded-lg bg-white shadow-xl dark:bg-gray-800"

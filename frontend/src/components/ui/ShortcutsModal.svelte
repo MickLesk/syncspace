@@ -94,7 +94,7 @@
         <h2
           class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3"
         >
-          <i class="bi bi-keyboard text-indigo-500"></i>
+          <i class="bi bi-keyboard text-indigo-500" aria-hidden="true"></i>
           {tr("shortcuts.title")}
         </h2>
         <button
@@ -104,7 +104,7 @@
           }}
           class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
         >
-          <i class="bi bi-x text-2xl"></i>
+          <i class="bi bi-x text-2xl" aria-hidden="true"></i>
         </button>
       </div>
 

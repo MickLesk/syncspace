@@ -277,7 +277,7 @@
             <div
               class="p-4 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl shadow-lg"
             >
-              <i class="bi bi-cloud-arrow-up text-3xl text-white"></i>
+              <i class="bi bi-cloud-arrow-up text-3xl text-white" aria-hidden="true"></i>
             </div>
             <div>
               <h1
@@ -299,7 +299,7 @@
               class="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/20 rounded-xl p-4"
             >
               <div class="flex items-center justify-between">
-                <i class="bi bi-hdd-stack text-2xl text-blue-500"></i>
+                <i class="bi bi-hdd-stack text-2xl text-blue-500" aria-hidden="true"></i>
                 <span
                   class="text-xs font-semibold text-blue-600 bg-blue-500/20 px-2 py-1 rounded-full"
                 >
@@ -319,7 +319,7 @@
               class="bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 rounded-xl p-4"
             >
               <div class="flex items-center justify-between">
-                <i class="bi bi-files text-2xl text-green-500"></i>
+                <i class="bi bi-files text-2xl text-green-500" aria-hidden="true"></i>
                 <span
                   class="text-xs font-semibold text-green-600 bg-green-500/20 px-2 py-1 rounded-full"
                 >
@@ -338,7 +338,7 @@
               class="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/20 rounded-xl p-4"
             >
               <div class="flex items-center justify-between">
-                <i class="bi bi-database text-2xl text-purple-500"></i>
+                <i class="bi bi-database text-2xl text-purple-500" aria-hidden="true"></i>
                 <span
                   class="text-xs font-semibold text-purple-600 bg-purple-500/20 px-2 py-1 rounded-full"
                 >
@@ -357,7 +357,7 @@
               class="bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-500/20 rounded-xl p-4"
             >
               <div class="flex items-center justify-between">
-                <i class="bi bi-arrow-left-right text-2xl text-orange-500"></i>
+                <i class="bi bi-arrow-left-right text-2xl text-orange-500" aria-hidden="true"></i>
                 <span
                   class="text-xs font-semibold text-orange-600 bg-orange-500/20 px-2 py-1 rounded-full"
                 >
@@ -386,7 +386,7 @@
             : 'hover:bg-base-300'}"
           onclick={() => (selectedTab = "backends")}
         >
-          <i class="bi bi-hdd-stack"></i>
+          <i class="bi bi-hdd-stack" aria-hidden="true"></i>
           {tr("cloudStorage.storageBackends")}
         </button>
         <button
@@ -396,7 +396,7 @@
             : 'hover:bg-base-300'}"
           onclick={() => (selectedTab = "migrations")}
         >
-          <i class="bi bi-arrow-left-right"></i>
+          <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
           {tr("cloudStorage.dataMigrations")}
           {#if migrations.filter((m) => m.status === "running").length > 0}
             <span class="badge badge-sm bg-orange-500 text-white border-0">
@@ -416,7 +416,7 @@
         <div class="space-y-6">
           <div class="flex justify-end">
             <button class="btn btn-primary gap-2" onclick={openCreateBackend}>
-              <i class="bi bi-plus-circle"></i>
+              <i class="bi bi-plus-circle" aria-hidden="true"></i>
               {tr("cloudStorage.addBackend")}
             </button>
           </div>
@@ -426,7 +426,7 @@
               class="text-center py-16 bg-base-100/50 backdrop-blur-xl rounded-2xl border border-base-300"
             >
               <i class="bi bi-cloud-slash text-6xl text-base-content/30 mb-4"
-              ></i>
+               aria-hidden="true"></i>
               <p class="text-lg text-base-content/60">
                 {tr("cloudStorage.noBackends")}
               </p>
@@ -517,7 +517,7 @@
                         onclick={() => testConnection(backend)}
                         title={tr("cloudStorage.testConnection")}
                       >
-                        <i class="bi bi-plug"></i>
+                        <i class="bi bi-plug" aria-hidden="true"></i>
                       </button>
                       {#if !backend.is_default}
                         <button
@@ -525,7 +525,7 @@
                           onclick={() => setDefaultBackend(backend)}
                           title={tr("cloudStorage.setAsDefault")}
                         >
-                          <i class="bi bi-star"></i>
+                          <i class="bi bi-star" aria-hidden="true"></i>
                         </button>
                       {/if}
                       <button
@@ -533,15 +533,15 @@
                         onclick={() => openEditBackend(backend)}
                         title={tr("common.edit")}
                       >
-                        <i class="bi bi-pencil"></i>
+                        <i class="bi bi-pencil" aria-hidden="true"></i>
                       </button>
                       {#if backend.backend_type !== "local" || !backend.is_default}
                         <button
                           class="btn btn-sm btn-ghost text-error"
                           onclick={() => deleteBackend(backend)}
                           title={tr("common.delete")}
-                        >
-                          <i class="bi bi-trash"></i>
+                         aria-label="Delete">
+                          <i class="bi bi-trash" aria-hidden="true"></i>
                         </button>
                       {/if}
                     </div>
@@ -560,7 +560,7 @@
               onclick={openCreateMigration}
               disabled={backends.length < 2}
             >
-              <i class="bi bi-arrow-left-right"></i>
+              <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
               {tr("cloudStorage.startMigration")}
             </button>
           </div>
@@ -608,7 +608,7 @@
                         <span class="badge badge-ghost"
                           >{sourceBackend?.name || "Unknown"}</span
                         >
-                        <i class="bi bi-arrow-right mx-2"></i>
+                        <i class="bi bi-arrow-right mx-2" aria-hidden="true"></i>
                         <span class="badge badge-ghost"
                           >{targetBackend?.name || "Unknown"}</span
                         >
@@ -651,8 +651,8 @@
                           <button
                             class="btn btn-sm btn-ghost text-error"
                             onclick={() => cancelMigration(migration)}
-                          >
-                            <i class="bi bi-x-circle"></i>
+                           aria-label="Cancel">
+                            <i class="bi bi-x-circle" aria-hidden="true"></i>
                           </button>
                         {/if}
                       </td>
@@ -844,10 +844,7 @@
         </button>
       </div>
     </div>
-    <div
-      class="modal-backdrop"
-      onclick={() => (showBackendModal = false)}
-    ></div>
+    <div class="modal-backdrop" role="dialog" tabindex="0" onclick={closeModal} onkeydown={(e) = tabindex="0"> e.key === "Escape" && (() => (showBackendModal = false))}></div>
   </div>
 {/if}
 
@@ -856,7 +853,7 @@
   <div class="modal modal-open">
     <div class="modal-box">
       <h3 class="font-bold text-2xl mb-6 flex items-center gap-2">
-        <i class="bi bi-arrow-left-right text-primary"></i>
+        <i class="bi bi-arrow-left-right text-primary" aria-hidden="true"></i>
         {tr("cloudStorage.startMigration")}
       </h3>
 
@@ -917,7 +914,7 @@
         </div>
 
         <div class="alert alert-info">
-          <i class="bi bi-info-circle"></i>
+          <i class="bi bi-info-circle" aria-hidden="true"></i>
           <span>{tr("cloudStorage.migrationWarning")}</span>
         </div>
       </div>
@@ -934,9 +931,6 @@
         </button>
       </div>
     </div>
-    <div
-      class="modal-backdrop"
-      onclick={() => (showMigrationModal = false)}
-    ></div>
+    <div class="modal-backdrop" role="dialog" tabindex="0" onclick={closeModal} onkeydown={(e) = tabindex="0"> e.key === "Escape" && (() => (showMigrationModal = false))}></div>
   </div>
 {/if}

@@ -296,7 +296,7 @@
         {#if refreshing}
           <span class="loading loading-spinner loading-xs"></span>
         {:else}
-          <i class="bi bi-arrow-clockwise"></i>
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
         {/if}
         {$t("common.refresh")}
       </button>
@@ -309,7 +309,7 @@
     </div>
   {:else if error}
     <div class="alert alert-error">
-      <i class="bi bi-exclamation-triangle"></i>
+      <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
       <span>{error}</span>
       <button class="btn btn-sm btn-ghost" onclick={loadAllData}>
         {$t("systemHealth.retry")}
@@ -355,7 +355,7 @@
       <div class="card bg-base-100 shadow-sm border border-base-300">
         <div class="card-body">
           <div class="flex items-center gap-2 mb-4">
-            <i class="bi bi-cpu text-lg text-primary"></i>
+            <i class="bi bi-cpu text-lg text-primary" aria-hidden="true"></i>
             <h3 class="font-semibold">{$t("systemHealth.cpu")}</h3>
           </div>
           {#if cpuMetrics}
@@ -375,7 +375,7 @@
               </div>
               {#if cpuMetrics.cores}
                 <div class="text-sm text-base-content/60">
-                  <i class="bi bi-cpu-fill mr-1"></i>
+                  <i class="bi bi-cpu-fill mr-1" aria-hidden="true"></i>
                   {cpuMetrics.cores}
                   {$t("systemHealth.cpuCores")}
                 </div>
@@ -403,7 +403,7 @@
       <div class="card bg-base-100 shadow-sm border border-base-300">
         <div class="card-body">
           <div class="flex items-center gap-2 mb-4">
-            <i class="bi bi-memory text-lg text-secondary"></i>
+            <i class="bi bi-memory text-lg text-secondary" aria-hidden="true"></i>
             <h3 class="font-semibold">{$t("systemHealth.memory")}</h3>
           </div>
           {#if memoryMetrics}
@@ -452,7 +452,7 @@
       <div class="card bg-base-100 shadow-sm border border-base-300">
         <div class="card-body">
           <div class="flex items-center gap-2 mb-4">
-            <i class="bi bi-hdd text-lg text-accent"></i>
+            <i class="bi bi-hdd text-lg text-accent" aria-hidden="true"></i>
             <h3 class="font-semibold">{$t("systemHealth.disk")}</h3>
           </div>
           {#if diskMetrics}
@@ -497,7 +497,7 @@
       <div class="card bg-base-100 shadow-sm border border-base-300">
         <div class="card-body">
           <div class="flex items-center gap-2 mb-4">
-            <i class="bi bi-terminal text-lg text-info"></i>
+            <i class="bi bi-terminal text-lg text-info" aria-hidden="true"></i>
             <h3 class="font-semibold">{$t("systemHealth.process")}</h3>
           </div>
           {#if applicationMetrics}
@@ -545,7 +545,7 @@
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-              <i class="bi bi-database text-lg text-primary"></i>
+              <i class="bi bi-database text-lg text-primary" aria-hidden="true"></i>
               <h3 class="font-semibold">{$t("systemHealth.database")}</h3>
             </div>
             {#if databaseHealth}
@@ -600,7 +600,7 @@
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-              <i class="bi bi-diagram-3 text-lg text-secondary"></i>
+              <i class="bi bi-diagram-3 text-lg text-secondary" aria-hidden="true"></i>
               <h3 class="font-semibold">{$t("systemHealth.connectionPool")}</h3>
             </div>
           </div>
@@ -649,7 +649,7 @@
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-              <i class="bi bi-search text-lg text-accent"></i>
+              <i class="bi bi-search text-lg text-accent" aria-hidden="true"></i>
               <h3 class="font-semibold">{$t("systemHealth.search")}</h3>
             </div>
             {#if searchHealth}
@@ -704,7 +704,7 @@
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-              <i class="bi bi-broadcast text-lg text-info"></i>
+              <i class="bi bi-broadcast text-lg text-info" aria-hidden="true"></i>
               <h3 class="font-semibold">{$t("systemHealth.websocket")}</h3>
             </div>
             {#if websocketHealth}
@@ -760,7 +760,7 @@
       <div class="card bg-base-100 shadow-sm border border-base-300">
         <div class="card-body">
           <h3 class="font-semibold mb-4 flex items-center gap-2">
-            <i class="bi bi-graph-up text-primary"></i>
+            <i class="bi bi-graph-up text-primary" aria-hidden="true"></i>
             {$t("systemHealth.applicationMetrics")}
           </h3>
           <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4">
@@ -822,7 +822,7 @@
       <div class="card-body">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-semibold flex items-center gap-2">
-            <i class="bi bi-clock-history text-primary"></i>
+            <i class="bi bi-clock-history text-primary" aria-hidden="true"></i>
             {$t("systemHealth.historicalMetrics")}
           </h3>
           <select
@@ -866,7 +866,7 @@
           </div>
         {:else}
           <div class="text-center py-8 text-base-content/50">
-            <i class="bi bi-clock text-4xl mb-2"></i>
+            <i class="bi bi-clock text-4xl mb-2" aria-hidden="true"></i>
             <p>{$t("systemHealth.noHistoricalData")}</p>
           </div>
         {/if}
@@ -878,14 +878,14 @@
       <div class="card-body">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-semibold flex items-center gap-2">
-            <i class="bi bi-bell text-warning"></i>
+            <i class="bi bi-bell text-warning" aria-hidden="true"></i>
             {$t("systemHealth.alerts")}
           </h3>
           <button
             class="btn btn-primary btn-sm"
             onclick={() => openAlertModal()}
           >
-            <i class="bi bi-plus-lg"></i>
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
             {$t("systemHealth.createAlert")}
           </button>
         </div>
@@ -922,8 +922,8 @@
                       <button
                         class="btn btn-ghost btn-xs text-error"
                         onclick={() => deleteAlert(alert.id)}
-                      >
-                        <i class="bi bi-trash"></i>
+                       aria-label="Delete">
+                        <i class="bi bi-trash" aria-hidden="true"></i>
                       </button>
                     </td>
                   </tr>
@@ -933,7 +933,7 @@
           </div>
         {:else}
           <div class="text-center py-8 text-base-content/50">
-            <i class="bi bi-bell-slash text-4xl mb-2"></i>
+            <i class="bi bi-bell-slash text-4xl mb-2" aria-hidden="true"></i>
             <p>{$t("systemHealth.noAlerts")}</p>
             <p class="text-sm">{$t("systemHealth.noAlertsDesc")}</p>
           </div>
@@ -1024,6 +1024,6 @@
         </div>
       </form>
     </div>
-    <div class="modal-backdrop" onclick={closeAlertModal}></div>
+    <div class="modal-backdrop" role="dialog" tabindex="0" onclick={closeModal} onkeydown={(e) = tabindex="0"> e.key === "Escape" && (closeAlertModal)}></div>
   </div>
 {/if}

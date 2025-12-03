@@ -7,16 +7,32 @@
   let { rule, triggerTypes, actionTypes, onSave, onCancel } = $props();
 
   let formData = $state({
-    name: rule?.name || "",
-    display_name: rule?.display_name || "",
-    description: rule?.description || "",
-    trigger_type: rule?.trigger_type || "",
-    trigger_config: rule ? JSON.parse(rule.trigger_config) : {},
-    condition_config: rule ? JSON.parse(rule.condition_config) : {},
-    action_type: rule?.action_type || "",
-    action_config: rule ? JSON.parse(rule.action_config) : {},
-    is_active: rule?.is_active ?? true,
-    priority: rule?.priority || 100,
+    name: "",
+    display_name: "",
+    description: "",
+    trigger_type: "",
+    trigger_config: {},
+    condition_config: {},
+    action_type: "",
+    action_config: {},
+    is_active: true,
+    priority: 100,
+  });
+
+  // Update form data when rule prop changes
+  $effect(() => {
+    if (rule) {
+      formData.name = rule.name || "";
+      formData.display_name = rule.display_name || "";
+      formData.description = rule.description || "";
+      formData.trigger_type = rule.trigger_type || "";
+      formData.trigger_config = JSON.parse(rule.trigger_config || "{}");
+      formData.condition_config = JSON.parse(rule.condition_config || "{}");
+      formData.action_type = rule.action_type || "";
+      formData.action_config = JSON.parse(rule.action_config || "{}");
+      formData.is_active = rule.is_active ?? true;
+      formData.priority = rule.priority || 100;
+    }
   });
 
   let loading = $state(false);
@@ -383,7 +399,10 @@
         class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-2 border-blue-200 dark:border-blue-700"
       >
         <div class="flex items-center gap-2 mb-3">
-          <i class="bi bi-lightning-charge text-blue-500 text-xl"></i>
+          <i
+            class="bi bi-lightning-charge text-blue-500 text-xl"
+            aria-hidden="true"
+          ></i>
           <h4 class="font-bold text-lg text-blue-700 dark:text-blue-300">
             {t($currentLang, "workflow.whenThis")}
           </h4>
@@ -452,7 +471,8 @@
         class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border-2 border-yellow-200 dark:border-yellow-700"
       >
         <div class="flex items-center gap-2 mb-3">
-          <i class="bi bi-filter text-yellow-600 text-xl"></i>
+          <i class="bi bi-filter text-yellow-600 text-xl" aria-hidden="true"
+          ></i>
           <h4 class="font-bold text-lg text-yellow-700 dark:text-yellow-300">
             {t($currentLang, "workflow.ifThis")}
           </h4>
@@ -489,7 +509,7 @@
         class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border-2 border-purple-200 dark:border-purple-700"
       >
         <div class="flex items-center gap-2 mb-3">
-          <i class="bi bi-gear text-purple-500 text-xl"></i>
+          <i class="bi bi-gear text-purple-500 text-xl" aria-hidden="true"></i>
           <h4 class="font-bold text-lg text-purple-700 dark:text-purple-300">
             {t($currentLang, "workflow.thenThat")}
           </h4>
@@ -574,7 +594,7 @@
         <div
           class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg"
         >
-          <i class="bi bi-exclamation-triangle mr-2"></i>
+          <i class="bi bi-exclamation-triangle mr-2" aria-hidden="true"></i>
           <span>{error}</span>
         </div>
       {/if}

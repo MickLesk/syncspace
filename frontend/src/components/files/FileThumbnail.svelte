@@ -133,7 +133,7 @@
       <div
         class="px-1.5 py-0.5 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded flex items-center gap-1"
       >
-        <i class="bi bi-image"></i>
+        <i class="bi bi-image" aria-hidden="true"></i>
         IMG
       </div>
     </div>

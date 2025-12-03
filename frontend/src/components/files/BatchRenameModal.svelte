@@ -145,7 +145,7 @@
       <h2
         class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2"
       >
-        <i class="bi bi-type text-indigo-500"></i>
+        <i class="bi bi-type text-indigo-500" aria-hidden="true"></i>
         {tr("batchRename.title")}
       </h2>
       <span class="text-sm text-gray-500 dark:text-gray-400"
@@ -179,11 +179,9 @@
     <div class="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
       {#if renameMode === "prefix"}
         <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
+          <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {tr("batchRename.prefixValue")}
-          </label>
+          </div>
           <input
             bind:value={prefixValue}
             type="text"
@@ -193,11 +191,9 @@
         </div>
       {:else if renameMode === "suffix"}
         <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
+          <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {tr("batchRename.suffixValue")}
-          </label>
+          </div>
           <input
             bind:value={suffixValue}
             type="text"
@@ -208,11 +204,9 @@
       {:else if renameMode === "replace"}
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
+            <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {tr("batchRename.search")}
-            </label>
+            </div>
             <input
               bind:value={searchValue}
               type="text"
@@ -221,11 +215,9 @@
             />
           </div>
           <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
+            <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {tr("batchRename.replace")}
-            </label>
+            </div>
             <input
               bind:value={replaceValue}
               type="text"
@@ -237,11 +229,9 @@
       {:else if renameMode === "sequential"}
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
+            <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {tr("batchRename.startNumber")}
-            </label>
+            </div>
             <input
               bind:value={sequentialStart}
               type="number"
@@ -250,11 +240,9 @@
             />
           </div>
           <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
+            <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {tr("batchRename.padding")}
-            </label>
+            </div>
             <input
               bind:value={sequentialPadding}
               type="number"
@@ -266,11 +254,9 @@
         </div>
       {:else if renameMode === "pattern"}
         <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
+          <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {tr("batchRename.pattern")}
-          </label>
+          </div>
           <input
             bind:value={patternValue}
             type="text"
@@ -313,12 +299,12 @@
           {#each preview.slice(0, 10) as item}
             <div class="text-xs font-mono flex items-center gap-2">
               {#if item.original === item.new}
-                <i class="bi bi-dash-circle text-gray-400"></i>
+                <i class="bi bi-dash-circle text-gray-400" aria-hidden="true"></i>
                 <span class="text-gray-600 dark:text-gray-400"
                   >{item.original}</span
                 >
               {:else}
-                <i class="bi bi-arrow-right text-green-500"></i>
+                <i class="bi bi-arrow-right text-green-500" aria-hidden="true"></i>
                 <span class="text-gray-600 dark:text-gray-400 line-through"
                   >{item.original}</span
                 >
@@ -369,10 +355,10 @@
         class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition flex items-center gap-2"
       >
         {#if isProcessing}
-          <i class="bi bi-hourglass-split animate-spin"></i>
+          <i class="bi bi-hourglass-split animate-spin" aria-hidden="true"></i>
           {tr("processing")}
         {:else}
-          <i class="bi bi-check2"></i>
+          <i class="bi bi-check2" aria-hidden="true"></i>
           {tr("batchRename.apply")}
         {/if}
       </button>

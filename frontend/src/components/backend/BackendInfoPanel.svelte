@@ -138,7 +138,7 @@
           class="glass-card p-4 rounded-xl hover:scale-105 transition-transform cursor-pointer"
         >
           <div class="flex items-center gap-3 mb-2">
-            <i class="bi bi-box-seam text-2xl text-primary-500"></i>
+            <i class="bi bi-box-seam text-2xl text-primary-500" aria-hidden="true"></i>
             <div class="text-xs text-gray-600 dark:text-gray-400">Version</div>
           </div>
           <div class="text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -154,7 +154,7 @@
           class="glass-card p-4 rounded-xl hover:scale-105 transition-transform"
         >
           <div class="flex items-center gap-3 mb-2">
-            <i class="bi bi-clock-history text-2xl text-green-500"></i>
+            <i class="bi bi-clock-history text-2xl text-green-500" aria-hidden="true"></i>
             <div class="text-xs text-gray-600 dark:text-gray-400">Uptime</div>
           </div>
           <div class="text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -170,7 +170,7 @@
           class="glass-card p-4 rounded-xl hover:scale-105 transition-transform"
         >
           <div class="flex items-center gap-3 mb-2">
-            <i class="bi bi-database text-2xl text-blue-500"></i>
+            <i class="bi bi-database text-2xl text-blue-500" aria-hidden="true"></i>
             <div class="text-xs text-gray-600 dark:text-gray-400">
               DB Pool Size
             </div>
@@ -188,7 +188,7 @@
           class="glass-card p-4 rounded-xl hover:scale-105 transition-transform"
         >
           <div class="flex items-center gap-3 mb-2">
-            <i class="bi bi-plug text-2xl text-purple-500"></i>
+            <i class="bi bi-plug text-2xl text-purple-500" aria-hidden="true"></i>
             <div class="text-xs text-gray-600 dark:text-gray-400">
               Active Connections
             </div>
@@ -206,7 +206,7 @@
           class="glass-card p-4 rounded-xl hover:scale-105 transition-transform"
         >
           <div class="flex items-center gap-3 mb-2">
-            <i class="bi bi-wifi text-2xl text-orange-500"></i>
+            <i class="bi bi-wifi text-2xl text-orange-500" aria-hidden="true"></i>
             <div class="text-xs text-gray-600 dark:text-gray-400">
               WebSocket
             </div>
@@ -224,7 +224,7 @@
           class="glass-card p-4 rounded-xl hover:scale-105 transition-transform"
         >
           <div class="flex items-center gap-3 mb-2">
-            <i class="bi bi-heart-pulse text-2xl text-red-500"></i>
+            <i class="bi bi-heart-pulse text-2xl text-red-500" aria-hidden="true"></i>
             <div class="text-xs text-gray-600 dark:text-gray-400">Status</div>
           </div>
           <div
@@ -242,7 +242,7 @@
       {#if serverInfo.search_index}
         <div class="glass-card p-4 rounded-xl">
           <div class="flex items-center gap-3 mb-3">
-            <i class="bi bi-search text-xl text-indigo-500"></i>
+            <i class="bi bi-search text-xl text-indigo-500" aria-hidden="true"></i>
             <h3 class="font-semibold text-gray-900 dark:text-gray-100">
               Search Index
             </h3>
@@ -272,7 +272,7 @@
       {#if serverInfo.websocket}
         <div class="glass-card p-4 rounded-xl">
           <div class="flex items-center gap-3 mb-3">
-            <i class="bi bi-broadcast text-xl text-teal-500"></i>
+            <i class="bi bi-broadcast text-xl text-teal-500" aria-hidden="true"></i>
             <h3 class="font-semibold text-gray-900 dark:text-gray-100">
               WebSocket Server
             </h3>
@@ -298,7 +298,7 @@
     {:else}
       <div class="flex items-center justify-center py-12">
         <div class="text-center">
-          <i class="bi bi-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+          <i class="bi bi-exclamation-triangle text-5xl text-red-500 mb-4" aria-hidden="true"></i>
           <p class="text-gray-900 dark:text-gray-100 font-semibold">
             {tr("failedToConnectBackend")}
           </p>
@@ -316,7 +316,7 @@
       class="px-4 py-2 text-sm font-medium text-white bg-primary-600 dark:bg-primary-500 rounded-xl hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center gap-2"
       onclick={handleClose}
     >
-      <i class="bi bi-check-lg"></i>
+      <i class="bi bi-check-lg" aria-hidden="true"></i>
       {tr("close")}
     </button>
   </div>

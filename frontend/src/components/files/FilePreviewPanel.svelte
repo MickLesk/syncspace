@@ -426,7 +426,7 @@
             disabled={currentIndex === 0}
             title="Previous (←)"
           >
-            <i class="bi bi-chevron-left"></i>
+            <i class="bi bi-chevron-left" aria-hidden="true"></i>
           </button>
           <span class="nav-counter">
             {currentIndex + 1} / {allFiles.length}
@@ -437,7 +437,7 @@
             disabled={currentIndex === allFiles.length - 1}
             title="Next (→)"
           >
-            <i class="bi bi-chevron-right"></i>
+            <i class="bi bi-chevron-right" aria-hidden="true"></i>
           </button>
           <div class="divider-v"></div>
         {/if}
@@ -447,40 +447,40 @@
           class="action-btn favorite"
           title="Toggle Favorite"
         >
-          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill" aria-hidden="true"></i>
         </button>
         <button
           onclick={downloadFile}
           class="action-btn download"
           title="Download"
         >
-          <i class="bi bi-download"></i>
+          <i class="bi bi-download" aria-hidden="true"></i>
         </button>
         <button onclick={renameFile} class="action-btn rename" title="Rename">
-          <i class="bi bi-pencil-square"></i>
+          <i class="bi bi-pencil-square" aria-hidden="true"></i>
         </button>
         <button onclick={moveFile} class="action-btn move" title="Move">
-          <i class="bi bi-folder2-open"></i>
+          <i class="bi bi-folder2-open" aria-hidden="true"></i>
         </button>
         <button onclick={copyFile} class="action-btn copy" title="Copy">
-          <i class="bi bi-files"></i>
+          <i class="bi bi-files" aria-hidden="true"></i>
         </button>
         <button onclick={shareFile} class="action-btn share" title="Share">
-          <i class="bi bi-share-fill"></i>
+          <i class="bi bi-share-fill" aria-hidden="true"></i>
         </button>
         <button
           onclick={openVersionHistory}
           class="action-btn history"
           title="History"
         >
-          <i class="bi bi-clock-history"></i>
+          <i class="bi bi-clock-history" aria-hidden="true"></i>
         </button>
         <button
           onclick={() => (showMetadata = !showMetadata)}
           class="action-btn metadata {showMetadata ? 'active' : ''}"
           title="Toggle Metadata"
         >
-          <i class="bi bi-info-circle-fill"></i>
+          <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
         </button>
         <button
           onclick={toggleFullscreen}
@@ -494,12 +494,7 @@
           ></i>
         </button>
         <div class="divider-v"></div>
-        <button onclick={deleteFile} class="action-btn delete" title="Delete">
-          <i class="bi bi-trash3-fill"></i>
-        </button>
-        <button onclick={onClose} class="action-btn close" title="Close">
-          <i class="bi bi-x-lg"></i>
-        </button>
+        <button aria-label="Delete"><i class="bi bi-trash" aria-hidden="true"></i></button>
       </div>
     </div>
 
@@ -514,10 +509,10 @@
           </div>
         {:else if error}
           <div class="preview-error">
-            <i class="bi bi-exclamation-triangle-fill"></i>
+            <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
             <p>{error}</p>
             <button onclick={downloadFile} class="btn-download">
-              <i class="bi bi-download"></i>
+              <i class="bi bi-download" aria-hidden="true"></i>
               Download File
             </button>
           </div>
@@ -533,7 +528,7 @@
           </div>
         {:else if previewType === "audio"}
           <div class="preview-audio-container">
-            <i class="bi bi-music-note-beamed file-type-icon"></i>
+            <i class="bi bi-music-note-beamed file-type-icon" aria-hidden="true"></i>
             <audio src={previewUrl} controls class="preview-audio"></audio>
           </div>
         {:else if previewType === "pdf"}
@@ -545,7 +540,7 @@
           <div class="preview-code-container">
             <div class="code-header">
               <div class="code-language">
-                <i class="bi bi-code-slash"></i>
+                <i class="bi bi-code-slash" aria-hidden="true"></i>
                 <span
                   >{file.name.split(".").pop()?.toUpperCase() || "TEXT"}</span
                 >
@@ -556,7 +551,7 @@
                   onclick={() => copyToClipboard(previewUrl)}
                   title="Copy Code"
                 >
-                  <i class="bi bi-clipboard"></i>
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
                 </button>
               </div>
             </div>
@@ -583,7 +578,7 @@
                     onclick={() => switchSheet(activeSheet - 1)}
                     title="Previous Sheet"
                   >
-                    <i class="bi bi-chevron-left"></i>
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i>
                   </button>
                   <button
                     class="nav-arrow"
@@ -591,7 +586,7 @@
                     onclick={() => switchSheet(activeSheet + 1)}
                     title="Next Sheet"
                   >
-                    <i class="bi bi-chevron-right"></i>
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
                   </button>
                 </div>
                 <div class="excel-sheet-tabs">
@@ -601,7 +596,7 @@
                       onclick={() => switchSheet(index)}
                       title={sheetName}
                     >
-                      <i class="bi bi-file-earmark-spreadsheet"></i>
+                      <i class="bi bi-file-earmark-spreadsheet" aria-hidden="true"></i>
                       {sheetName}
                     </button>
                   {/each}
@@ -615,7 +610,7 @@
         {:else if previewType === "word"}
           <div class="preview-word-container">
             <div class="word-toolbar">
-              <i class="bi bi-file-earmark-word text-2xl text-blue-600"></i>
+              <i class="bi bi-file-earmark-word text-2xl text-blue-600" aria-hidden="true"></i>
               <span class="font-semibold">Word Document</span>
             </div>
             <div class="word-content">
@@ -625,7 +620,7 @@
         {:else if previewType === "office-viewer"}
           <div class="preview-office-container">
             <div class="office-toolbar">
-              <i class="bi bi-file-earmark-slides text-2xl text-orange-600"></i>
+              <i class="bi bi-file-earmark-slides text-2xl text-orange-600" aria-hidden="true"></i>
               <span class="font-semibold">PowerPoint Presentation</span>
             </div>
             <iframe
@@ -638,14 +633,14 @@
           </div>
         {:else}
           <div class="preview-unsupported">
-            <i class="bi bi-file-earmark-x file-type-icon"></i>
+            <i class="bi bi-file-earmark-x file-type-icon" aria-hidden="true"></i>
             <h4>Preview not available</h4>
             <p>
               {file.name.split(".").pop()?.toUpperCase() || "This"} files cannot
               be previewed
             </p>
             <button onclick={downloadFile} class="btn-download">
-              <i class="bi bi-download"></i>
+              <i class="bi bi-download" aria-hidden="true"></i>
               Download to View
             </button>
           </div>
@@ -662,7 +657,7 @@
                 : ''}"
               onclick={() => (activeMetadataTab = "details")}
             >
-              <i class="bi bi-info-circle"></i>
+              <i class="bi bi-info-circle" aria-hidden="true"></i>
               <span>Details</span>
             </button>
             <button
@@ -671,7 +666,7 @@
                 : ''}"
               onclick={() => (activeMetadataTab = "comments")}
             >
-              <i class="bi bi-chat-dots"></i>
+              <i class="bi bi-chat-dots" aria-hidden="true"></i>
               <span>Comments</span>
             </button>
             <button
@@ -680,7 +675,7 @@
                 : ''}"
               onclick={() => (activeMetadataTab = "tags")}
             >
-              <i class="bi bi-tags"></i>
+              <i class="bi bi-tags" aria-hidden="true"></i>
               <span>Tags</span>
             </button>
           </div>
@@ -722,7 +717,7 @@
                 <div class="comments-list">
                   {#if comments.length === 0}
                     <div class="empty-state">
-                      <i class="bi bi-chat-dots"></i>
+                      <i class="bi bi-chat-dots" aria-hidden="true"></i>
                       <p>No comments yet</p>
                     </div>
                   {:else}
@@ -743,7 +738,7 @@
                     rows="3"
                   ></textarea>
                   <button onclick={addComment} class="btn-add">
-                    <i class="bi bi-send-fill"></i>
+                    <i class="bi bi-send-fill" aria-hidden="true"></i>
                     Send
                   </button>
                 </div>
@@ -753,16 +748,16 @@
                 <div class="tags-list">
                   {#if tags.length === 0}
                     <div class="empty-state">
-                      <i class="bi bi-tags"></i>
+                      <i class="bi bi-tags" aria-hidden="true"></i>
                       <p>No tags yet</p>
                     </div>
                   {:else}
                     {#each tags as tag}
                       <div class="tag-chip">
-                        <i class="bi bi-tag-fill"></i>
+                        <i class="bi bi-tag-fill" aria-hidden="true"></i>
                         <span>{tag}</span>
                         <button class="tag-remove" aria-label="Remove tag">
-                          <i class="bi bi-x"></i>
+                          <i class="bi bi-x" aria-hidden="true"></i>
                         </button>
                       </div>
                     {/each}

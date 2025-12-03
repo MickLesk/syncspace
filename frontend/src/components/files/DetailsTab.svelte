@@ -25,7 +25,7 @@
   <div class="stats stats-vertical lg:stats-horizontal shadow w-full">
     <div class="stat">
       <div class="stat-figure text-primary">
-        <i class="bi bi-file-earmark text-3xl"></i>
+        <i class="bi bi-file-earmark text-3xl" aria-hidden="true"></i>
       </div>
       <div class="stat-title">{tr("fileName")}</div>
       <div class="stat-value text-lg break-all">
@@ -35,7 +35,7 @@
 
     <div class="stat">
       <div class="stat-figure text-secondary">
-        <i class="bi bi-hdd text-3xl"></i>
+        <i class="bi bi-hdd text-3xl" aria-hidden="true"></i>
       </div>
       <div class="stat-title">{tr("fileSize")}</div>
       <div class="stat-value text-lg">{formatBytes(file?.size)}</div>
@@ -46,7 +46,7 @@
 
     <div class="stat">
       <div class="stat-figure text-accent">
-        <i class="bi bi-filetype-txt text-3xl"></i>
+        <i class="bi bi-filetype-txt text-3xl" aria-hidden="true"></i>
       </div>
       <div class="stat-title">{tr("fileType")}</div>
       <div class="stat-value text-lg">
@@ -59,7 +59,7 @@
   <div class="card bg-base-200">
     <div class="card-body">
       <h3 class="card-title mb-4">
-        <i class="bi bi-info-circle mr-2"></i>
+        <i class="bi bi-info-circle mr-2" aria-hidden="true"></i>
         File Information
       </h3>
       <div class="space-y-3">
@@ -104,19 +104,19 @@
     <div class="card bg-base-200">
       <div class="card-body">
         <h3 class="card-title mb-3">
-          <i class="bi bi-shield-check mr-2"></i>
+          <i class="bi bi-shield-check mr-2" aria-hidden="true"></i>
           Status
         </h3>
         <div class="flex flex-wrap gap-2">
           {#if file.is_shared}
             <div class="badge badge-primary badge-lg gap-2">
-              <i class="bi bi-share"></i>
+              <i class="bi bi-share" aria-hidden="true"></i>
               Shared
             </div>
           {/if}
           {#if file.is_favorite}
             <div class="badge badge-warning badge-lg gap-2">
-              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill" aria-hidden="true"></i>
               Favorite
             </div>
           {/if}

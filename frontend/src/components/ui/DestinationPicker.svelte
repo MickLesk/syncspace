@@ -13,9 +13,7 @@
   let searchQuery = $state("");
   let filteredItems = $state([]);
 
-  let { onSelect = null } = $props();
-  let { onCancel = null } = $props();
-  let { excludePaths = [] } = $props();
+  let { onSelect = null, onCancel = null, excludePaths = [] } = $props();
 
   const MAX_BREADCRUMB_LENGTH = 50;
 
@@ -128,6 +126,7 @@
       role="dialog"
       aria-labelledby="destination-title"
       aria-modal="true"
+      tabindex="0"
     >
       <!-- Header -->
       <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
@@ -197,7 +196,10 @@
                 aria-selected={selectedPath === item.path}
               >
                 <div class="flex items-center gap-3">
-                  <i class="bi bi-folder text-gray-400 dark:text-gray-500"></i>
+                  <i
+                    class="bi bi-folder text-gray-400 dark:text-gray-500"
+                    aria-hidden="true"
+                  ></i>
                   <div>
                     <div class="font-medium text-gray-900 dark:text-white">
                       {item.name}

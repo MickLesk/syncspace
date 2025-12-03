@@ -414,7 +414,7 @@
         }}
         disabled={!newFolderName.trim()}
       >
-        <i class="bi bi-folder-plus"></i>
+        <i class="bi bi-folder-plus" aria-hidden="true"></i>
         {tr("create")}
       </button>
     </div>
@@ -476,7 +476,7 @@
         }}
         disabled={!newFileName.trim()}
       >
-        <i class="bi bi-pencil"></i>
+        <i class="bi bi-pencil" aria-hidden="true"></i>
         {tr("rename")}
       </button>
     </div>
@@ -619,7 +619,7 @@
           modals.close("changeFolderColor");
         }}
       >
-        <i class="bi bi-palette"></i>
+        <i class="bi bi-palette" aria-hidden="true"></i>
         {tr("saveColor")}
       </button>
     </div>
@@ -653,7 +653,7 @@
           modals.close("delete");
         }}
       >
-        <i class="bi bi-trash"></i>
+        <i class="bi bi-trash" aria-hidden="true"></i>
         {tr("delete")}
       </button>
     </div>
@@ -713,7 +713,7 @@
       >
         {#if availableFolders.length === 0}
           <div class="p-4 text-center text-gray-500 dark:text-gray-400">
-            <i class="bi bi-folder-x text-2xl mb-2"></i>
+            <i class="bi bi-folder-x text-2xl mb-2" aria-hidden="true"></i>
             <p class="text-sm">{tr("noFoldersAvailable")}</p>
           </div>
         {:else}
@@ -790,7 +790,7 @@
         }}
         disabled={!selectedDestinationPath}
       >
-        <i class="bi bi-arrow-right"></i>
+        <i class="bi bi-arrow-right" aria-hidden="true"></i>
         {tr("moveHere")}
       </button>
     </div>
@@ -838,7 +838,7 @@
           modals.close("copy");
         }}
       >
-        <i class="bi bi-files"></i>
+        <i class="bi bi-files" aria-hidden="true"></i>
         {tr("copy")}
       </button>
     </div>

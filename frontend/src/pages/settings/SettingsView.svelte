@@ -123,13 +123,8 @@
             class="glass-input w-full pl-10 pr-10"
           />
           {#if searchQuery.length > 0}
-            <button
-              onclick={clearSearch}
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-              aria-label="Clear search"
-            >
-              <i class="bi bi-x-lg"></i>
-            </button>
+            <button aria-label="Close"
+            ><i class="bi bi-x" aria-hidden="true"></i></button>
           {/if}
         </div>
       {/snippet}
@@ -144,7 +139,7 @@
             onclick={() => handleTabChange(tab.id)}
             class="hover-lift"
           >
-            <i class="bi bi-{tab.icon} mr-2"></i>
+            <i class="bi bi-{tab.icon} mr-2" aria-hidden="true"></i>
             {tab.label}
           </ModernButton>
         {/each}
@@ -156,7 +151,7 @@
       <ModernCard variant="glass">
         <div class="text-center py-16">
           <i class="bi bi-search text-8xl text-gray-300 dark:text-gray-600 mb-6"
-          ></i>
+           aria-hidden="true"></i>
           <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">
             {tr("noFilesFound")}
           </h3>
@@ -164,7 +159,7 @@
             {tr("tryDifferentSearch")}
           </p>
           <ModernButton variant="gradient" onclick={clearSearch}>
-            <i class="bi bi-x-lg mr-2"></i>
+            <i class="bi bi-x-lg mr-2" aria-hidden="true"></i>
             {tr("clearFilters")}
           </ModernButton>
         </div>

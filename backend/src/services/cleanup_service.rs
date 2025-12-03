@@ -13,6 +13,7 @@ const DATA_DIR: &str = "./data";
 
 /// Configuration for cleanup operations
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct CleanupConfig {
     /// Number of days to retain deleted files before permanent deletion
     pub retention_days: i64,
@@ -101,7 +102,7 @@ pub async fn cleanup_expired_deleted_files(
     };
 
     // 2. Get total storage before deletion
-    let storage_before: (i64,) = sqlx::query_as(
+    let _storage_before: (i64,) = sqlx::query_as(
         "SELECT COALESCE(SUM(size_bytes), 0) FROM files WHERE is_deleted = 1 AND deleted_at <= ?1",
     )
     .bind(&cutoff_iso)

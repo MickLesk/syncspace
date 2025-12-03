@@ -82,7 +82,7 @@
           : "px-4 py-2 rounded text-sm font-medium transition-colors text-slate-600 dark:text-slate-400"}
         on:click={() => (showStats = false)}
       >
-        <i class="bi bi-clock-history mr-2" />
+        <i class="bi bi-clock-history mr-2" / aria-hidden="true">
         Timeline
       </button>
 
@@ -92,7 +92,7 @@
           : "px-4 py-2 rounded text-sm font-medium transition-colors text-slate-600 dark:text-slate-400"}
         on:click={() => (showStats = true)}
       >
-        <i class="bi bi-pie-chart mr-2" />
+        <i class="bi bi-pie-chart mr-2" / aria-hidden="true">
         Stats
       </button>
     </div>
@@ -112,14 +112,14 @@
     {#if $loading}
       <div class="flex items-center justify-center h-full">
         <div class="animate-spin">
-          <i class="bi bi-hourglass text-2xl text-blue-500" />
+          <i class="bi bi-hourglass text-2xl text-blue-500" / aria-hidden="true">
         </div>
       </div>
     {:else if $error}
       <div
         class="bg-red-50 dark:bg-red-900/20 p-3 rounded text-red-700 dark:text-red-200 text-sm"
       >
-        <i class="bi bi-exclamation-circle mr-2" />
+        <i class="bi bi-exclamation-circle mr-2" / aria-hidden="true">
         {$error}
       </div>
     {:else if showStats}
@@ -288,7 +288,7 @@
                       class="p-2 text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors"
                       title="Download"
                     >
-                      <i class="bi bi-download" />
+                      <i class="bi bi-download" / aria-hidden="true">
                     </button>
 
                     {#if !readOnly}
@@ -299,7 +299,7 @@
                         class="p-2 text-slate-600 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 disabled:opacity-50 transition-colors"
                         title="Restore"
                       >
-                        <i class="bi bi-arrow-counterclockwise" />
+                        <i class="bi bi-arrow-counterclockwise" / aria-hidden="true">
                       </button>
 
                       <button
@@ -309,7 +309,7 @@
                         class="p-2 text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
                         title="Delete"
                       >
-                        <i class="bi bi-trash" />
+                        <i class="bi bi-trash" / aria-hidden="true">
                       </button>
                     {/if}
                   </div>
@@ -371,7 +371,7 @@
                   disabled={!selectedV1 || !selectedV2 || $loading}
                   class="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-300 text-white rounded text-sm font-medium transition-colors"
                 >
-                  <i class="bi bi-diagram-2 mr-2" />
+                  <i class="bi bi-diagram-2 mr-2" / aria-hidden="true">
                   Compare Versions
                 </button>
               </div>
@@ -394,7 +394,7 @@
                   }}
                   class="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                 >
-                  <i class="bi bi-x" />
+                  <i class="bi bi-x" / aria-hidden="true">
                 </button>
               </div>
 

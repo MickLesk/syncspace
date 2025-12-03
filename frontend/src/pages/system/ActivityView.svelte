@@ -152,7 +152,7 @@
     <h1
       class="text-4xl font-bold gradient-text-primary mb-2 flex items-center gap-3"
     >
-      <i class="bi bi-activity"></i>
+      <i class="bi bi-activity" aria-hidden="true"></i>
       {tr("activityTimeline")}
     </h1>
     <p class="text-base-content/70">{tr("trackAllFileOperations")}</p>
@@ -165,7 +165,7 @@
         {#snippet children()}
           <div class="text-center">
             <div class="text-primary mb-3">
-              <i class="bi bi-activity text-5xl"></i>
+              <i class="bi bi-activity text-5xl" aria-hidden="true"></i>
             </div>
             <div class="text-sm font-semibold text-base-content/60 mb-1">
               {tr("totalEvents")}
@@ -180,7 +180,7 @@
         {#snippet children()}
           <div class="text-center">
             <div class="text-success mb-3">
-              <i class="bi bi-calendar-check text-5xl"></i>
+              <i class="bi bi-calendar-check text-5xl" aria-hidden="true"></i>
             </div>
             <div class="text-sm font-semibold text-base-content/60 mb-1">
               {tr("today")}
@@ -231,7 +231,7 @@
                 : 'hover:glass-card'}"
               onclick={() => (selectedFilter = type.value)}
             >
-              <i class="bi bi-{type.icon}"></i>
+              <i class="bi bi-{type.icon}" aria-hidden="true"></i>
               {type.label}
             </button>
           {/each}
@@ -249,7 +249,7 @@
             class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50"
             aria-label={tr("searchActivityLogs")}
           >
-            <i class="bi bi-search"></i>
+            <i class="bi bi-search" aria-hidden="true"></i>
           </button>
         </div>
       </div>
@@ -262,7 +262,7 @@
       {#snippet children()}
         <div class="animate-fade-in">
           <div class="text-primary/30 mb-6">
-            <i class="bi bi-clock-history text-8xl"></i>
+            <i class="bi bi-clock-history text-8xl" aria-hidden="true"></i>
           </div>
           <h3 class="text-2xl font-bold mb-3">{tr("noActivityYet")}</h3>
           <p class="text-base-content/60">
@@ -310,7 +310,7 @@
                   config.color
                 ] || 'bg-primary'} flex items-center justify-center shadow-lg"
               >
-                <i class="bi bi-{config.icon} text-lg"></i>
+                <i class="bi bi-{config.icon} text-lg" aria-hidden="true"></i>
               </div>
 
               <!-- Time Stamp -->
@@ -326,7 +326,7 @@
                   <div class="flex items-start justify-between gap-2">
                     <div class="flex-1">
                       <div class="badge badge-glass-{config.color} mb-2">
-                        <i class="bi bi-{config.icon} mr-1"></i>
+                        <i class="bi bi-{config.icon} mr-1" aria-hidden="true"></i>
                         {config.label}
                       </div>
                       <h3 class="font-bold text-base">{act.filename}</h3>

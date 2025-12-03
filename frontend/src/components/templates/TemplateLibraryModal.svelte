@@ -160,7 +160,7 @@
     class="modal modal-open"
     role="dialog"
     aria-labelledby="template-modal-title"
-  >
+   tabindex="0">
     <div class="modal-box max-w-5xl">
       <h2 id="template-modal-title" class="text-2xl font-bold mb-4">
         {t($currentLang, "templates.title")}
@@ -193,7 +193,7 @@
 
         {#if error}
           <div class="alert alert-error mb-4">
-            <i class="bi bi-exclamation-triangle"></i>
+            <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
             <span>{error}</span>
           </div>
         {/if}
@@ -204,7 +204,7 @@
           </div>
         {:else if filteredTemplates.length === 0}
           <div class="text-center py-8 text-gray-500">
-            <i class="bi bi-inbox text-4xl mb-2"></i>
+            <i class="bi bi-inbox text-4xl mb-2" aria-hidden="true"></i>
             <p>{t($currentLang, "templates.noTemplates")}</p>
           </div>
         {:else}
@@ -241,7 +241,7 @@
                           {/if}
                           {#if template.usage_count > 0}
                             <span class="badge badge-sm badge-ghost">
-                              <i class="bi bi-download mr-1"></i>
+                              <i class="bi bi-download mr-1" aria-hidden="true"></i>
                               {template.usage_count}
                             </span>
                           {/if}
@@ -285,7 +285,7 @@
             }}
             class="btn btn-ghost btn-sm"
           >
-            <i class="bi bi-arrow-left"></i>
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
             {t($currentLang, "common.back")}
           </button>
         </div>
@@ -299,7 +299,7 @@
 
         {#if error}
           <div class="alert alert-error mb-4">
-            <i class="bi bi-exclamation-triangle"></i>
+            <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
             <span>{error}</span>
           </div>
         {/if}
@@ -359,7 +359,7 @@
 
           <!-- Auto-filled Variables Info -->
           <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i>
+            <i class="bi bi-info-circle" aria-hidden="true"></i>
             <div class="text-sm">
               <p>{t($currentLang, "templates.autoFilledInfo")}</p>
               <ul class="list-disc list-inside mt-1 font-mono text-xs">
@@ -397,6 +397,6 @@
         {/if}
       </div>
     </div>
-    <div class="modal-backdrop" onclick={closeModal}></div>
+    <div class="modal-backdrop" role="dialog" tabindex="0" onclick={closeModal} onkeydown={(e) = tabindex="0"> e.key === "Escape" && (closeModal)}></div>
   </div>
 {/if}

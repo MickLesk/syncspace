@@ -61,7 +61,7 @@
       class="flex items-center gap-2 px-3 py-2 rounded text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
       aria-expanded={showFilters}
     >
-      <i class="bi bi-funnel"></i>
+      <i class="bi bi-funnel" aria-hidden="true"></i>
       {t('filters.advanced')}
       {#if $activeCount > 0}
         <span class="ml-2 inline-block min-w-5 px-2 py-0.5 rounded-full bg-blue-500 text-white text-xs font-semibold">
@@ -85,9 +85,9 @@
     <div class="space-y-4 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
       <!-- Search Query -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           {t('filters.search')}
-        </label>
+        </div>
         <input
           type="text"
           value={$advancedFilters.filters.query}
@@ -102,9 +102,9 @@
 
       <!-- File Type -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {t('filters.fileType')}
-        </label>
+        </div>
         <div class="flex flex-wrap gap-2">
           {#each fileTypes as type}
             <button
@@ -127,9 +127,9 @@
 
       <!-- Size Range -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {t('filters.sizeRange')}
-        </label>
+        </div>
         <div class="grid grid-cols-2 gap-2">
           <input
             type="number"
@@ -157,9 +157,9 @@
 
       <!-- Date Range -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {t('filters.dateRange')}
-        </label>
+        </div>
         <div class="grid grid-cols-2 gap-2">
           <input
             type="date"
@@ -184,9 +184,9 @@
 
       <!-- Quick Filters -->
       <div class="space-y-2">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('filters.quickFilters')}
-        </label>
+        </div>
         <div class="space-y-2">
           <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
             <input
@@ -198,7 +198,7 @@
               }}
               class="rounded border-gray-300"
             />
-            <i class="bi bi-star"></i>
+            <i class="bi bi-star" aria-hidden="true"></i>
             {t('filters.favorites')}
           </label>
           <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
@@ -211,7 +211,7 @@
               }}
               class="rounded border-gray-300"
             />
-            <i class="bi bi-share"></i>
+            <i class="bi bi-share" aria-hidden="true"></i>
             {t('filters.shared')}
           </label>
         </div>
@@ -219,9 +219,9 @@
 
       <!-- Presets -->
       <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {t('filters.presets')}
-        </label>
+        </div>
         <div class="flex gap-2 mb-2">
           <input
             type="text"

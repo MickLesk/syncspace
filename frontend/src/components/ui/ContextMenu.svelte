@@ -30,7 +30,7 @@
           onclick={() => handleClick(item)}
           disabled={item.disabled}
         >
-          {#if item.icon}<i class="bi bi-{item.icon}"></i>{/if}
+          {#if item.icon}<i class="bi bi-{item.icon}" aria-hidden="true"></i>{/if}
           <span>{item.label}</span>
           {#if item.shortcut}<kbd>{item.shortcut}</kbd>{/if}
         </button>

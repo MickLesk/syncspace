@@ -14,7 +14,7 @@
         <div
           class="w-24 h-24 mx-auto mb-6 gradient-bg-primary rounded-full flex items-center justify-center shadow-lg"
         >
-          <i class="bi bi-cloud-fill text-5xl text-white"></i>
+          <i class="bi bi-cloud-fill text-5xl text-white" aria-hidden="true"></i>
         </div>
 
         <h1 class="text-4xl font-bold mb-2 gradient-text">SyncSpace</h1>
@@ -87,11 +87,11 @@
       <!-- Action Buttons -->
       <div class="grid grid-cols-2 gap-3">
         <ModernButton variant="secondary">
-          <i class="bi bi-github mr-2"></i>
+          <i class="bi bi-github mr-2" aria-hidden="true"></i>
           GitHub
         </ModernButton>
         <ModernButton variant="gradient">
-          <i class="bi bi-book mr-2"></i>
+          <i class="bi bi-book mr-2" aria-hidden="true"></i>
           Documentation
         </ModernButton>
       </div>

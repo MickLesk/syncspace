@@ -25,7 +25,7 @@
       aria-label="Dismiss error"
       onclick={() => dispatch("dismiss")}
     >
-      <i class="bi bi-x"></i>
+      <i class="bi bi-x" aria-hidden="true"></i>
     </button>
   </div>
 {/if}

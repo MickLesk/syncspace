@@ -170,7 +170,7 @@ async fn create_backend(
 // List all storage backends
 async fn list_backends(
     State(state): State<AppState>,
-    UserInfo { id, .. }: UserInfo,
+    UserInfo { id: _, .. }: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
     let backends = sqlx::query_as::<_, StorageBackend>(
         "SELECT * FROM storage_backends ORDER BY priority DESC, name ASC",
@@ -298,14 +298,14 @@ async fn delete_backend(
 
 // Check backend health
 async fn check_backend_health(
-    State(state): State<AppState>,
+    State(_state): State<AppState>,
     UserInfo { .. }: UserInfo,
-    Path(id): Path<String>,
+    Path(_id): Path<String>,
 ) -> Result<impl IntoResponse, StatusCode> {
     // TODO: Implement actual health check logic for each backend type
     // For now, return a placeholder response
     Ok(Json(serde_json::json!({
-        "backend_id": id,
+        "backend_id": _id,
         "status": "healthy",
         "checks": {
             "connectivity": "pass",
@@ -320,7 +320,7 @@ async fn check_backend_health(
 async fn test_backend_connection(
     State(state): State<AppState>,
     UserInfo { id: user_id, .. }: UserInfo,
-    Path(id): Path<String>,
+    Path(_id): Path<String>,
 ) -> Result<impl IntoResponse, StatusCode> {
     let is_admin = check_admin_permission(&state.db_pool, &user_id)
         .await
@@ -478,7 +478,7 @@ async fn cancel_migration_job(
 // Get storage statistics
 async fn get_storage_stats(
     State(state): State<AppState>,
-    UserInfo { id, .. }: UserInfo,
+    UserInfo { id: _, .. }: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
     let total: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM storage_backends")
         .fetch_one(&state.db_pool)

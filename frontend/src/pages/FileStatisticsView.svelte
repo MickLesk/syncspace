@@ -35,7 +35,7 @@
   <!-- Header -->
   <div class="mb-8">
     <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-      <i class="bi bi-graph-up mr-2"></i>
+      <i class="bi bi-graph-up mr-2" aria-hidden="true"></i>
       {t('statistics.dashboard_title')}
     </h2>
     <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -55,7 +55,7 @@
       class:dark:bg-gray-700={selectedMetric !== 'byType'}
       class:dark:text-gray-300={selectedMetric !== 'byType'}
     >
-      <i class="bi bi-pie-chart mr-2"></i>
+      <i class="bi bi-pie-chart mr-2" aria-hidden="true"></i>
       {t('statistics.by_type')}
     </button>
 
@@ -69,7 +69,7 @@
       class:dark:bg-gray-700={selectedMetric !== 'bySize'}
       class:dark:text-gray-300={selectedMetric !== 'bySize'}
     >
-      <i class="bi bi-bar-chart mr-2"></i>
+      <i class="bi bi-bar-chart mr-2" aria-hidden="true"></i>
       {t('statistics.by_size')}
     </button>
 
@@ -83,7 +83,7 @@
       class:dark:bg-gray-700={selectedMetric !== 'byAccess'}
       class:dark:text-gray-300={selectedMetric !== 'byAccess'}
     >
-      <i class="bi bi-fire mr-2"></i>
+      <i class="bi bi-fire mr-2" aria-hidden="true"></i>
       {t('statistics.access_patterns')}
     </button>
   </div>
@@ -92,7 +92,7 @@
     <div class="flex items-center justify-center h-64">
       <div class="text-center">
         <div class="animate-spin mb-4">
-          <i class="bi bi-hourglass text-3xl text-gray-400"></i>
+          <i class="bi bi-hourglass text-3xl text-gray-400" aria-hidden="true"></i>
         </div>
         <p class="text-gray-600 dark:text-gray-400">{t('common.loading')}</p>
       </div>

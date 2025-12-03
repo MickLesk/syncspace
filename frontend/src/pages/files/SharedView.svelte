@@ -152,7 +152,10 @@
               <div
                 class="flex items-center gap-3 border-l-4 border-red-500 pl-4"
               >
-                <i class="bi bi-exclamation-triangle text-red-500 text-2xl"></i>
+                <i
+                  class="bi bi-exclamation-triangle text-red-500 text-2xl"
+                  aria-hidden="true"
+                ></i>
                 <p class="font-semibold text-gray-900 dark:text-gray-100">
                   {errorMsg}
                 </p>
@@ -166,7 +169,7 @@
             {#snippet children()}
               <div class="text-center py-8 animate-fade-in">
                 <div class="text-8xl mb-6 opacity-30">
-                  <i class="bi bi-share"></i>
+                  <i class="bi bi-share" aria-hidden="true"></i>
                 </div>
                 <h2
                   class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100"
@@ -260,10 +263,15 @@
                         </td>
                         <td class="px-6 py-4">
                           {#if share.password_hash}
-                            <i class="bi bi-lock-fill text-yellow-500 text-lg"
+                            <i
+                              class="bi bi-lock-fill text-yellow-500 text-lg"
+                              aria-hidden="true"
                             ></i>
                           {:else}
-                            <i class="bi bi-unlock text-gray-400 text-lg"></i>
+                            <i
+                              class="bi bi-unlock text-gray-400 text-lg"
+                              aria-hidden="true"
+                            ></i>
                           {/if}
                         </td>
                         <td class="px-6 py-4">
@@ -317,14 +325,20 @@
                   </div>
                   <div class="flex gap-4 text-gray-600 dark:text-gray-400">
                     <div class="flex items-center gap-2">
-                      <i class="bi bi-lock-fill text-yellow-500"></i>
+                      <i
+                        class="bi bi-lock-fill text-yellow-500"
+                        aria-hidden="true"
+                      ></i>
                       <span
                         >{shares.filter((s) => s.password_hash).length}
                         {tr("protected")}</span
                       >
                     </div>
                     <div class="flex items-center gap-2">
-                      <i class="bi bi-exclamation-triangle text-red-500"></i>
+                      <i
+                        class="bi bi-exclamation-triangle text-red-500"
+                        aria-hidden="true"
+                      ></i>
                       <span
                         >{shares.filter((s) => isExpired(s.expires_at)).length}
                         {tr("expired")}</span
@@ -453,7 +467,9 @@
           <div class="space-y-4">
             <div class="glass-card border-l-4 border-red-500 p-4">
               <div class="flex items-start gap-3">
-                <i class="bi bi-exclamation-triangle-fill text-red-500 text-2xl"
+                <i
+                  class="bi bi-exclamation-triangle-fill text-red-500 text-2xl"
+                  aria-hidden="true"
                 ></i>
                 <div class="flex-1">
                   <p
@@ -502,11 +518,17 @@
   {#if showAnalytics && analyticsShareId}
     <div
       class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-backdrop"
+      role="dialog"
+      tabindex="0"
       onclick={closeAnalytics}
+      onkeydown={(e = tabindex = "0" > e.key === "Escape" && closeAnalytics())}
     >
       <div
         class="max-w-7xl w-full max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 rounded-2xl shadow-2xl modal-content"
+        role="button"
+        tabindex="0"
         onclick={(e) => e.stopPropagation()}
+        onkeydown={(e) => e.stopPropagation()}
       >
         <div
           class="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between z-10"
@@ -514,7 +536,12 @@
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
             {tr("shareAnalytics")}
           </h2>
-          <button aria-label="Close" onclick={closeAnalytics} class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+          <button
+            aria-label="Close"
+            onclick={closeAnalytics}
+            class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            ><i class="bi bi-x-lg" aria-hidden="true"></i></button
+          >
         </div>
         <ShareAnalyticsView shareId={analyticsShareId} />
       </div>

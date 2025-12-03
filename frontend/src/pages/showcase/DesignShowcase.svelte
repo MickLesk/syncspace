@@ -22,7 +22,7 @@
     <div class="glass-header mb-8">
       <div class="flex items-center gap-4">
         <div class="logo-circle">
-          <i class="bi bi-palette-fill text-4xl"></i>
+          <i class="bi bi-palette-fill text-4xl" aria-hidden="true"></i>
         </div>
         <div>
           <h1 class="text-4xl font-bold gradient-text mb-2">
@@ -38,7 +38,7 @@
     <!-- Buttons Section -->
     <div class="mb-12">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        <i class="bi bi-cursor-fill text-blue-500 mr-2"></i>
+        <i class="bi bi-cursor-fill text-blue-500 mr-2" aria-hidden="true"></i>
         Buttons
       </h2>
 
@@ -129,7 +129,7 @@
     <!-- Cards Section -->
     <div class="mb-12">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        <i class="bi bi-grid-3x3-gap-fill text-purple-500 mr-2"></i>
+        <i class="bi bi-grid-3x3-gap-fill text-purple-500 mr-2" aria-hidden="true"></i>
         Cards
       </h2>
 
@@ -227,7 +227,7 @@
     <!-- Colors & Badges Section -->
     <div class="mb-12">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        <i class="bi bi-paint-bucket text-pink-500 mr-2"></i>
+        <i class="bi bi-paint-bucket text-pink-500 mr-2" aria-hidden="true"></i>
         Colors & Badges
       </h2>
 
@@ -276,7 +276,7 @@
     <!-- Animations Section -->
     <div class="mb-12">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        <i class="bi bi-stars text-yellow-500 mr-2"></i>
+        <i class="bi bi-stars text-yellow-500 mr-2" aria-hidden="true"></i>
         Animations
       </h2>
 
@@ -287,7 +287,7 @@
               class="animate-slide-up p-8 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg text-center"
             >
               <i class="bi bi-arrow-up-circle-fill text-4xl text-blue-500 mb-2"
-              ></i>
+               aria-hidden="true"></i>
               <p class="text-gray-600 dark:text-gray-400">Slides up on load</p>
             </div>
           {/snippet}

@@ -164,7 +164,7 @@
     <!-- Header -->
     <div class="setup-header">
       <div class="logo">
-        <i class="bi bi-lightning-charge-fill text-6xl text-primary-600"></i>
+        <i class="bi bi-lightning-charge-fill text-6xl text-primary-600" aria-hidden="true"></i>
       </div>
       <h1
         class="text-4xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent"
@@ -189,7 +189,7 @@
             class:completed={currentStep > step.id}
           >
             <div class="step-circle">
-              <i class="bi bi-{step.icon}"></i>
+              <i class="bi bi-{step.icon}" aria-hidden="true"></i>
             </div>
             <div class="step-label">{tr(step.titleKey)}</div>
           </div>
@@ -203,7 +203,7 @@
         <!-- Step 1: Admin Account -->
         {#if currentStep === 1}
           <h2 class="step-title">
-            <i class="bi bi-person-circle"></i>
+            <i class="bi bi-person-circle" aria-hidden="true"></i>
             {tr("adminAccount")}
           </h2>
           <p class="step-description">
@@ -288,7 +288,7 @@
         <!-- Step 2: Server Info -->
         {#if currentStep === 2}
           <h2 class="step-title">
-            <i class="bi bi-server"></i>
+            <i class="bi bi-server" aria-hidden="true"></i>
             {tr("serverInfo")}
           </h2>
           <p class="step-description">
@@ -326,7 +326,7 @@
         <!-- Step 3: Language -->
         {#if currentStep === 3}
           <h2 class="step-title">
-            <i class="bi bi-translate"></i>
+            <i class="bi bi-translate" aria-hidden="true"></i>
             {tr("language")}
           </h2>
           <p class="step-description">
@@ -356,7 +356,7 @@
         <!-- Step 4: Storage -->
         {#if currentStep === 4}
           <h2 class="step-title">
-            <i class="bi bi-hdd-fill"></i>
+            <i class="bi bi-hdd-fill" aria-hidden="true"></i>
             {tr("storage")}
           </h2>
           <p class="step-description">
@@ -387,7 +387,7 @@
         <!-- Step 5: Security & Registration -->
         {#if currentStep === 5}
           <h2 class="step-title">
-            <i class="bi bi-shield-lock-fill"></i>
+            <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
             {tr("securitySettings")}
           </h2>
           <p class="step-description">
@@ -498,7 +498,7 @@
         {#if currentStep === 6}
           <div class="complete-step">
             <div class="success-icon">
-              <i class="bi bi-check-circle-fill text-8xl text-green-500"></i>
+              <i class="bi bi-check-circle-fill text-8xl text-green-500" aria-hidden="true"></i>
             </div>
             <h2 class="text-3xl font-bold mb-4">
               {tr("setupWizardComplete")}
@@ -510,25 +510,25 @@
               <h3 class="font-bold mb-4">{tr("setupSummary")}:</h3>
               <ul class="summary-list">
                 <li>
-                  <i class="bi bi-person-check"></i>
+                  <i class="bi bi-person-check" aria-hidden="true"></i>
                   {tr("admin")}: {formData.admin_username}
                 </li>
                 <li>
-                  <i class="bi bi-server"></i>
+                  <i class="bi bi-server" aria-hidden="true"></i>
                   {tr("server")}: {formData.server_name}
                 </li>
                 <li>
-                  <i class="bi bi-translate"></i>
+                  <i class="bi bi-translate" aria-hidden="true"></i>
                   {tr("language")}: {formData.default_language === "en"
                     ? "English"
                     : "Deutsch"}
                 </li>
                 <li>
-                  <i class="bi bi-hdd"></i>
+                  <i class="bi bi-hdd" aria-hidden="true"></i>
                   {tr("defaultQuota")}: {formData.default_quota_gb} GB
                 </li>
                 <li>
-                  <i class="bi bi-shield"></i>
+                  <i class="bi bi-shield" aria-hidden="true"></i>
                   {tr("registration")}: {formData.allow_registration
                     ? tr("enabled")
                     : tr("disabled")}

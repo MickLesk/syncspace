@@ -129,7 +129,7 @@
       <h3
         class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2"
       >
-        <i class="bi bi-info-circle text-primary-600 dark:text-primary-400"></i>
+        <i class="bi bi-info-circle text-primary-600 dark:text-primary-400" aria-hidden="true"></i>
         System Information
       </h3>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -197,7 +197,7 @@
       <h3
         class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2"
       >
-        <i class="bi bi-gear-fill text-primary-600 dark:text-primary-400"></i>
+        <i class="bi bi-gear-fill text-primary-600 dark:text-primary-400" aria-hidden="true"></i>
         Background Jobs
       </h3>
       <div class="flex gap-8 mb-4">

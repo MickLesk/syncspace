@@ -202,7 +202,7 @@
           <div
             class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg"
           >
-            <i class="bi bi-exclamation-triangle-fill mr-2"></i>
+            <i class="bi bi-exclamation-triangle-fill mr-2" aria-hidden="true"></i>
             {error}
           </div>
         {/if}
@@ -211,7 +211,7 @@
           <div
             class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-lg"
           >
-            <i class="bi bi-check-circle-fill mr-2"></i>
+            <i class="bi bi-check-circle-fill mr-2" aria-hidden="true"></i>
             {success}
           </div>
         {/if}
@@ -225,7 +225,7 @@
                 disabled={loading}
                 class="flex-1"
               >
-                <i class="bi bi-shield-plus mr-2"></i>
+                <i class="bi bi-shield-plus mr-2" aria-hidden="true"></i>
                 {loading ? "Loading..." : "Enable 2FA"}
               </ModernButton>
             {:else}
@@ -235,7 +235,7 @@
                 disabled={loading}
                 class="flex-1"
               >
-                <i class="bi bi-shield-x mr-2"></i>
+                <i class="bi bi-shield-x mr-2" aria-hidden="true"></i>
                 {loading ? "Disabling..." : "Disable 2FA"}
               </ModernButton>
             {/if}
@@ -358,23 +358,23 @@
 
         <ul class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
           <li class="flex gap-3">
-            <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
+            <i class="bi bi-check-circle-fill text-green-500 mt-0.5" aria-hidden="true"></i>
             <span
               >Use a strong, unique password with at least 12 characters</span
             >
           </li>
           <li class="flex gap-3">
-            <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
+            <i class="bi bi-check-circle-fill text-green-500 mt-0.5" aria-hidden="true"></i>
             <span>Enable 2FA for enhanced account security</span>
           </li>
           <li class="flex gap-3">
-            <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
+            <i class="bi bi-check-circle-fill text-green-500 mt-0.5" aria-hidden="true"></i>
             <span
               >Save your 2FA backup codes in a secure location (coming soon)</span
             >
           </li>
           <li class="flex gap-3">
-            <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
+            <i class="bi bi-check-circle-fill text-green-500 mt-0.5" aria-hidden="true"></i>
             <span>Regularly review your active sessions and devices</span>
           </li>
         </ul>
@@ -401,7 +401,7 @@
         </div>
 
         <ModernButton variant="secondary" class="w-full">
-          <i class="bi bi-arrow-clockwise mr-2"></i>
+          <i class="bi bi-arrow-clockwise mr-2" aria-hidden="true"></i>
           Change Password
         </ModernButton>
       </div>

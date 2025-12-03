@@ -9,10 +9,20 @@
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let formData = $state({
-    name: cronJob?.name || "",
-    job_type: cronJob?.job_type || "FileCleanup",
-    cron_expression: cronJob?.cron_expression || "0 0 * * *",
-    payload: cronJob?.payload || "{}",
+    name: "",
+    job_type: "FileCleanup",
+    cron_expression: "0 0 * * *",
+    payload: "{}",
+  });
+
+  // Update form data when cronJob prop changes
+  $effect(() => {
+    if (cronJob) {
+      formData.name = cronJob.name || "";
+      formData.job_type = cronJob.job_type || "FileCleanup";
+      formData.cron_expression = cronJob.cron_expression || "0 0 * * *";
+      formData.payload = cronJob.payload || "{}";
+    }
   });
 
   let loading = $state(false);
@@ -75,7 +85,7 @@
       <div
         class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg mb-4"
       >
-        <i class="bi bi-exclamation-triangle mr-2"></i>
+        <i class="bi bi-exclamation-triangle mr-2" aria-hidden="true"></i>
         <span>{error}</span>
       </div>
     {/if}
@@ -134,7 +144,7 @@
           placeholder="0 0 * * *"
         />
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          <i class="bi bi-info-circle mr-1"></i>
+          <i class="bi bi-info-circle mr-1" aria-hidden="true"></i>
           {tr("jobs.cronExpressionHint")}
         </p>
       </div>

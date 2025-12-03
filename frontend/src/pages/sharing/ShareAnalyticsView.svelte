@@ -181,7 +181,7 @@
           <div
             class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center"
           >
-            <i class="bi bi-eye text-2xl text-blue-500"></i>
+            <i class="bi bi-eye text-2xl text-blue-500" aria-hidden="true"></i>
           </div>
         </div>
       </div>
@@ -199,7 +199,7 @@
           <div
             class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center"
           >
-            <i class="bi bi-people text-2xl text-green-500"></i>
+            <i class="bi bi-people text-2xl text-green-500" aria-hidden="true"></i>
           </div>
         </div>
       </div>
@@ -217,7 +217,7 @@
           <div
             class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center"
           >
-            <i class="bi bi-clock-history text-2xl text-purple-500"></i>
+            <i class="bi bi-clock-history text-2xl text-purple-500" aria-hidden="true"></i>
           </div>
         </div>
       </div>
@@ -400,7 +400,7 @@
     </div>
   {:else}
     <div class="text-center py-12">
-      <i class="bi bi-graph-up text-6xl text-gray-400 mb-4"></i>
+      <i class="bi bi-graph-up text-6xl text-gray-400 mb-4" aria-hidden="true"></i>
       <p class="text-gray-500 dark:text-gray-400">
         {tr("noAnalyticsAvailable")}
       </p>

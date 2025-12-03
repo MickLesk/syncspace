@@ -32,7 +32,7 @@
       type="button"
       aria-label="Remove"
     >
-      <i class="bi bi-x"></i>
+      <i class="bi bi-x" aria-hidden="true"></i>
     </button>
   </div>
 {:else}

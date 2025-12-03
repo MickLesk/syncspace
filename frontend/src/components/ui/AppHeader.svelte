@@ -356,7 +356,7 @@
     <div class="header-center">
       <div class="search-container-new">
         <div class="search-input-wrapper">
-          <i class="bi bi-search search-icon-new"></i>
+          <i class="bi bi-search search-icon-new" aria-hidden="true"></i>
           <input
             type="text"
             class="search-input-new"
@@ -379,7 +379,7 @@
               }}
               aria-label="Clear search"
             >
-              <i class="bi bi-x"></i>
+              <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           {/if}
           <kbd class="search-kbd-new">Ctrl K</kbd>
@@ -390,7 +390,7 @@
           onclick={() => (showAdvancedSearch = true)}
           title="{t($currentLang, 'advancedSearch')} (Ctrl+Shift+F)"
         >
-          <i class="bi bi-funnel"></i>
+          <i class="bi bi-funnel" aria-hidden="true"></i>
         </button>
 
         <!-- Search Dropdown -->
@@ -418,7 +418,7 @@
                         </div>
                       {/if}
                     </div>
-                    <i class="bi bi-arrow-return-left text-xs opacity-40"></i>
+                    <i class="bi bi-arrow-return-left text-xs opacity-40" aria-hidden="true"></i>
                   </button>
                 {/each}
               </div>
@@ -440,22 +440,22 @@
                     class="search-result-item"
                     onclick={() => selectRecentSearch(recent)}
                   >
-                    <i class="bi bi-clock-history opacity-60"></i>
+                    <i class="bi bi-clock-history opacity-60" aria-hidden="true"></i>
                     <div class="search-result-content">
                       <div class="search-result-name">{recent}</div>
                     </div>
-                    <i class="bi bi-arrow-return-left text-xs opacity-40"></i>
+                    <i class="bi bi-arrow-return-left text-xs opacity-40" aria-hidden="true"></i>
                   </button>
                 {/each}
               </div>
             {:else if searchQuery.trim()}
               <div class="search-empty">
-                <i class="bi bi-search opacity-40 text-2xl"></i>
+                <i class="bi bi-search opacity-40 text-2xl" aria-hidden="true"></i>
                 <p class="text-sm opacity-60 mt-2">No results found</p>
               </div>
             {:else}
               <div class="search-empty">
-                <i class="bi bi-search opacity-40 text-2xl"></i>
+                <i class="bi bi-search opacity-40 text-2xl" aria-hidden="true"></i>
                 <p class="text-sm opacity-60 mt-2">Search files and folders</p>
                 <div class="search-shortcuts mt-3">
                   <div class="search-shortcut-item">
@@ -591,7 +591,7 @@
           <div
             class="fixed inset-0 z-[99]"
             onclick={() => (showUserDropdown = false)}
-          ></div>
+           role="button" tabindex="0"></div>
 
           <div class="user-dropdown-new">
             <div class="user-dropdown-header-new">
@@ -619,12 +619,12 @@
                   class="user-menu-item-new"
                   onclick={() => navigateAndClose("profile")}
                 >
-                  <i class="bi bi-person-circle"></i>
+                  <i class="bi bi-person-circle" aria-hidden="true"></i>
                   <div class="menu-item-content">
                     <span class="menu-item-label">Profile</span>
                     <span class="menu-item-desc">View and edit profile</span>
                   </div>
-                  <i class="bi bi-chevron-right menu-item-arrow"></i>
+                  <i class="bi bi-chevron-right menu-item-arrow" aria-hidden="true"></i>
                 </button>
               </li>
               <li>
@@ -632,12 +632,12 @@
                   class="user-menu-item-new"
                   onclick={() => navigateAndClose("user-settings")}
                 >
-                  <i class="bi bi-sliders"></i>
+                  <i class="bi bi-sliders" aria-hidden="true"></i>
                   <div class="menu-item-content">
                     <span class="menu-item-label">Settings</span>
                     <span class="menu-item-desc">Preferences & options</span>
                   </div>
-                  <i class="bi bi-chevron-right menu-item-arrow"></i>
+                  <i class="bi bi-chevron-right menu-item-arrow" aria-hidden="true"></i>
                 </button>
               </li>
               <li>
@@ -645,12 +645,12 @@
                   class="user-menu-item-new"
                   onclick={() => navigateAndClose("security")}
                 >
-                  <i class="bi bi-shield-lock"></i>
+                  <i class="bi bi-shield-lock" aria-hidden="true"></i>
                   <div class="menu-item-content">
                     <span class="menu-item-label">Security</span>
                     <span class="menu-item-desc">2FA & password</span>
                   </div>
-                  <i class="bi bi-chevron-right menu-item-arrow"></i>
+                  <i class="bi bi-chevron-right menu-item-arrow" aria-hidden="true"></i>
                 </button>
               </li>
               <li>
@@ -658,12 +658,12 @@
                   class="user-menu-item-new"
                   onclick={() => navigateAndClose("storage")}
                 >
-                  <i class="bi bi-hdd-fill"></i>
+                  <i class="bi bi-hdd-fill" aria-hidden="true"></i>
                   <div class="menu-item-content">
                     <span class="menu-item-label">Storage</span>
                     <span class="menu-item-desc">Usage & analytics</span>
                   </div>
-                  <i class="bi bi-chevron-right menu-item-arrow"></i>
+                  <i class="bi bi-chevron-right menu-item-arrow" aria-hidden="true"></i>
                 </button>
               </li>
             </ul>
@@ -673,7 +673,7 @@
             <ul class="user-menu-new">
               <li>
                 <button class="user-menu-item-new">
-                  <i class="bi bi-question-circle"></i>
+                  <i class="bi bi-question-circle" aria-hidden="true"></i>
                   <div class="menu-item-content">
                     <span class="menu-item-label">Help & Support</span>
                   </div>
@@ -685,7 +685,7 @@
 
             <div class="user-dropdown-footer-new">
               <button class="logout-button-new" onclick={handleLogout}>
-                <i class="bi bi-box-arrow-right"></i>
+                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
                 <span>Log Out</span>
               </button>
             </div>
@@ -733,7 +733,7 @@
         <span
           class="px-4 bg-gray-50 dark:bg-gray-800 flex items-center rounded-l-xl border border-r-0 border-gray-300 dark:border-gray-600"
         >
-          <i class="bi bi-search text-lg text-gray-500 dark:text-gray-400"></i>
+          <i class="bi bi-search text-lg text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
         </span>
         <input
           id="quickSearchInput"
@@ -757,7 +757,7 @@
       class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
       onclick={() => (showSearchModal = false)}
     >
-      <i class="bi bi-x-lg"></i>
+      <i class="bi bi-x-lg" aria-hidden="true"></i>
       Cancel
     </button>
     <button
@@ -765,7 +765,7 @@
       class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
       onclick={handleSearch}
     >
-      <i class="bi bi-search"></i>
+      <i class="bi bi-search" aria-hidden="true"></i>
       Search
     </button>
   </div>

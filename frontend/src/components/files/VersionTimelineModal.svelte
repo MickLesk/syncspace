@@ -262,10 +262,9 @@
         </div>
         <button
           class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
-          onclick={onClose}
+          aria-label="Close"
+          onclick={onClose}><i class="bi bi-x" aria-hidden="true"></i></button
         >
-          <i class="bi bi-x-lg"></i>
-        </button>
       </div>
 
       <!-- Tabs -->
@@ -277,7 +276,9 @@
             : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}"
           onclick={() => (activeTab = "timeline")}
         >
-          <i class="bi bi-clock-history mr-2"></i>{tr("versions.timeline")}
+          <i class="bi bi-clock-history mr-2" aria-hidden="true"></i>{tr(
+            "versions.timeline"
+          )}
         </button>
         <button
           class="px-4 py-3 text-sm font-medium border-b-2 transition-colors {activeTab ===
@@ -286,7 +287,9 @@
             : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}"
           onclick={() => (activeTab = "stats")}
         >
-          <i class="bi bi-bar-chart mr-2"></i>{tr("versions.storage")}
+          <i class="bi bi-bar-chart mr-2" aria-hidden="true"></i>{tr(
+            "versions.storage"
+          )}
         </button>
         <button
           class="px-4 py-3 text-sm font-medium border-b-2 transition-colors {activeTab ===
@@ -296,7 +299,9 @@
           onclick={() => (activeTab = "diff")}
           disabled={!selectedVersions.from || !selectedVersions.to}
         >
-          <i class="bi bi-file-diff mr-2"></i>{tr("versions.diff")}
+          <i class="bi bi-file-diff mr-2" aria-hidden="true"></i>{tr(
+            "versions.diff"
+          )}
         </button>
       </div>
 
@@ -404,7 +409,7 @@
                             }}
                             title={tr("versions.addTag")}
                           >
-                            <i class="bi bi-tag"></i>
+                            <i class="bi bi-tag" aria-hidden="true"></i>
                           </button>
                           {#if index !== 0}
                             <button
@@ -415,14 +420,18 @@
                               }}
                               title={tr("versions.restore")}
                             >
-                              <i class="bi bi-arrow-counterclockwise"></i>
+                              <i
+                                class="bi bi-arrow-counterclockwise"
+                                aria-hidden="true"
+                              ></i>
                             </button>
                             <button
                               class="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"
                               onclick={() => handleDeleteVersion(version)}
                               title={tr("versions.delete")}
+                              aria-label="Delete"
                             >
-                              <i class="bi bi-trash"></i>
+                              <i class="bi bi-trash" aria-hidden="true"></i>
                             </button>
                           {/if}
                         </div>
@@ -438,10 +447,12 @@
                             >
                               {tag.tag_name}
                               <button
+                                aria-label="Remove tag"
                                 class="hover:bg-white/20 rounded-full p-0.5"
                                 onclick={() => handleRemoveTag(version, tag)}
                               >
-                                <i class="bi bi-x text-xs"></i>
+                                <i class="bi bi-x text-xs" aria-hidden="true"
+                                ></i>
                               </button>
                             </span>
                           {/each}
@@ -510,7 +521,10 @@
                   <div
                     class="text-center py-12 text-gray-400 dark:text-gray-500"
                   >
-                    <i class="bi bi-clock-history text-4xl mb-2"></i>
+                    <i
+                      class="bi bi-clock-history text-4xl mb-2"
+                      aria-hidden="true"
+                    ></i>
                     <p>{tr("versions.noVersions")}</p>
                   </div>
                 {/if}
@@ -576,7 +590,10 @@
               </h4>
               <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2">
-                  <i class="bi bi-calendar-event text-gray-500"></i>
+                  <i
+                    class="bi bi-calendar-event text-gray-500"
+                    aria-hidden="true"
+                  ></i>
                   <span class="text-sm text-gray-600 dark:text-gray-300">
                     {tr("versions.firstVersion")}: {formatDate(
                       timeline.stats.first_version_at
@@ -592,7 +609,10 @@
                       timeline.stats.last_version_at
                     )}
                   </span>
-                  <i class="bi bi-calendar-check text-gray-500"></i>
+                  <i
+                    class="bi bi-calendar-check text-gray-500"
+                    aria-hidden="true"
+                  ></i>
                 </div>
               </div>
             </div>
@@ -615,7 +635,8 @@
                   >
                     v{selectedVersions.from?.version.version_number}
                   </span>
-                  <i class="bi bi-arrow-right text-gray-400"></i>
+                  <i class="bi bi-arrow-right text-gray-400" aria-hidden="true"
+                  ></i>
                   <span
                     class="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm"
                   >
@@ -624,11 +645,12 @@
                 </div>
                 <div class="flex gap-4 text-sm">
                   <span class="text-green-600 dark:text-green-400">
-                    <i class="bi bi-plus-lg mr-1"></i>+{diffContent.added_lines}
+                    <i class="bi bi-plus-lg mr-1" aria-hidden="true"
+                    ></i>+{diffContent.added_lines}
                     {tr("versions.additions")}
                   </span>
                   <span class="text-red-600 dark:text-red-400">
-                    <i class="bi bi-dash-lg mr-1"
+                    <i class="bi bi-dash-lg mr-1" aria-hidden="true"
                     ></i>-{diffContent.removed_lines}
                     {tr("versions.deletions")}
                   </span>
@@ -641,7 +663,10 @@
               >
                 {#if diffContent.diff_type === "binary"}
                   <div class="text-center text-gray-500 py-8">
-                    <i class="bi bi-file-binary text-4xl mb-2"></i>
+                    <i
+                      class="bi bi-file-binary text-4xl mb-2"
+                      aria-hidden="true"
+                    ></i>
                     <p>{tr("versions.binaryNoDiff")}</p>
                   </div>
                 {:else if diffContent.diff_content}
@@ -656,7 +681,9 @@
                     {/each}</pre>
                 {:else}
                   <div class="text-center text-gray-500 py-8">
-                    <i class="bi bi-check-circle text-4xl text-green-500 mb-2"
+                    <i
+                      class="bi bi-check-circle text-4xl text-green-500 mb-2"
+                      aria-hidden="true"
                     ></i>
                     <p>{tr("versions.noDifferences")}</p>
                   </div>
@@ -667,7 +694,7 @@
             <div
               class="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500"
             >
-              <i class="bi bi-file-diff text-6xl mb-4"></i>
+              <i class="bi bi-file-diff text-6xl mb-4" aria-hidden="true"></i>
               <p class="text-lg">{tr("versions.selectTwoVersions")}</p>
               <p class="text-sm mt-2">{tr("versions.selectHint")}</p>
             </div>
@@ -708,7 +735,11 @@
         <!-- Tag Templates -->
         {#if tagTemplates.length > 0}
           <div>
-            <div class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{tr("versions.quickTags")}</div>
+            <div
+              class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2"
+            >
+              {tr("versions.quickTags")}
+            </div>
             <div class="flex flex-wrap gap-2">
               {#each tagTemplates as template}
                 <button
@@ -725,7 +756,10 @@
 
         <!-- Tag Name -->
         <div>
-          <div class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tr("versions.tagName")} *
+          <div
+            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+          >
+            {tr("versions.tagName")} *
           </div>
           <input
             type="text"
@@ -737,11 +771,11 @@
 
         <!-- Tag Color -->
         <div>
-          <label
+          <div
             class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
           >
             {tr("versions.tagColor")}
-          </label>
+          </div>
           <div class="flex items-center gap-3">
             <input
               type="color"
@@ -758,11 +792,11 @@
 
         <!-- Description -->
         <div>
-          <label
+          <div
             class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
           >
             {tr("versions.tagDescription")}
-          </label>
+          </div>
           <textarea
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
             rows="2"
@@ -819,7 +853,10 @@
         </p>
 
         <div>
-          <div class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tr("versions.restoreComment")} *
+          <div
+            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+          >
+            {tr("versions.restoreComment")} *
           </div>
           <textarea
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"

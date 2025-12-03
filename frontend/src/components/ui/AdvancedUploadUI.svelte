@@ -63,9 +63,9 @@
     <div
       class="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-4 cursor-pointer flex justify-between items-center"
       onclick={() => (isExpanded = !isExpanded)}
-    >
+     role="button" tabindex="0">
       <div class="flex items-center gap-2">
-        <i class="bi bi-cloud-upload"></i>
+        <i class="bi bi-cloud-upload" aria-hidden="true"></i>
         <span class="font-semibold">Uploads</span>
         {#if stats.active > 0}
           <span class="bg-white/20 px-2 py-1 rounded-full text-xs">{stats.active} active</span>
@@ -157,14 +157,14 @@
                   onclick={() => uploadManager.pauseUpload(job.id)}
                   class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors"
                 >
-                  <i class="bi bi-pause-fill"></i> Pause
+                  <i class="bi bi-pause-fill" aria-hidden="true"></i> Pause
                 </button>
               {:else if job.state === 'paused'}
                 <button
                   onclick={() => uploadManager.resumeUpload(job.id)}
                   class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
                 >
-                  <i class="bi bi-play-fill"></i> Resume
+                  <i class="bi bi-play-fill" aria-hidden="true"></i> Resume
                 </button>
               {/if}
 
@@ -173,7 +173,7 @@
                   onclick={() => uploadManager.cancelUpload(job.id)}
                   class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
                 >
-                  <i class="bi bi-x-lg"></i> Cancel
+                  <i class="bi bi-x-lg" aria-hidden="true"></i> Cancel
                 </button>
               {/if}
 
@@ -182,7 +182,7 @@
                   onclick={() => uploadManager.retryUpload(job.id)}
                   class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
                 >
-                  <i class="bi bi-arrow-repeat"></i> Retry
+                  <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Retry
                 </button>
               {/if}
             </div>

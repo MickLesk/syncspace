@@ -84,13 +84,13 @@
     </svg>
   {:else}
     {#if icon && iconPosition === "left"}
-      <i class="bi bi-{icon}"></i>
+      <i class="bi bi-{icon}" aria-hidden="true"></i>
     {/if}
     <span>
       {@render children()}
     </span>
     {#if icon && iconPosition === "right"}
-      <i class="bi bi-{icon}"></i>
+      <i class="bi bi-{icon}" aria-hidden="true"></i>
     {/if}
   {/if}
 </button>

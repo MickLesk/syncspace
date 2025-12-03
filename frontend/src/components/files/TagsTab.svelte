@@ -107,7 +107,7 @@
       <div class="card bg-base-200">
         <div class="card-body p-4">
           <h3 class="font-semibold mb-3 flex items-center gap-2">
-            <i class="bi bi-tags"></i>
+            <i class="bi bi-tags" aria-hidden="true"></i>
             Tags on this file
           </h3>
           <div class="flex flex-wrap gap-2">
@@ -122,8 +122,8 @@
                   onclick={() => removeTag(tag)}
                   class="btn btn-ghost btn-xs btn-circle text-white hover:bg-white/20"
                   title="Remove tag"
-                >
-                  <i class="bi bi-x"></i>
+                 aria-label="Remove">
+                  <i class="bi bi-x" aria-hidden="true"></i>
                 </button>
               </div>
             {/each}
@@ -137,7 +137,7 @@
       <div class="card-body p-4">
         <div class="flex justify-between items-center mb-3">
           <h3 class="font-semibold flex items-center gap-2">
-            <i class="bi bi-tag"></i>
+            <i class="bi bi-tag" aria-hidden="true"></i>
             Available Tags
           </h3>
           {#if !showTagPicker}
@@ -145,7 +145,7 @@
               onclick={() => (showTagPicker = true)}
               class="btn btn-primary btn-sm gap-2"
             >
-              <i class="bi bi-plus-circle"></i>
+              <i class="bi bi-plus-circle" aria-hidden="true"></i>
               New Tag
             </button>
           {/if}
@@ -205,7 +205,7 @@
                 class="btn btn-primary btn-sm gap-2"
                 disabled={!newTagName.trim()}
               >
-                <i class="bi bi-plus-circle"></i>
+                <i class="bi bi-plus-circle" aria-hidden="true"></i>
                 Create Tag
               </button>
             </div>
@@ -214,7 +214,7 @@
 
         {#if allTags.length === 0}
           <div class="text-center py-8 text-base-content/60">
-            <i class="bi bi-tags text-5xl mb-3 block opacity-30"></i>
+            <i class="bi bi-tags text-5xl mb-3 block opacity-30" aria-hidden="true"></i>
             <p class="text-sm">No tags created yet.</p>
             <p class="text-xs mt-1">Create your first tag to organize files!</p>
           </div>
@@ -239,8 +239,8 @@
                     onclick={() => deleteTag(tag)}
                     class="btn btn-ghost btn-xs btn-square text-error"
                     title="Delete tag"
-                  >
-                    <i class="bi bi-trash"></i>
+                   aria-label="Delete">
+                    <i class="bi bi-trash" aria-hidden="true"></i>
                   </button>
                 </div>
               </div>

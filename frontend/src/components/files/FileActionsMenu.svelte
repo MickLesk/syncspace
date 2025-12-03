@@ -20,7 +20,7 @@
   } = $props();
 
   let menuRef;
-  let adjustedPosition = $state({ x: position.x, y: position.y });
+  let adjustedPosition = $derived({ x: position.x, y: position.y });
 
   function handleClickOutside(e) {
     if (menuRef && !menuRef.contains(e.target)) {
@@ -95,7 +95,7 @@
         class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onPreview)}
       >
-        <i class="bi bi-eye text-green-500"></i>
+        <i class="bi bi-eye text-green-500" aria-hidden="true"></i>
         <span>{tr("preview")}</span>
       </button>
     {/if}
@@ -106,7 +106,7 @@
         class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onDownload)}
       >
-        <i class="bi bi-download text-green-600"></i>
+        <i class="bi bi-download text-green-600" aria-hidden="true"></i>
         <span>{tr("download")}</span>
       </button>
     {/if}
@@ -117,7 +117,7 @@
         class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onEdit)}
       >
-        <i class="bi bi-file-earmark-code text-blue-500"></i>
+        <i class="bi bi-file-earmark-code text-blue-500" aria-hidden="true"></i>
         <span>{tr("editFile")}</span>
       </button>
     {/if}
@@ -128,7 +128,7 @@
         class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onRename)}
       >
-        <i class="bi bi-pencil text-yellow-500"></i>
+        <i class="bi bi-pencil text-yellow-500" aria-hidden="true"></i>
         <span>{tr("rename")}</span>
       </button>
     {/if}
@@ -139,7 +139,8 @@
         class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onMove)}
       >
-        <i class="bi bi-arrow-right-square text-purple-500"></i>
+        <i class="bi bi-arrow-right-square text-purple-500" aria-hidden="true"
+        ></i>
         <span>{tr("move")}</span>
       </button>
     {/if}
@@ -150,7 +151,7 @@
         class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onCopy)}
       >
-        <i class="bi bi-files text-cyan-500"></i>
+        <i class="bi bi-files text-cyan-500" aria-hidden="true"></i>
         <span>{tr("copy")}</span>
       </button>
     {/if}
@@ -161,7 +162,7 @@
         class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onChangeFolderColor)}
       >
-        <i class="bi bi-palette text-pink-500"></i>
+        <i class="bi bi-palette text-pink-500" aria-hidden="true"></i>
         <span>{tr("changeFolderColor")}</span>
       </button>
     {/if}
@@ -174,7 +175,7 @@
         class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onShare)}
       >
-        <i class="bi bi-share text-indigo-500"></i>
+        <i class="bi bi-share text-indigo-500" aria-hidden="true"></i>
         <span>{tr("share")}</span>
       </button>
     {/if}
@@ -185,7 +186,7 @@
         class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onVersionHistory)}
       >
-        <i class="bi bi-clock-history text-teal-500"></i>
+        <i class="bi bi-clock-history text-teal-500" aria-hidden="true"></i>
         <span>Version History</span>
       </button>
     {/if}
@@ -198,7 +199,7 @@
         class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 text-red-600 dark:text-red-400"
         onclick={() => handleAction(onDelete)}
       >
-        <i class="bi bi-trash"></i>
+        <i class="bi bi-trash" aria-hidden="true"></i>
         <span>{tr("delete")}</span>
       </button>
     {/if}

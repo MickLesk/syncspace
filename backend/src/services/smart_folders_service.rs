@@ -30,6 +30,7 @@ pub struct SmartFolderRule {
 
 /// Smart Folder with metadata
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct SmartFolder {
     pub id: String,
     pub name: String,
@@ -44,13 +45,16 @@ pub struct SmartFolder {
 
 /// Result of evaluating a file against rules
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct RuleEvaluationResult {
     pub file_path: String,
     pub matches_rules: Vec<String>, // IDs of matching rules
 }
 
+#[allow(dead_code)]
 pub struct SmartFoldersService;
 
+#[allow(dead_code)]
 impl SmartFoldersService {
     /// Evaluate file metadata against a single condition
     pub fn evaluate_condition(

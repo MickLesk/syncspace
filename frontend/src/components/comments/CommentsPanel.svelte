@@ -164,7 +164,7 @@
   <!-- Header -->
   <div class="border-b border-base-300 p-4">
     <h3 class="font-semibold text-lg flex items-center gap-2">
-      <i class="bi bi-chat-dots"></i>
+      <i class="bi bi-chat-dots" aria-hidden="true"></i>
       {$t("comments.title")}
     </h3>
   </div>
@@ -173,7 +173,7 @@
   <div class="flex-1 overflow-y-auto p-4 space-y-4">
     {#if error}
       <div class="alert alert-error gap-2">
-        <i class="bi bi-exclamation-triangle"></i>
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
         <span class="text-sm">{error}</span>
       </div>
     {/if}
@@ -184,7 +184,7 @@
       </div>
     {:else if comments.length === 0}
       <div class="text-center py-8 text-base-content/60">
-        <i class="bi bi-chat text-3xl mb-2 block"></i>
+        <i class="bi bi-chat text-3xl mb-2 block" aria-hidden="true"></i>
         <p class="text-sm">{$t("comments.noComments")}</p>
       </div>
     {:else}
@@ -220,8 +220,9 @@
                   onclick={() => deleteComment(comment.id)}
                   class="btn btn-ghost btn-xs text-error"
                   title={$t("delete")}
+                  aria-label="Delete"
                 >
-                  <i class="bi bi-trash"></i>
+                  <i class="bi bi-trash" aria-hidden="true"></i>
                 </button>
               {/if}
             </div>
@@ -261,7 +262,7 @@
             >
               <div class="dropdown dropdown-hover">
                 <button class="btn btn-ghost btn-xs gap-1">
-                  <i class="bi bi-emoji-smile text-sm"></i>
+                  <i class="bi bi-emoji-smile text-sm" aria-hidden="true"></i>
                   {$t("comments.react")}
                 </button>
                 <ul
@@ -288,7 +289,7 @@
                 }}
                 class="btn btn-ghost btn-xs gap-1"
               >
-                <i class="bi bi-reply"></i>
+                <i class="bi bi-reply" aria-hidden="true"></i>
                 {$t("comments.reply")}
               </button>
 
@@ -334,7 +335,13 @@
                           </div>
                         </div>
                         {#if $auth.user?.id === reply.user_id}
-                          <button aria-label="Delete" onclick={() => deleteComment(reply.id)} class="btn btn-ghost btn-xs text-error"><i class="bi bi-trash" aria-hidden="true"></i></button>
+                          <button
+                            aria-label="Delete"
+                            onclick={() => deleteComment(reply.id)}
+                            class="btn btn-ghost btn-xs text-error"
+                            ><i class="bi bi-trash" aria-hidden="true"
+                            ></i></button
+                          >
                         {/if}
                       </div>
                       <p
@@ -366,7 +373,7 @@
                     {#if posting}
                       <span class="loading loading-spinner loading-xs"></span>
                     {:else}
-                      <i class="bi bi-send"></i>
+                      <i class="bi bi-send" aria-hidden="true"></i>
                     {/if}
                     {$t("send")}
                   </button>
@@ -405,7 +412,7 @@
         {#if posting}
           <span class="loading loading-spinner loading-xs"></span>
         {:else}
-          <i class="bi bi-send"></i>
+          <i class="bi bi-send" aria-hidden="true"></i>
         {/if}
         {$t("comments.post")}
       </button>

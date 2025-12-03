@@ -100,7 +100,10 @@
       <h2
         class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2"
       >
-        <i class="bi bi-people-fill text-primary-600 dark:text-primary-400"></i>
+        <i
+          class="bi bi-people-fill text-primary-600 dark:text-primary-400"
+          aria-hidden="true"
+        ></i>
         {tr("manageUsers")}
       </h2>
       <ModernButton
@@ -109,7 +112,7 @@
         onclick={() => (showAddUserModal = true)}
         class="btn-pulse"
       >
-        <i class="bi bi-person-plus-fill mr-1"></i>
+        <i class="bi bi-person-plus-fill mr-1" aria-hidden="true"></i>
         {tr("addUser")}
       </ModernButton>
     </div>
@@ -210,7 +213,7 @@
                       aria-label="Delete user"
                       disabled={user.username === $auth.username}
                     >
-                      <i class="bi bi-trash"></i>
+                      <i class="bi bi-trash" aria-hidden="true"></i>
                     </ModernButton>
                   </div>
                 </td>
@@ -221,7 +224,9 @@
       </div>
     {:else}
       <div class="text-center py-12">
-        <i class="bi bi-people text-7xl text-gray-300 dark:text-gray-600 mb-4"
+        <i
+          class="bi bi-people text-7xl text-gray-300 dark:text-gray-600 mb-4"
+          aria-hidden="true"
         ></i>
         <h3 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">
           No users yet
@@ -233,7 +238,7 @@
           variant="gradient"
           onclick={() => (showAddUserModal = true)}
         >
-          <i class="bi bi-person-plus-fill mr-2"></i>
+          <i class="bi bi-person-plus-fill mr-2" aria-hidden="true"></i>
           Add User
         </ModernButton>
       </div>
@@ -319,7 +324,7 @@
             Cancel
           </ModernButton>
           <ModernButton variant="primary" onclick={handleAddUser}>
-            <i class="bi bi-check-lg mr-1"></i>
+            <i class="bi bi-check-lg mr-1" aria-hidden="true"></i>
             Create User
           </ModernButton>
         </div>
@@ -345,7 +350,7 @@
     >
       <div class="p-6">
         <div class="text-6xl text-red-600 dark:text-red-400 mb-4">
-          <i class="bi bi-person-x-fill"></i>
+          <i class="bi bi-person-x-fill" aria-hidden="true"></i>
         </div>
         <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100">
           Delete User "{userToDelete?.username}"?
@@ -362,7 +367,7 @@
             Cancel
           </ModernButton>
           <ModernButton variant="danger" onclick={handleDeleteUser}>
-            <i class="bi bi-trash mr-1"></i>
+            <i class="bi bi-trash mr-1" aria-hidden="true"></i>
             Delete User
           </ModernButton>
         </div>

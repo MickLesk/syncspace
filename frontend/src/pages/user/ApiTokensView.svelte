@@ -209,12 +209,16 @@
   <div class="flex items-center justify-between mb-6">
     <div>
       <h1 class="text-2xl font-bold text-base-content flex items-center gap-3">
-        <i class="bi bi-key text-primary"></i>
+        <i class="bi bi-key text-primary" aria-hidden="true"></i>
         {$t("apiTokens.title")}
       </h1>
       <p class="text-base-content/60 mt-1">{$t("apiTokens.description")}</p>
     </div>
-    <button aria-label="Add" onclick={openCreateModal} class="btn btn-primary gap-2"><i class="bi bi-plus-lg" aria-hidden="true"></i>
+    <button
+      aria-label="Add"
+      onclick={openCreateModal}
+      class="btn btn-primary gap-2"
+      ><i class="bi bi-plus-lg" aria-hidden="true"></i>
       {$t("apiTokens.create")}
     </button>
   </div>
@@ -222,9 +226,14 @@
   <!-- Error Alert -->
   {#if error}
     <div class="alert alert-error mb-4">
-      <i class="bi bi-exclamation-triangle"></i>
+      <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
       <span>{error}</span>
-      <button aria-label="Close" onclick={() => (error = null)} class="btn btn-ghost btn-sm"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      <button
+        aria-label="Close"
+        onclick={() => (error = null)}
+        class="btn btn-ghost btn-sm"
+        ><i class="bi bi-x-lg" aria-hidden="true"></i></button
+      >
     </div>
   {/if}
 
@@ -238,14 +247,21 @@
     <!-- Empty State -->
     <div class="card bg-base-200 border border-base-300">
       <div class="card-body items-center text-center py-16">
-        <i class="bi bi-key text-6xl text-base-content/30 mb-4"></i>
+        <i
+          class="bi bi-key text-6xl text-base-content/30 mb-4"
+          aria-hidden="true"
+        ></i>
         <h3 class="text-xl font-semibold text-base-content">
           {$t("apiTokens.noTokens")}
         </h3>
         <p class="text-base-content/60 max-w-md">
           {$t("apiTokens.noTokensDesc")}
         </p>
-        <button aria-label="Add" onclick={openCreateModal} class="btn btn-primary mt-4 gap-2"><i class="bi bi-plus-lg" aria-hidden="true"></i>
+        <button
+          aria-label="Add"
+          onclick={openCreateModal}
+          class="btn btn-primary mt-4 gap-2"
+          ><i class="bi bi-plus-lg" aria-hidden="true"></i>
           {$t("apiTokens.createFirst")}
         </button>
       </div>
@@ -267,17 +283,18 @@
                   </h3>
                   {#if token.is_revoked}
                     <span class="badge badge-error badge-sm gap-1">
-                      <i class="bi bi-x-circle text-xs"></i>
+                      <i class="bi bi-x-circle text-xs" aria-hidden="true"></i>
                       {$t("apiTokens.revoked")}
                     </span>
                   {:else if isExpired(token)}
                     <span class="badge badge-warning badge-sm gap-1">
-                      <i class="bi bi-clock text-xs"></i>
+                      <i class="bi bi-clock text-xs" aria-hidden="true"></i>
                       {$t("apiTokens.expired")}
                     </span>
                   {:else}
                     <span class="badge badge-success badge-sm gap-1">
-                      <i class="bi bi-check-circle text-xs"></i>
+                      <i class="bi bi-check-circle text-xs" aria-hidden="true"
+                      ></i>
                       {$t("apiTokens.active")}
                     </span>
                   {/if}
@@ -303,11 +320,12 @@
                   class="flex flex-wrap gap-4 mt-3 text-sm text-base-content/60"
                 >
                   <span class="flex items-center gap-1">
-                    <i class="bi bi-calendar text-xs"></i>
+                    <i class="bi bi-calendar text-xs" aria-hidden="true"></i>
                     {$t("apiTokens.created")}: {formatDate(token.created_at)}
                   </span>
                   <span class="flex items-center gap-1">
-                    <i class="bi bi-clock-history text-xs"></i>
+                    <i class="bi bi-clock-history text-xs" aria-hidden="true"
+                    ></i>
                     {$t("apiTokens.lastUsed")}: {token.last_used_at
                       ? formatDate(token.last_used_at)
                       : $t("apiTokens.neverUsed")}
@@ -317,12 +335,12 @@
                       class="flex items-center gap-1"
                       class:text-error={isExpired(token)}
                     >
-                      <i class="bi bi-hourglass text-xs"></i>
+                      <i class="bi bi-hourglass text-xs" aria-hidden="true"></i>
                       {$t("apiTokens.expires")}: {formatDate(token.expires_at)}
                     </span>
                   {:else}
                     <span class="flex items-center gap-1">
-                      <i class="bi bi-infinity text-xs"></i>
+                      <i class="bi bi-infinity text-xs" aria-hidden="true"></i>
                       {$t("apiTokens.noExpiration")}
                     </span>
                   {/if}
@@ -337,15 +355,16 @@
                     class="btn btn-ghost btn-sm text-warning"
                     title={$t("apiTokens.revoke")}
                   >
-                    <i class="bi bi-slash-circle"></i>
+                    <i class="bi bi-slash-circle" aria-hidden="true"></i>
                   </button>
                 {/if}
                 <button
                   onclick={() => confirmDelete(token)}
                   class="btn btn-ghost btn-sm text-error"
                   title={$t("apiTokens.delete")}
+                  aria-label="Delete"
                 >
-                  <i class="bi bi-trash"></i>
+                  <i class="bi bi-trash" aria-hidden="true"></i>
                 </button>
               </div>
             </div>
@@ -361,14 +380,12 @@
   <div class="modal modal-open">
     <div class="modal-box max-w-lg">
       <h3 class="font-bold text-lg flex items-center gap-2">
-        <i class="bi bi-plus-circle text-primary"></i>
+        <i class="bi bi-plus-circle text-primary" aria-hidden="true"></i>
         {$t("apiTokens.createToken")}
       </h3>
 
       <div class="form-control mt-4">
-        <label class="label">
-          <span class="label-text font-medium">{$t("apiTokens.name")}</span>
-        </label>
+        <div class="label"><span>{$t("apiTokens.name")}</span></div>
         <input
           type="text"
           bind:value={tokenName}
@@ -378,9 +395,7 @@
       </div>
 
       <div class="form-control mt-4">
-        <label class="label">
-          <span class="label-text font-medium">{$t("apiTokens.scopes")}</span>
-        </label>
+        <div class="label"><span>{$t("apiTokens.scopes")}</span></div>
         <p class="text-sm text-base-content/60 mb-2">
           {$t("apiTokens.scopesHelp")}
         </p>
@@ -437,13 +452,19 @@
           {#if creating}
             <span class="loading loading-spinner loading-sm"></span>
           {:else}
-            <i class="bi bi-plus-lg"></i>
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
           {/if}
           {$t("apiTokens.create")}
         </button>
       </div>
     </div>
-    <div class="modal-backdrop bg-black/50" onclick={closeCreateModal}></div>
+    <div
+      class="modal-backdrop"
+      role="dialog"
+      tabindex="0"
+      onclick={closeModal}
+      onkeydown={(e = tabindex = "0" > e.key === "Escape" && closeCreateModal)}
+    ></div>
   </div>
 {/if}
 
@@ -452,19 +473,17 @@
   <div class="modal modal-open">
     <div class="modal-box max-w-xl">
       <div class="flex items-center gap-2 text-success mb-4">
-        <i class="bi bi-check-circle text-2xl"></i>
+        <i class="bi bi-check-circle text-2xl" aria-hidden="true"></i>
         <h3 class="font-bold text-lg">{$t("apiTokens.tokenCreated")}</h3>
       </div>
 
       <div class="alert alert-warning mb-4">
-        <i class="bi bi-exclamation-triangle"></i>
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
         <span class="text-sm">{$t("apiTokens.tokenWarning")}</span>
       </div>
 
       <div class="form-control">
-        <label class="label">
-          <span class="label-text font-medium">{$t("apiTokens.token")}</span>
-        </label>
+        <div class="label"><span>{$t("apiTokens.token")}</span></div>
         <div class="flex gap-2">
           <input
             type="text"
@@ -474,10 +493,10 @@
           />
           <button onclick={copyToken} class="btn btn-primary gap-2">
             {#if tokenCopied}
-              <i class="bi bi-check-lg"></i>
+              <i class="bi bi-check-lg" aria-hidden="true"></i>
               {$t("apiTokens.tokenCopied")}
             {:else}
-              <i class="bi bi-clipboard"></i>
+              <i class="bi bi-clipboard" aria-hidden="true"></i>
               {$t("apiTokens.copyToken")}
             {/if}
           </button>
@@ -499,7 +518,7 @@
   <div class="modal modal-open">
     <div class="modal-box">
       <h3 class="font-bold text-lg flex items-center gap-2 text-warning">
-        <i class="bi bi-exclamation-triangle"></i>
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
         {$t("apiTokens.revokeToken")}
       </h3>
       <p class="py-4 text-base-content/80">
@@ -516,7 +535,7 @@
           {$t("cancel")}
         </button>
         <button onclick={revokeToken} class="btn btn-warning gap-2">
-          <i class="bi bi-slash-circle"></i>
+          <i class="bi bi-slash-circle" aria-hidden="true"></i>
           {$t("apiTokens.revoke")}
         </button>
       </div>
@@ -527,6 +546,8 @@
         showRevokeConfirm = false;
         selectedToken = null;
       }}
+      role="button"
+      tabindex="0"
     ></div>
   </div>
 {/if}
@@ -536,7 +557,7 @@
   <div class="modal modal-open">
     <div class="modal-box">
       <h3 class="font-bold text-lg flex items-center gap-2 text-error">
-        <i class="bi bi-exclamation-triangle"></i>
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
         {$t("apiTokens.deleteToken")}
       </h3>
       <p class="py-4 text-base-content/80">
@@ -553,7 +574,7 @@
           {$t("cancel")}
         </button>
         <button onclick={deleteToken} class="btn btn-error gap-2">
-          <i class="bi bi-trash"></i>
+          <i class="bi bi-trash" aria-hidden="true"></i>
           {$t("apiTokens.delete")}
         </button>
       </div>
@@ -564,6 +585,8 @@
         showDeleteConfirm = false;
         selectedToken = null;
       }}
+      role="button"
+      tabindex="0"
     ></div>
   </div>
 {/if}

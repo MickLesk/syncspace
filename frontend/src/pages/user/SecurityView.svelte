@@ -163,7 +163,7 @@
           <div
             class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg"
           >
-            <i class="bi bi-exclamation-triangle-fill mr-2"></i>
+            <i class="bi bi-exclamation-triangle-fill mr-2" aria-hidden="true"></i>
             {error}
           </div>
         {/if}
@@ -172,7 +172,7 @@
           <div
             class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-lg"
           >
-            <i class="bi bi-check-circle-fill mr-2"></i>
+            <i class="bi bi-check-circle-fill mr-2" aria-hidden="true"></i>
             {success}
           </div>
         {/if}
@@ -186,7 +186,7 @@
                 disabled={loading}
                 class="flex-1"
               >
-                <i class="bi bi-shield-plus mr-2"></i>
+                <i class="bi bi-shield-plus mr-2" aria-hidden="true"></i>
                 {loading ? tr("loading") : tr("enable2FA")}
               </ModernButton>
             {:else}
@@ -196,7 +196,7 @@
                 disabled={loading}
                 class="flex-1"
               >
-                <i class="bi bi-shield-x mr-2"></i>
+                <i class="bi bi-shield-x mr-2" aria-hidden="true"></i>
                 {loading ? tr("disabling") : tr("disable2FA")}
               </ModernButton>
             {/if}
@@ -315,19 +315,19 @@
 
           <ul class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
             <li class="flex gap-3">
-              <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
+              <i class="bi bi-check-circle-fill text-green-500 mt-0.5" aria-hidden="true"></i>
               <span>{tr("useStrongPassword")}</span>
             </li>
             <li class="flex gap-3">
-              <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
+              <i class="bi bi-check-circle-fill text-green-500 mt-0.5" aria-hidden="true"></i>
               <span>{tr("enable2FAEnhanced")}</span>
             </li>
             <li class="flex gap-3">
-              <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
+              <i class="bi bi-check-circle-fill text-green-500 mt-0.5" aria-hidden="true"></i>
               <span>{tr("saveBackupCodes")}</span>
             </li>
             <li class="flex gap-3">
-              <i class="bi bi-check-circle-fill text-green-500 mt-0.5"></i>
+              <i class="bi bi-check-circle-fill text-green-500 mt-0.5" aria-hidden="true"></i>
               <span>{tr("reviewActiveSessions")}</span>
             </li>
           </ul>
@@ -353,7 +353,7 @@
         </div>
 
         <ModernButton variant="secondary" class="w-full">
-          <i class="bi bi-arrow-clockwise mr-2"></i>
+          <i class="bi bi-arrow-clockwise mr-2" aria-hidden="true"></i>
           {tr("changePassword")}
         </ModernButton>
       </div>

@@ -63,7 +63,7 @@
             on:click={() => sidebarOpen = false}
             class="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition"
           >
-            <i class="bi bi-x text-xl"></i>
+            <i class="bi bi-x text-xl" aria-hidden="true"></i>
           </button>
         </div>
 

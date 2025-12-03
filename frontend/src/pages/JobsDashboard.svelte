@@ -266,7 +266,7 @@
         <div
           class="p-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl shadow-lg"
         >
-          <i class="bi bi-gear-wide-connected text-3xl text-white"></i>
+          <i class="bi bi-gear-wide-connected text-3xl text-white" aria-hidden="true"></i>
         </div>
         <div>
           <h1
@@ -284,7 +284,7 @@
     <!-- Error Alert -->
     {#if error}
       <div class="alert alert-error mb-6">
-        <i class="bi bi-exclamation-triangle"></i>
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
         <span>Error: {error}</span>
       </div>
     {/if}
@@ -297,7 +297,7 @@
           class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-clock-history text-3xl text-blue-500"></i>
+            <i class="bi bi-clock-history text-3xl text-blue-500" aria-hidden="true"></i>
             <span
               class="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-500/20 px-3 py-1 rounded-full"
               >Pending</span
@@ -315,7 +315,7 @@
         >
           <div class="flex items-center justify-between mb-2">
             <i class="bi bi-arrow-repeat text-3xl text-orange-500 animate-spin"
-            ></i>
+             aria-hidden="true"></i>
             <span
               class="text-xs font-semibold text-orange-600 dark:text-orange-400 bg-orange-500/20 px-3 py-1 rounded-full"
               >Running</span
@@ -334,7 +334,7 @@
           class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-check-circle-fill text-3xl text-green-500"></i>
+            <i class="bi bi-check-circle-fill text-3xl text-green-500" aria-hidden="true"></i>
             <span
               class="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-500/20 px-3 py-1 rounded-full"
               >Success</span
@@ -354,7 +354,7 @@
         >
           <div class="flex items-center justify-between mb-2">
             <i class="bi bi-exclamation-triangle-fill text-3xl text-red-500"
-            ></i>
+             aria-hidden="true"></i>
             <span
               class="text-xs font-semibold text-red-600 dark:text-red-400 bg-red-500/20 px-3 py-1 rounded-full"
               >Failed</span
@@ -371,7 +371,7 @@
           class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-layers-fill text-3xl text-purple-500"></i>
+            <i class="bi bi-layers-fill text-3xl text-purple-500" aria-hidden="true"></i>
             <span
               class="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full"
               >Total</span
@@ -398,7 +398,7 @@
           : 'bg-base-200/50 hover:bg-base-300 text-base-content'}"
         onclick={() => (selectedTab = "overview")}
       >
-        <i class="bi bi-speedometer2"></i>
+        <i class="bi bi-speedometer2" aria-hidden="true"></i>
         <span>Overview</span>
       </button>
       <button
@@ -408,7 +408,7 @@
           : 'bg-base-200/50 hover:bg-base-300 text-base-content'}"
         onclick={() => (selectedTab = "active")}
       >
-        <i class="bi bi-play-circle"></i>
+        <i class="bi bi-play-circle" aria-hidden="true"></i>
         <span>Active Jobs</span>
         {#if activeJobs.length > 0}
           <span class="badge badge-sm bg-orange-500 text-white border-0"
@@ -423,7 +423,7 @@
           : 'bg-base-200/50 hover:bg-base-300 text-base-content'}"
         onclick={() => (selectedTab = "history")}
       >
-        <i class="bi bi-clock-history"></i>
+        <i class="bi bi-clock-history" aria-hidden="true"></i>
         <span>History</span>
       </button>
       <button
@@ -433,7 +433,7 @@
           : 'bg-base-200/50 hover:bg-base-300 text-base-content'}"
         onclick={() => (selectedTab = "cron")}
       >
-        <i class="bi bi-calendar-event"></i>
+        <i class="bi bi-calendar-event" aria-hidden="true"></i>
         <span>Cron Jobs</span>
         {#if cronJobs.length > 0}
           <span class="badge badge-sm bg-purple-500 text-white border-0"
@@ -458,7 +458,7 @@
               <div class="stats stats-vertical lg:stats-horizontal shadow">
                 <div class="stat">
                   <div class="stat-figure text-success">
-                    <i class="bi bi-check-circle text-4xl"></i>
+                    <i class="bi bi-check-circle text-4xl" aria-hidden="true"></i>
                   </div>
                   <div class="stat-title">Worker Pool</div>
                   <div class="stat-value text-success">Active</div>
@@ -467,7 +467,7 @@
 
                 <div class="stat">
                   <div class="stat-figure text-info">
-                    <i class="bi bi-clock text-4xl"></i>
+                    <i class="bi bi-clock text-4xl" aria-hidden="true"></i>
                   </div>
                   <div class="stat-title">Cron Scheduler</div>
                   <div class="stat-value text-info">Active</div>
@@ -484,18 +484,18 @@
               class="btn btn-primary"
               onclick={() => (selectedTab = "active")}
             >
-              <i class="bi bi-play-circle"></i>
+              <i class="bi bi-play-circle" aria-hidden="true"></i>
               View Active Jobs
             </button>
             <button
               class="btn btn-secondary"
               onclick={() => (selectedTab = "cron")}
             >
-              <i class="bi bi-calendar-event"></i>
+              <i class="bi bi-calendar-event" aria-hidden="true"></i>
               Manage Cron Jobs
             </button>
             <button class="btn btn-outline" onclick={cleanupOldJobs}>
-              <i class="bi bi-trash"></i>
+              <i class="bi bi-trash" aria-hidden="true"></i>
               Cleanup Old Jobs
             </button>
           </div>
@@ -510,7 +510,7 @@
 
             {#if activeJobs.length === 0}
               <div class="text-center py-8 text-base-content/50">
-                <i class="bi bi-inbox text-6xl mb-4"></i>
+                <i class="bi bi-inbox text-6xl mb-4" aria-hidden="true"></i>
                 <p>No active jobs</p>
               </div>
             {:else}
@@ -574,7 +574,7 @@
 
             {#if jobHistory.length === 0}
               <div class="text-center py-8 text-base-content/50">
-                <i class="bi bi-inbox text-6xl mb-4"></i>
+                <i class="bi bi-inbox text-6xl mb-4" aria-hidden="true"></i>
                 <p>No job history</p>
               </div>
             {:else}
@@ -630,14 +630,14 @@
             <div class="flex justify-between items-center mb-4">
               <h2 class="card-title">Cron Jobs</h2>
               <button class="btn btn-primary gap-2" onclick={openCreateCronJob}>
-                <i class="bi bi-plus-circle"></i>
+                <i class="bi bi-plus-circle" aria-hidden="true"></i>
                 Create Cron Job
               </button>
             </div>
 
             {#if cronJobs.length === 0}
               <div class="text-center py-8 text-base-content/50">
-                <i class="bi bi-calendar-x text-6xl mb-4"></i>
+                <i class="bi bi-calendar-x text-6xl mb-4" aria-hidden="true"></i>
                 <p>No cron jobs configured</p>
               </div>
             {:else}
@@ -683,8 +683,8 @@
                           <button
                             class="btn btn-sm btn-error"
                             onclick={() => deleteCronJob(cronJob.id)}
-                          >
-                            <i class="bi bi-trash"></i>
+                           aria-label="Delete">
+                            <i class="bi bi-trash" aria-hidden="true"></i>
                           </button>
                         </td>
                       </tr>

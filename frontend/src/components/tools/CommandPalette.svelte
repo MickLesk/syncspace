@@ -151,7 +151,7 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby="command-palette-title"
-  >
+   tabindex="0">
     <div
       class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
     >
@@ -285,7 +285,7 @@
         {:else if searchQuery !== ""}
           <!-- No Results -->
           <div class="p-8 text-center text-gray-500 dark:text-gray-400">
-            <i class="bi bi-search text-4xl mb-2"></i>
+            <i class="bi bi-search text-4xl mb-2" aria-hidden="true"></i>
             <div class="font-medium">{t($currentLang, "noCommandsFound")}</div>
             <div class="text-sm">{t($currentLang, "tryDifferentSearch")}</div>
           </div>
@@ -325,7 +325,7 @@
           }}
           class="hover:text-blue-500 transition-colors"
         >
-          <i class="bi bi-keyboard"></i>
+          <i class="bi bi-keyboard" aria-hidden="true"></i>
           {t($currentLang, "viewShortcuts")}
         </button>
       </div>

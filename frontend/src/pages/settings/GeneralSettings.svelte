@@ -177,7 +177,7 @@
               disabled={saving}
               onclick={() => handleThemeChange(option.value)}
             >
-              <i class="bi bi-{option.icon} mr-2"></i>
+              <i class="bi bi-{option.icon} mr-2" aria-hidden="true"></i>
               {tr(
                 option.value === "light"
                   ? "light"
@@ -354,7 +354,7 @@
       <div class="p-6 space-y-4">
         <div class="flex items-center gap-3">
           <i class="bi bi-toggles text-2xl text-yellow-600 dark:text-yellow-400"
-          ></i>
+           aria-hidden="true"></i>
           <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
             {tr("features")}
           </h2>

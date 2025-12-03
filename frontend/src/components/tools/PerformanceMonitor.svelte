@@ -14,13 +14,13 @@
 
   let { compact = false } = $props();
 
-  let isMonitoring = false;
+  let isMonitoring = $state(false);
   let updateInterval = 30000; // 30 seconds
   let showAdvanced = false;
-  let selectedTab = "overview";
+  let selectedTab = $state("overview");
 
   // Chart data for performance history
-  let chartData = [];
+  let chartData = $state([]);
 
   onMount(async () => {
     // Load initial data
@@ -433,7 +433,8 @@
             <h5
               class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
             >
-              <i class="bi bi-laptop mr-2"></i>Operating System
+              <i class="bi bi-laptop mr-2" aria-hidden="true"></i>Operating
+              System
             </h5>
             <div class="space-y-2">
               <div class="info-item">
@@ -464,7 +465,7 @@
             <h5
               class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
             >
-              <i class="bi bi-cpu mr-2"></i>Processor
+              <i class="bi bi-cpu mr-2" aria-hidden="true"></i>Processor
             </h5>
             <div class="space-y-2">
               <div class="info-item">
@@ -495,7 +496,7 @@
             <h5
               class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
             >
-              <i class="bi bi-memory mr-2"></i>Memory
+              <i class="bi bi-memory mr-2" aria-hidden="true"></i>Memory
             </h5>
             <div class="space-y-2">
               <div class="info-item">
@@ -539,7 +540,7 @@
             <h5
               class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
             >
-              <i class="bi bi-hdd mr-2"></i>Storage
+              <i class="bi bi-hdd mr-2" aria-hidden="true"></i>Storage
             </h5>
             <div class="space-y-2">
               <div class="info-item">
@@ -583,7 +584,8 @@
             <h5
               class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
             >
-              <i class="bi bi-info-circle mr-2"></i>Application
+              <i class="bi bi-info-circle mr-2" aria-hidden="true"
+              ></i>Application
             </h5>
             <div class="space-y-2">
               <div class="info-item">
@@ -614,7 +616,8 @@
             <h5
               class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
             >
-              <i class="bi bi-hdd-stack mr-2"></i>Disk Details
+              <i class="bi bi-hdd-stack mr-2" aria-hidden="true"></i>Disk
+              Details
             </h5>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               {#each $systemInfo.disks as disk}
@@ -689,7 +692,7 @@
             <h5
               class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
             >
-              <i class="bi bi-toggles mr-2"></i>Features
+              <i class="bi bi-toggles mr-2" aria-hidden="true"></i>Features
             </h5>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {#each Object.entries($systemInfo.features) as [feature, enabled]}

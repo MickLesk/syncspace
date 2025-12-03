@@ -131,7 +131,7 @@
             <label
               class="absolute bottom-0 right-0 w-8 h-8 rounded-full gradient-bg-primary flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-md"
             >
-              <i class="bi bi-camera-fill text-white text-sm"></i>
+              <i class="bi bi-camera-fill text-white text-sm" aria-hidden="true"></i>
               <input
                 type="file"
                 accept="image/*"
@@ -182,11 +182,11 @@
               class="flex flex-wrap gap-4 text-xs text-gray-600 dark:text-gray-400 mb-4"
             >
               <span class="flex items-center gap-1">
-                <i class="bi bi-envelope"></i>
+                <i class="bi bi-envelope" aria-hidden="true"></i>
                 {user.email || tr("noEmail")}
               </span>
               <span class="flex items-center gap-1">
-                <i class="bi bi-calendar"></i>
+                <i class="bi bi-calendar" aria-hidden="true"></i>
                 {tr("memberSince")}
                 {formatDate(user.joinedDate)}
               </span>
@@ -199,7 +199,7 @@
                   size="sm"
                   onclick={saveProfile}
                 >
-                  <i class="bi bi-check-lg mr-1"></i>
+                  <i class="bi bi-check-lg mr-1" aria-hidden="true"></i>
                   {tr("save")}
                 </ModernButton>
                 <ModernButton
@@ -215,7 +215,7 @@
                   size="sm"
                   onclick={() => (editMode = true)}
                 >
-                  <i class="bi bi-pencil mr-1"></i>
+                  <i class="bi bi-pencil mr-1" aria-hidden="true"></i>
                   {tr("editProfile")}
                 </ModernButton>
               {/if}

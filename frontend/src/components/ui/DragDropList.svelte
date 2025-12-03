@@ -92,7 +92,7 @@
     >
       <!-- Drag Handle Indicator -->
       <div class="drag-handle">
-        <i class="bi bi-grip-vertical"></i>
+        <i class="bi bi-grip-vertical" aria-hidden="true"></i>
       </div>
 
       <!-- Item Content -->

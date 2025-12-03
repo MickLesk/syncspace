@@ -22,7 +22,7 @@
       <h2
         class="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900 dark:text-gray-100"
       >
-        <i class="bi bi-hdd-fill text-primary-600 dark:text-primary-400"></i>
+        <i class="bi bi-hdd-fill text-primary-600 dark:text-primary-400" aria-hidden="true"></i>
         {tr("manageBucketsDescription")}
       </h2>
 
@@ -37,7 +37,7 @@
           <div
             class="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl"
           >
-            <i class="bi bi-folder-fill text-gray-400 dark:text-gray-600"></i>
+            <i class="bi bi-folder-fill text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
             <input
               type="text"
               id="storage-location"
@@ -86,7 +86,7 @@
             </div>
           </div>
           <ModernButton variant="danger" onclick={handleClearCache} size="sm">
-            <i class="bi bi-trash-fill mr-1"></i>
+            <i class="bi bi-trash-fill mr-1" aria-hidden="true"></i>
             Clear Cache
           </ModernButton>
         </div>
@@ -101,7 +101,7 @@
         class="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900 dark:text-gray-100"
       >
         <i class="bi bi-pie-chart-fill text-purple-600 dark:text-purple-400"
-        ></i>
+         aria-hidden="true"></i>
         Storage Usage
       </h2>
 
@@ -111,7 +111,7 @@
         >
           <div class="flex items-center gap-6">
             <div class="text-blue-600 dark:text-blue-400">
-              <i class="bi bi-hdd text-5xl"></i>
+              <i class="bi bi-hdd text-5xl" aria-hidden="true"></i>
             </div>
             <div class="flex-1">
               <div
@@ -134,7 +134,7 @@
         >
           <div class="flex items-center gap-6">
             <div class="text-purple-600 dark:text-purple-400">
-              <i class="bi bi-files text-5xl"></i>
+              <i class="bi bi-files text-5xl" aria-hidden="true"></i>
             </div>
             <div class="flex-1">
               <div
@@ -159,7 +159,7 @@
         >
           <div class="flex items-center gap-6">
             <div class="text-green-600 dark:text-green-400">
-              <i class="bi bi-check-circle text-5xl"></i>
+              <i class="bi bi-check-circle text-5xl" aria-hidden="true"></i>
             </div>
             <div class="flex-1">
               <div

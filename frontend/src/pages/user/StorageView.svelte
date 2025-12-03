@@ -93,7 +93,7 @@
     <h1
       class="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3"
     >
-      <i class="bi bi-hdd text-primary-600 dark:text-primary-400"></i>
+      <i class="bi bi-hdd text-primary-600 dark:text-primary-400" aria-hidden="true"></i>
       Storage Management
     </h1>
     <p class="text-gray-600 dark:text-gray-400 mt-2">
@@ -118,7 +118,7 @@
       >
         <div class="card-body">
           <h2 class="card-title text-xl mb-6">
-            <i class="bi bi-pie-chart text-primary-600"></i>
+            <i class="bi bi-pie-chart text-primary-600" aria-hidden="true"></i>
             Storage Overview
           </h2>
 
@@ -160,7 +160,7 @@
       >
         <div class="card-body">
           <h2 class="card-title text-xl mb-6">
-            <i class="bi bi-list-ul text-primary-600"></i>
+            <i class="bi bi-list-ul text-primary-600" aria-hidden="true"></i>
             Storage by File Type
           </h2>
 
@@ -196,11 +196,11 @@
       <!-- Storage Actions -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <button class="btn btn-outline btn-lg rounded-xl">
-          <i class="bi bi-trash3"></i>
+          <i class="bi bi-trash3" aria-hidden="true"></i>
           Clean Up Storage
         </button>
         <button class="btn btn-outline btn-lg rounded-xl">
-          <i class="bi bi-download"></i>
+          <i class="bi bi-download" aria-hidden="true"></i>
           Export Storage Report
         </button>
       </div>

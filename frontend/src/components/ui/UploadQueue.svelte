@@ -126,7 +126,7 @@
     <div class="upload-queue-header">
       <div class="flex items-center gap-3">
         <div class="header-icon">
-          <i class="bi bi-cloud-upload"></i>
+          <i class="bi bi-cloud-upload" aria-hidden="true"></i>
         </div>
         <div>
           <h4 class="header-title">Upload Queue</h4>
@@ -147,7 +147,7 @@
           ).length === 0}
           title="Clear completed"
         >
-          <i class="bi bi-check-circle"></i>
+          <i class="bi bi-check-circle" aria-hidden="true"></i>
         </button>
         <button
           class="action-btn"
@@ -157,7 +157,7 @@
           ).length === 0}
           title="Clear failed"
         >
-          <i class="bi bi-x-circle"></i>
+          <i class="bi bi-x-circle" aria-hidden="true"></i>
         </button>
       </div>
     </div>
@@ -182,24 +182,24 @@
             <div class="upload-name">{upload.fileName}</div>
             <div class="upload-info">
               <span class="info-item">
-                <i class="bi bi-hdd"></i>
+                <i class="bi bi-hdd" aria-hidden="true"></i>
                 {formatBytes(upload.size)}
               </span>
               {#if upload.isChunked}
                 <span class="info-item">
-                  <i class="bi bi-puzzle"></i>
+                  <i class="bi bi-puzzle" aria-hidden="true"></i>
                   {upload.currentChunk}/{upload.totalChunks} chunks
                 </span>
               {/if}
               {#if upload.retries > 0}
                 <span class="info-item text-orange-500">
-                  <i class="bi bi-arrow-clockwise"></i>
+                  <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
                   Retry {upload.retries}
                 </span>
               {/if}
               {#if upload.error}
                 <span class="info-item text-red-500" title={upload.error}>
-                  <i class="bi bi-exclamation-triangle"></i>
+                  <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
                   {upload.error}
                 </span>
               {/if}
@@ -243,7 +243,7 @@
                 onclick={() => handleRetry(upload.id)}
                 title="Retry"
               >
-                <i class="bi bi-arrow-clockwise"></i>
+                <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
               </button>
             {/if}
 
@@ -252,8 +252,8 @@
                 class="icon-btn delete"
                 onclick={() => handleCancel(upload.id)}
                 title="Cancel"
-              >
-                <i class="bi bi-x"></i>
+               aria-label="Cancel">
+                <i class="bi bi-x" aria-hidden="true"></i>
               </button>
             {/if}
           </div>

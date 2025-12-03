@@ -41,7 +41,7 @@
       aria-current={activeView === item.id ? "page" : undefined}
     >
       <div class="nav-icon-wrapper">
-        <i class="bi bi-{item.icon} nav-icon"></i>
+        <i class="bi bi-{item.icon} nav-icon" aria-hidden="true"></i>
         {#if item.badge && unreadNotifications > 0}
           <span class="notification-badge">
             {unreadNotifications > 99 ? "99+" : unreadNotifications}

@@ -86,7 +86,7 @@
     ondrop={(e) => handleDrop(e, -1)}
     aria-label="Home"
   >
-    <i class="bi bi-house-door-fill text-lg"></i>
+    <i class="bi bi-house-door-fill text-lg" aria-hidden="true"></i>
     <span>Home</span>
   </button>
 
@@ -111,7 +111,7 @@
       aria-label={segment}
       title={segment}
     >
-      <i class="bi bi-folder-fill text-base"></i>
+      <i class="bi bi-folder-fill text-base" aria-hidden="true"></i>
       <span class="truncate">{segment}</span>
     </button>
   {/each}

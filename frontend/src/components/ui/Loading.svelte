@@ -24,7 +24,7 @@
     <div class="logo-wrapper">
       <div class="logo-circle-outer">
         <div class="logo-circle-inner">
-          <i class="bi bi-cloud-fill text-5xl text-white"></i>
+          <i class="bi bi-cloud-fill text-5xl text-white" aria-hidden="true"></i>
         </div>
       </div>
     </div>

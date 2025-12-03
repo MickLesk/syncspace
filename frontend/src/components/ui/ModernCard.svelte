@@ -67,7 +67,7 @@
         <div
           class="flex-shrink-0 w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 text-xl"
         >
-          <i class="bi bi-{icon}"></i>
+          <i class="bi bi-{icon}" aria-hidden="true"></i>
         </div>
       {/if}
       <div class="flex-1 min-w-0">

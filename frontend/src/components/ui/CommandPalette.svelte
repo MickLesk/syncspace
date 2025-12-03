@@ -273,7 +273,7 @@
   <div
     class="fixed inset-0 bg-black/50 z-40"
     onclick={() => (isOpen = false)}
-  ></div>
+   role="button" tabindex="0"></div>
 {/if}
 
 <!-- Command Palette Modal -->
@@ -287,7 +287,7 @@
       <!-- Search Input -->
       <div class="p-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex items-center gap-3">
-          <i class="bi bi-search text-gray-400 text-lg"></i>
+          <i class="bi bi-search text-gray-400 text-lg" aria-hidden="true"></i>
           <input
             bind:this={inputElement}
             bind:value={searchQuery}

@@ -225,7 +225,7 @@
             <span
               class="px-4 bg-gray-50 dark:bg-gray-800 flex items-center text-gray-600 dark:text-gray-400"
             >
-              <i class="bi bi-search text-lg"></i>
+              <i class="bi bi-search text-lg" aria-hidden="true"></i>
             </span>
             <input
               type="text"
@@ -241,7 +241,7 @@
             onclick={handleSearch}
             disabled={!searchQuery.trim()}
           >
-            <i class="bi bi-search text-lg"></i>
+            <i class="bi bi-search text-lg" aria-hidden="true"></i>
             {tr("search")}
             {#if activeFilterCount > 0}
               <span
@@ -268,7 +268,7 @@
           <summary
             class="text-sm font-semibold text-gray-600 dark:text-gray-400 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2"
           >
-            <i class="bi bi-funnel text-blue-600 dark:text-blue-400"></i>
+            <i class="bi bi-funnel text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
             {tr("filters")}
             {#if activeFilterCount > 0}
               <span
@@ -309,7 +309,7 @@
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <i class="bi bi-calendar text-blue-600 dark:text-blue-400 mr-2"
-                ></i>
+                 aria-hidden="true"></i>
                 {tr("dateModified")}
               </div>
               <div class="flex gap-2">
@@ -335,7 +335,7 @@
               <div
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                <i class="bi bi-hdd text-blue-600 dark:text-blue-400 mr-2"></i>
+                <i class="bi bi-hdd text-blue-600 dark:text-blue-400 mr-2" aria-hidden="true"></i>
                 {tr("fileSize")}
               </div>
               <div class="flex gap-2">
@@ -365,7 +365,7 @@
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <i class="bi bi-person text-blue-600 dark:text-blue-400 mr-2"
-                ></i>
+                 aria-hidden="true"></i>
                 {tr("modifiedBy")}
               </label>
               <input
@@ -388,7 +388,7 @@
             class="block text-xs font-medium text-gray-600 dark:text-gray-400"
           >
             <i class="bi bi-sort-down text-blue-600 dark:text-blue-400 mr-1"
-            ></i>
+             aria-hidden="true"></i>
             {tr("sortBy")}
           </label>
           <select
@@ -408,7 +408,7 @@
             class="block text-xs font-medium text-gray-600 dark:text-gray-400"
           >
             <i class="bi bi-arrow-down-up text-blue-600 dark:text-blue-400 mr-1"
-            ></i>
+             aria-hidden="true"></i>
             {tr("sortOrder")}
           </div>
           <div
@@ -424,7 +424,7 @@
                 : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
               onclick={() => (sortOrder = "asc")}
             >
-              <i class="bi bi-sort-alpha-down"></i>
+              <i class="bi bi-sort-alpha-down" aria-hidden="true"></i>
             </button>
             <button
               type="button"
@@ -434,7 +434,7 @@
                 : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
               onclick={() => (sortOrder = "desc")}
             >
-              <i class="bi bi-sort-alpha-down-alt"></i>
+              <i class="bi bi-sort-alpha-down-alt" aria-hidden="true"></i>
             </button>
           </div>
         </div>
@@ -446,7 +446,7 @@
           <div
             class="text-xs font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1"
           >
-            <i class="bi bi-clock-history text-blue-600 dark:text-blue-400"></i>
+            <i class="bi bi-clock-history text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
             {tr("recentSearches")}
           </div>
 
@@ -457,7 +457,7 @@
                 class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-700 dark:hover:text-blue-300 transition-all text-xs flex items-center gap-1"
                 onclick={() => handleRecentSearchClick(search)}
               >
-                <i class="bi bi-clock-history opacity-60"></i>
+                <i class="bi bi-clock-history opacity-60" aria-hidden="true"></i>
                 {typeof search === "string" ? search : search.query}
               </button>
             {/each}
@@ -478,7 +478,7 @@
           onclick={clearFilters}
           disabled={activeFilterCount === 0}
         >
-          <i class="bi bi-x-circle"></i>
+          <i class="bi bi-x-circle" aria-hidden="true"></i>
           {tr("clearFilters")}
         </button>
 
@@ -488,7 +488,7 @@
           onclick={() => (showSavedSearches = true)}
           title={tr("viewSavedSearches")}
         >
-          <i class="bi bi-bookmark"></i>
+          <i class="bi bi-bookmark" aria-hidden="true"></i>
           {tr("saved")}
         </button>
 
@@ -498,7 +498,7 @@
           onclick={openSaveDialog}
           title={tr("saveCurrentSearch")}
         >
-          <i class="bi bi-bookmark-plus"></i>
+          <i class="bi bi-bookmark-plus" aria-hidden="true"></i>
           {tr("save")}
         </button>
       </div>
@@ -560,7 +560,7 @@
           >Cancel</button
         >
         <button class="btn btn-primary" onclick={handleSaveSearch}>
-          <i class="bi bi-bookmark-check"></i>
+          <i class="bi bi-bookmark-check" aria-hidden="true"></i>
           Save
         </button>
       </div>

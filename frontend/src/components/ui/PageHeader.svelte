@@ -26,7 +26,7 @@
         class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3"
       >
         {#if icon}
-          <i class="bi bi-{icon} text-primary-500 dark:text-primary-400"></i>
+          <i class="bi bi-{icon} text-primary-500 dark:text-primary-400" aria-hidden="true"></i>
         {/if}
         {title}
       </h1>

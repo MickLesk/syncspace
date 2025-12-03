@@ -219,7 +219,7 @@
             onclick={() => onCopy(file)}
             title="{tr('copyFile')} (C)"
           >
-            <i class="bi bi-files"></i>
+            <i class="bi bi-files" aria-hidden="true"></i>
             <span>{tr("copy")}</span>
             <kbd>C</kbd>
           </button>
@@ -230,7 +230,7 @@
             onclick={() => onMove(file)}
             title="{tr('moveFile')} (M)"
           >
-            <i class="bi bi-folder-symlink"></i>
+            <i class="bi bi-folder-symlink" aria-hidden="true"></i>
             <span>{tr("move")}</span>
             <kbd>M</kbd>
           </button>
@@ -241,7 +241,7 @@
             onclick={() => onShare(file)}
             title="{tr('share')} (S)"
           >
-            <i class="bi bi-share"></i>
+            <i class="bi bi-share" aria-hidden="true"></i>
             <span>{tr("share")}</span>
             <kbd>S</kbd>
           </button>
@@ -252,7 +252,7 @@
             onclick={() => onDownload(file)}
             title="{tr('download')} (D)"
           >
-            <i class="bi bi-download"></i>
+            <i class="bi bi-download" aria-hidden="true"></i>
             <span>{tr("download")}</span>
             <kbd>D</kbd>
           </button>
@@ -263,7 +263,7 @@
             onclick={() => onDelete(file)}
             title="{tr('delete')} (Del)"
           >
-            <i class="bi bi-trash"></i>
+            <i class="bi bi-trash" aria-hidden="true"></i>
             <span>{tr("delete")}</span>
             <kbd>Del</kbd>
           </button>

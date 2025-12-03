@@ -66,7 +66,7 @@
   <div
     class="fixed inset-0 z-50 {isMobile ? 'bg-black/50 backdrop-blur-sm' : ''}"
     onclick={handleBackdropClick}
-  >
+   role="button" tabindex="0">
     <div
       bind:this={menuElement}
       class="context-menu {isMobile ? 'mobile' : 'desktop'}"
@@ -95,14 +95,14 @@
               disabled={item.disabled}
             >
               {#if item.icon}
-                <i class="bi bi-{item.icon} menu-icon"></i>
+                <i class="bi bi-{item.icon} menu-icon" aria-hidden="true"></i>
               {/if}
               <span class="menu-label">{item.label}</span>
               {#if item.shortcut && !isMobile}
                 <span class="menu-shortcut">{item.shortcut}</span>
               {/if}
               {#if item.danger}
-                <i class="bi bi-exclamation-triangle text-red-500 ml-auto"></i>
+                <i class="bi bi-exclamation-triangle text-red-500 ml-auto" aria-hidden="true"></i>
               {/if}
             </button>
           {/if}

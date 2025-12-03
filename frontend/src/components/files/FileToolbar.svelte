@@ -54,7 +54,7 @@
         onclick={() => (viewMode = "grid")}
         title="Grid View"
       >
-        <i class="bi bi-grid-3x3-gap"></i>
+        <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i>
         <span class="hidden sm:inline ml-1">Grid</span>
       </button>
       <button
@@ -72,7 +72,7 @@
         onclick={() => (viewMode = "list")}
         title="List View"
       >
-        <i class="bi bi-list-ul"></i>
+        <i class="bi bi-list-ul" aria-hidden="true"></i>
         <span class="hidden sm:inline ml-1">List</span>
       </button>
     </div>
@@ -118,7 +118,7 @@
         title={sortOrder === "asc" ? "Sort Descending" : "Sort Ascending"}
       >
         <i class="bi bi-sort-{sortOrder === 'asc' ? 'up' : 'down'}-alt text-lg"
-        ></i>
+         aria-hidden="true"></i>
       </button>
     </div>
 
@@ -140,7 +140,7 @@
       onclick={() => (showFoldersOnly = !showFoldersOnly)}
       title="Toggle Folders Only"
     >
-      <i class="bi bi-folder"></i>
+      <i class="bi bi-folder" aria-hidden="true"></i>
     </button>
 
     <button
@@ -175,7 +175,7 @@
         class="px-4 py-2 bg-gradient-to-r from-primary-500 to-secondary-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
         onclick={onUpload}
       >
-        <i class="bi bi-cloud-upload text-lg"></i>
+        <i class="bi bi-cloud-upload text-lg" aria-hidden="true"></i>
         <span class="hidden sm:inline">Upload</span>
       </button>
 
@@ -184,7 +184,7 @@
         class="px-4 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 flex items-center gap-2"
         onclick={onNewFolder}
       >
-        <i class="bi bi-folder-plus text-lg"></i>
+        <i class="bi bi-folder-plus text-lg" aria-hidden="true"></i>
         <span class="hidden sm:inline">New Folder</span>
       </button>
 
@@ -195,7 +195,7 @@
           onclick={onNewFromTemplate}
           title={tr("templates.newFromTemplate")}
         >
-          <i class="bi bi-file-earmark-plus text-lg"></i>
+          <i class="bi bi-file-earmark-plus text-lg" aria-hidden="true"></i>
           <span class="hidden md:inline">{tr("templates.newFromTemplate")}</span
           >
         </button>
@@ -208,7 +208,7 @@
         aria-label="Refresh files"
         title="Refresh files"
       >
-        <i class="bi bi-arrow-clockwise text-lg"></i>
+        <i class="bi bi-arrow-clockwise text-lg" aria-hidden="true"></i>
       </button>
 
       <button
@@ -218,7 +218,7 @@
         aria-label="Advanced search"
         title="Advanced search"
       >
-        <i class="bi bi-funnel text-lg"></i>
+        <i class="bi bi-funnel text-lg" aria-hidden="true"></i>
       </button>
 
       <!-- Selection Mode -->
@@ -237,7 +237,7 @@
           class:dark:border-gray-600={!selectionMode}
           onclick={onSelectionToggle}
         >
-          <i class="bi bi-check2-square text-lg"></i>
+          <i class="bi bi-check2-square text-lg" aria-hidden="true"></i>
           <span class="hidden sm:inline">Select</span>
         </button>
       {/if}
@@ -254,7 +254,7 @@
             class="px-4 py-2 bg-purple-500 text-white rounded-lg font-medium hover:bg-purple-600 transition-all duration-200 flex items-center gap-2"
             onclick={onBatchRename}
           >
-            <i class="bi bi-type text-lg"></i>
+            <i class="bi bi-type text-lg" aria-hidden="true"></i>
             <span class="hidden sm:inline">Rename</span>
           </button>
         {/if}
@@ -264,7 +264,7 @@
             class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-all duration-200 flex items-center gap-2"
             onclick={onBatchTag}
           >
-            <i class="bi bi-tags text-lg"></i>
+            <i class="bi bi-tags text-lg" aria-hidden="true"></i>
             <span class="hidden sm:inline">Tag</span>
           </button>
         {/if}
@@ -273,7 +273,7 @@
           class="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-all duration-200 flex items-center gap-2"
           onclick={onBatchDelete}
         >
-          <i class="bi bi-trash text-lg"></i>
+          <i class="bi bi-trash text-lg" aria-hidden="true"></i>
           <span class="hidden sm:inline">Delete</span>
         </button>
       {/if}

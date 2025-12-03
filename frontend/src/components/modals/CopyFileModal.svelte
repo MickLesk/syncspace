@@ -174,11 +174,9 @@
       </div>
 
       <!-- Destination folder -->
-      <label
-        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-      >
+      <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         {tr("destinationFolder")}
-      </label>
+      </div>
       <!-- Folder Tree View -->
       <div
         class="max-h-60 overflow-y-auto border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 p-2"
@@ -192,7 +190,7 @@
             ? 'bg-blue-100 dark:bg-blue-900/40 font-semibold'
             : ''}"
         >
-          <i class="bi bi-house-door text-blue-600 dark:text-blue-400 mr-2"></i>
+          <i class="bi bi-house-door text-blue-600 dark:text-blue-400 mr-2" aria-hidden="true"></i>
           {tr("rootDirectory")}
         </button>
 
@@ -239,7 +237,7 @@
               : ''}"
             style="padding-left: {depth * 20 + 12}px"
           >
-            <i class="bi bi-folder-fill text-amber-500 mr-2"></i>
+            <i class="bi bi-folder-fill text-amber-500 mr-2" aria-hidden="true"></i>
             <span class="text-gray-900 dark:text-white text-sm"
               >{folder.name}</span
             >
@@ -256,7 +254,7 @@
           <div
             class="text-center py-6 text-gray-500 dark:text-gray-400 text-sm"
           >
-            <i class="bi bi-folder-x text-3xl mb-2"></i>
+            <i class="bi bi-folder-x text-3xl mb-2" aria-hidden="true"></i>
             <p>{tr("noFoldersFound")}</p>
           </div>
         {/if}
@@ -328,7 +326,7 @@
         </svg>
         {tr("copying")}
       {:else}
-        <i class="bi bi-files"></i>
+        <i class="bi bi-files" aria-hidden="true"></i>
         {tr("copy")}
       {/if}
     </button>

@@ -127,7 +127,7 @@
   <div class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
     <div class="px-6 py-4">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-        <i class="bi bi-sliders text-primary-500"></i>
+        <i class="bi bi-sliders text-primary-500" aria-hidden="true"></i>
         Admin Console
       </h1>
       <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -145,7 +145,7 @@
         class:border-transparent={activeTab !== 'users'}
         class:text-gray-600={activeTab !== 'users'}
       >
-        <i class="bi bi-people"></i> Users ({userStatistics.total || 0})
+        <i class="bi bi-people" aria-hidden="true"></i> Users ({userStatistics.total || 0})
       </button>
 
       <button
@@ -156,7 +156,7 @@
         class:border-transparent={activeTab !== 'roles'}
         class:text-gray-600={activeTab !== 'roles'}
       >
-        <i class="bi bi-shield-check"></i> Roles
+        <i class="bi bi-shield-check" aria-hidden="true"></i> Roles
       </button>
 
       <button
@@ -167,7 +167,7 @@
         class:border-transparent={activeTab !== 'audit'}
         class:text-gray-600={activeTab !== 'audit'}
       >
-        <i class="bi bi-clock-history"></i> Audit Log
+        <i class="bi bi-clock-history" aria-hidden="true"></i> Audit Log
       </button>
 
       <button
@@ -178,7 +178,7 @@
         class:border-transparent={activeTab !== 'stats'}
         class:text-gray-600={activeTab !== 'stats'}
       >
-        <i class="bi bi-bar-chart"></i> Statistics
+        <i class="bi bi-bar-chart" aria-hidden="true"></i> Statistics
       </button>
     </div>
   </div>
@@ -223,7 +223,7 @@
             onclick={() => adminConsole.resetUserFilter()}
             class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           >
-            <i class="bi bi-arrow-clockwise"></i> Reset
+            <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Reset
           </button>
         </div>
 
@@ -238,7 +238,7 @@
                 onclick={() => (showDeleteConfirm = true)}
                 class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
               >
-                <i class="bi bi-trash"></i> Delete
+                <i class="bi bi-trash" aria-hidden="true"></i> Delete
               </button>
             </div>
           </div>
@@ -324,7 +324,7 @@
                   </td>
                   <td class="px-6 py-4 text-right">
                     <button class="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                      <i class="bi bi-pencil"></i>
+                      <i class="bi bi-pencil" aria-hidden="true"></i>
                     </button>
                   </td>
                 </tr>
@@ -334,7 +334,7 @@
 
           {#if users.length === 0}
             <div class="p-8 text-center text-gray-500 dark:text-gray-400">
-              <i class="bi bi-inbox text-4xl mb-2 block"></i>
+              <i class="bi bi-inbox text-4xl mb-2 block" aria-hidden="true"></i>
               <p>No users found</p>
             </div>
           {/if}
@@ -372,14 +372,14 @@
             onclick={() => exportData('audit', 'json')}
             class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
           >
-            <i class="bi bi-download"></i> Export JSON
+            <i class="bi bi-download" aria-hidden="true"></i> Export JSON
           </button>
 
           <button
             onclick={() => exportData('audit', 'csv')}
             class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
           >
-            <i class="bi bi-download"></i> Export CSV
+            <i class="bi bi-download" aria-hidden="true"></i> Export CSV
           </button>
         </div>
 
@@ -422,7 +422,7 @@
 
           {#if auditLog.length === 0}
             <div class="p-8 text-center text-gray-500 dark:text-gray-400">
-              <i class="bi bi-inbox text-4xl mb-2 block"></i>
+              <i class="bi bi-inbox text-4xl mb-2 block" aria-hidden="true"></i>
               <p>No audit logs found</p>
             </div>
           {/if}

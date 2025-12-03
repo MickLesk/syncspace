@@ -19,7 +19,7 @@
   </div>
 {:else if error}
   <div class="alert alert-error">
-    <i class="bi bi-exclamation-triangle"></i>
+    <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
     <span>{error}</span>
   </div>
 {:else if is3DModel()}
@@ -47,7 +47,7 @@
 {:else if previewType === "text"}
   <div class="bg-base-200 rounded-xl p-4">
     <div class="alert alert-info mb-4">
-      <i class="bi bi-info-circle"></i>
+      <i class="bi bi-info-circle" aria-hidden="true"></i>
       <span>Text preview - first 10,000 characters</span>
     </div>
     <pre

@@ -17,8 +17,8 @@
   let selectedTagsArray = $state([]);
 
   // Cloud config
-  let minFontSize = 16;
-  let maxFontSize = 42;
+  let minFontSize = $state(16);
+  let maxFontSize = $state(42);
   let colorMode = $state("category"); // 'category', 'usage', 'random'
 
   // Filter & sort
@@ -170,7 +170,7 @@
     <!-- Header -->
     <div class="mb-8">
       <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-        <i class="bi bi-cloud text-blue-500 mr-3"></i>{tr("tagCloud.title")}
+        <i class="bi bi-cloud text-blue-500 mr-3" aria-hidden="true"></i>{tr("tagCloud.title")}
       </h1>
       <p class="text-gray-600 dark:text-gray-400">
         {tr("tagCloud.description")} • {tags.length}
@@ -260,7 +260,7 @@
                     title={tr("tagCloud.deleteTag")}
                     onkeydown={(e) => e.key === "Enter" && deleteTag(tag, e)}
                   >
-                    <i class="bi bi-x text-white text-sm"></i>
+                    <i class="bi bi-x text-white text-sm" aria-hidden="true"></i>
                   </div>
                 </button>
               {/each}
@@ -285,16 +285,14 @@
             <h3
               class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
             >
-              <i class="bi bi-funnel"></i>{tr("tagCloud.filters")}
+              <i class="bi bi-funnel" aria-hidden="true"></i>{tr("tagCloud.filters")}
             </h3>
 
             <!-- Search -->
             <div class="mb-4">
-              <label
-                class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2"
-              >
+              <div class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
                 {tr("tagCloud.search")}
-              </label>
+              </div>
               <input
                 type="text"
                 bind:value={searchQuery}
@@ -305,11 +303,9 @@
 
             <!-- Min Usage -->
             <div class="mb-4">
-              <label
-                class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2"
-              >
+              <div class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
                 {tr("tagCloud.minUsage")}: {minUsage}
-              </label>
+              </div>
               <input
                 type="range"
                 bind:value={minUsage}
@@ -321,11 +317,9 @@
 
             <!-- Font Size Control -->
             <div class="mb-4">
-              <label
-                class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2"
-              >
+              <div class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
                 {tr("tagCloud.fontSize")}: {minFontSize}-{maxFontSize}px
-              </label>
+              </div>
               <div class="flex gap-2">
                 <input
                   type="range"
@@ -359,7 +353,7 @@
               <h3
                 class="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2"
               >
-                <i class="bi bi-check-circle"></i>{tr("tagCloud.selected")}: {selectedTagsArray.length}
+                <i class="bi bi-check-circle" aria-hidden="true"></i>{tr("tagCloud.selected")}: {selectedTagsArray.length}
               </h3>
 
               <div class="space-y-2 mb-4 max-h-48 overflow-y-auto">
@@ -381,7 +375,7 @@
                       onclick={() => toggleTag(tag)}
                       class="text-gray-500 hover:text-red-500 transition-colors"
                     >
-                      <i class="bi bi-x"></i>
+                      <i class="bi bi-x" aria-hidden="true"></i>
                     </button>
                   </div>
                 {/each}
@@ -403,7 +397,7 @@
             <h3
               class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
             >
-              <i class="bi bi-bar-chart"></i>{tr("tagCloud.stats")}
+              <i class="bi bi-bar-chart" aria-hidden="true"></i>{tr("tagCloud.stats")}
             </h3>
             <div class="space-y-3 text-sm">
               <div class="flex justify-between">

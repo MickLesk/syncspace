@@ -179,7 +179,7 @@
       <!-- Header -->
       <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <h2 id="dialog-title" class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <i class="bi bi-exclamation-triangle text-red-600 text-xl" />
+          <i class="bi bi-exclamation-triangle text-red-600 text-xl" / aria-hidden="true">
           {isPermanent ? 'Endgültig löschen?' : 'Löschen?'}
         </h2>
       </div>
@@ -200,21 +200,21 @@
           <div class="space-y-1 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded p-3 mb-3">
             {#if stats.fileCount > 0}
               <div class="flex items-center gap-2">
-                <i class="bi bi-file text-blue-600 dark:text-blue-400" />
+                <i class="bi bi-file text-blue-600 dark:text-blue-400" / aria-hidden="true">
                 {stats.fileCount} {stats.fileCount === 1 ? 'Datei' : 'Dateien'}
               </div>
             {/if}
 
             {#if stats.folderCount > 0}
               <div class="flex items-center gap-2">
-                <i class="bi bi-folder text-yellow-600 dark:text-yellow-400" />
+                <i class="bi bi-folder text-yellow-600 dark:text-yellow-400" / aria-hidden="true">
                 {stats.folderCount} {stats.folderCount === 1 ? 'Ordner' : 'Ordner'}
               </div>
             {/if}
 
             {#if stats.totalSize > 0}
               <div class="flex items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                <i class="bi bi-hdd text-gray-600 dark:text-gray-400" />
+                <i class="bi bi-hdd text-gray-600 dark:text-gray-400" / aria-hidden="true">
                 Gesamtgröße: <strong>{formatSize(stats.totalSize)}</strong>
               </div>
             {/if}
@@ -224,19 +224,19 @@
           <div class="space-y-2">
             {#if stats.hasSubfolders}
               <div class="flex gap-2 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded p-2">
-                <i class="bi bi-exclamation-circle flex-shrink-0 mt-0.5" />
+                <i class="bi bi-exclamation-circle flex-shrink-0 mt-0.5" / aria-hidden="true">
                 <span>Ordner enthalten weitere Dateien und Unterordner, die ebenfalls gelöscht werden.</span>
               </div>
             {/if}
 
             {#if isPermanent}
               <div class="flex gap-2 text-sm text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded p-2">
-                <i class="bi bi-exclamation-circle-fill flex-shrink-0 mt-0.5" />
+                <i class="bi bi-exclamation-circle-fill flex-shrink-0 mt-0.5" / aria-hidden="true">
                 <span><strong>Warnung:</strong> Diese Aktion kann nicht rückgängig gemacht werden. Die Dateien werden endgültig gelöscht.</span>
               </div>
             {:else}
               <div class="flex gap-2 text-sm text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded p-2">
-                <i class="bi bi-info-circle flex-shrink-0 mt-0.5" />
+                <i class="bi bi-info-circle flex-shrink-0 mt-0.5" / aria-hidden="true">
                 <span>Gelöschte Dateien landen im Papierkorb und können von dort wiederhergestellt werden.</span>
               </div>
             {/if}
@@ -282,10 +282,10 @@
           disabled={isDeleting}
         >
           {#if isDeleting}
-            <i class="bi bi-hourglass-split animate-spin" />
+            <i class="bi bi-hourglass-split animate-spin" / aria-hidden="true">
             Wird gelöscht...
           {:else}
-            <i class="bi bi-trash" />
+            <i class="bi bi-trash" / aria-hidden="true">
             {isPermanent ? 'Endgültig löschen' : 'In Papierkorb'}
           {/if}
         </button>

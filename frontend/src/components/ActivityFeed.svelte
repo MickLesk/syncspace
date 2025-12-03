@@ -45,7 +45,7 @@
   >
     <div class="flex items-center gap-3">
       <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-        <i class="bi bi-activity text-xl"></i>
+        <i class="bi bi-activity text-xl" aria-hidden="true"></i>
       </div>
       <div>
         <h3 class="font-bold text-lg">Activity Feed</h3>
@@ -131,7 +131,7 @@
   >
     <div class="flex items-center justify-between text-xs">
       <span class="text-gray-600 dark:text-gray-400">
-        <i class="bi bi-clock-history"></i>
+        <i class="bi bi-clock-history" aria-hidden="true"></i>
         {activity.length} recent events
       </span>
       {#if activity.length > 0}

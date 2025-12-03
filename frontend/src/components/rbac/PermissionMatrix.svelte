@@ -86,9 +86,9 @@
                 </td>
                 <td class="text-center">
                   {#if hasPermission(permission)}
-                    <i class="bi bi-check-circle-fill text-success text-lg"></i>
+                    <i class="bi bi-check-circle-fill text-success text-lg" aria-hidden="true"></i>
                   {:else}
-                    <i class="bi bi-x-circle text-gray-400 text-lg"></i>
+                    <i class="bi bi-x-circle text-gray-400 text-lg" aria-hidden="true"></i>
                   {/if}
                 </td>
               </tr>
@@ -100,7 +100,7 @@
 
     <div class="mt-4 p-4 bg-base-200 rounded-lg">
       <div class="flex items-center gap-2">
-        <i class="bi bi-shield-check text-primary text-xl"></i>
+        <i class="bi bi-shield-check text-primary text-xl" aria-hidden="true"></i>
         <span class="font-semibold">
           {permissions.length} / {availablePermissions.length}
           {tr("rbac.permissionsGranted")}

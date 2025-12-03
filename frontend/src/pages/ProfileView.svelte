@@ -139,7 +139,7 @@
               <label
                 class="absolute bottom-0 right-0 w-12 h-12 rounded-full bg-primary text-primary-content border-4 border-base-100 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-lg"
               >
-                <i class="bi bi-camera-fill"></i>
+                <i class="bi bi-camera-fill" aria-hidden="true"></i>
                 <input
                   type="file"
                   accept="image/*"
@@ -178,11 +178,11 @@
               class="flex gap-6 justify-center text-sm text-base-content/60 mb-6"
             >
               <span class="flex items-center gap-2">
-                <i class="bi bi-envelope"></i>
+                <i class="bi bi-envelope" aria-hidden="true"></i>
                 {user.email}
               </span>
               <span class="flex items-center gap-2">
-                <i class="bi bi-calendar"></i>
+                <i class="bi bi-calendar" aria-hidden="true"></i>
                 Joined {formatDate(user.joinedDate)}
               </span>
             </div>
@@ -226,7 +226,7 @@
       <ModernCard variant="gradient" hoverable>
         {#snippet children()}
           <div class="text-center py-6">
-            <i class="bi bi-files text-5xl mb-3 block"></i>
+            <i class="bi bi-files text-5xl mb-3 block" aria-hidden="true"></i>
             <div class="text-4xl font-bold mb-1">
               {user.stats.files.toLocaleString()}
             </div>
@@ -238,7 +238,7 @@
       <ModernCard variant="gradient" hoverable>
         {#snippet children()}
           <div class="text-center py-6">
-            <i class="bi bi-hdd text-5xl mb-3 block"></i>
+            <i class="bi bi-hdd text-5xl mb-3 block" aria-hidden="true"></i>
             <div class="text-4xl font-bold mb-1">
               {formatBytes(user.stats.storage)}
             </div>
@@ -250,7 +250,7 @@
       <ModernCard variant="gradient" hoverable>
         {#snippet children()}
           <div class="text-center py-6">
-            <i class="bi bi-share text-5xl mb-3 block"></i>
+            <i class="bi bi-share text-5xl mb-3 block" aria-hidden="true"></i>
             <div class="text-4xl font-bold mb-1">{user.stats.shares}</div>
             <div class="text-sm opacity-90">Shares</div>
           </div>
@@ -260,7 +260,7 @@
       <ModernCard variant="gradient" hoverable>
         {#snippet children()}
           <div class="text-center py-6">
-            <i class="bi bi-upload text-5xl mb-3 block"></i>
+            <i class="bi bi-upload text-5xl mb-3 block" aria-hidden="true"></i>
             <div class="text-4xl font-bold mb-1">{user.stats.uploads}</div>
             <div class="text-sm opacity-90">Uploads This Month</div>
           </div>
@@ -273,7 +273,7 @@
       <ModernCard variant="glass">
         {#snippet children()}
           <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-            <i class="bi bi-clock-history text-primary"></i>
+            <i class="bi bi-clock-history text-primary" aria-hidden="true"></i>
             Recent Files
           </h2>
 
@@ -285,7 +285,7 @@
                 >
                   <div class="flex items-center gap-4">
                     <i class="bi bi-file-earmark-fill text-3xl text-primary"
-                    ></i>
+                     aria-hidden="true"></i>
                     <div class="flex-1">
                       <div class="font-semibold text-base-content">
                         {file.name}
@@ -298,7 +298,7 @@
                       class="btn btn-ghost btn-sm btn-square"
                       aria-label="File options"
                     >
-                      <i class="bi bi-three-dots-vertical"></i>
+                      <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
                     </button>
                   </div>
                 </div>

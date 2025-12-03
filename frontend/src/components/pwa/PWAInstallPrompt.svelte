@@ -1,34 +1,34 @@
 <script>
   // PWAInstallPrompt.svelte - Handles PWA install prompts
-  import { onMount } from 'svelte';
-  import { offlineManager } from '../../stores/offlineManager';
+  import { onMount } from "svelte";
+  import { offlineManager } from "../../stores/offlineManager";
 
-  let installPromptEvent = null;
+  let installPromptEvent = $state(null);
   let showInstallPrompt = $state(false);
   let isInstalled = $state(false);
   let isPWASupported = $state(false);
 
   onMount(() => {
     // Check if PWA is already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    if (window.matchMedia("(display-mode: standalone)").matches) {
       isInstalled = true;
     }
 
     // Check PWA support
-    isPWASupported = 'serviceWorker' in navigator && 'PushManager' in window;
+    isPWASupported = "serviceWorker" in navigator && "PushManager" in window;
 
     // Handle beforeinstallprompt event
-    window.addEventListener('beforeinstallprompt', (e) => {
+    window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       installPromptEvent = e;
       showInstallPrompt = true;
 
-      console.log('[PWA] Install prompt available');
+      console.log("[PWA] Install prompt available");
     });
 
     // Hide install button after installation
-    window.addEventListener('appinstalled', () => {
-      console.log('[PWA] App installed');
+    window.addEventListener("appinstalled", () => {
+      console.log("[PWA] App installed");
       isInstalled = true;
       showInstallPrompt = false;
       installPromptEvent = null;
@@ -51,17 +51,17 @@
       // Wait for user choice
       const { outcome } = await installPromptEvent.userChoice;
 
-      if (outcome === 'accepted') {
-        console.log('[PWA] User accepted install');
+      if (outcome === "accepted") {
+        console.log("[PWA] User accepted install");
         showInstallPrompt = false;
       } else {
-        console.log('[PWA] User dismissed install');
+        console.log("[PWA] User dismissed install");
       }
 
       // Clear the event
       installPromptEvent = null;
     } catch (error) {
-      console.error('[PWA] Install error:', error);
+      console.error("[PWA] Install error:", error);
     }
   }
 
@@ -73,15 +73,15 @@
 
 <!-- Install Prompt Banner -->
 {#if showInstallPrompt && installPromptEvent && !isInstalled}
-  <div class="sticky top-0 z-50 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-4 shadow-lg">
+  <div
+    class="sticky top-0 z-50 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-4 shadow-lg"
+  >
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
       <!-- Content -->
       <div class="flex items-center gap-3 flex-1">
-        <i class="bi bi-download text-2xl flex-shrink-0"></i>
+        <i class="bi bi-download text-2xl flex-shrink-0" aria-hidden="true"></i>
         <div class="min-w-0">
-          <p class="font-semibold text-sm md:text-base">
-            Install SyncSpace
-          </p>
+          <p class="font-semibold text-sm md:text-base">Install SyncSpace</p>
           <p class="text-xs md:text-sm text-blue-100">
             Access your files offline and get app-like experience
           </p>
@@ -91,13 +91,13 @@
       <!-- Actions -->
       <div class="flex gap-2 flex-shrink-0">
         <button
-          on:click={handleInstall}
+          onclick={handleInstall}
           class="px-4 py-2 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition text-sm"
         >
           Install
         </button>
         <button
-          on:click={handleDismiss}
+          onclick={handleDismiss}
           class="px-4 py-2 hover:bg-blue-500 rounded-lg transition text-sm font-medium"
         >
           Later

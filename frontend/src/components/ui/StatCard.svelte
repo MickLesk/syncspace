@@ -20,7 +20,7 @@
 
 <div class="stat-card glass-card">
   <div class="stat-icon" style="background: {gradient}">
-    <i class="bi bi-{icon}" style="font-size: {iconSize}px;"></i>
+    <i class="bi bi-{icon}" style="font-size: {iconSize}px;" aria-hidden="true"></i>
   </div>
   <div class="stat-content">
     <div class="stat-value">{value}</div>

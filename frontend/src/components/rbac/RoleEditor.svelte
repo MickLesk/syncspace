@@ -119,7 +119,7 @@
   {#snippet children()}
     {#if error}
       <div class="alert alert-error mb-4">
-        <i class="bi bi-exclamation-triangle"></i>
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
         <span>{error}</span>
       </div>
     {/if}

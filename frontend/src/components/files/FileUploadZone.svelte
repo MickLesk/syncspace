@@ -126,7 +126,7 @@
   <div class="text-center">
     {#if isDragging}
       <i class="bi bi-download text-6xl text-blue-500 mb-4 block animate-bounce"
-      ></i>
+       aria-hidden="true"></i>
       <p class="text-xl font-semibold text-blue-600 dark:text-blue-400 mb-2">
         Drop files or folders here
       </p>
@@ -146,7 +146,7 @@
         class="btn btn-primary btn-sm"
         onclick={triggerFileInput}
       >
-        <i class="bi bi-folder2-open"></i>
+        <i class="bi bi-folder2-open" aria-hidden="true"></i>
         Browse Files
       </button>
     {/if}

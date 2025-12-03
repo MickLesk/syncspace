@@ -202,6 +202,7 @@
     class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
     role="dialog"
     aria-modal="true"
+    tabindex="0"
   >
     <div
       class="w-full h-full max-w-7xl max-h-[90vh] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col"
@@ -211,7 +212,10 @@
         class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700"
       >
         <div class="flex items-center gap-3">
-          <i class="bi bi-file-earmark-code text-2xl text-blue-500"></i>
+          <i
+            class="bi bi-file-earmark-code text-2xl text-blue-500"
+            aria-hidden="true"
+          ></i>
           <div>
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">
               {filePath?.split("/").pop() || tr("fileEditor")}
@@ -228,14 +232,14 @@
             <span
               class="text-sm text-orange-500 dark:text-orange-400 flex items-center gap-2"
             >
-              <i class="bi bi-dot animate-pulse"></i>
+              <i class="bi bi-dot animate-pulse" aria-hidden="true"></i>
               {tr("unsavedChanges")}
             </span>
           {:else if !loading}
             <span
               class="text-sm text-green-500 dark:text-green-400 flex items-center gap-2"
             >
-              <i class="bi bi-check-circle"></i>
+              <i class="bi bi-check-circle" aria-hidden="true"></i>
               {tr("allChangesSaved")}
             </span>
           {/if}
@@ -247,22 +251,21 @@
             class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white rounded-lg transition-colors flex items-center gap-2"
           >
             {#if saving}
-              <i class="bi bi-arrow-repeat animate-spin"></i>
+              <i class="bi bi-arrow-repeat animate-spin" aria-hidden="true"></i>
               {tr("saving")}
             {:else}
-              <i class="bi bi-save"></i>
+              <i class="bi bi-save" aria-hidden="true"></i>
               {tr("save")}
             {/if}
           </button>
 
           <!-- Close Button -->
           <button
+            aria-label={tr("close")}
             onclick={closeModal}
             class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-            aria-label={tr("close")}
+            ><i class="bi bi-x" aria-hidden="true"></i></button
           >
-            <i class="bi bi-x-lg text-xl text-gray-600 dark:text-gray-400"></i>
-          </button>
         </div>
       </div>
 

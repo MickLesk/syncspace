@@ -239,7 +239,7 @@
           onclick={addCondition}
           class="w-full px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition flex items-center justify-center gap-1"
         >
-          <i class="bi bi-plus"></i>
+          <i class="bi bi-plus" aria-hidden="true"></i>
           {tr('smartFolders.addCondition')}
         </button>
       </div>
@@ -276,7 +276,7 @@
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">{tr('smartFolders.sortBy')}</label>
+          <div class="block text-sm text-gray-700 dark:text-gray-300 mb-1">{tr('smartFolders.sortBy')}</div>
           <select
             bind:value={sortBy}
             class="w-full px-2 py-1 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded text-sm text-gray-900 dark:text-white focus:outline-none"
@@ -289,7 +289,7 @@
         </div>
 
         <div>
-          <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">{tr('order')}</label>
+          <div class="block text-sm text-gray-700 dark:text-gray-300 mb-1">{tr('order')}</div>
           <select
             bind:value={sortOrder}
             class="w-full px-2 py-1 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded text-sm text-gray-900 dark:text-white focus:outline-none"
@@ -316,10 +316,10 @@
         class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition flex items-center gap-2"
       >
         {#if isSaving}
-          <i class="bi bi-hourglass-split animate-spin"></i>
+          <i class="bi bi-hourglass-split animate-spin" aria-hidden="true"></i>
           {tr('saving')}
         {:else}
-          <i class="bi bi-check2"></i>
+          <i class="bi bi-check2" aria-hidden="true"></i>
           {tr('save')}
         {/if}
       </button>

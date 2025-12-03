@@ -39,12 +39,14 @@ pub struct SlowQuery {
 
 /// Connection leak detection entry
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct ConnectionLease {
     acquired_at: Instant,
     caller: String,
 }
 
 /// Database monitor with real-time metrics tracking
+#[allow(dead_code)]
 pub struct DatabaseMonitor {
     metrics: Arc<RwLock<PoolMetrics>>,
     slow_queries: Arc<RwLock<VecDeque<SlowQuery>>>,
@@ -54,6 +56,7 @@ pub struct DatabaseMonitor {
     max_slow_query_history: usize,
 }
 
+#[allow(dead_code)]
 impl DatabaseMonitor {
     /// Create new database monitor
     pub fn new(max_connections: u32, min_connections: u32) -> Self {
@@ -267,6 +270,7 @@ impl DatabaseMonitor {
 
 /// Health status response
 #[derive(Debug, Serialize)]
+#[allow(dead_code)]
 pub struct HealthStatus {
     pub status: String, // "healthy", "degraded", "warning", "critical"
     pub timestamp: DateTime<Utc>,
@@ -283,6 +287,7 @@ pub struct HealthStatus {
 }
 
 /// Wrapper for monitored query execution
+#[allow(dead_code)]
 pub async fn execute_monitored<F, R>(
     monitor: &DatabaseMonitor,
     query_name: &str,
@@ -317,6 +322,7 @@ pub async fn verify_db_health(pool: &SqlitePool) -> Result<(), String> {
 }
 
 /// Get SQLite performance statistics
+#[allow(dead_code)]
 pub async fn get_sqlite_stats(pool: &SqlitePool) -> Result<SqliteStats, sqlx::Error> {
     // Get cache hit rate
     let cache_stats: (i64, i64) = sqlx::query_as("SELECT * FROM pragma_cache_size(), pragma_page_count()")
@@ -339,6 +345,7 @@ pub async fn get_sqlite_stats(pool: &SqlitePool) -> Result<SqliteStats, sqlx::Er
 }
 
 #[derive(Debug, Serialize)]
+#[allow(dead_code)]
 pub struct SqliteStats {
     pub cache_size_pages: i64,
     pub total_pages: i64,

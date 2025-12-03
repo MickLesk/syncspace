@@ -76,7 +76,7 @@ async fn get_supported_types() -> impl IntoResponse {
 
 /// Extract metadata from a file
 async fn get_metadata(
-    State(state): State<AppState>,
+    State(_state): State<AppState>,
     Path(path): Path<String>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let data_dir = PathBuf::from("./data");
@@ -159,7 +159,7 @@ fn extract_exif_metadata(path: &PathBuf) -> (String, HashMap<String, MetadataVal
     match exif::Reader::new().read_from_container(&mut reader) {
         Ok(exif_data) => {
             for field in exif_data.fields() {
-                let tag_name = field.tag.to_string();
+                let _tag_name = field.tag.to_string();
                 let value = field.display_value().with_unit(&exif_data).to_string();
 
                 // Map common EXIF fields to readable names

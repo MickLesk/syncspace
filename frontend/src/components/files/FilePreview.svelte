@@ -35,13 +35,13 @@
     >
       <div class="preview-header">
         <div class="preview-title">
-          <i class="bi bi-file-earmark"></i>
+          <i class="bi bi-file-earmark" aria-hidden="true"></i>
           <span>{file.name}</span>
         </div>
         <button
           class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 flex items-center justify-center transition-colors"
           onclick={onClose}
-          aria-label="Close preview"><i class="bi bi-x-lg"></i></button
+          aria-label="Close preview"><i class="bi bi-x-lg" aria-hidden="true"></i></button
         >
       </div>
 
@@ -60,11 +60,11 @@
           <pre class="preview-text">{file.content || tr("loading")}</pre>
         {:else}
           <div class="preview-unsupported">
-            <i class="bi bi-file-earmark-x text-6xl opacity-30"></i>
+            <i class="bi bi-file-earmark-x text-6xl opacity-30" aria-hidden="true"></i>
             <p>{tr("previewNotAvailable")}</p>
             <button
               class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
-              ><i class="bi bi-download"></i> Download</button
+              ><i class="bi bi-download" aria-hidden="true"></i> Download</button
             >
           </div>
         {/if}
@@ -72,20 +72,20 @@
 
       <div class="preview-footer">
         <div class="preview-info">
-          <span><i class="bi bi-hdd"></i> {file.size || "Unknown size"}</span>
+          <span><i class="bi bi-hdd" aria-hidden="true"></i> {file.size || "Unknown size"}</span>
           <span
-            ><i class="bi bi-calendar"></i>
+            ><i class="bi bi-calendar" aria-hidden="true"></i>
             {file.modified || "Unknown date"}</span
           >
         </div>
         <div class="preview-actions">
           <button
             class="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors flex items-center gap-2"
-            ><i class="bi bi-download"></i> Download</button
+            ><i class="bi bi-download" aria-hidden="true"></i> Download</button
           >
           <button
             class="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors flex items-center gap-2"
-            ><i class="bi bi-share"></i> Share</button
+            ><i class="bi bi-share" aria-hidden="true"></i> Share</button
           >
         </div>
       </div>
