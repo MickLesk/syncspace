@@ -37,9 +37,7 @@ pub use user_service_impl::{
 pub use search_service_impl::search;
 
 // Re-export all other services from all_services_impl
-pub use all_services_impl::{
-    activity, collaboration, directory, favorites, sharing, system, tag,
-};
+pub use all_services_impl::{activity, collaboration, directory, favorites, sharing, system, tag};
 
 // Performance service module
 pub mod performance {

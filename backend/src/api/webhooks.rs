@@ -4,7 +4,7 @@
 //! Webhooks can be triggered on file events (upload, delete, share, etc.)
 
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Path, State},
     http::StatusCode,
     routing::{get, post},
     Json, Router,

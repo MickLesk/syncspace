@@ -372,7 +372,7 @@ async fn archive_job(db_pool: &SqlitePool, job_id: &str) -> Result<(), Box<dyn s
             .ok()
             .and_then(|c| chrono::DateTime::parse_from_rfc3339(started)
                 .ok()
-                .map(|s| (c.timestamp_millis() - s.timestamp_millis())))
+                .map(|s| c.timestamp_millis() - s.timestamp_millis())))
             .unwrap_or(0)
     } else {
         0

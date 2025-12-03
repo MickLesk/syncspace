@@ -4,7 +4,7 @@
 //! Tokens can have scopes, expiration dates, and usage limits.
 
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
     routing::{get, post},
     Json, Router,
@@ -409,7 +409,7 @@ async fn regenerate_token(
     Path(id): Path<String>,
 ) -> Result<Json<CreateTokenResponse>, StatusCode> {
     // Verify ownership
-    let existing: ApiToken =
+    let _existing: ApiToken =
         sqlx::query_as("SELECT * FROM api_tokens WHERE id = ? AND user_id = ?")
             .bind(&id)
             .bind(user.user_id())
