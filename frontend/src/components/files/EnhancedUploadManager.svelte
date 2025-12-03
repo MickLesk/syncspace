@@ -3,6 +3,7 @@
     uploadQueue,
     uploadStatistics,
     isPaused,
+    uploadSettings,
     pauseAllUploads,
     resumeAllUploads,
     pauseUpload,
@@ -15,8 +16,14 @@
   import { t } from "../../i18n.js";
 
   let isMinimized = $state(false);
-  let showSpeedThrottle = $state(false);
-  let throttleSpeed = $state(0); // 0 = unlimited
+  let showSettings = $state(false);
+  
+  // Settings state
+  let settingsForm = $state({
+    speedLimit: $uploadSettings.speedLimit || 0,
+    skipDuplicates: $uploadSettings.skipDuplicates || false,
+    duplicateAction: $uploadSettings.duplicateAction || 'ask'
+  });
 
   const stats = $derived($uploadStatistics);
   const paused = $derived($isPaused);
@@ -101,6 +108,15 @@
         return "text-muted";
     }
   }
+
+  function saveSettings() {
+    uploadSettings.set({
+      speedLimit: settingsForm.speedLimit > 0 ? settingsForm.speedLimit : null,
+      skipDuplicates: settingsForm.skipDuplicates,
+      duplicateAction: settingsForm.duplicateAction
+    });
+    showSettings = false;
+  }
 </script>
 
 {#if $uploadQueue.length > 0}
@@ -128,6 +144,15 @@
       </div>
 
       <div class="header-actions">
+        <!-- Settings -->
+        <button
+          class="btn-icon"
+          onclick={() => (showSettings = true)}
+          title={$t("uploads.settings")}
+        >
+          <i class="bi bi-gear"></i>
+        </button>
+
         <!-- Pause/Resume All -->
         {#if stats.uploading > 0 || stats.paused > 0}
           <button
@@ -172,11 +197,86 @@
               class="progress-fill"
               style="width: {stats.overallProgress}%"
             ></div>
-          </div>
-        </div>
-      {/if}
+    </div>
+  </div>
+{/if}
 
-      <!-- Upload List -->
+<!-- Upload Settings Modal -->
+{#if showSettings}
+  <div class="modal-overlay" onclick={() => (showSettings = false)}>
+    <div class="modal-content" onclick={(e) => e.stopPropagation()}>
+      <div class="modal-header">
+        <h3>{$t("uploads.settings")}</h3>
+        <button class="btn-icon" onclick={() => (showSettings = false)}>
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Speed Limit -->
+        <div class="form-group">
+          <label>
+            <i class="bi bi-speedometer2"></i>
+            {$t("uploads.speedLimit")}
+          </label>
+          <div class="input-group">
+            <input
+              type="number"
+              bind:value={settingsForm.speedLimit}
+              min="0"
+              step="100"
+              placeholder="0 = {$t('uploads.unlimited')}"
+            />
+            <span class="input-suffix">KB/s</span>
+          </div>
+          <small class="form-hint">
+            {$t("uploads.speedLimitHint")}
+          </small>
+        </div>
+
+        <!-- Duplicate Handling -->
+        <div class="form-group">
+          <label>
+            <i class="bi bi-files"></i>
+            {$t("uploads.duplicateHandling")}
+          </label>
+          <select bind:value={settingsForm.duplicateAction}>
+            <option value="ask">{$t("uploads.duplicateAsk")}</option>
+            <option value="skip">{$t("uploads.duplicateSkip")}</option>
+            <option value="replace">{$t("uploads.duplicateReplace")}</option>
+            <option value="keep-both">{$t("uploads.duplicateKeepBoth")}</option>
+          </select>
+          <small class="form-hint">
+            {$t("uploads.duplicateHandlingHint")}
+          </small>
+        </div>
+
+        <!-- Skip Duplicates Checkbox -->
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              bind:checked={settingsForm.skipDuplicates}
+            />
+            {$t("uploads.skipDuplicates")}
+          </label>
+          <small class="form-hint">
+            {$t("uploads.skipDuplicatesHint")}
+          </small>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick={() => (showSettings = false)}>
+          {$t("cancel")}
+        </button>
+        <button class="btn-primary" onclick={saveSettings}>
+          {$t("save")}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}      <!-- Upload List -->
       <div class="upload-list">
         {#each $uploadQueue as upload (upload.id)}
           <div
@@ -594,6 +694,149 @@
   }
   .text-muted {
     color: rgb(148, 163, 184);
+  }
+
+  /* Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  }
+
+  .modal-content {
+    background: rgb(30, 41, 59);
+    border-radius: 0.75rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgb(51, 65, 85);
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    border-top: 1px solid rgb(51, 65, 85);
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-group label {
+    font-weight: 500;
+    color: rgb(226, 232, 240);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .form-group input[type="number"],
+  .form-group select {
+    background: rgb(15, 23, 42);
+    border: 1px solid rgb(51, 65, 85);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    color: rgb(226, 232, 240);
+    font-size: 0.95rem;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: rgb(96, 165, 250);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+  }
+
+  .input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .input-group input {
+    flex: 1;
+  }
+
+  .input-suffix {
+    color: rgb(148, 163, 184);
+    font-size: 0.95rem;
+  }
+
+  .form-hint {
+    color: rgb(148, 163, 184);
+    font-size: 0.85rem;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+
+  .checkbox-label input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background: rgb(59, 130, 246);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-primary:hover {
+    background: rgb(37, 99, 235);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: rgb(148, 163, 184);
+    border: 1px solid rgb(51, 65, 85);
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-secondary:hover {
+    background: rgb(51, 65, 85);
+    color: rgb(226, 232, 240);
   }
 
   .upload-list::-webkit-scrollbar {

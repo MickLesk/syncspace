@@ -9,7 +9,7 @@
 
 use axum::{extract::State, http::StatusCode, routing::get, Json, Router};
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::time::Instant;
 
 use crate::{auth::UserInfo, AppState};

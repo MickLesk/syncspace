@@ -2061,6 +2061,127 @@ export const backup = {
   },
 
   /**
+   * List backup schedules
+   */
+  async listSchedules() {
+    const response = await fetch(`${API_BASE}/backup/schedules`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create backup schedule
+   */
+  async createSchedule(scheduleData) {
+    const response = await fetch(`${API_BASE}/backup/schedules`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(scheduleData),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete backup schedule
+   */
+  async deleteSchedule(scheduleId) {
+    const response = await fetch(`${API_BASE}/backup/schedules/${scheduleId}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Enable backup schedule
+   */
+  async enableSchedule(scheduleId) {
+    const response = await fetch(`${API_BASE}/backup/schedules/${scheduleId}/enable`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Disable backup schedule
+   */
+  async disableSchedule(scheduleId) {
+    const response = await fetch(`${API_BASE}/backup/schedules/${scheduleId}/disable`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List backup jobs
+   */
+  async listJobs() {
+    const response = await fetch(`${API_BASE}/backup/jobs`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Trigger manual backup
+   */
+  async triggerBackup(options = {}) {
+    const response = await fetch(`${API_BASE}/backup/trigger`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(options),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Cancel backup job
+   */
+  async cancelJob(jobId) {
+    const response = await fetch(`${API_BASE}/backup/jobs/${jobId}/cancel`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get backup statistics
+   */
+  async getStats() {
+    const response = await fetch(`${API_BASE}/backup/stats`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Restore from backup
+   */
+  async restore(restoreData) {
+    const response = await fetch(`${API_BASE}/backup/restore`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(restoreData),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Cleanup old backups
+   */
+  async cleanup() {
+    const response = await fetch(`${API_BASE}/backup/cleanup`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
    * Create a new backup
    * @param {Object} options - Backup options
    */

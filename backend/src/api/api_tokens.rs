@@ -4,10 +4,9 @@
 //! Tokens can have scopes, expiration dates, and usage limits.
 
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Path, State},
     http::StatusCode,
-    response::IntoResponse,
-    routing::{delete, get, post},
+    routing::{get, post},
     Json, Router,
 };
 use chrono::{DateTime, Duration, Utc};

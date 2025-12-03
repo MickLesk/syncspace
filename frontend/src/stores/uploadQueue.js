@@ -14,35 +14,102 @@ export const uploadStats = writable({
   uploadSpeed: 0
 });
 
+// Upload settings
+export const uploadSettings = writable({
+  speedLimit: null, // KB/s, null = unlimited
+  skipDuplicates: false,
+  duplicateAction: 'ask' // ask, skip, replace, keep-both
+});
+
 // Active XMLHttpRequest objects for cancellation
 const activeRequests = new Map();
 
+// Throttle state
+let lastChunkTime = Date.now();
+let lastChunkBytes = 0;
+
 /**
- * Add files to upload queue
+ * Add files to upload queue with duplicate detection
  */
-export function addUploads(files, batchName = null) {
+export async function addUploads(files, batchName = null) {
+  const settings = await new Promise(resolve => {
+    uploadSettings.subscribe(s => resolve(s))();
+  });
+
   const batchId = batchName ? Date.now() + Math.random() : null;
-  const newUploads = Array.from(files).map((file, index) => ({
+  const filesToUpload = [];
+  const duplicates = [];
+
+  // Check for duplicates if enabled
+  if (settings.skipDuplicates || settings.duplicateAction !== 'keep-both') {
+    const currentPath = localStorage.getItem('currentPath') || '/';
+    
+    for (const file of files) {
+      const fileName = file.relativePath || file.webkitRelativePath || file.name;
+      const isDuplicate = await checkDuplicate(fileName, currentPath);
+      
+      if (isDuplicate) {
+        if (settings.duplicateAction === 'skip') {
+          continue; // Skip this file
+        } else if (settings.duplicateAction === 'ask') {
+          duplicates.push(file);
+          continue; // Will be handled by UI
+        }
+        // 'replace' and 'keep-both' will proceed
+      }
+      
+      filesToUpload.push(file);
+    }
+  } else {
+    filesToUpload.push(...files);
+  }
+
+  const newUploads = filesToUpload.map((file, index) => ({
     id: `upload-${Date.now()}-${index}`,
     file,
     name: file.relativePath || file.webkitRelativePath || file.name,
     size: file.size,
     progress: 0,
-    status: 'queued', // queued, uploading, paused, complete, error
+    status: 'queued',
     error: null,
     retries: 0,
     batchId,
     batchName,
-    batchTotal: files.length,
+    batchTotal: filesToUpload.length,
     uploadedBytes: 0,
     startTime: null,
-    endTime: null
+    endTime: null,
+    speed: 0
   }));
 
   uploadQueue.update(queue => [...queue, ...newUploads]);
   
   // Start uploading if not paused
   setTimeout(() => processQueue(), 100);
+
+  // Return duplicates for UI handling
+  return { uploaded: newUploads.length, duplicates: duplicates.length, duplicateFiles: duplicates };
+}
+
+/**
+ * Check if file already exists
+ */
+async function checkDuplicate(fileName, path) {
+  try {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`http://localhost:8080/api/files${path}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      const files = data.files || [];
+      return files.some(f => f.filename === fileName.split('/').pop());
+    }
+  } catch (e) {
+    console.error('Duplicate check failed:', e);
+  }
+  return false;
 }
 
 /**
@@ -86,10 +153,41 @@ async function uploadFile(upload) {
   const xhr = new XMLHttpRequest();
   activeRequests.set(upload.id, xhr);
 
-  xhr.upload.addEventListener('progress', (e) => {
+  // Get current settings for throttling
+  let currentSettings = {};
+  uploadSettings.subscribe(s => currentSettings = s)();
+
+  let lastProgressTime = Date.now();
+  let lastProgressBytes = 0;
+
+  xhr.upload.addEventListener('progress', async (e) => {
     if (e.lengthComputable) {
+      // Apply speed throttling if enabled
+      if (currentSettings.speedLimit && currentSettings.speedLimit > 0) {
+        const now = Date.now();
+        const timeDiff = (now - lastProgressTime) / 1000; // seconds
+        const bytesDiff = e.loaded - lastProgressBytes;
+        const currentSpeed = bytesDiff / timeDiff / 1024; // KB/s
+        const targetSpeed = currentSettings.speedLimit;
+
+        if (currentSpeed > targetSpeed) {
+          // Throttle by pausing briefly
+          const delayMs = ((bytesDiff / 1024) / targetSpeed - timeDiff) * 1000;
+          if (delayMs > 0) {
+            await new Promise(resolve => setTimeout(resolve, Math.min(delayMs, 1000)));
+          }
+        }
+
+        lastProgressTime = now;
+        lastProgressBytes = e.loaded;
+      }
+
       const progress = Math.round((e.loaded / e.total) * 100);
-      updateUploadProgress(upload.id, progress, e.loaded);
+      const now = Date.now();
+      const elapsed = (now - upload.startTime) / 1000; // seconds
+      const speed = elapsed > 0 ? (e.loaded / elapsed / 1024) : 0; // KB/s
+      
+      updateUploadProgress(upload.id, progress, e.loaded, speed);
     }
   });
 
@@ -153,15 +251,17 @@ function handleUploadError(upload) {
 /**
  * Update upload progress
  */
-function updateUploadProgress(uploadId, progress, uploadedBytes) {
+function updateUploadProgress(uploadId, progress, uploadedBytes, speed = null) {
   uploadQueue.update(queue => {
     const upload = queue.find(u => u.id === uploadId);
     if (upload) {
       upload.progress = progress;
       upload.uploadedBytes = uploadedBytes;
       
-      // Calculate speed
-      if (upload.startTime) {
+      // Use provided speed or calculate
+      if (speed !== null) {
+        upload.speed = speed;
+      } else if (upload.startTime) {
         const elapsed = (Date.now() - upload.startTime) / 1000;
         upload.speed = uploadedBytes / elapsed;
       }
