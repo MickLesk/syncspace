@@ -68,7 +68,7 @@ rustc_version_runtime = "0.3"  # Runtime Rust version detection
 
 # Cloud Storage & External Integrations
 aws-config = { version = "1.5", features = ["behavior-version-latest"] }
-aws-sdk-s3 = "1.68"
+aws-sdk-s3 = "1.116"
 oauth2 = "5.0"
 ldap3 = { version = "0.12", default-features = false, features = ["tls"] }
 suppaftp = { version = "7.0", features = ["async-secure"] }
