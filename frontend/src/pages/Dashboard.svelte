@@ -3,94 +3,53 @@
   import { currentLang } from "../stores/ui";
   import { t } from "../i18n.js";
   import PageWrapper from "../components/PageWrapper.svelte";
-  import api from "../lib/api";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   // Dashboard state
   let stats = $state({
-    storageUsed: "2.4 GB",
+    storageUsed: "0 GB",
     storageTotal: "100 GB",
-    storagePercent: 24,
-    fileCount: 247,
-    filesThisWeek: 12,
-    activeSyncs: 5,
-    lastSync: "vor 2 Minuten",
+    storagePercent: 0,
+    fileCount: 0,
+    filesThisWeek: 0,
+    activeSessions: 0,
+    actionsToday: 0,
+    activeSyncs: 1,
+    lastSync: "gerade eben",
   });
 
-  let recentActivity = $state([
-    {
-      id: 1,
-      action: "Datei hochgeladen",
-      file: "Presentation.pdf",
-      time: "vor 5 min",
-      icon: "bi-file-earmark-pdf",
-      color: "red",
-    },
-    {
-      id: 2,
-      action: "Ordner erstellt",
-      file: "Projekt Q4",
-      time: "vor 15 min",
-      icon: "bi-folder",
-      color: "blue",
-    },
-    {
-      id: 3,
-      action: "Datei aktualisiert",
-      file: "Budget.xlsx",
-      time: "vor 1 h",
-      icon: "bi-file-earmark-spreadsheet",
-      color: "green",
-    },
-    {
-      id: 4,
-      action: "Datei freigegeben",
-      file: "Design.fig",
-      time: "vor 3 h",
-      icon: "bi-share",
-      color: "purple",
-    },
-  ]);
+  // Unified activity timeline
+  let activityTimeline = $state([]);
+  let loading = $state(true);
 
-  let recentFiles = $state([
-    {
-      name: "Presentation.pdf",
-      size: "2.4 MB",
-      modified: "heute",
-      icon: "bi-file-earmark-pdf",
-    },
-    {
-      name: "Budget.xlsx",
-      size: "156 KB",
-      modified: "gestern",
-      icon: "bi-file-earmark-spreadsheet",
-    },
-    {
-      name: "Design.fig",
-      size: "12.5 MB",
-      modified: "vor 2 Tagen",
-      icon: "bi-image",
-    },
-    {
-      name: "Notes.txt",
-      size: "24 KB",
-      modified: "vor 1 Woche",
-      icon: "bi-file-earmark-text",
-    },
-  ]);
+  // Activity filter
+  let activityFilter = $state("all");
+  const filterOptions = [
+    { value: "all", label: "Alle", icon: "bi-list" },
+    { value: "upload", label: "Uploads", icon: "bi-upload" },
+    { value: "download", label: "Downloads", icon: "bi-download" },
+    { value: "favorite", label: "Favoriten", icon: "bi-star" },
+    { value: "share", label: "Geteilt", icon: "bi-share" },
+    { value: "delete", label: "Gelöscht", icon: "bi-trash" },
+  ];
 
   let greeting = $derived.by(() => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Guten Morgen!";
-    if (hour < 18) return "Guten Nachmittag!";
-    return "Guten Abend!";
+    if (hour < 12) return tr("greeting.morning") || "Guten Morgen!";
+    if (hour < 18) return tr("greeting.afternoon") || "Guten Tag!";
+    return tr("greeting.evening") || "Guten Abend!";
   });
 
   onMount(async () => {
-    // Load dashboard data from backend
+    await loadDashboardData();
+  });
+
+  async function loadDashboardData() {
+    loading = true;
     try {
-      const response = await fetch(
+      // Load dashboard stats
+      const statsResponse = await fetch(
         "http://localhost:8080/api/dashboard/stats",
         {
           headers: {
@@ -99,120 +58,199 @@
         }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-
-        // Map backend data to frontend state
+      if (statsResponse.ok) {
+        const data = await statsResponse.json();
         if (data.overview) {
           const overview = data.overview;
-
-          // Calculate storage percentage
-          const storageUsedGB = (
-            overview.total_storage_bytes /
-            1024 ** 3
-          ).toFixed(1);
-          const storageTotalGB = 100; // Default 100GB quota
-          const storagePercent = Math.round(
-            (storageUsedGB / storageTotalGB) * 100
-          );
+          const storageUsedGB = (overview.total_storage_bytes / 1024 ** 3).toFixed(2);
+          const storageTotalGB = 100;
+          const storagePercent = Math.round((storageUsedGB / storageTotalGB) * 100);
 
           stats = {
             storageUsed: `${storageUsedGB} GB`,
             storageTotal: `${storageTotalGB} GB`,
             storagePercent: Math.min(storagePercent, 100),
             fileCount: overview.total_files || 0,
-            filesThisWeek: 12, // TODO: Get from backend trends
-            activeSyncs: overview.pending_jobs || 0,
-            lastSync: "vor 2 Minuten", // TODO: Get from backend
+            filesThisWeek: overview.files_this_week || 0,
+            activeSessions: overview.active_sessions || 0,
+            actionsToday: overview.active_users_today || 0,
+            activeSyncs: 1,
+            lastSync: "gerade eben",
           };
         }
-
-        // Map activity data if available
-        if (data.recent_activity && Array.isArray(data.recent_activity)) {
-          recentActivity = data.recent_activity.map((item, idx) => ({
-            id: idx + 1,
-            action: item.action || "Datei geändert",
-            file: item.file_path || "Datei",
-            time: item.time || "vor Kurzem",
-            icon: getIconForAction(item.action || ""),
-            color: getColorForAction(item.action || ""),
-          }));
-        }
-
-        // Map recent files if available
-        if (data.recent_files && Array.isArray(data.recent_files)) {
-          recentFiles = data.recent_files.map((file) => ({
-            name: file.name || "Datei",
-            size: formatBytes(file.size_bytes || 0),
-            modified: formatDate(file.modified_at),
-            icon: getIconForFile(file.name || ""),
-          }));
-        }
       }
+
+      // Load unified activity timeline
+      await loadActivityTimeline();
     } catch (err) {
       console.error("Failed to load dashboard:", err);
+    } finally {
+      loading = false;
+    }
+  }
+
+  async function loadActivityTimeline() {
+    try {
+      const filterParam = activityFilter !== "all" ? `&action=${activityFilter}` : "";
+      const response = await fetch(
+        `http://localhost:8080/api/activity?limit=20${filterParam}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const activities = await response.json();
+        activityTimeline = (activities || []).map((item, idx) => ({
+          id: item.id || idx,
+          action: item.action,
+          actionLabel: formatAction(item.action),
+          fileName: extractFileName(item.file_path || item.file_name),
+          filePath: item.file_path,
+          fileSize: item.file_size,
+          username: item.username || item.display_name || "Du",
+          time: formatTimeAgo(item.created_at),
+          timestamp: item.created_at,
+          icon: getIconForAction(item.action),
+          color: getColorForAction(item.action),
+          oldPath: item.old_path,
+          metadata: item.metadata,
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to load activity:", err);
+    }
+  }
+
+  // Watch for filter changes
+  $effect(() => {
+    if (activityFilter) {
+      loadActivityTimeline();
     }
   });
 
-  // Helper functions
+  // Comprehensive action configuration
+  const actionConfig = {
+    // File operations
+    upload: { label: "Hochgeladen", icon: "bi-upload", color: "green" },
+    download: { label: "Heruntergeladen", icon: "bi-download", color: "blue" },
+    delete: { label: "Gelöscht", icon: "bi-trash", color: "red" },
+    rename: { label: "Umbenannt", icon: "bi-pencil", color: "amber" },
+    move: { label: "Verschoben", icon: "bi-arrow-right", color: "purple" },
+    copy: { label: "Kopiert", icon: "bi-files", color: "indigo" },
+    create: { label: "Erstellt", icon: "bi-plus-circle", color: "teal" },
+    preview: { label: "Vorschau", icon: "bi-eye", color: "sky" },
+    restore: { label: "Wiederhergestellt", icon: "bi-arrow-counterclockwise", color: "emerald" },
+    
+    // Folder operations
+    folder_create: { label: "Ordner erstellt", icon: "bi-folder-plus", color: "blue" },
+    folder_delete: { label: "Ordner gelöscht", icon: "bi-folder-x", color: "red" },
+    folder_rename: { label: "Ordner umbenannt", icon: "bi-pencil", color: "amber" },
+    folder_move: { label: "Ordner verschoben", icon: "bi-arrow-right", color: "purple" },
+    folder_color: { label: "Farbe geändert", icon: "bi-palette", color: "pink" },
+    
+    // Favorites
+    favorite: { label: "Favorisiert", icon: "bi-star-fill", color: "yellow" },
+    unfavorite: { label: "Entfavorisiert", icon: "bi-star", color: "gray" },
+    
+    // Sharing
+    share: { label: "Geteilt", icon: "bi-share", color: "violet" },
+    unshare: { label: "Freigabe beendet", icon: "bi-share-fill", color: "slate" },
+    share_access: { label: "Zugriff via Link", icon: "bi-link-45deg", color: "cyan" },
+    
+    // Comments & Tags
+    comment_add: { label: "Kommentiert", icon: "bi-chat-dots", color: "lime" },
+    comment_delete: { label: "Kommentar gelöscht", icon: "bi-chat-dots-fill", color: "gray" },
+    tag_add: { label: "Tag hinzugefügt", icon: "bi-tag", color: "orange" },
+    tag_remove: { label: "Tag entfernt", icon: "bi-tag-fill", color: "gray" },
+    
+    // Versioning
+    version_create: { label: "Version erstellt", icon: "bi-clock-history", color: "fuchsia" },
+    version_restore: { label: "Version wiederhergestellt", icon: "bi-arrow-counterclockwise", color: "emerald" },
+    version_delete: { label: "Version gelöscht", icon: "bi-trash", color: "red" },
+    
+    // Auth
+    login: { label: "Angemeldet", icon: "bi-box-arrow-in-right", color: "green" },
+    logout: { label: "Abgemeldet", icon: "bi-box-arrow-right", color: "slate" },
+    password_change: { label: "Passwort geändert", icon: "bi-key", color: "amber" },
+    "2fa_enable": { label: "2FA aktiviert", icon: "bi-shield-check", color: "green" },
+    "2fa_disable": { label: "2FA deaktiviert", icon: "bi-shield", color: "red" },
+    
+    // Settings
+    settings_change: { label: "Einstellungen geändert", icon: "bi-gear", color: "slate" },
+    profile_update: { label: "Profil aktualisiert", icon: "bi-person", color: "blue" },
+  };
+
+  const formatAction = (action) => actionConfig[action]?.label || "Geändert";
+  const getIconForAction = (action) => actionConfig[action]?.icon || "bi-file-earmark";
+  const getColorForAction = (action) => actionConfig[action]?.color || "gray";
+
+  const extractFileName = (path) => {
+    if (!path) return "Datei";
+    const parts = path.split("/");
+    return parts[parts.length - 1] || path;
+  };
+
+  const formatTimeAgo = (timestamp) => {
+    if (!timestamp) return "gerade eben";
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) return "gerade eben";
+    if (diffMins < 60) return `vor ${diffMins} min`;
+    if (diffHours < 24) return `vor ${diffHours} h`;
+    if (diffDays < 7) return `vor ${diffDays} d`;
+    return date.toLocaleDateString("de-DE");
+  };
+
   const formatBytes = (bytes) => {
-    if (bytes === 0) return "0 B";
+    if (!bytes || bytes === 0) return "";
     const k = 1024;
     const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "vor Kurzem";
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffTime = now - date;
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  function navigateToFile(activity) {
+    if (activity.filePath) {
+      const path = activity.filePath.split("/").slice(0, -1).join("/") || "/";
+      window.location.hash = `#/files?path=${encodeURIComponent(path)}`;
+    }
+  }
 
-    if (diffDays === 0) return "heute";
-    if (diffDays === 1) return "gestern";
-    if (diffDays < 7) return `vor ${diffDays} Tagen`;
-    if (diffDays < 30) return `vor ${Math.floor(diffDays / 7)} Wochen`;
-    return `vor ${Math.floor(diffDays / 30)} Monaten`;
+  function setFilter(filterValue) {
+    activityFilter = filterValue;
+  }
+
+  // Color class helper
+  const colorClasses = {
+    green: "bg-green-500/20 text-green-600 dark:text-green-400",
+    blue: "bg-blue-500/20 text-blue-600 dark:text-blue-400",
+    red: "bg-red-500/20 text-red-600 dark:text-red-400",
+    amber: "bg-amber-500/20 text-amber-600 dark:text-amber-400",
+    purple: "bg-purple-500/20 text-purple-600 dark:text-purple-400",
+    indigo: "bg-indigo-500/20 text-indigo-600 dark:text-indigo-400",
+    teal: "bg-teal-500/20 text-teal-600 dark:text-teal-400",
+    sky: "bg-sky-500/20 text-sky-600 dark:text-sky-400",
+    emerald: "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400",
+    pink: "bg-pink-500/20 text-pink-600 dark:text-pink-400",
+    yellow: "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400",
+    gray: "bg-gray-500/20 text-gray-600 dark:text-gray-400",
+    violet: "bg-violet-500/20 text-violet-600 dark:text-violet-400",
+    slate: "bg-slate-500/20 text-slate-600 dark:text-slate-400",
+    cyan: "bg-cyan-500/20 text-cyan-600 dark:text-cyan-400",
+    lime: "bg-lime-500/20 text-lime-600 dark:text-lime-400",
+    orange: "bg-orange-500/20 text-orange-600 dark:text-orange-400",
+    fuchsia: "bg-fuchsia-500/20 text-fuchsia-600 dark:text-fuchsia-400",
   };
 
-  const getIconForAction = (action) => {
-    if (action.includes("upload")) return "bi-upload";
-    if (action.includes("delete")) return "bi-trash";
-    if (action.includes("create")) return "bi-folder-plus";
-    if (action.includes("share")) return "bi-share";
-    return "bi-file-earmark";
-  };
-
-  const getColorForAction = (action) => {
-    if (action.includes("upload")) return "green";
-    if (action.includes("delete")) return "red";
-    if (action.includes("create")) return "blue";
-    if (action.includes("share")) return "purple";
-    return "gray";
-  };
-
-  const getIconForFile = (filename) => {
-    if (filename.endsWith(".pdf")) return "bi-file-earmark-pdf";
-    if (filename.endsWith(".xlsx") || filename.endsWith(".xls"))
-      return "bi-file-earmark-spreadsheet";
-    if (filename.endsWith(".doc") || filename.endsWith(".docx"))
-      return "bi-file-earmark-word";
-    if (
-      filename.endsWith(".jpg") ||
-      filename.endsWith(".png") ||
-      filename.endsWith(".gif")
-    )
-      return "bi-image";
-    if (filename.endsWith(".txt")) return "bi-file-earmark-text";
-    return "bi-file-earmark";
-  };
-
-  const handleFileClick = (file) => {
-    // Navigate to file
-    console.log("Open file:", file);
-  };
+  const getColorClass = (color) => colorClasses[color] || colorClasses.gray;
 </script>
 
 <PageWrapper title="Dashboard" showSidebar={true}>
@@ -277,13 +315,13 @@
         <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">diese Woche</p>
       </div>
 
-      <!-- Syncs Card -->
+      <!-- Sessions Card -->
       <div class="glass-stat-card">
         <div class="flex items-center justify-between mb-4">
           <div
             class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center"
           >
-            <i class="bi bi-arrow-repeat text-emerald-500" aria-hidden="true"></i>
+            <i class="bi bi-people-fill text-emerald-500" aria-hidden="true"></i>
           </div>
           <span
             class="text-xs bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-full"
@@ -291,133 +329,142 @@
             Online
           </span>
         </div>
-        <p class="text-gray-600 dark:text-gray-400 text-sm">Aktive Syncs</p>
+        <p class="text-gray-600 dark:text-gray-400 text-sm">Aktive Sitzungen</p>
         <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">
-          {stats.activeSyncs}
+          {stats.activeSessions}
         </p>
         <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">
-          alle synchronisiert
+          Benutzer aktiv
         </p>
       </div>
 
-      <!-- Last Sync Card -->
+      <!-- Actions Today Card -->
       <div class="glass-stat-card">
         <div class="flex items-center justify-between mb-4">
           <div
             class="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center"
           >
-            <i class="bi bi-clock-history text-pink-500" aria-hidden="true"></i>
+            <i class="bi bi-lightning-fill text-pink-500" aria-hidden="true"></i>
           </div>
           <span
             class="text-xs bg-slate-500/20 text-slate-600 dark:text-slate-400 px-2 py-1 rounded-full"
           >
-            ✓
+            Heute
           </span>
         </div>
-        <p class="text-gray-600 dark:text-gray-400 text-sm">Letzte Sync</p>
+        <p class="text-gray-600 dark:text-gray-400 text-sm">Aktionen heute</p>
         <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">
-          {stats.lastSync}
+          {stats.actionsToday}
         </p>
-        <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">erfolgreich</p>
+        <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">Aktivitäten</p>
       </div>
     </div>
 
-    <!-- Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Recent Activity -->
-      <div class="lg:col-span-2">
-        <div class="glass-card-primary">
-          <div
-            class="flex items-center justify-between mb-6 pb-6 border-b border-gray-200/50 dark:border-gray-700/50"
-          >
-            <h2
-              class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2"
+    <!-- Unified Activity Timeline -->
+    <div class="glass-card-primary">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 pb-6 border-b border-gray-200/50 dark:border-gray-700/50 gap-4"
+      >
+        <h2
+          class="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2"
+        >
+          <i class="bi bi-activity text-amber-500" aria-hidden="true"></i>
+          Aktivitätsverlauf
+        </h2>
+        
+        <!-- Filter Buttons -->
+        <div class="flex flex-wrap gap-2">
+          {#each filterOptions as option}
+            <button
+              onclick={() => setFilter(option.value)}
+              class="px-3 py-1.5 text-xs font-medium rounded-full transition-all flex items-center gap-1.5
+                {activityFilter === option.value 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-200/50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-gray-300/50 dark:hover:bg-gray-600/50'}"
             >
-              <i class="bi bi-lightning-fill text-amber-500" aria-hidden="true"></i>
-              Aktuelle Aktivität
-            </h2>
-            <a
-              href="#"
-              class="text-blue-600 dark:text-blue-400 text-sm hover:underline"
-              >Alle anzeigen</a
-            >
-          </div>
-          <div class="space-y-3">
-            {#each recentActivity as activity (activity.id)}
-              <div class="glass-activity-item">
-                <div class="flex items-center gap-4">
-                  <div
-                    class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-200/50 to-gray-300/50 dark:from-gray-700/50 dark:to-gray-600/50 flex items-center justify-center flex-shrink-0"
-                  >
-                    <i
-                      class="bi {activity.icon} text-gray-700 dark:text-gray-300"
-                    ></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p
-                      class="text-gray-900 dark:text-white font-medium text-sm"
-                    >
-                      {activity.action}
-                    </p>
-                    <p
-                      class="text-gray-600 dark:text-gray-400 text-xs truncate"
-                    >
-                      {activity.file}
-                    </p>
-                  </div>
-                  <span
-                    class="text-gray-500 dark:text-gray-500 text-xs flex-shrink-0"
-                    >{activity.time}</span
-                  >
-                </div>
-              </div>
-            {/each}
-          </div>
+              <i class="bi {option.icon}" aria-hidden="true"></i>
+              {option.label}
+            </button>
+          {/each}
         </div>
       </div>
 
-      <!-- Recent Files Sidebar -->
-      <div>
-        <div class="glass-card-primary">
-          <h2
-            class="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-6 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center gap-2"
-          >
-            <i class="bi bi-bookmark-fill text-blue-500" aria-hidden="true"></i>
-            Zuletzt geöffnet
-          </h2>
-          <div class="space-y-3">
-            {#each recentFiles as file (file.name)}
-              <button
-                onclick={() => handleFileClick(file)}
-                class="glass-file-card w-full text-left group"
-              >
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-8 h-8 rounded-lg bg-gray-200/50 dark:bg-gray-700/50 flex items-center justify-center flex-shrink-0 group-hover:bg-gray-300/50 dark:group-hover:bg-gray-600/50 transition-colors"
-                  >
-                    <i
-                      class="bi {file.icon} text-gray-700 dark:text-gray-300 text-sm"
-                    ></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p
-                      class="text-gray-900 dark:text-white font-medium text-sm truncate"
-                    >
-                      {file.name}
-                    </p>
-                    <p class="text-gray-600 dark:text-gray-400 text-xs">
-                      {file.size}
-                    </p>
-                  </div>
-                </div>
-                <p class="text-gray-500 dark:text-gray-500 text-xs mt-2">
-                  {file.modified}
-                </p>
-              </button>
-            {/each}
-          </div>
+      {#if loading}
+        <div class="flex items-center justify-center py-12">
+          <div class="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
         </div>
-      </div>
+      {:else if activityTimeline.length === 0}
+        <div class="text-center py-12 text-gray-500 dark:text-gray-400">
+          <i class="bi bi-inbox text-4xl mb-3 block opacity-50" aria-hidden="true"></i>
+          <p>Keine Aktivitäten gefunden</p>
+          <p class="text-sm mt-1 opacity-75">
+            {activityFilter !== "all" ? "Versuche einen anderen Filter" : "Aktivitäten werden hier angezeigt"}
+          </p>
+        </div>
+      {:else}
+        <div class="space-y-3">
+          {#each activityTimeline as activity (activity.id)}
+            <button
+              onclick={() => navigateToFile(activity)}
+              class="w-full text-left p-4 rounded-xl bg-gray-50/50 dark:bg-gray-800/30 
+                     hover:bg-gray-100/50 dark:hover:bg-gray-700/30 transition-all group"
+            >
+              <div class="flex items-center gap-4">
+                <!-- Icon with color -->
+                <div
+                  class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 {getColorClass(activity.color)}"
+                >
+                  <i class="bi {activity.icon}" aria-hidden="true"></i>
+                </div>
+                
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="font-medium text-gray-900 dark:text-white text-sm">
+                      {activity.actionLabel}
+                    </span>
+                    {#if activity.username && activity.username !== "Du"}
+                      <span class="text-xs text-gray-500 dark:text-gray-500">
+                        von {activity.username}
+                      </span>
+                    {/if}
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-400 text-xs truncate mt-0.5">
+                    {activity.fileName}
+                    {#if activity.fileSize}
+                      <span class="text-gray-400 dark:text-gray-500 ml-2">
+                        ({formatBytes(activity.fileSize)})
+                      </span>
+                    {/if}
+                  </p>
+                </div>
+                
+                <!-- Time -->
+                <span class="text-gray-500 dark:text-gray-500 text-xs flex-shrink-0">
+                  {activity.time}
+                </span>
+                
+                <!-- Hover Arrow -->
+                <i 
+                  class="bi bi-chevron-right text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                  aria-hidden="true"
+                ></i>
+              </div>
+            </button>
+          {/each}
+        </div>
+        
+        <!-- View All Link -->
+        <div class="mt-6 pt-4 border-t border-gray-200/50 dark:border-gray-700/50 text-center">
+          <a
+            href="#/activity"
+            class="text-blue-600 dark:text-blue-400 text-sm hover:underline inline-flex items-center gap-1"
+          >
+            Alle Aktivitäten anzeigen
+            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+          </a>
+        </div>
+      {/if}
     </div>
   </div>
 </PageWrapper>

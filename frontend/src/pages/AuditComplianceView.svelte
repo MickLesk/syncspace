@@ -699,15 +699,17 @@
               class="text-xs text-gray-500 dark:text-gray-400 mb-3 space-y-1"
             >
               <div>
-                <i class="bi bi-calendar mr-1" aria-hidden="true"></i>{report.start_date} - {report.end_date}
+                <i class="bi bi-calendar mr-1" aria-hidden="true"
+                ></i>{report.start_date} - {report.end_date}
               </div>
               <div>
-                <i class="bi bi-file-text mr-1"
-                 aria-hidden="true"></i>{report.total_records?.toLocaleString()}
+                <i class="bi bi-file-text mr-1" aria-hidden="true"
+                ></i>{report.total_records?.toLocaleString()}
                 {tr("audit.records")}
               </div>
               <div>
-                <i class="bi bi-download mr-1" aria-hidden="true"></i>{report.download_count || 0}
+                <i class="bi bi-download mr-1" aria-hidden="true"
+                ></i>{report.download_count || 0}
                 {tr("audit.downloads")}
               </div>
             </div>
@@ -724,7 +726,8 @@
               <button
                 class="px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded-lg"
                 onclick={() => deleteReport(report)}
-               aria-label="Delete">
+                aria-label="Delete"
+              >
                 <i class="bi bi-trash" aria-hidden="true"></i>
               </button>
             </div>
@@ -733,7 +736,8 @@
           <div
             class="col-span-full text-center py-12 text-gray-500 dark:text-gray-400"
           >
-            <i class="bi bi-file-earmark-x text-4xl mb-2" aria-hidden="true"></i>
+            <i class="bi bi-file-earmark-x text-4xl mb-2" aria-hidden="true"
+            ></i>
             <p>{tr("audit.noReports")}</p>
           </div>
         {/each}
@@ -783,23 +787,25 @@
                   {/if}
                   <div class="flex flex-wrap gap-3 mt-2 text-sm">
                     <span class="text-gray-600 dark:text-gray-300">
-                      <i class="bi bi-database mr-1" aria-hidden="true"></i>{policy.resource_type}
+                      <i class="bi bi-database mr-1" aria-hidden="true"
+                      ></i>{policy.resource_type}
                     </span>
                     <span class="text-gray-600 dark:text-gray-300">
-                      <i class="bi bi-calendar-check mr-1"
-                       aria-hidden="true"></i>{policy.retention_days}
+                      <i class="bi bi-calendar-check mr-1" aria-hidden="true"
+                      ></i>{policy.retention_days}
                       {tr("audit.days")}
                     </span>
                     {#if policy.auto_delete}
                       <span class="text-red-600 dark:text-red-400">
-                        <i class="bi bi-trash mr-1" aria-hidden="true"></i>{tr("audit.autoDelete")}
+                        <i class="bi bi-trash mr-1" aria-hidden="true"></i>{tr(
+                          "audit.autoDelete"
+                        )}
                       </span>
                     {/if}
                     {#if policy.archive_before_delete}
                       <span class="text-blue-600 dark:text-blue-400">
-                        <i class="bi bi-archive mr-1" aria-hidden="true"></i>{tr(
-                          "audit.archiveFirst"
-                        )}
+                        <i class="bi bi-archive mr-1" aria-hidden="true"
+                        ></i>{tr("audit.archiveFirst")}
                       </span>
                     {/if}
                   </div>
@@ -838,7 +844,8 @@
                 <button
                   class="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-red-500"
                   onclick={() => deletePolicy(policy)}
-                 aria-label="Delete">
+                  aria-label="Delete"
+                >
                   <i class="bi bi-trash" aria-hidden="true"></i>
                 </button>
               </div>
@@ -882,7 +889,8 @@
               <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
-                    <i class="bi bi-archive text-indigo-500" aria-hidden="true"></i>
+                    <i class="bi bi-archive text-indigo-500" aria-hidden="true"
+                    ></i>
                     <span class="font-medium text-gray-900 dark:text-white"
                       >{archive.archive_name}</span
                     >
@@ -941,8 +949,11 @@
         <!-- Templates -->
         {#if templates.length > 0}
           <div>
-            <div class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{tr("audit.useTemplate")}</div
+            <div
+              class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2"
             >
+              {tr("audit.useTemplate")}
+            </div>
             <div class="grid grid-cols-2 gap-2">
               {#each templates as template}
                 <button
@@ -965,8 +976,11 @@
         {/if}
 
         <div>
-          <div class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{tr("audit.reportName")} *</label
+          <div
+            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
           >
+            {tr("audit.reportName")} *
+          </div>
           <input
             type="text"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
@@ -1138,7 +1152,8 @@
             />
             <span class="text-sm text-gray-700 dark:text-gray-200"
               >{tr("audit.autoDeleteEnabled")}</span
-            ></div>
+            >
+          </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -1157,7 +1172,8 @@
             />
             <span class="text-sm text-gray-700 dark:text-gray-200"
               >{tr("audit.notifyBeforeDelete")}</span
-            ></div>
+            >
+          </label>
         </div>
       </div>
       <div

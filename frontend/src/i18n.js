@@ -30,6 +30,27 @@ export const translations = {
     loadingFolders: 'Ordner werden geladen...',
     noFolders: 'Keine Ordner',
     
+    // Dashboard (User Dashboard)
+    dashboard: {
+      title: 'Dashboard',
+      welcome: 'Willkommen zurück',
+      overview: 'Übersicht',
+      storageUsed: 'Speicher belegt',
+      of: 'von',
+      files: 'Dateien',
+      filesThisWeek: 'diese Woche',
+      activeSyncs: 'Aktive Synchronisierungen',
+      lastSync: 'Letzte Synchronisierung',
+      recentActivity: 'Letzte Aktivität',
+      recentFiles: 'Letzte Dateien',
+      viewAll: 'Alle anzeigen',
+      noActivity: 'Keine Aktivität',
+      noFiles: 'Keine Dateien',
+      today: 'Heute',
+      activeToday: 'Heute aktiv',
+      actionsToday: 'Aktionen heute',
+    },
+    
     // ActivityView
     activityTimeline: 'Aktivitätsverlauf',
     trackAllFileOperations: 'Verfolgen Sie alle Dateioperationen und Änderungen',
@@ -2465,6 +2486,25 @@ export const translations = {
       exportSuccess: 'Export erfolgreich',
     },
 
+    // Cleanup Management
+    cleanup: {
+      title: 'Bereinigung',
+      description: 'Automatische Bereinigung gelöschter Dateien verwalten',
+      eligibleFiles: 'Bereinigungs-bereite Dateien',
+      retentionDays: 'Aufbewahrungstage',
+      lastCleanup: 'Letzte Bereinigung',
+      triggerCleanup: 'Bereinigung starten',
+      confirmCleanup: 'Möchten Sie die Bereinigung wirklich starten? Dies löscht alle Dateien, die länger als {0} Tage gelöscht sind.',
+      cleanupStarted: 'Bereinigung gestartet',
+      cleanupComplete: 'Bereinigung abgeschlossen',
+      filesDeleted: '{0} Dateien gelöscht',
+      loadError: 'Fehler beim Laden der Bereinigungsdaten',
+      triggerError: 'Fehler beim Starten der Bereinigung',
+      noFilesToCleanup: 'Keine Dateien zur Bereinigung',
+      dryRun: 'Probelauf',
+      dryRunDescription: 'Zeigt, welche Dateien gelöscht würden, ohne sie tatsächlich zu löschen',
+    },
+
     // Admin Dashboard
     dashboard: {
       title: 'Dashboard',
@@ -2879,6 +2919,27 @@ export const translations = {
     folders: 'Folders',
     loadingFolders: 'Loading folders...',
     noFolders: 'No folders',
+    
+    // Dashboard (User Dashboard)
+    dashboard: {
+      title: 'Dashboard',
+      welcome: 'Welcome back',
+      overview: 'Overview',
+      storageUsed: 'Storage used',
+      of: 'of',
+      files: 'Files',
+      filesThisWeek: 'this week',
+      activeSyncs: 'Active syncs',
+      lastSync: 'Last sync',
+      recentActivity: 'Recent activity',
+      recentFiles: 'Recent files',
+      viewAll: 'View all',
+      noActivity: 'No activity',
+      noFiles: 'No files',
+      today: 'Today',
+      activeToday: 'Active today',
+      actionsToday: 'Actions today',
+    },
     
     // ActivityView
     activityTimeline: 'Activity Timeline',
@@ -5247,6 +5308,25 @@ export const translations = {
       reportGenerated: 'Report generated successfully',
       reportDeleted: 'Report deleted',
       exportSuccess: 'Export successful',
+    },
+
+    // Cleanup Management
+    cleanup: {
+      title: 'Cleanup',
+      description: 'Manage automatic cleanup of deleted files',
+      eligibleFiles: 'Eligible for cleanup',
+      retentionDays: 'Retention days',
+      lastCleanup: 'Last cleanup',
+      triggerCleanup: 'Trigger Cleanup',
+      confirmCleanup: 'Do you really want to start the cleanup? This will delete all files that have been deleted for more than {0} days.',
+      cleanupStarted: 'Cleanup started',
+      cleanupComplete: 'Cleanup complete',
+      filesDeleted: '{0} files deleted',
+      loadError: 'Failed to load cleanup data',
+      triggerError: 'Failed to start cleanup',
+      noFilesToCleanup: 'No files to cleanup',
+      dryRun: 'Dry run',
+      dryRunDescription: 'Shows which files would be deleted without actually deleting them',
     },
 
     // Admin Dashboard

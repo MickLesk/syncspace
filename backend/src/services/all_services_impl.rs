@@ -169,6 +169,22 @@ pub mod sharing {
         let now = Utc::now();
         sqlx::query("INSERT INTO shared_links (id, item_type, item_id, created_by, is_public, allow_download, download_count, created_at) VALUES (?, 'file', ?, ?, ?, 1, 0, ?)")
             .bind(&id).bind(path).bind(&user.id).bind(1).bind(now.to_rfc3339()).execute(&state.db_pool).await?;
+        
+        // Log share activity
+        let file_name = path.split('/').last().unwrap_or(path).to_string();
+        let _ = super::activity::log(
+            state,
+            &user.id,
+            activity::actions::SHARE,
+            path,
+            &file_name,
+            None,
+            None,
+            "success",
+            None,
+            Some(serde_json::json!({"share_id": id.to_string(), "token": &token})),
+        ).await;
+
         Ok(Share {
             id,
             file_path: path.to_string(),
@@ -529,6 +545,58 @@ pub mod sharing {
 pub mod activity {
     use super::*;
 
+    /// All supported activity action types
+    pub mod actions {
+        // File operations
+        pub const UPLOAD: &str = "upload";
+        pub const DOWNLOAD: &str = "download";
+        pub const DELETE: &str = "delete";
+        pub const RENAME: &str = "rename";
+        pub const MOVE: &str = "move";
+        pub const COPY: &str = "copy";
+        pub const CREATE: &str = "create";
+        pub const PREVIEW: &str = "preview";
+        pub const RESTORE: &str = "restore";
+        
+        // Folder operations
+        pub const FOLDER_CREATE: &str = "folder_create";
+        pub const FOLDER_DELETE: &str = "folder_delete";
+        pub const FOLDER_RENAME: &str = "folder_rename";
+        pub const FOLDER_MOVE: &str = "folder_move";
+        pub const FOLDER_COLOR: &str = "folder_color";
+        
+        // Favorites
+        pub const FAVORITE: &str = "favorite";
+        pub const UNFAVORITE: &str = "unfavorite";
+        
+        // Sharing
+        pub const SHARE: &str = "share";
+        pub const UNSHARE: &str = "unshare";
+        pub const SHARE_ACCESS: &str = "share_access";
+        
+        // Comments & Tags
+        pub const COMMENT_ADD: &str = "comment_add";
+        pub const COMMENT_DELETE: &str = "comment_delete";
+        pub const TAG_ADD: &str = "tag_add";
+        pub const TAG_REMOVE: &str = "tag_remove";
+        
+        // Versioning
+        pub const VERSION_CREATE: &str = "version_create";
+        pub const VERSION_RESTORE: &str = "version_restore";
+        pub const VERSION_DELETE: &str = "version_delete";
+        
+        // Auth & Security
+        pub const LOGIN: &str = "login";
+        pub const LOGOUT: &str = "logout";
+        pub const PASSWORD_CHANGE: &str = "password_change";
+        pub const TOTP_ENABLE: &str = "2fa_enable";
+        pub const TOTP_DISABLE: &str = "2fa_disable";
+        
+        // Settings
+        pub const SETTINGS_CHANGE: &str = "settings_change";
+        pub const PROFILE_UPDATE: &str = "profile_update";
+    }
+
     /// Log an activity to the database
     pub async fn log(
         state: &AppState,
@@ -573,6 +641,16 @@ pub mod activity {
         user: &UserInfo,
         limit: usize,
     ) -> Result<Vec<serde_json::Value>> {
+        list_filtered(state, user, limit, None).await
+    }
+
+    /// List activities with optional action filter
+    pub async fn list_filtered(
+        state: &AppState,
+        user: &UserInfo,
+        limit: usize,
+        action_filter: Option<&str>,
+    ) -> Result<Vec<serde_json::Value>> {
         #[derive(sqlx::FromRow)]
         struct ActivityRow {
             id: String,
@@ -588,12 +666,29 @@ pub mod activity {
             created_at: String,
         }
 
-        // Get all activities (we'll filter by permissions)
-        let rows: Vec<ActivityRow> =
-            sqlx::query_as("SELECT * FROM activity_log ORDER BY created_at DESC LIMIT ?")
-                .bind((limit * 3) as i64) // Fetch more to ensure we have enough after filtering
-                .fetch_all(&state.db_pool)
-                .await?;
+        // Fetch more to ensure we have enough after filtering
+        let fetch_limit = (limit * 3) as i64;
+
+        // Build query based on filter
+        let rows: Vec<ActivityRow> = if let Some(action) = action_filter {
+            sqlx::query_as(
+                "SELECT * FROM activity_log WHERE action = ? ORDER BY created_at DESC LIMIT ?"
+            )
+            .bind(action)
+            .bind(fetch_limit)
+            .fetch_all(&state.db_pool)
+            .await?
+        } else {
+            sqlx::query_as(
+                "SELECT * FROM activity_log ORDER BY created_at DESC LIMIT ?"
+            )
+            .bind(fetch_limit)
+            .fetch_all(&state.db_pool)
+            .await?
+        };
+
+        // Get username lookup
+        let usernames = get_usernames(state).await;
 
         let mut filtered_activities = Vec::new();
 
@@ -602,9 +697,13 @@ pub mod activity {
             let has_access = check_file_access(state, user, &row.file_path).await;
 
             if has_access {
+                // Get username for display
+                let username = usernames.get(&row.user_id).cloned().unwrap_or_else(|| "Unknown".to_string());
+                
                 filtered_activities.push(serde_json::json!({
                     "id": &row.id,
                     "user_id": &row.user_id,
+                    "username": username,
                     "action": &row.action,
                     "file_path": &row.file_path,
                     "file_name": &row.file_name,
@@ -624,6 +723,18 @@ pub mod activity {
         }
 
         Ok(filtered_activities)
+    }
+
+    /// Get all usernames for display
+    async fn get_usernames(state: &AppState) -> std::collections::HashMap<String, String> {
+        let rows: Vec<(String, String)> = sqlx::query_as(
+            "SELECT id, COALESCE(display_name, username) as name FROM users"
+        )
+        .fetch_all(&state.db_pool)
+        .await
+        .unwrap_or_default();
+        
+        rows.into_iter().collect()
     }
 
     /// Check if user has access to a file based on ownership, permissions, or shares
@@ -999,8 +1110,26 @@ pub mod favorites {
                 .unwrap_or_default()
         };
 
+        // Get item name for activity log
+        let item_name = item_id.split('/').last().unwrap_or(item_id).to_string();
+
         sqlx::query("INSERT INTO user_favorites (id, user_id, item_type, item_id, item_path, created_at) VALUES (?, ?, ?, ?, ?, ?)")
             .bind(&id).bind(&user.id).bind(item_type).bind(item_id).bind(&item_path).bind(&now).execute(&state.db_pool).await?;
+        
+        // Log activity
+        let _ = super::activity::log(
+            state,
+            &user.id,
+            activity::actions::FAVORITE,
+            item_id,
+            &item_name,
+            None,
+            None,
+            "success",
+            None,
+            Some(serde_json::json!({"item_type": item_type})),
+        ).await;
+
         Ok(UserFavorite {
             id,
             user_id: user.id.clone(),
@@ -1026,11 +1155,38 @@ pub mod favorites {
         user: &UserInfo,
         favorite_id: &str,
     ) -> Result<()> {
+        // Get favorite info before deleting for activity log
+        let fav: Option<UserFavorite> = sqlx::query_as(
+            "SELECT * FROM user_favorites WHERE id = ? AND user_id = ?"
+        )
+        .bind(favorite_id)
+        .bind(&user.id)
+        .fetch_optional(&state.db_pool)
+        .await?;
+
         sqlx::query("DELETE FROM user_favorites WHERE id = ? AND user_id = ?")
             .bind(favorite_id)
             .bind(&user.id)
             .execute(&state.db_pool)
             .await?;
+
+        // Log activity if we found the favorite
+        if let Some(favorite) = fav {
+            let item_name = favorite.item_id.split('/').last().unwrap_or(&favorite.item_id).to_string();
+            let _ = super::activity::log(
+                state,
+                &user.id,
+                activity::actions::UNFAVORITE,
+                &favorite.item_id,
+                &item_name,
+                None,
+                None,
+                "success",
+                None,
+                Some(serde_json::json!({"item_type": favorite.item_type})),
+            ).await;
+        }
+
         Ok(())
     }
 

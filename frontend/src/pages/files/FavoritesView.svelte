@@ -6,14 +6,28 @@
   import { favorites } from "../../stores/favorites";
   import { currentPath } from "../../stores/ui.js";
   import { success, error } from "../../stores/toast";
+  import { modals } from "../../stores/modals";
   import api from "../../lib/api.js";
+  import { getContextMenuItems } from "../../lib/contextMenuActions.js";
+  import ContextMenu from "../../components/ui/ContextMenu.svelte";
   import Loading from "../../components/ui/Loading.svelte";
 
   let favoriteFiles = $state([]);
   let loading = $state(false);
   let errorMsg = $state(null);
+  
+  // Context menu state
+  let contextMenu = $state(null);
+  let contextMenuVisible = $state(false);
+  let contextMenuX = $state(0);
+  let contextMenuY = $state(0);
+  let contextMenuItems = $state([]);
 
-  function getFileIconEmoji(mimeType) {
+  function getFileIconEmoji(itemType, mimeType) {
+    // Check if it's a folder first
+    if (itemType === "folder") return "📁";
+    
+    // Then check mime type for files
     if (!mimeType) return "📄";
     if (mimeType.startsWith("image/")) return "🖼️";
     if (mimeType.startsWith("video/")) return "🎬";
@@ -79,11 +93,96 @@
     }
   }
 
-  function navigateToFile(filePath) {
-    const parts = filePath.split("/");
-    const fileName = parts.pop();
-    const dirPath = "/" + (parts.length > 0 ? parts.join("/") + "/" : "");
-    currentPath.set(dirPath);
+  async function handleItemClick(file) {
+    if (file.itemType === "folder") {
+      // Navigate to folder in Files view
+      window.location.hash = "#/files";
+      setTimeout(() => {
+        currentPath.set(file.fullPath);
+      }, 100);
+    } else {
+      // For files, show preview or download
+      try {
+        // Try to open preview modal if available
+        if (modals.openPreview) {
+          const fileObj = {
+            name: file.name,
+            path: file.fullPath,
+            file_path: file.fullPath,
+            mime_type: file.mimeType,
+            size_bytes: file.size,
+            is_directory: false,
+          };
+          modals.openPreview(fileObj);
+        } else {
+          // Fallback: download file
+          await downloadFile(file);
+        }
+      } catch (err) {
+        console.error("Failed to open file:", err);
+        error("Failed to open file");
+      }
+    }
+  }
+
+  async function downloadFile(file) {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/files${file.fullPath}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        }
+      );
+      
+      if (!response.ok) throw new Error("Download failed");
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      success(`${file.name} downloaded`);
+    } catch (err) {
+      console.error("Download failed:", err);
+      error("Download failed");
+    }
+  }
+
+  function handleContextMenu(file, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Convert favorite to file object format for context menu
+    const fileObj = {
+      name: file.name,
+      path: file.fullPath,
+      file_path: file.fullPath,
+      is_directory: file.itemType === "folder",
+      mime_type: file.mimeType,
+      size_bytes: file.size,
+      type: file.itemType === "folder" ? "folder" : "file",
+    };
+    
+    contextMenuItems = getContextMenuItems(fileObj, {
+      canEdit: true,
+      canDelete: true,
+      canShare: true,
+    });
+    
+    contextMenuX = event.clientX;
+    contextMenuY = event.clientY;
+    contextMenuVisible = true;
+  }
+
+  function closeContextMenu() {
+    contextMenuVisible = false;
   }
 
   function formatPath(path) {
@@ -208,19 +307,44 @@
         >
           {#each favoriteFiles as file, i}
             <div
-              class="glass-card p-6 cursor-pointer hover:scale-105 transition-all duration-200 animate-slide-up"
+              class="glass-card p-6 cursor-pointer hover:scale-105 transition-all duration-200 animate-slide-up relative group"
               style="animation-delay: {i * 30}ms"
               role="button"
               tabindex="0"
-              onclick={() => navigateToFile(file.fullPath)}
+              onclick={() => handleItemClick(file)}
+              oncontextmenu={(e) => handleContextMenu(file, e)}
               onkeydown={(e) =>
                 (e.key === "Enter" || e.key === " ") &&
-                navigateToFile(file.fullPath)}
+                handleItemClick(file)}
             >
+              <!-- Quick Action Buttons (visible on hover) -->
+              <div class="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                {#if file.itemType !== "folder"}
+                  <button
+                    type="button"
+                    onclick={(e) => {
+                      e.stopPropagation();
+                      downloadFile(file);
+                    }}
+                    class="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                    title="Download"
+                  >
+                    <i class="bi bi-download text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
+                  </button>
+                {/if}
+                <button
+                  type="button"
+                  onclick={(e) => removeFavorite(file, e)}
+                  class="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                  title="Remove from Favorites"
+                >
+                  <i class="bi bi-star-fill text-yellow-500" aria-hidden="true"></i>
+                </button>
+              </div>
               <!-- File Icon -->
               <div class="text-center mb-4">
                 <div class="text-6xl mb-3">
-                  {getFileIconEmoji(file.mimeType)}
+                  {getFileIconEmoji(file.itemType, file.mimeType)}
                 </div>
                 <h3 class="font-bold text-lg mb-2 truncate" title={file.name}>
                   {file.name}
@@ -231,7 +355,14 @@
               <div
                 class="flex flex-wrap gap-3 justify-center text-xs text-gray-600 dark:text-gray-400 mb-3"
               >
-                {#if file.size}
+                {#if file.itemType === "folder"}
+                  <span
+                    class="flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg"
+                  >
+                    <i class="bi bi-folder" aria-hidden="true"></i>
+                    Ordner
+                  </span>
+                {:else if file.size}
                   <span
                     class="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg"
                   >
@@ -270,6 +401,16 @@
       {/if}
     </div>
   </div>
+{/if}
+
+<!-- Context Menu -->
+{#if contextMenuVisible}
+  <ContextMenu
+    x={contextMenuX}
+    y={contextMenuY}
+    items={contextMenuItems}
+    onClose={closeContextMenu}
+  />
 {/if}
 
 <style>

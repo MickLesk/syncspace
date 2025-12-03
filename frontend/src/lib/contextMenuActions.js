@@ -9,7 +9,7 @@
  */
 
 import api from './api.js';
-import { toast } from '../stores/toast.js';
+import { success, error } from '../stores/toast.js';
 
 /**
  * Get context menu items based on file/folder and context
