@@ -26,7 +26,6 @@
   // File Views
   import FilesView from "./pages/files/FilesView.svelte";
   import SharedView from "./pages/files/SharedView.svelte";
-  import RecentFilesView from "./pages/files/RecentFilesView.svelte";
   import FavoritesView from "./pages/files/FavoritesView.svelte";
 
   // System Views
@@ -460,8 +459,6 @@
                 <ApiTokensView />
               {:else if $currentView === "notifications"}
                 <NotificationsView />
-              {:else if $currentView === "recent"}
-                <RecentFilesView />
               {/if}
             </main>
           </ErrorBoundary>

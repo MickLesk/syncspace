@@ -625,23 +625,34 @@
     const files = [];
     let folderName = null;
 
-    if (items) {
-      // Use webkitGetAsEntry API to handle folders
+    if (items && items.length > 0) {
+      // IMPORTANT: Get all entries FIRST before any async operations
+      // webkitGetAsEntry() becomes invalid after the drop event ends
+      const entries = [];
       for (let i = 0; i < items.length; i++) {
-        const item = items[i].webkitGetAsEntry();
-        if (item) {
-          // Track folder name if uploading a folder
-          if (item.isDirectory && !folderName) {
-            folderName = item.name;
+        if (items[i].kind === 'file') {
+          const entry = items[i].webkitGetAsEntry();
+          if (entry) {
+            entries.push(entry);
+            // Track folder name if uploading a folder
+            if (entry.isDirectory && !folderName) {
+              folderName = entry.name;
+            }
           }
-          await traverseFileTree(item, "", files);
         }
       }
-    } else {
+      
+      // Now process all entries
+      for (const entry of entries) {
+        await traverseFileTree(entry, "", files);
+      }
+    } else if (dataTransfer.files && dataTransfer.files.length > 0) {
       // Fallback to regular files
-      files.push(...Array.from(dataTransfer.files || []));
+      files.push(...Array.from(dataTransfer.files));
     }
 
+    console.log(`[DragDrop] Processing ${files.length} files`);
+    
     if (files.length > 0) {
       handleUpload(files, folderName, files.length);
     }

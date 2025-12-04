@@ -84,10 +84,13 @@
       category: "main",
     },
     {
-      id: "recent",
+      id: "activity",
       icon: "clock-history",
-      label: t($currentLang, "recentFiles"),
+      label: t($currentLang, "activityHistory"),
       category: "main",
+      badge: notificationCount,
+      badgeClass:
+        "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200",
     },
     {
       id: "shared",
@@ -97,15 +100,6 @@
       badge: sharedCount,
       badgeClass:
         "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200",
-    },
-    {
-      id: "activity",
-      label: t($currentLang, "activity"),
-      category: "tools",
-      icon: "activity",
-      badge: notificationCount,
-      badgeClass:
-        "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200",
     },
     {
       id: "trash",

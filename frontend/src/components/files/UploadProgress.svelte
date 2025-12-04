@@ -111,32 +111,53 @@
     right: 1rem;
     width: 400px;
     max-height: 500px;
-    background: hsl(var(--b1));
-    border: 1px solid hsl(var(--bc) / 0.2);
-    border-radius: var(--rounded-box);
-    box-shadow: 0 10px 40px hsl(var(--bc) / 0.2);
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     z-index: 100;
     animation: slideUp 0.3s;
   }
+  
+  :global(.dark) .upload-panel {
+    background: #1f2937;
+    border-color: #374151;
+  }
+  
   .upload-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    border-bottom: 1px solid hsl(var(--bc) / 0.1);
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+    border-radius: 12px 12px 0 0;
   }
+  
+  :global(.dark) .upload-header {
+    background: #111827;
+    border-color: #374151;
+  }
+  
   .upload-title {
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     margin: 0;
+    color: #111827;
   }
+  
+  :global(.dark) .upload-title {
+    color: #f9fafb;
+  }
+  
   .upload-list {
     max-height: 400px;
     overflow-y: auto;
     padding: 0.5rem;
   }
+  
   .upload-item {
     display: flex;
     gap: 0.75rem;
@@ -144,29 +165,48 @@
     border-radius: 0.5rem;
     transition: background 0.2s;
   }
+  
   .upload-item:hover {
-    background: hsl(var(--bc) / 0.05);
+    background: #f3f4f6;
   }
+  
+  :global(.dark) .upload-item:hover {
+    background: #374151;
+  }
+  
   .upload-icon {
     font-size: 1.5rem;
     display: flex;
     align-items: center;
   }
+  
   .upload-details {
     flex: 1;
     min-width: 0;
   }
+  
   .upload-name {
     font-weight: 500;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: #111827;
   }
+  
+  :global(.dark) .upload-name {
+    color: #f9fafb;
+  }
+  
   .upload-meta {
     font-size: 0.75rem;
-    color: hsl(var(--bc) / 0.6);
+    color: #6b7280;
     margin-top: 0.25rem;
   }
+  
+  :global(.dark) .upload-meta {
+    color: #9ca3af;
+  }
+  
   .upload-actions {
     display: flex;
     align-items: center;

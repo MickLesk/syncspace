@@ -71,6 +71,22 @@ async fn set_folder_color(
         return Err(StatusCode::NOT_FOUND);
     }
 
+    // Log activity
+    let folder_name = file_path.split('/').last().unwrap_or(file_path);
+    let _ = crate::services::activity::log(
+        &state,
+        &user_info.id,
+        "folder_color",
+        file_path,
+        folder_name,
+        None,
+        None,
+        "success",
+        None,
+        Some(serde_json::json!({ "color": &req.color })),
+    )
+    .await;
+
     Ok(Json(serde_json::json!({
         "message": "Folder color updated",
         "file_path": file_path,

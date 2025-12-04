@@ -691,10 +691,13 @@ pub mod activity {
         let usernames = get_usernames(state).await;
 
         let mut filtered_activities = Vec::new();
+        let current_user_id = user.user_id();
 
         for row in rows {
-            // Check if user has permission to see this activity
-            let has_access = check_file_access(state, user, &row.file_path).await;
+            // Users can always see their own activities
+            // For other users' activities, check file access permissions
+            let has_access = row.user_id == current_user_id 
+                || check_file_access(state, user, &row.file_path).await;
 
             if has_access {
                 // Get username for display
@@ -741,9 +744,9 @@ pub mod activity {
     async fn check_file_access(state: &AppState, user: &UserInfo, file_path: &str) -> bool {
         let user_id = user.user_id();
 
-        // 1. Check if user is the owner of the file
+        // 1. Check if user is the owner of the file (note: column is 'path' not 'file_path')
         let is_owner: Option<(i64,)> =
-            sqlx::query_as("SELECT COUNT(*) FROM files WHERE file_path = ? AND owner_id = ?")
+            sqlx::query_as("SELECT COUNT(*) FROM files WHERE path = ? AND owner_id = ?")
                 .bind(file_path)
                 .bind(user_id)
                 .fetch_optional(&state.db_pool)
@@ -761,7 +764,7 @@ pub mod activity {
         let has_permission: Option<(i64,)> = sqlx::query_as(
             "SELECT COUNT(*) FROM file_permissions fp 
              JOIN files f ON (fp.item_type = 'file' AND fp.item_id = f.id)
-             WHERE f.file_path = ? AND fp.user_id = ? AND fp.can_read = 1 
+             WHERE f.path = ? AND fp.user_id = ? AND fp.can_read = 1 
              AND (fp.expires_at IS NULL OR fp.expires_at > datetime('now'))",
         )
         .bind(file_path)
@@ -781,7 +784,7 @@ pub mod activity {
         let is_shared: Option<(i64,)> = sqlx::query_as(
             "SELECT COUNT(*) FROM shares s
              JOIN files f ON s.file_id = f.id
-             WHERE f.file_path = ? AND s.shared_with_user_id = ?
+             WHERE f.path = ? AND s.shared_with_user_id = ?
              AND (s.expires_at IS NULL OR s.expires_at > datetime('now'))",
         )
         .bind(file_path)
@@ -795,6 +798,11 @@ pub mod activity {
             if count > 0 {
                 return true;
             }
+        }
+
+        // 4. For activities without a file path (login, settings, etc.), allow access
+        if file_path.is_empty() {
+            return true;
         }
 
         // No access found
