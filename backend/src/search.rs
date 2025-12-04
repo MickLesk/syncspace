@@ -36,6 +36,10 @@ pub struct SearchSuggestion {
     pub text: String,
     pub file_type: Option<String>,
     pub score: f32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub size_bytes: Option<i64>,
 }
 
 /// Faceted search filters
@@ -574,6 +578,8 @@ impl SearchIndex {
                     text: filename,
                     file_type,
                     score,
+                    path: None,
+                    size_bytes: None,
                 });
             }
         }

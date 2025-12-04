@@ -15,7 +15,7 @@
   let favoriteFiles = $state([]);
   let loading = $state(false);
   let errorMsg = $state(null);
-  
+
   // Context menu state
   let contextMenu = $state(null);
   let contextMenuVisible = $state(false);
@@ -26,7 +26,7 @@
   function getFileIconEmoji(itemType, mimeType) {
     // Check if it's a folder first
     if (itemType === "folder") return "📁";
-    
+
     // Then check mime type for files
     if (!mimeType) return "📄";
     if (mimeType.startsWith("image/")) return "🖼️";
@@ -135,9 +135,9 @@
           },
         }
       );
-      
+
       if (!response.ok) throw new Error("Download failed");
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -147,7 +147,7 @@
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
+
       success(`${file.name} downloaded`);
     } catch (err) {
       console.error("Download failed:", err);
@@ -158,7 +158,7 @@
   function handleContextMenu(file, event) {
     event.preventDefault();
     event.stopPropagation();
-    
+
     // Convert favorite to file object format for context menu
     const fileObj = {
       name: file.name,
@@ -169,13 +169,13 @@
       size_bytes: file.size,
       type: file.itemType === "folder" ? "folder" : "file",
     };
-    
+
     contextMenuItems = getContextMenuItems(fileObj, {
       canEdit: true,
       canDelete: true,
       canShare: true,
     });
-    
+
     contextMenuX = event.clientX;
     contextMenuY = event.clientY;
     contextMenuVisible = true;
@@ -262,8 +262,10 @@
             disabled={loading}
             class="px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            <i class="bi bi-arrow-clockwise {loading ? 'animate-spin' : ''}"
-             aria-hidden="true"></i>
+            <i
+              class="bi bi-arrow-clockwise {loading ? 'animate-spin' : ''}"
+              aria-hidden="true"
+            ></i>
             <span>Refresh</span>
           </button>
         </div>
@@ -276,7 +278,10 @@
         <!-- Error State -->
         <div class="glass-card p-12 text-center animate-slide-up">
           <div class="mb-6">
-            <i class="bi bi-exclamation-triangle text-6xl text-red-500/30" aria-hidden="true"></i>
+            <i
+              class="bi bi-exclamation-triangle text-6xl text-red-500/30"
+              aria-hidden="true"
+            ></i>
           </div>
           <h3 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-3">
             {errorMsg}
@@ -293,7 +298,8 @@
         <!-- Empty State -->
         <div class="glass-card p-12 text-center animate-slide-up">
           <div class="mb-6">
-            <i class="bi bi-star text-6xl text-yellow-500/30" aria-hidden="true"></i>
+            <i class="bi bi-star text-6xl text-yellow-500/30" aria-hidden="true"
+            ></i>
           </div>
           <h3 class="text-2xl font-bold mb-3">No favorites yet</h3>
           <p class="text-gray-600 dark:text-gray-400">
@@ -314,11 +320,12 @@
               onclick={() => handleItemClick(file)}
               oncontextmenu={(e) => handleContextMenu(file, e)}
               onkeydown={(e) =>
-                (e.key === "Enter" || e.key === " ") &&
-                handleItemClick(file)}
+                (e.key === "Enter" || e.key === " ") && handleItemClick(file)}
             >
               <!-- Quick Action Buttons (visible on hover) -->
-              <div class="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+              <div
+                class="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+              >
                 {#if file.itemType !== "folder"}
                   <button
                     type="button"
@@ -329,7 +336,10 @@
                     class="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
                     title="Download"
                   >
-                    <i class="bi bi-download text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
+                    <i
+                      class="bi bi-download text-blue-600 dark:text-blue-400"
+                      aria-hidden="true"
+                    ></i>
                   </button>
                 {/if}
                 <button
@@ -338,7 +348,8 @@
                   class="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                   title="Remove from Favorites"
                 >
-                  <i class="bi bi-star-fill text-yellow-500" aria-hidden="true"></i>
+                  <i class="bi bi-star-fill text-yellow-500" aria-hidden="true"
+                  ></i>
                 </button>
               </div>
               <!-- File Icon -->

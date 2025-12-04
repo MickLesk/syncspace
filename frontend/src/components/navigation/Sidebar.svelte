@@ -204,8 +204,10 @@
       onclick={toggleSidebar}
       aria-label="Toggle sidebar"
     >
-      <i class="bi bi-chevron-{$sidebarCollapsed ? 'right' : 'left'} text-lg"
-       aria-hidden="true"></i>
+      <i
+        class="bi bi-chevron-{$sidebarCollapsed ? 'right' : 'left'} text-lg"
+        aria-hidden="true"
+      ></i>
     </button>
   </div>
 

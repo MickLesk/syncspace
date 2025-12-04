@@ -31,7 +31,7 @@
         <i class="bi bi-cloud-upload" aria-hidden="true"></i>
         {tr("uploads")} ({uploads.length})
       </h3>
-      <button class="btn btn-ghost btn-sm">{tr("clearAll")}</button>
+      <button class="clear-btn">{tr("clearAll")}</button>
     </div>
 
     <div class="upload-list">
@@ -50,7 +50,10 @@
             {:else if upload.status === "retrying"}<i
                 class="bi bi-arrow-clockwise text-warning spinning"
               ></i>
-            {:else}<i class="bi bi-file-earmark-arrow-up text-primary" aria-hidden="true"></i>{/if}
+            {:else}<i
+                class="bi bi-file-earmark-arrow-up text-primary"
+                aria-hidden="true"
+              ></i>{/if}
           </div>
 
           <div class="upload-details">
@@ -86,14 +89,11 @@
 
           <div class="upload-actions">
             {#if upload.status === "uploading"}
-              <button
-                class="btn btn-ghost btn-xs btn-circle"
-                aria-label="Cancel upload"><i class="bi bi-x-lg" aria-hidden="true"></i></button
+              <button class="action-btn" aria-label="Cancel upload"
+                ><i class="bi bi-x-lg" aria-hidden="true"></i></button
               >
             {:else if upload.status === "error"}
-              <button
-                class="btn btn-ghost btn-xs gap-1"
-                aria-label="Retry upload"
+              <button class="action-btn" aria-label="Retry upload"
                 ><i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Retry</button
               >
             {/if}
@@ -118,12 +118,12 @@
     z-index: 100;
     animation: slideUp 0.3s;
   }
-  
+
   :global(.dark) .upload-panel {
     background: #1f2937;
     border-color: #374151;
   }
-  
+
   .upload-header {
     display: flex;
     justify-content: space-between;
@@ -133,12 +133,12 @@
     background: #f9fafb;
     border-radius: 12px 12px 0 0;
   }
-  
+
   :global(.dark) .upload-header {
     background: #111827;
     border-color: #374151;
   }
-  
+
   .upload-title {
     font-weight: 600;
     display: flex;
@@ -147,17 +147,17 @@
     margin: 0;
     color: #111827;
   }
-  
+
   :global(.dark) .upload-title {
     color: #f9fafb;
   }
-  
+
   .upload-list {
     max-height: 400px;
     overflow-y: auto;
     padding: 0.5rem;
   }
-  
+
   .upload-item {
     display: flex;
     gap: 0.75rem;
@@ -165,26 +165,26 @@
     border-radius: 0.5rem;
     transition: background 0.2s;
   }
-  
+
   .upload-item:hover {
     background: #f3f4f6;
   }
-  
+
   :global(.dark) .upload-item:hover {
     background: #374151;
   }
-  
+
   .upload-icon {
     font-size: 1.5rem;
     display: flex;
     align-items: center;
   }
-  
+
   .upload-details {
     flex: 1;
     min-width: 0;
   }
-  
+
   .upload-name {
     font-weight: 500;
     overflow: hidden;
@@ -192,25 +192,77 @@
     white-space: nowrap;
     color: #111827;
   }
-  
+
   :global(.dark) .upload-name {
     color: #f9fafb;
   }
-  
+
   .upload-meta {
     font-size: 0.75rem;
     color: #6b7280;
     margin-top: 0.25rem;
   }
-  
+
   :global(.dark) .upload-meta {
     color: #9ca3af;
   }
-  
+
   .upload-actions {
     display: flex;
     align-items: center;
   }
+
+  .clear-btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    background: transparent;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .clear-btn:hover {
+    background: #f3f4f6;
+  }
+
+  :global(.dark) .clear-btn {
+    border-color: #4b5563;
+    color: #d1d5db;
+  }
+
+  :global(.dark) .clear-btn:hover {
+    background: #374151;
+  }
+
+  .action-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .action-btn:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+
+  :global(.dark) .action-btn {
+    color: #9ca3af;
+  }
+
+  :global(.dark) .action-btn:hover {
+    background: #374151;
+    color: #f9fafb;
+  }
+
   @keyframes slideUp {
     from {
       transform: translateY(100px);

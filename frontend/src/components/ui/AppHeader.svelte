@@ -64,6 +64,19 @@
     }
   }
 
+  // Format file size in human readable format
+  function formatFileSize(bytes) {
+    if (!bytes || bytes === 0) return "";
+    const units = ["B", "KB", "MB", "GB", "TB"];
+    let unitIndex = 0;
+    let size = bytes;
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+    return `${size.toFixed(unitIndex > 0 ? 1 : 0)} ${units[unitIndex]}`;
+  }
+
   function openBackendModal() {
     showBackendModal = true;
   }
@@ -190,7 +203,7 @@
     await userPreferences.updatePreferences({ recent_searches: [] });
   }
 
-  // Handle search input change with debounce
+  // Handle search input change with debounce - use suggest API for autocomplete
   function handleSearchInput(e) {
     searchQuery = e.target.value;
     showSearchDropdown = true;
@@ -202,55 +215,74 @@
     if (searchQuery.trim()) {
       searchDebounce = setTimeout(async () => {
         try {
-          console.log("[AppHeader] Searching for:", searchQuery);
-          // Call Tantivy full-text search API with fuzzy=false for substring matching
-          const response = await api.search.query(searchQuery, 10, false);
-          console.log("[AppHeader] Search response:", response);
+          console.log("[AppHeader] Autocomplete for:", searchQuery);
+          // Use suggest API for autocomplete (uses wildcard matching)
+          const response = await api.search.suggest(searchQuery, 10);
+          console.log("[AppHeader] Suggest response:", response);
 
-          // Check if response has results array
-          if (!response || !response.results) {
+          // suggest returns array directly, not wrapped in results
+          if (!response || !Array.isArray(response)) {
             console.warn("[AppHeader] Invalid response format:", response);
             searchResults = [];
             return;
           }
 
-          // Transform search results to UI format
-          searchResults = response.results.map((result) => {
-            const isFolder = result.is_dir || false;
-            const fileName = result.filename || result.name || "Unknown";
-            const filePath = result.path || result.file_path || "";
+          // Transform suggest results to UI format
+          // Suggest returns: { text: filename, file_type: string|null, score: number }
+          searchResults = response.map((result) => {
+            const fileName = result.text || "Unknown";
+            const fileType = result.file_type || "";
+            const isFolder = fileType === "folder" || fileType === "directory";
 
-            // Determine icon based on file type
+            // Determine icon based on file type or extension
             let icon = "file-earmark-text";
             if (isFolder) {
               icon = "folder-fill";
-            } else if (fileName.match(/\.(pdf)$/i)) {
+            } else if (fileType === "pdf" || fileName.match(/\.(pdf)$/i)) {
               icon = "file-earmark-pdf";
-            } else if (fileName.match(/\.(docx?|doc)$/i)) {
+            } else if (
+              fileType === "document" ||
+              fileName.match(/\.(docx?|doc)$/i)
+            ) {
               icon = "file-earmark-word";
-            } else if (fileName.match(/\.(xlsx?|xls|csv)$/i)) {
+            } else if (
+              fileType === "spreadsheet" ||
+              fileName.match(/\.(xlsx?|xls|csv)$/i)
+            ) {
               icon = "file-earmark-excel";
-            } else if (fileName.match(/\.(png|jpe?g|gif|svg|webp|bmp)$/i)) {
+            } else if (
+              fileType === "image" ||
+              fileName.match(/\.(png|jpe?g|gif|svg|webp|bmp)$/i)
+            ) {
               icon = "file-earmark-image";
-            } else if (fileName.match(/\.(mp4|webm|avi|mov)$/i)) {
+            } else if (
+              fileType === "video" ||
+              fileName.match(/\.(mp4|webm|avi|mov)$/i)
+            ) {
               icon = "file-earmark-play";
-            } else if (fileName.match(/\.(zip|rar|7z|tar|gz)$/i)) {
+            } else if (
+              fileType === "archive" ||
+              fileName.match(/\.(zip|rar|7z|tar|gz)$/i)
+            ) {
               icon = "file-earmark-zip";
             } else if (
-              fileName.match(/\.(js|ts|jsx|tsx|py|java|cpp|c|h|css|html)$/i)
+              fileType === "code" ||
+              fileName.match(
+                /\.(js|ts|jsx|tsx|py|java|cpp|c|h|css|html|json)$/i
+              )
             ) {
               icon = "file-earmark-code";
             }
 
             return {
-              id: result.id || result.file_id,
+              id: result.id || fileName, // Use filename as fallback id
               name: fileName,
-              path: filePath,
+              path: result.path || "", // Folder path from backend
               type: isFolder ? "folder" : "file",
               icon: icon,
               score: result.score || 0,
-              size: result.size_bytes || result.size || 0,
-              snippet: result.snippet || "",
+              size: result.size_bytes || 0,
+              snippet: "",
             };
           });
 
@@ -385,14 +417,6 @@
           <kbd class="search-kbd-new">Ctrl K</kbd>
         </div>
 
-        <button
-          class="advanced-button-new"
-          onclick={() => (showAdvancedSearch = true)}
-          title="{t($currentLang, 'advancedSearch')} (Ctrl+Shift+F)"
-        >
-          <i class="bi bi-funnel" aria-hidden="true"></i>
-        </button>
-
         <!-- Search Dropdown -->
         {#if showSearchDropdown}
           <div class="search-dropdown" bind:this={searchDropdownRef}>
@@ -411,14 +435,25 @@
                     ></i>
                     <div class="search-result-content">
                       <div class="search-result-name">{result.name}</div>
-                      <div class="search-result-path">{result.path}</div>
-                      {#if result.snippet}
-                        <div class="search-result-snippet">
-                          {result.snippet}
-                        </div>
-                      {/if}
+                      <div class="search-result-meta">
+                        {#if result.path}
+                          <span class="search-result-folder">
+                            <i class="bi bi-folder2 text-xs" aria-hidden="true"
+                            ></i>
+                            {result.path}
+                          </span>
+                        {/if}
+                        {#if result.size > 0}
+                          <span class="search-result-size">
+                            {formatFileSize(result.size)}
+                          </span>
+                        {/if}
+                      </div>
                     </div>
-                    <i class="bi bi-arrow-return-left text-xs opacity-40" aria-hidden="true"></i>
+                    <i
+                      class="bi bi-arrow-return-left text-xs opacity-40"
+                      aria-hidden="true"
+                    ></i>
                   </button>
                 {/each}
               </div>
@@ -440,22 +475,28 @@
                     class="search-result-item"
                     onclick={() => selectRecentSearch(recent)}
                   >
-                    <i class="bi bi-clock-history opacity-60" aria-hidden="true"></i>
+                    <i class="bi bi-clock-history opacity-60" aria-hidden="true"
+                    ></i>
                     <div class="search-result-content">
                       <div class="search-result-name">{recent}</div>
                     </div>
-                    <i class="bi bi-arrow-return-left text-xs opacity-40" aria-hidden="true"></i>
+                    <i
+                      class="bi bi-arrow-return-left text-xs opacity-40"
+                      aria-hidden="true"
+                    ></i>
                   </button>
                 {/each}
               </div>
             {:else if searchQuery.trim()}
               <div class="search-empty">
-                <i class="bi bi-search opacity-40 text-2xl" aria-hidden="true"></i>
+                <i class="bi bi-search opacity-40 text-2xl" aria-hidden="true"
+                ></i>
                 <p class="text-sm opacity-60 mt-2">No results found</p>
               </div>
             {:else}
               <div class="search-empty">
-                <i class="bi bi-search opacity-40 text-2xl" aria-hidden="true"></i>
+                <i class="bi bi-search opacity-40 text-2xl" aria-hidden="true"
+                ></i>
                 <p class="text-sm opacity-60 mt-2">Search files and folders</p>
                 <div class="search-shortcuts mt-3">
                   <div class="search-shortcut-item">
@@ -591,7 +632,9 @@
           <div
             class="fixed inset-0 z-[99]"
             onclick={() => (showUserDropdown = false)}
-           role="button" tabindex="0"></div>
+            role="button"
+            tabindex="0"
+          ></div>
 
           <div class="user-dropdown-new">
             <div class="user-dropdown-header-new">
@@ -624,7 +667,10 @@
                     <span class="menu-item-label">Profile</span>
                     <span class="menu-item-desc">View and edit profile</span>
                   </div>
-                  <i class="bi bi-chevron-right menu-item-arrow" aria-hidden="true"></i>
+                  <i
+                    class="bi bi-chevron-right menu-item-arrow"
+                    aria-hidden="true"
+                  ></i>
                 </button>
               </li>
               <li>
@@ -637,7 +683,10 @@
                     <span class="menu-item-label">Settings</span>
                     <span class="menu-item-desc">Preferences & options</span>
                   </div>
-                  <i class="bi bi-chevron-right menu-item-arrow" aria-hidden="true"></i>
+                  <i
+                    class="bi bi-chevron-right menu-item-arrow"
+                    aria-hidden="true"
+                  ></i>
                 </button>
               </li>
               <li>
@@ -650,7 +699,10 @@
                     <span class="menu-item-label">Security</span>
                     <span class="menu-item-desc">2FA & password</span>
                   </div>
-                  <i class="bi bi-chevron-right menu-item-arrow" aria-hidden="true"></i>
+                  <i
+                    class="bi bi-chevron-right menu-item-arrow"
+                    aria-hidden="true"
+                  ></i>
                 </button>
               </li>
               <li>
@@ -663,7 +715,10 @@
                     <span class="menu-item-label">Storage</span>
                     <span class="menu-item-desc">Usage & analytics</span>
                   </div>
-                  <i class="bi bi-chevron-right menu-item-arrow" aria-hidden="true"></i>
+                  <i
+                    class="bi bi-chevron-right menu-item-arrow"
+                    aria-hidden="true"
+                  ></i>
                 </button>
               </li>
             </ul>
@@ -733,7 +788,10 @@
         <span
           class="px-4 bg-gray-50 dark:bg-gray-800 flex items-center rounded-l-xl border border-r-0 border-gray-300 dark:border-gray-600"
         >
-          <i class="bi bi-search text-lg text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
+          <i
+            class="bi bi-search text-lg text-gray-500 dark:text-gray-400"
+            aria-hidden="true"
+          ></i>
         </span>
         <input
           id="quickSearchInput"
@@ -1239,16 +1297,32 @@
     color: #f9fafb;
   }
 
-  .search-result-path {
-    font-size: 0.75rem;
+  .search-result-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.7rem;
     color: rgba(17, 24, 39, 0.5);
+    margin-top: 0.125rem;
+  }
+
+  :global(.dark) .search-result-meta {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .search-result-folder {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    max-width: 200px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  :global(.dark) .search-result-path {
-    color: rgba(255, 255, 255, 0.5);
+  .search-result-size {
+    flex-shrink: 0;
+    opacity: 0.8;
   }
 
   .search-result-snippet {

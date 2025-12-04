@@ -139,18 +139,72 @@ async fn reindex_handler(
 }
 
 /// GET /api/search/suggest - Get search suggestions for autocomplete
+/// Uses database LIKE query for reliable prefix matching
 async fn suggest_handler(
     State(state): State<AppState>,
     _user: UserInfo,
     Query(query): Query<SearchQuery>,
 ) -> Result<Json<Vec<crate::search::SearchSuggestion>>, StatusCode> {
-    let suggestions = state
-        .search_index
-        .suggest(&query.q, query.limit)
-        .map_err(|e| {
-            eprintln!("Failed to get suggestions: {:?}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+    // Use database LIKE query for reliable autocomplete
+    let search_pattern = format!("%{}%", query.q.to_lowercase());
+    let prefix_pattern = format!("{}%", query.q.to_lowercase());
+    
+    // Simpler query without UNION - just search files and use mime_type to detect folders
+    let rows = sqlx::query(
+        r#"
+        SELECT DISTINCT name, 
+               COALESCE(
+                   CASE 
+                       WHEN mime_type = 'inode/directory' THEN 'folder'
+                       WHEN mime_type IS NULL OR mime_type = '' THEN 
+                           CASE 
+                               WHEN INSTR(name, '.') > 0 THEN LOWER(SUBSTR(name, INSTR(name, '.') + 1))
+                               ELSE 'file'
+                           END
+                       ELSE SUBSTR(mime_type, INSTR(mime_type, '/') + 1)
+                   END,
+                   'file'
+               ) as file_type,
+               path,
+               size_bytes,
+               CASE WHEN LOWER(name) LIKE ?2 THEN 0 ELSE 1 END as priority
+        FROM files 
+        WHERE is_deleted = 0 
+          AND (LOWER(name) LIKE ?1 OR LOWER(path) LIKE ?1)
+        ORDER BY priority, name
+        LIMIT ?3
+        "#,
+    )
+    .bind(&search_pattern)
+    .bind(&prefix_pattern)
+    .bind(query.limit as i64)
+    .fetch_all(&state.db_pool)
+    .await
+    .map_err(|e| {
+        eprintln!("Failed to get suggestions from DB: {:?}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    let suggestions: Vec<crate::search::SearchSuggestion> = rows
+        .iter()
+        .map(|row| {
+            use sqlx::Row;
+            let path: String = row.try_get("path").unwrap_or_default();
+            // Extract folder path (parent directory)
+            let folder_path = if path.contains('/') {
+                path.rsplit_once('/').map(|(parent, _)| parent.to_string())
+            } else {
+                None
+            };
+            crate::search::SearchSuggestion {
+                text: row.try_get("name").unwrap_or_default(),
+                file_type: row.try_get("file_type").ok(),
+                score: 1.0,
+                path: folder_path,
+                size_bytes: row.try_get("size_bytes").ok(),
+            }
+        })
+        .collect();
 
     Ok(Json(suggestions))
 }

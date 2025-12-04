@@ -1103,23 +1103,24 @@ pub mod favorites {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now().to_rfc3339();
 
-        // Get item path based on type
-        let item_path = if item_type == "file" {
-            sqlx::query_scalar::<_, String>("SELECT file_path FROM files WHERE id = ?")
-                .bind(item_id)
-                .fetch_optional(&state.db_pool)
-                .await?
-                .unwrap_or_default()
-        } else {
-            sqlx::query_scalar::<_, String>("SELECT path FROM folders WHERE id = ?")
-                .bind(item_id)
-                .fetch_optional(&state.db_pool)
-                .await?
-                .unwrap_or_default()
-        };
+        // item_id is the path - use it directly
+        let item_path = item_id.to_string();
 
-        // Get item name for activity log
+        // Get item name for activity log (last part of path)
         let item_name = item_id.split('/').last().unwrap_or(item_id).to_string();
+
+        // Check if already favorited
+        let existing: Option<UserFavorite> = sqlx::query_as(
+            "SELECT * FROM user_favorites WHERE user_id = ? AND item_id = ?"
+        )
+        .bind(&user.id)
+        .bind(item_id)
+        .fetch_optional(&state.db_pool)
+        .await?;
+
+        if let Some(fav) = existing {
+            return Ok(fav);
+        }
 
         sqlx::query("INSERT INTO user_favorites (id, user_id, item_type, item_id, item_path, created_at) VALUES (?, ?, ?, ?, ?, ?)")
             .bind(&id).bind(&user.id).bind(item_type).bind(item_id).bind(&item_path).bind(&now).execute(&state.db_pool).await?;

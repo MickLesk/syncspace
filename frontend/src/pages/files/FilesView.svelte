@@ -630,7 +630,7 @@
       // webkitGetAsEntry() becomes invalid after the drop event ends
       const entries = [];
       for (let i = 0; i < items.length; i++) {
-        if (items[i].kind === 'file') {
+        if (items[i].kind === "file") {
           const entry = items[i].webkitGetAsEntry();
           if (entry) {
             entries.push(entry);
@@ -641,7 +641,7 @@
           }
         }
       }
-      
+
       // Now process all entries
       for (const entry of entries) {
         await traverseFileTree(entry, "", files);
@@ -652,7 +652,7 @@
     }
 
     console.log(`[DragDrop] Processing ${files.length} files`);
-    
+
     if (files.length > 0) {
       handleUpload(files, folderName, files.length);
     }
