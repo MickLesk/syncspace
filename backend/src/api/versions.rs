@@ -368,7 +368,7 @@ async fn get_version_timeline(
 
     // Get file info
     let file_info: Option<(String, String)> =
-        sqlx::query_as("SELECT filename, file_path FROM files WHERE id = ?")
+        sqlx::query_as("SELECT name, path FROM files WHERE id = ?")
             .bind(&file_id)
             .fetch_optional(&state.db_pool)
             .await

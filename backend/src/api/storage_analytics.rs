@@ -206,8 +206,8 @@ async fn get_storage_by_folder(
         r#"
         SELECT 
             CASE 
-                WHEN file_path LIKE '%/%' THEN 
-                    SUBSTR(file_path, 1, INSTR(file_path, '/'))
+                WHEN path LIKE '%/%' THEN 
+                    SUBSTR(path, 1, INSTR(path, '/'))
                 ELSE 
                     '/'
             END as folder,
@@ -259,8 +259,8 @@ async fn get_top_files(
         r#"
         SELECT 
             id,
-            filename,
-            file_path,
+            name as filename,
+            path as file_path,
             size_bytes,
             mime_type,
             owner_id,
@@ -366,17 +366,17 @@ async fn get_duplicate_waste(
         SELECT 
             COUNT(*) as total_duplicates,
             COALESCE(SUM(size_bytes * (duplicate_count - 1)), 0) as wasted_bytes,
-            COUNT(DISTINCT file_hash) as duplicate_groups,
+            COUNT(DISTINCT checksum_sha256) as duplicate_groups,
             COALESCE(SUM(size_bytes * (duplicate_count - 1)), 0) as savings_potential
         FROM (
             SELECT 
-                file_hash,
+                checksum_sha256,
                 size_bytes,
                 COUNT(*) as duplicate_count
             FROM files
             WHERE is_deleted = 0 
-                AND file_hash IS NOT NULL
-            GROUP BY file_hash
+                AND checksum_sha256 IS NOT NULL
+            GROUP BY checksum_sha256
             HAVING COUNT(*) > 1
         )
         "#,

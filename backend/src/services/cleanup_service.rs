@@ -78,7 +78,7 @@ pub async fn cleanup_expired_deleted_files(
     // 1. Find all soft-deleted files that have expired
     let expired_files: Vec<(String, String)> = sqlx::query_as(
         r#"
-        SELECT id, file_path FROM files
+        SELECT id, path FROM files
         WHERE is_deleted = 1
         AND deleted_at IS NOT NULL
         AND deleted_at <= ?1

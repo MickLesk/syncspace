@@ -513,7 +513,7 @@ impl JobWorker {
 
         // Fetch all files from database
         let files: Vec<(String, String)> = sqlx::query_as(
-            "SELECT id, file_path FROM files ORDER BY created_at DESC"
+            "SELECT id, path FROM files ORDER BY created_at DESC"
         )
         .fetch_all(&*self.pool)
         .await?;

@@ -96,7 +96,7 @@ async fn get_file_content(
 
     // Get mime type from database
     let mime_type: String =
-        sqlx::query_scalar("SELECT mime_type FROM files WHERE file_path = ? LIMIT 1")
+        sqlx::query_scalar("SELECT mime_type FROM files WHERE path = ? LIMIT 1")
             .bind(file_path)
             .fetch_optional(&state.db_pool)
             .await

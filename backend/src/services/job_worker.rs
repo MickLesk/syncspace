@@ -161,7 +161,7 @@ async fn process_bulk_delete(
         let file_path = path.as_str().ok_or("Invalid file path")?;
         
         // Delete from database
-        match sqlx::query("DELETE FROM files WHERE file_path = ?")
+        match sqlx::query("DELETE FROM files WHERE path = ?")
             .bind(file_path)
             .execute(db_pool)
             .await
@@ -285,7 +285,7 @@ async fn process_bulk_copy(
 
         // Copy file record in database
         if let Ok(original) = sqlx::query_as::<_, (String, i64, String, String)>(
-            "SELECT filename, size_bytes, mime_type, owner_id FROM files WHERE file_path = ?"
+            "SELECT name, size_bytes, mime_type, owner_id FROM files WHERE path = ?"
         )
         .bind(file_path)
         .fetch_one(db_pool)
@@ -294,7 +294,7 @@ async fn process_bulk_copy(
             let now = Utc::now().to_rfc3339();
             match sqlx::query(
                 r#"
-                INSERT INTO files (id, filename, file_path, size_bytes, mime_type, owner_id, created_at, updated_at)
+                INSERT INTO files (id, name, path, size_bytes, mime_type, owner_id, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 "#
             )

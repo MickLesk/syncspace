@@ -223,10 +223,10 @@ pub async fn run_compression_job(
         let cutoff_date = chrono::Utc::now() - chrono::Duration::days(rule.min_age_days as i64);
         
         let files: Vec<(String, String)> = sqlx::query_as(
-            "SELECT id, file_path FROM files 
+            "SELECT id, path FROM files 
              WHERE created_at < ? 
              AND size_bytes >= ? 
-             AND file_path LIKE ?
+             AND path LIKE ?
              AND id NOT IN (SELECT original_file_id FROM compressed_files)"
         )
         .bind(cutoff_date.format("%Y-%m-%d %H:%M:%S").to_string())

@@ -155,35 +155,35 @@
       const viewName = match[1].toLowerCase();
       // Map hash routes to view names
       const viewMap = {
-        "files": "files",
-        "dashboard": "dashboard",
-        "shared": "shared",
-        "favorites": "favorites",
-        "trash": "trash",
-        "activity": "activity",
-        "notifications": "notifications",
-        "backup": "backup",
-        "storage": "storage",
-        "users": "users",
-        "duplicates": "duplicates",
-        "tags": "tags",
+        files: "files",
+        dashboard: "dashboard",
+        shared: "shared",
+        favorites: "favorites",
+        trash: "trash",
+        activity: "activity",
+        notifications: "notifications",
+        backup: "backup",
+        storage: "storage",
+        users: "users",
+        duplicates: "duplicates",
+        tags: "tags",
         "tag-cloud": "tags",
-        "jobs": "jobs",
+        jobs: "jobs",
         "jobs-queue": "jobsQueue",
-        "roles": "roles",
-        "workflows": "workflows",
+        roles: "roles",
+        workflows: "workflows",
         "cloud-storage": "cloud-storage",
-        "audit": "audit",
-        "admin": "admin",
-        "webhooks": "webhooks",
-        "health": "health",
-        "analytics": "analytics",
-        "settings": "settings",
-        "profile": "profile",
+        audit: "audit",
+        admin: "admin",
+        webhooks: "webhooks",
+        health: "health",
+        analytics: "analytics",
+        settings: "settings",
+        profile: "profile",
         "user-settings": "user-settings",
-        "security": "security",
+        security: "security",
         "api-tokens": "api-tokens",
-        "showcase": "showcase"
+        showcase: "showcase",
       };
       return viewMap[viewName] || "dashboard";
     }
@@ -299,7 +299,7 @@
   onMount(() => {
     const checkRoute = () => {
       showSignup = window.location.hash === "#/signup";
-      
+
       // Update current view based on hash (for browser back/forward, manual URL changes)
       if ($auth.isLoggedIn) {
         const viewFromHash = getViewFromHash(window.location.hash);
