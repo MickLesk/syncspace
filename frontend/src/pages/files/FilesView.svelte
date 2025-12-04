@@ -1224,7 +1224,7 @@
     <!-- Search Mode Banner -->
     {#if isSearchMode}
       <div
-        class="mb-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-center justify-between"
+        class="mb-4 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-cyan-500/10 dark:from-blue-500/20 dark:via-purple-500/20 dark:to-cyan-500/20 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 rounded-2xl p-4 flex items-center justify-between shadow-lg"
       >
         <div class="flex items-center gap-3">
           <svg
@@ -1298,7 +1298,7 @@
     <!-- Breadcrumbs (below toolbar) -->
     {#if !isSearchMode}
       <div
-        class="mb-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 px-2"
+        class="mb-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 dark:border-gray-700 px-3"
       >
         <Breadcrumbs
           path={$currentPath}
@@ -1360,6 +1360,7 @@
             <FileCard
               {file}
               {viewMode}
+              {selectionMode}
               selected={selectedFiles.has(file.file_path || file.name)}
               onSelect={() => handleFileSelection(file)}
               onOpen={() => openFile(file)}
@@ -1383,6 +1384,7 @@
             <FileCard
               {file}
               {viewMode}
+              {selectionMode}
               selected={selectedFiles.has(file.file_path || file.name)}
               onSelect={() => handleFileSelection(file)}
               onOpen={() => openFile(file)}

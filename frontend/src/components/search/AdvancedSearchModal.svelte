@@ -2,6 +2,7 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
+  import { modals } from "../../stores/modals.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import Input from "../ui/Input.svelte";
@@ -14,8 +15,8 @@
 
   const dispatch = createEventDispatcher();
 
-  // Props
-  let { visible = $bindable(false) } = $props();
+  // Props - visible is read-only, closing is done via modals.close()
+  let { visible = false } = $props();
 
   // Search State
   let searchQuery = $state("");
@@ -168,9 +169,9 @@
     activeFilters = { ...activeFilters };
   }
 
-  // Close modal
+  // Close modal - use modals store instead of setting visible directly
   function close() {
-    visible = false;
+    modals.close("advancedSearch");
     dispatch("close");
   }
 
@@ -257,8 +258,8 @@
       {#if activeFilterCount > 0}
         <FilterBar
           filters={activeFilters}
-          on:removeFilter={(e) => handleRemoveFilter(e.detail.key)}
-          on:clearAll={clearFilters}
+          onRemoveFilter={handleRemoveFilter}
+          onClearAll={clearFilters}
         />
       {/if}
 
@@ -268,7 +269,10 @@
           <summary
             class="text-sm font-semibold text-gray-600 dark:text-gray-400 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2"
           >
-            <i class="bi bi-funnel text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
+            <i
+              class="bi bi-funnel text-blue-600 dark:text-blue-400"
+              aria-hidden="true"
+            ></i>
             {tr("filters")}
             {#if activeFilterCount > 0}
               <span
@@ -308,8 +312,10 @@
               <div
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                <i class="bi bi-calendar text-blue-600 dark:text-blue-400 mr-2"
-                 aria-hidden="true"></i>
+                <i
+                  class="bi bi-calendar text-blue-600 dark:text-blue-400 mr-2"
+                  aria-hidden="true"
+                ></i>
                 {tr("dateModified")}
               </div>
               <div class="flex gap-2">
@@ -335,7 +341,10 @@
               <div
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                <i class="bi bi-hdd text-blue-600 dark:text-blue-400 mr-2" aria-hidden="true"></i>
+                <i
+                  class="bi bi-hdd text-blue-600 dark:text-blue-400 mr-2"
+                  aria-hidden="true"
+                ></i>
                 {tr("fileSize")}
               </div>
               <div class="flex gap-2">
@@ -364,8 +373,10 @@
                 for="modifiedByFilter"
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                <i class="bi bi-person text-blue-600 dark:text-blue-400 mr-2"
-                 aria-hidden="true"></i>
+                <i
+                  class="bi bi-person text-blue-600 dark:text-blue-400 mr-2"
+                  aria-hidden="true"
+                ></i>
                 {tr("modifiedBy")}
               </label>
               <input
@@ -387,8 +398,10 @@
             for="sortByFilter"
             class="block text-xs font-medium text-gray-600 dark:text-gray-400"
           >
-            <i class="bi bi-sort-down text-blue-600 dark:text-blue-400 mr-1"
-             aria-hidden="true"></i>
+            <i
+              class="bi bi-sort-down text-blue-600 dark:text-blue-400 mr-1"
+              aria-hidden="true"
+            ></i>
             {tr("sortBy")}
           </label>
           <select
@@ -407,8 +420,10 @@
           <div
             class="block text-xs font-medium text-gray-600 dark:text-gray-400"
           >
-            <i class="bi bi-arrow-down-up text-blue-600 dark:text-blue-400 mr-1"
-             aria-hidden="true"></i>
+            <i
+              class="bi bi-arrow-down-up text-blue-600 dark:text-blue-400 mr-1"
+              aria-hidden="true"
+            ></i>
             {tr("sortOrder")}
           </div>
           <div
@@ -423,6 +438,8 @@
                 ? 'bg-blue-600 text-white'
                 : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
               onclick={() => (sortOrder = "asc")}
+              aria-label="Sort ascending"
+              title="Aufsteigend"
             >
               <i class="bi bi-sort-alpha-down" aria-hidden="true"></i>
             </button>
@@ -433,6 +450,8 @@
                 ? 'bg-blue-600 text-white'
                 : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
               onclick={() => (sortOrder = "desc")}
+              aria-label="Sort descending"
+              title="Absteigend"
             >
               <i class="bi bi-sort-alpha-down-alt" aria-hidden="true"></i>
             </button>
@@ -446,7 +465,10 @@
           <div
             class="text-xs font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1"
           >
-            <i class="bi bi-clock-history text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
+            <i
+              class="bi bi-clock-history text-blue-600 dark:text-blue-400"
+              aria-hidden="true"
+            ></i>
             {tr("recentSearches")}
           </div>
 
@@ -457,7 +479,8 @@
                 class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-700 dark:hover:text-blue-300 transition-all text-xs flex items-center gap-1"
                 onclick={() => handleRecentSearchClick(search)}
               >
-                <i class="bi bi-clock-history opacity-60" aria-hidden="true"></i>
+                <i class="bi bi-clock-history opacity-60" aria-hidden="true"
+                ></i>
                 {typeof search === "string" ? search : search.query}
               </button>
             {/each}

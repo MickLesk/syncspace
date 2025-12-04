@@ -10,6 +10,7 @@
   let {
     file,
     selected = false,
+    selectionMode = false,
     viewMode = "grid",
     onSelect,
     onOpen,
@@ -158,9 +159,9 @@
         class="bi text-xl transition-colors"
         class:bi-star-fill={isFavorite}
         class:bi-star={!isFavorite}
-        class:text-yellow-500={isFavorite}
+        class:text-amber-400={isFavorite}
         class:text-gray-400={!isFavorite}
-        class:hover:text-yellow-500={!isFavorite}
+        class:hover:text-amber-400={!isFavorite}
       ></i>
     </button>
 
@@ -168,15 +169,13 @@
       type="button"
       draggable="true"
       data-file-name={file.name}
-      class="file-card-grid p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg dark:shadow-gray-900/50 text-left w-full transition-all border-2"
-      class:border-blue-500={selected}
-      class:dark:border-blue-400={selected}
-      class:border-transparent={!selected && !isDropTarget}
-      class:hover:border-blue-300={!selected && !isDragging}
-      class:dark:hover:border-blue-600={!selected && !isDragging}
-      class:opacity-50={isDragging}
-      class:border-green-500={isDropTarget}
-      class:bg-green-50={isDropTarget}
+      class="file-card-grid p-5 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl dark:shadow-gray-900/50 text-left w-full transition-all border-2 {selected
+        ? 'border-blue-400 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+        : isDropTarget
+          ? 'border-emerald-400 bg-emerald-50'
+          : 'border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-600'} {isDragging
+        ? 'opacity-50'
+        : ''}"
       ondragstart={(e) => {
         isDragging = true;
         e.dataTransfer.effectAllowed = "move";
@@ -218,7 +217,7 @@
         }
       }}
       onclick={(e) => {
-        if (e.shiftKey || e.ctrlKey) {
+        if (selectionMode || e.shiftKey || e.ctrlKey) {
           onSelect?.(file);
         } else {
           onOpen?.(file);
@@ -229,6 +228,23 @@
         onContextMenu?.(file, e);
       }}
     >
+      <!-- Selection Checkbox when in selection mode -->
+      {#if selectionMode}
+        <div class="absolute top-3 left-3 z-10">
+          <div
+            class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all {selected
+              ? 'bg-blue-500 border-blue-500'
+              : 'bg-white/80 dark:bg-gray-800/80 border-gray-300 dark:border-gray-600 hover:border-blue-400'}"
+          >
+            {#if selected}
+              <i
+                class="bi bi-check text-white text-sm font-bold"
+                aria-hidden="true"
+              ></i>
+            {/if}
+          </div>
+        </div>
+      {/if}
       <div class="flex flex-col items-center gap-3 text-center">
         <div class="relative">
           <i
@@ -277,15 +293,13 @@
     <button
       type="button"
       draggable="true"
-      class="file-card-list p-3 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md text-left w-full transition-all border-2 flex items-center gap-4"
-      class:border-blue-500={selected}
-      class:dark:border-blue-400={selected}
-      class:border-transparent={!selected && !isDropTarget}
-      class:hover:border-blue-300={!selected && !isDragging}
-      class:dark:hover:border-blue-600={!selected && !isDragging}
-      class:opacity-50={isDragging}
-      class:border-green-500={isDropTarget}
-      class:bg-green-50={isDropTarget}
+      class="file-card-list p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg text-left w-full transition-all border-2 flex items-center gap-4 {selected
+        ? 'border-blue-400 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+        : isDropTarget
+          ? 'border-emerald-400 bg-emerald-50'
+          : 'border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-600'} {isDragging
+        ? 'opacity-50'
+        : ''}"
       ondragstart={(e) => {
         isDragging = true;
         e.dataTransfer.effectAllowed = "move";
@@ -324,7 +338,7 @@
         }
       }}
       onclick={(e) => {
-        if (e.shiftKey || e.ctrlKey) {
+        if (selectionMode || e.shiftKey || e.ctrlKey) {
           onSelect?.(file);
         } else {
           onOpen?.(file);
@@ -335,6 +349,23 @@
         onContextMenu?.(file, e);
       }}
     >
+      <!-- Selection Checkbox when in selection mode -->
+      {#if selectionMode}
+        <div class="flex-shrink-0">
+          <div
+            class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all {selected
+              ? 'bg-blue-500 border-blue-500'
+              : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:border-blue-400'}"
+          >
+            {#if selected}
+              <i
+                class="bi bi-check text-white text-sm font-bold"
+                aria-hidden="true"
+              ></i>
+            {/if}
+          </div>
+        </div>
+      {/if}
       <div class="relative flex-shrink-0">
         <i
           class="{getIconClass(file)} text-3xl {file.is_directory && folderColor
@@ -392,9 +423,14 @@
 {/if}
 
 <style>
-  .file-card-grid:hover,
-  .file-card-list:hover {
-    transform: translateY(-2px);
+  .hover-lift {
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
   }
 
   .file-card-grid,
@@ -402,21 +438,24 @@
     cursor: pointer;
     user-select: none;
     position: relative;
+    transition: all 0.2s ease;
   }
 
   .favorite-btn,
   .favorite-btn-list {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
   .favorite-btn:hover,
   .favorite-btn-list:hover {
     background: rgba(255, 255, 255, 1);
-    border-color: rgba(0, 0, 0, 0.2);
-    transform: scale(1.1);
+    border-color: rgba(0, 0, 0, 0.15);
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   .favorite-btn:disabled,
@@ -432,13 +471,15 @@
 
   :global(.dark) .favorite-btn,
   :global(.dark) .favorite-btn-list {
-    background: rgba(31, 41, 55, 0.9);
+    background: rgba(31, 41, 55, 0.95);
     border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 
   :global(.dark) .favorite-btn:hover,
   :global(.dark) .favorite-btn-list:hover {
     background: rgba(31, 41, 55, 1);
     border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
 </style>

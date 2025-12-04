@@ -7,23 +7,35 @@
 
   const dispatch = createEventDispatcher();
 
-  let { filters = {} } = $props();
+  let { filters = {}, onRemoveFilter, onClearAll } = $props();
 
-  // Get filter labels
+  // Get filter labels - only return label if value is valid
   function getFilterLabel(key, value) {
+    // Skip empty/null/undefined values
+    if (value === null || value === undefined || value === "") return null;
+
     switch (key) {
       case "fileType":
         if (value === "all") return null;
         return `${tr("fileType")}: ${tr(value)}`;
       case "sizeMin":
+        if (!value || isNaN(Number(value))) return null;
         return `${tr("minSize")}: ${value} MB`;
       case "sizeMax":
+        if (!value || isNaN(Number(value))) return null;
         return `${tr("maxSize")}: ${value} MB`;
       case "dateFrom":
-        return `${tr("from")}: ${new Date(value).toLocaleDateString()}`;
+        if (!value) return null;
+        const fromDate = new Date(value);
+        if (isNaN(fromDate.getTime())) return null;
+        return `${tr("from")}: ${fromDate.toLocaleDateString()}`;
       case "dateTo":
-        return `${tr("to")}: ${new Date(value).toLocaleDateString()}`;
+        if (!value) return null;
+        const toDate = new Date(value);
+        if (isNaN(toDate.getTime())) return null;
+        return `${tr("to")}: ${toDate.toLocaleDateString()}`;
       case "modifiedBy":
+        if (!value.trim()) return null;
         return `${tr("modifiedBy")}: ${value}`;
       default:
         return null;
@@ -42,11 +54,21 @@
   );
 
   function handleRemove(key) {
-    dispatch("removeFilter", { key });
+    // Support both callback props and dispatch
+    if (onRemoveFilter) {
+      onRemoveFilter(key);
+    } else {
+      dispatch("removeFilter", { key });
+    }
   }
 
   function handleClearAll() {
-    dispatch("clearAll");
+    // Support both callback props and dispatch
+    if (onClearAll) {
+      onClearAll();
+    } else {
+      dispatch("clearAll");
+    }
   }
 </script>
 

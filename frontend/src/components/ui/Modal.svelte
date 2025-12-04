@@ -109,12 +109,11 @@
   <div
     class="fixed inset-0 z-50 flex items-center justify-center"
     role="dialog"
-    tabindex="0"
+    tabindex="-1"
     aria-modal="true"
     aria-labelledby={title ? "modal-title" : undefined}
     onclick={handleBackdropClick}
-    onkeydown={(e = tabindex =
-      "0" > e.key === "Escape" && handleBackdropClick(e))}
+    onkeydown={(e) => e.key === "Escape" && handleClose()}
   >
     <!-- Enhanced backdrop with blur -->
     <div

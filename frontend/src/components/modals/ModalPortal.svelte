@@ -670,7 +670,7 @@
 
 <!-- Advanced Search Modal -->
 <AdvancedSearchModal
-  bind:visible={$modals.advancedSearch.visible}
+  visible={$modals.advancedSearch.visible}
   on:search={(e) => modalEvents.emit("search", e.detail)}
 />
 

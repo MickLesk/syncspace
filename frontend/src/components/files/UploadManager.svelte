@@ -96,8 +96,10 @@
     <!-- Header -->
     <div class="upload-header">
       <div class="header-left">
-        <i class="bi bi-{isBatchUpload() ? 'folder-fill' : 'cloud-upload-fill'}"
-         aria-hidden="true"></i>
+        <i
+          class="bi bi-{isBatchUpload() ? 'folder-fill' : 'cloud-upload-fill'}"
+          aria-hidden="true"
+        ></i>
         <span class="upload-title">
           {#if isBatchUpload()}
             {#if activeUploads().length > 0}
@@ -133,10 +135,18 @@
           onclick={toggleMinimize}
           title={isMinimized ? "Expand" : "Minimize"}
         >
-          <i class="bi bi-{isMinimized ? 'chevron-up' : 'chevron-down'}" aria-hidden="true"></i>
+          <i
+            class="bi bi-{isMinimized ? 'chevron-up' : 'chevron-down'}"
+            aria-hidden="true"
+          ></i>
         </button>
         {#if activeUploads().length === 0}
-          <button class="btn-icon" aria-label="Close" onclick={close} title="Close"><i class="bi bi-x" aria-hidden="true"></i></button>
+          <button
+            class="btn-icon"
+            aria-label="Close"
+            onclick={close}
+            title="Close"><i class="bi bi-x" aria-hidden="true"></i></button
+          >
         {/if}
       </div>
     </div>
@@ -165,17 +175,27 @@
             class:error={upload.status === "error"}
             class:clickable={upload.status === "complete"}
             onclick={() => handleFileClick(upload)}
-           role="button" tabindex="0">
+            role="button"
+            tabindex="0"
+          >
             <!-- Icon -->
             <div class="upload-icon">
               {#if upload.status === "complete"}
-                <i class="bi bi-check-circle-fill text-success" aria-hidden="true"></i>
+                <i
+                  class="bi bi-check-circle-fill text-success"
+                  aria-hidden="true"
+                ></i>
               {:else if upload.status === "error"}
-                <i class="bi bi-x-circle-fill text-error" aria-hidden="true"></i>
+                <i class="bi bi-x-circle-fill text-error" aria-hidden="true"
+                ></i>
               {:else if upload.status === "retrying"}
-                <i class="bi bi-arrow-clockwise spinning text-warning" aria-hidden="true"></i>
+                <i
+                  class="bi bi-arrow-clockwise spinning text-warning"
+                  aria-hidden="true"
+                ></i>
               {:else if upload.status === "uploading"}
-                <i class="bi bi-cloud-arrow-up text-primary" aria-hidden="true"></i>
+                <i class="bi bi-cloud-arrow-up text-primary" aria-hidden="true"
+                ></i>
               {:else}
                 <i class="bi bi-dash-circle text-muted" aria-hidden="true"></i>
               {/if}
@@ -226,7 +246,8 @@
                   class="btn-icon-sm"
                   onclick={() => onCancel?.(upload.id)}
                   title="Cancel"
-                 aria-label="Cancel">
+                  aria-label="Cancel"
+                >
                   <i class="bi bi-x-lg" aria-hidden="true"></i>
                 </button>
               {:else if upload.status === "error"}
@@ -275,16 +296,24 @@
     right: 1.5rem;
     width: 420px;
     max-height: 600px;
-    background-color: rgb(30, 41, 59);
-    border: 2px solid rgba(148, 163, 184, 0.3);
-    border-radius: 0.75rem;
+    background-color: white;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
     box-shadow:
-      0 20px 60px -15px rgba(0, 0, 0, 0.5),
-      0 8px 16px -4px rgba(0, 0, 0, 0.3);
+      0 20px 60px -15px rgba(0, 0, 0, 0.2),
+      0 8px 16px -4px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     display: flex;
     flex-direction: column;
     animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  :global(.dark) .upload-manager {
+    background-color: rgb(30, 41, 59);
+    border-color: rgba(148, 163, 184, 0.3);
+    box-shadow:
+      0 20px 60px -15px rgba(0, 0, 0, 0.5),
+      0 8px 16px -4px rgba(0, 0, 0, 0.3);
   }
 
   .upload-manager.minimized {
@@ -307,9 +336,18 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-    background-color: rgb(51, 65, 85);
-    border-radius: 0.75rem 0.75rem 0 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 1rem 1rem 0 0;
+  }
+
+  :global(.dark) .upload-header {
+    background: linear-gradient(
+      135deg,
+      rgb(51, 65, 85) 0%,
+      rgb(30, 41, 59) 100%
+    );
+    border-bottom-color: rgba(148, 163, 184, 0.2);
   }
 
   .header-left {
@@ -322,16 +360,20 @@
 
   .header-left i {
     font-size: 1.25rem;
-    color: hsl(var(--p));
+    color: #3b82f6;
   }
 
   .upload-title {
-    color: hsl(var(--bc) / 0.9);
+    color: #1e293b;
+  }
+
+  :global(.dark) .upload-title {
+    color: #f1f5f9;
   }
 
   .progress-badge {
-    background: hsl(var(--p) / 0.15);
-    color: hsl(var(--p));
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
     padding: 0.125rem 0.5rem;
     border-radius: 0.375rem;
     font-size: 0.75rem;
@@ -351,15 +393,24 @@
     justify-content: center;
     border: none;
     background: transparent;
-    color: hsl(var(--bc) / 0.6);
-    border-radius: 0.375rem;
+    color: #64748b;
+    border-radius: 0.5rem;
     cursor: pointer;
     transition: all 0.15s;
   }
 
   .btn-icon:hover {
-    background: hsl(var(--bc) / 0.1);
-    color: hsl(var(--bc) / 0.9);
+    background: rgba(0, 0, 0, 0.05);
+    color: #1e293b;
+  }
+
+  :global(.dark) .btn-icon {
+    color: #94a3b8;
+  }
+
+  :global(.dark) .btn-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f1f5f9;
   }
 
   /* Overall Progress */
@@ -369,14 +420,18 @@
 
   .progress-bar {
     height: 0.375rem;
-    background: hsl(var(--bc) / 0.1);
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 1rem;
     overflow: hidden;
   }
 
+  :global(.dark) .progress-bar {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
   .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, hsl(var(--p)), hsl(var(--s)));
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
     border-radius: 1rem;
     transition: width 0.3s ease;
   }
@@ -387,6 +442,10 @@
     overflow-y: auto;
     padding: 0.5rem;
     max-height: 440px;
+    background-color: white;
+  }
+
+  :global(.dark) .upload-list {
     background-color: rgb(30, 41, 59);
   }
 
@@ -394,13 +453,21 @@
     display: flex;
     gap: 0.875rem;
     padding: 0.875rem;
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
     margin-bottom: 0.375rem;
     transition: all 0.15s;
+    background-color: #f8fafc;
+  }
+
+  :global(.dark) .upload-item {
     background-color: rgb(30, 41, 59);
   }
 
   .upload-item:hover {
+    background-color: #f1f5f9;
+  }
+
+  :global(.dark) .upload-item:hover {
     background-color: rgb(51, 65, 85);
   }
 
@@ -413,12 +480,16 @@
   }
 
   .upload-item.clickable:hover {
-    background-color: rgb(71, 85, 105);
+    background-color: #e0f2fe;
     opacity: 1;
   }
 
+  :global(.dark) .upload-item.clickable:hover {
+    background-color: rgb(71, 85, 105);
+  }
+
   .upload-item.error {
-    background: hsl(var(--er) / 0.05);
+    background: rgba(239, 68, 68, 0.1);
   }
 
   .upload-icon {
@@ -436,29 +507,41 @@
   .file-name {
     font-weight: 500;
     font-size: 0.9rem;
-    color: hsl(var(--bc) / 0.9);
+    color: #1e293b;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     margin-bottom: 0.375rem;
   }
 
+  :global(.dark) .file-name {
+    color: #f1f5f9;
+  }
+
   .upload-meta {
     font-size: 0.8rem;
-    color: hsl(var(--bc) / 0.6);
+    color: #64748b;
     margin-bottom: 0.5rem;
+  }
+
+  :global(.dark) .upload-meta {
+    color: #94a3b8;
   }
 
   .file-progress {
     height: 0.25rem;
-    background: hsl(var(--bc) / 0.1);
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 1rem;
     overflow: hidden;
   }
 
+  :global(.dark) .file-progress {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
   .file-progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, hsl(var(--p)), hsl(var(--s)));
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
     border-radius: 1rem;
     transition: width 0.2s ease;
   }
@@ -477,16 +560,25 @@
     justify-content: center;
     border: none;
     background: transparent;
-    color: hsl(var(--bc) / 0.5);
+    color: #64748b;
     border-radius: 0.375rem;
     cursor: pointer;
     transition: all 0.15s;
     font-size: 0.875rem;
   }
 
+  :global(.dark) .btn-icon-sm {
+    color: #94a3b8;
+  }
+
   .btn-icon-sm:hover {
-    background: hsl(var(--bc) / 0.1);
-    color: hsl(var(--bc) / 0.8);
+    background: rgba(0, 0, 0, 0.1);
+    color: #1e293b;
+  }
+
+  :global(.dark) .btn-icon-sm:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f1f5f9;
   }
 
   /* Footer */
@@ -495,20 +587,29 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1.25rem;
-    border-top: 1px solid rgba(148, 163, 184, 0.2);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    background: #f8fafc;
+    border-radius: 0 0 1rem 1rem;
+  }
+
+  :global(.dark) .upload-footer {
     background-color: rgb(51, 65, 85);
-    border-radius: 0 0 0.75rem 0.75rem;
+    border-top-color: rgba(148, 163, 184, 0.2);
   }
 
   .footer-stats {
     font-size: 0.8rem;
-    color: hsl(var(--bc) / 0.6);
+    color: #64748b;
+  }
+
+  :global(.dark) .footer-stats {
+    color: #94a3b8;
   }
 
   .btn-text {
     background: none;
     border: none;
-    color: hsl(var(--p));
+    color: #3b82f6;
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
@@ -518,7 +619,24 @@
   }
 
   .btn-text:hover {
-    background: hsl(var(--p) / 0.1);
+    background: rgba(59, 130, 246, 0.1);
+  }
+
+  /* Status Colors */
+  .text-success {
+    color: #22c55e;
+  }
+  .text-error {
+    color: #ef4444;
+  }
+  .text-warning {
+    color: #f59e0b;
+  }
+  .text-primary {
+    color: #3b82f6;
+  }
+  .text-muted {
+    color: #94a3b8;
   }
 
   /* Animations */
@@ -535,22 +653,6 @@
     }
   }
 
-  .text-success {
-    color: hsl(var(--su));
-  }
-  .text-error {
-    color: hsl(var(--er));
-  }
-  .text-warning {
-    color: hsl(var(--wa));
-  }
-  .text-primary {
-    color: hsl(var(--p));
-  }
-  .text-muted {
-    color: hsl(var(--bc) / 0.4);
-  }
-
   /* Scrollbar */
   .upload-list::-webkit-scrollbar {
     width: 0.375rem;
@@ -561,12 +663,20 @@
   }
 
   .upload-list::-webkit-scrollbar-thumb {
-    background: hsl(var(--bc) / 0.2);
+    background: rgba(0, 0, 0, 0.15);
     border-radius: 1rem;
   }
 
+  :global(.dark) .upload-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
   .upload-list::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--bc) / 0.3);
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  :global(.dark) .upload-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
   }
 
   /* Responsive */
