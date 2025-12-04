@@ -135,6 +135,11 @@
 
   function selectView(viewId) {
     currentView.set(viewId);
+    // Update URL hash for browser history/F5 persistence
+    const newHash = `#/${viewId}`;
+    if (window.location.hash !== newHash) {
+      window.history.pushState({ view: viewId }, "", newHash);
+    }
   }
 
   function toggleSidebar() {
