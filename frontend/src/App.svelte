@@ -136,11 +136,59 @@
     // Apply initial theme immediately (before server state loads)
     applyThemeToDocument($isDarkMode);
 
-    // Set initial dashboard view if user is logged in
+    // Set initial view based on current URL hash, fallback to dashboard
     if ($auth.isLoggedIn) {
-      currentView.set("dashboard");
+      const initialView = getViewFromHash(window.location.hash);
+      currentView.set(initialView);
     }
   });
+
+  // Helper function to extract view name from hash
+  function getViewFromHash(hash) {
+    if (!hash || hash === "" || hash === "#" || hash === "#/") {
+      return "dashboard";
+    }
+    // Parse hash like "#/files/path/to/folder" -> "files"
+    // Or "#/settings" -> "settings"
+    const match = hash.match(/^#\/([a-zA-Z-]+)/);
+    if (match && match[1]) {
+      const viewName = match[1].toLowerCase();
+      // Map hash routes to view names
+      const viewMap = {
+        "files": "files",
+        "dashboard": "dashboard",
+        "shared": "shared",
+        "favorites": "favorites",
+        "trash": "trash",
+        "activity": "activity",
+        "notifications": "notifications",
+        "backup": "backup",
+        "storage": "storage",
+        "users": "users",
+        "duplicates": "duplicates",
+        "tags": "tags",
+        "tag-cloud": "tags",
+        "jobs": "jobs",
+        "jobs-queue": "jobsQueue",
+        "roles": "roles",
+        "workflows": "workflows",
+        "cloud-storage": "cloud-storage",
+        "audit": "audit",
+        "admin": "admin",
+        "webhooks": "webhooks",
+        "health": "health",
+        "analytics": "analytics",
+        "settings": "settings",
+        "profile": "profile",
+        "user-settings": "user-settings",
+        "security": "security",
+        "api-tokens": "api-tokens",
+        "showcase": "showcase"
+      };
+      return viewMap[viewName] || "dashboard";
+    }
+    return "dashboard";
+  }
 
   // Helper function to apply theme to document
   function applyThemeToDocument(isDark) {
@@ -251,6 +299,14 @@
   onMount(() => {
     const checkRoute = () => {
       showSignup = window.location.hash === "#/signup";
+      
+      // Update current view based on hash (for browser back/forward, manual URL changes)
+      if ($auth.isLoggedIn) {
+        const viewFromHash = getViewFromHash(window.location.hash);
+        if (viewFromHash && $currentView !== viewFromHash) {
+          currentView.set(viewFromHash);
+        }
+      }
     };
     checkRoute();
     window.addEventListener("hashchange", checkRoute);

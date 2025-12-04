@@ -265,7 +265,7 @@
       <button
         type="button"
         class="p-2.5 rounded-xl bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:shadow-md transition-all duration-200"
-        onclick={onRefresh}
+        onclick={() => onRefresh?.()}
         aria-label="Refresh files"
         title="Refresh files"
       >

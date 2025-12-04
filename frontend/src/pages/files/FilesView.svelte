@@ -1496,7 +1496,7 @@
 {#if showBulkTaggingModal}
   <BulkTaggingModal
     selectedFiles={Array.from(selectedFiles)
-      .map((path) => displayFiles.find((f) => f.path === path))
+      .map((path) => displayFiles().find((f) => f.path === path))
       .filter(Boolean)}
     onClose={() => {
       showBulkTaggingModal = false;
@@ -1513,7 +1513,7 @@
   <BatchRenameModal
     isOpen={showBatchRenameModal}
     files={Array.from(selectedFiles)
-      .map((path) => displayFiles.find((f) => f.path === path))
+      .map((path) => displayFiles().find((f) => f.path === path))
       .filter(Boolean)}
     onClose={() => {
       showBatchRenameModal = false;
