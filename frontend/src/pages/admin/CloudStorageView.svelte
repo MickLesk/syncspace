@@ -397,7 +397,7 @@
         <button
           class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all {selectedTab ===
           'backends'
-            ? 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-lg'
+            ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg'
             : 'hover:bg-base-300'}"
           onclick={() => (selectedTab = "backends")}
         >
@@ -407,7 +407,7 @@
         <button
           class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all {selectedTab ===
           'migrations'
-            ? 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-lg'
+            ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg'
             : 'hover:bg-base-300'}"
           onclick={() => (selectedTab = "migrations")}
         >
@@ -424,7 +424,7 @@
       <!-- Content -->
       {#if loading}
         <div class="flex justify-center py-20">
-          <span class="loading loading-spinner loading-lg text-blue-500"></span>
+          <span class="loading loading-spinner loading-lg text-green-500"></span>
         </div>
       {:else if selectedTab === "backends"}
         <!-- Backends Tab -->
