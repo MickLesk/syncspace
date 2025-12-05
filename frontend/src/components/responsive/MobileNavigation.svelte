@@ -20,7 +20,7 @@
   <div class="flex justify-around">
     {#each navItems as item}
       <button
-        on:click={() => onNavigate(item.id)}
+        onclick={() => onNavigate(item.id)}
         class={`
           flex-1 flex flex-col items-center justify-center py-3 px-2 transition-colors
           ${

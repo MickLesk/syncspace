@@ -309,8 +309,13 @@
                 class="search-input"
               />
               {#if searchInput}
-                <button type="button" class="clear-btn" onclick={clearSearch}>
-                  <i class="bi bi-x"></i>
+                <button
+                  type="button"
+                  class="clear-btn"
+                  onclick={clearSearch}
+                  aria-label="Clear search"
+                >
+                  <i class="bi bi-x" aria-hidden="true"></i>
                 </button>
               {/if}
               <button type="submit" class="search-btn" disabled={isSearching}>

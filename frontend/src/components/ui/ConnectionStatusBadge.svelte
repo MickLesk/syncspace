@@ -113,7 +113,7 @@
     }
   }
 
-  $: {
+  $effect(() => {
     if ($wsState === WS_STATES.RECONNECTING) {
       if (!countdownInterval) {
         countdownInterval = setInterval(() => {
@@ -127,11 +127,11 @@
       }
       nextRetryIn = 0;
     }
-  }
+  });
 
-  $: config = getBadgeConfig($wsState);
-  $: positionClasses = getPositionClasses();
-  $: showBadge = config.show;
+  let config = $derived(getBadgeConfig($wsState));
+  let positionClasses = $derived(getPositionClasses());
+  let showBadge = $derived(config.show);
 </script>
 
 {#if showBadge}
@@ -174,11 +174,11 @@
       {#if $wsState === WS_STATES.ERROR || $wsState === WS_STATES.MAX_RETRIES_REACHED}
         <button
           class="ml-2 text-sm opacity-75 hover:opacity-100 transition-opacity"
-          on:click={() => location.reload()}
+          onclick={() => location.reload()}
           title="Seite neu laden"
           aria-label="Verbindung zurücksetzen durch Seite neu laden"
         >
-          <i class="bi bi-arrow-clockwise" / aria-hidden="true">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
         </button>
       {/if}
     </div>

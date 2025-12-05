@@ -9,10 +9,10 @@
   } from "$stores/storageQuota.js";
   import { t } from "$lib/i18n.js";
 
-  let chartContainer;
+  let chartContainer = $state(null);
   let chartInstance = null;
-  let showFolderBreakdown = false;
-  let selectedType = null;
+  let showFolderBreakdown = $state(false);
+  let selectedType = $state(null);
 
   onMount(async () => {
     // Load storage data on mount
@@ -122,9 +122,11 @@
   }
 
   // Reactive: update chart when data changes
-  $: if ($storageQuota.byType && Object.keys($storageQuota.byType).length > 0) {
-    initializeChart();
-  }
+  $effect(() => {
+    if ($storageQuota.byType && Object.keys($storageQuota.byType).length > 0) {
+      initializeChart();
+    }
+  });
 </script>
 
 <div
@@ -280,8 +282,16 @@
               class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
               class:ring-2={selectedType === item.type}
               class:ring-green-500={selectedType === item.type}
-              on:click={() => {
+              role="button"
+              tabindex="0"
+              onclick={() => {
                 selectedType = selectedType === item.type ? null : item.type;
+              }}
+              onkeydown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  selectedType = selectedType === item.type ? null : item.type;
+                }
               }}
             >
               <div class="flex items-center justify-between mb-2">
@@ -330,7 +340,7 @@
     <!-- Folder Breakdown -->
     <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
       <button
-        on:click={toggleFolderBreakdown}
+        onclick={toggleFolderBreakdown}
         class="flex items-center text-lg font-semibold text-gray-900 dark:text-white mb-4 hover:text-green-600 dark:hover:text-green-400 transition-colors"
       >
         <i class="bi bi-folder mr-2" aria-hidden="true"></i>

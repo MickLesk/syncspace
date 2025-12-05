@@ -25,8 +25,7 @@
   } from "../stores/tagsComments.js";
   import { serverState } from "../stores/serverState.js";
 
-  let { filePath = "" } = $props();
-  let { readOnly = false } = $props();
+  let { filePath = "", readOnly = false } = $props();
 
   let activeTab = "tags"; // 'tags' | 'comments'
   let newTagName = "";
@@ -56,9 +55,11 @@
   });
 
   // Watch filePath changes
-  $: if (filePath) {
-    Promise.all([loadTags(filePath), loadComments(filePath)]);
-  }
+  $effect(() => {
+    if (filePath) {
+      Promise.all([loadTags(filePath), loadComments(filePath)]);
+    }
+  });
 
   async function handleAddTag() {
     if (!newTagName.trim()) return;
@@ -141,9 +142,9 @@
       class:dark:text-green-200={activeTab === "tags"}
       class:text-slate-600={activeTab !== "tags"}
       class:dark:text-slate-400={activeTab !== "tags"}
-      on:click={() => (activeTab = "tags")}
+      onclick={() => (activeTab = "tags")}
     >
-      <i class="bi bi-tag mr-2" / aria-hidden="true">
+      <i class="bi bi-tag mr-2" aria-hidden="true"></i>
       Tags ({$currentFileMetadata.tags.length})
     </button>
 
@@ -156,9 +157,9 @@
       class:dark:text-green-200={activeTab === "comments"}
       class:text-slate-600={activeTab !== "comments"}
       class:dark:text-slate-400={activeTab !== "comments"}
-      on:click={() => (activeTab = "comments")}
+      onclick={() => (activeTab = "comments")}
     >
-      <i class="bi bi-chat-dots mr-2" / aria-hidden="true">
+      <i class="bi bi-chat-dots mr-2" aria-hidden="true"></i>
       Comments ({$currentFileMetadata.comments.length})
     </button>
   </div>
@@ -168,14 +169,15 @@
     {#if $loading}
       <div class="flex items-center justify-center h-full">
         <div class="animate-spin">
-          <i class="bi bi-hourglass text-2xl text-green-500" / aria-hidden="true">
+          <i class="bi bi-hourglass text-2xl text-green-500" aria-hidden="true"
+          ></i>
         </div>
       </div>
     {:else if $error}
       <div
         class="bg-red-50 dark:bg-red-900/20 p-3 rounded text-red-700 dark:text-red-200 text-sm"
       >
-        <i class="bi bi-exclamation-circle mr-2" / aria-hidden="true">
+        <i class="bi bi-exclamation-circle mr-2" aria-hidden="true"></i>
         {$error}
       </div>
     {:else if activeTab === "tags"}
@@ -207,18 +209,18 @@
                     class:border-slate-900={newTagColor === color}
                     class:border-transparent={newTagColor !== color}
                     style="background-color: {color}"
-                    on:click={() => (newTagColor = color)}
+                    onclick={() => (newTagColor = color)}
                     title={color}
                   />
                 {/each}
               </div>
 
               <button
-                on:click={handleAddTag}
+                onclick={handleAddTag}
                 disabled={!newTagName.trim()}
                 class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-slate-300 text-white rounded text-sm font-medium transition-colors"
               >
-                <i class="bi bi-plus" / aria-hidden="true">
+                <i class="bi bi-plus" aria-hidden="true"></i>
               </button>
             </div>
           </div>
@@ -242,11 +244,11 @@
 
                 {#if !readOnly}
                   <button
-                    on:click={() => handleDeleteTag(tag.id)}
+                    onclick={() => handleDeleteTag(tag.id)}
                     class="hover:opacity-75 transition-opacity"
                     title="Remove tag"
                   >
-                    <i class="bi bi-x" / aria-hidden="true">
+                    <i class="bi bi-x" aria-hidden="true"></i>
                   </button>
                 {/if}
               </div>
@@ -293,18 +295,18 @@
                   {#if !readOnly && comment.author === $serverState.profile.displayName}
                     <div class="flex gap-1">
                       <button
-                        on:click={() => startEdit(comment)}
+                        onclick={() => startEdit(comment)}
                         class="text-green-500 hover:text-green-700 text-sm"
                         title="Edit"
                       >
-                        <i class="bi bi-pencil" / aria-hidden="true">
+                        <i class="bi bi-pencil" aria-hidden="true"></i>
                       </button>
                       <button
-                        on:click={() => handleDeleteComment(comment.id)}
+                        onclick={() => handleDeleteComment(comment.id)}
                         class="text-red-500 hover:text-red-700 text-sm"
                         title="Delete"
                       >
-                        <i class="bi bi-trash" / aria-hidden="true">
+                        <i class="bi bi-trash" aria-hidden="true"></i>
                       </button>
                     </div>
                   {/if}
@@ -320,13 +322,13 @@
                     />
                     <div class="flex gap-2">
                       <button
-                        on:click={handleEditComment}
+                        onclick={handleEditComment}
                         class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm"
                       >
                         Save
                       </button>
                       <button
-                        on:click={() => (editingCommentId = null)}
+                        onclick={() => (editingCommentId = null)}
                         class="px-3 py-1 bg-slate-300 dark:bg-slate-600 text-slate-900 dark:text-white rounded text-sm"
                       >
                         Cancel
@@ -340,7 +342,10 @@
 
                   {#if comment.isPending}
                     <p class="text-xs text-slate-500 dark:text-slate-400">
-                      <i class="bi bi-hourglass mr-1 animate-spin" / aria-hidden="true">
+                      <i
+                        class="bi bi-hourglass mr-1 animate-spin"
+                        aria-hidden="true"
+                      ></i>
                       Sending...
                     </p>
                   {/if}
@@ -352,10 +357,10 @@
                 >
                   {#if !readOnly}
                     <button
-                      on:click={() => startReply(comment.id)}
+                      onclick={() => startReply(comment.id)}
                       class="text-sm text-green-500 hover:text-green-700 flex items-center gap-1"
                     >
-                      <i class="bi bi-reply" / aria-hidden="true">
+                      <i class="bi bi-reply" aria-hidden="true"></i>
                       Reply
                     </button>
                   {/if}
@@ -387,10 +392,10 @@
 
                       {#if !readOnly && reply.author === $serverState.profile.displayName}
                         <button
-                          on:click={() => handleDeleteComment(reply.id)}
+                          onclick={() => handleDeleteComment(reply.id)}
                           class="text-red-500 hover:text-red-700 text-xs"
                         >
-                          <i class="bi bi-trash" / aria-hidden="true">
+                          <i class="bi bi-trash" aria-hidden="true"></i>
                         </button>
                       {/if}
                     </div>
@@ -415,7 +420,7 @@
               >
                 Replying to comment...
                 <button
-                  on:click={() => (replyingToId = null)}
+                  onclick={() => (replyingToId = null)}
                   class="ml-2 underline hover:no-underline"
                 >
                   Cancel
@@ -433,7 +438,7 @@
 
             <div class="flex gap-2 mt-2">
               <button
-                on:click={handleAddComment}
+                onclick={handleAddComment}
                 disabled={!newCommentText.trim()}
                 class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-slate-300 text-white rounded text-sm font-medium"
               >

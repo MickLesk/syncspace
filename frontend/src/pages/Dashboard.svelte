@@ -222,8 +222,9 @@
                     <td>{file.date}</td>
                     <td>{file.updatedAt}</td>
                     <td class="actions-cell">
-                      <button class="action-dot"
-                        ><i class="bi bi-three-dots-vertical"></i></button
+                      <button class="action-dot" aria-label="File actions menu"
+                        ><i class="bi bi-three-dots-vertical" aria-hidden="true"
+                        ></i></button
                       >
                     </td>
                   </tr>
@@ -306,8 +307,9 @@
                     <td>{share.files} files</td>
                     <td>{share.recipients} recipients</td>
                     <td class="actions-cell">
-                      <button class="action-dot"
-                        ><i class="bi bi-three-dots-vertical"></i></button
+                      <button class="action-dot" aria-label="Share actions menu"
+                        ><i class="bi bi-three-dots-vertical" aria-hidden="true"
+                        ></i></button
                       >
                     </td>
                   </tr>
@@ -320,7 +322,7 @@
 
       <!-- Footer -->
       <div class="dashboard-footer">
-        <span>Powered by <a href="#">SyncSpace</a></span>
+        <span>Powered by <span class="font-semibold">SyncSpace</span></span>
         <span>v1.0-beta</span>
       </div>
     {/if}
@@ -814,14 +816,5 @@
     padding: 2rem 0;
     font-size: 0.75rem;
     color: #9ca3af;
-  }
-
-  .dashboard-footer a {
-    color: #22c55e;
-    text-decoration: none;
-  }
-
-  .dashboard-footer a:hover {
-    text-decoration: underline;
   }
 </style>

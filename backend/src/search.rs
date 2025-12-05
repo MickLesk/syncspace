@@ -949,17 +949,38 @@ pub async fn extract_content(file_path: &Path) -> Option<String> {
             tokio::fs::read_to_string(file_path).await.ok()
         }
 
-        // PDF extraction with lopdf
-        "pdf" => extract_pdf_content(file_path).await,
+        // Use textractor for PDF, Office documents, and other supported formats
+        "pdf" | "docx" | "xlsx" | "xls" | "pptx" | "odt" | "ods" | "odp" => {
+            extract_with_textractor(file_path).await
+        }
 
-        // DOCX extraction - parse XML from zip archive
-        "docx" => extract_docx_content(file_path).await,
         _ => None,
     }
 }
 
-/// Extract text from PDF file
+/// Extract text from any supported file using textractor
+/// Supports: PDF, DOCX, XLSX, ODF, HTML, MD, TXT, ZIP and more
+async fn extract_with_textractor(file_path: &Path) -> Option<String> {
+    let path = file_path.to_path_buf();
+    tokio::task::spawn_blocking(move || {
+        match textractor::extract(path.to_string_lossy().as_ref()) {
+            Ok(text) if !text.is_empty() => Some(text),
+            _ => None,
+        }
+    })
+    .await
+    .ok()
+    .flatten()
+}
+
+/// Extract text from PDF file (fallback using lopdf if textractor fails)
 async fn extract_pdf_content(file_path: &Path) -> Option<String> {
+    // First try textractor
+    if let Some(text) = extract_with_textractor(file_path).await {
+        return Some(text);
+    }
+    
+    // Fallback to lopdf for older/complex PDFs
     use lopdf::Document;
 
     // Load PDF in blocking task (lopdf is sync)

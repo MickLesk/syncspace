@@ -11,28 +11,28 @@ pub struct SearchIndex {
     pub indexed_at: String,
 }
 
-/// Extract text from PDF
+/// Extract text from any supported file using textractor
+/// Supports: PDF, DOCX, XLSX, ODF, HTML, MD, TXT, ZIP and more
+pub async fn extract_text_from_file(path: &str) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    let path = path.to_string();
+    let result = tokio::task::spawn_blocking(move || {
+        textractor::extract(&path)
+    }).await??;
+    
+    Ok(result)
+}
+
+/// Extract text from PDF (using textractor)
 pub async fn extract_text_from_pdf(path: &str) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let output = tokio::process::Command::new("pdftotext")
-        .args(&[path, "-"])
-        .output()
-        .await?;
-    
-    Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    extract_text_from_file(path).await
 }
 
-/// Extract text from Word document
+/// Extract text from Word document (using textractor)
 pub async fn extract_text_from_docx(path: &str) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    // Placeholder - would use docx crate or antiword
-    let output = tokio::process::Command::new("antiword")
-        .arg(path)
-        .output()
-        .await?;
-    
-    Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    extract_text_from_file(path).await
 }
 
-/// OCR for images (using tesseract)
+/// OCR for images (using tesseract - requires external binary)
 pub async fn extract_text_from_image(path: &str) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let output = tokio::process::Command::new("tesseract")
         .args(&[path, "stdout"])

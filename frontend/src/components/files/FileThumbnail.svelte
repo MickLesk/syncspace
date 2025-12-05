@@ -3,10 +3,12 @@
   import { getFileIcon, getFileIconColor } from "../../utils/fileIcons.js";
   import api from "../../lib/api.js";
 
-  let { file = null } = $props();
-  let { size = "md" } = $props(); // sm, md, lg
-  let { showIcon = true } = $props();
-  let { fallbackToIcon = true } = $props();
+  let {
+    file = null,
+    size = "md",
+    showIcon = true,
+    fallbackToIcon = true,
+  } = $props();
 
   let thumbnailUrl = null;
   let thumbnailError = false;
@@ -38,16 +40,25 @@
     "svg",
   ];
 
-  $: isImage =
+  let isImage = $derived(
     file &&
-    imageExtensions.some((ext) => file.name.toLowerCase().endsWith("." + ext));
+      imageExtensions.some((ext) => file.name.toLowerCase().endsWith("." + ext))
+  );
 
   // Only load thumbnail when file path actually changes
-  $: filePath = file ? (file.path || "") + file.name : null;
-  $: if (filePath && filePath !== lastFilePath && isImage && !thumbnailError) {
-    lastFilePath = filePath;
-    loadThumbnail();
-  }
+  let computedFilePath = $derived(file ? (file.path || "") + file.name : null);
+
+  $effect(() => {
+    if (
+      computedFilePath &&
+      computedFilePath !== lastFilePath &&
+      isImage &&
+      !thumbnailError
+    ) {
+      lastFilePath = computedFilePath;
+      loadThumbnail();
+    }
+  });
 
   async function loadThumbnail() {
     if (!file || thumbnailError || loading) return;
@@ -95,7 +106,7 @@
       src={thumbnailUrl}
       alt={file.name}
       class="w-full h-full object-cover rounded-lg shadow-sm"
-      on:error={handleThumbnailError}
+      onerror={handleThumbnailError}
       loading="lazy"
     />
 

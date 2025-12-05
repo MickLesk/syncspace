@@ -69,7 +69,7 @@
     class="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-200"
     role="presentation"
     onclick={handleBackdropClick}
-    on:keydown={(e) => e.key === "Escape" && onClose?.()}
+    onkeydown={(e) => e.key === "Escape" && onClose?.()}
   ></div>
 
   <!-- Modal -->

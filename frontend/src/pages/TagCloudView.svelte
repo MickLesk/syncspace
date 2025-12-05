@@ -387,6 +387,7 @@
                     <button
                       onclick={() => toggleTag(tag)}
                       class="text-gray-500 hover:text-red-500 transition-colors"
+                      aria-label="Remove tag {tag.name}"
                     >
                       <i class="bi bi-x" aria-hidden="true"></i>
                     </button>

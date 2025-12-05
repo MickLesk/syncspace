@@ -151,7 +151,7 @@
           type="text"
           placeholder={t("activity.search_placeholder")}
           value={searchQuery}
-          on:input={handleSearch}
+          oninput={handleSearch}
           class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
         />
       </div>
@@ -159,7 +159,7 @@
 
     <!-- Filter Toggle -->
     <button
-      on:click={() => (showFilters = !showFilters)}
+      onclick={() => (showFilters = !showFilters)}
       class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors mb-4"
     >
       <i class="bi bi-funnel mr-2" aria-hidden="true"></i>
@@ -180,7 +180,7 @@
           <input
             type="date"
             bind:value={dateStart}
-            on:change={handleDateFilter}
+            onchange={handleDateFilter}
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
           />
         </div>
@@ -194,7 +194,7 @@
           <input
             type="date"
             bind:value={dateEnd}
-            on:change={handleDateFilter}
+            onchange={handleDateFilter}
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
           />
         </div>
@@ -207,7 +207,7 @@
           </div>
           <select
             bind:value={selectedType}
-            on:change={() => handleTypeFilter(selectedType)}
+            onchange={() => handleTypeFilter(selectedType)}
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
           >
             <option value="all">{t("activity.all_types")}</option>
@@ -219,7 +219,7 @@
       </div>
 
       <button
-        on:click={clearFilters}
+        onclick={clearFilters}
         class="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded transition-colors"
       >
         {t("activity.clear_filters")}
@@ -230,7 +230,7 @@
     <div class="flex flex-wrap gap-2 mt-4">
       {#each ["all", ...Object.keys(ACTIVITY_TYPES)] as type}
         <button
-          on:click={() => handleTypeFilter(type)}
+          onclick={() => handleTypeFilter(type)}
           class="px-3 py-1.5 text-sm font-medium rounded-full transition-all"
           class:bg-green-600={selectedType === type}
           class:text-white={selectedType === type}
@@ -277,7 +277,7 @@
       {#each $activityFeed.filtered as activity (activity.id)}
         <div
           class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer"
-          on:click={() => toggleExpanded(activity.id)}
+          onclick={() => toggleExpanded(activity.id)}
         >
           <div class="flex items-start gap-4">
             <!-- Icon -->
@@ -385,7 +385,7 @@
       class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end"
     >
       <button
-        on:click={() => activityFeed.export()}
+        onclick={() => activityFeed.export()}
         class="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
       >
         <i class="bi bi-download mr-2" aria-hidden="true"></i>

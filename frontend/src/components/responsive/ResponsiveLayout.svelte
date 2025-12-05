@@ -23,7 +23,7 @@
     <div class="flex items-center justify-between px-4 md:px-6 h-16">
       <!-- Mobile menu toggle -->
       <button
-        on:click={() => sidebarOpen = !sidebarOpen}
+        onclick={() => sidebarOpen = !sidebarOpen}
         class="md:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"
         title="Toggle menu"
       >
@@ -60,7 +60,7 @@
         <div class="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
           <h2 class="font-semibold text-gray-900 dark:text-white">Menu</h2>
           <button
-            on:click={() => sidebarOpen = false}
+            onclick={() => sidebarOpen = false}
             class="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition"
           >
             <i class="bi bi-x text-xl" aria-hidden="true"></i>
@@ -73,7 +73,7 @@
       <!-- Mobile backdrop -->
       {#if sidebarOpen}
         <div
-          on:click={() => sidebarOpen = false}
+          onclick={() => sidebarOpen = false}
           class="fixed inset-0 z-10 bg-black bg-opacity-50 md:hidden"
         ></div>
       {/if}

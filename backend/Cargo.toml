@@ -74,7 +74,12 @@ ldap3 = { version = "0.12", default-features = false, features = ["tls"] }
 suppaftp = { version = "7.0", features = ["async-secure"] }
 async-imap = { version = "0.11", default-features = false, features = ["runtime-tokio"] }
 async-native-tls = "0.5"
-dotext = "0.1"  # DOCX text extraction for search indexing
+
+# Document Text Extraction (modern, actively maintained)
+pdf-extract = "0.10"  # Pure Rust PDF text extraction (Oct 2025)
+docx-rust = "0.1.10"    # DOCX reading/writing with structure
+calamine = "0.32"    # Excel/Calc spreadsheet reading (xlsx, xls, ods)
+# extractous = "0.3" # Multi-format extraction (optional - requires native libs)
 
 # Performance & Caching
 redis = { version = "0.32", features = ["tokio-comp", "connection-manager"] }

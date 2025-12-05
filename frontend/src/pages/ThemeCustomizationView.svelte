@@ -73,7 +73,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
       {#each Object.entries(PRESET_THEMES) as [key, preset]}
         <button
-          on:click={() => handlePresetClick(key)}
+          onclick={() => handlePresetClick(key)}
           class="p-4 rounded-lg border-2 transition-all hover:shadow-md {$currentPresetName ===
           key
             ? 'border-green-500 bg-green-50 dark:border-green-400 dark:bg-green-900/20'
@@ -127,7 +127,7 @@
         </div>
         <div class="flex gap-2">
           <button
-            on:click={() => toggleColorPicker("primaryColor")}
+            onclick={() => toggleColorPicker("primaryColor")}
             class="w-12 h-12 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-gray-500 transition-colors cursor-pointer"
             style="background-color: {$customTheme.primaryColor}"
             title={t("theme.click_to_edit")}
@@ -135,7 +135,7 @@
           <input
             type="text"
             value={$customTheme.primaryColor}
-            on:change={(e) => handleColorChange("primaryColor", e.target.value)}
+            onchange={(e) => handleColorChange("primaryColor", e.target.value)}
             class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white"
             placeholder="#3B82F6"
           />
@@ -144,7 +144,7 @@
           <input
             type="color"
             value={$customTheme.primaryColor}
-            on:change={(e) => handleColorChange("primaryColor", e.target.value)}
+            onchange={(e) => handleColorChange("primaryColor", e.target.value)}
             class="mt-2"
           />
         {/if}
@@ -159,7 +159,7 @@
         </div>
         <div class="flex gap-2">
           <button
-            on:click={() => toggleColorPicker("secondaryColor")}
+            onclick={() => toggleColorPicker("secondaryColor")}
             class="w-12 h-12 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-gray-500 transition-colors cursor-pointer"
             style="background-color: {$customTheme.secondaryColor}"
             title={t("theme.click_to_edit")}
@@ -193,7 +193,7 @@
         </div>
         <div class="flex gap-2">
           <button
-            on:click={() => toggleColorPicker("accentColor")}
+            onclick={() => toggleColorPicker("accentColor")}
             class="w-12 h-12 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-gray-500 transition-colors cursor-pointer"
             style="background-color: {$customTheme.accentColor}"
             title={t("theme.click_to_edit")}
@@ -337,7 +337,7 @@
     </h3>
     <div class="flex gap-4">
       <button
-        on:click={() => customTheme.export()}
+        onclick={() => customTheme.export()}
         class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center justify-center"
       >
         <i class="bi bi-download mr-2" aria-hidden="true"></i>
@@ -346,7 +346,7 @@
 
       <label class="flex-1">
         <button
-          on:click={() => importFile?.click()}
+          onclick={() => importFile?.click()}
           class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors flex items-center justify-center cursor-pointer"
         >
           <i class="bi bi-upload mr-2" aria-hidden="true"></i>
@@ -362,7 +362,7 @@
       </label>
 
       <button
-        on:click={() => customTheme.reset()}
+        onclick={() => customTheme.reset()}
         class="flex-1 px-4 py-2 bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg transition-colors flex items-center justify-center"
       >
         <i class="bi bi-arrow-counterclockwise mr-2" aria-hidden="true"></i>

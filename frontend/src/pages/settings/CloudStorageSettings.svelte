@@ -484,8 +484,9 @@
             resetNewBackend();
           }}
           class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+          aria-label="Close modal"
         >
-          <i class="bi bi-x-lg"></i>
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
         </button>
       </div>
       <div class="p-4 space-y-4">

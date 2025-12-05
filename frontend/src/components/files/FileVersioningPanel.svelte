@@ -20,8 +20,7 @@
     getVersionStats,
   } from "../stores/fileVersioning.js";
 
-  let { filePath = "" } = $props();
-  let { readOnly = false } = $props();
+  let { filePath = "", readOnly = false } = $props();
 
   let compareMode = false;
   let selectedV1 = null;
@@ -35,10 +34,12 @@
     }
   });
 
-  $: if (filePath) {
-    loadVersions(filePath);
-    compareMode = false;
-  }
+  $effect(() => {
+    if (filePath) {
+      loadVersions(filePath);
+      compareMode = false;
+    }
+  });
 
   async function handleCompare() {
     if (!selectedV1 || !selectedV2) return;
@@ -80,9 +81,9 @@
         class={!showStats
           ? "px-4 py-2 rounded text-sm font-medium transition-colors bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200"
           : "px-4 py-2 rounded text-sm font-medium transition-colors text-slate-600 dark:text-slate-400"}
-        on:click={() => (showStats = false)}
+        onclick={() => (showStats = false)}
       >
-        <i class="bi bi-clock-history mr-2" / aria-hidden="true">
+        <i class="bi bi-clock-history mr-2" aria-hidden="true"></i>
         Timeline
       </button>
 
@@ -90,9 +91,9 @@
         class={showStats
           ? "px-4 py-2 rounded text-sm font-medium transition-colors bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200"
           : "px-4 py-2 rounded text-sm font-medium transition-colors text-slate-600 dark:text-slate-400"}
-        on:click={() => (showStats = true)}
+        onclick={() => (showStats = true)}
       >
-        <i class="bi bi-pie-chart mr-2" / aria-hidden="true">
+        <i class="bi bi-pie-chart mr-2" aria-hidden="true"></i>
         Stats
       </button>
     </div>
@@ -112,14 +113,15 @@
     {#if $loading}
       <div class="flex items-center justify-center h-full">
         <div class="animate-spin">
-          <i class="bi bi-hourglass text-2xl text-green-500" / aria-hidden="true">
+          <i class="bi bi-hourglass text-2xl text-green-500" aria-hidden="true"
+          ></i>
         </div>
       </div>
     {:else if $error}
       <div
         class="bg-red-50 dark:bg-red-900/20 p-3 rounded text-red-700 dark:text-red-200 text-sm"
       >
-        <i class="bi bi-exclamation-circle mr-2" / aria-hidden="true">
+        <i class="bi bi-exclamation-circle mr-2" aria-hidden="true"></i>
         {$error}
       </div>
     {:else if showStats}
@@ -288,7 +290,7 @@
                       class="p-2 text-slate-600 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 transition-colors"
                       title="Download"
                     >
-                      <i class="bi bi-download" / aria-hidden="true">
+                      <i class="bi bi-download" aria-hidden="true"></i>
                     </button>
 
                     {#if !readOnly}
@@ -299,7 +301,10 @@
                         class="p-2 text-slate-600 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 disabled:opacity-50 transition-colors"
                         title="Restore"
                       >
-                        <i class="bi bi-arrow-counterclockwise" / aria-hidden="true">
+                        <i
+                          class="bi bi-arrow-counterclockwise"
+                          aria-hidden="true"
+                        ></i>
                       </button>
 
                       <button
@@ -309,7 +314,7 @@
                         class="p-2 text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
                         title="Delete"
                       >
-                        <i class="bi bi-trash" / aria-hidden="true">
+                        <i class="bi bi-trash" aria-hidden="true"></i>
                       </button>
                     {/if}
                   </div>
@@ -367,11 +372,11 @@
                 </div>
 
                 <button
-                  on:click={handleCompare}
+                  onclick={handleCompare}
                   disabled={!selectedV1 || !selectedV2 || $loading}
                   class="w-full px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-slate-300 text-white rounded text-sm font-medium transition-colors"
                 >
-                  <i class="bi bi-diagram-2 mr-2" / aria-hidden="true">
+                  <i class="bi bi-diagram-2 mr-2" aria-hidden="true"></i>
                   Compare Versions
                 </button>
               </div>
@@ -388,13 +393,13 @@
                   Diff Result
                 </h4>
                 <button
-                  on:click={() => {
+                  onclick={() => {
                     showDiff = false;
                     exitCompareMode();
                   }}
                   class="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                 >
-                  <i class="bi bi-x" / aria-hidden="true">
+                  <i class="bi bi-x" aria-hidden="true"></i>
                 </button>
               </div>
 

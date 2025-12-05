@@ -48,7 +48,7 @@
   <!-- Metric Selector -->
   <div class="mb-8 flex gap-3 flex-wrap">
     <button
-      on:click={() => handleMetricChange("byType")}
+      onclick={() => handleMetricChange("byType")}
       class="px-4 py-2 rounded-lg font-medium transition-all"
       class:bg-green-600={selectedMetric === "byType"}
       class:text-white={selectedMetric === "byType"}
@@ -62,7 +62,7 @@
     </button>
 
     <button
-      on:click={() => handleMetricChange("bySize")}
+      onclick={() => handleMetricChange("bySize")}
       class="px-4 py-2 rounded-lg font-medium transition-all"
       class:bg-green-600={selectedMetric === "bySize"}
       class:text-white={selectedMetric === "bySize"}
@@ -76,7 +76,7 @@
     </button>
 
     <button
-      on:click={() => handleMetricChange("byAccess")}
+      onclick={() => handleMetricChange("byAccess")}
       class="px-4 py-2 rounded-lg font-medium transition-all"
       class:bg-green-600={selectedMetric === "byAccess"}
       class:text-white={selectedMetric === "byAccess"}

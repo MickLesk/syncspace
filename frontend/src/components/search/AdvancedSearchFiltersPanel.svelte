@@ -8,7 +8,7 @@
   let selectedPreset = $state(null);
   let fileTypes = $state([]);
 
-  $: activeCount = $advancedFilters.activeFilterCount;
+  let activeCount = $derived($advancedFilters.activeFilterCount);
 
   let { onFiltersChange = null } = $props();
 

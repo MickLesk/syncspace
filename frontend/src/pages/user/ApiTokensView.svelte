@@ -546,8 +546,15 @@
         showRevokeConfirm = false;
         selectedToken = null;
       }}
+      onkeydown={(e) => {
+        if (e.key === "Enter" || e.key === " " || e.key === "Escape") {
+          showRevokeConfirm = false;
+          selectedToken = null;
+        }
+      }}
       role="button"
       tabindex="0"
+      aria-label="Close modal"
     ></div>
   </div>
 {/if}
@@ -585,8 +592,15 @@
         showDeleteConfirm = false;
         selectedToken = null;
       }}
+      onkeydown={(e) => {
+        if (e.key === "Enter" || e.key === " " || e.key === "Escape") {
+          showDeleteConfirm = false;
+          selectedToken = null;
+        }
+      }}
       role="button"
       tabindex="0"
+      aria-label="Close modal"
     ></div>
   </div>
 {/if}

@@ -162,7 +162,7 @@
 
       <!-- Sort order -->
       <button
-        on:click={() => ($sortOrder = $sortOrder === "asc" ? "desc" : "asc")}
+        onclick={() => ($sortOrder = $sortOrder === "asc" ? "desc" : "asc")}
         class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
         title={$t("backup.toggle_sort_order")}
       >
@@ -176,7 +176,7 @@
     <!-- Export button -->
     <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
       <button
-        on:click={exportBackupList}
+        onclick={exportBackupList}
         class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition flex items-center gap-2"
       >
         <i class="bi bi-download" aria-hidden="true"></i>
@@ -224,7 +224,7 @@
         {/if}
 
         <button
-          on:click={cancelRestore}
+          onclick={cancelRestore}
           class="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition"
         >
           {$t("common.cancel")}
@@ -247,13 +247,13 @@
         </p>
         <div class="flex gap-4">
           <button
-            on:click={() => (showRestoreConfirm = false)}
+            onclick={() => (showRestoreConfirm = false)}
             class="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition"
           >
             {$t("common.cancel")}
           </button>
           <button
-            on:click={confirmRestore}
+            onclick={confirmRestore}
             class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
           >
             {$t("backup.restore_confirm")}
@@ -277,13 +277,13 @@
         </p>
         <div class="flex gap-4">
           <button
-            on:click={() => (showDeleteConfirm = false)}
+            onclick={() => (showDeleteConfirm = false)}
             class="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition"
           >
             {$t("common.cancel")}
           </button>
           <button
-            on:click={confirmDelete}
+            onclick={confirmDelete}
             class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
           >
             {$t("common.delete")}
@@ -314,7 +314,7 @@
         >
           <!-- Main Row -->
           <button
-            on:click={() => toggleExpanded(backup.id)}
+            onclick={() => toggleExpanded(backup.id)}
             class="w-full p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition flex items-center justify-between"
           >
             <div class="flex items-center gap-4 flex-1">
@@ -461,7 +461,7 @@
 
               <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <button
-                  on:click={() => handleRestore(backup)}
+                  onclick={() => handleRestore(backup)}
                   class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition flex items-center justify-center gap-2"
                 >
                   <i class="bi bi-arrow-counterclockwise" aria-hidden="true"
@@ -469,14 +469,14 @@
                   {$t("backup.restore")}
                 </button>
                 <button
-                  on:click={() => verifyBackup(backup.id)}
+                  onclick={() => verifyBackup(backup.id)}
                   class="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg transition flex items-center justify-center gap-2"
                 >
                   <i class="bi bi-shield-check" aria-hidden="true"></i>
                   {$t("backup.verify")}
                 </button>
                 <button
-                  on:click={() => handleDelete(backup)}
+                  onclick={() => handleDelete(backup)}
                   class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition flex items-center justify-center gap-2"
                 >
                   <i class="bi bi-trash" aria-hidden="true"></i>

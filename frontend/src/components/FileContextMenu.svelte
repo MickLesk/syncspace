@@ -1,10 +1,10 @@
 <script>
   /**
    * File Context Menu Component
-   * 
+   *
    * Handles right-click menus for files with dynamic actions,
    * keyboard shortcuts (Shift+F10), and touch long-press support.
-   * 
+   *
    * Features:
    * - Dynamic menu items based on file type and permissions
    * - Keyboard navigation (arrows, enter, escape)
@@ -12,7 +12,7 @@
    * - Touch long-press support (500ms)
    * - Click-outside detection
    * - Viewport overflow handling
-   * 
+   *
    * @component
    * @example
    *   <FileContextMenu {item} {context} let:isOpen>
@@ -22,20 +22,18 @@
    *   </FileContextMenu>
    */
 
-  import { onMount, onDestroy, tick } from 'svelte';
-  import { getContextMenuItems } from '../lib/contextMenuActions.js';
-  import ContextMenu from './ui/ContextMenu.svelte';
+  import { onMount, onDestroy, tick } from "svelte";
+  import { getContextMenuItems } from "../lib/contextMenuActions.js";
+  import ContextMenu from "./ui/ContextMenu.svelte";
 
   // Props
-  let { item = null } = $props();
-  let { context = {} } = $props();
-  let { onAction = () => {} } = $props();
+  let { item = null, context = {}, onAction = () => {}, children } = $props();
 
   // State
-  let isOpen = false;
-  let x = 0;
-  let y = 0;
-  let menuItems = [];
+  let isOpen = $state(false);
+  let x = $state(0);
+  let y = $state(0);
+  let menuItems = $state([]);
   let selectedIndex = -1;
   let touchTimer = null;
   let touchStartX = 0;
@@ -48,9 +46,11 @@
   /**
    * Update menu items when item or context changes
    */
-  $: if (item) {
-    menuItems = getContextMenuItems(item, context);
-  }
+  $effect(() => {
+    if (item) {
+      menuItems = getContextMenuItems(item, context);
+    }
+  });
 
   /**
    * Handle right-click on target element
@@ -72,7 +72,7 @@
   function handleKeyDown(e) {
     if (!isOpen) {
       // Shift+F10 to open context menu
-      if (e.shiftKey && e.key === 'F10' && targetElement) {
+      if (e.shiftKey && e.key === "F10" && targetElement) {
         e.preventDefault();
         const rect = targetElement.getBoundingClientRect();
         x = rect.left + rect.width / 2;
@@ -84,18 +84,18 @@
 
       // Direct shortcuts when menu is closed
       switch (e.key) {
-        case 'Delete':
+        case "Delete":
           if (!context?.isTrashed) {
             e.preventDefault();
             // Find delete action
-            const deleteAction = menuItems.find(m => m.id === 'delete');
+            const deleteAction = menuItems.find((m) => m.id === "delete");
             if (deleteAction?.action) deleteAction.action();
           }
           break;
-        case 'F2':
+        case "F2":
           if (context?.canEdit) {
             e.preventDefault();
-            const renameAction = menuItems.find(m => m.id === 'rename');
+            const renameAction = menuItems.find((m) => m.id === "rename");
             if (renameAction?.action) renameAction.action();
           }
           break;
@@ -105,15 +105,15 @@
 
     // Handle menu navigation
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
         selectedIndex = Math.min(selectedIndex + 1, menuItems.length - 1);
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
         selectedIndex = Math.max(selectedIndex - 1, 0);
         break;
-      case 'Enter':
+      case "Enter":
         e.preventDefault();
         if (selectedIndex >= 0 && !menuItems[selectedIndex]?.disabled) {
           const action = menuItems[selectedIndex];
@@ -123,7 +123,7 @@
           }
         }
         break;
-      case 'Escape':
+      case "Escape":
         e.preventDefault();
         isOpen = false;
         selectedIndex = -1;
@@ -190,12 +190,12 @@
 
   onMount(() => {
     // Don't add global listeners - let parent handle context menu
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('click', handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("click", handleClickOutside);
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("click", handleClickOutside);
       if (touchTimer) clearTimeout(touchTimer);
     };
   });
@@ -207,11 +207,12 @@
 
 <!-- Proxy events to parent -->
 <div
-  on:contextmenu={handleContextMenu}
-  on:touchstart={handleTouchStart}
-  on:touchend={handleTouchEnd}
+  role="application"
+  oncontextmenu={handleContextMenu}
+  ontouchstart={handleTouchStart}
+  ontouchend={handleTouchEnd}
 >
-  <slot {isOpen} {x} {y} {menuItems} />
+  {@render children?.({ isOpen, x, y, menuItems })}
 </div>
 
 <!-- Context Menu -->
@@ -221,7 +222,7 @@
     {y}
     items={menuItems}
     {context}
-    on:select={(e) => handleMenuAction(e.detail)}
+    onselect={(e) => handleMenuAction(e.detail)}
   />
 {/if}
 

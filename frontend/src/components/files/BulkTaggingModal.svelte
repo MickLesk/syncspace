@@ -276,6 +276,7 @@
                   selectedTags = selectedTags;
                 }}
                 class="hover:opacity-70"
+                aria-label="Remove tag {getTagName(tagId)}"
               >
                 <i class="bi bi-x-lg text-xs" aria-hidden="true"></i>
               </button>

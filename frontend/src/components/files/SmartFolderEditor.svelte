@@ -1,60 +1,87 @@
 <script>
-  import { currentLang } from '../../stores/ui.js';
-  import { t } from '../../i18n.js';
-  import { success, error as errorToast } from '../../stores/toast.js';
-  import api from '../../lib/api.js';
-  import Modal from '../ui/Modal.svelte';
-  import ColorPicker from '../ui/ColorPicker.svelte';
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  import { success, error as errorToast } from "../../stores/toast.js";
+  import api from "../../lib/api.js";
+  import Modal from "../ui/Modal.svelte";
+  import ColorPicker from "../ui/ColorPicker.svelte";
 
   const tr = (key, ...args) => t($currentLang, key, ...args);
 
   // Props
-  let { isOpen = $bindable(false), folder = null, onClose = () => {}, onSave = () => {} } = $props();
+  let {
+    isOpen = $bindable(false),
+    folder = null,
+    onClose = () => {},
+    onSave = () => {},
+  } = $props();
 
   // State
-  let name = $state(folder?.name || '');
-  let description = $state(folder?.description || '');
-  let icon = $state(folder?.icon || 'bi-folder-fill');
-  let color = $state(folder?.color || '#3B82F6');
-  let logic = $state(folder?.logic || 'AND');
-  let sortBy = $state(folder?.sort_by || 'name');
-  let sortOrder = $state(folder?.sort_order || 'asc');
+  let name = $state(folder?.name || "");
+  let description = $state(folder?.description || "");
+  let icon = $state(folder?.icon || "bi-folder-fill");
+  let color = $state(folder?.color || "#3B82F6");
+  let logic = $state(folder?.logic || "AND");
+  let sortBy = $state(folder?.sort_by || "name");
+  let sortOrder = $state(folder?.sort_order || "asc");
   let conditions = $state(folder?.conditions || []);
   let isSaving = $state(false);
 
   // New condition being added
   let newCondition = $state({
-    field: 'file_type',
-    operator: 'equals',
-    value: '',
+    field: "file_type",
+    operator: "equals",
+    value: "",
   });
 
   const fieldOptions = [
-    { value: 'file_type', label: tr('smartFolders.fields.fileType'), operators: ['equals', 'contains'] },
-    { value: 'size', label: tr('smartFolders.fields.size'), operators: ['greater_than', 'less_than', 'equals'] },
-    { value: 'date', label: tr('smartFolders.fields.date'), operators: ['after', 'before', 'today', 'this_week', 'this_month'] },
-    { value: 'tags', label: tr('smartFolders.fields.tags'), operators: ['contains_any', 'contains_all'] },
-    { value: 'name_pattern', label: tr('smartFolders.fields.namePattern'), operators: ['contains', 'starts_with', 'ends_with', 'matches_regex'] },
+    {
+      value: "file_type",
+      label: tr("smartFolders.fields.fileType"),
+      operators: ["equals", "contains"],
+    },
+    {
+      value: "size",
+      label: tr("smartFolders.fields.size"),
+      operators: ["greater_than", "less_than", "equals"],
+    },
+    {
+      value: "date",
+      label: tr("smartFolders.fields.date"),
+      operators: ["after", "before", "today", "this_week", "this_month"],
+    },
+    {
+      value: "tags",
+      label: tr("smartFolders.fields.tags"),
+      operators: ["contains_any", "contains_all"],
+    },
+    {
+      value: "name_pattern",
+      label: tr("smartFolders.fields.namePattern"),
+      operators: ["contains", "starts_with", "ends_with", "matches_regex"],
+    },
   ];
 
   const fileTypeOptions = [
-    { value: 'document', label: 'Documents' },
-    { value: 'image', label: 'Images' },
-    { value: 'video', label: 'Videos' },
-    { value: 'audio', label: 'Audio' },
-    { value: 'archive', label: 'Archives' },
-    { value: 'code', label: 'Code' },
-    { value: 'data', label: 'Data' },
+    { value: "document", label: "Documents" },
+    { value: "image", label: "Images" },
+    { value: "video", label: "Videos" },
+    { value: "audio", label: "Audio" },
+    { value: "archive", label: "Archives" },
+    { value: "code", label: "Code" },
+    { value: "data", label: "Data" },
   ];
 
   const tagOptions = [
-    { value: 'important', label: 'Important' },
-    { value: 'review', label: 'Review' },
-    { value: 'urgent', label: 'Urgent' },
-    { value: 'archived', label: 'Archived' },
+    { value: "important", label: "Important" },
+    { value: "review", label: "Review" },
+    { value: "urgent", label: "Urgent" },
+    { value: "archived", label: "Archived" },
   ];
 
-  const currentField = $derived(fieldOptions.find((f) => f.value === newCondition.field));
+  const currentField = $derived(
+    fieldOptions.find((f) => f.value === newCondition.field)
+  );
   const operatorOptions = $derived(
     currentField?.operators.map((op) => ({
       value: op,
@@ -64,15 +91,15 @@
 
   function addCondition() {
     if (!newCondition.value) {
-      errorToast(tr('smartFolders.valueRequired'));
+      errorToast(tr("smartFolders.valueRequired"));
       return;
     }
 
     conditions = [...conditions, { ...newCondition }];
     newCondition = {
-      field: 'file_type',
-      operator: 'equals',
-      value: '',
+      field: "file_type",
+      operator: "equals",
+      value: "",
     };
   }
 
@@ -82,12 +109,12 @@
 
   async function handleSave() {
     if (!name.trim()) {
-      errorToast(tr('smartFolders.nameRequired'));
+      errorToast(tr("smartFolders.nameRequired"));
       return;
     }
 
     if (conditions.length === 0) {
-      errorToast(tr('smartFolders.conditionsRequired'));
+      errorToast(tr("smartFolders.conditionsRequired"));
       return;
     }
 
@@ -108,17 +135,17 @@
         // Update existing
         const response = await api.smartFolders.update(folder.id, payload);
         if (response.ok) {
-          success(tr('smartFolders.updated'));
+          success(tr("smartFolders.updated"));
         } else {
-          errorToast(tr('smartFolders.updateError'));
+          errorToast(tr("smartFolders.updateError"));
         }
       } else {
         // Create new
         const response = await api.smartFolders.create(payload);
         if (response.ok) {
-          success(tr('smartFolders.created'));
+          success(tr("smartFolders.created"));
         } else {
-          errorToast(tr('smartFolders.createError'));
+          errorToast(tr("smartFolders.createError"));
         }
       }
 
@@ -130,20 +157,22 @@
   }
 </script>
 
-<Modal {isOpen} onClose={() (isOpen = false)} size="lg">
+<Modal {isOpen} onClose={() => (isOpen = false)} size="lg">
   <div class="space-y-4">
     <!-- Header -->
     <div class="flex items-center justify-between">
-      <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+      <h2
+        class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2"
+      >
         <i class="bi {icon} text-lg" style="color: {color}"></i>
-        {folder ? tr('smartFolders.editFolder') : tr('smartFolders.newFolder')}
+        {folder ? tr("smartFolders.editFolder") : tr("smartFolders.newFolder")}
       </h2>
     </div>
 
     <!-- Basic Info -->
     <div class="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
       <div>
-        <div class="block text-sm font-medium">{tr('name')} *</div>
+        <div class="block text-sm font-medium">{tr("name")} *</div>
         <input
           bind:value={name}
           type="text"
@@ -153,7 +182,7 @@
       </div>
 
       <div>
-        <div class="block text-sm font-medium">{tr('description')} *</div>
+        <div class="block text-sm font-medium">{tr("description")} *</div>
         <textarea
           bind:value={description}
           placeholder="Optional description..."
@@ -164,7 +193,7 @@
 
       <div class="grid grid-cols-3 gap-3">
         <div>
-          <div class="block text-sm font-medium">{tr('icon')} *</div>
+          <div class="block text-sm font-medium">{tr("icon")} *</div>
           <input
             bind:value={icon}
             type="text"
@@ -174,7 +203,7 @@
         </div>
 
         <div>
-          <div class="block text-sm font-medium">{tr('color')} *</div>
+          <div class="block text-sm font-medium">{tr("color")} *</div>
           <div class="flex gap-2">
             <input
               bind:value={color}
@@ -190,7 +219,9 @@
         </div>
 
         <div>
-          <div class="block text-sm font-medium">{tr('smartFolders.logic')} *</div>
+          <div class="block text-sm font-medium">
+            {tr("smartFolders.logic")} *
+          </div>
           <select
             bind:value={logic}
             class="w-full px-3 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-green-500"
@@ -204,10 +235,14 @@
 
     <!-- Conditions Builder -->
     <div class="space-y-3">
-      <h3 class="text-sm font-medium text-gray-900 dark:text-white">{tr('smartFolders.conditions')}</h3>
+      <h3 class="text-sm font-medium text-gray-900 dark:text-white">
+        {tr("smartFolders.conditions")}
+      </h3>
 
       <!-- Add Condition Form -->
-      <div class="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800">
+      <div
+        class="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800"
+      >
         <div class="grid grid-cols-3 gap-2 mb-2">
           <select
             bind:value={newCondition.field}
@@ -240,7 +275,7 @@
           class="w-full px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition flex items-center justify-center gap-1"
         >
           <i class="bi bi-plus" aria-hidden="true"></i>
-          {tr('smartFolders.addCondition')}
+          {tr("smartFolders.addCondition")}
         </button>
       </div>
 
@@ -248,19 +283,33 @@
       {#if conditions.length > 0}
         <div class="space-y-2">
           {#each conditions as condition, idx}
-            <div class="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-700 rounded text-sm">
+            <div
+              class="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-700 rounded text-sm"
+            >
               <span class="text-gray-700 dark:text-gray-300">
-                <strong>{fieldOptions.find((f) => f.value === condition.field)?.label}</strong>
+                <strong
+                  >{fieldOptions.find((f) => f.value === condition.field)
+                    ?.label}</strong
+                >
                 {tr(`smartFolders.operators.${condition.operator}`)}
-                <span class="font-mono text-green-600 dark:text-green-400">"{condition.value}"</span>
+                <span class="font-mono text-green-600 dark:text-green-400"
+                  >"{condition.value}"</span
+                >
               </span>
 
-              <button aria-label="Delete" onclick={() => removeCondition(idx)} class="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition"><i class="bi bi-trash" aria-hidden="true"></i></button>
+              <button
+                aria-label="Delete"
+                onclick={() => removeCondition(idx)}
+                class="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition"
+                ><i class="bi bi-trash" aria-hidden="true"></i></button
+              >
             </div>
 
             {#if idx < conditions.length - 1}
               <div class="flex items-center justify-center">
-                <span class="px-2 py-0 text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded">
+                <span
+                  class="px-2 py-0 text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded"
+                >
                   {logic}
                 </span>
               </div>
@@ -272,30 +321,36 @@
 
     <!-- Sorting Options -->
     <div class="space-y-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-      <h3 class="text-sm font-medium text-gray-900 dark:text-white">{tr('smartFolders.sortingOptions')}</h3>
+      <h3 class="text-sm font-medium text-gray-900 dark:text-white">
+        {tr("smartFolders.sortingOptions")}
+      </h3>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <div class="block text-sm text-gray-700 dark:text-gray-300 mb-1">{tr('smartFolders.sortBy')}</div>
+          <div class="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+            {tr("smartFolders.sortBy")}
+          </div>
           <select
             bind:value={sortBy}
             class="w-full px-2 py-1 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded text-sm text-gray-900 dark:text-white focus:outline-none"
           >
-            <option value="name">{tr('name')}</option>
-            <option value="modified">{tr('modified')}</option>
-            <option value="size">{tr('size')}</option>
-            <option value="type">{tr('type')}</option>
+            <option value="name">{tr("name")}</option>
+            <option value="modified">{tr("modified")}</option>
+            <option value="size">{tr("size")}</option>
+            <option value="type">{tr("type")}</option>
           </select>
         </div>
 
         <div>
-          <div class="block text-sm text-gray-700 dark:text-gray-300 mb-1">{tr('order')}</div>
+          <div class="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+            {tr("order")}
+          </div>
           <select
             bind:value={sortOrder}
             class="w-full px-2 py-1 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded text-sm text-gray-900 dark:text-white focus:outline-none"
           >
-            <option value="asc">{tr('ascending')}</option>
-            <option value="desc">{tr('descending')}</option>
+            <option value="asc">{tr("ascending")}</option>
+            <option value="desc">{tr("descending")}</option>
           </select>
         </div>
       </div>
@@ -307,7 +362,7 @@
         onclick={() => (isOpen = false)}
         class="px-4 py-2 text-sm bg-gray-300 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition"
       >
-        {tr('cancel')}
+        {tr("cancel")}
       </button>
 
       <button
@@ -317,10 +372,10 @@
       >
         {#if isSaving}
           <i class="bi bi-hourglass-split animate-spin" aria-hidden="true"></i>
-          {tr('saving')}
+          {tr("saving")}
         {:else}
           <i class="bi bi-check2" aria-hidden="true"></i>
-          {tr('save')}
+          {tr("save")}
         {/if}
       </button>
     </div>
