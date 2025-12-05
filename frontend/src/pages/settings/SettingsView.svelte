@@ -7,184 +7,184 @@
   import PerformanceSettings from "./PerformanceSettings.svelte";
   import AboutSettings from "./AboutSettings.svelte";
   import PageWrapper from "../../components/PageWrapper.svelte";
-  import PageHeader from "../../components/ui/PageHeader.svelte";
-  import ModernCard from "../../components/ui/ModernCard.svelte";
-  import ModernButton from "../../components/ui/ModernButton.svelte";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let activeTab = $state("general");
-  let searchQuery = $state("");
 
-  const tabsConfig = [
-    {
-      id: "general",
-      labelKey: "general",
-      icon: "sliders",
-      keywords: ["language", "theme", "notifications", "general"],
-    },
-    {
-      id: "security",
-      labelKey: "security",
-      icon: "shield-lock-fill",
-      keywords: ["security", "2fa", "password", "authentication"],
-    },
-    {
-      id: "users",
-      labelKey: "users",
-      icon: "people-fill",
-      keywords: ["users", "accounts", "permissions", "roles"],
-    },
-    {
-      id: "storage",
-      labelKey: "storage",
-      icon: "hdd-fill",
-      keywords: ["storage", "quota", "disk", "space"],
-    },
-    {
-      id: "backup",
-      labelKey: "backup",
-      icon: "cloud-arrow-up-fill",
-      keywords: ["backup", "restore", "schedule", "retention"],
-    },
-    {
-      id: "performance",
-      labelKey: "performance",
-      icon: "speedometer2",
-      keywords: ["performance", "cache", "optimization", "speed"],
-    },
-    {
-      id: "about",
-      labelKey: "about",
-      icon: "info-circle",
-      keywords: ["about", "version", "info", "credits"],
-    },
+  const tabs = [
+    { id: "general", icon: "bi-sliders", label: "general" },
+    { id: "security", icon: "bi-shield-lock-fill", label: "security" },
+    { id: "users", icon: "bi-people-fill", label: "users" },
+    { id: "storage", icon: "bi-hdd-fill", label: "storage" },
+    { id: "backup", icon: "bi-cloud-arrow-up-fill", label: "backup" },
+    { id: "performance", icon: "bi-speedometer2", label: "performance" },
+    { id: "about", icon: "bi-info-circle-fill", label: "about" },
   ];
-
-  const tabs = $derived(
-    tabsConfig.map((tab) => ({
-      ...tab,
-      label: tr(tab.labelKey),
-    }))
-  );
-
-  // Filter tabs based on search query
-  let filteredTabs = $derived(
-    searchQuery.length === 0
-      ? tabs
-      : tabs.filter(
-          (tab) =>
-            tab.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            tab.keywords.some((keyword) =>
-              keyword.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-        )
-  );
-
-  // Auto-switch to first filtered tab if current tab is filtered out
-  $effect(() => {
-    if (
-      searchQuery.length > 0 &&
-      filteredTabs.length > 0 &&
-      !filteredTabs.some((t) => t.id === activeTab)
-    ) {
-      activeTab = filteredTabs[0].id;
-    }
-  });
-
-  function handleTabChange(tab) {
-    activeTab = tab;
-  }
-
-  function clearSearch() {
-    searchQuery = "";
-  }
 </script>
 
-<PageWrapper gradient>
-  <div class="page-fade-in">
-    <PageHeader
-      title={tr("settings")}
-      subtitle={tr("manageFiles")}
-      icon="gear-fill"
-    >
-      {#snippet actions()}
-        <!-- Search Bar -->
-        <div class="relative w-full md:w-80">
-          <i
-            class="absolute left-3 top-1/2 -translate-y-1/2 bi bi-search text-gray-400"
-          ></i>
-          <input
-            type="text"
-            bind:value={searchQuery}
-            placeholder={tr("searchPlaceholder")}
-            class="glass-input w-full pl-10 pr-10"
-          />
-          {#if searchQuery.length > 0}
-            <button aria-label="Close"
-            ><i class="bi bi-x" aria-hidden="true"></i></button>
-          {/if}
-        </div>
-      {/snippet}
-    </PageHeader>
+<PageWrapper title={tr("settings")} showSidebar={true}>
+  <div class="settings-view">
+    <!-- Header -->
+    <div class="view-header">
+      <h1 class="view-title">
+        <i class="bi bi-gear-fill"></i>
+        {tr("settings")}
+      </h1>
+    </div>
 
     <!-- Tab Navigation -->
-    <ModernCard variant="glass" class="mb-6">
-      <div class="flex flex-wrap gap-2 p-2">
-        {#each filteredTabs as tab}
-          <ModernButton
-            variant={activeTab === tab.id ? "primary" : "ghost"}
-            onclick={() => handleTabChange(tab.id)}
-            class="hover-lift"
+    <div class="tabs-card">
+      <div class="tabs-list">
+        {#each tabs as tab}
+          <button
+            class="tab-btn"
+            class:active={activeTab === tab.id}
+            onclick={() => (activeTab = tab.id)}
           >
-            <i class="bi bi-{tab.icon} mr-2" aria-hidden="true"></i>
-            {tab.label}
-          </ModernButton>
+            <i class="bi {tab.icon}"></i>
+            <span>{tr(tab.label)}</span>
+          </button>
         {/each}
       </div>
-    </ModernCard>
+    </div>
 
-    {#if filteredTabs.length === 0}
-      <!-- No Results State -->
-      <ModernCard variant="glass">
-        <div class="text-center py-16">
-          <i class="bi bi-search text-8xl text-gray-300 dark:text-gray-600 mb-6"
-           aria-hidden="true"></i>
-          <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">
-            {tr("noFilesFound")}
-          </h3>
-          <p class="text-gray-600 dark:text-gray-400 mb-6">
-            {tr("tryDifferentSearch")}
-          </p>
-          <ModernButton variant="gradient" onclick={clearSearch}>
-            <i class="bi bi-x-lg mr-2" aria-hidden="true"></i>
-            {tr("clearFilters")}
-          </ModernButton>
-        </div>
-      </ModernCard>
-    {:else}
-      <!-- Tab Content -->
-      <ModernCard variant="glass">
-        <div class="p-6">
-          {#if activeTab === "general"}
-            <GeneralSettings />
-          {:else if activeTab === "security"}
-            <SecuritySettings />
-          {:else if activeTab === "users"}
-            <UsersSettings />
-          {:else if activeTab === "storage"}
-            <StorageSettings />
-          {:else if activeTab === "backup"}
-            <BackupSettings />
-          {:else if activeTab === "performance"}
-            <PerformanceSettings />
-          {:else if activeTab === "about"}
-            <AboutSettings />
-          {/if}
-        </div>
-      </ModernCard>
-    {/if}
+    <!-- Tab Content -->
+    <div class="tab-content">
+      {#if activeTab === "general"}
+        <GeneralSettings />
+      {:else if activeTab === "security"}
+        <SecuritySettings />
+      {:else if activeTab === "users"}
+        <UsersSettings />
+      {:else if activeTab === "storage"}
+        <StorageSettings />
+      {:else if activeTab === "backup"}
+        <BackupSettings />
+      {:else if activeTab === "performance"}
+        <PerformanceSettings />
+      {:else if activeTab === "about"}
+        <AboutSettings />
+      {/if}
+    </div>
   </div>
 </PageWrapper>
+
+<style>
+  .settings-view {
+    padding: 1.5rem;
+  }
+
+  /* Header */
+  .view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .view-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+  }
+  :global(.dark) .view-title {
+    color: #f9fafb;
+  }
+
+  /* Tabs */
+  .tabs-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  :global(.dark) .tabs-card {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .tabs-list {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+  .tab-btn.active {
+    background: #22c55e;
+    color: white;
+  }
+  :global(.dark) .tab-btn {
+    color: #9ca3af;
+  }
+  :global(.dark) .tab-btn:hover {
+    background: #374151;
+    color: #f9fafb;
+  }
+  :global(.dark) .tab-btn.active {
+    background: #22c55e;
+    color: white;
+  }
+
+  .tab-btn i {
+    font-size: 1rem;
+  }
+
+  /* Content */
+  .tab-content {
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .settings-view {
+      padding: 1rem;
+    }
+    .tabs-list {
+      gap: 0.125rem;
+    }
+    .tab-btn {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8125rem;
+    }
+    .tab-btn span {
+      display: none;
+    }
+    .tab-btn i {
+      font-size: 1.125rem;
+    }
+  }
+</style>

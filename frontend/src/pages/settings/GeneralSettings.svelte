@@ -7,25 +7,24 @@
   } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import api from "../../lib/api.js";
-  import ModernCard from "../../components/ui/ModernCard.svelte";
-  import ModernButton from "../../components/ui/ModernButton.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   const languageOptions = [
-    { value: "de", label: "🇩🇪 Deutsch" },
-    { value: "en", label: "🇬🇧 English" },
+    { value: "de", label: "🇩🇪 Deutsch", flag: "🇩🇪" },
+    { value: "en", label: "🇬🇧 English", flag: "🇬🇧" },
   ];
 
-  // Theme options will use tr() directly in template
   const themeOptions = [
-    { value: "light", icon: "sun-fill" },
-    { value: "dark", icon: "moon-fill" },
-    { value: "auto", icon: "circle-half" },
+    { value: "light", icon: "bi-sun-fill", color: "amber" },
+    { value: "dark", icon: "bi-moon-fill", color: "indigo" },
+    { value: "auto", icon: "bi-circle-half", color: "gray" },
   ];
 
-  // View options will use tr() directly in template
-  const defaultViewOptions = [{ value: "grid" }, { value: "list" }];
+  const viewOptions = [
+    { value: "grid", icon: "bi-grid-3x3-gap-fill" },
+    { value: "list", icon: "bi-list-ul" },
+  ];
 
   let loading = $state(true);
   let saving = $state(false);
@@ -33,8 +32,9 @@
   let selectedLanguage = $state("en");
   let selectedDefaultView = $state("grid");
   let enableNotifications = $state(true);
-  let autoBackup = $state(true);
+  let autoBackupNotify = $state(true);
   let saveMessage = $state("");
+  let saveSuccess = $state(false);
 
   onMount(async () => {
     await loadSettings();
@@ -44,20 +44,16 @@
     try {
       loading = true;
       const response = await api.users.getSettings();
-
       selectedTheme = response.theme || "auto";
       selectedLanguage = response.language || "en";
       selectedDefaultView = response.default_view || "grid";
-
-      // Apply theme immediately
       currentTheme.set(
         selectedTheme === "auto" ? detectSystemTheme() : selectedTheme
       );
       currentLang.set(selectedLanguage);
-
-      loading = false;
     } catch (error) {
       console.error("Failed to load settings:", error);
+    } finally {
       loading = false;
     }
   }
@@ -72,23 +68,25 @@
     try {
       saving = true;
       saveMessage = "";
-
       await api.users.updateSettings({
         theme: selectedTheme,
         language: selectedLanguage,
         default_view: selectedDefaultView,
       });
-
-      // Apply theme
       applyTheme(selectedTheme);
       currentLang.set(selectedLanguage);
-
       saveMessage = tr("settingsSavedSuccess");
-      setTimeout(() => (saveMessage = ""), 3000);
+      saveSuccess = true;
+      setTimeout(() => {
+        saveMessage = "";
+      }, 3000);
     } catch (error) {
       console.error("Failed to save settings:", error);
       saveMessage = tr("failedToSaveSettings");
-      setTimeout(() => (saveMessage = ""), 3000);
+      saveSuccess = false;
+      setTimeout(() => {
+        saveMessage = "";
+      }, 3000);
     } finally {
       saving = false;
     }
@@ -97,12 +95,10 @@
   function applyTheme(theme) {
     const html = document.documentElement;
     const effectiveTheme = theme === "auto" ? detectSystemTheme() : theme;
-
     html.classList.remove("light", "dark");
     html.classList.add(effectiveTheme);
     html.setAttribute("data-theme", effectiveTheme);
     html.style.colorScheme = effectiveTheme;
-
     currentTheme.set(effectiveTheme);
   }
 
@@ -120,283 +116,515 @@
     saveSettings();
   }
 
-  // Listen for system theme changes
   if (typeof window !== "undefined") {
     window
       .matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", (e) => {
-        if (selectedTheme === "auto") {
-          applyTheme("auto");
-        }
+      .addEventListener("change", () => {
+        if (selectedTheme === "auto") applyTheme("auto");
       });
   }
 </script>
 
 {#if loading}
-  <div class="flex items-center justify-center p-12">
-    <div class="flex items-center gap-3">
-      <div
-        class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"
-      ></div>
-      <span class="text-gray-600 dark:text-gray-400"
-        >{tr("loadingSettings")}</span
-      >
-    </div>
-  </div>
+  <div class="loading-container"><div class="spinner"></div></div>
 {:else}
   {#if saveMessage}
-    <div
-      class="mb-4 p-4 rounded-xl {saveMessage.startsWith('✅')
-        ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
-        : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'}"
-    >
+    <div class="toast" class:success={saveSuccess} class:error={!saveSuccess}>
+      <i
+        class="bi {saveSuccess
+          ? 'bi-check-circle-fill'
+          : 'bi-exclamation-circle-fill'}"
+      ></i>
       {saveMessage}
     </div>
   {/if}
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Theme Settings -->
-    <ModernCard variant="glass" hoverable>
-      <div class="p-6 space-y-4">
-        <div class="flex items-center gap-3">
-          <i
-            class="bi bi-palette-fill text-2xl text-primary-600 dark:text-primary-400"
-          ></i>
-          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            {tr("theme")}
-          </h2>
+  <div class="settings-grid">
+    <!-- Theme Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon amber"><i class="bi bi-palette-fill"></i></div>
+        <div class="card-title">
+          <h3>{tr("theme")}</h3>
+          <p>{tr("themeDescription")}</p>
         </div>
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-          {tr("themeDescription")}
-        </p>
-        <div class="flex gap-3">
-          {#each themeOptions as option}
-            <ModernButton
-              variant={selectedTheme === option.value ? "primary" : "secondary"}
-              class="flex-1"
-              disabled={saving}
-              onclick={() => handleThemeChange(option.value)}
-            >
-              <i class="bi bi-{option.icon} mr-2" aria-hidden="true"></i>
-              {tr(
-                option.value === "light"
-                  ? "light"
-                  : option.value === "dark"
-                    ? "dark"
-                    : "auto"
-              )}
-            </ModernButton>
+      </div>
+      <div class="theme-buttons">
+        {#each themeOptions as option}
+          <button
+            class="theme-btn"
+            class:active={selectedTheme === option.value}
+            disabled={saving}
+            onclick={() => handleThemeChange(option.value)}
+          >
+            <i class="bi {option.icon}"></i>
+            <span>{tr(option.value)}</span>
+          </button>
+        {/each}
+      </div>
+    </div>
+
+    <!-- Language Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon blue"><i class="bi bi-translate"></i></div>
+        <div class="card-title">
+          <h3>{tr("language")}</h3>
+          <p>{tr("languageDescription")}</p>
+        </div>
+      </div>
+      <div class="select-wrapper">
+        <select
+          class="select-input"
+          disabled={saving}
+          bind:value={selectedLanguage}
+          onchange={handleLanguageChange}
+        >
+          {#each languageOptions as option}
+            <option value={option.value}>{option.label}</option>
           {/each}
+        </select>
+      </div>
+    </div>
+
+    <!-- Default View Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple"><i class="bi bi-grid-fill"></i></div>
+        <div class="card-title">
+          <h3>{tr("defaultView")}</h3>
+          <p>{tr("defaultViewDescription")}</p>
         </div>
       </div>
-    </ModernCard>
-
-    <!-- Language Settings -->
-    <ModernCard variant="glass" hoverable>
-      <div class="p-6 space-y-4">
-        <div class="flex items-center gap-3">
-          <i
-            class="bi bi-translate text-2xl text-secondary-600 dark:text-secondary-400"
-          ></i>
-          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            {tr("language")}
-          </h2>
-        </div>
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-          {tr("selectDefaultView")}
-        </p>
-        <div class="w-full">
-          <label
-            for="language-select"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >
-            {tr("interfaceLanguage")}
-          </label>
-          <select
-            id="language-select"
-            class="glass-input w-full"
+      <div class="view-buttons">
+        {#each viewOptions as option}
+          <button
+            class="view-btn"
+            class:active={selectedDefaultView === option.value}
             disabled={saving}
-            bind:value={selectedLanguage}
-            onchange={handleLanguageChange}
+            onclick={() => {
+              selectedDefaultView = option.value;
+              handleDefaultViewChange();
+            }}
           >
-            {#each languageOptions as option}
-              <option value={option.value}>{option.label}</option>
-            {/each}
-          </select>
-        </div>
+            <i class="bi {option.icon}"></i>
+            <span>{tr(option.value === "grid" ? "gridView" : "listView")}</span>
+          </button>
+        {/each}
       </div>
-    </ModernCard>
+    </div>
 
-    <!-- Default View Settings -->
-    <ModernCard variant="glass" hoverable>
-      <div class="p-6 space-y-4">
-        <div class="flex items-center gap-3">
-          <i
-            class="bi bi-grid-fill text-2xl text-purple-600 dark:text-purple-400"
-          ></i>
-          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            {tr("defaultView")}
-          </h2>
-        </div>
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-          {tr("defaultViewDescription")}
-        </p>
-        <div class="w-full">
-          <label
-            for="view-select"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >
-            {tr("defaultView")}
-          </label>
-          <select
-            id="view-select"
-            class="glass-input w-full"
-            disabled={saving}
-            bind:value={selectedDefaultView}
-            onchange={handleDefaultViewChange}
-          >
-            {#each defaultViewOptions as option}
-              <option value={option.value}
-                >{tr(option.value === "grid" ? "gridView" : "listView")}</option
-              >
-            {/each}
-          </select>
+    <!-- Notifications Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green"><i class="bi bi-bell-fill"></i></div>
+        <div class="card-title">
+          <h3>{tr("notifications")}</h3>
+          <p>{tr("notificationSettings")}</p>
         </div>
       </div>
-    </ModernCard>
+      <div class="toggle-list">
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <span class="toggle-label">{tr("emailNotifications")}</span>
+            <span class="toggle-desc">{tr("receiveEmailNotifications")}</span>
+          </div>
+          <button
+            class="toggle-switch"
+            class:active={enableNotifications}
+            onclick={() => (enableNotifications = !enableNotifications)}
+            role="switch"
+            aria-checked={enableNotifications}
+            aria-label="Toggle email notifications"
+          >
+            <span class="toggle-knob"></span>
+          </button>
+        </div>
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <span class="toggle-label">{tr("autoBackupNotifications")}</span>
+            <span class="toggle-desc"
+              >{tr("getNotifiedWhenBackupsComplete")}</span
+            >
+          </div>
+          <button
+            class="toggle-switch"
+            class:active={autoBackupNotify}
+            onclick={() => (autoBackupNotify = !autoBackupNotify)}
+            role="switch"
+            aria-checked={autoBackupNotify}
+            aria-label="Toggle backup notifications"
+          >
+            <span class="toggle-knob"></span>
+          </button>
+        </div>
+      </div>
+    </div>
 
-    <!-- Notification Settings -->
-    <ModernCard variant="glass" hoverable>
-      <div class="p-6 space-y-4">
-        <div class="flex items-center gap-3">
-          <i
-            class="bi bi-bell-fill text-2xl text-purple-600 dark:text-purple-400"
-          ></i>
-          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            {tr("notifications")}
-          </h2>
-        </div>
-        <div class="space-y-3">
-          <div
-            class="flex items-center justify-between gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
-          >
-            <label for="enable-notifications" class="flex-1 cursor-pointer">
-              <span class="block font-medium text-gray-900 dark:text-gray-100"
-                >{tr("emailNotifications")}</span
-              >
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                {tr("receiveEmailNotifications")}
-              </p>
-            </label>
-            <div class="flex items-center gap-2">
-              <span
-                class="badge-glass-{enableNotifications ? 'success' : 'error'}"
-              >
-                {enableNotifications ? tr("on") : tr("off")}
-              </span>
-              <button
-                id="enable-notifications"
-                role="switch"
-                aria-checked={enableNotifications}
-                aria-label="Toggle notifications"
-                class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 {enableNotifications
-                  ? 'bg-primary-600'
-                  : 'bg-gray-300 dark:bg-gray-700'}"
-                onclick={() => (enableNotifications = !enableNotifications)}
-              >
-                <span
-                  class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {enableNotifications
-                    ? 'translate-x-5'
-                    : 'translate-x-0'}"
-                ></span>
-              </button>
-            </div>
-          </div>
-          <div
-            class="flex items-center justify-between gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
-          >
-            <label for="auto-backup" class="flex-1 cursor-pointer">
-              <span class="block font-medium text-gray-900 dark:text-gray-100"
-                >{tr("autoBackupNotifications")}</span
-              >
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                {tr("getNotifiedWhenBackupsComplete")}
-              </p>
-            </label>
-            <div class="flex items-center gap-2">
-              <span class="badge-glass-{autoBackup ? 'success' : 'error'}">
-                {autoBackup ? tr("on") : tr("off")}
-              </span>
-              <button
-                id="auto-backup"
-                role="switch"
-                aria-checked={autoBackup}
-                aria-label="Toggle auto backup notifications"
-                class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 {autoBackup
-                  ? 'bg-secondary-600'
-                  : 'bg-gray-300 dark:bg-gray-700'}"
-                onclick={() => (autoBackup = !autoBackup)}
-              >
-                <span
-                  class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {autoBackup
-                    ? 'translate-x-5'
-                    : 'translate-x-0'}"
-                ></span>
-              </button>
-            </div>
-          </div>
+    <!-- Features Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon rose"><i class="bi bi-toggles"></i></div>
+        <div class="card-title">
+          <h3>{tr("features")}</h3>
+          <p>{tr("customizeFeatures")}</p>
         </div>
       </div>
-    </ModernCard>
-
-    <!-- Features Settings -->
-    <ModernCard variant="glass" hoverable>
-      <div class="p-6 space-y-4">
-        <div class="flex items-center gap-3">
-          <i class="bi bi-toggles text-2xl text-yellow-600 dark:text-yellow-400"
-           aria-hidden="true"></i>
-          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-            {tr("features")}
-          </h2>
-        </div>
-        <div class="space-y-3">
-          <div
-            class="flex items-center justify-between gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
-          >
-            <label for="favorites-enabled" class="flex-1 cursor-pointer">
-              <span class="block font-medium text-gray-900 dark:text-gray-100"
-                >{tr("enableFavoritesSystem")}</span
-              >
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                {tr("showFavoritesInSidebar")}
-              </p>
-            </label>
-            <div class="flex items-center gap-2">
-              <span
-                class="badge-glass-{$favoritesEnabled ? 'warning' : 'error'}"
-              >
-                {$favoritesEnabled ? tr("on") : tr("off")}
-              </span>
-              <button
-                id="favorites-enabled"
-                role="switch"
-                aria-checked={$favoritesEnabled}
-                aria-label="Toggle favorites system"
-                class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 {$favoritesEnabled
-                  ? 'bg-yellow-500'
-                  : 'bg-gray-300 dark:bg-gray-700'}"
-                onclick={() => favoritesEnabled.set(!$favoritesEnabled)}
-              >
-                <span
-                  class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {$favoritesEnabled
-                    ? 'translate-x-5'
-                    : 'translate-x-0'}"
-                ></span>
-              </button>
-            </div>
+      <div class="toggle-list">
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <span class="toggle-label">{tr("enableFavoritesSystem")}</span>
+            <span class="toggle-desc">{tr("showFavoritesInSidebar")}</span>
           </div>
+          <button
+            class="toggle-switch"
+            class:active={$favoritesEnabled}
+            onclick={() => favoritesEnabled.set(!$favoritesEnabled)}
+            role="switch"
+            aria-checked={$favoritesEnabled}
+            aria-label="Toggle favorites system"
+          >
+            <span class="toggle-knob"></span>
+          </button>
         </div>
       </div>
-    </ModernCard>
+    </div>
   </div>
 {/if}
+
+<style>
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    padding: 4rem;
+  }
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #22c55e;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Toast */
+  .toast {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .toast.success {
+    background: #dcfce7;
+    color: #166534;
+  }
+  .toast.error {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  :global(.dark) .toast.success {
+    background: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+  }
+  :global(.dark) .toast.error {
+    background: rgba(220, 38, 38, 0.2);
+    color: #fca5a5;
+  }
+
+  /* Grid */
+  .settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* Card */
+  .card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+  }
+  :global(.dark) .card {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    margin-bottom: 1.25rem;
+  }
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    flex-shrink: 0;
+  }
+  .card-icon.amber {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  .card-icon.blue {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+  .card-icon.purple {
+    background: #f3e8ff;
+    color: #9333ea;
+  }
+  .card-icon.green {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+  .card-icon.rose {
+    background: #ffe4e6;
+    color: #e11d48;
+  }
+  :global(.dark) .card-icon.amber {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+  }
+  :global(.dark) .card-icon.blue {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+  }
+  :global(.dark) .card-icon.purple {
+    background: rgba(147, 51, 234, 0.2);
+    color: #c084fc;
+  }
+  :global(.dark) .card-icon.green {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+  }
+  :global(.dark) .card-icon.rose {
+    background: rgba(225, 29, 72, 0.2);
+    color: #fb7185;
+  }
+
+  .card-title h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 0.25rem 0;
+  }
+  .card-title p {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin: 0;
+  }
+  :global(.dark) .card-title h3 {
+    color: #f9fafb;
+  }
+  :global(.dark) .card-title p {
+    color: #9ca3af;
+  }
+
+  /* Theme Buttons */
+  .theme-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .theme-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.75rem;
+    background: #f9fafb;
+    border: 2px solid transparent;
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .theme-btn:hover {
+    border-color: #d1d5db;
+  }
+  .theme-btn.active {
+    background: #dcfce7;
+    border-color: #22c55e;
+    color: #166534;
+  }
+  .theme-btn i {
+    font-size: 1.25rem;
+  }
+  :global(.dark) .theme-btn {
+    background: #374151;
+    color: #9ca3af;
+  }
+  :global(.dark) .theme-btn:hover {
+    border-color: #4b5563;
+  }
+  :global(.dark) .theme-btn.active {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: #22c55e;
+    color: #86efac;
+  }
+
+  /* View Buttons */
+  .view-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .view-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: #f9fafb;
+    border: 2px solid transparent;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .view-btn:hover {
+    border-color: #d1d5db;
+  }
+  .view-btn.active {
+    background: #dcfce7;
+    border-color: #22c55e;
+    color: #166534;
+  }
+  .view-btn i {
+    font-size: 1.125rem;
+  }
+  :global(.dark) .view-btn {
+    background: #374151;
+    color: #9ca3af;
+  }
+  :global(.dark) .view-btn:hover {
+    border-color: #4b5563;
+  }
+  :global(.dark) .view-btn.active {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: #22c55e;
+    color: #86efac;
+  }
+
+  /* Select */
+  .select-wrapper {
+    position: relative;
+  }
+  .select-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: #111827;
+    cursor: pointer;
+    appearance: none;
+  }
+  .select-input:focus {
+    outline: none;
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+  }
+  :global(.dark) .select-input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+
+  /* Toggle List */
+  .toggle-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .toggle-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+  }
+  :global(.dark) .toggle-item {
+    background: #374151;
+  }
+  .toggle-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+  .toggle-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #111827;
+  }
+  .toggle-desc {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+  :global(.dark) .toggle-label {
+    color: #f9fafb;
+  }
+  :global(.dark) .toggle-desc {
+    color: #9ca3af;
+  }
+
+  /* Toggle Switch */
+  .toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: #d1d5db;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle-switch.active {
+    background: #22c55e;
+  }
+  .toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+  }
+  .toggle-switch.active .toggle-knob {
+    transform: translateX(20px);
+  }
+  :global(.dark) .toggle-switch {
+    background: #4b5563;
+  }
+
+  @media (max-width: 768px) {
+    .settings-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -24,7 +24,7 @@ futures-util = "0.3"
 walkdir = "2.5"
 
 # Authentication & Security
-jsonwebtoken = { version = "10.2" }
+jsonwebtoken = { version = "10.2", features = ["rust_crypto"] }
 argon2 = "0.5"
 rand = "0.9"
 totp-lite = "2.0"
