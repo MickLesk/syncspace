@@ -1,9 +1,11 @@
 <script>
   import GeneralSettings from "./GeneralSettings.svelte";
-  import SecuritySettings from "./SecuritySettings.svelte";
+  import SecurityPolicySettings from "./SecurityPolicySettings.svelte";
   import UsersSettings from "./UsersSettings.svelte";
   import StorageSettings from "./StorageSettings.svelte";
+  import CloudStorageSettings from "./CloudStorageSettings.svelte";
   import BackupSettings from "./BackupSettings.svelte";
+  import NotificationsSettings from "./NotificationsSettings.svelte";
   import PerformanceSettings from "./PerformanceSettings.svelte";
   import AboutSettings from "./AboutSettings.svelte";
   import PageWrapper from "../../components/PageWrapper.svelte";
@@ -16,10 +18,16 @@
 
   const tabs = [
     { id: "general", icon: "bi-sliders", label: "general" },
-    { id: "security", icon: "bi-shield-lock-fill", label: "security" },
+    {
+      id: "security_policy",
+      icon: "bi-shield-lock-fill",
+      label: "security_policy",
+    },
     { id: "users", icon: "bi-people-fill", label: "users" },
     { id: "storage", icon: "bi-hdd-fill", label: "storage" },
+    { id: "cloud_storage", icon: "bi-cloud-fill", label: "cloud_storage" },
     { id: "backup", icon: "bi-cloud-arrow-up-fill", label: "backup" },
+    { id: "notifications", icon: "bi-bell-fill", label: "notifications" },
     { id: "performance", icon: "bi-speedometer2", label: "performance" },
     { id: "about", icon: "bi-info-circle-fill", label: "about" },
   ];
@@ -55,14 +63,18 @@
     <div class="tab-content">
       {#if activeTab === "general"}
         <GeneralSettings />
-      {:else if activeTab === "security"}
-        <SecuritySettings />
+      {:else if activeTab === "security_policy"}
+        <SecurityPolicySettings />
       {:else if activeTab === "users"}
         <UsersSettings />
       {:else if activeTab === "storage"}
         <StorageSettings />
+      {:else if activeTab === "cloud_storage"}
+        <CloudStorageSettings />
       {:else if activeTab === "backup"}
         <BackupSettings />
+      {:else if activeTab === "notifications"}
+        <NotificationsSettings />
       {:else if activeTab === "performance"}
         <PerformanceSettings />
       {:else if activeTab === "about"}
