@@ -59,7 +59,7 @@
       case UPLOAD_STATUS.QUEUED:
         return "text-gray-500";
       case UPLOAD_STATUS.UPLOADING:
-        return "text-blue-500";
+        return "text-green-500";
       case UPLOAD_STATUS.PAUSED:
         return "text-orange-500";
       case UPLOAD_STATUS.COMPLETED:
@@ -252,7 +252,8 @@
                 class="icon-btn delete"
                 onclick={() => handleCancel(upload.id)}
                 title="Cancel"
-               aria-label="Cancel">
+                aria-label="Cancel"
+              >
                 <i class="bi bi-x" aria-hidden="true"></i>
               </button>
             {/if}

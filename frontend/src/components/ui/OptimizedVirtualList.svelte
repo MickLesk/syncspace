@@ -31,7 +31,9 @@
     visibleRange = { start: startIndex, end: endIndex };
   });
 
-  const visibleItems = $derived(items.slice(visibleRange.start, visibleRange.end));
+  const visibleItems = $derived(
+    items.slice(visibleRange.start, visibleRange.end)
+  );
   const offsetTop = $derived(visibleRange.start * (itemHeight + gap));
   const totalHeight = $derived(items.length * (itemHeight + gap));
 </script>
@@ -62,11 +64,23 @@
   </div>
 
   <!-- Spacer for items below viewport -->
-  <div style="height: {Math.max(0, totalHeight - offsetTop - itemHeight * (visibleRange.end - visibleRange.start) - gap * (visibleRange.end - visibleRange.start))}px;"></div>
+  <div
+    style="height: {Math.max(
+      0,
+      totalHeight -
+        offsetTop -
+        itemHeight * (visibleRange.end - visibleRange.start) -
+        gap * (visibleRange.end - visibleRange.start)
+    )}px;"
+  ></div>
 
   {#if loading}
-    <div class="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-gray-800/50">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    <div
+      class="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-gray-800/50"
+    >
+      <div
+        class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"
+      ></div>
     </div>
   {/if}
 </div>

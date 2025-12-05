@@ -17,7 +17,7 @@
     class="loading-spinner-container flex flex-col items-center justify-center py-12"
   >
     <div
-      class="loading loading-spinner loading-lg text-blue-500 dark:text-blue-400"
+      class="loading loading-spinner loading-lg text-green-500 dark:text-green-400"
     ></div>
     {#if displayMessage}
       <p class="mt-4 text-gray-600 dark:text-gray-400">{displayMessage}</p>

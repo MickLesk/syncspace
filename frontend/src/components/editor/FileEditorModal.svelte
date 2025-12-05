@@ -213,7 +213,7 @@
       >
         <div class="flex items-center gap-3">
           <i
-            class="bi bi-file-earmark-code text-2xl text-blue-500"
+            class="bi bi-file-earmark-code text-2xl text-green-500"
             aria-hidden="true"
           ></i>
           <div>
@@ -248,7 +248,7 @@
           <button
             onclick={saveFile}
             disabled={saving || !hasUnsavedChanges}
-            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white rounded-lg transition-colors flex items-center gap-2"
+            class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white rounded-lg transition-colors flex items-center gap-2"
           >
             {#if saving}
               <i class="bi bi-arrow-repeat animate-spin" aria-hidden="true"></i>
@@ -275,7 +275,7 @@
           <div class="absolute inset-0 flex items-center justify-center">
             <div class="text-center">
               <div
-                class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"
+                class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mb-4"
               ></div>
               <p class="text-gray-600 dark:text-gray-400">
                 {tr("loadingFile")}

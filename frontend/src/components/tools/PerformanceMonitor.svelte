@@ -187,7 +187,7 @@
       <button
         class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors {selectedTab ===
         'overview'
-          ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow'
+          ? 'bg-white dark:bg-gray-900 text-green-600 dark:text-green-400 shadow'
           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
         onclick={() => (selectedTab = "overview")}
       >
@@ -196,7 +196,7 @@
       <button
         class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors {selectedTab ===
         'cache'
-          ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow'
+          ? 'bg-white dark:bg-gray-900 text-green-600 dark:text-green-400 shadow'
           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
         onclick={() => (selectedTab = "cache")}
       >
@@ -205,7 +205,7 @@
       <button
         class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors {selectedTab ===
         'jobs'
-          ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow'
+          ? 'bg-white dark:bg-gray-900 text-green-600 dark:text-green-400 shadow'
           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
         onclick={() => (selectedTab = "jobs")}
       >
@@ -214,7 +214,7 @@
       <button
         class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors {selectedTab ===
         'system'
-          ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow'
+          ? 'bg-white dark:bg-gray-900 text-green-600 dark:text-green-400 shadow'
           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
         onclick={() => (selectedTab = "system")}
       >
@@ -417,7 +417,7 @@
           <div class="no-jobs">
             <p>No background jobs currently running</p>
             <button
-              class="px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+              class="px-3 py-1.5 text-sm bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
               onclick={queueTestJob}
             >
               Queue Test Job
@@ -440,7 +440,7 @@
               <div class="info-item">
                 <span class="info-label">OS Type:</span>
                 <span
-                  class="info-value font-semibold text-blue-600 dark:text-blue-400"
+                  class="info-value font-semibold text-green-600 dark:text-green-400"
                 >
                   {$systemInfo.os_type || $systemInfo.os_name || "Unknown"}
                 </span>
@@ -602,7 +602,7 @@
               </div>
               <div class="info-item">
                 <span class="info-label">Uptime:</span>
-                <span class="info-value text-blue-600 dark:text-blue-400">
+                <span class="info-value text-green-600 dark:text-green-400">
                   {$systemInfo.uptime || "Unknown"}
                 </span>
               </div>
@@ -639,7 +639,7 @@
                       )
                         ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
                         : disk.type.includes('SSD')
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                           : disk.type.includes('Removable')
                             ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
                             : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'}"

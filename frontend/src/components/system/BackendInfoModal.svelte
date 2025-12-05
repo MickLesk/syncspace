@@ -134,7 +134,10 @@
           class="glass-card p-4 rounded-xl hover:scale-105 transition-transform"
         >
           <div class="flex items-center gap-3 mb-2">
-            <i class="bi bi-box-seam text-2xl text-primary-500" aria-hidden="true"></i>
+            <i
+              class="bi bi-box-seam text-2xl text-primary-500"
+              aria-hidden="true"
+            ></i>
             <div class="text-xs text-gray-600 dark:text-gray-400">Version</div>
           </div>
           <div class="text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -150,7 +153,10 @@
           class="glass-card p-4 rounded-xl hover:scale-105 transition-transform"
         >
           <div class="flex items-center gap-3 mb-2">
-            <i class="bi bi-clock-history text-2xl text-green-500" aria-hidden="true"></i>
+            <i
+              class="bi bi-clock-history text-2xl text-green-500"
+              aria-hidden="true"
+            ></i>
             <div class="text-xs text-gray-600 dark:text-gray-400">Uptime</div>
           </div>
           <div class="text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -166,7 +172,8 @@
           class="glass-card p-4 rounded-xl hover:scale-105 transition-transform"
         >
           <div class="flex items-center gap-3 mb-2">
-            <i class="bi bi-database text-2xl text-blue-500" aria-hidden="true"></i>
+            <i class="bi bi-database text-2xl text-green-500" aria-hidden="true"
+            ></i>
             <div class="text-xs text-gray-600 dark:text-gray-400">Database</div>
           </div>
           <div class="text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -183,7 +190,10 @@
           class="glass-card p-4 rounded-xl hover:scale-105 transition-transform"
         >
           <div class="flex items-center gap-3 mb-2">
-            <i class="bi bi-broadcast text-2xl text-purple-500" aria-hidden="true"></i>
+            <i
+              class="bi bi-broadcast text-2xl text-purple-500"
+              aria-hidden="true"
+            ></i>
             <div class="text-xs text-gray-600 dark:text-gray-400">
               WebSocket
             </div>
@@ -200,7 +210,8 @@
       <!-- API Endpoint -->
       <div class="glass-card p-4 rounded-xl">
         <div class="flex items-center gap-2 mb-2">
-          <i class="bi bi-link-45deg text-xl text-indigo-500" aria-hidden="true"></i>
+          <i class="bi bi-link-45deg text-xl text-indigo-500" aria-hidden="true"
+          ></i>
           <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
             API Endpoint
           </div>
@@ -236,7 +247,10 @@
       {#if serverInfo.websocket?.endpoint}
         <div class="glass-card p-4 rounded-xl">
           <div class="flex items-center gap-2 mb-2">
-            <i class="bi bi-broadcast-pin text-xl text-purple-500" aria-hidden="true"></i>
+            <i
+              class="bi bi-broadcast-pin text-xl text-purple-500"
+              aria-hidden="true"
+            ></i>
             <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
               WebSocket Endpoint
             </div>
@@ -264,7 +278,8 @@
       {#if serverInfo.search_index}
         <div class="glass-card p-4 rounded-xl">
           <div class="flex items-center gap-2 mb-3">
-            <i class="bi bi-search text-xl text-amber-500" aria-hidden="true"></i>
+            <i class="bi bi-search text-xl text-amber-500" aria-hidden="true"
+            ></i>
             <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
               Search Index
             </div>
@@ -292,7 +307,8 @@
       {#if serverInfo.endpoints && serverInfo.endpoints.length > 0}
         <div class="glass-card p-4 rounded-xl">
           <div class="flex items-center gap-2 mb-3">
-            <i class="bi bi-list-check text-xl text-cyan-500" aria-hidden="true"></i>
+            <i class="bi bi-list-check text-xl text-cyan-500" aria-hidden="true"
+            ></i>
             <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
               Available Endpoints
             </div>
@@ -322,7 +338,10 @@
     {:else}
       <!-- Error State -->
       <div class="flex flex-col items-center justify-center py-12">
-        <i class="bi bi-exclamation-triangle text-6xl text-red-500 mb-4" aria-hidden="true"></i>
+        <i
+          class="bi bi-exclamation-triangle text-6xl text-red-500 mb-4"
+          aria-hidden="true"
+        ></i>
         <p class="text-sm text-gray-500 dark:text-gray-400">
           Failed to load server information
         </p>
@@ -339,7 +358,7 @@
       Close
     </button>
     <button
-      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
+      class="px-4 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-500 rounded-xl hover:bg-green-700 dark:hover:bg-green-600 transition-colors flex items-center gap-2"
       onclick={handleRefresh}
     >
       <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>

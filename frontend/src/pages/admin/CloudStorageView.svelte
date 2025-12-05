@@ -237,9 +237,9 @@
       case "minio":
         return "from-red-500 to-pink-500";
       case "gcs":
-        return "from-blue-500 to-cyan-500";
+        return "from-green-500 to-teal-500";
       case "azure_blob":
-        return "from-blue-600 to-indigo-600";
+        return "from-green-600 to-emerald-600";
       case "local":
         return "from-gray-500 to-gray-600";
       default:
@@ -252,7 +252,7 @@
       case "pending":
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
       case "running":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
+        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
       case "completed":
         return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
       case "failed":
@@ -277,7 +277,10 @@
             <div
               class="p-4 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl shadow-lg"
             >
-              <i class="bi bi-cloud-arrow-up text-3xl text-white" aria-hidden="true"></i>
+              <i
+                class="bi bi-cloud-arrow-up text-3xl text-white"
+                aria-hidden="true"
+              ></i>
             </div>
             <div>
               <h1
@@ -296,17 +299,20 @@
         {#if stats}
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div
-              class="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/20 rounded-xl p-4"
+              class="bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 rounded-xl p-4"
             >
               <div class="flex items-center justify-between">
-                <i class="bi bi-hdd-stack text-2xl text-blue-500" aria-hidden="true"></i>
+                <i
+                  class="bi bi-hdd-stack text-2xl text-green-500"
+                  aria-hidden="true"
+                ></i>
                 <span
-                  class="text-xs font-semibold text-blue-600 bg-blue-500/20 px-2 py-1 rounded-full"
+                  class="text-xs font-semibold text-green-600 bg-green-500/20 px-2 py-1 rounded-full"
                 >
                   {tr("cloudStorage.backends")}
                 </span>
               </div>
-              <div class="text-3xl font-bold text-blue-600 mt-2">
+              <div class="text-3xl font-bold text-green-600 mt-2">
                 {stats.total_backends}
               </div>
               <div class="text-sm text-base-content/60">
@@ -319,7 +325,10 @@
               class="bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 rounded-xl p-4"
             >
               <div class="flex items-center justify-between">
-                <i class="bi bi-files text-2xl text-green-500" aria-hidden="true"></i>
+                <i
+                  class="bi bi-files text-2xl text-green-500"
+                  aria-hidden="true"
+                ></i>
                 <span
                   class="text-xs font-semibold text-green-600 bg-green-500/20 px-2 py-1 rounded-full"
                 >
@@ -338,7 +347,10 @@
               class="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/20 rounded-xl p-4"
             >
               <div class="flex items-center justify-between">
-                <i class="bi bi-database text-2xl text-purple-500" aria-hidden="true"></i>
+                <i
+                  class="bi bi-database text-2xl text-purple-500"
+                  aria-hidden="true"
+                ></i>
                 <span
                   class="text-xs font-semibold text-purple-600 bg-purple-500/20 px-2 py-1 rounded-full"
                 >
@@ -357,7 +369,10 @@
               class="bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-500/20 rounded-xl p-4"
             >
               <div class="flex items-center justify-between">
-                <i class="bi bi-arrow-left-right text-2xl text-orange-500" aria-hidden="true"></i>
+                <i
+                  class="bi bi-arrow-left-right text-2xl text-orange-500"
+                  aria-hidden="true"
+                ></i>
                 <span
                   class="text-xs font-semibold text-orange-600 bg-orange-500/20 px-2 py-1 rounded-full"
                 >
@@ -425,8 +440,10 @@
             <div
               class="text-center py-16 bg-base-100/50 backdrop-blur-xl rounded-2xl border border-base-300"
             >
-              <i class="bi bi-cloud-slash text-6xl text-base-content/30 mb-4"
-               aria-hidden="true"></i>
+              <i
+                class="bi bi-cloud-slash text-6xl text-base-content/30 mb-4"
+                aria-hidden="true"
+              ></i>
               <p class="text-lg text-base-content/60">
                 {tr("cloudStorage.noBackends")}
               </p>
@@ -540,7 +557,8 @@
                           class="btn btn-sm btn-ghost text-error"
                           onclick={() => deleteBackend(backend)}
                           title={tr("common.delete")}
-                         aria-label="Delete">
+                          aria-label="Delete"
+                        >
                           <i class="bi bi-trash" aria-hidden="true"></i>
                         </button>
                       {/if}
@@ -608,7 +626,8 @@
                         <span class="badge badge-ghost"
                           >{sourceBackend?.name || "Unknown"}</span
                         >
-                        <i class="bi bi-arrow-right mx-2" aria-hidden="true"></i>
+                        <i class="bi bi-arrow-right mx-2" aria-hidden="true"
+                        ></i>
                         <span class="badge badge-ghost"
                           >{targetBackend?.name || "Unknown"}</span
                         >
@@ -651,7 +670,8 @@
                           <button
                             class="btn btn-sm btn-ghost text-error"
                             onclick={() => cancelMigration(migration)}
-                           aria-label="Cancel">
+                            aria-label="Cancel"
+                          >
                             <i class="bi bi-x-circle" aria-hidden="true"></i>
                           </button>
                         {/if}
@@ -814,7 +834,10 @@
             min="1"
             max="1000"
           />
-          <div class="label"><span class="label-text-alt">{tr("cloudStorage.priorityHint")}</span></div>
+          <div class="label">
+            <span class="label-text-alt">{tr("cloudStorage.priorityHint")}</span
+            >
+          </div>
         </div>
 
         <!-- Active Toggle -->
@@ -844,7 +867,14 @@
         </button>
       </div>
     </div>
-    <div class="modal-backdrop" role="dialog" tabindex="0" onclick={closeModal} onkeydown={(e) = tabindex="0"> e.key === "Escape" && (() => (showBackendModal = false))}></div>
+    <div
+      class="modal-backdrop"
+      role="dialog"
+      tabindex="0"
+      onclick={closeModal}
+      onkeydown={(e = tabindex =
+        "0" > e.key === "Escape" && (() => (showBackendModal = false)))}
+    ></div>
   </div>
 {/if}
 
@@ -931,6 +961,13 @@
         </button>
       </div>
     </div>
-    <div class="modal-backdrop" role="dialog" tabindex="0" onclick={closeModal} onkeydown={(e) = tabindex="0"> e.key === "Escape" && (() => (showMigrationModal = false))}></div>
+    <div
+      class="modal-backdrop"
+      role="dialog"
+      tabindex="0"
+      onclick={closeModal}
+      onkeydown={(e = tabindex =
+        "0" > e.key === "Escape" && (() => (showMigrationModal = false)))}
+    ></div>
   </div>
 {/if}

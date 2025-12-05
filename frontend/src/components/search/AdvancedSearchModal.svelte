@@ -221,7 +221,7 @@
       <div class="space-y-2">
         <div class="flex gap-2">
           <div
-            class="flex-1 flex rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20"
+            class="flex-1 flex rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-500/20"
           >
             <span
               class="px-4 bg-gray-50 dark:bg-gray-800 flex items-center text-gray-600 dark:text-gray-400"
@@ -238,7 +238,7 @@
           <!-- Primary Search Button (always visible) -->
           <button
             type="button"
-            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-500/25 font-medium whitespace-nowrap"
+            class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all flex items-center gap-2 shadow-lg shadow-green-500/25 font-medium whitespace-nowrap"
             onclick={handleSearch}
             disabled={!searchQuery.trim()}
           >
@@ -267,16 +267,16 @@
       <div class="border-2 border-gray-200 dark:border-gray-700 rounded-xl p-4">
         <details open>
           <summary
-            class="text-sm font-semibold text-gray-600 dark:text-gray-400 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2"
+            class="text-sm font-semibold text-gray-600 dark:text-gray-400 cursor-pointer hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-2"
           >
             <i
-              class="bi bi-funnel text-blue-600 dark:text-blue-400"
+              class="bi bi-funnel text-green-600 dark:text-green-400"
               aria-hidden="true"
             ></i>
             {tr("filters")}
             {#if activeFilterCount > 0}
               <span
-                class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium"
+                class="px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-xs font-medium"
               >
                 {activeFilterCount}
               </span>
@@ -291,13 +291,13 @@
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <i
-                  class="bi bi-file-earmark text-blue-600 dark:text-blue-400 mr-2"
+                  class="bi bi-file-earmark text-green-600 dark:text-green-400 mr-2"
                 ></i>
                 {tr("fileType")}
               </label>
               <select
                 id="fileTypeFilter"
-                class="w-full px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100"
+                class="w-full px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none text-gray-900 dark:text-gray-100"
                 bind:value={activeFilters.fileType}
               >
                 <option value="">{tr("selectFileType")}</option>
@@ -313,7 +313,7 @@
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <i
-                  class="bi bi-calendar text-blue-600 dark:text-blue-400 mr-2"
+                  class="bi bi-calendar text-green-600 dark:text-green-400 mr-2"
                   aria-hidden="true"
                 ></i>
                 {tr("dateModified")}
@@ -321,14 +321,14 @@
               <div class="flex gap-2">
                 <input
                   type="date"
-                  class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
+                  class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
                   bind:value={activeFilters.dateFrom}
                   placeholder={tr("from")}
                   aria-label="From date"
                 />
                 <input
                   type="date"
-                  class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
+                  class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
                   bind:value={activeFilters.dateTo}
                   placeholder={tr("to")}
                   aria-label="To date"
@@ -342,7 +342,7 @@
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <i
-                  class="bi bi-hdd text-blue-600 dark:text-blue-400 mr-2"
+                  class="bi bi-hdd text-green-600 dark:text-green-400 mr-2"
                   aria-hidden="true"
                 ></i>
                 {tr("fileSize")}
@@ -350,7 +350,7 @@
               <div class="flex gap-2">
                 <input
                   type="number"
-                  class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
+                  class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
                   bind:value={activeFilters.sizeMin}
                   placeholder={tr("minSizeMB")}
                   min="0"
@@ -358,7 +358,7 @@
                 />
                 <input
                   type="number"
-                  class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
+                  class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
                   bind:value={activeFilters.sizeMax}
                   placeholder={tr("maxSizeMB")}
                   min="0"
@@ -374,7 +374,7 @@
                 class="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <i
-                  class="bi bi-person text-blue-600 dark:text-blue-400 mr-2"
+                  class="bi bi-person text-green-600 dark:text-green-400 mr-2"
                   aria-hidden="true"
                 ></i>
                 {tr("modifiedBy")}
@@ -382,7 +382,7 @@
               <input
                 id="modifiedByFilter"
                 type="text"
-                class="w-full px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
+                class="w-full px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none text-sm text-gray-900 dark:text-gray-100"
                 bind:value={activeFilters.modifiedBy}
                 placeholder={tr("username")}
               />
@@ -399,14 +399,14 @@
             class="block text-xs font-medium text-gray-600 dark:text-gray-400"
           >
             <i
-              class="bi bi-sort-down text-blue-600 dark:text-blue-400 mr-1"
+              class="bi bi-sort-down text-green-600 dark:text-green-400 mr-1"
               aria-hidden="true"
             ></i>
             {tr("sortBy")}
           </label>
           <select
             id="sortByFilter"
-            class="w-full px-3 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100 text-sm"
+            class="w-full px-3 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none text-gray-900 dark:text-gray-100 text-sm"
             bind:value={sortBy}
           >
             {#each sortOptions as option}
@@ -421,7 +421,7 @@
             class="block text-xs font-medium text-gray-600 dark:text-gray-400"
           >
             <i
-              class="bi bi-arrow-down-up text-blue-600 dark:text-blue-400 mr-1"
+              class="bi bi-arrow-down-up text-green-600 dark:text-green-400 mr-1"
               aria-hidden="true"
             ></i>
             {tr("sortOrder")}
@@ -435,7 +435,7 @@
               type="button"
               class="flex-1 px-3 py-2 text-xs font-medium transition-all {sortOrder ===
               'asc'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-green-600 text-white'
                 : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
               onclick={() => (sortOrder = "asc")}
               aria-label="Sort ascending"
@@ -447,7 +447,7 @@
               type="button"
               class="flex-1 px-3 py-2 text-xs font-medium transition-all border-l-2 border-gray-200 dark:border-gray-700 {sortOrder ===
               'desc'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-green-600 text-white'
                 : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
               onclick={() => (sortOrder = "desc")}
               aria-label="Sort descending"
@@ -466,7 +466,7 @@
             class="text-xs font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1"
           >
             <i
-              class="bi bi-clock-history text-blue-600 dark:text-blue-400"
+              class="bi bi-clock-history text-green-600 dark:text-green-400"
               aria-hidden="true"
             ></i>
             {tr("recentSearches")}
@@ -476,7 +476,7 @@
             {#each recentSearches.slice(0, 5) as search}
               <button
                 type="button"
-                class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-700 dark:hover:text-blue-300 transition-all text-xs flex items-center gap-1"
+                class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-green-100 dark:hover:bg-green-900 hover:text-green-700 dark:hover:text-green-300 transition-all text-xs flex items-center gap-1"
                 onclick={() => handleRecentSearchClick(search)}
               >
                 <i class="bi bi-clock-history opacity-60" aria-hidden="true"
@@ -507,7 +507,7 @@
 
         <button
           type="button"
-          class="px-3 py-2 border-2 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all text-xs flex items-center gap-1"
+          class="px-3 py-2 border-2 border-green-200 dark:border-green-700 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-all text-xs flex items-center gap-1"
           onclick={() => (showSavedSearches = true)}
           title={tr("viewSavedSearches")}
         >

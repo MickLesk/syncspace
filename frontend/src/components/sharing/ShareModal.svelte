@@ -280,8 +280,8 @@
             <div
               class="group cursor-pointer border-2 rounded-2xl p-6 transition-all duration-200 {shareType ===
               'public'
-                ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 shadow-lg scale-[1.02]'
-                : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md hover:scale-[1.01]'}"
+                ? 'border-green-500 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/20 shadow-lg scale-[1.02]'
+                : 'border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 hover:shadow-md hover:scale-[1.01]'}"
               onclick={() => (shareType = "public")}
               role="button"
               tabindex="0"
@@ -289,9 +289,9 @@
             >
               <div class="flex flex-col items-center text-center gap-4">
                 <div
-                  class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 flex items-center justify-center shadow-lg {shareType ===
+                  class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 flex items-center justify-center shadow-lg {shareType ===
                   'public'
-                    ? 'ring-4 ring-blue-200 dark:ring-blue-800'
+                    ? 'ring-4 ring-green-200 dark:ring-green-800'
                     : ''}"
                 >
                   <i class="bi bi-globe text-3xl text-white" aria-hidden="true"
@@ -350,12 +350,16 @@
         {#if shareType === "users"}
           <div>
             <div class="flex items-center justify-between mb-3">
-              <div class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2"><i class="bi bi-person-plus text-lg" aria-hidden="true"></i>
-                {tr("selectUsers")}</div>
+              <div
+                class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2"
+              >
+                <i class="bi bi-person-plus text-lg" aria-hidden="true"></i>
+                {tr("selectUsers")}
+              </div>
               <button
                 type="button"
                 onclick={() => (showUserSearchModal = true)}
-                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+                class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
               >
                 <i class="bi bi-search" aria-hidden="true"></i>
                 {tr("searchUsers")}
@@ -367,7 +371,7 @@
               <div class="space-y-2 mb-4">
                 {#each selectedUsers as user}
                   <div
-                    class="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500 rounded-lg"
+                    class="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 border-2 border-green-500 rounded-lg"
                   >
                     <!-- User Avatar -->
                     <div class="flex-shrink-0">
@@ -379,7 +383,7 @@
                         />
                       {:else}
                         <div
-                          class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold"
+                          class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white font-semibold"
                         >
                           {(user.display_name || user.username)
                             .slice(0, 2)
@@ -661,7 +665,7 @@
             </div>
             <div class="font-semibold text-lg mt-1 flex items-center gap-2">
               {#if shareType === "public"}
-                <i class="bi bi-globe text-blue-500" aria-hidden="true"></i>
+                <i class="bi bi-globe text-green-500" aria-hidden="true"></i>
                 <span>{tr("public")}</span>
               {:else}
                 <i class="bi bi-people text-purple-500" aria-hidden="true"></i>

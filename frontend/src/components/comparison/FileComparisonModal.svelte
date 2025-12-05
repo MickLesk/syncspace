@@ -228,7 +228,7 @@
               onclick={() => (viewMode = "side-by-side")}
               class="px-3 py-1.5 text-sm rounded-lg transition-colors {viewMode ===
               'side-by-side'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-green-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}"
             >
               <i class="bi bi-layout-split" aria-hidden="true"></i>
@@ -238,7 +238,7 @@
               onclick={() => (viewMode = "unified")}
               class="px-3 py-1.5 text-sm rounded-lg transition-colors {viewMode ===
               'unified'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-green-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}"
             >
               <i class="bi bi-list-ul" aria-hidden="true"></i>
@@ -260,7 +260,7 @@
         {#if loading}
           <div class="flex items-center justify-center h-64">
             <div
-              class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+              class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"
             ></div>
           </div>
         {:else if error}

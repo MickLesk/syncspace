@@ -338,7 +338,7 @@
                 class="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden"
               >
                 <div
-                  class="h-full bg-blue-500 transition-all duration-300"
+                  class="h-full bg-green-500 transition-all duration-300"
                   style="width: {progress}%"
                 ></div>
               </div>
@@ -387,7 +387,7 @@
           {#if progress === 100}
             <button
               onclick={close}
-              class="flex-1 rounded bg-blue-500 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+              class="flex-1 rounded bg-green-500 px-4 py-2 font-medium text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700"
             >
               {t("common.done")}
             </button>

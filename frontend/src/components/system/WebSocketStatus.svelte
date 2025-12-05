@@ -19,8 +19,8 @@
     },
     [WS_STATES.CONNECTING]: {
       icon: "bi-arrow-repeat",
-      color: "text-blue-500",
-      bgColor: "bg-blue-50 dark:bg-blue-900/20",
+      color: "text-green-500",
+      bgColor: "bg-green-50 dark:bg-green-900/20",
       label: "Connecting...",
       pulse: true,
       spin: true,

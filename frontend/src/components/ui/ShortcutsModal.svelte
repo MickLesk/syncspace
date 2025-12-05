@@ -144,17 +144,17 @@
 
         <!-- Tip -->
         <div
-          class="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+          class="mt-8 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg"
         >
           <div class="flex gap-3">
             <i
-              class="bi bi-lightbulb text-blue-600 dark:text-blue-400 text-lg flex-shrink-0 mt-0.5"
+              class="bi bi-lightbulb text-green-600 dark:text-green-400 text-lg flex-shrink-0 mt-0.5"
             ></i>
             <div>
-              <p class="text-sm font-medium text-blue-900 dark:text-blue-200">
+              <p class="text-sm font-medium text-green-900 dark:text-green-200">
                 {tr("shortcuts.tip")}
               </p>
-              <p class="text-xs text-blue-800 dark:text-blue-300 mt-1">
+              <p class="text-xs text-green-800 dark:text-green-300 mt-1">
                 {tr("shortcuts.tipDesc")}
               </p>
             </div>

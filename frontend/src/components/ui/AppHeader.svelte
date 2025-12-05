@@ -646,7 +646,7 @@
                 <p class="user-name-new">{$auth.username || "Admin"}</p>
                 <p class="user-role-new">
                   <span
-                    class="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded-full"
+                    class="px-2 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded-full"
                     >Administrator</span
                   >
                 </p>
@@ -797,7 +797,7 @@
           id="quickSearchInput"
           type="text"
           placeholder="Search for files, folders..."
-          class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-l-none rounded-r-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+          class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-l-none rounded-r-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent"
           bind:value={searchQuery}
         />
       </div>
@@ -820,7 +820,7 @@
     </button>
     <button
       type="button"
-      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
+      class="px-4 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-500 rounded-xl hover:bg-green-700 dark:hover:bg-green-600 transition-colors flex items-center gap-2"
       onclick={handleSearch}
     >
       <i class="bi bi-search" aria-hidden="true"></i>

@@ -200,7 +200,7 @@
           <div class="space-y-1 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded p-3 mb-3">
             {#if stats.fileCount > 0}
               <div class="flex items-center gap-2">
-                <i class="bi bi-file text-blue-600 dark:text-blue-400" / aria-hidden="true">
+                <i class="bi bi-file text-green-600 dark:text-green-400" / aria-hidden="true">
                 {stats.fileCount} {stats.fileCount === 1 ? 'Datei' : 'Dateien'}
               </div>
             {/if}
@@ -235,7 +235,7 @@
                 <span><strong>Warnung:</strong> Diese Aktion kann nicht rückgängig gemacht werden. Die Dateien werden endgültig gelöscht.</span>
               </div>
             {:else}
-              <div class="flex gap-2 text-sm text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded p-2">
+              <div class="flex gap-2 text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded p-2">
                 <i class="bi bi-info-circle flex-shrink-0 mt-0.5" / aria-hidden="true">
                 <span>Gelöschte Dateien landen im Papierkorb und können von dort wiederhergestellt werden.</span>
               </div>

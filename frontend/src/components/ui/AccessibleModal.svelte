@@ -80,7 +80,8 @@
     aria-modal="true"
     aria-labelledby="modal-title"
     aria-describedby={subtitle ? "modal-description" : null}
-   tabindex="0">
+    tabindex="0"
+  >
     <div
       class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full max-h-screen overflow-y-auto {className}"
       role="document"
@@ -110,7 +111,9 @@
 
       <!-- Footer with accessible buttons -->
       {#if showFooter}
-        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-2 justify-end">
+        <div
+          class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-2 justify-end"
+        >
           <button
             type="button"
             class="px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -124,8 +127,8 @@
             <button
               type="button"
               class="px-4 py-2 rounded-lg transition-colors"
-              class:bg-blue-500={!isDangerous}
-              class:hover:bg-blue-600={!isDangerous}
+              class:bg-green-500={!isDangerous}
+              class:hover:bg-green-600={!isDangerous}
               class:bg-red-500={isDangerous}
               class:hover:bg-red-600={isDangerous}
               class:text-white={true}

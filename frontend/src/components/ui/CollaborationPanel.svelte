@@ -142,19 +142,19 @@
   {#if currentLock}
     <div
       class="rounded-lg shadow-lg mb-3 p-4 border {isLockedByMe
-        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+        ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
         : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'}"
     >
       <div class="flex items-center gap-2">
         <i
           class="bi bi-lock-fill {isLockedByMe
-            ? 'text-blue-600 dark:text-blue-400'
+            ? 'text-green-600 dark:text-green-400'
             : 'text-amber-600 dark:text-amber-400'}"
         ></i>
         <div class="flex-1">
           <h3
             class="font-bold text-sm {isLockedByMe
-              ? 'text-blue-900 dark:text-blue-100'
+              ? 'text-green-900 dark:text-green-100'
               : 'text-amber-900 dark:text-amber-100'}"
           >
             {isLockedByMe
@@ -163,7 +163,7 @@
           </h3>
           <div
             class="text-xs {isLockedByMe
-              ? 'text-blue-700 dark:text-blue-300'
+              ? 'text-green-700 dark:text-green-300'
               : 'text-amber-700 dark:text-amber-300'}"
           >
             Expires: {formatTime(currentLock.expires_at)}
@@ -171,7 +171,7 @@
         </div>
         {#if isLockedByMe}
           <button
-            class="px-3 py-1.5 text-sm rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-200 transition-colors flex items-center gap-2"
+            class="px-3 py-1.5 text-sm rounded-lg hover:bg-green-100 dark:hover:bg-green-800 text-green-700 dark:text-green-200 transition-colors flex items-center gap-2"
             onclick={releaseLock}
           >
             <i class="bi bi-unlock" aria-hidden="true"></i>
@@ -210,7 +210,7 @@
             <div class="flex items-center gap-2 text-sm">
               <div class="flex items-center justify-center">
                 <div
-                  class="bg-blue-600 dark:bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
+                  class="bg-green-600 dark:bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
                 >
                   <span class="text-xs font-medium"
                     >{user.username.charAt(0).toUpperCase()}</span
@@ -232,7 +232,7 @@
                     Editing
                   {:else if user.activity_type === "viewing"}
                     <span
-                      class="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full"
+                      class="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full"
                     ></span>
                     Viewing
                   {:else}

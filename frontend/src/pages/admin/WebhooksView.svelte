@@ -401,7 +401,7 @@
                 </span>
                 {#if webhook.has_secret}
                   <span
-                    class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                    class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                   >
                     <i class="bi bi-shield-lock-fill mr-1" aria-hidden="true"
                     ></i>
@@ -488,7 +488,7 @@
               </button>
               <button
                 onclick={() => openEditModal(webhook)}
-                class="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                class="p-2 text-gray-500 hover:text-green-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title={tr("webhooks.edit")}
               >
                 <i class="bi bi-pencil" aria-hidden="true"></i>

@@ -151,7 +151,8 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby="command-palette-title"
-   tabindex="0">
+    tabindex="0"
+  >
     <div
       class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
     >
@@ -166,7 +167,7 @@
             bind:value={searchQuery}
             type="text"
             placeholder={t($currentLang, "commandPalettePlaceholder")}
-            class="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           <div
             class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400"
@@ -196,7 +197,7 @@
                 id="command-item-{index}"
                 class="w-full text-left px-3 py-2 rounded-md transition-colors {selectedIndex ===
                 index
-                  ? 'bg-blue-50 dark:bg-blue-900/30'
+                  ? 'bg-green-50 dark:bg-green-900/30'
                   : 'hover:bg-gray-50 dark:hover:bg-gray-700'}"
                 onclick={() => executeCommand(action.id)}
                 onmouseenter={() => (selectedIndex = index)}
@@ -248,7 +249,7 @@
                 id="command-item-{index}"
                 class="w-full text-left px-3 py-2 rounded-md transition-colors {selectedIndex ===
                 index
-                  ? 'bg-blue-50 dark:bg-blue-900/30'
+                  ? 'bg-green-50 dark:bg-green-900/30'
                   : 'hover:bg-gray-50 dark:hover:bg-gray-700'}"
                 onclick={() => executeCommand(action.id)}
                 onmouseenter={() => (selectedIndex = index)}
@@ -323,7 +324,7 @@
           onclick={() => {
             /* TODO: Open shortcuts cheatsheet */
           }}
-          class="hover:text-blue-500 transition-colors"
+          class="hover:text-green-500 transition-colors"
         >
           <i class="bi bi-keyboard" aria-hidden="true"></i>
           {t($currentLang, "viewShortcuts")}

@@ -74,7 +74,7 @@
 <!-- Install Prompt Banner -->
 {#if showInstallPrompt && installPromptEvent && !isInstalled}
   <div
-    class="sticky top-0 z-50 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-4 shadow-lg"
+    class="sticky top-0 z-50 bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-4 shadow-lg"
   >
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
       <!-- Content -->
@@ -82,7 +82,7 @@
         <i class="bi bi-download text-2xl flex-shrink-0" aria-hidden="true"></i>
         <div class="min-w-0">
           <p class="font-semibold text-sm md:text-base">Install SyncSpace</p>
-          <p class="text-xs md:text-sm text-blue-100">
+          <p class="text-xs md:text-sm text-green-100">
             Access your files offline and get app-like experience
           </p>
         </div>
@@ -92,13 +92,13 @@
       <div class="flex gap-2 flex-shrink-0">
         <button
           onclick={handleInstall}
-          class="px-4 py-2 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition text-sm"
+          class="px-4 py-2 bg-white text-green-600 font-semibold rounded-lg hover:bg-green-50 transition text-sm"
         >
           Install
         </button>
         <button
           onclick={handleDismiss}
-          class="px-4 py-2 hover:bg-blue-500 rounded-lg transition text-sm font-medium"
+          class="px-4 py-2 hover:bg-green-500 rounded-lg transition text-sm font-medium"
         >
           Later
         </button>

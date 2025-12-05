@@ -188,7 +188,8 @@
           {#snippet children()}
             <div class="text-center">
               <div class="text-primary-500 mb-3">
-                <i class="bi bi-activity text-5xl bounce-in" aria-hidden="true"></i>
+                <i class="bi bi-activity text-5xl bounce-in" aria-hidden="true"
+                ></i>
               </div>
               <div
                 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
@@ -211,7 +212,10 @@
           {#snippet children()}
             <div class="text-center">
               <div class="text-green-500 mb-3">
-                <i class="bi bi-calendar-check text-5xl bounce-in" aria-hidden="true"></i>
+                <i
+                  class="bi bi-calendar-check text-5xl bounce-in"
+                  aria-hidden="true"
+                ></i>
               </div>
               <div
                 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
@@ -334,7 +338,7 @@
               {@const config = typeConfig[act.type] || typeConfig.create}
               {@const colorMap = {
                 success: "bg-green-500 text-white",
-                info: "bg-blue-500 text-white",
+                info: "bg-green-500 text-white",
                 error: "bg-red-500 text-white",
                 warning: "bg-yellow-500 text-white",
                 primary: "bg-primary-500 text-white",
@@ -368,7 +372,8 @@
                     <div class="flex items-start justify-between gap-2">
                       <div class="flex-1">
                         <div class="badge-glass-{config.color} mb-2">
-                          <i class="bi bi-{config.icon} mr-1" aria-hidden="true"></i>
+                          <i class="bi bi-{config.icon} mr-1" aria-hidden="true"
+                          ></i>
                           {config.label}
                         </div>
                         <h3

@@ -134,13 +134,13 @@
 
         <!-- Additional Resources -->
         <div
-          class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200 dark:border-blue-800"
+          class="mt-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800"
         >
           <h3
             class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2"
           >
             <i
-              class="bi bi-book text-blue-600 dark:text-blue-400"
+              class="bi bi-book text-green-600 dark:text-green-400"
               aria-hidden="true"
             ></i>
             Need More Help?

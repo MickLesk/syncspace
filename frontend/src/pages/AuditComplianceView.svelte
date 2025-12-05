@@ -292,7 +292,7 @@
       case "warning":
         return "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300";
       case "info":
-        return "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300";
+        return "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300";
       default:
         return "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300";
     }
@@ -400,7 +400,7 @@
       <div
         class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700"
       >
-        <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+        <div class="text-2xl font-bold text-green-600 dark:text-green-400">
           {stats.logs_this_week || 0}
         </div>
         <div class="text-xs text-gray-500 dark:text-gray-400">
@@ -803,7 +803,7 @@
                       </span>
                     {/if}
                     {#if policy.archive_before_delete}
-                      <span class="text-blue-600 dark:text-blue-400">
+                      <span class="text-green-600 dark:text-green-400">
                         <i class="bi bi-archive mr-1" aria-hidden="true"
                         ></i>{tr("audit.archiveFirst")}
                       </span>
