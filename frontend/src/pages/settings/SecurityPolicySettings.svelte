@@ -176,473 +176,296 @@
 </script>
 
 {#if loading}
-  <div class="flex items-center justify-center py-12">
-    <div
-      class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
-    ></div>
+  <div class="loading-container">
+    <div class="spinner"></div>
   </div>
 {:else}
-  <div class="space-y-6">
-    <!-- Password Policy -->
-    <div
-      class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6"
-    >
-      <div class="flex items-center gap-3 mb-6">
-        <div
-          class="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center"
-        >
-          <i class="bi bi-key-fill text-red-600 dark:text-red-400"></i>
-        </div>
-        <div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {tr("settings.security.password_policy")}
-          </h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            {tr("settings.security.password_policy_desc")}
-          </p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Min Length -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            {tr("settings.security.min_length")}
-          </label>
-          <input
-            type="number"
-            bind:value={minPasswordLength}
-            min="6"
-            max="32"
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <!-- Password Expiry -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            {tr("settings.security.password_expiry")}
-          </label>
-          <select
-            bind:value={passwordExpiryDays}
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-          >
-            <option value={0}>{tr("settings.security.never")}</option>
-            <option value={30}>30 {tr("common.days")}</option>
-            <option value={60}>60 {tr("common.days")}</option>
-            <option value={90}>90 {tr("common.days")}</option>
-            <option value={180}>180 {tr("common.days")}</option>
-            <option value={365}>365 {tr("common.days")}</option>
-          </select>
-        </div>
-
-        <!-- Prevent Reuse -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            {tr("settings.security.prevent_reuse")}
-          </label>
-          <select
-            bind:value={preventPasswordReuse}
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-          >
-            <option value={0}>{tr("settings.security.disabled")}</option>
-            <option value={3}
-              >{tr("settings.security.last_n_passwords", 3)}</option
-            >
-            <option value={5}
-              >{tr("settings.security.last_n_passwords", 5)}</option
-            >
-            <option value={10}
-              >{tr("settings.security.last_n_passwords", 10)}</option
-            >
-          </select>
-        </div>
-      </div>
-
-      <div class="mt-4 space-y-2">
-        <label
-          class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer"
-        >
-          <input
-            type="checkbox"
-            bind:checked={requireUppercase}
-            class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-          <span class="text-gray-900 dark:text-white"
-            >{tr("settings.security.require_uppercase")}</span
-          >
-        </label>
-        <label
-          class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer"
-        >
-          <input
-            type="checkbox"
-            bind:checked={requireLowercase}
-            class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-          <span class="text-gray-900 dark:text-white"
-            >{tr("settings.security.require_lowercase")}</span
-          >
-        </label>
-        <label
-          class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer"
-        >
-          <input
-            type="checkbox"
-            bind:checked={requireNumbers}
-            class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-          <span class="text-gray-900 dark:text-white"
-            >{tr("settings.security.require_numbers")}</span
-          >
-        </label>
-        <label
-          class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer"
-        >
-          <input
-            type="checkbox"
-            bind:checked={requireSpecialChars}
-            class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-          <span class="text-gray-900 dark:text-white"
-            >{tr("settings.security.require_special")}</span
-          >
-        </label>
-      </div>
-    </div>
-
-    <!-- 2FA Policy -->
-    <div
-      class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6"
-    >
-      <div class="flex items-center gap-3 mb-6">
-        <div
-          class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center"
-        >
-          <i class="bi bi-shield-lock-fill text-green-600 dark:text-green-400"
-          ></i>
-        </div>
-        <div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {tr("settings.security.2fa_policy")}
-          </h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            {tr("settings.security.2fa_policy_desc")}
-          </p>
-        </div>
-      </div>
-
-      <div class="space-y-3">
-        <label
-          class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer"
-        >
-          <div>
-            <span class="font-medium text-gray-900 dark:text-white"
-              >{tr("settings.security.require_2fa_all")}</span
-            >
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              {tr("settings.security.require_2fa_all_desc")}
-            </p>
+  <div class="security-settings">
+    <!-- Top Row: Password + 2FA -->
+    <div class="settings-grid">
+      <!-- Password Policy Card -->
+      <div class="setting-card">
+        <div class="card-header">
+          <div class="card-icon password-icon">
+            <i class="bi bi-key-fill"></i>
           </div>
-          <input
-            type="checkbox"
-            bind:checked={require2FA}
-            class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-        </label>
-
-        <label
-          class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer"
-        >
-          <div>
-            <span class="font-medium text-gray-900 dark:text-white"
-              >{tr("settings.security.require_2fa_admins")}</span
-            >
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              {tr("settings.security.require_2fa_admins_desc")}
-            </p>
+          <div class="card-info">
+            <h3>{tr("settings.security.password_policy")}</h3>
+            <p>{tr("settings.security.password_policy_desc")}</p>
           </div>
-          <input
-            type="checkbox"
-            bind:checked={enforce2FAForAdmins}
-            class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-        </label>
+        </div>
 
-        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-          <span class="font-medium text-gray-900 dark:text-white block mb-3"
-            >{tr("settings.security.allowed_2fa_methods")}</span
-          >
-          <div class="flex flex-wrap gap-3">
-            <label
-              class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-600 rounded-lg cursor-pointer border border-gray-200 dark:border-gray-500"
-            >
+        <div class="card-content">
+          <div class="compact-grid">
+            <div class="input-group">
+              <label>{tr("settings.security.min_length")}</label>
               <input
-                type="checkbox"
-                checked={allowed2FAMethods.includes("totp")}
-                onchange={() => toggle2FAMethod("totp")}
-                class="w-4 h-4 rounded border-gray-300 text-blue-600"
+                type="number"
+                bind:value={minPasswordLength}
+                min="6"
+                max="32"
               />
-              <i class="bi bi-phone"></i>
-              <span>TOTP (Authenticator)</span>
-            </label>
-            <label
-              class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-600 rounded-lg cursor-pointer border border-gray-200 dark:border-gray-500 opacity-50"
-            >
-              <input
-                type="checkbox"
-                disabled
-                class="w-4 h-4 rounded border-gray-300 text-blue-600"
-              />
-              <i class="bi bi-chat-dots"></i>
-              <span>SMS ({tr("common.coming_soon")})</span>
-            </label>
-            <label
-              class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-600 rounded-lg cursor-pointer border border-gray-200 dark:border-gray-500 opacity-50"
-            >
-              <input
-                type="checkbox"
-                disabled
-                class="w-4 h-4 rounded border-gray-300 text-blue-600"
-              />
-              <i class="bi bi-envelope"></i>
-              <span>Email ({tr("common.coming_soon")})</span>
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Session & Login Security -->
-    <div
-      class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6"
-    >
-      <div class="flex items-center gap-3 mb-6">
-        <div
-          class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center"
-        >
-          <i class="bi bi-clock-history text-blue-600 dark:text-blue-400"></i>
-        </div>
-        <div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {tr("settings.security.session_policy")}
-          </h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            {tr("settings.security.session_policy_desc")}
-          </p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Session Timeout -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            {tr("settings.security.session_timeout")}
-          </label>
-          <select
-            bind:value={sessionTimeoutMinutes}
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-          >
-            <option value={30}>30 {tr("common.minutes")}</option>
-            <option value={60}>1 {tr("common.hour")}</option>
-            <option value={240}>4 {tr("common.hours")}</option>
-            <option value={480}>8 {tr("common.hours")}</option>
-            <option value={1440}>24 {tr("common.hours")}</option>
-            <option value={10080}>7 {tr("common.days")}</option>
-          </select>
-        </div>
-
-        <!-- Max Concurrent Sessions -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            {tr("settings.security.max_sessions")}
-          </label>
-          <input
-            type="number"
-            bind:value={maxConcurrentSessions}
-            min="1"
-            max="20"
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <!-- Max Login Attempts -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            {tr("settings.security.max_login_attempts")}
-          </label>
-          <input
-            type="number"
-            bind:value={maxLoginAttempts}
-            min="3"
-            max="20"
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <!-- Lockout Duration -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            {tr("settings.security.lockout_duration")}
-          </label>
-          <select
-            bind:value={lockoutDurationMinutes}
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-          >
-            <option value={5}>5 {tr("common.minutes")}</option>
-            <option value={15}>15 {tr("common.minutes")}</option>
-            <option value={30}>30 {tr("common.minutes")}</option>
-            <option value={60}>1 {tr("common.hour")}</option>
-            <option value={1440}>24 {tr("common.hours")}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="mt-4">
-        <label
-          class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer"
-        >
-          <div>
-            <span class="font-medium text-gray-900 dark:text-white"
-              >{tr("settings.security.reauth_sensitive")}</span
-            >
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              {tr("settings.security.reauth_sensitive_desc")}
-            </p>
-          </div>
-          <input
-            type="checkbox"
-            bind:checked={enforceReauthForSensitive}
-            class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-        </label>
-      </div>
-    </div>
-
-    <!-- IP Security -->
-    <div
-      class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6"
-    >
-      <div class="flex items-center gap-3 mb-6">
-        <div
-          class="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center"
-        >
-          <i class="bi bi-globe text-amber-600 dark:text-amber-400"></i>
-        </div>
-        <div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {tr("settings.security.ip_security")}
-          </h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            {tr("settings.security.ip_security_desc")}
-          </p>
-        </div>
-      </div>
-
-      <div class="space-y-4">
-        <!-- IP Whitelist -->
-        <div>
-          <label
-            class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer mb-2"
-          >
-            <div>
-              <span class="font-medium text-gray-900 dark:text-white"
-                >{tr("settings.security.ip_whitelist")}</span
-              >
-              <p class="text-sm text-gray-500 dark:text-gray-400">
-                {tr("settings.security.ip_whitelist_desc")}
-              </p>
             </div>
-            <input
-              type="checkbox"
-              bind:checked={enableIPWhitelist}
-              class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-          </label>
-          {#if enableIPWhitelist}
-            <textarea
-              bind:value={ipWhitelist}
-              placeholder="192.168.1.0/24&#10;10.0.0.0/8"
-              rows="3"
-              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-            ></textarea>
-          {/if}
-        </div>
-
-        <!-- IP Blacklist -->
-        <div>
-          <label
-            class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer mb-2"
-          >
-            <div>
-              <span class="font-medium text-gray-900 dark:text-white"
-                >{tr("settings.security.ip_blacklist")}</span
-              >
-              <p class="text-sm text-gray-500 dark:text-gray-400">
-                {tr("settings.security.ip_blacklist_desc")}
-              </p>
+            <div class="input-group">
+              <label>{tr("settings.security.password_expiry")}</label>
+              <select bind:value={passwordExpiryDays}>
+                <option value={0}>{tr("settings.security.never")}</option>
+                <option value={30}>30 {tr("common.days")}</option>
+                <option value={90}>90 {tr("common.days")}</option>
+              </select>
             </div>
-            <input
-              type="checkbox"
-              bind:checked={enableIPBlacklist}
-              class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-          </label>
-          {#if enableIPBlacklist}
-            <textarea
-              bind:value={ipBlacklist}
-              placeholder="192.168.1.100&#10;10.0.0.50"
-              rows="3"
-              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-            ></textarea>
-          {/if}
+          </div>
+
+          <div class="checkbox-grid">
+            <label class="checkbox-item">
+              <input type="checkbox" bind:checked={requireUppercase} />
+              <span>{tr("settings.security.require_uppercase")}</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" bind:checked={requireLowercase} />
+              <span>{tr("settings.security.require_lowercase")}</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" bind:checked={requireNumbers} />
+              <span>{tr("settings.security.require_numbers")}</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" bind:checked={requireSpecialChars} />
+              <span>{tr("settings.security.require_special")}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2FA Policy Card -->
+      <div class="setting-card">
+        <div class="card-header">
+          <div class="card-icon twofa-icon">
+            <i class="bi bi-shield-lock-fill"></i>
+          </div>
+          <div class="card-info">
+            <h3>{tr("settings.security.2fa_policy")}</h3>
+            <p>{tr("settings.security.2fa_policy_desc")}</p>
+          </div>
         </div>
 
-        <label
-          class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer"
-        >
-          <div>
-            <span class="font-medium text-gray-900 dark:text-white"
-              >{tr("settings.security.block_tor")}</span
-            >
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              {tr("settings.security.block_tor_desc")}
-            </p>
+        <div class="card-content">
+          <div class="toggle-list">
+            <label class="toggle-item">
+              <span>{tr("settings.security.require_2fa_all")}</span>
+              <label class="toggle">
+                <input type="checkbox" bind:checked={require2FA} />
+                <span class="toggle-slider"></span>
+              </label>
+            </label>
+            <label class="toggle-item">
+              <span>{tr("settings.security.require_2fa_admins")}</span>
+              <label class="toggle">
+                <input type="checkbox" bind:checked={enforce2FAForAdmins} />
+                <span class="toggle-slider"></span>
+              </label>
+            </label>
           </div>
-          <input
-            type="checkbox"
-            bind:checked={blockTorExits}
-            class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-        </label>
+
+          <div class="methods-section">
+            <span class="methods-label"
+              >{tr("settings.security.allowed_2fa_methods")}</span
+            >
+            <div class="methods-grid">
+              <label class="method-item active">
+                <input
+                  type="checkbox"
+                  checked={allowed2FAMethods.includes("totp")}
+                  onchange={() => toggle2FAMethod("totp")}
+                />
+                <i class="bi bi-phone"></i>
+                <span>TOTP</span>
+              </label>
+              <label class="method-item disabled">
+                <input type="checkbox" disabled />
+                <i class="bi bi-chat-dots"></i>
+                <span>SMS</span>
+              </label>
+              <label class="method-item disabled">
+                <input type="checkbox" disabled />
+                <i class="bi bi-envelope"></i>
+                <span>Email</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Row: Session + Login -->
+    <div class="settings-grid">
+      <!-- Session Policy Card -->
+      <div class="setting-card">
+        <div class="card-header">
+          <div class="card-icon session-icon">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <div class="card-info">
+            <h3>{tr("settings.security.session_policy")}</h3>
+            <p>{tr("settings.security.session_policy_desc")}</p>
+          </div>
+        </div>
+
+        <div class="card-content">
+          <div class="compact-grid">
+            <div class="input-group">
+              <label>{tr("settings.security.session_timeout")}</label>
+              <select bind:value={sessionTimeoutMinutes}>
+                <option value={30}>30 min</option>
+                <option value={60}>1h</option>
+                <option value={240}>4h</option>
+                <option value={480}>8h</option>
+                <option value={1440}>24h</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>{tr("settings.security.max_sessions")}</label>
+              <input
+                type="number"
+                bind:value={maxConcurrentSessions}
+                min="1"
+                max="20"
+              />
+            </div>
+          </div>
+
+          <label class="toggle-item">
+            <span>{tr("settings.security.reauth_sensitive")}</span>
+            <label class="toggle">
+              <input type="checkbox" bind:checked={enforceReauthForSensitive} />
+              <span class="toggle-slider"></span>
+            </label>
+          </label>
+        </div>
+      </div>
+
+      <!-- Login Security Card -->
+      <div class="setting-card">
+        <div class="card-header">
+          <div class="card-icon login-icon">
+            <i class="bi bi-box-arrow-in-right"></i>
+          </div>
+          <div class="card-info">
+            <h3>{tr("settings.security.login_security")}</h3>
+            <p>{tr("settings.security.login_security_desc")}</p>
+          </div>
+        </div>
+
+        <div class="card-content">
+          <div class="compact-grid">
+            <div class="input-group">
+              <label>{tr("settings.security.max_login_attempts")}</label>
+              <input
+                type="number"
+                bind:value={maxLoginAttempts}
+                min="3"
+                max="20"
+              />
+            </div>
+            <div class="input-group">
+              <label>{tr("settings.security.lockout_duration")}</label>
+              <select bind:value={lockoutDurationMinutes}>
+                <option value={5}>5 min</option>
+                <option value={15}>15 min</option>
+                <option value={30}>30 min</option>
+                <option value={60}>1h</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="toggle-list">
+            <label class="toggle-item">
+              <span>{tr("settings.security.enable_captcha")}</span>
+              <label class="toggle">
+                <input type="checkbox" bind:checked={enableCaptcha} />
+                <span class="toggle-slider"></span>
+              </label>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IP Security Card - Full Width -->
+    <div class="setting-card full-width">
+      <div class="card-header">
+        <div class="card-icon ip-icon">
+          <i class="bi bi-globe"></i>
+        </div>
+        <div class="card-info">
+          <h3>{tr("settings.security.ip_security")}</h3>
+          <p>{tr("settings.security.ip_security_desc")}</p>
+        </div>
+      </div>
+
+      <div class="card-content">
+        <div class="ip-grid">
+          <div class="ip-section">
+            <label class="toggle-item compact">
+              <span
+                ><i class="bi bi-check-circle text-green-500"></i>
+                {tr("settings.security.ip_whitelist")}</span
+              >
+              <label class="toggle">
+                <input type="checkbox" bind:checked={enableIPWhitelist} />
+                <span class="toggle-slider"></span>
+              </label>
+            </label>
+            {#if enableIPWhitelist}
+              <textarea
+                bind:value={ipWhitelist}
+                placeholder="192.168.1.0/24&#10;10.0.0.0/8"
+                rows="2"
+              ></textarea>
+            {/if}
+          </div>
+
+          <div class="ip-section">
+            <label class="toggle-item compact">
+              <span
+                ><i class="bi bi-x-circle text-red-500"></i>
+                {tr("settings.security.ip_blacklist")}</span
+              >
+              <label class="toggle">
+                <input type="checkbox" bind:checked={enableIPBlacklist} />
+                <span class="toggle-slider"></span>
+              </label>
+            </label>
+            {#if enableIPBlacklist}
+              <textarea
+                bind:value={ipBlacklist}
+                placeholder="192.168.1.100&#10;10.0.0.50"
+                rows="2"
+              ></textarea>
+            {/if}
+          </div>
+
+          <div class="ip-section">
+            <label class="toggle-item compact">
+              <span
+                ><i class="bi bi-shield-x text-amber-500"></i>
+                {tr("settings.security.block_tor")}</span
+              >
+              <label class="toggle">
+                <input type="checkbox" bind:checked={blockTorExits} />
+                <span class="toggle-slider"></span>
+              </label>
+            </label>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Save Button -->
-    <div class="flex justify-end">
-      <button
-        onclick={savePolicy}
-        disabled={saving}
-        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2 disabled:opacity-50"
-      >
+    <div class="save-section">
+      <button class="btn-save" onclick={savePolicy} disabled={saving}>
         {#if saving}
-          <div
-            class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"
-          ></div>
+          <span class="spinner-small"></span>
         {:else}
           <i class="bi bi-check-lg"></i>
         {/if}
@@ -651,3 +474,471 @@
     </div>
   </div>
 {/if}
+
+<style>
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .security-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .settings-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  @media (max-width: 900px) {
+    .settings-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .setting-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+
+  :global(.dark) .setting-card {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .setting-card.full-width {
+    grid-column: span 2;
+  }
+
+  @media (max-width: 900px) {
+    .setting-card.full-width {
+      grid-column: span 1;
+    }
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  :global(.dark) .card-header {
+    border-bottom-color: #374151;
+  }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .password-icon {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+  :global(.dark) .password-icon {
+    background: rgba(220, 38, 38, 0.2);
+  }
+
+  .twofa-icon {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+  :global(.dark) .twofa-icon {
+    background: rgba(22, 163, 74, 0.2);
+  }
+
+  .session-icon {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+  :global(.dark) .session-icon {
+    background: rgba(37, 99, 235, 0.2);
+  }
+
+  .login-icon {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  :global(.dark) .login-icon {
+    background: rgba(217, 119, 6, 0.2);
+  }
+
+  .ip-icon {
+    background: #f3e8ff;
+    color: #9333ea;
+  }
+  :global(.dark) .ip-icon {
+    background: rgba(147, 51, 234, 0.2);
+  }
+
+  .card-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card-info h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+  }
+
+  :global(.dark) .card-info h3 {
+    color: #f9fafb;
+  }
+
+  .card-info p {
+    font-size: 0.6875rem;
+    color: #6b7280;
+    margin: 0.125rem 0 0;
+  }
+
+  :global(.dark) .card-info p {
+    color: #9ca3af;
+  }
+
+  .card-content {
+    padding: 1rem;
+  }
+
+  /* Compact Grid */
+  .compact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .input-group label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  :global(.dark) .input-group label {
+    color: #9ca3af;
+  }
+
+  .input-group input,
+  .input-group select {
+    padding: 0.375rem 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    font-size: 0.8125rem;
+    background: white;
+    color: #111827;
+  }
+
+  :global(.dark) .input-group input,
+  :global(.dark) .input-group select {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+
+  /* Checkbox Grid */
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.375rem;
+  }
+
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.5rem;
+    background: #f9fafb;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: #374151;
+  }
+
+  :global(.dark) .checkbox-item {
+    background: #374151;
+    color: #e5e7eb;
+  }
+
+  .checkbox-item input {
+    width: 0.875rem;
+    height: 0.875rem;
+    accent-color: #3b82f6;
+  }
+
+  /* Toggle List */
+  .toggle-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .toggle-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.625rem;
+    background: #f9fafb;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    color: #374151;
+  }
+
+  :global(.dark) .toggle-item {
+    background: #374151;
+    color: #e5e7eb;
+  }
+
+  .toggle-item.compact {
+    padding: 0.375rem 0.5rem;
+  }
+
+  .toggle-item span {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  /* Toggle Switch */
+  .toggle {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #d1d5db;
+    border-radius: 20px;
+    transition: 0.2s;
+  }
+
+  :global(.dark) .toggle-slider {
+    background: #4b5563;
+  }
+
+  .toggle-slider::before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.2s;
+  }
+
+  .toggle input:checked + .toggle-slider {
+    background: #3b82f6;
+  }
+
+  .toggle input:checked + .toggle-slider::before {
+    transform: translateX(16px);
+  }
+
+  /* Methods Section */
+  .methods-section {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #f3f4f6;
+  }
+
+  :global(.dark) .methods-section {
+    border-top-color: #4b5563;
+  }
+
+  .methods-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  :global(.dark) .methods-label {
+    color: #9ca3af;
+  }
+
+  .methods-grid {
+    display: flex;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+  }
+
+  .method-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.5rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    font-size: 0.6875rem;
+    cursor: pointer;
+  }
+
+  :global(.dark) .method-item {
+    background: #374151;
+    border-color: #4b5563;
+    color: #e5e7eb;
+  }
+
+  .method-item.active {
+    border-color: #3b82f6;
+    background: #eff6ff;
+  }
+
+  :global(.dark) .method-item.active {
+    background: rgba(59, 130, 246, 0.1);
+  }
+
+  .method-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .method-item input {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  /* IP Grid */
+  .ip-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  @media (max-width: 900px) {
+    .ip-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .ip-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .ip-section textarea {
+    padding: 0.375rem 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-family: monospace;
+    resize: none;
+    background: white;
+    color: #111827;
+  }
+
+  :global(.dark) .ip-section textarea {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+
+  /* Save Section */
+  .save-section {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+
+  .btn-save {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-save:hover:not(:disabled) {
+    background: #2563eb;
+  }
+
+  .btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  /* Utility colors */
+  .text-green-500 {
+    color: #22c55e;
+  }
+  .text-red-500 {
+    color: #ef4444;
+  }
+  .text-amber-500 {
+    color: #f59e0b;
+  }
+</style>

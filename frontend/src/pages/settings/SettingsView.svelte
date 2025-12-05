@@ -35,14 +35,6 @@
 
 <PageWrapper title={tr("settings")} showSidebar={true}>
   <div class="settings-view">
-    <!-- Header -->
-    <div class="view-header">
-      <h1 class="view-title">
-        <i class="bi bi-gear-fill"></i>
-        {tr("settings")}
-      </h1>
-    </div>
-
     <!-- Tab Navigation -->
     <div class="tabs-card">
       <div class="tabs-list">

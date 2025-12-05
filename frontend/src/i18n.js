@@ -2555,6 +2555,12 @@ export const translations = {
       confirm: 'Bestätigen',
       yes: 'Ja',
       no: 'Nein',
+      none: 'Keine',
+      optional: 'Optional',
+      days: 'Tage',
+      hours: 'Stunden',
+      minutes: 'Minuten',
+      hour: 'Stunde',
     },
     
     // Dialog & Input
@@ -5723,6 +5729,12 @@ export const translations = {
       confirm: 'Confirm',
       yes: 'Yes',
       no: 'No',
+      none: 'None',
+      optional: 'Optional',
+      days: 'days',
+      hours: 'hours',
+      minutes: 'minutes',
+      hour: 'hour',
     },
     
     // Dialog & Input
