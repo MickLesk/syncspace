@@ -132,13 +132,16 @@
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-4">
             <div
-              class="p-4 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl shadow-lg"
+              class="p-4 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl shadow-lg"
             >
-              <i class="bi bi-diagram-3-fill text-3xl text-white" aria-hidden="true"></i>
+              <i
+                class="bi bi-diagram-3-fill text-3xl text-white"
+                aria-hidden="true"
+              ></i>
             </div>
             <div>
               <h1
-                class="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent"
+                class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent"
               >
                 {t($currentLang, "workflow.title")}
               </h1>
@@ -230,11 +233,18 @@
           </div>
         {:else if rules.length === 0}
           <div class="text-center py-12 bg-base-200 rounded-lg">
-            <i class="bi bi-gear-wide text-6xl text-base-content/30 mb-4" aria-hidden="true"></i>
+            <i
+              class="bi bi-gear-wide text-6xl text-base-content/30 mb-4"
+              aria-hidden="true"
+            ></i>
             <p class="text-lg text-base-content/70 mb-4">
               {t($currentLang, "workflow.noRules")}
             </p>
-            <button aria-label="Add" onclick={openCreateRule} class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i>
+            <button
+              aria-label="Add"
+              onclick={openCreateRule}
+              class="btn btn-primary"
+              ><i class="bi bi-plus-lg" aria-hidden="true"></i>
               {t($currentLang, "workflow.createFirstRule")}
             </button>
           </div>

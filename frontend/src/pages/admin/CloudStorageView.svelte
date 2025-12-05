@@ -275,7 +275,7 @@
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-4">
             <div
-              class="p-4 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl shadow-lg"
+              class="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-lg"
             >
               <i
                 class="bi bi-cloud-arrow-up text-3xl text-white"
@@ -284,7 +284,7 @@
             </div>
             <div>
               <h1
-                class="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent"
+                class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent"
               >
                 {tr("cloudStorage.title")}
               </h1>
@@ -424,7 +424,8 @@
       <!-- Content -->
       {#if loading}
         <div class="flex justify-center py-20">
-          <span class="loading loading-spinner loading-lg text-green-500"></span>
+          <span class="loading loading-spinner loading-lg text-green-500"
+          ></span>
         </div>
       {:else if selectedTab === "backends"}
         <!-- Backends Tab -->
