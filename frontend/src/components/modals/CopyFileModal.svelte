@@ -185,12 +185,12 @@
         <button
           type="button"
           onclick={() => selectFolder("")}
-          class="w-full text-left px-3 py-2 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors {destinationPath ===
+          class="w-full text-left px-3 py-2 rounded hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors {destinationPath ===
           ''
-            ? 'bg-blue-100 dark:bg-blue-900/40 font-semibold'
+            ? 'bg-green-100 dark:bg-green-900/40 font-semibold'
             : ''}"
         >
-          <i class="bi bi-house-door text-blue-600 dark:text-blue-400 mr-2" aria-hidden="true"></i>
+          <i class="bi bi-house-door text-green-600 dark:text-green-400 mr-2" aria-hidden="true"></i>
           {tr("rootDirectory")}
         </button>
 
@@ -232,8 +232,8 @@
           <button
             type="button"
             onclick={() => selectFolder(folderPath)}
-            class="w-full text-left px-3 py-2 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors {isSelected
-              ? 'bg-blue-100 dark:bg-blue-900/40 font-semibold'
+            class="w-full text-left px-3 py-2 rounded hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors {isSelected
+              ? 'bg-green-100 dark:bg-green-900/40 font-semibold'
               : ''}"
             style="padding-left: {depth * 20 + 12}px"
           >

@@ -338,7 +338,7 @@
             type="text"
             bind:value={formData.display_name}
             placeholder={t($currentLang, "workflow.ruleNamePlaceholder")}
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-transparent"
             required
           />
         </div>
@@ -354,7 +354,7 @@
             id="rule-desc"
             bind:value={formData.description}
             placeholder={t($currentLang, "workflow.descriptionPlaceholder")}
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-transparent"
             rows="2"
           ></textarea>
         </div>
@@ -371,7 +371,7 @@
               id="rule-priority"
               type="number"
               bind:value={formData.priority}
-              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               min="1"
               max="1000"
             />
@@ -384,7 +384,7 @@
             <input
               type="checkbox"
               bind:checked={formData.is_active}
-              class="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+              class="w-4 h-4 rounded border-gray-300 text-green-500 focus:ring-green-500"
             />
             <span class="font-semibold text-gray-700 dark:text-gray-300">
               {t($currentLang, "workflow.activeRule")}
@@ -396,14 +396,14 @@
       <!-- IFTTT-Style Workflow Builder -->
       <!-- Trigger Section -->
       <div
-        class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-2 border-blue-200 dark:border-blue-700"
+        class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border-2 border-green-200 dark:border-green-700"
       >
         <div class="flex items-center gap-2 mb-3">
           <i
-            class="bi bi-lightning-charge text-blue-500 text-xl"
+            class="bi bi-lightning-charge text-green-500 text-xl"
             aria-hidden="true"
           ></i>
-          <h4 class="font-bold text-lg text-blue-700 dark:text-blue-300">
+          <h4 class="font-bold text-lg text-green-700 dark:text-green-300">
             {t($currentLang, "workflow.whenThis")}
           </h4>
         </div>
@@ -418,7 +418,7 @@
           <select
             id="trigger-type"
             bind:value={formData.trigger_type}
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-transparent"
             required
           >
             <option value="">{t($currentLang, "workflow.selectTrigger")}</option
@@ -428,7 +428,7 @@
             {/each}
           </select>
           {#if formData.trigger_type}
-            <p class="mt-1 text-sm text-blue-600 dark:text-blue-400">
+            <p class="mt-1 text-sm text-green-600 dark:text-green-400">
               {getTriggerDescription(formData.trigger_type)}
             </p>
           {/if}
@@ -449,7 +449,7 @@
                     id="trigger-{field.key}"
                     type="checkbox"
                     bind:checked={formData.trigger_config[field.key]}
-                    class="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                    class="w-4 h-4 rounded border-gray-300 text-green-500 focus:ring-green-500"
                   />
                 {:else}
                   <input
@@ -612,7 +612,7 @@
     </button>
     <button
       type="submit"
-      class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+      class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
       disabled={loading}
       onclick={handleSubmit}
     >

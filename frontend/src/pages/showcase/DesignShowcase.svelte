@@ -38,7 +38,7 @@
     <!-- Buttons Section -->
     <div class="mb-12">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        <i class="bi bi-cursor-fill text-blue-500 mr-2" aria-hidden="true"></i>
+        <i class="bi bi-cursor-fill text-green-500 mr-2" aria-hidden="true"></i>
         Buttons
       </h2>
 
@@ -284,9 +284,9 @@
         <ModernCard title="Slide Up Animation" variant="glass">
           {#snippet children()}
             <div
-              class="animate-slide-up p-8 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg text-center"
+              class="animate-slide-up p-8 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg text-center"
             >
-              <i class="bi bi-arrow-up-circle-fill text-4xl text-blue-500 mb-2"
+              <i class="bi bi-arrow-up-circle-fill text-4xl text-green-500 mb-2"
                aria-hidden="true"></i>
               <p class="text-gray-600 dark:text-gray-400">Slides up on load</p>
             </div>
@@ -296,10 +296,10 @@
         <ModernCard title="Float Animation" variant="glass">
           {#snippet children()}
             <div
-              class="p-8 bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg text-center"
+              class="p-8 bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 rounded-lg text-center"
             >
               <i
-                class="bi bi-cloud-fill text-4xl text-blue-500 mb-2 animate-float"
+                class="bi bi-cloud-fill text-4xl text-green-500 mb-2 animate-float"
               ></i>
               <p class="text-gray-600 dark:text-gray-400">
                 Gentle floating effect

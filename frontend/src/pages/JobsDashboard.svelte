@@ -294,16 +294,16 @@
       <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
         <!-- Pending Card -->
         <div
-          class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
+          class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-500/10 to-cyan-600/10 border border-cyan-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-clock-history text-3xl text-blue-500" aria-hidden="true"></i>
+            <i class="bi bi-clock-history text-3xl text-cyan-500" aria-hidden="true"></i>
             <span
-              class="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-500/20 px-3 py-1 rounded-full"
+              class="text-xs font-semibold text-cyan-600 dark:text-cyan-400 bg-cyan-500/20 px-3 py-1 rounded-full"
               >Pending</span
             >
           </div>
-          <div class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+          <div class="text-4xl font-bold text-cyan-600 dark:text-cyan-400 mb-1">
             {stats.pending}
           </div>
           <div class="text-sm text-base-content/60">Waiting to start</div>

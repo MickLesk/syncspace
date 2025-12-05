@@ -78,7 +78,7 @@
     <div class="flex gap-2">
       <button
         class={!showStats
-          ? "px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200"
+          ? "px-4 py-2 rounded text-sm font-medium transition-colors bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200"
           : "px-4 py-2 rounded text-sm font-medium transition-colors text-slate-600 dark:text-slate-400"}
         on:click={() => (showStats = false)}
       >
@@ -88,7 +88,7 @@
 
       <button
         class={showStats
-          ? "px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200"
+          ? "px-4 py-2 rounded text-sm font-medium transition-colors bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200"
           : "px-4 py-2 rounded text-sm font-medium transition-colors text-slate-600 dark:text-slate-400"}
         on:click={() => (showStats = true)}
       >
@@ -112,7 +112,7 @@
     {#if $loading}
       <div class="flex items-center justify-center h-full">
         <div class="animate-spin">
-          <i class="bi bi-hourglass text-2xl text-blue-500" / aria-hidden="true">
+          <i class="bi bi-hourglass text-2xl text-green-500" / aria-hidden="true">
         </div>
       </div>
     {:else if $error}
@@ -129,12 +129,12 @@
         <div class="space-y-4">
           <!-- Stats Grid -->
           <div class="grid grid-cols-2 gap-4">
-            <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded">
-              <p class="text-xs text-blue-600 dark:text-blue-300 font-medium">
+            <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded">
+              <p class="text-xs text-green-600 dark:text-green-300 font-medium">
                 Total Versions
               </p>
               <p
-                class="text-3xl font-bold text-blue-700 dark:text-blue-200 mt-1"
+                class="text-3xl font-bold text-green-700 dark:text-green-200 mt-1"
               >
                 {stats.totalVersions}
               </p>
@@ -194,7 +194,7 @@
                 class="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2"
               >
                 <div
-                  class="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full"
+                  class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full"
                   style="width: {Math.min(
                     100,
                     Math.round(
@@ -229,7 +229,7 @@
               <button
                 type="button"
                 class={version.isCurrent
-                  ? "flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 border-blue-400 bg-blue-50 dark:bg-blue-900/20 w-full text-left"
+                  ? "flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 border-green-400 bg-green-50 dark:bg-green-900/20 w-full text-left"
                   : "flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 border-slate-200 dark:border-slate-700 w-full text-left"}
                 onclick={() => selectVersion(version.id)}
               >
@@ -237,7 +237,7 @@
                 <div class="flex flex-col items-center">
                   <div
                     class={version.isCurrent
-                      ? "w-4 h-4 rounded-full border-2 bg-blue-500 border-blue-500"
+                      ? "w-4 h-4 rounded-full border-2 bg-green-500 border-green-500"
                       : "w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600"}
                   />
                   {#if idx < $versionTimeline.length - 1}
@@ -254,7 +254,7 @@
                       v{version.versionNumber}
                       {#if version.isCurrent}
                         <span
-                          class="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 text-xs font-semibold rounded"
+                          class="ml-2 px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 text-xs font-semibold rounded"
                         >
                           Current
                         </span>
@@ -285,7 +285,7 @@
                     <button
                       on:click|stopPropagation={() =>
                         downloadVersion(filePath, version.versionNumber)}
-                      class="p-2 text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors"
+                      class="p-2 text-slate-600 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 transition-colors"
                       title="Download"
                     >
                       <i class="bi bi-download" / aria-hidden="true">
@@ -369,7 +369,7 @@
                 <button
                   on:click={handleCompare}
                   disabled={!selectedV1 || !selectedV2 || $loading}
-                  class="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-300 text-white rounded text-sm font-medium transition-colors"
+                  class="w-full px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-slate-300 text-white rounded text-sm font-medium transition-colors"
                 >
                   <i class="bi bi-diagram-2 mr-2" / aria-hidden="true">
                   Compare Versions

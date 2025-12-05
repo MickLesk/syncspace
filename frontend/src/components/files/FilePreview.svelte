@@ -63,7 +63,7 @@
             <i class="bi bi-file-earmark-x text-6xl opacity-30" aria-hidden="true"></i>
             <p>{tr("previewNotAvailable")}</p>
             <button
-              class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors flex items-center gap-2"
+              class="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors flex items-center gap-2"
               ><i class="bi bi-download" aria-hidden="true"></i> Download</button
             >
           </div>

@@ -170,7 +170,7 @@
     <!-- Header -->
     <div class="mb-8">
       <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-        <i class="bi bi-cloud text-blue-500 mr-3" aria-hidden="true"></i>{tr("tagCloud.title")}
+        <i class="bi bi-cloud text-green-500 mr-3" aria-hidden="true"></i>{tr("tagCloud.title")}
       </h1>
       <p class="text-gray-600 dark:text-gray-400">
         {tr("tagCloud.description")} • {tags.length}
@@ -348,7 +348,7 @@
           <!-- Selected Tags Card -->
           {#if selectedTagsArray.length > 0}
             <div
-              class="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-800"
+              class="bg-green-50 dark:bg-green-900/20 rounded-2xl p-6 border border-green-200 dark:border-green-800"
             >
               <h3
                 class="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2"
@@ -392,7 +392,7 @@
 
           <!-- Stats Card -->
           <div
-            class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-800"
+            class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 border border-green-200 dark:border-green-800"
           >
             <h3
               class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"

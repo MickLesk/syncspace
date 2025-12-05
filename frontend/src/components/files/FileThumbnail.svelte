@@ -105,7 +105,7 @@
         class="absolute inset-0 bg-gray-50 dark:bg-gray-800/80 rounded-lg flex items-center justify-center"
       >
         <div
-          class="w-4 h-4 border-2 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"
+          class="w-4 h-4 border-2 border-green-200 dark:border-green-900 border-t-green-600 dark:border-t-green-400 rounded-full animate-spin"
         ></div>
       </div>
     {/if}
@@ -131,7 +131,7 @@
   {#if isImage && size === "lg"}
     <div class="absolute top-1 right-1">
       <div
-        class="px-1.5 py-0.5 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded flex items-center gap-1"
+        class="px-1.5 py-0.5 text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded flex items-center gap-1"
       >
         <i class="bi bi-image" aria-hidden="true"></i>
         IMG

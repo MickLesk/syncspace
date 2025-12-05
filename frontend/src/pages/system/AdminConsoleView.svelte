@@ -229,8 +229,8 @@
 
         <!-- Bulk Actions -->
         {#if selectedUsers.size > 0}
-          <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex justify-between items-center">
-            <span class="text-sm font-medium text-blue-900 dark:text-blue-200">
+          <div class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex justify-between items-center">
+            <span class="text-sm font-medium text-green-900 dark:text-green-200">
               {selectedUsers.size} user(s) selected
             </span>
             <div class="flex gap-2">

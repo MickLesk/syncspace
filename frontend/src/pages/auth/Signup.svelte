@@ -75,11 +75,11 @@
     <div class="text-center mb-8">
       <div class="logo-circle">
         <i
-          class="bi bi-cloud-plus-fill text-5xl text-blue-600 dark:text-blue-400"
+          class="bi bi-cloud-plus-fill text-5xl text-green-600 dark:text-green-400"
         ></i>
       </div>
       <h1
-        class="text-4xl font-bold mt-6 mb-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
+        class="text-4xl font-bold mt-6 mb-2 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent"
       >
         {tr("joinSyncSpace")}
       </h1>
@@ -121,7 +121,7 @@
           for="signup-username"
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
-          <i class="bi bi-person-fill mr-2 text-blue-600 dark:text-blue-400"
+          <i class="bi bi-person-fill mr-2 text-green-600 dark:text-green-400"
            aria-hidden="true"></i>{tr("username")}
         </label>
         <div class="relative">
@@ -129,7 +129,7 @@
             id="signup-username"
             type="text"
             bind:value={username}
-            class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder={tr("chooseUsername")}
             disabled={loading}
           />
@@ -145,7 +145,7 @@
           for="signup-email"
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
-          <i class="bi bi-envelope-fill mr-2 text-blue-600 dark:text-blue-400"
+          <i class="bi bi-envelope-fill mr-2 text-green-600 dark:text-green-400"
            aria-hidden="true"></i>{tr("email")}
         </label>
         <div class="relative">
@@ -153,7 +153,7 @@
             id="signup-email"
             type="email"
             bind:value={email}
-            class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder={tr("email")}
             disabled={loading}
           />
@@ -170,7 +170,7 @@
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <i
-            class="bi bi-shield-lock-fill mr-2 text-blue-600 dark:text-blue-400"
+            class="bi bi-shield-lock-fill mr-2 text-green-600 dark:text-green-400"
           ></i>{tr("password")}
         </label>
         <div class="relative">
@@ -179,7 +179,7 @@
               id="signup-password"
               type="text"
               bind:value={password}
-              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder={tr("createStrongPassword")}
               disabled={loading}
             />
@@ -188,7 +188,7 @@
               id="signup-password"
               type="password"
               bind:value={password}
-              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder={tr("createStrongPassword")}
               disabled={loading}
             />
@@ -225,7 +225,7 @@
               id="signup-confirm-password"
               type="text"
               bind:value={confirmPassword}
-              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder={tr("confirmYourPassword")}
               disabled={loading}
             />
@@ -234,7 +234,7 @@
               id="signup-confirm-password"
               type="password"
               bind:value={confirmPassword}
-              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder={tr("confirmYourPassword")}
               disabled={loading}
             />
@@ -259,19 +259,19 @@
           type="checkbox"
           bind:checked={agreedToTerms}
           id="terms"
-          class="w-4 h-4 mt-1 text-blue-600 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 accent-blue-600"
+          class="w-4 h-4 mt-1 text-green-600 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-green-500 accent-green-600"
         />
         <label for="terms" class="text-sm text-gray-700 dark:text-gray-300">
           {tr("iAcceptTerms")}
           <a
             href="#/terms"
-            class="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+            class="text-green-600 dark:text-green-400 hover:underline font-semibold"
             >{tr("termsAndConditions")}</a
           >
           {tr("and")}
           <a
             href="#/privacy"
-            class="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+            class="text-green-600 dark:text-green-400 hover:underline font-semibold"
             >{tr("privacyPolicy")}</a
           >
         </label>
@@ -280,7 +280,7 @@
       <!-- Signup Button -->
       <button
         type="submit"
-        class="w-full py-3.5 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+        class="w-full py-3.5 px-6 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
         disabled={loading}
       >
         {#if loading}
@@ -318,7 +318,7 @@
       {tr("alreadyHaveAccount")}
       <a
         href="#/login"
-        class="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition-colors"
+        class="font-bold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:underline transition-colors"
       >
         {tr("signInHere")}
       </a>

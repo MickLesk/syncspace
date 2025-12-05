@@ -60,7 +60,7 @@
       case "completed":
         return "text-green-600 bg-green-100";
       case "running":
-        return "text-blue-600 bg-blue-100";
+        return "text-orange-600 bg-orange-100";
       case "pending":
         return "text-yellow-600 bg-yellow-100";
       case "failed":
@@ -121,7 +121,7 @@
 
       <button
         onclick={() => loadJobs()}
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
       >
         <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
         {$t("refresh")}
@@ -132,7 +132,7 @@
     {#if loading && jobs.length === 0}
       <div class="text-center py-12">
         <div
-          class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+          class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"
         ></div>
         <p class="mt-4 text-gray-500 dark:text-gray-400">{$t("loading")}</p>
       </div>
@@ -221,7 +221,7 @@
                         class="h-full transition-all duration-300 {job.status ===
                         'failed'
                           ? 'bg-red-500'
-                          : 'bg-blue-600'}"
+                          : 'bg-green-600'}"
                         style="width: {job.progress}%"
                       ></div>
                     </div>

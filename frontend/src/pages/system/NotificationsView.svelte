@@ -206,7 +206,7 @@
                           ? 'bg-green-500/20 text-green-500'
                           : ''}
                         {notification.type === 'info'
-                          ? 'bg-blue-500/20 text-blue-500'
+                          ? 'bg-cyan-500/20 text-cyan-500'
                           : ''}
                         {notification.type === 'warning'
                           ? 'bg-yellow-500/20 text-yellow-500'

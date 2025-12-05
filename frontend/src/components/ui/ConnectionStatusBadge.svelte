@@ -40,8 +40,8 @@
       [WS_STATES.CONNECTING]: {
         icon: 'bi-wifi-1',
         label: 'Verbinden...',
-        color: 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300',
-        dotColor: 'bg-blue-500 animate-pulse',
+        color: 'bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300',
+        dotColor: 'bg-cyan-500 animate-pulse',
         show: true,
       },
       [WS_STATES.RECONNECTING]: {

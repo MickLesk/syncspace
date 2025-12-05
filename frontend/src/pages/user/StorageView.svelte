@@ -28,7 +28,7 @@
       const byType = [];
       if (data.by_type) {
         const typeColors = {
-          Documents: "bg-blue-500",
+          Documents: "bg-teal-500",
           Images: "bg-green-500",
           Videos: "bg-purple-500",
           Audio: "bg-yellow-500",
@@ -54,7 +54,7 @@
           byType.length > 0
             ? byType
             : [
-                { type: "Documents", size: 0, count: 0, color: "bg-blue-500" },
+                { type: "Documents", size: 0, count: 0, color: "bg-teal-500" },
                 { type: "Images", size: 0, count: 0, color: "bg-green-500" },
                 { type: "Videos", size: 0, count: 0, color: "bg-purple-500" },
                 { type: "Other", size: 0, count: 0, color: "bg-gray-500" },
@@ -68,7 +68,7 @@
         total: 10 * 1024 * 1024 * 1024,
         percentage: 0,
         byType: [
-          { type: "Documents", size: 0, count: 0, color: "bg-blue-500" },
+          { type: "Documents", size: 0, count: 0, color: "bg-teal-500" },
           { type: "Images", size: 0, count: 0, color: "bg-green-500" },
           { type: "Videos", size: 0, count: 0, color: "bg-purple-500" },
           { type: "Other", size: 0, count: 0, color: "bg-gray-500" },

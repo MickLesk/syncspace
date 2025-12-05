@@ -610,7 +610,7 @@
         {:else if previewType === "word"}
           <div class="preview-word-container">
             <div class="word-toolbar">
-              <i class="bi bi-file-earmark-word text-2xl text-blue-600" aria-hidden="true"></i>
+              <i class="bi bi-file-earmark-word text-2xl text-green-600" aria-hidden="true"></i>
               <span class="font-semibold">Word Document</span>
             </div>
             <div class="word-content">

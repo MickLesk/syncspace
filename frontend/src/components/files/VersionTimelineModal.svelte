@@ -246,9 +246,9 @@
         class="flex justify-between items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700"
       >
         <div class="flex items-center gap-3">
-          <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+          <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
             <i
-              class="bi bi-clock-history text-xl text-blue-600 dark:text-blue-400"
+              class="bi bi-clock-history text-xl text-green-600 dark:text-green-400"
             ></i>
           </div>
           <div>
@@ -272,7 +272,7 @@
         <button
           class="px-4 py-3 text-sm font-medium border-b-2 transition-colors {activeTab ===
           'timeline'
-            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+            ? 'border-green-500 text-green-600 dark:text-green-400'
             : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}"
           onclick={() => (activeTab = "timeline")}
         >
@@ -283,7 +283,7 @@
         <button
           class="px-4 py-3 text-sm font-medium border-b-2 transition-colors {activeTab ===
           'stats'
-            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+            ? 'border-green-500 text-green-600 dark:text-green-400'
             : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}"
           onclick={() => (activeTab = "stats")}
         >
@@ -294,7 +294,7 @@
         <button
           class="px-4 py-3 text-sm font-medium border-b-2 transition-colors {activeTab ===
           'diff'
-            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+            ? 'border-green-500 text-green-600 dark:text-green-400'
             : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}"
           onclick={() => (activeTab = "diff")}
           disabled={!selectedVersions.from || !selectedVersions.to}
@@ -310,7 +310,7 @@
         {#if loading}
           <div class="flex justify-center items-center h-full">
             <div
-              class="w-12 h-12 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"
+              class="w-12 h-12 border-4 border-green-200 dark:border-green-900 border-t-green-600 dark:border-t-green-400 rounded-full animate-spin"
             ></div>
           </div>
         {:else if activeTab === "timeline"}
@@ -331,7 +331,7 @@
                       <div
                         class="w-10 h-10 rounded-full flex items-center justify-center
                         {index === 0
-                          ? 'bg-blue-500 text-white'
+                          ? 'bg-green-500 text-white'
                           : 'bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600'}"
                       >
                         <span class="text-sm font-bold"
@@ -354,7 +354,7 @@
                           </span>
                           {#if index === 0}
                             <span
-                              class="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full"
+                              class="px-2 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 rounded-full"
                             >
                               {tr("versions.current")}
                             </span>
@@ -496,7 +496,7 @@
                           class="px-3 py-1 text-xs rounded-lg border transition-colors
                             {selectedVersions.from?.version.id ===
                           version.version.id
-                            ? 'bg-blue-600 text-white border-blue-600'
+                            ? 'bg-green-600 text-white border-green-600'
                             : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'}"
                           onclick={() => selectVersionForDiff(version, "from")}
                         >
@@ -506,7 +506,7 @@
                           class="px-3 py-1 text-xs rounded-lg border transition-colors
                             {selectedVersions.to?.version.id ===
                           version.version.id
-                            ? 'bg-blue-600 text-white border-blue-600'
+                            ? 'bg-green-600 text-white border-green-600'
                             : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'}"
                           onclick={() => selectVersionForDiff(version, "to")}
                         >
@@ -535,12 +535,12 @@
           <!-- Storage Stats -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div
-              class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl p-4"
+              class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-xl p-4"
             >
-              <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">
+              <div class="text-3xl font-bold text-green-600 dark:text-green-400">
                 {timeline?.stats?.version_count || 0}
               </div>
-              <div class="text-sm text-blue-700 dark:text-blue-300">
+              <div class="text-sm text-green-700 dark:text-green-300">
                 {tr("versions.totalVersions")}
               </div>
             </div>
@@ -622,7 +622,7 @@
           {#if loadingDiff}
             <div class="flex justify-center items-center h-full">
               <div
-                class="w-12 h-12 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"
+                class="w-12 h-12 border-4 border-green-200 dark:border-green-900 border-t-green-600 dark:border-t-green-400 rounded-full animate-spin"
               ></div>
             </div>
           {:else if diffContent}
@@ -763,7 +763,7 @@
           </div>
           <input
             type="text"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
             placeholder={tr("versions.tagNamePlaceholder")}
             bind:value={newTag.name}
           />
@@ -819,7 +819,7 @@
           {tr("common.cancel")}
         </button>
         <button
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+          class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
           onclick={handleAddTag}
           disabled={!newTag.name.trim()}
         >
@@ -881,7 +881,7 @@
           {tr("common.cancel")}
         </button>
         <button
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+          class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
           onclick={handleRestore}
           disabled={!restoreComment.trim()}
         >

@@ -148,7 +148,7 @@
           bind:value={name}
           type="text"
           placeholder="My Smart Folder"
-          class="w-full px-3 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
+          class="w-full px-3 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-green-500"
         />
       </div>
 
@@ -158,7 +158,7 @@
           bind:value={description}
           placeholder="Optional description..."
           rows="2"
-          class="w-full px-3 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
+          class="w-full px-3 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-green-500"
         ></textarea>
       </div>
 
@@ -169,7 +169,7 @@
             bind:value={icon}
             type="text"
             placeholder="bi-folder-fill"
-            class="w-full px-2 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 text-sm"
+            class="w-full px-2 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-green-500 text-sm"
           />
         </div>
 
@@ -184,7 +184,7 @@
             <input
               bind:value={color}
               type="text"
-              class="flex-1 px-2 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 text-sm"
+              class="flex-1 px-2 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-green-500 text-sm"
             />
           </div>
         </div>
@@ -193,7 +193,7 @@
           <div class="block text-sm font-medium">{tr('smartFolders.logic')} *</div>
           <select
             bind:value={logic}
-            class="w-full px-3 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
+            class="w-full px-3 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-green-500"
           >
             <option value="AND">AND (all conditions)</option>
             <option value="OR">OR (any condition)</option>
@@ -207,7 +207,7 @@
       <h3 class="text-sm font-medium text-gray-900 dark:text-white">{tr('smartFolders.conditions')}</h3>
 
       <!-- Add Condition Form -->
-      <div class="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
+      <div class="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800">
         <div class="grid grid-cols-3 gap-2 mb-2">
           <select
             bind:value={newCondition.field}
@@ -237,7 +237,7 @@
 
         <button
           onclick={addCondition}
-          class="w-full px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition flex items-center justify-center gap-1"
+          class="w-full px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition flex items-center justify-center gap-1"
         >
           <i class="bi bi-plus" aria-hidden="true"></i>
           {tr('smartFolders.addCondition')}
@@ -252,7 +252,7 @@
               <span class="text-gray-700 dark:text-gray-300">
                 <strong>{fieldOptions.find((f) => f.value === condition.field)?.label}</strong>
                 {tr(`smartFolders.operators.${condition.operator}`)}
-                <span class="font-mono text-blue-600 dark:text-blue-400">"{condition.value}"</span>
+                <span class="font-mono text-green-600 dark:text-green-400">"{condition.value}"</span>
               </span>
 
               <button aria-label="Delete" onclick={() => removeCondition(idx)} class="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition"><i class="bi bi-trash" aria-hidden="true"></i></button>
@@ -313,7 +313,7 @@
       <button
         onclick={handleSave}
         disabled={isSaving}
-        class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition flex items-center gap-2"
+        class="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition flex items-center gap-2"
       >
         {#if isSaving}
           <i class="bi bi-hourglass-split animate-spin" aria-hidden="true"></i>

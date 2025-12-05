@@ -306,7 +306,7 @@
         <div class="p-6 space-y-4">
           <div class="flex items-center gap-3 mb-4">
             <i
-              class="bi bi-info-circle-fill text-2xl text-blue-600 dark:text-blue-400"
+              class="bi bi-info-circle-fill text-2xl text-green-600 dark:text-green-400"
             ></i>
             <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
               {tr("securityTips")}

@@ -109,7 +109,7 @@
         type="text"
         bind:value={searchQuery}
         placeholder={tr("searchUsers")}
-        class="w-full px-4 py-2 pl-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="w-full px-4 py-2 pl-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
       />
       <i
         class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -144,7 +144,7 @@
   {#if loading}
     <div class="flex justify-center py-12">
       <div
-        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"
       ></div>
     </div>
   {:else if filteredUsers.length === 0}
@@ -158,9 +158,9 @@
         <button
           type="button"
           onclick={() => handleUserClick(user)}
-          class="w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-          class:border-blue-500={isUserSelected(user)}
-          class:bg-blue-50={isUserSelected(user)}
+          class="w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20"
+          class:border-green-500={isUserSelected(user)}
+          class:bg-green-50={isUserSelected(user)}
           class:border-gray-200={!isUserSelected(user)}
         >
           <!-- Avatar -->
@@ -173,7 +173,7 @@
               />
             {:else}
               <div
-                class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold"
+                class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white font-semibold"
               >
                 {getAvatarInitials(user)}
               </div>
@@ -207,7 +207,7 @@
           <!-- Selection Indicator -->
           {#if isUserSelected(user)}
             <div class="flex-shrink-0">
-              <i class="bi bi-check-circle-fill text-blue-500 text-xl" aria-hidden="true"></i>
+              <i class="bi bi-check-circle-fill text-green-500 text-xl" aria-hidden="true"></i>
             </div>
           {/if}
         </button>
@@ -227,7 +227,7 @@
     <button
       type="button"
       onclick={() => (isOpen = false)}
-      class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+      class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
     >
       {tr("done")}
     </button>

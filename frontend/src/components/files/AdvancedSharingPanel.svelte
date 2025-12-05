@@ -82,7 +82,7 @@
     class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700"
   >
     <div class="flex items-center gap-2">
-      <i class="bi bi-share text-lg text-blue-500" / aria-hidden="true">
+      <i class="bi bi-share text-lg text-green-500" / aria-hidden="true">
       <span class="font-medium text-slate-900 dark:text-white">
         Shares ({$activeShares.length})
       </span>
@@ -91,7 +91,7 @@
     {#if !readOnly}
       <button
         on:click={() => (showCreateForm = !showCreateForm)}
-        class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm font-medium transition-colors"
+        class="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded text-sm font-medium transition-colors"
       >
         <i class="bi bi-plus" / aria-hidden="true">
         New Share
@@ -104,7 +104,7 @@
     {#if $loading}
       <div class="flex items-center justify-center h-full">
         <div class="animate-spin">
-          <i class="bi bi-hourglass text-2xl text-blue-500" / aria-hidden="true">
+          <i class="bi bi-hourglass text-2xl text-green-500" / aria-hidden="true">
         </div>
       </div>
     {:else if $error}
@@ -117,8 +117,8 @@
     {:else}
       <!-- Create Form -->
       {#if showCreateForm && !readOnly}
-        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded mb-4 space-y-3">
-          <h3 class="font-medium text-blue-900 dark:text-blue-100">
+        <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded mb-4 space-y-3">
+          <h3 class="font-medium text-green-900 dark:text-green-100">
             Create New Share
           </h3>
 
@@ -184,7 +184,7 @@
           <div class="flex gap-2">
             <button
               on:click={handleCreateShare}
-              class="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm font-medium transition-colors"
+              class="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded text-sm font-medium transition-colors"
             >
               <i class="bi bi-check" / aria-hidden="true">
               Create Share

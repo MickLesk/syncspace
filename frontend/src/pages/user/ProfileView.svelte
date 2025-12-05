@@ -580,7 +580,7 @@
 
           <div class="space-y-4">
             <div
-              class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4"
+              class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4"
             >
               <h3
                 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2"

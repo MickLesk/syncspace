@@ -63,7 +63,7 @@
                 class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group"
               >
                 <i
-                  class="bi bi-folder-fill text-2xl text-blue-500 group-hover:scale-110 transition-transform"
+                  class="bi bi-folder-fill text-2xl text-green-500 group-hover:scale-110 transition-transform"
                 ></i>
                 <span
                   class="text-sm font-medium text-gray-700 dark:text-gray-300"

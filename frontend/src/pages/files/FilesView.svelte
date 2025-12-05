@@ -1224,11 +1224,11 @@
     <!-- Search Mode Banner -->
     {#if isSearchMode}
       <div
-        class="mb-4 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-cyan-500/10 dark:from-blue-500/20 dark:via-purple-500/20 dark:to-cyan-500/20 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 rounded-2xl p-4 flex items-center justify-between shadow-lg"
+        class="mb-4 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-teal-500/10 dark:from-green-500/20 dark:via-emerald-500/20 dark:to-teal-500/20 backdrop-blur-sm border border-green-200/50 dark:border-green-700/50 rounded-2xl p-4 flex items-center justify-between shadow-lg"
       >
         <div class="flex items-center gap-3">
           <svg
-            class="w-5 h-5 text-blue-600 dark:text-blue-400"
+            class="w-5 h-5 text-green-600 dark:text-green-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -1241,10 +1241,10 @@
             />
           </svg>
           <div>
-            <div class="text-sm font-medium text-blue-900 dark:text-blue-100">
+            <div class="text-sm font-medium text-green-900 dark:text-green-100">
               {tr("searchResults")}
             </div>
-            <div class="text-xs text-blue-700 dark:text-blue-300">
+            <div class="text-xs text-green-700 dark:text-green-300">
               {tr("found")}
               {searchResults.length}
               {searchResults.length === 1 ? tr("item") : tr("items")}
@@ -1254,7 +1254,7 @@
         </div>
         <button
           onclick={exitSearchMode}
-          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
         >
           <svg
             class="w-4 h-4"

@@ -135,7 +135,7 @@
             <a
               href={`/api/files/${currentFile.path || currentFile.name}`}
               target="_blank"
-              class="mt-4 inline-block px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded transition-colors"
+              class="mt-4 inline-block px-4 py-2 bg-green-500 hover:bg-green-600 rounded transition-colors"
             >
               Open PDF
             </a>
@@ -204,7 +204,7 @@
               a.download = currentFile.name;
               a.click();
             }}
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
           >
             <i class="bi bi-download" aria-hidden="true"></i> Download
           </button>

@@ -135,10 +135,10 @@
     <button
       class:active={activeTab === "tags"}
       class="px-4 py-2 rounded text-sm font-medium transition-colors"
-      class:bg-blue-100={activeTab === "tags"}
-      class:dark:bg-blue-900={activeTab === "tags"}
-      class:text-blue-700={activeTab === "tags"}
-      class:dark:text-blue-200={activeTab === "tags"}
+      class:bg-green-100={activeTab === "tags"}
+      class:dark:bg-green-900={activeTab === "tags"}
+      class:text-green-700={activeTab === "tags"}
+      class:dark:text-green-200={activeTab === "tags"}
       class:text-slate-600={activeTab !== "tags"}
       class:dark:text-slate-400={activeTab !== "tags"}
       on:click={() => (activeTab = "tags")}
@@ -150,10 +150,10 @@
     <button
       class:active={activeTab === "comments"}
       class="px-4 py-2 rounded text-sm font-medium transition-colors"
-      class:bg-blue-100={activeTab === "comments"}
-      class:dark:bg-blue-900={activeTab === "comments"}
-      class:text-blue-700={activeTab === "comments"}
-      class:dark:text-blue-200={activeTab === "comments"}
+      class:bg-green-100={activeTab === "comments"}
+      class:dark:bg-green-900={activeTab === "comments"}
+      class:text-green-700={activeTab === "comments"}
+      class:dark:text-green-200={activeTab === "comments"}
       class:text-slate-600={activeTab !== "comments"}
       class:dark:text-slate-400={activeTab !== "comments"}
       on:click={() => (activeTab = "comments")}
@@ -168,7 +168,7 @@
     {#if $loading}
       <div class="flex items-center justify-center h-full">
         <div class="animate-spin">
-          <i class="bi bi-hourglass text-2xl text-blue-500" / aria-hidden="true">
+          <i class="bi bi-hourglass text-2xl text-green-500" / aria-hidden="true">
         </div>
       </div>
     {:else if $error}
@@ -216,7 +216,7 @@
               <button
                 on:click={handleAddTag}
                 disabled={!newTagName.trim()}
-                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-300 text-white rounded text-sm font-medium transition-colors"
+                class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-slate-300 text-white rounded text-sm font-medium transition-colors"
               >
                 <i class="bi bi-plus" / aria-hidden="true">
               </button>
@@ -274,7 +274,7 @@
                 <div class="flex items-start justify-between">
                   <div class="flex items-center gap-2">
                     <div
-                      class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold"
+                      class="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-xs font-bold"
                     >
                       {comment.author?.[0]?.toUpperCase() || "?"}
                     </div>
@@ -294,7 +294,7 @@
                     <div class="flex gap-1">
                       <button
                         on:click={() => startEdit(comment)}
-                        class="text-blue-500 hover:text-blue-700 text-sm"
+                        class="text-green-500 hover:text-green-700 text-sm"
                         title="Edit"
                       >
                         <i class="bi bi-pencil" / aria-hidden="true">
@@ -321,7 +321,7 @@
                     <div class="flex gap-2">
                       <button
                         on:click={handleEditComment}
-                        class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm"
+                        class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm"
                       >
                         Save
                       </button>
@@ -353,7 +353,7 @@
                   {#if !readOnly}
                     <button
                       on:click={() => startReply(comment.id)}
-                      class="text-sm text-blue-500 hover:text-blue-700 flex items-center gap-1"
+                      class="text-sm text-green-500 hover:text-green-700 flex items-center gap-1"
                     >
                       <i class="bi bi-reply" / aria-hidden="true">
                       Reply
@@ -411,7 +411,7 @@
           >
             {#if replyingToId}
               <div
-                class="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-sm text-blue-700 dark:text-blue-200"
+                class="mb-3 p-2 bg-green-50 dark:bg-green-900/20 rounded text-sm text-green-700 dark:text-green-200"
               >
                 Replying to comment...
                 <button
@@ -435,7 +435,7 @@
               <button
                 on:click={handleAddComment}
                 disabled={!newCommentText.trim()}
-                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-300 text-white rounded text-sm font-medium"
+                class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-slate-300 text-white rounded text-sm font-medium"
               >
                 Post Comment
               </button>

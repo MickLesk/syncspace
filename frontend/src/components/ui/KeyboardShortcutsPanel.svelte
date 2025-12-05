@@ -77,7 +77,7 @@
             type="button"
             onclick={() => (os = osOption)}
             class="px-3 py-1 rounded text-sm font-medium transition-colors"
-            class:bg-blue-500={os === osOption}
+            class:bg-green-500={os === osOption}
             class:text-white={os === osOption}
             class:bg-gray-200={os !== osOption}
             class:dark:bg-gray-700={os !== osOption}
@@ -117,7 +117,7 @@
 
       <!-- Tips Section -->
       <div
-        class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/20"
+        class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-green-50 dark:bg-green-900/20"
       >
         <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-2">
           💡 Tips
@@ -135,7 +135,7 @@
         <button
           type="button"
           onclick={onClose}
-          class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
+          class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
         >
           Close
         </button>

@@ -144,11 +144,11 @@
     <!-- Logo Section -->
     <div class="text-center mb-8">
       <div class="logo-circle">
-        <i class="bi bi-cloud-fill text-5xl text-blue-600 dark:text-blue-400"
+        <i class="bi bi-cloud-fill text-5xl text-green-600 dark:text-green-400"
          aria-hidden="true"></i>
       </div>
       <h1
-        class="text-4xl font-bold mt-6 mb-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
+        class="text-4xl font-bold mt-6 mb-2 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent"
       >
         SyncSpace
       </h1>
@@ -177,7 +177,7 @@
           for="username-input"
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
-          <i class="bi bi-person-fill mr-2 text-blue-600 dark:text-blue-400"
+          <i class="bi bi-person-fill mr-2 text-green-600 dark:text-green-400"
            aria-hidden="true"></i>{tr("username")}
         </label>
         <div class="relative">
@@ -185,7 +185,7 @@
             id="username-input"
             type="text"
             bind:value={username}
-            class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder={tr("enterUsername")}
             disabled={loginInProgress}
           />
@@ -202,7 +202,7 @@
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           <i
-            class="bi bi-shield-lock-fill mr-2 text-blue-600 dark:text-blue-400"
+            class="bi bi-shield-lock-fill mr-2 text-green-600 dark:text-green-400"
           ></i>{tr("password")}
         </label>
         <div class="relative">
@@ -211,7 +211,7 @@
               id="password-input"
               type="text"
               bind:value={password}
-              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder={tr("enterPassword")}
               disabled={loginInProgress}
             />
@@ -220,7 +220,7 @@
               id="password-input"
               type="password"
               bind:value={password}
-              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full px-4 py-3 pl-12 pr-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-500/20 outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder={tr("enterPassword")}
               disabled={loginInProgress}
             />
@@ -273,10 +273,10 @@
           <input
             type="checkbox"
             bind:checked={rememberMe}
-            class="w-4 h-4 text-blue-600 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 accent-blue-600"
+            class="w-4 h-4 text-green-600 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-green-500 accent-green-600"
           />
           <span
-            class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+            class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors"
             >{tr("rememberMe")}</span
           >
         </label>
@@ -285,7 +285,7 @@
       <!-- Login Button -->
       <button
         type="submit"
-        class="w-full py-3.5 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+        class="w-full py-3.5 px-6 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
         disabled={loginInProgress}
       >
         {#if loginInProgress}

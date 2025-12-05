@@ -124,7 +124,7 @@
   function getActionColor(action) {
     switch (action) {
       case "view":
-        return "text-blue-500";
+        return "text-cyan-500";
       case "download":
         return "text-green-500";
       case "upload":
@@ -162,7 +162,7 @@
   {#if loading}
     <div class="flex justify-center py-12">
       <div
-        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"
       ></div>
     </div>
   {:else if analytics}
@@ -179,9 +179,9 @@
             </p>
           </div>
           <div
-            class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center"
+            class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center"
           >
-            <i class="bi bi-eye text-2xl text-blue-500" aria-hidden="true"></i>
+            <i class="bi bi-eye text-2xl text-green-500" aria-hidden="true"></i>
           </div>
         </div>
       </div>
@@ -240,7 +240,7 @@
                 class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-8 relative overflow-hidden"
               >
                 <div
-                  class="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full flex items-center justify-end px-3"
+                  class="bg-gradient-to-r from-green-500 to-green-600 h-full rounded-full flex items-center justify-end px-3"
                   style="width: {Math.min(
                     100,
                     (day.views / Math.max(...chartData().map((d) => d.views))) *
@@ -272,7 +272,7 @@
           {#each topUsers() as user, index}
             <div class="flex items-center gap-3">
               <div
-                class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm"
+                class="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white font-semibold text-sm"
               >
                 #{index + 1}
               </div>
@@ -282,7 +282,7 @@
                 </p>
               </div>
               <span
-                class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded-full text-sm font-medium"
+                class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded-full text-sm font-medium"
               >
                 {user.count}
                 {tr("views")}

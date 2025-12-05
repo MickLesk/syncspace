@@ -187,7 +187,7 @@
       {#if loading}
         <div class="flex justify-center items-center py-8 px-6">
           <div
-            class="w-12 h-12 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"
+            class="w-12 h-12 border-4 border-green-200 dark:border-green-900 border-t-green-600 dark:border-t-green-400 rounded-full animate-spin"
           ></div>
         </div>
       {:else}
@@ -219,7 +219,7 @@
                         >
                         {#if version.is_current}
                           <span
-                            class="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded-full"
+                            class="px-2 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded-full"
                             >Current</span
                           >
                         {/if}
@@ -289,7 +289,7 @@
                     <button
                       class="px-3 py-1 text-xs rounded-lg border transition-colors {selectedVersions
                         .from?.id === version.id
-                        ? 'bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500'
+                        ? 'bg-green-600 dark:bg-green-500 text-white border-green-600 dark:border-green-500'
                         : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}"
                       onclick={() => selectVersionForDiff(version, "from")}
                     >
@@ -298,7 +298,7 @@
                     <button
                       class="px-3 py-1 text-xs rounded-lg border transition-colors {selectedVersions
                         .to?.id === version.id
-                        ? 'bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500'
+                        ? 'bg-green-600 dark:bg-green-500 text-white border-green-600 dark:border-green-500'
                         : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}"
                       onclick={() => selectVersionForDiff(version, "to")}
                     >
@@ -411,7 +411,7 @@
             >Restore Comment *</span
           >
           <textarea
-            class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-shadow"
+            class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent transition-shadow"
             placeholder="Reason for restoring this version..."
             bind:value={restoreComment}
             rows="3"
@@ -423,7 +423,7 @@
         class="flex justify-end gap-2 px-6 pb-6 pt-4 border-t border-gray-200 dark:border-gray-700"
       >
         <button
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+          class="px-4 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-500 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
           onclick={() => restoreVersion(versionToRestore)}
         >
           Restore Version

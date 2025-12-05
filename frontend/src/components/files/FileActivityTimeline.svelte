@@ -123,8 +123,8 @@
   function getActivityColor(action) {
     const colorMap = {
       create: "text-green-500",
-      upload: "text-blue-500",
-      download: "text-blue-500",
+      upload: "text-green-500",
+      download: "text-green-500",
       view: "text-gray-500",
       edit: "text-orange-500",
       delete: "text-red-500",

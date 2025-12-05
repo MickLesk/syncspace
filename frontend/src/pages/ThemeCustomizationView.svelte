@@ -76,7 +76,7 @@
           on:click={() => handlePresetClick(key)}
           class="p-4 rounded-lg border-2 transition-all hover:shadow-md {$currentPresetName ===
           key
-            ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20'
+            ? 'border-green-500 bg-green-50 dark:border-green-400 dark:bg-green-900/20'
             : 'border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-800'}"
         >
           <div class="flex gap-2 mb-3 h-6">
@@ -101,7 +101,7 @@
           </p>
           {#if $currentPresetName === key}
             <div
-              class="mt-2 text-xs text-blue-600 dark:text-blue-400 flex items-center"
+              class="mt-2 text-xs text-green-600 dark:text-green-400 flex items-center"
             >
               <i class="bi bi-check-circle mr-1" aria-hidden="true"></i>
               {t("theme.active")}
@@ -324,7 +324,7 @@
     <div class="flex gap-4">
       <button
         on:click={() => customTheme.export()}
-        class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center"
+        class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center justify-center"
       >
         <i class="bi bi-download mr-2" aria-hidden="true"></i>
         {t("theme.export")}

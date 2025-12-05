@@ -103,14 +103,14 @@
           type="text"
           placeholder={$t('backup.search_placeholder')}
           bind:value={$searchQuery}
-          class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
         />
       </div>
 
       <!-- Filter by type -->
       <select
         bind:value={$filterType}
-        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
       >
         <option value="all">{$t('backup.all_types')}</option>
         <option value="full">{$t('backup.type_full')}</option>
@@ -121,7 +121,7 @@
       <!-- Sort by -->
       <select
         bind:value={$sortBy}
-        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
       >
         <option value="date">{$t('backup.sort_date')}</option>
         <option value="size">{$t('backup.sort_size')}</option>
@@ -143,7 +143,7 @@
     <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
       <button
         on:click={exportBackupList}
-        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center gap-2"
+        class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition flex items-center gap-2"
       >
         <i class="bi bi-download" aria-hidden="true"></i>
         {$t('backup.export_list')}
@@ -270,7 +270,7 @@
               <!-- Type Icon -->
               <div class="text-2xl">
                 {#if backup.type === 'full'}
-                  <i class="bi bi-folder-fill text-blue-500" aria-hidden="true"></i>
+                  <i class="bi bi-folder-fill text-green-500" aria-hidden="true"></i>
                 {:else if backup.type === 'incremental'}
                   <i class="bi bi-arrow-up-circle-fill text-green-500" aria-hidden="true"></i>
                 {:else}
@@ -342,8 +342,8 @@
               </div>
 
               {#if backup.notes}
-                <div class="mb-6 p-3 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg">
-                  <div class="text-sm text-blue-900 dark:text-blue-200">
+                <div class="mb-6 p-3 bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg">
+                  <div class="text-sm text-green-900 dark:text-green-200">
                     <i class="bi bi-info-circle mr-2" aria-hidden="true"></i>
                     {backup.notes}
                   </div>
@@ -360,7 +360,7 @@
                 </button>
                 <button
                   on:click={() => verifyBackup(backup.id)}
-                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center justify-center gap-2"
+                  class="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg transition flex items-center justify-center gap-2"
                 >
                   <i class="bi bi-shield-check" aria-hidden="true"></i>
                   {$t('backup.verify')}

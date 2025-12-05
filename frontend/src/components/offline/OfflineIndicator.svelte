@@ -43,10 +43,10 @@
         {:else if $isSyncing}
           <div class="flex items-center gap-2">
             <i
-              class="bi bi-arrow-clockwise animate-spin text-blue-600 dark:text-blue-400 text-lg flex-shrink-0"
+              class="bi bi-arrow-clockwise animate-spin text-green-600 dark:text-green-400 text-lg flex-shrink-0"
             ></i>
             <span
-              class="text-sm font-semibold text-blue-900 dark:text-blue-100 truncate"
+              class="text-sm font-semibold text-green-900 dark:text-green-100 truncate"
             >
               {"Syncing {" + $offlineQueue.length + "} pending changes..."}
             </span>
@@ -87,7 +87,7 @@
         {:else if $offlineQueue.length > 0 && $isOnline}
           <button
             onclick={() => offlineManager.syncOfflineQueue()}
-            class="px-3 py-1 text-xs font-medium rounded-md bg-blue-600 hover:bg-blue-700 text-white transition"
+            class="px-3 py-1 text-xs font-medium rounded-md bg-green-600 hover:bg-green-700 text-white transition"
           >
             Sync Now
           </button>
@@ -136,7 +136,7 @@
     </div>
   {:else if $isSyncing}
     <div
-      class="px-3 py-2 rounded-lg bg-blue-600 dark:bg-blue-700 text-white text-xs font-medium shadow-lg flex items-center gap-2"
+      class="px-3 py-2 rounded-lg bg-green-600 dark:bg-green-700 text-white text-xs font-medium shadow-lg flex items-center gap-2"
     >
       <i class="bi bi-arrow-clockwise animate-spin" aria-hidden="true"></i>
       Syncing ({$offlineQueue.length})

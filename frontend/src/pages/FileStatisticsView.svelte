@@ -26,7 +26,7 @@
     const intensity = value / max;
     if (intensity > 0.75) return 'bg-red-500';
     if (intensity > 0.5) return 'bg-yellow-500';
-    if (intensity > 0.25) return 'bg-blue-400';
+    if (intensity > 0.25) return 'bg-green-400';
     return 'bg-gray-300 dark:bg-gray-600';
   }
 </script>
@@ -48,7 +48,7 @@
     <button
       on:click={() => handleMetricChange('byType')}
       class="px-4 py-2 rounded-lg font-medium transition-all"
-      class:bg-blue-600={selectedMetric === 'byType'}
+      class:bg-green-600={selectedMetric === 'byType'}
       class:text-white={selectedMetric === 'byType'}
       class:bg-gray-200={selectedMetric !== 'byType'}
       class:text-gray-700={selectedMetric !== 'byType'}
@@ -62,7 +62,7 @@
     <button
       on:click={() => handleMetricChange('bySize')}
       class="px-4 py-2 rounded-lg font-medium transition-all"
-      class:bg-blue-600={selectedMetric === 'bySize'}
+      class:bg-green-600={selectedMetric === 'bySize'}
       class:text-white={selectedMetric === 'bySize'}
       class:bg-gray-200={selectedMetric !== 'bySize'}
       class:text-gray-700={selectedMetric !== 'bySize'}
@@ -76,7 +76,7 @@
     <button
       on:click={() => handleMetricChange('byAccess')}
       class="px-4 py-2 rounded-lg font-medium transition-all"
-      class:bg-blue-600={selectedMetric === 'byAccess'}
+      class:bg-green-600={selectedMetric === 'byAccess'}
       class:text-white={selectedMetric === 'byAccess'}
       class:bg-gray-200={selectedMetric !== 'byAccess'}
       class:text-gray-700={selectedMetric !== 'byAccess'}
@@ -152,15 +152,15 @@
           {#each $fileStatistics.mostAccessedFiles as file, index}
             <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <p class="text-sm font-bold text-blue-600 dark:text-blue-400">{index + 1}</p>
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                  <p class="text-sm font-bold text-green-600 dark:text-green-400">{index + 1}</p>
                 </div>
                 <div>
                   <p class="text-sm font-medium text-gray-900 dark:text-white">{file.name}</p>
                   <p class="text-xs text-gray-500 dark:text-gray-400">{file.lastAccess}</p>
                 </div>
               </div>
-              <p class="text-sm font-semibold text-blue-600 dark:text-blue-400">{file.accesses.toLocaleString()} accesses</p>
+              <p class="text-sm font-semibold text-green-600 dark:text-green-400">{file.accesses.toLocaleString()} accesses</p>
             </div>
           {/each}
         </div>
@@ -184,7 +184,7 @@
               </div>
               <div class="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-3 overflow-hidden">
                 <div
-                  class="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500"
+                  class="h-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-500"
                   style="width: {bucket.percentage}%"
                 ></div>
               </div>
@@ -196,13 +196,13 @@
         </div>
 
         <!-- Summary Stats -->
-        <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/10 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
-          <h4 class="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-4">{t('statistics.summary')}</h4>
+        <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-900/10 rounded-lg p-6 border border-green-200 dark:border-green-700">
+          <h4 class="text-sm font-semibold text-green-900 dark:text-green-100 mb-4">{t('statistics.summary')}</h4>
           <div class="space-y-3">
             {#each $fileStatistics.sizeDistribution as bucket}
               <div class="flex justify-between text-sm">
-                <span class="text-blue-700 dark:text-blue-300">{bucket.bucket}</span>
-                <span class="font-medium text-blue-900 dark:text-blue-100">{bucket.files} ({bucket.percentage}%)</span>
+                <span class="text-green-700 dark:text-green-300">{bucket.bucket}</span>
+                <span class="font-medium text-green-900 dark:text-green-100">{bucket.files} ({bucket.percentage}%)</span>
               </div>
             {/each}
           </div>
@@ -222,7 +222,7 @@
             {#each $fileStatistics.fileAccessPatterns as pattern}
               <div class="flex-1 flex flex-col items-center">
                 <div
-                  class="w-full bg-blue-500 rounded-t transition-all hover:bg-blue-600"
+                  class="w-full bg-green-500 rounded-t transition-all hover:bg-green-600"
                   style="height: {(pattern.accesses / 200) * 100}%; min-height: 4px;"
                   title="{pattern.hour}: {pattern.accesses} accesses"
                 ></div>
@@ -277,7 +277,7 @@
           <span>{t('statistics.less')}</span>
           <div class="flex gap-1">
             <div class="w-4 h-4 rounded bg-gray-300 dark:bg-gray-600"></div>
-            <div class="w-4 h-4 rounded bg-blue-400"></div>
+            <div class="w-4 h-4 rounded bg-green-400"></div>
             <div class="w-4 h-4 rounded bg-yellow-500"></div>
             <div class="w-4 h-4 rounded bg-red-500"></div>
           </div>

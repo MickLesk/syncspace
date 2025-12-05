@@ -208,7 +208,7 @@
             Error
           </span>
           <span
-            class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium dark:bg-blue-900 dark:text-blue-200"
+            class="px-3 py-1 bg-cyan-100 text-cyan-800 rounded-full text-sm font-medium dark:bg-cyan-900 dark:text-cyan-200"
           >
             Info
           </span>
@@ -268,9 +268,9 @@
       </div>
 
       <div
-        class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg dark:bg-blue-900/20 dark:border-blue-400"
+        class="bg-cyan-50 border-l-4 border-cyan-500 p-4 rounded-r-lg dark:bg-cyan-900/20 dark:border-cyan-400"
       >
-        <p class="text-blue-800 dark:text-blue-300 font-medium">
+        <p class="text-cyan-800 dark:text-cyan-300 font-medium">
           Info: New updates are available.
         </p>
       </div>

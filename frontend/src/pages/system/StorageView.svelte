@@ -249,13 +249,13 @@
         <h2
           class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2"
         >
-          <i class="bi bi-device-hdd-fill text-blue-600" aria-hidden="true"></i>
+          <i class="bi bi-device-hdd-fill text-green-600" aria-hidden="true"></i>
           System Disk Usage
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div class="glass-card p-6 text-center">
-            <div class="text-blue-600 dark:text-blue-400 mb-2">
+            <div class="text-green-600 dark:text-green-400 mb-2">
               <i class="bi bi-pie-chart-fill text-4xl" aria-hidden="true"></i>
             </div>
             <div
@@ -264,7 +264,7 @@
               Disk Capacity
             </div>
             <div
-              class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2"
+              class="text-3xl font-bold text-green-600 dark:text-green-400 mb-2"
             >
               {diskTotalFormatted}
             </div>
@@ -316,7 +316,7 @@
             <h3
               class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100"
             >
-              <i class="bi bi-pie-chart-fill text-blue-600" aria-hidden="true"></i>
+              <i class="bi bi-pie-chart-fill text-green-600" aria-hidden="true"></i>
               Disk Distribution
             </h3>
             <Chart
@@ -332,7 +332,7 @@
             <h3
               class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100"
             >
-              <i class="bi bi-speedometer2 text-blue-600" aria-hidden="true"></i>
+              <i class="bi bi-speedometer2 text-green-600" aria-hidden="true"></i>
               Capacity Overview
             </h3>
             <div class="space-y-4">
@@ -394,7 +394,7 @@
         <div
           class="glass-card p-6 text-center hover:shadow-xl transition-all duration-300"
         >
-          <div class="text-blue-600 dark:text-blue-400 mb-3">
+          <div class="text-green-600 dark:text-green-400 mb-3">
             <i class="bi bi-files text-5xl" aria-hidden="true"></i>
           </div>
           <div
@@ -455,7 +455,7 @@
           <h2
             class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2"
           >
-            <i class="bi bi-pie-chart-fill text-blue-600" aria-hidden="true"></i>
+            <i class="bi bi-pie-chart-fill text-green-600" aria-hidden="true"></i>
             File Type Distribution
           </h2>
           <div class="mt-4">
@@ -479,7 +479,7 @@
           <h2
             class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2"
           >
-            <i class="bi bi-bar-chart-fill text-blue-600" aria-hidden="true"></i>
+            <i class="bi bi-bar-chart-fill text-green-600" aria-hidden="true"></i>
             Storage by Category
           </h2>
           <div class="mt-4">
@@ -501,7 +501,7 @@
           <h2
             class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2"
           >
-            <i class="bi bi-list-ul text-blue-600" aria-hidden="true"></i>
+            <i class="bi bi-list-ul text-green-600" aria-hidden="true"></i>
             Detailed Breakdown
           </h2>
           <div class="space-y-4">
@@ -534,7 +534,7 @@
                       class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden"
                     >
                       <div
-                        class="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500"
+                        class="h-full bg-gradient-to-r from-green-500 to-emerald-600 transition-all duration-500"
                         style="width: {percentage}%"
                       ></div>
                     </div>
@@ -554,7 +554,7 @@
           <h2
             class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2"
           >
-            <i class="bi bi-graph-up text-blue-600" aria-hidden="true"></i>
+            <i class="bi bi-graph-up text-green-600" aria-hidden="true"></i>
             Storage Distribution
           </h2>
           <div class="grid grid-cols-3 gap-4">
@@ -618,7 +618,7 @@
           <h2
             class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2"
           >
-            <i class="bi bi-sort-down-alt text-blue-600" aria-hidden="true"></i>
+            <i class="bi bi-sort-down-alt text-green-600" aria-hidden="true"></i>
             Largest Files
           </h2>
           <div class="overflow-x-auto">
@@ -653,7 +653,7 @@
                     >
                     <td class="px-6 py-4">
                       <div class="flex items-center gap-2">
-                        <i class="bi bi-file-earmark-fill text-blue-600" aria-hidden="true"></i>
+                        <i class="bi bi-file-earmark-fill text-green-600" aria-hidden="true"></i>
                         <span
                           class="font-medium text-gray-900 dark:text-gray-100"
                           >{file.name}</span
@@ -662,7 +662,7 @@
                     </td>
                     <td class="px-6 py-4">
                       <span
-                        class="px-2 py-1 text-xs font-semibold bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-full"
+                        class="px-2 py-1 text-xs font-semibold bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-full"
                       >
                         {formatSize(file.size)}
                       </span>
@@ -673,7 +673,7 @@
                           class="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden"
                         >
                           <div
-                            class="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500"
+                            class="h-full bg-gradient-to-r from-green-500 to-emerald-600 transition-all duration-500"
                             style="width: {formatPercent(
                               file.size,
                               stats.totalSize

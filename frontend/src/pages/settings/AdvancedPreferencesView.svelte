@@ -108,7 +108,7 @@
           onclick={() => handleViewModeChange(mode.id)}
           class={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${
             viewMode === mode.id
-              ? 'bg-blue-500 text-white'
+              ? 'bg-green-500 text-white'
               : 'border border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
           }`}
         >

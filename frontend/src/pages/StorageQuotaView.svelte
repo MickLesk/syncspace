@@ -105,7 +105,7 @@
       case 'danger':
         return 'bg-red-500';
       default:
-        return 'bg-blue-500';
+        return 'bg-green-500';
     }
   }
 
@@ -147,10 +147,10 @@
     <!-- Storage Summary -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
       <!-- Used Storage -->
-      <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/10 rounded-lg p-4 border border-blue-200 dark:border-blue-700">
-        <p class="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">{t('storage.used')}</p>
-        <p class="text-2xl font-bold text-blue-900 dark:text-blue-100">{formatStorageSize($storageQuota.totalUsed)}</p>
-        <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">{$storageQuota.percentUsed}% {t('storage.of_quota')}</p>
+      <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-900/10 rounded-lg p-4 border border-green-200 dark:border-green-700">
+        <p class="text-sm font-medium text-green-700 dark:text-green-300 mb-2">{t('storage.used')}</p>
+        <p class="text-2xl font-bold text-green-900 dark:text-green-100">{formatStorageSize($storageQuota.totalUsed)}</p>
+        <p class="text-xs text-green-600 dark:text-green-400 mt-1">{$storageQuota.percentUsed}% {t('storage.of_quota')}</p>
       </div>
 
       <!-- Available Storage -->
@@ -208,7 +208,7 @@
             <div 
               class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
               class:ring-2={selectedType === item.type}
-              class:ring-blue-500={selectedType === item.type}
+              class:ring-green-500={selectedType === item.type}
               on:click={() => { selectedType = selectedType === item.type ? null : item.type; }}
             >
               <div class="flex items-center justify-between mb-2">
@@ -240,7 +240,7 @@
     <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
       <button
         on:click={toggleFolderBreakdown}
-        class="flex items-center text-lg font-semibold text-gray-900 dark:text-white mb-4 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+        class="flex items-center text-lg font-semibold text-gray-900 dark:text-white mb-4 hover:text-green-600 dark:hover:text-green-400 transition-colors"
       >
         <i class="bi bi-folder mr-2" aria-hidden="true"></i>
         {t('storage.by_folder')}
