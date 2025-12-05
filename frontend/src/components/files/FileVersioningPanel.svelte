@@ -22,11 +22,11 @@
 
   let { filePath = "", readOnly = false } = $props();
 
-  let compareMode = false;
-  let selectedV1 = null;
-  let selectedV2 = null;
-  let showStats = false;
-  let showDiff = false;
+  let compareMode = $state(false);
+  let selectedV1 = $state(null);
+  let selectedV2 = $state(null);
+  let showStats = $state(false);
+  let showDiff = $state(false);
 
   onMount(async () => {
     if (filePath) {
@@ -205,7 +205,7 @@
                         100
                     )
                   )}%"
-                />
+                ></div>
               </div>
               <div
                 class="flex justify-between text-xs text-slate-600 dark:text-slate-400"
@@ -228,12 +228,14 @@
           <!-- Version List -->
           <div class="space-y-2">
             {#each $versionTimeline as version, idx (version.id)}
-              <button
-                type="button"
+              <div
+                role="button"
+                tabindex="0"
                 class={version.isCurrent
                   ? "flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 border-green-400 bg-green-50 dark:bg-green-900/20 w-full text-left"
                   : "flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 border-slate-200 dark:border-slate-700 w-full text-left"}
                 onclick={() => selectVersion(version.id)}
+                onkeydown={(e) => e.key === 'Enter' && selectVersion(version.id)}
               >
                 <!-- Timeline Marker -->
                 <div class="flex flex-col items-center">
@@ -241,11 +243,11 @@
                     class={version.isCurrent
                       ? "w-4 h-4 rounded-full border-2 bg-green-500 border-green-500"
                       : "w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600"}
-                  />
+                  ></div>
                   {#if idx < $versionTimeline.length - 1}
                     <div
                       class="w-0.5 h-12 bg-slate-200 dark:bg-slate-700 mt-1"
-                    />
+                    ></div>
                   {/if}
                 </div>
 
@@ -285,8 +287,10 @@
                 {#if !version.isCurrent}
                   <div class="flex gap-1">
                     <button
-                      on:click|stopPropagation={() =>
-                        downloadVersion(filePath, version.versionNumber)}
+                      onclick={(e) => {
+                        e.stopPropagation();
+                        downloadVersion(filePath, version.versionNumber);
+                      }}
                       class="p-2 text-slate-600 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 transition-colors"
                       title="Download"
                     >
@@ -295,8 +299,10 @@
 
                     {#if !readOnly}
                       <button
-                        on:click|stopPropagation={() =>
-                          restoreVersion(filePath, version.versionNumber)}
+                        onclick={(e) => {
+                          e.stopPropagation();
+                          restoreVersion(filePath, version.versionNumber);
+                        }}
                         disabled={$restoring}
                         class="p-2 text-slate-600 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 disabled:opacity-50 transition-colors"
                         title="Restore"
@@ -309,8 +315,10 @@
 
                       <button
                         type="button"
-                        on:click|stopPropagation={() =>
-                          deleteVersion(filePath, version.versionNumber)}
+                        onclick={(e) => {
+                          e.stopPropagation();
+                          deleteVersion(filePath, version.versionNumber);
+                        }}
                         class="p-2 text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
                         title="Delete"
                       >
@@ -319,7 +327,7 @@
                     {/if}
                   </div>
                 {/if}
-              </button>
+              </div>
             {/each}
           </div>
 

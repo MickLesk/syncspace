@@ -167,7 +167,7 @@
           <input
             type="text"
             value={$customTheme.secondaryColor}
-            on:change={(e) =>
+            onchange={(e) =>
               handleColorChange("secondaryColor", e.target.value)}
             class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white"
             placeholder="#10B981"
@@ -177,7 +177,7 @@
           <input
             type="color"
             value={$customTheme.secondaryColor}
-            on:change={(e) =>
+            onchange={(e) =>
               handleColorChange("secondaryColor", e.target.value)}
             class="mt-2"
           />
@@ -201,7 +201,7 @@
           <input
             type="text"
             value={$customTheme.accentColor}
-            on:change={(e) => handleColorChange("accentColor", e.target.value)}
+            onchange={(e) => handleColorChange("accentColor", e.target.value)}
             class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white"
             placeholder="#F59E0B"
           />
@@ -210,7 +210,7 @@
           <input
             type="color"
             value={$customTheme.accentColor}
-            on:change={(e) => handleColorChange("accentColor", e.target.value)}
+            onchange={(e) => handleColorChange("accentColor", e.target.value)}
             class="mt-2"
           />
         {/if}
@@ -239,7 +239,7 @@
                 name="density"
                 value={option}
                 checked={$customTheme.density === option}
-                on:change={() => handleDensityChange(option)}
+                onchange={() => handleDensityChange(option)}
                 class="mr-3"
               />
               <span class="text-gray-700 dark:text-gray-300 capitalize">
@@ -265,7 +265,7 @@
                 name="fontSize"
                 value={option}
                 checked={$customTheme.fontSize === option}
-                on:change={() => handleFontSizeChange(option)}
+                onchange={() => handleFontSizeChange(option)}
                 class="mr-3"
               />
               <span class="text-gray-700 dark:text-gray-300 capitalize">
@@ -291,7 +291,7 @@
                 name="borderRadius"
                 value={option}
                 checked={$customTheme.borderRadius === option}
-                on:change={() => handleBorderRadiusChange(option)}
+                onchange={() => handleBorderRadiusChange(option)}
                 class="mr-3"
               />
               <span class="text-gray-700 dark:text-gray-300 capitalize">
@@ -317,7 +317,7 @@
                 name="shadowIntensity"
                 value={option}
                 checked={$customTheme.shadowIntensity === option}
-                on:change={() => handleShadowIntensityChange(option)}
+                onchange={() => handleShadowIntensityChange(option)}
                 class="mr-3"
               />
               <span class="text-gray-700 dark:text-gray-300 capitalize">
@@ -356,7 +356,7 @@
           bind:this={importFile}
           type="file"
           accept=".json"
-          on:change={handleImport}
+          onchange={handleImport}
           hidden
         />
       </label>

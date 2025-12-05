@@ -949,43 +949,94 @@ pub async fn extract_content(file_path: &Path) -> Option<String> {
             tokio::fs::read_to_string(file_path).await.ok()
         }
 
-        // Use textractor for PDF, Office documents, and other supported formats
-        "pdf" | "docx" | "xlsx" | "xls" | "pptx" | "odt" | "ods" | "odp" => {
-            extract_with_textractor(file_path).await
-        }
+        // PDF files - use pdf-extract
+        "pdf" => extract_pdf_content(file_path).await,
+        
+        // Word documents - use docx-rust
+        "docx" => extract_docx_content(file_path).await,
+        
+        // Spreadsheets - use calamine
+        "xlsx" | "xls" | "ods" => extract_spreadsheet_content(file_path).await,
+        
+        // OpenDocument text (fallback to ZIP extraction)
+        "odt" | "odp" => extract_odf_content(file_path).await,
 
         _ => None,
     }
 }
 
-/// Extract text from any supported file using textractor
-/// Supports: PDF, DOCX, XLSX, ODF, HTML, MD, TXT, ZIP and more
-async fn extract_with_textractor(file_path: &Path) -> Option<String> {
+/// Extract text from spreadsheet using calamine (xlsx, xls, ods)
+async fn extract_spreadsheet_content(file_path: &Path) -> Option<String> {
     let path = file_path.to_path_buf();
-    tokio::task::spawn_blocking(move || {
-        match textractor::extract(path.to_string_lossy().as_ref()) {
-            Ok(text) if !text.is_empty() => Some(text),
-            _ => None,
+    tokio::task::spawn_blocking(move || -> Option<String> {
+        use calamine::{Reader, open_workbook_auto};
+        
+        let mut workbook = open_workbook_auto(&path).ok()?;
+        let mut text = String::new();
+        
+        for sheet_name in workbook.sheet_names().to_vec() {
+            if let Ok(range) = workbook.worksheet_range(&sheet_name) {
+                for row in range.rows() {
+                    let row_text: Vec<String> = row.iter().map(|cell| cell.to_string()).collect();
+                    text.push_str(&row_text.join(" "));
+                    text.push('\n');
+                }
+            }
         }
+        
+        if text.is_empty() { None } else { Some(text) }
     })
     .await
     .ok()
     .flatten()
 }
 
-/// Extract text from PDF file (fallback using lopdf if textractor fails)
-async fn extract_pdf_content(file_path: &Path) -> Option<String> {
-    // First try textractor
-    if let Some(text) = extract_with_textractor(file_path).await {
-        return Some(text);
-    }
+/// Extract text from OpenDocument files (ODT, ODP) - ZIP-based XML
+async fn extract_odf_content(file_path: &Path) -> Option<String> {
+    use std::io::Read;
     
-    // Fallback to lopdf for older/complex PDFs
-    use lopdf::Document;
-
-    // Load PDF in blocking task (lopdf is sync)
     let path = file_path.to_path_buf();
     tokio::task::spawn_blocking(move || {
+        let file = std::fs::File::open(&path).ok()?;
+        let mut archive = zip::ZipArchive::new(file).ok()?;
+        
+        // content.xml contains the document text
+        let mut content_xml = archive.by_name("content.xml").ok()?;
+        let mut xml_content = String::new();
+        content_xml.read_to_string(&mut xml_content).ok()?;
+        
+        // Simple XML text extraction (strip tags)
+        let text: String = xml_content
+            .split('<')
+            .filter_map(|s| s.split('>').nth(1))
+            .collect::<Vec<_>>()
+            .join(" ")
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ");
+        
+        if text.is_empty() { None } else { Some(text) }
+    })
+    .await
+    .ok()
+    .flatten()
+}
+
+/// Extract text from PDF file using pdf-extract with lopdf fallback
+async fn extract_pdf_content(file_path: &Path) -> Option<String> {
+    let path = file_path.to_path_buf();
+    
+    tokio::task::spawn_blocking(move || {
+        // First try pdf-extract (modern, pure Rust)
+        if let Ok(text) = pdf_extract::extract_text(&path) {
+            if !text.trim().is_empty() {
+                return Some(text);
+            }
+        }
+        
+        // Fallback to lopdf for older/complex PDFs
+        use lopdf::Document;
+        
         let doc = Document::load(&path).ok()?;
         let mut text = String::new();
 
@@ -1011,13 +1062,41 @@ async fn extract_pdf_content(file_path: &Path) -> Option<String> {
 }
 
 /// Extract text from DOCX file (Word document)
-/// DOCX files are ZIP archives containing XML files
+/// Uses docx-rust for proper DOCX parsing
 async fn extract_docx_content(file_path: &Path) -> Option<String> {
+    use docx_rust::DocxFile;
     use std::io::Read;
 
     let path = file_path.to_path_buf();
     tokio::task::spawn_blocking(move || {
-        // Open DOCX file as ZIP
+        // Try docx-rust first
+        if let Ok(docx) = DocxFile::from_file(&path) {
+            if let Ok(doc) = docx.parse() {
+                let mut text = String::new();
+                
+                // Extract text from document body - iterate over content directly
+                for content in &doc.document.body.content {
+                    if let docx_rust::document::BodyContent::Paragraph(para) = content {
+                        for run_content in &para.content {
+                            if let docx_rust::document::ParagraphContent::Run(run) = run_content {
+                                for rc in &run.content {
+                                    if let docx_rust::document::RunContent::Text(t) = rc {
+                                        text.push_str(&t.text);
+                                    }
+                                }
+                            }
+                        }
+                        text.push('\n');
+                    }
+                }
+                
+                if !text.trim().is_empty() {
+                    return Some(text);
+                }
+            }
+        }
+        
+        // Fallback: manual ZIP-based extraction
         let file = std::fs::File::open(&path).ok()?;
         let mut archive = zip::ZipArchive::new(file).ok()?;
         let mut text = String::new();
@@ -1045,14 +1124,6 @@ async fn extract_docx_content(file_path: &Path) -> Option<String> {
                 .0;
 
             text.push_str(&text_only);
-        }
-
-        // Extract from headers and footers if present
-        if let Ok(mut header) = archive.by_name("word/header1.xml") {
-            let mut content = String::new();
-            header.read_to_string(&mut content).ok()?;
-            text.push_str("\n");
-            text.push_str(&content);
         }
 
         if text.is_empty() {
