@@ -494,7 +494,9 @@
           ></i>
         </button>
         <div class="divider-v"></div>
-        <button aria-label="Delete"><i class="bi bi-trash" aria-hidden="true"></i></button>
+        <button aria-label="Delete"
+          ><i class="bi bi-trash" aria-hidden="true"></i></button
+        >
       </div>
     </div>
 
@@ -528,7 +530,8 @@
           </div>
         {:else if previewType === "audio"}
           <div class="preview-audio-container">
-            <i class="bi bi-music-note-beamed file-type-icon" aria-hidden="true"></i>
+            <i class="bi bi-music-note-beamed file-type-icon" aria-hidden="true"
+            ></i>
             <audio src={previewUrl} controls class="preview-audio"></audio>
           </div>
         {:else if previewType === "pdf"}
@@ -596,7 +599,10 @@
                       onclick={() => switchSheet(index)}
                       title={sheetName}
                     >
-                      <i class="bi bi-file-earmark-spreadsheet" aria-hidden="true"></i>
+                      <i
+                        class="bi bi-file-earmark-spreadsheet"
+                        aria-hidden="true"
+                      ></i>
                       {sheetName}
                     </button>
                   {/each}
@@ -610,7 +616,10 @@
         {:else if previewType === "word"}
           <div class="preview-word-container">
             <div class="word-toolbar">
-              <i class="bi bi-file-earmark-word text-2xl text-green-600" aria-hidden="true"></i>
+              <i
+                class="bi bi-file-earmark-word text-2xl text-green-600"
+                aria-hidden="true"
+              ></i>
               <span class="font-semibold">Word Document</span>
             </div>
             <div class="word-content">
@@ -620,7 +629,10 @@
         {:else if previewType === "office-viewer"}
           <div class="preview-office-container">
             <div class="office-toolbar">
-              <i class="bi bi-file-earmark-slides text-2xl text-orange-600" aria-hidden="true"></i>
+              <i
+                class="bi bi-file-earmark-slides text-2xl text-orange-600"
+                aria-hidden="true"
+              ></i>
               <span class="font-semibold">PowerPoint Presentation</span>
             </div>
             <iframe
@@ -633,7 +645,8 @@
           </div>
         {:else}
           <div class="preview-unsupported">
-            <i class="bi bi-file-earmark-x file-type-icon" aria-hidden="true"></i>
+            <i class="bi bi-file-earmark-x file-type-icon" aria-hidden="true"
+            ></i>
             <h4>Preview not available</h4>
             <p>
               {file.name.split(".").pop()?.toUpperCase() || "This"} files cannot
@@ -770,7 +783,8 @@
                     placeholder="Add a tag..."
                     onkeydown={(e) => e.key === "Enter" && addTag()}
                   />
-                  <button aria-label="Add" onclick={addTag} class="btn-add"><i class="bi bi-plus-lg" aria-hidden="true"></i>
+                  <button aria-label="Add" onclick={addTag} class="btn-add"
+                    ><i class="bi bi-plus-lg" aria-hidden="true"></i>
                     Add
                   </button>
                 </div>

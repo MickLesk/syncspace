@@ -142,7 +142,10 @@
       </div>
     {:else if jobs.length === 0}
       <div class="text-center py-12">
-        <i class="bi bi-inbox text-6xl text-gray-300 dark:text-gray-600" aria-hidden="true"></i>
+        <i
+          class="bi bi-inbox text-6xl text-gray-300 dark:text-gray-600"
+          aria-hidden="true"
+        ></i>
         <p class="mt-4 text-gray-500 dark:text-gray-400">{$t("jobs.noJobs")}</p>
       </div>
     {:else}
@@ -191,7 +194,8 @@
                 <!-- Type -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
-                    <i class="bi bi-stack text-gray-400 mr-2" aria-hidden="true"></i>
+                    <i class="bi bi-stack text-gray-400 mr-2" aria-hidden="true"
+                    ></i>
                     <span
                       class="text-sm font-medium text-gray-900 dark:text-white"
                     >
@@ -257,7 +261,8 @@
                         onclick={() => cancelJob(job.job_id)}
                         class="text-red-600 hover:text-red-900 dark:hover:text-red-400"
                         title={$t("jobs.cancel")}
-                       aria-label="Cancel">
+                        aria-label="Cancel"
+                      >
                         <i class="bi bi-x-circle" aria-hidden="true"></i>
                       </button>
                     {/if}
@@ -267,7 +272,8 @@
                         onclick={() => deleteJob(job.job_id)}
                         class="text-gray-600 hover:text-gray-900 dark:hover:text-gray-400"
                         title={$t("jobs.delete")}
-                       aria-label="Delete">
+                        aria-label="Delete"
+                      >
                         <i class="bi bi-trash" aria-hidden="true"></i>
                       </button>
                     {/if}

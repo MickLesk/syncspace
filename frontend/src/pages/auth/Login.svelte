@@ -144,8 +144,10 @@
     <!-- Logo Section -->
     <div class="text-center mb-8">
       <div class="logo-circle">
-        <i class="bi bi-cloud-fill text-5xl text-green-600 dark:text-green-400"
-         aria-hidden="true"></i>
+        <i
+          class="bi bi-cloud-fill text-5xl text-green-600 dark:text-green-400"
+          aria-hidden="true"
+        ></i>
       </div>
       <h1
         class="text-4xl font-bold mt-6 mb-2 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent"
@@ -177,8 +179,10 @@
           for="username-input"
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
-          <i class="bi bi-person-fill mr-2 text-green-600 dark:text-green-400"
-           aria-hidden="true"></i>{tr("username")}
+          <i
+            class="bi bi-person-fill mr-2 text-green-600 dark:text-green-400"
+            aria-hidden="true"
+          ></i>{tr("username")}
         </label>
         <div class="relative">
           <input
@@ -234,7 +238,10 @@
             class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             aria-label="Toggle password visibility"
           >
-            <i class="bi bi-{showPassword ? 'eye-slash' : 'eye'}" aria-hidden="true"></i>
+            <i
+              class="bi bi-{showPassword ? 'eye-slash' : 'eye'}"
+              aria-hidden="true"
+            ></i>
           </button>
         </div>
       </div>

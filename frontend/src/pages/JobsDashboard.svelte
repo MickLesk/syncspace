@@ -266,7 +266,10 @@
         <div
           class="p-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl shadow-lg"
         >
-          <i class="bi bi-gear-wide-connected text-3xl text-white" aria-hidden="true"></i>
+          <i
+            class="bi bi-gear-wide-connected text-3xl text-white"
+            aria-hidden="true"
+          ></i>
         </div>
         <div>
           <h1
@@ -297,7 +300,10 @@
           class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-500/10 to-cyan-600/10 border border-cyan-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-clock-history text-3xl text-cyan-500" aria-hidden="true"></i>
+            <i
+              class="bi bi-clock-history text-3xl text-cyan-500"
+              aria-hidden="true"
+            ></i>
             <span
               class="text-xs font-semibold text-cyan-600 dark:text-cyan-400 bg-cyan-500/20 px-3 py-1 rounded-full"
               >Pending</span
@@ -314,8 +320,10 @@
           class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500/10 to-orange-600/10 border border-orange-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-arrow-repeat text-3xl text-orange-500 animate-spin"
-             aria-hidden="true"></i>
+            <i
+              class="bi bi-arrow-repeat text-3xl text-orange-500 animate-spin"
+              aria-hidden="true"
+            ></i>
             <span
               class="text-xs font-semibold text-orange-600 dark:text-orange-400 bg-orange-500/20 px-3 py-1 rounded-full"
               >Running</span
@@ -334,7 +342,10 @@
           class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-check-circle-fill text-3xl text-green-500" aria-hidden="true"></i>
+            <i
+              class="bi bi-check-circle-fill text-3xl text-green-500"
+              aria-hidden="true"
+            ></i>
             <span
               class="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-500/20 px-3 py-1 rounded-full"
               >Success</span
@@ -353,8 +364,10 @@
           class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-500/10 to-red-600/10 border border-red-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-exclamation-triangle-fill text-3xl text-red-500"
-             aria-hidden="true"></i>
+            <i
+              class="bi bi-exclamation-triangle-fill text-3xl text-red-500"
+              aria-hidden="true"
+            ></i>
             <span
               class="text-xs font-semibold text-red-600 dark:text-red-400 bg-red-500/20 px-3 py-1 rounded-full"
               >Failed</span
@@ -371,7 +384,10 @@
           class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/20 p-6 hover:scale-105 transition-transform duration-200 shadow-xl"
         >
           <div class="flex items-center justify-between mb-2">
-            <i class="bi bi-layers-fill text-3xl text-purple-500" aria-hidden="true"></i>
+            <i
+              class="bi bi-layers-fill text-3xl text-purple-500"
+              aria-hidden="true"
+            ></i>
             <span
               class="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full"
               >Total</span
@@ -458,7 +474,8 @@
               <div class="stats stats-vertical lg:stats-horizontal shadow">
                 <div class="stat">
                   <div class="stat-figure text-success">
-                    <i class="bi bi-check-circle text-4xl" aria-hidden="true"></i>
+                    <i class="bi bi-check-circle text-4xl" aria-hidden="true"
+                    ></i>
                   </div>
                   <div class="stat-title">Worker Pool</div>
                   <div class="stat-value text-success">Active</div>
@@ -637,7 +654,8 @@
 
             {#if cronJobs.length === 0}
               <div class="text-center py-8 text-base-content/50">
-                <i class="bi bi-calendar-x text-6xl mb-4" aria-hidden="true"></i>
+                <i class="bi bi-calendar-x text-6xl mb-4" aria-hidden="true"
+                ></i>
                 <p>No cron jobs configured</p>
               </div>
             {:else}
@@ -683,7 +701,8 @@
                           <button
                             class="btn btn-sm btn-error"
                             onclick={() => deleteCronJob(cronJob.id)}
-                           aria-label="Delete">
+                            aria-label="Delete"
+                          >
                             <i class="bi bi-trash" aria-hidden="true"></i>
                           </button>
                         </td>

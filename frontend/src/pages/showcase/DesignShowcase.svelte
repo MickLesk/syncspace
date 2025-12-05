@@ -129,7 +129,10 @@
     <!-- Cards Section -->
     <div class="mb-12">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        <i class="bi bi-grid-3x3-gap-fill text-purple-500 mr-2" aria-hidden="true"></i>
+        <i
+          class="bi bi-grid-3x3-gap-fill text-purple-500 mr-2"
+          aria-hidden="true"
+        ></i>
         Cards
       </h2>
 
@@ -286,8 +289,10 @@
             <div
               class="animate-slide-up p-8 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg text-center"
             >
-              <i class="bi bi-arrow-up-circle-fill text-4xl text-green-500 mb-2"
-               aria-hidden="true"></i>
+              <i
+                class="bi bi-arrow-up-circle-fill text-4xl text-green-500 mb-2"
+                aria-hidden="true"
+              ></i>
               <p class="text-gray-600 dark:text-gray-400">Slides up on load</p>
             </div>
           {/snippet}

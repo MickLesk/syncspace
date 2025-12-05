@@ -120,7 +120,9 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- Primary Color -->
       <div>
-        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           {t("theme.primary_color")}
         </div>
         <div class="flex gap-2">
@@ -150,7 +152,9 @@
 
       <!-- Secondary Color -->
       <div>
-        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           {t("theme.secondary_color")}
         </div>
         <div class="flex gap-2">
@@ -182,7 +186,9 @@
 
       <!-- Accent Color -->
       <div>
-        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           {t("theme.accent_color")}
         </div>
         <div class="flex gap-2">
@@ -220,7 +226,9 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Density -->
       <div>
-        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+        <div
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+        >
           {t("theme.density")}
         </div>
         <div class="space-y-2">
@@ -244,7 +252,9 @@
 
       <!-- Font Size -->
       <div>
-        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+        <div
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+        >
           {t("theme.font_size")}
         </div>
         <div class="space-y-2">
@@ -268,7 +278,9 @@
 
       <!-- Border Radius -->
       <div>
-        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+        <div
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+        >
           {t("theme.border_radius")}
         </div>
         <div class="space-y-2">
@@ -292,7 +304,9 @@
 
       <!-- Shadow Intensity -->
       <div>
-        <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+        <div
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+        >
           {t("theme.shadow_intensity")}
         </div>
         <div class="space-y-2">

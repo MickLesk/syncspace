@@ -1,54 +1,58 @@
 <script>
-  import { onMount } from 'svelte';
-  import { userPreferences } from '../../stores/preferences';
-  import { t } from '../../lib/i18n';
+  import { onMount } from "svelte";
+  import { userPreferences } from "../../stores/preferences";
+  import { t } from "../../lib/i18n";
 
-  let viewMode = $state('grid');
-  let sortBy = $state('name');
-  let sortOrder = $state('asc');
+  let viewMode = $state("grid");
+  let sortBy = $state("name");
+  let sortOrder = $state("asc");
   let filterDefaults = $state({
     showHidden: false,
     showSystem: false,
-    extensions: []
+    extensions: [],
   });
-  let defaultSearchType = $state('all');
+  let defaultSearchType = $state("all");
   let enableThumbnails = $state(true);
   let enablePreview = $state(true);
   let itemsPerPage = $state(50);
 
   const VIEW_MODES = [
-    { id: 'grid', label: t('settings.viewMode.grid'), icon: 'bi-grid-3x3-gap' },
-    { id: 'list', label: t('settings.viewMode.list'), icon: 'bi-list-ul' },
-    { id: 'details', label: t('settings.viewMode.details'), icon: 'bi-list-check' }
+    { id: "grid", label: t("settings.viewMode.grid"), icon: "bi-grid-3x3-gap" },
+    { id: "list", label: t("settings.viewMode.list"), icon: "bi-list-ul" },
+    {
+      id: "details",
+      label: t("settings.viewMode.details"),
+      icon: "bi-list-check",
+    },
   ];
 
   const SORT_OPTIONS = [
-    { id: 'name', label: t('common.name') },
-    { id: 'size', label: t('common.size') },
-    { id: 'modified', label: t('common.modified') },
-    { id: 'created', label: t('common.created') },
-    { id: 'type', label: t('common.type') }
+    { id: "name", label: t("common.name") },
+    { id: "size", label: t("common.size") },
+    { id: "modified", label: t("common.modified") },
+    { id: "created", label: t("common.created") },
+    { id: "type", label: t("common.type") },
   ];
 
   const SORT_ORDERS = [
-    { id: 'asc', label: t('common.ascending') },
-    { id: 'desc', label: t('common.descending') }
+    { id: "asc", label: t("common.ascending") },
+    { id: "desc", label: t("common.descending") },
   ];
 
   const SEARCH_TYPES = [
-    { id: 'all', label: t('search.allFiles') },
-    { id: 'files', label: t('fileTypes.file') },
-    { id: 'folders', label: t('fileTypes.folder') }
+    { id: "all", label: t("search.allFiles") },
+    { id: "files", label: t("fileTypes.file") },
+    { id: "folders", label: t("fileTypes.folder") },
   ];
 
   async function loadPreferences() {
     const prefs = $userPreferences.preferences;
     if (prefs) {
-      viewMode = prefs.viewMode || 'grid';
-      sortBy = prefs.sortBy || 'name';
-      sortOrder = prefs.sortOrder || 'asc';
+      viewMode = prefs.viewMode || "grid";
+      sortBy = prefs.sortBy || "name";
+      sortOrder = prefs.sortOrder || "asc";
       filterDefaults = prefs.filterDefaults || filterDefaults;
-      defaultSearchType = prefs.defaultSearchType || 'all';
+      defaultSearchType = prefs.defaultSearchType || "all";
       enableThumbnails = prefs.enableThumbnails !== false;
       enablePreview = prefs.enablePreview !== false;
       itemsPerPage = prefs.itemsPerPage || 50;
@@ -64,7 +68,7 @@
       defaultSearchType,
       enableThumbnails,
       enablePreview,
-      itemsPerPage
+      itemsPerPage,
     });
   }
 
@@ -100,7 +104,7 @@
   <!-- View Mode -->
   <div>
     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-      {t('settings.viewMode.title')}
+      {t("settings.viewMode.title")}
     </h3>
     <div class="flex gap-2 flex-wrap">
       {#each VIEW_MODES as mode}
@@ -108,8 +112,8 @@
           onclick={() => handleViewModeChange(mode.id)}
           class={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${
             viewMode === mode.id
-              ? 'bg-green-500 text-white'
-              : 'border border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+              ? "bg-green-500 text-white"
+              : "border border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
           }`}
         >
           <i class={`bi ${mode.icon}`}></i>
@@ -123,7 +127,7 @@
   <div class="grid grid-cols-2 gap-4">
     <div>
       <div class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-        {t('common.sortBy')}
+        {t("common.sortBy")}
       </div>
       <select
         bind:value={sortBy}
@@ -138,7 +142,7 @@
 
     <div>
       <div class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-        {t('common.order')}
+        {t("common.order")}
       </div>
       <select
         bind:value={sortOrder}
@@ -155,7 +159,7 @@
   <!-- Filter Defaults -->
   <div>
     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-      {t('settings.filterDefaults')}
+      {t("settings.filterDefaults")}
     </h3>
     <div class="space-y-3">
       <label class="flex items-center gap-3 cursor-pointer">
@@ -166,7 +170,7 @@
           class="rounded border-gray-300"
         />
         <span class="text-sm text-gray-700 dark:text-gray-300">
-          {t('settings.showHiddenFiles')}
+          {t("settings.showHiddenFiles")}
         </span>
       </label>
 
@@ -178,7 +182,7 @@
           class="rounded border-gray-300"
         />
         <span class="text-sm text-gray-700 dark:text-gray-300">
-          {t('settings.showSystemFiles')}
+          {t("settings.showSystemFiles")}
         </span>
       </label>
     </div>
@@ -187,7 +191,7 @@
   <!-- Search Settings -->
   <div>
     <div class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-      {t('settings.defaultSearchType')}
+      {t("settings.defaultSearchType")}
     </div>
     <select
       bind:value={defaultSearchType}
@@ -205,7 +209,7 @@
   <!-- Display Settings -->
   <div>
     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-      {t('settings.displaySettings')}
+      {t("settings.displaySettings")}
     </h3>
     <div class="space-y-3">
       <label class="flex items-center gap-3 cursor-pointer">
@@ -218,7 +222,7 @@
           class="rounded border-gray-300"
         />
         <span class="text-sm text-gray-700 dark:text-gray-300">
-          {t('settings.enableThumbnails')}
+          {t("settings.enableThumbnails")}
         </span>
       </label>
 
@@ -232,7 +236,7 @@
           class="rounded border-gray-300"
         />
         <span class="text-sm text-gray-700 dark:text-gray-300">
-          {t('settings.enablePreview')}
+          {t("settings.enablePreview")}
         </span>
       </label>
     </div>
@@ -241,7 +245,7 @@
   <!-- Items Per Page -->
   <div>
     <div class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-      {t('settings.itemsPerPage')}
+      {t("settings.itemsPerPage")}
     </div>
     <div class="flex items-center gap-3">
       <input
@@ -255,7 +259,9 @@
         }}
         class="flex-1"
       />
-      <span class="w-12 text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
+      <span
+        class="w-12 text-sm font-medium text-gray-700 dark:text-gray-300 text-center"
+      >
         {itemsPerPage}
       </span>
     </div>

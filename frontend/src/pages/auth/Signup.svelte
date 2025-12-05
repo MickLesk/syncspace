@@ -121,8 +121,10 @@
           for="signup-username"
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
-          <i class="bi bi-person-fill mr-2 text-green-600 dark:text-green-400"
-           aria-hidden="true"></i>{tr("username")}
+          <i
+            class="bi bi-person-fill mr-2 text-green-600 dark:text-green-400"
+            aria-hidden="true"
+          ></i>{tr("username")}
         </label>
         <div class="relative">
           <input
@@ -145,8 +147,10 @@
           for="signup-email"
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
-          <i class="bi bi-envelope-fill mr-2 text-green-600 dark:text-green-400"
-           aria-hidden="true"></i>{tr("email")}
+          <i
+            class="bi bi-envelope-fill mr-2 text-green-600 dark:text-green-400"
+            aria-hidden="true"
+          ></i>{tr("email")}
         </label>
         <div class="relative">
           <input
@@ -202,7 +206,10 @@
             class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             aria-label="Toggle password visibility"
           >
-            <i class="bi bi-{showPassword ? 'eye-slash' : 'eye'}" aria-hidden="true"></i>
+            <i
+              class="bi bi-{showPassword ? 'eye-slash' : 'eye'}"
+              aria-hidden="true"
+            ></i>
           </button>
         </div>
         <p class="text-xs text-gray-500 dark:text-gray-400 ml-1">
@@ -216,8 +223,10 @@
           for="signup-confirm-password"
           class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
-          <i class="bi bi-shield-check mr-2 text-green-600 dark:text-green-400"
-           aria-hidden="true"></i>{tr("confirmPassword")}
+          <i
+            class="bi bi-shield-check mr-2 text-green-600 dark:text-green-400"
+            aria-hidden="true"
+          ></i>{tr("confirmPassword")}
         </label>
         <div class="relative">
           {#if showConfirmPassword}
@@ -248,7 +257,10 @@
             class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             aria-label="Toggle confirm password visibility"
           >
-            <i class="bi bi-{showConfirmPassword ? 'eye-slash' : 'eye'}" aria-hidden="true"></i>
+            <i
+              class="bi bi-{showConfirmPassword ? 'eye-slash' : 'eye'}"
+              aria-hidden="true"
+            ></i>
           </button>
         </div>
       </div>

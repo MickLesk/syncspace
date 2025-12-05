@@ -205,7 +205,9 @@
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         {:else}
-          <div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
             {tr("selectDestination")}
           </div>
           <!-- Folder Tree View -->
@@ -221,8 +223,10 @@
                 ? 'bg-green-100 dark:bg-green-900/40 font-semibold'
                 : ''}"
             >
-              <i class="bi bi-house-door text-green-600 dark:text-green-400 mr-2"
-               aria-hidden="true"></i>
+              <i
+                class="bi bi-house-door text-green-600 dark:text-green-400 mr-2"
+                aria-hidden="true"
+              ></i>
               {tr("rootDirectory")}
             </button>
 
@@ -270,7 +274,10 @@
                   : ''}"
                 style="padding-left: {depth * 20 + 12}px"
               >
-                <i class="bi bi-folder-fill text-amber-500 mr-2" aria-hidden="true"></i>
+                <i
+                  class="bi bi-folder-fill text-amber-500 mr-2"
+                  aria-hidden="true"
+                ></i>
                 <span class="text-gray-900 dark:text-white text-sm"
                   >{folder.name}</span
                 >

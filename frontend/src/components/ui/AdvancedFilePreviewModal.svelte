@@ -6,12 +6,7 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  let {
-    file = null,
-    files = [],
-    onClose = null,
-    isOpen = false,
-  } = $props();
+  let { file = null, files = [], onClose = null, isOpen = false } = $props();
 
   let currentIndex = $state(0);
   let currentFile = $derived(files[currentIndex] || file);
@@ -87,15 +82,17 @@
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4"
     role="dialog"
     aria-modal="true"
-    ondragover={(e) = tabindex="0"> e.preventDefault()}
+    ondragover={(e = tabindex = "0" > e.preventDefault())}
     ondrop={(e) => e.preventDefault()}
   >
     <!-- Close Button -->
-    <button type="button"
+    <button
+      type="button"
       class="absolute top-4 right-4 p-2 text-white hover:bg-white/20 rounded-lg transition-colors z-50"
-      aria-label="Close" onclick={onClose}
-      title="Close (ESC)"
-    ><i class="bi bi-x" aria-hidden="true"></i></button>
+      aria-label="Close"
+      onclick={onClose}
+      title="Close (ESC)"><i class="bi bi-x" aria-hidden="true"></i></button
+    >
 
     <!-- Main Preview Container -->
     <div
@@ -103,10 +100,15 @@
       ondragover={(e) => e.preventDefault()}
     >
       <!-- Preview Content -->
-      <div class="w-full max-h-96 overflow-auto rounded-lg bg-black flex items-center justify-center">
+      <div
+        class="w-full max-h-96 overflow-auto rounded-lg bg-black flex items-center justify-center"
+      >
         {#if error}
           <div class="text-red-400 text-center p-8">
-            <i class="bi bi-exclamation-triangle-fill text-4xl block mb-2" aria-hidden="true"></i>
+            <i
+              class="bi bi-exclamation-triangle-fill text-4xl block mb-2"
+              aria-hidden="true"
+            ></i>
             <p>{error}</p>
           </div>
         {:else if previewType === "image"}
@@ -117,11 +119,7 @@
             loading="eager"
           />
         {:else if previewType === "video"}
-          <video
-            class="max-w-full max-h-96 object-contain"
-            controls
-            autoplay
-          >
+          <video class="max-w-full max-h-96 object-contain" controls autoplay>
             <source
               src={`/api/files/${currentFile.path || currentFile.name}`}
               type={`video/${currentFile.name.split(".").pop()}`}
@@ -130,7 +128,8 @@
           </video>
         {:else if previewType === "pdf"}
           <div class="text-white text-center p-8">
-            <i class="bi bi-file-pdf text-4xl block mb-2" aria-hidden="true"></i>
+            <i class="bi bi-file-pdf text-4xl block mb-2" aria-hidden="true"
+            ></i>
             <p>{currentFile.name}</p>
             <a
               href={`/api/files/${currentFile.path || currentFile.name}`}
@@ -141,21 +140,31 @@
             </a>
           </div>
         {:else if previewType === "text"}
-          <div class="text-white p-8 w-full max-h-96 overflow-auto bg-gray-900 rounded">
+          <div
+            class="text-white p-8 w-full max-h-96 overflow-auto bg-gray-900 rounded"
+          >
             <p class="text-xs text-gray-400 mb-2">{currentFile.name}</p>
-            <pre class="font-mono text-sm whitespace-pre-wrap">{currentFile.content || "Loading..."}</pre>
+            <pre
+              class="font-mono text-sm whitespace-pre-wrap">{currentFile.content ||
+                "Loading..."}</pre>
           </div>
         {:else if previewType === "document"}
           <div class="text-white text-center p-8">
-            <i class="bi bi-file-word text-4xl block mb-2" aria-hidden="true"></i>
+            <i class="bi bi-file-word text-4xl block mb-2" aria-hidden="true"
+            ></i>
             <p>{currentFile.name}</p>
-            <p class="text-sm text-gray-400 mt-2">Document preview coming soon</p>
+            <p class="text-sm text-gray-400 mt-2">
+              Document preview coming soon
+            </p>
           </div>
         {:else if previewType === "spreadsheet"}
           <div class="text-white text-center p-8">
-            <i class="bi bi-file-excel text-4xl block mb-2" aria-hidden="true"></i>
+            <i class="bi bi-file-excel text-4xl block mb-2" aria-hidden="true"
+            ></i>
             <p>{currentFile.name}</p>
-            <p class="text-sm text-gray-400 mt-2">Spreadsheet preview coming soon</p>
+            <p class="text-sm text-gray-400 mt-2">
+              Spreadsheet preview coming soon
+            </p>
           </div>
         {:else}
           <div class="text-white text-center p-8">

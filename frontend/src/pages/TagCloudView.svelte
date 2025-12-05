@@ -170,7 +170,9 @@
     <!-- Header -->
     <div class="mb-8">
       <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-        <i class="bi bi-cloud text-green-500 mr-3" aria-hidden="true"></i>{tr("tagCloud.title")}
+        <i class="bi bi-cloud text-green-500 mr-3" aria-hidden="true"></i>{tr(
+          "tagCloud.title"
+        )}
       </h1>
       <p class="text-gray-600 dark:text-gray-400">
         {tr("tagCloud.description")} • {tags.length}
@@ -260,7 +262,8 @@
                     title={tr("tagCloud.deleteTag")}
                     onkeydown={(e) => e.key === "Enter" && deleteTag(tag, e)}
                   >
-                    <i class="bi bi-x text-white text-sm" aria-hidden="true"></i>
+                    <i class="bi bi-x text-white text-sm" aria-hidden="true"
+                    ></i>
                   </div>
                 </button>
               {/each}
@@ -285,12 +288,16 @@
             <h3
               class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
             >
-              <i class="bi bi-funnel" aria-hidden="true"></i>{tr("tagCloud.filters")}
+              <i class="bi bi-funnel" aria-hidden="true"></i>{tr(
+                "tagCloud.filters"
+              )}
             </h3>
 
             <!-- Search -->
             <div class="mb-4">
-              <div class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
+              <div
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2"
+              >
                 {tr("tagCloud.search")}
               </div>
               <input
@@ -303,7 +310,9 @@
 
             <!-- Min Usage -->
             <div class="mb-4">
-              <div class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
+              <div
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2"
+              >
                 {tr("tagCloud.minUsage")}: {minUsage}
               </div>
               <input
@@ -317,7 +326,9 @@
 
             <!-- Font Size Control -->
             <div class="mb-4">
-              <div class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
+              <div
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2"
+              >
                 {tr("tagCloud.fontSize")}: {minFontSize}-{maxFontSize}px
               </div>
               <div class="flex gap-2">
@@ -353,7 +364,9 @@
               <h3
                 class="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2"
               >
-                <i class="bi bi-check-circle" aria-hidden="true"></i>{tr("tagCloud.selected")}: {selectedTagsArray.length}
+                <i class="bi bi-check-circle" aria-hidden="true"></i>{tr(
+                  "tagCloud.selected"
+                )}: {selectedTagsArray.length}
               </h3>
 
               <div class="space-y-2 mb-4 max-h-48 overflow-y-auto">
@@ -397,7 +410,9 @@
             <h3
               class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
             >
-              <i class="bi bi-bar-chart" aria-hidden="true"></i>{tr("tagCloud.stats")}
+              <i class="bi bi-bar-chart" aria-hidden="true"></i>{tr(
+                "tagCloud.stats"
+              )}
             </h3>
             <div class="space-y-3 text-sm">
               <div class="flex justify-between">

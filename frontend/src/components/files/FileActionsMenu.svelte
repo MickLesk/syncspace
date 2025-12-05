@@ -117,7 +117,8 @@
         class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onEdit)}
       >
-        <i class="bi bi-file-earmark-code text-green-500" aria-hidden="true"></i>
+        <i class="bi bi-file-earmark-code text-green-500" aria-hidden="true"
+        ></i>
         <span>{tr("editFile")}</span>
       </button>
     {/if}

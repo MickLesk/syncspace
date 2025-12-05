@@ -207,7 +207,10 @@
           <!-- Selection Indicator -->
           {#if isUserSelected(user)}
             <div class="flex-shrink-0">
-              <i class="bi bi-check-circle-fill text-green-500 text-xl" aria-hidden="true"></i>
+              <i
+                class="bi bi-check-circle-fill text-green-500 text-xl"
+                aria-hidden="true"
+              ></i>
             </div>
           {/if}
         </button>

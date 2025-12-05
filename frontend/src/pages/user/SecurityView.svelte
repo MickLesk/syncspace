@@ -163,7 +163,8 @@
           <div
             class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg"
           >
-            <i class="bi bi-exclamation-triangle-fill mr-2" aria-hidden="true"></i>
+            <i class="bi bi-exclamation-triangle-fill mr-2" aria-hidden="true"
+            ></i>
             {error}
           </div>
         {/if}
@@ -315,19 +316,31 @@
 
           <ul class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
             <li class="flex gap-3">
-              <i class="bi bi-check-circle-fill text-green-500 mt-0.5" aria-hidden="true"></i>
+              <i
+                class="bi bi-check-circle-fill text-green-500 mt-0.5"
+                aria-hidden="true"
+              ></i>
               <span>{tr("useStrongPassword")}</span>
             </li>
             <li class="flex gap-3">
-              <i class="bi bi-check-circle-fill text-green-500 mt-0.5" aria-hidden="true"></i>
+              <i
+                class="bi bi-check-circle-fill text-green-500 mt-0.5"
+                aria-hidden="true"
+              ></i>
               <span>{tr("enable2FAEnhanced")}</span>
             </li>
             <li class="flex gap-3">
-              <i class="bi bi-check-circle-fill text-green-500 mt-0.5" aria-hidden="true"></i>
+              <i
+                class="bi bi-check-circle-fill text-green-500 mt-0.5"
+                aria-hidden="true"
+              ></i>
               <span>{tr("saveBackupCodes")}</span>
             </li>
             <li class="flex gap-3">
-              <i class="bi bi-check-circle-fill text-green-500 mt-0.5" aria-hidden="true"></i>
+              <i
+                class="bi bi-check-circle-fill text-green-500 mt-0.5"
+                aria-hidden="true"
+              ></i>
               <span>{tr("reviewActiveSessions")}</span>
             </li>
           </ul>

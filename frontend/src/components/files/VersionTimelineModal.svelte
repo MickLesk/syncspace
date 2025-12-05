@@ -537,7 +537,9 @@
             <div
               class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-xl p-4"
             >
-              <div class="text-3xl font-bold text-green-600 dark:text-green-400">
+              <div
+                class="text-3xl font-bold text-green-600 dark:text-green-400"
+              >
                 {timeline?.stats?.version_count || 0}
               </div>
               <div class="text-sm text-green-700 dark:text-green-300">

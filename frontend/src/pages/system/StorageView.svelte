@@ -249,7 +249,8 @@
         <h2
           class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2"
         >
-          <i class="bi bi-device-hdd-fill text-green-600" aria-hidden="true"></i>
+          <i class="bi bi-device-hdd-fill text-green-600" aria-hidden="true"
+          ></i>
           System Disk Usage
         </h2>
 
@@ -275,7 +276,10 @@
 
           <div class="glass-card p-6 text-center">
             <div class="text-red-600 dark:text-red-400 mb-2">
-              <i class="bi bi-exclamation-triangle-fill text-4xl" aria-hidden="true"></i>
+              <i
+                class="bi bi-exclamation-triangle-fill text-4xl"
+                aria-hidden="true"
+              ></i>
             </div>
             <div
               class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
@@ -292,7 +296,8 @@
 
           <div class="glass-card p-6 text-center">
             <div class="text-green-600 dark:text-green-400 mb-2">
-              <i class="bi bi-check-circle-fill text-4xl" aria-hidden="true"></i>
+              <i class="bi bi-check-circle-fill text-4xl" aria-hidden="true"
+              ></i>
             </div>
             <div
               class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1"
@@ -316,7 +321,8 @@
             <h3
               class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100"
             >
-              <i class="bi bi-pie-chart-fill text-green-600" aria-hidden="true"></i>
+              <i class="bi bi-pie-chart-fill text-green-600" aria-hidden="true"
+              ></i>
               Disk Distribution
             </h3>
             <Chart
@@ -332,7 +338,8 @@
             <h3
               class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100"
             >
-              <i class="bi bi-speedometer2 text-green-600" aria-hidden="true"></i>
+              <i class="bi bi-speedometer2 text-green-600" aria-hidden="true"
+              ></i>
               Capacity Overview
             </h3>
             <div class="space-y-4">
@@ -455,7 +462,8 @@
           <h2
             class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2"
           >
-            <i class="bi bi-pie-chart-fill text-green-600" aria-hidden="true"></i>
+            <i class="bi bi-pie-chart-fill text-green-600" aria-hidden="true"
+            ></i>
             File Type Distribution
           </h2>
           <div class="mt-4">
@@ -479,7 +487,8 @@
           <h2
             class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2"
           >
-            <i class="bi bi-bar-chart-fill text-green-600" aria-hidden="true"></i>
+            <i class="bi bi-bar-chart-fill text-green-600" aria-hidden="true"
+            ></i>
             Storage by Category
           </h2>
           <div class="mt-4">
@@ -618,7 +627,8 @@
           <h2
             class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2"
           >
-            <i class="bi bi-sort-down-alt text-green-600" aria-hidden="true"></i>
+            <i class="bi bi-sort-down-alt text-green-600" aria-hidden="true"
+            ></i>
             Largest Files
           </h2>
           <div class="overflow-x-auto">
@@ -653,7 +663,10 @@
                     >
                     <td class="px-6 py-4">
                       <div class="flex items-center gap-2">
-                        <i class="bi bi-file-earmark-fill text-green-600" aria-hidden="true"></i>
+                        <i
+                          class="bi bi-file-earmark-fill text-green-600"
+                          aria-hidden="true"
+                        ></i>
                         <span
                           class="font-medium text-gray-900 dark:text-gray-100"
                           >{file.name}</span

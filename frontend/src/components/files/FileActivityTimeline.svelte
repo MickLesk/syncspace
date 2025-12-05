@@ -190,7 +190,9 @@
     <div class="grid grid-cols-2 gap-3">
       <!-- Time Range Filter -->
       <div>
-        <div class="text-xs font-medium text-gray-700 dark:text-gray-300 block mb-2">
+        <div
+          class="text-xs font-medium text-gray-700 dark:text-gray-300 block mb-2"
+        >
           {tr("activity.timeRange")}
         </div>
         <select
@@ -206,7 +208,9 @@
 
       <!-- Group By Filter -->
       <div>
-        <div class="text-xs font-medium text-gray-700 dark:text-gray-300 block mb-2">
+        <div
+          class="text-xs font-medium text-gray-700 dark:text-gray-300 block mb-2"
+        >
           {tr("activity.groupBy")}
         </div>
         <select

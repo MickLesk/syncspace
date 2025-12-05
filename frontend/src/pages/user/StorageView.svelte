@@ -93,7 +93,10 @@
     <h1
       class="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3"
     >
-      <i class="bi bi-hdd text-primary-600 dark:text-primary-400" aria-hidden="true"></i>
+      <i
+        class="bi bi-hdd text-primary-600 dark:text-primary-400"
+        aria-hidden="true"
+      ></i>
       Storage Management
     </h1>
     <p class="text-gray-600 dark:text-gray-400 mt-2">

@@ -215,7 +215,8 @@
                           ? 'bg-red-500/20 text-red-500'
                           : ''}"
                       >
-                        <i class="bi bi-{notification.icon}" aria-hidden="true"></i>
+                        <i class="bi bi-{notification.icon}" aria-hidden="true"
+                        ></i>
                       </div>
                     {/if}
                   </div>
@@ -267,7 +268,10 @@
         <ModernCard variant="glass" padding="large">
           {#snippet children()}
             <div class="text-center animate-fade-in">
-              <i class="bi bi-bell-slash text-6xl opacity-20 mb-4 block" aria-hidden="true"></i>
+              <i
+                class="bi bi-bell-slash text-6xl opacity-20 mb-4 block"
+                aria-hidden="true"
+              ></i>
               <h3
                 class="text-xl font-bold mb-2 text-gray-900 dark:text-gray-100"
               >

@@ -305,7 +305,8 @@
                 <label
                   class="absolute bottom-0 right-0 w-10 h-10 rounded-full gradient-bg-primary border-4 border-white dark:border-gray-900 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-lg"
                 >
-                  <i class="bi bi-camera-fill text-white" aria-hidden="true"></i>
+                  <i class="bi bi-camera-fill text-white" aria-hidden="true"
+                  ></i>
                   <input
                     type="file"
                     accept="image/*"
