@@ -4,6 +4,7 @@
  * Tailwind v4 compatible
  * 
  * NOTE: Tailwind is imported in tailwind.css, not here!
+ * PRIMARY COLOR: Green (#22c55e)
  */
 
 /* ===========================
@@ -11,13 +12,18 @@
    =========================== */
 
 :root {
-  /* V1 Glasmorphism Brand Colors - 2026 */
-  --gradient-start: #3b82f6;
-  --gradient-mid: #a855f7;
-  --gradient-end: #ec4899;
+  /* V1 Brand Colors - Green Primary */
+  --gradient-start: #22c55e;
+  --gradient-mid: #16a34a;
+  --gradient-end: #15803d;
   --gradient-cyan: #06b6d4;
   --gradient-emerald: #10b981;
   --gradient-orange: #f97316;
+  
+  /* Primary Green */
+  --color-primary: #22c55e;
+  --color-primary-light: #4ade80;
+  --color-primary-dark: #16a34a;
   
   /* Light Mode */
   --bg-primary: 249 250 251;
@@ -178,20 +184,20 @@ body {
    V1 Glasmorphism Components
    =========================== */
 
-/* Glasmorphism Card - Primary (Blue) */
+/* Glasmorphism Card - Primary (Green) */
 .glass-card-primary {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(168, 85, 247, 0.1));
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  box-shadow: 0 8px 32px rgba(34, 197, 94, 0.1);
   border-radius: 1.25rem;
 }
 
 :root.dark .glass-card-primary {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(168, 85, 247, 0.15));
-  border-color: rgba(59, 130, 246, 0.3);
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.15);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.15));
+  border-color: rgba(34, 197, 94, 0.3);
+  box-shadow: 0 8px 32px rgba(34, 197, 94, 0.15);
 }
 
 /* Glasmorphism Card - Purple */
@@ -241,7 +247,7 @@ body {
 .glass-stat-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border-color: rgba(59, 130, 246, 0.2);
+  border-color: rgba(34, 197, 94, 0.2);
 }
 
 :root.dark .glass-stat-card {
@@ -251,8 +257,8 @@ body {
 }
 
 :root.dark .glass-stat-card:hover {
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
-  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 8px 32px rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
 /* Glasmorphism Activity Item */
@@ -260,7 +266,7 @@ body {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(248, 250, 252, 0.6));
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border-left: 3px solid rgba(59, 130, 246, 0.5);
+  border-left: 3px solid rgba(34, 197, 94, 0.5);
   padding: 1rem;
   border-radius: 0.75rem;
   transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -268,19 +274,19 @@ body {
 
 .glass-activity-item:hover {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(248, 250, 252, 0.75));
-  border-left-color: rgba(59, 130, 246, 1);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  border-left-color: rgba(34, 197, 94, 1);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1);
 }
 
 :root.dark .glass-activity-item {
   background: linear-gradient(135deg, rgba(31, 41, 55, 0.7), rgba(17, 24, 39, 0.6));
-  border-left-color: rgba(59, 130, 246, 0.6);
+  border-left-color: rgba(34, 197, 94, 0.6);
 }
 
 :root.dark .glass-activity-item:hover {
   background: linear-gradient(135deg, rgba(55, 65, 81, 0.85), rgba(31, 41, 55, 0.75));
-  border-left-color: rgba(59, 130, 246, 1);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  border-left-color: rgba(34, 197, 94, 1);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
 }
 
 /* Glasmorphism File Card */
@@ -297,8 +303,8 @@ body {
 .glass-file-card:hover {
   transform: translateY(-2px);
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.12);
-  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
 :root.dark .glass-file-card {
@@ -308,16 +314,16 @@ body {
 
 :root.dark .glass-file-card:hover {
   background: linear-gradient(135deg, rgba(55, 65, 81, 0.95), rgba(31, 41, 55, 0.9));
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.15);
-  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.4);
 }
 
 /* Glasmorphism Button */
 .glass-button {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(168, 85, 247, 0.9));
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9));
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(34, 197, 94, 0.3);
   border-radius: 0.75rem;
   padding: 0.625rem 1rem;
   color: white;
@@ -327,7 +333,7 @@ body {
 }
 
 .glass-button:hover {
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
   transform: translateY(-2px);
 }
 
@@ -337,22 +343,22 @@ body {
 
 /* Glasmorphism Badge */
 .glass-badge {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(168, 85, 247, 0.15));
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.15));
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(34, 197, 94, 0.3);
   border-radius: 2rem;
   padding: 0.25rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: rgb(59, 130, 246);
+  color: rgb(34, 197, 94);
   display: inline-block;
 }
 
 :root.dark .glass-badge {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(168, 85, 247, 0.2));
-  border-color: rgba(59, 130, 246, 0.4);
-  color: rgb(96, 165, 250);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2));
+  border-color: rgba(34, 197, 94, 0.4);
+  color: rgb(74, 222, 128);
 }
 
 /* ===========================

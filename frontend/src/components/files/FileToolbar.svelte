@@ -34,143 +34,92 @@
   ]);
 </script>
 
-<div
-  class="file-toolbar bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-4 mb-6"
->
+<div class="file-toolbar">
   <!-- Selection Mode Active Banner -->
   {#if selectionMode}
-    <div
-      class="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700"
-    >
-      <div class="flex items-center gap-3">
-        <div class="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-          <i class="bi bi-check2-square text-xl" aria-hidden="true"></i>
-          <span class="font-semibold">Selection Mode</span>
+    <div class="selection-banner">
+      <div class="selection-info">
+        <div class="selection-label">
+          <i class="bi bi-check2-square"></i>
+          <span>Selection Mode</span>
         </div>
         {#if selectedCount > 0}
-          <div
-            class="px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-sm font-semibold"
-          >
-            {selectedCount} selected
-          </div>
+          <div class="selection-count">{selectedCount} selected</div>
         {:else}
-          <span class="text-sm text-gray-500 dark:text-gray-400"
-            >Click on files to select them</span
-          >
+          <span class="selection-hint">Click on files to select them</span>
         {/if}
       </div>
-      <div class="flex items-center gap-2">
+      <div class="selection-actions">
         {#if selectedCount > 0}
           {#if onBatchRename}
             <button
               type="button"
-              class="px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium transition-all flex items-center gap-2"
+              class="btn-action purple"
               onclick={onBatchRename}
             >
-              <i class="bi bi-type" aria-hidden="true"></i>
+              <i class="bi bi-type"></i>
               <span class="hidden sm:inline">Rename</span>
             </button>
           {/if}
           {#if onBatchTag}
-            <button
-              type="button"
-              class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all flex items-center gap-2"
-              onclick={onBatchTag}
-            >
-              <i class="bi bi-tags" aria-hidden="true"></i>
+            <button type="button" class="btn-action green" onclick={onBatchTag}>
+              <i class="bi bi-tags"></i>
               <span class="hidden sm:inline">Tag</span>
             </button>
           {/if}
-          <button
-            type="button"
-            class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all flex items-center gap-2"
-            onclick={onBatchDelete}
-          >
-            <i class="bi bi-trash" aria-hidden="true"></i>
+          <button type="button" class="btn-action red" onclick={onBatchDelete}>
+            <i class="bi bi-trash"></i>
             <span class="hidden sm:inline">Delete</span>
           </button>
         {/if}
         <button
           type="button"
-          class="px-3 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg font-medium transition-all flex items-center gap-2"
+          class="btn-action gray"
           onclick={onSelectionToggle}
         >
-          <i class="bi bi-x-lg" aria-hidden="true"></i>
+          <i class="bi bi-x-lg"></i>
           <span class="hidden sm:inline">Cancel</span>
         </button>
       </div>
     </div>
   {/if}
 
-  <div class="flex flex-wrap items-center gap-3">
-    <!-- View Mode Toggle - Modern Pills -->
-    <div
-      class="flex items-center gap-1 bg-gray-100/80 dark:bg-gray-900/80 rounded-xl p-1 shadow-inner"
-    >
+  <div class="toolbar-content">
+    <!-- View Mode Toggle -->
+    <div class="toggle-group">
       <button
         type="button"
-        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200"
-        class:bg-white={viewMode === "grid"}
-        class:dark:bg-gray-700={viewMode === "grid"}
-        class:shadow-md={viewMode === "grid"}
-        class:text-gray-900={viewMode === "grid"}
-        class:dark:text-white={viewMode === "grid"}
-        class:text-gray-500={viewMode !== "grid"}
-        class:dark:text-gray-400={viewMode !== "grid"}
-        class:hover:text-gray-900={viewMode !== "grid"}
-        class:dark:hover:text-gray-200={viewMode !== "grid"}
+        class="toggle-btn"
+        class:active={viewMode === "grid"}
         onclick={() => (viewMode = "grid")}
         title="Grid View"
       >
-        <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i>
-        <span class="hidden sm:inline ml-1">Grid</span>
+        <i class="bi bi-grid-3x3-gap"></i>
+        <span class="hidden sm:inline">Grid</span>
       </button>
       <button
         type="button"
-        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200"
-        class:bg-white={viewMode === "list"}
-        class:dark:bg-gray-700={viewMode === "list"}
-        class:shadow-md={viewMode === "list"}
-        class:text-gray-900={viewMode === "list"}
-        class:dark:text-white={viewMode === "list"}
-        class:text-gray-500={viewMode !== "list"}
-        class:dark:text-gray-400={viewMode !== "list"}
-        class:hover:text-gray-900={viewMode !== "list"}
-        class:dark:hover:text-gray-200={viewMode !== "list"}
+        class="toggle-btn"
+        class:active={viewMode === "list"}
         onclick={() => (viewMode = "list")}
         title="List View"
       >
-        <i class="bi bi-list-ul" aria-hidden="true"></i>
-        <span class="hidden sm:inline ml-1">List</span>
+        <i class="bi bi-list-ul"></i>
+        <span class="hidden sm:inline">List</span>
       </button>
     </div>
 
-    <div
-      class="h-6 w-px bg-gray-300/50 dark:bg-gray-600/50 hidden md:block"
-    ></div>
+    <div class="divider hidden md:block"></div>
 
-    <!-- Sort Controls - Inline Modern Style -->
-    <div class="flex items-center gap-2">
-      <span
-        class="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider hidden md:inline"
-        >Sort by</span
-      >
-      <div
-        class="flex items-center gap-1 bg-gray-100/80 dark:bg-gray-900/80 rounded-xl p-1 shadow-inner"
-      >
+    <!-- Sort Controls -->
+    <div class="sort-controls">
+      <span class="sort-label hidden md:inline">Sort by</span>
+      <div class="toggle-group">
         {#each sortOptions as option}
           <button
             type="button"
-            class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5"
-            class:bg-white={sortBy === option.value}
-            class:dark:bg-gray-700={sortBy === option.value}
-            class:shadow-md={sortBy === option.value}
-            class:text-gray-900={sortBy === option.value}
-            class:dark:text-white={sortBy === option.value}
-            class:text-gray-500={sortBy !== option.value}
-            class:dark:text-gray-400={sortBy !== option.value}
-            class:hover:text-gray-900={sortBy !== option.value}
-            class:dark:hover:text-gray-200={sortBy !== option.value}
+            class="toggle-btn"
+            class:active={sortBy === option.value}
             onclick={() => (sortBy = option.value)}
             title="Sort by {option.label}"
           >
@@ -183,43 +132,36 @@
       <!-- Sort Order Toggle -->
       <button
         type="button"
-        class="p-2 rounded-xl hover:bg-gray-100/80 dark:hover:bg-gray-800/80 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-all duration-200"
+        class="icon-btn"
         onclick={() => (sortOrder = sortOrder === "asc" ? "desc" : "asc")}
         title={sortOrder === "asc" ? "Sort Descending" : "Sort Ascending"}
       >
-        <i
-          class="bi bi-sort-{sortOrder === 'asc' ? 'up' : 'down'}-alt text-lg"
-          aria-hidden="true"
-        ></i>
+        <i class="bi bi-sort-{sortOrder === 'asc' ? 'up' : 'down'}-alt"></i>
       </button>
     </div>
 
-    <div
-      class="h-6 w-px bg-gray-300/50 dark:bg-gray-600/50 hidden lg:block"
-    ></div>
+    <div class="divider hidden lg:block"></div>
 
     <!-- Quick Filter Buttons -->
     <button
       type="button"
-      class="p-2.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-1.5 {showFoldersOnly
-        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg'
-        : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'}"
+      class="filter-btn"
+      class:active={showFoldersOnly}
       onclick={() => (showFoldersOnly = !showFoldersOnly)}
       title="Toggle Folders Only"
     >
-      <i class="bi bi-folder text-lg" aria-hidden="true"></i>
+      <i class="bi bi-folder"></i>
     </button>
 
     <button
       type="button"
-      class="p-2.5 rounded-xl font-medium transition-all duration-200 flex items-center gap-1.5 {showFavoritesOnly
-        ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg'
-        : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-amber-100 dark:hover:bg-amber-900/30'}"
+      class="filter-btn favorite"
+      class:active={showFavoritesOnly}
       onclick={() => (showFavoritesOnly = !showFavoritesOnly)}
       title="Toggle Favorites Only"
     >
       <i
-        class="bi text-lg"
+        class="bi"
         class:bi-star={!showFavoritesOnly}
         class:bi-star-fill={showFavoritesOnly}
       ></i>
@@ -227,24 +169,16 @@
 
     <div class="flex-1"></div>
 
-    <!-- Action Buttons - Modern Dashboard Style -->
-    <div class="flex items-center gap-2">
-      <!-- Upload Button - Prominent -->
-      <button
-        type="button"
-        class="upload-btn px-5 py-2.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
-        onclick={onUpload}
-      >
-        <i class="bi bi-cloud-arrow-up text-xl" aria-hidden="true"></i>
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <!-- Upload Button - Primary -->
+      <button type="button" class="btn-upload" onclick={onUpload}>
+        <i class="bi bi-cloud-arrow-up"></i>
         <span>Upload</span>
       </button>
 
-      <button
-        type="button"
-        class="px-4 py-2.5 bg-white/80 dark:bg-gray-700/80 text-gray-700 dark:text-gray-200 border border-gray-200/50 dark:border-gray-600/50 rounded-xl font-medium hover:bg-white dark:hover:bg-gray-600 hover:shadow-md transition-all duration-200 flex items-center gap-2"
-        onclick={onNewFolder}
-      >
-        <i class="bi bi-folder-plus text-lg" aria-hidden="true"></i>
+      <button type="button" class="btn-secondary" onclick={onNewFolder}>
+        <i class="bi bi-folder-plus"></i>
         <span class="hidden sm:inline">New Folder</span>
       </button>
 
@@ -252,11 +186,11 @@
       {#if ENABLE_TEMPLATE_LIBRARY && onNewFromTemplate}
         <button
           type="button"
-          class="px-4 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+          class="btn-secondary"
           onclick={onNewFromTemplate}
           title={tr("templates.newFromTemplate")}
         >
-          <i class="bi bi-file-earmark-plus text-lg" aria-hidden="true"></i>
+          <i class="bi bi-file-earmark-plus"></i>
           <span class="hidden md:inline">{tr("templates.newFromTemplate")}</span
           >
         </button>
@@ -264,33 +198,33 @@
 
       <button
         type="button"
-        class="p-2.5 rounded-xl bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:shadow-md transition-all duration-200"
+        class="icon-btn"
         onclick={() => onRefresh?.()}
         aria-label="Refresh files"
         title="Refresh files"
       >
-        <i class="bi bi-arrow-clockwise text-lg" aria-hidden="true"></i>
+        <i class="bi bi-arrow-clockwise"></i>
       </button>
 
       <button
         type="button"
-        class="p-2.5 rounded-xl bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:shadow-md transition-all duration-200"
+        class="icon-btn"
         onclick={onAdvancedSearch}
         aria-label="Advanced search"
         title="Advanced search"
       >
-        <i class="bi bi-funnel text-lg" aria-hidden="true"></i>
+        <i class="bi bi-funnel"></i>
       </button>
 
-      <!-- Selection Mode Toggle - only show when NOT in selection mode -->
+      <!-- Selection Mode Toggle -->
       {#if onSelectionToggle && !selectionMode}
         <button
           type="button"
-          class="p-2.5 rounded-xl bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:shadow-md transition-all duration-200"
+          class="icon-btn"
           onclick={onSelectionToggle}
           title="Select multiple files"
         >
-          <i class="bi bi-check2-square text-lg" aria-hidden="true"></i>
+          <i class="bi bi-check2-square"></i>
         </button>
       {/if}
     </div>
@@ -302,21 +236,375 @@
     position: sticky;
     top: 0;
     z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
   }
 
-  .upload-btn {
-    animation: pulse-glow 2s ease-in-out infinite;
+  :global(.dark) .file-toolbar {
+    background: rgba(31, 41, 55, 0.9);
+    border-color: #374151;
   }
 
-  @keyframes pulse-glow {
-    0%,
-    100% {
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  /* Selection Banner */
+  .selection-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  :global(.dark) .selection-banner {
+    border-bottom-color: #374151;
+  }
+
+  .selection-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .selection-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #22c55e;
+    font-weight: 600;
+  }
+
+  .selection-label i {
+    font-size: 1.25rem;
+  }
+
+  .selection-count {
+    padding: 0.25rem 0.75rem;
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .selection-hint {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  :global(.dark) .selection-hint {
+    color: #9ca3af;
+  }
+
+  .selection-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Action Buttons */
+  .btn-action {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+  }
+
+  .btn-action.green {
+    background: #22c55e;
+  }
+  .btn-action.green:hover {
+    background: #16a34a;
+  }
+  .btn-action.purple {
+    background: #a855f7;
+  }
+  .btn-action.purple:hover {
+    background: #9333ea;
+  }
+  .btn-action.red {
+    background: #ef4444;
+  }
+  .btn-action.red:hover {
+    background: #dc2626;
+  }
+  .btn-action.gray {
+    background: #e5e7eb;
+    color: #374151;
+  }
+  .btn-action.gray:hover {
+    background: #d1d5db;
+  }
+
+  :global(.dark) .btn-action.gray {
+    background: #374151;
+    color: #e5e7eb;
+  }
+  :global(.dark) .btn-action.gray:hover {
+    background: #4b5563;
+  }
+
+  /* Toolbar Content */
+  .toolbar-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  /* Toggle Group */
+  .toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #f3f4f6;
+    border-radius: 0.5rem;
+    padding: 0.25rem;
+  }
+
+  :global(.dark) .toggle-group {
+    background: #1f2937;
+  }
+
+  .toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .toggle-btn:hover {
+    color: #111827;
+  }
+
+  :global(.dark) .toggle-btn:hover {
+    color: #f3f4f6;
+  }
+
+  .toggle-btn.active {
+    background: white;
+    color: #111827;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  :global(.dark) .toggle-btn.active {
+    background: #374151;
+    color: white;
+  }
+
+  /* Divider */
+  .divider {
+    width: 1px;
+    height: 1.5rem;
+    background: #d1d5db;
+  }
+
+  :global(.dark) .divider {
+    background: #4b5563;
+  }
+
+  /* Sort Controls */
+  .sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sort-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Filter Buttons */
+  .filter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 0.5rem;
+    background: #f3f4f6;
+    border: none;
+    color: #6b7280;
+    font-size: 1.125rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  :global(.dark) .filter-btn {
+    background: #374151;
+    color: #9ca3af;
+  }
+
+  .filter-btn:hover {
+    background: #e5e7eb;
+    color: #111827;
+  }
+
+  :global(.dark) .filter-btn:hover {
+    background: #4b5563;
+    color: white;
+  }
+
+  .filter-btn.active {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  }
+
+  .filter-btn.favorite.active {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  }
+
+  /* Icon Button */
+  .icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 0.5rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+    font-size: 1.125rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  :global(.dark) .icon-btn {
+    background: #374151;
+    border-color: #4b5563;
+    color: #9ca3af;
+  }
+
+  .icon-btn:hover {
+    background: #f3f4f6;
+    color: #111827;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  :global(.dark) .icon-btn:hover {
+    background: #4b5563;
+    color: white;
+  }
+
+  /* Action Buttons */
+  .action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-upload {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  }
+
+  .btn-upload:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+  }
+
+  .btn-upload i {
+    font-size: 1.125rem;
+  }
+
+  .btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: white;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  :global(.dark) .btn-secondary {
+    background: #374151;
+    color: #e5e7eb;
+    border-color: #4b5563;
+  }
+
+  .btn-secondary:hover {
+    background: #f3f4f6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  :global(.dark) .btn-secondary:hover {
+    background: #4b5563;
+  }
+
+  .btn-secondary i {
+    font-size: 1.125rem;
+  }
+
+  /* Utility classes */
+  .flex-1 {
+    flex: 1;
+  }
+  .hidden {
+    display: none;
+  }
+  @media (min-width: 640px) {
+    .sm\:inline {
+      display: inline;
     }
-    50% {
-      box-shadow: 0 4px 25px rgba(59, 130, 246, 0.5);
+  }
+  @media (min-width: 768px) {
+    .md\:block {
+      display: block;
+    }
+    .md\:inline {
+      display: inline;
+    }
+  }
+  @media (min-width: 1024px) {
+    .lg\:block {
+      display: block;
+    }
+    .lg\:inline {
+      display: inline;
     }
   }
 </style>

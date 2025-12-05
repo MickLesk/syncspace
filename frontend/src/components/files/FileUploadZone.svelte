@@ -102,9 +102,9 @@
   role="region"
   aria-label="File upload drop zone"
   class="upload-zone relative border-2 border-dashed rounded-lg p-8 transition-all"
-  class:border-blue-500={isDragging}
-  class:bg-blue-50={isDragging}
-  class:dark-bg-blue-900={isDragging}
+  class:border-green-500={isDragging}
+  class:bg-green-50={isDragging}
+  class:dark-bg-green-900={isDragging}
   class:border-gray-300={!isDragging}
   class:dark:border-gray-600={!isDragging}
   ondragenter={handleDragEnter}
@@ -125,9 +125,11 @@
 
   <div class="text-center">
     {#if isDragging}
-      <i class="bi bi-download text-6xl text-blue-500 mb-4 block animate-bounce"
-       aria-hidden="true"></i>
-      <p class="text-xl font-semibold text-blue-600 dark:text-blue-400 mb-2">
+      <i
+        class="bi bi-download text-6xl text-green-500 mb-4 block animate-bounce"
+        aria-hidden="true"
+      ></i>
+      <p class="text-xl font-semibold text-green-600 dark:text-green-400 mb-2">
         Drop files or folders here
       </p>
       <p class="text-sm text-gray-500 dark:text-gray-400">
@@ -161,7 +163,7 @@
     justify-content: center;
   }
 
-  .upload-zone.border-blue-500 {
+  .upload-zone.border-green-500 {
     transform: scale(1.02);
   }
 

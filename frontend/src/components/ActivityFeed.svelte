@@ -2,16 +2,18 @@
   import { onMount } from "svelte";
   import { websocketManager } from "@stores/websocket.js";
 
-  let activity = [];
+  let activity = $state([]);
 
   onMount(() => {
     websocketManager.on("file_change", (event) => {
-      activity.unshift({
-        ...event,
-        time: new Date().toLocaleTimeString(),
-        id: Date.now() + Math.random(), // Unique ID for animations
-      });
-      if (activity.length > 50) activity.pop();
+      activity = [
+        {
+          ...event,
+          time: new Date().toLocaleTimeString(),
+          id: Date.now() + Math.random(),
+        },
+        ...activity.slice(0, 49),
+      ];
     });
   });
 
@@ -28,161 +30,206 @@
 
   function getEventColor(kind) {
     const colors = {
-      create: "text-green-500 bg-green-500/10",
-      modify: "text-blue-500 bg-blue-500/10",
-      delete: "text-red-500 bg-red-500/10",
-      rename: "text-purple-500 bg-purple-500/10",
-      move: "text-orange-500 bg-orange-500/10",
+      create: "green",
+      modify: "blue",
+      delete: "red",
+      rename: "purple",
+      move: "amber",
     };
-    return colors[kind] || "text-gray-500 bg-gray-500/10";
+    return colors[kind] || "gray";
+  }
+
+  function clearActivity() {
+    activity = [];
   }
 </script>
 
-<div class="activity-feed-panel h-full flex flex-col">
-  <!-- Modern Header with Gradient -->
-  <div
-    class="feed-header px-6 py-4 bg-gradient-to-r from-primary-500 to-secondary-500 text-white"
-  >
-    <div class="flex items-center gap-3">
-      <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-        <i class="bi bi-activity text-xl" aria-hidden="true"></i>
-      </div>
-      <div>
-        <h3 class="font-bold text-lg">Activity Feed</h3>
-        <p class="text-xs text-white/80">Real-time file operations</p>
-      </div>
+<div class="activity-feed">
+  <!-- Header -->
+  <div class="feed-header">
+    <div class="header-icon">
+      <i class="bi bi-activity"></i>
+    </div>
+    <div class="header-text">
+      <h3>Activity Feed</h3>
+      <p>Real-time file operations</p>
     </div>
   </div>
 
-  <!-- Activity List with Smooth Scroll -->
-  <div class="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+  <!-- Activity List -->
+  <div class="feed-content">
     {#if activity.length === 0}
-      <div
-        class="flex flex-col items-center justify-center h-full text-center px-4"
-      >
-        <div
-          class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4"
-        >
-          <i
-            class="bi bi-clock-history text-3xl text-gray-400 dark:text-gray-500"
-          ></i>
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="bi bi-clock-history"></i>
         </div>
-        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-          No recent activity
-        </p>
-        <p class="text-xs text-gray-500 dark:text-gray-500">
-          File operations will appear here
-        </p>
+        <p class="empty-title">No recent activity</p>
+        <p class="empty-desc">File operations will appear here</p>
       </div>
     {:else}
       {#each activity as item (item.id)}
-        <div
-          class="activity-item group hover:scale-[1.02] transition-all duration-200"
-          style="animation: slideInRight 0.3s ease-out;"
-        >
-          <div
-            class="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200"
-          >
-            <!-- Icon with colored background -->
-            <div
-              class="flex-shrink-0 w-10 h-10 rounded-lg {getEventColor(
-                item.kind
-              )} flex items-center justify-center"
-            >
-              <i class="{getEventIcon(item.kind)} text-lg"></i>
+        <div class="activity-item">
+          <div class="item-icon {getEventColor(item.kind)}">
+            <i class={getEventIcon(item.kind)}></i>
+          </div>
+          <div class="item-content">
+            <div class="item-header">
+              <span class="item-kind">{item.kind || "change"}</span>
+              <span class="item-time">{item.time}</span>
             </div>
-
-            <!-- Content -->
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <span
-                  class="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-gray-100"
-                >
-                  {item.kind || "change"}
-                </span>
-                <span class="text-xs text-gray-400 dark:text-gray-500">
-                  {item.time}
-                </span>
-              </div>
-              <p
-                class="text-sm text-gray-700 dark:text-gray-300 truncate font-medium"
-                title={item.path}
-              >
-                {item.path?.split("/").pop() || item.path}
-              </p>
-              {#if item.path?.includes("/")}
-                <p
-                  class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5"
-                  title={item.path}
-                >
-                  {item.path}
-                </p>
-              {/if}
-            </div>
+            <p class="item-file" title={item.path}>
+              {item.path?.split("/").pop() || item.path}
+            </p>
+            {#if item.path?.includes("/")}
+              <p class="item-path" title={item.path}>{item.path}</p>
+            {/if}
           </div>
         </div>
       {/each}
     {/if}
   </div>
 
-  <!-- Footer with Stats -->
-  <div
-    class="feed-footer px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"
-  >
-    <div class="flex items-center justify-between text-xs">
-      <span class="text-gray-600 dark:text-gray-400">
-        <i class="bi bi-clock-history" aria-hidden="true"></i>
-        {activity.length} recent events
-      </span>
-      {#if activity.length > 0}
-        <button
-          onclick={() => (activity = [])}
-          class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 font-medium transition-colors"
-        >
-          Clear all
-        </button>
-      {/if}
-    </div>
+  <!-- Footer -->
+  <div class="feed-footer">
+    <span class="event-count">
+      <i class="bi bi-clock-history"></i>
+      {activity.length} recent events
+    </span>
+    {#if activity.length > 0}
+      <button class="clear-btn" onclick={clearActivity}>Clear all</button>
+    {/if}
   </div>
 </div>
 
 <style>
-  .activity-feed-panel {
-    background: rgb(249 250 251);
+  .activity-feed {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #f9fafb;
   }
 
-  :global(.dark) .activity-feed-panel {
-    background: rgb(17 24 39);
+  :global(.dark) .activity-feed {
+    background: #111827;
   }
 
-  /* Custom Scrollbar */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+  /* Header */
+  .feed-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
   }
 
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(156, 163, 175, 0.3);
-    border-radius: 3px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(156, 163, 175, 0.5);
-  }
-
-  :global(.dark) .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  :global(.dark) .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  .header-icon {
+    width: 40px;
+    height: 40px;
     background: rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
   }
 
-  /* Slide In Animation */
-  @keyframes slideInRight {
+  .header-text h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .header-text p {
+    font-size: 0.75rem;
+    margin: 0;
+    opacity: 0.85;
+  }
+
+  /* Content */
+  .feed-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem;
+  }
+
+  .feed-content::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .feed-content::-webkit-scrollbar-thumb {
+    background: rgba(34, 197, 94, 0.3);
+    border-radius: 2px;
+  }
+
+  /* Empty State */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    background: #f3f4f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  :global(.dark) .empty-icon {
+    background: #1f2937;
+  }
+
+  .empty-icon i {
+    font-size: 1.75rem;
+    color: #9ca3af;
+  }
+
+  .empty-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    margin: 0 0 0.25rem;
+  }
+
+  .empty-desc {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin: 0;
+  }
+
+  /* Activity Item */
+  .activity-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  :global(.dark) .activity-item {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .activity-item:hover {
+    border-color: #22c55e;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
+  }
+
+  @keyframes slideIn {
     from {
       opacity: 0;
       transform: translateX(20px);
@@ -191,5 +238,150 @@
       opacity: 1;
       transform: translateX(0);
     }
+  }
+
+  .item-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .item-icon.green {
+    background: #dcfce7;
+    color: #22c55e;
+  }
+  .item-icon.blue {
+    background: #dbeafe;
+    color: #3b82f6;
+  }
+  .item-icon.red {
+    background: #fee2e2;
+    color: #ef4444;
+  }
+  .item-icon.purple {
+    background: #f3e8ff;
+    color: #a855f7;
+  }
+  .item-icon.amber {
+    background: #fef3c7;
+    color: #f59e0b;
+  }
+
+  :global(.dark) .item-icon.green {
+    background: rgba(34, 197, 94, 0.2);
+  }
+  :global(.dark) .item-icon.blue {
+    background: rgba(59, 130, 246, 0.2);
+  }
+  :global(.dark) .item-icon.red {
+    background: rgba(239, 68, 68, 0.2);
+  }
+  :global(.dark) .item-icon.purple {
+    background: rgba(168, 85, 247, 0.2);
+  }
+  :global(.dark) .item-icon.amber {
+    background: rgba(245, 158, 11, 0.2);
+  }
+
+  .item-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .item-kind {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #111827;
+  }
+
+  :global(.dark) .item-kind {
+    color: #f9fafb;
+  }
+
+  .item-time {
+    font-size: 0.6875rem;
+    color: #9ca3af;
+  }
+
+  .item-file {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #374151;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  :global(.dark) .item-file {
+    color: #d1d5db;
+  }
+
+  .item-path {
+    font-size: 0.6875rem;
+    color: #6b7280;
+    margin: 0.125rem 0 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  :global(.dark) .item-path {
+    color: #9ca3af;
+  }
+
+  /* Footer */
+  .feed-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+  }
+
+  :global(.dark) .feed-footer {
+    background: #111827;
+    border-top-color: #374151;
+  }
+
+  .event-count {
+    font-size: 0.75rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  :global(.dark) .event-count {
+    color: #9ca3af;
+  }
+
+  .clear-btn {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #22c55e;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .clear-btn:hover {
+    color: #16a34a;
   }
 </style>

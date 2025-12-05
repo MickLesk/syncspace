@@ -170,10 +170,10 @@
       draggable="true"
       data-file-name={file.name}
       class="file-card-grid p-5 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl dark:shadow-gray-900/50 text-left w-full transition-all border-2 {selected
-        ? 'border-blue-400 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+        ? 'border-green-500 dark:border-green-500 bg-green-50 dark:bg-green-900/20'
         : isDropTarget
-          ? 'border-emerald-400 bg-emerald-50'
-          : 'border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-600'} {isDragging
+          ? 'border-green-400 bg-green-50'
+          : 'border-gray-100 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600'} {isDragging
         ? 'opacity-50'
         : ''}"
       ondragstart={(e) => {
@@ -233,8 +233,8 @@
         <div class="absolute top-3 left-3 z-10">
           <div
             class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all {selected
-              ? 'bg-blue-500 border-blue-500'
-              : 'bg-white/80 dark:bg-gray-800/80 border-gray-300 dark:border-gray-600 hover:border-blue-400'}"
+              ? 'bg-green-500 border-green-500'
+              : 'bg-white/80 dark:bg-gray-800/80 border-gray-300 dark:border-gray-600 hover:border-green-400'}"
           >
             {#if selected}
               <i
@@ -294,10 +294,10 @@
       type="button"
       draggable="true"
       class="file-card-list p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg text-left w-full transition-all border-2 flex items-center gap-4 {selected
-        ? 'border-blue-400 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+        ? 'border-green-500 dark:border-green-500 bg-green-50 dark:bg-green-900/20'
         : isDropTarget
-          ? 'border-emerald-400 bg-emerald-50'
-          : 'border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-600'} {isDragging
+          ? 'border-green-400 bg-green-50'
+          : 'border-gray-100 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600'} {isDragging
         ? 'opacity-50'
         : ''}"
       ondragstart={(e) => {
@@ -354,8 +354,8 @@
         <div class="flex-shrink-0">
           <div
             class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all {selected
-              ? 'bg-blue-500 border-blue-500'
-              : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:border-blue-400'}"
+              ? 'bg-green-500 border-green-500'
+              : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:border-green-400'}"
           >
             {#if selected}
               <i
@@ -397,7 +397,7 @@
 
       {#if selected}
         <i
-          class="bi bi-check-circle-fill text-2xl text-blue-500 dark:text-blue-400"
+          class="bi bi-check-circle-fill text-2xl text-green-500 dark:text-green-400"
         ></i>
       {/if}
     </button>

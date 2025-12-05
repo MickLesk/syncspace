@@ -128,35 +128,35 @@
   }
 
   nav::-webkit-scrollbar-thumb {
-    background: rgba(156, 163, 175, 0.3);
+    background: rgba(34, 197, 94, 0.3);
     border-radius: 2px;
   }
 
   nav::-webkit-scrollbar-thumb:hover {
-    background: rgba(156, 163, 175, 0.5);
+    background: rgba(34, 197, 94, 0.5);
   }
 
   .breadcrumb-item {
     background: transparent;
-    color: rgb(59, 130, 246);
+    color: #22c55e;
     border: 2px solid transparent;
     white-space: nowrap;
   }
 
   .breadcrumb-item:hover {
-    background: rgba(59, 130, 246, 0.1);
-    border-color: rgba(59, 130, 246, 0.2);
+    background: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.2);
   }
 
   .breadcrumb-item.last-segment {
-    background: rgba(59, 130, 246, 0.1);
-    color: rgb(37, 99, 235);
+    background: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
     font-weight: 600;
   }
 
   .breadcrumb-item.drop-target {
-    background: rgba(16, 185, 129, 0.15);
-    border-color: rgb(16, 185, 129);
+    background: rgba(34, 197, 94, 0.15);
+    border-color: #22c55e;
     border-style: dashed;
     animation: pulse 1.5s ease-in-out infinite;
   }
@@ -164,32 +164,32 @@
   @keyframes pulse {
     0%,
     100% {
-      border-color: rgb(16, 185, 129);
-      background: rgba(16, 185, 129, 0.15);
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.15);
     }
     50% {
-      border-color: rgb(5, 150, 105);
-      background: rgba(16, 185, 129, 0.25);
+      border-color: #16a34a;
+      background: rgba(34, 197, 94, 0.25);
     }
   }
 
   /* Dark Mode */
   :global(.dark) .breadcrumb-item {
-    color: rgb(96, 165, 250);
+    color: #4ade80;
   }
 
   :global(.dark) .breadcrumb-item:hover {
-    background: rgba(96, 165, 250, 0.1);
-    border-color: rgba(96, 165, 250, 0.2);
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.25);
   }
 
   :global(.dark) .breadcrumb-item.last-segment {
-    background: rgba(96, 165, 250, 0.15);
-    color: rgb(147, 197, 253);
+    background: rgba(34, 197, 94, 0.15);
+    color: #86efac;
   }
 
   :global(.dark) .breadcrumb-item.drop-target {
-    background: rgba(16, 185, 129, 0.2);
-    border-color: rgb(16, 185, 129);
+    background: rgba(34, 197, 94, 0.2);
+    border-color: #4ade80;
   }
 </style>

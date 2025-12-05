@@ -243,17 +243,11 @@
     <!-- Page Header -->
     <div class="max-w-7xl mx-auto mb-6">
       <div class="glass-card p-6 animate-slide-down">
-        <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap justify-between gap-4">
           <div>
-            <h1
-              class="text-3xl font-bold gradient-text mb-2 flex items-center gap-3"
-            >
-              <i class="bi bi-star-fill text-yellow-500" aria-hidden="true"></i>
-              Favorites
-            </h1>
             <p class="text-sm text-gray-600 dark:text-gray-400">
               {favoriteFiles.length}
-              {favoriteFiles.length === 1 ? "item" : "items"}
+              {favoriteFiles.length === 1 ? "Favorite" : "Favorites"}
             </p>
           </div>
 

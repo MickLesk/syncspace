@@ -220,7 +220,7 @@
 {#if loading}
   <div class="flex items-center justify-center py-12">
     <div
-      class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
+      class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"
     ></div>
   </div>
 {:else}
@@ -231,9 +231,9 @@
       >
         <div class="flex items-center gap-3">
           <div
-            class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center"
+            class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center"
           >
-            <i class="bi bi-hdd-stack-fill text-blue-600 dark:text-blue-400"
+            <i class="bi bi-hdd-stack-fill text-green-600 dark:text-green-400"
             ></i>
           </div>
           <div>
@@ -321,9 +321,9 @@
     >
       <div class="flex items-center gap-3 mb-4">
         <div
-          class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center"
+          class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center"
         >
-          <i class="bi bi-speedometer2 text-blue-600 dark:text-blue-400"></i>
+          <i class="bi bi-speedometer2 text-green-600 dark:text-green-400"></i>
         </div>
         <div>
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
@@ -378,7 +378,7 @@
         </div>
         <button
           onclick={() => (showAddBackend = true)}
-          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-2"
         >
           <i class="bi bi-plus-lg"></i>
           {tr("settings.storage.add_backend")}
@@ -437,7 +437,7 @@
                 <button
                   onclick={() => testBackendConnection(backend.id)}
                   disabled={testing}
-                  class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg"
+                  class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg"
                   title={tr("settings.storage.test_connection")}
                 >
                   <i class="bi bi-plug"></i>
@@ -498,7 +498,7 @@
             type="text"
             bind:value={newBackend.name}
             placeholder="My S3 Bucket"
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
           />
         </div>
         <div>
@@ -508,7 +508,7 @@
           >
           <select
             bind:value={newBackend.type}
-            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
           >
             {#each backendTypes as type}
               <option value={type.value}>{type.label}</option>
@@ -525,7 +525,7 @@
               type="text"
               bind:value={newBackend.endpoint}
               placeholder="https://s3.amazonaws.com"
-              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
             />
           </div>
           <div>
@@ -537,7 +537,7 @@
               type="text"
               bind:value={newBackend.bucket}
               placeholder="my-bucket"
-              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
             />
           </div>
           <div>
@@ -549,7 +549,7 @@
               type="text"
               bind:value={newBackend.region}
               placeholder="eu-central-1"
-              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
             />
           </div>
           <div>
@@ -561,7 +561,7 @@
               type="text"
               bind:value={newBackend.accessKey}
               placeholder="AKIAIOSFODNN7EXAMPLE"
-              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
             />
           </div>
           <div>
@@ -573,7 +573,7 @@
               type="password"
               bind:value={newBackend.secretKey}
               placeholder="••••••••"
-              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
             />
           </div>
         {/if}
@@ -583,7 +583,7 @@
           <input
             type="checkbox"
             bind:checked={newBackend.isActive}
-            class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            class="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
           />
           <span class="text-gray-900 dark:text-white"
             >{tr("settings.storage.enable_backend")}</span
@@ -604,7 +604,7 @@
         <button
           onclick={addBackend}
           disabled={saving || !newBackend.name}
-          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2 disabled:opacity-50"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-2 disabled:opacity-50"
         >
           {#if saving}
             <div

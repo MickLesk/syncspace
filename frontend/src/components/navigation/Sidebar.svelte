@@ -126,8 +126,12 @@
   ]);
 
   let mainItems = $derived(navItems.filter((item) => item.category === "main"));
-  let toolsItems = $derived(navItems.filter((item) => item.category === "tools"));
-  let systemItems = $derived(navItems.filter((item) => item.category === "system"));
+  let toolsItems = $derived(
+    navItems.filter((item) => item.category === "tools")
+  );
+  let systemItems = $derived(
+    navItems.filter((item) => item.category === "system")
+  );
 
   // Computed: is sidebar collapsed based on width
   let isCollapsed = $derived($sidebarCollapsed || sidebarWidth <= minWidth);
@@ -157,14 +161,14 @@
     isResizing = true;
     document.body.style.cursor = "ew-resize";
     document.body.style.userSelect = "none";
-    
+
     document.addEventListener("mousemove", handleResize);
     document.addEventListener("mouseup", stopResize);
   }
 
   function handleResize(e) {
     if (!isResizing) return;
-    
+
     const newWidth = Math.max(minWidth, Math.min(maxWidth, e.clientX));
     sidebarWidth = newWidth;
 
@@ -194,8 +198,8 @@
   }
 </script>
 
-<aside 
-  class="sidebar" 
+<aside
+  class="sidebar"
   class:collapsed={isCollapsed}
   class:resizing={isResizing}
   style="width: {isCollapsed ? minWidth : sidebarWidth}px"
@@ -204,10 +208,24 @@
   <div class="sidebar-header">
     <div class="brand" class:collapsed={isCollapsed}>
       <div class="logo-container">
-        <svg class="logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" fill="url(#sidebar-logo-gradient)" />
+        <svg
+          class="logo"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"
+            fill="url(#sidebar-logo-gradient)"
+          />
           <defs>
-            <linearGradient id="sidebar-logo-gradient" x1="3" y1="2" x2="21" y2="22">
+            <linearGradient
+              id="sidebar-logo-gradient"
+              x1="3"
+              y1="2"
+              x2="21"
+              y2="22"
+            >
               <stop offset="0%" stop-color="#22c55e" />
               <stop offset="100%" stop-color="#16a34a" />
             </linearGradient>
@@ -227,7 +245,10 @@
       onclick={toggleSidebar}
       aria-label="Toggle sidebar"
     >
-      <i class="bi bi-chevron-{isCollapsed ? 'right' : 'left'}" aria-hidden="true"></i>
+      <i
+        class="bi bi-chevron-{isCollapsed ? 'right' : 'left'}"
+        aria-hidden="true"
+      ></i>
     </button>
   </div>
 
@@ -254,7 +275,10 @@
               <span class="nav-label">{item.label}</span>
             {/if}
             {#if item.badge && item.badge > 0}
-              <span class="nav-badge {item.badgeColor}" class:mini={isCollapsed}>
+              <span
+                class="nav-badge {item.badgeColor}"
+                class:mini={isCollapsed}
+              >
                 {item.badge}
               </span>
             {/if}
@@ -288,7 +312,10 @@
               <span class="nav-label">{item.label}</span>
             {/if}
             {#if item.badge && item.badge > 0}
-              <span class="nav-badge {item.badgeColor}" class:mini={isCollapsed}>
+              <span
+                class="nav-badge {item.badgeColor}"
+                class:mini={isCollapsed}
+              >
                 {item.badge}
               </span>
             {/if}
@@ -340,7 +367,7 @@
   </div>
 
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <div 
+  <div
     class="resize-handle"
     onmousedown={startResize}
     ondblclick={resetWidth}
@@ -435,8 +462,14 @@
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateX(-8px); }
-    to { opacity: 1; transform: translateX(0); }
+    from {
+      opacity: 0;
+      transform: translateX(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
   .brand-name {
@@ -518,7 +551,12 @@
 
   .nav-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.2), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(34, 197, 94, 0.2),
+      transparent
+    );
     margin: 0.5rem 0;
   }
 

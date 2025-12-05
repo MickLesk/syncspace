@@ -5,49 +5,49 @@ export default {
   theme: {
     extend: {
       colors: {
-        // V1 Glasmorphism Brand Colors 2026
-        'gradient-start': '#3b82f6',
-        'gradient-mid': '#a855f7',
-        'gradient-end': '#ec4899',
+        // SyncSpace Brand Colors - Green Primary
+        'gradient-start': '#22c55e',
+        'gradient-mid': '#16a34a',
+        'gradient-end': '#15803d',
         'gradient-cyan': '#06b6d4',
         'gradient-emerald': '#10b981',
         'gradient-orange': '#f97316',
-        // Semantic colors with full scale - Blue Gradient
+        // Semantic colors with full scale - Green Primary
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6', // V1 Brand primary
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          300: '#86efac',
+          400: '#4ade80',
+          500: '#22c55e', // Brand primary green
+          600: '#16a34a',
+          700: '#15803d',
+          800: '#166534',
+          900: '#14532d',
         },
         secondary: {
-          50: '#faf5ff',
-          100: '#f3e8ff',
-          200: '#e9d5ff',
-          300: '#d8b4fe',
-          400: '#c084fc',
-          500: '#a855f7', // V1 Brand secondary
-          600: '#9333ea',
-          700: '#7e22ce',
-          800: '#6b21a8',
-          900: '#581c87',
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          300: '#86efac',
+          400: '#4ade80',
+          500: '#10b981', // Secondary emerald
+          600: '#059669',
+          700: '#047857',
+          800: '#065f46',
+          900: '#064e3b',
         },
         accent: {
-          50: '#fce7f3',
-          100: '#fbcfe8',
-          200: '#f8a4d2',
-          300: '#f472b6',
-          400: '#ec4899', // V1 Accent pink
-          500: '#ec4899',
-          600: '#db2777',
-          700: '#be185d',
-          800: '#9d174d',
-          900: '#831843',
+          50: '#ecfdf5',
+          100: '#d1fae5',
+          200: '#a7f3d0',
+          300: '#6ee7b7',
+          400: '#34d399', // Accent teal
+          500: '#10b981',
+          600: '#059669',
+          700: '#047857',
+          800: '#065f46',
+          900: '#064e3b',
         },
         // Glass effect colors
         glass: {

@@ -1,47 +1,31 @@
 <script>
   import { loading } from "../stores/ui.js";
 
-  // Subscribe to loading state
-  $: isLoading = $loading.isLoading;
-  $: message = $loading.message;
-  $: progress = $loading.progress;
+  // Subscribe to loading state (Svelte 5)
+  let isLoading = $derived($loading.isLoading);
+  let message = $derived($loading.message);
+  let progress = $derived($loading.progress);
 
   // Calculate progress percentage
-  $: progressPercent = progress
-    ? Math.round((progress.current / progress.total) * 100)
-    : 0;
-
-  // DEBUG: Log when loading state changes
-  $: {
-    console.log("[LoadingOverlay] isLoading:", isLoading, "message:", message);
-  }
+  let progressPercent = $derived(
+    progress ? Math.round((progress.current / progress.total) * 100) : 0
+  );
 </script>
 
 {#if isLoading}
   <div class="loading-overlay" role="status" aria-live="polite">
     <div class="loading-container">
       <!-- Spinner -->
-      <div class="spinner">
-        <svg class="spinner-svg" viewBox="0 0 50 50">
-          <circle
-            class="spinner-circle"
-            cx="25"
-            cy="25"
-            r="20"
-            fill="none"
-            stroke-width="4"
-          />
-        </svg>
-      </div>
+      <div class="spinner"></div>
 
       <!-- Loading Message -->
       <p class="loading-message">{message}</p>
 
       <!-- Progress Bar (if available) -->
       {#if progress}
-        <div class="progress-container">
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: {progressPercent}%"></div>
+        <div class="progress-section">
+          <div class="progress-container">
+            <div class="progress-bar" style="width: {progressPercent}%"></div>
           </div>
           <p class="progress-text">
             {progress.current} / {progress.total} ({progressPercent}%)
@@ -55,11 +39,8 @@
 <style>
   .loading-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
@@ -78,10 +59,10 @@
   }
 
   .loading-container {
-    background: var(--surface-container-high, #ffffff);
+    background: white;
     padding: 2rem;
-    border-radius: 16px;
-    box-shadow: var(--elevation-3, 0 4px 12px rgba(0, 0, 0, 0.15));
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -90,104 +71,76 @@
     max-width: 400px;
   }
 
-  /* Dark mode */
   :global(.dark) .loading-container {
-    background: var(--surface-container-high-dark, #2a2a2a);
+    background: #1f2937;
   }
 
-  /* Spinner */
+  /* Spinner - Styleguide compliant */
   .spinner {
-    width: 64px;
-    height: 64px;
+    width: 48px;
+    height: 48px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #22c55e;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
   }
 
-  .spinner-svg {
-    animation: rotate 2s linear infinite;
-    width: 100%;
-    height: 100%;
+  :global(.dark) .spinner {
+    border-color: #374151;
+    border-top-color: #22c55e;
   }
 
-  .spinner-circle {
-    stroke: var(--primary, #6200ea);
-    stroke-linecap: round;
-    animation: dash 1.5s ease-in-out infinite;
-  }
-
-  :global(.dark) .spinner-circle {
-    stroke: var(--primary-dark, #bb86fc);
-  }
-
-  @keyframes rotate {
-    100% {
+  @keyframes spin {
+    to {
       transform: rotate(360deg);
-    }
-  }
-
-  @keyframes dash {
-    0% {
-      stroke-dasharray: 1, 150;
-      stroke-dashoffset: 0;
-    }
-    50% {
-      stroke-dasharray: 90, 150;
-      stroke-dashoffset: -35;
-    }
-    100% {
-      stroke-dasharray: 90, 150;
-      stroke-dashoffset: -124;
     }
   }
 
   /* Loading Message */
   .loading-message {
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 500;
-    color: var(--on-surface, #1c1b1f);
+    color: #374151;
     margin: 0;
     text-align: center;
   }
 
   :global(.dark) .loading-message {
-    color: var(--on-surface-dark, #e6e1e5);
+    color: #d1d5db;
   }
 
-  /* Progress Bar */
-  .progress-container {
+  /* Progress Section */
+  .progress-section {
     width: 100%;
     margin-top: 0.5rem;
   }
 
-  .progress-bar {
-    width: 100%;
+  .progress-container {
     height: 8px;
-    background: var(--surface-variant, #e7e0ec);
+    background: #e5e7eb;
     border-radius: 4px;
     overflow: hidden;
   }
 
-  :global(.dark) .progress-bar {
-    background: var(--surface-variant-dark, #49454f);
+  :global(.dark) .progress-container {
+    background: #374151;
   }
 
-  .progress-fill {
+  .progress-bar {
     height: 100%;
-    background: var(--primary, #6200ea);
+    background: linear-gradient(90deg, #22c55e, #16a34a);
     border-radius: 4px;
     transition: width 0.3s ease;
   }
 
-  :global(.dark) .progress-fill {
-    background: var(--primary-dark, #bb86fc);
-  }
-
   .progress-text {
-    font-size: 0.875rem;
-    color: var(--on-surface-variant, #49454f);
+    font-size: 0.8125rem;
+    color: #6b7280;
     margin: 0.5rem 0 0 0;
     text-align: center;
   }
 
   :global(.dark) .progress-text {
-    color: var(--on-surface-variant-dark, #cac4d0);
+    color: #9ca3af;
   }
 </style>

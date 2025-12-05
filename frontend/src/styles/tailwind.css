@@ -17,10 +17,10 @@
   :root {
     color-scheme: light;
     
-    /* Brand Colors */
-    --color-brand-primary: #667eea;
-    --color-brand-secondary: #764ba2;
-    --gradient-brand: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Brand Colors - Green Primary */
+    --color-brand-primary: #22c55e;
+    --color-brand-secondary: #16a34a;
+    --gradient-brand: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
     
     /* Surface Colors - Light Mode */
     --surface-base: #ffffff;
@@ -37,13 +37,13 @@
     /* Border Colors - Light Mode */
     --border-primary: #e2e8f0;
     --border-secondary: #cbd5e1;
-    --border-accent: #667eea;
+    --border-accent: #22c55e;
     
     /* Sidebar Colors - Light Mode */
     --sidebar-bg: #f8fafc;
     --sidebar-text: #334155;
-    --sidebar-hover: rgba(102, 126, 234, 0.08);
-    --sidebar-active: rgba(102, 126, 234, 0.15);
+    --sidebar-hover: rgba(34, 197, 94, 0.08);
+    --sidebar-active: rgba(34, 197, 94, 0.15);
     
     /* Card Colors - Light Mode */
     --card-bg: #ffffff;
@@ -71,13 +71,13 @@
       /* Border Colors - Dark Mode */
       --border-primary: #334155;
       --border-secondary: #475569;
-      --border-accent: #818cf8;
+      --border-accent: #4ade80;
       
       /* Sidebar Colors - Dark Mode */
       --sidebar-bg: #0f172a;
       --sidebar-text: #e2e8f0;
-      --sidebar-hover: rgba(129, 140, 248, 0.1);
-      --sidebar-active: rgba(129, 140, 248, 0.2);
+      --sidebar-hover: rgba(74, 222, 128, 0.1);
+      --sidebar-active: rgba(74, 222, 128, 0.2);
       
       /* Card Colors - Dark Mode */
       --card-bg: #1e293b;
