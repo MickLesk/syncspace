@@ -22,12 +22,12 @@
 
   let { filePath = "", readOnly = false } = $props();
 
-  let showCreateForm = false;
-  let permission = "read";
-  let expiresIn = "1month";
-  let password = "";
-  let downloadLimit = "";
-  let copiedLinkId = null;
+  let showCreateForm = $state(false);
+  let permission = $state("read");
+  let expiresIn = $state("1month");
+  let password = $state("");
+  let downloadLimit = $state("");
+  let copiedLinkId = $state(null);
 
   onMount(async () => {
     if (filePath) {
@@ -231,7 +231,8 @@
                       <i
                         class="bi bi-lock-fill text-amber-500 ml-1"
                         title="Password protected"
-                      />
+                        aria-hidden="true"
+                      ></i>
                     {/if}
                   </p>
                   <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -295,6 +296,7 @@
                   <button
                     onclick={() => deleteShare(share.id)}
                     class="px-3 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-200 text-sm rounded hover:bg-red-200 dark:hover:bg-red-900 transition-colors"
+                    title="Delete share"
                   >
                     <i class="bi bi-trash" aria-hidden="true"></i>
                   </button>

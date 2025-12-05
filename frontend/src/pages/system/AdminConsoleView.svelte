@@ -370,7 +370,7 @@
                           user.quota.used,
                           user.quota.limit
                         )}%"
-                      />
+                      ></div>
                     </div>
                     <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
                       {Math.round(user.quota.used / 1000000)} / {Math.round(
@@ -386,6 +386,7 @@
                   <td class="px-6 py-4 text-right">
                     <button
                       class="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                      title="Edit user"
                     >
                       <i class="bi bi-pencil" aria-hidden="true"></i>
                     </button>
@@ -587,7 +588,7 @@
                   <div
                     class="bg-primary-500 h-2 rounded-full"
                     style="width: {userStorage.percentage}%"
-                  />
+                  ></div>
                 </div>
               </div>
             {/each}

@@ -235,7 +235,8 @@
                   ? "flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 border-green-400 bg-green-50 dark:bg-green-900/20 w-full text-left"
                   : "flex items-start gap-4 p-3 border rounded cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 border-slate-200 dark:border-slate-700 w-full text-left"}
                 onclick={() => selectVersion(version.id)}
-                onkeydown={(e) => e.key === 'Enter' && selectVersion(version.id)}
+                onkeydown={(e) =>
+                  e.key === "Enter" && selectVersion(version.id)}
               >
                 <!-- Timeline Marker -->
                 <div class="flex flex-col items-center">
@@ -406,6 +407,7 @@
                     exitCompareMode();
                   }}
                   class="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  title="Close diff"
                 >
                   <i class="bi bi-x" aria-hidden="true"></i>
                 </button>

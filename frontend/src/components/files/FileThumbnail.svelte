@@ -10,9 +10,9 @@
     fallbackToIcon = true,
   } = $props();
 
-  let thumbnailUrl = null;
-  let thumbnailError = false;
-  let loading = false;
+  let thumbnailUrl = $state(null);
+  let thumbnailError = $state(false);
+  let loading = $state(false);
   let lastFilePath = null;
 
   // Size classes
