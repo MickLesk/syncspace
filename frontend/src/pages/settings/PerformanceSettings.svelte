@@ -3,7 +3,10 @@
   import { currentLang } from "../../stores/ui.js";
   import { onMount, onDestroy } from "svelte";
   import api from "../../lib/api.js";
-  import { success as toastSuccess, error as toastError } from "../../stores/toast.js";
+  import {
+    success as toastSuccess,
+    error as toastError,
+  } from "../../stores/toast.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 

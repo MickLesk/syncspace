@@ -3,7 +3,10 @@
   import { currentLang } from "../../stores/ui.js";
   import { onMount } from "svelte";
   import { users as usersApi } from "../../lib/api.js";
-  import { success as toastSuccess, error as toastError } from "../../stores/toast.js";
+  import {
+    success as toastSuccess,
+    error as toastError,
+  } from "../../stores/toast.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -129,7 +132,7 @@
   async function handleResetPassword(user) {
     const newPassword = prompt(tr("settings.users.enter_new_password"));
     if (!newPassword) return;
-    
+
     try {
       await usersApi.resetPassword(user.id, newPassword);
       toastSuccess(tr("settings.users.password_reset_success"));
@@ -144,7 +147,9 @@
       toastSuccess(tr("settings.users.force_password_change_success"));
       await loadUsers();
     } catch (err) {
-      toastError(err.message || tr("settings.users.force_password_change_error"));
+      toastError(
+        err.message || tr("settings.users.force_password_change_error")
+      );
     }
   }
 

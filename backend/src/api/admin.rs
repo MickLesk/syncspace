@@ -51,7 +51,7 @@ pub struct AdminUserResponse {
     pub bio: Option<String>,
     pub totp_enabled: i32,
     pub created_at: String,
-    pub last_login_at: Option<String>,
+    pub last_login: Option<String>,
 }
 
 // ============================================
@@ -100,12 +100,12 @@ async fn list_users(
             id, username, email, display_name, bio,
             COALESCE(totp_enabled, 0) as totp_enabled,
             created_at,
-            last_login_at
+            last_login
         FROM users
         ORDER BY created_at DESC
         "#,
     )
-    .fetch_all(&state.pool)
+    .fetch_all(&state.db_pool)
     .await
     .map_err(|e| {
         tracing::error!("Failed to list users: {}", e);
@@ -129,13 +129,13 @@ async fn get_user(
             id, username, email, display_name, bio,
             COALESCE(totp_enabled, 0) as totp_enabled,
             created_at,
-            last_login_at
+            last_login
         FROM users
         WHERE id = ?
         "#,
     )
     .bind(&user_id)
-    .fetch_optional(&state.pool)
+    .fetch_optional(&state.db_pool)
     .await
     .map_err(|e| {
         tracing::error!("Failed to get user: {}", e);
@@ -162,7 +162,7 @@ async fn create_user(
     // Check if user already exists
     let existing = sqlx::query_scalar::<_, i32>("SELECT COUNT(*) FROM users WHERE username = ?")
         .bind(&req.username)
-        .fetch_one(&state.pool)
+        .fetch_one(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -199,7 +199,7 @@ async fn create_user(
     .bind(&req.display_name)
     .bind(&now)
     .bind(&now)
-    .execute(&state.pool)
+    .execute(&state.db_pool)
     .await
     .map_err(|e| {
         tracing::error!("Failed to create user: {}", e);
@@ -220,7 +220,7 @@ async fn create_user(
         .bind(&user_id)
         .bind(role_id)
         .bind(user.user_id())
-        .execute(&state.pool)
+        .execute(&state.db_pool)
         .await;
     }
 
@@ -277,7 +277,7 @@ async fn update_user(
     query_builder = query_builder.bind(&user_id);
 
     query_builder
-        .execute(&state.pool)
+        .execute(&state.db_pool)
         .await
         .map_err(|e| {
             tracing::error!("Failed to update user: {}", e);
@@ -289,7 +289,7 @@ async fn update_user(
         // Remove existing roles
         let _ = sqlx::query("DELETE FROM user_roles WHERE user_id = ?")
             .bind(&user_id)
-            .execute(&state.pool)
+            .execute(&state.db_pool)
             .await;
 
         // Add new role
@@ -303,7 +303,7 @@ async fn update_user(
         .bind(&user_id)
         .bind(role_id)
         .bind(user.user_id())
-        .execute(&state.pool)
+        .execute(&state.db_pool)
         .await;
     }
 
@@ -329,7 +329,7 @@ async fn delete_user(
          LEFT JOIN user_roles ur ON u.id = ur.user_id 
          WHERE ur.role_id = 'admin' OR u.username = 'admin'",
     )
-    .fetch_one(&state.pool)
+    .fetch_one(&state.db_pool)
     .await
     .unwrap_or(1);
 
@@ -339,7 +339,7 @@ async fn delete_user(
          WHERE u.id = ? AND (ur.role_id = 'admin' OR u.username = 'admin')",
     )
     .bind(&user_id)
-    .fetch_one(&state.pool)
+    .fetch_one(&state.db_pool)
     .await
     .unwrap_or(0);
 
@@ -350,13 +350,13 @@ async fn delete_user(
     // Delete user roles first
     let _ = sqlx::query("DELETE FROM user_roles WHERE user_id = ?")
         .bind(&user_id)
-        .execute(&state.pool)
+        .execute(&state.db_pool)
         .await;
 
     // Delete user
     sqlx::query("DELETE FROM users WHERE id = ?")
         .bind(&user_id)
-        .execute(&state.pool)
+        .execute(&state.db_pool)
         .await
         .map_err(|e| {
             tracing::error!("Failed to delete user: {}", e);
@@ -390,7 +390,7 @@ async fn reset_password(
     sqlx::query("UPDATE users SET password_hash = ? WHERE id = ?")
         .bind(&password_hash)
         .bind(&user_id)
-        .execute(&state.pool)
+        .execute(&state.db_pool)
         .await
         .map_err(|e| {
             tracing::error!("Failed to reset password: {}", e);
@@ -414,7 +414,7 @@ async fn force_password_change(
     // For now, just verify the user exists
     let exists = sqlx::query_scalar::<_, i32>("SELECT COUNT(*) FROM users WHERE id = ?")
         .bind(&user_id)
-        .fetch_one(&state.pool)
+        .fetch_one(&state.db_pool)
         .await
         .unwrap_or(0);
 

@@ -3,7 +3,10 @@
   import { currentLang } from "../../stores/ui.js";
   import { onMount } from "svelte";
   import { backup as backupApi, backupSchedules } from "../../lib/api.js";
-  import { success as toastSuccess, error as toastError } from "../../stores/toast.js";
+  import {
+    success as toastSuccess,
+    error as toastError,
+  } from "../../stores/toast.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -24,14 +27,16 @@
       // Load backup list
       const backupsResponse = await backupApi.list();
       backupHistory = backupsResponse?.data || [];
-      
+
       // Load schedules
       try {
         const schedulesResponse = await backupApi.listSchedules();
-        schedules = Array.isArray(schedulesResponse) ? schedulesResponse : schedulesResponse?.data || [];
-        
+        schedules = Array.isArray(schedulesResponse)
+          ? schedulesResponse
+          : schedulesResponse?.data || [];
+
         // Find active schedule
-        const activeSchedule = schedules.find(s => s.is_active);
+        const activeSchedule = schedules.find((s) => s.is_active);
         if (activeSchedule) {
           autoBackupEnabled = true;
           backupFrequency = activeSchedule.frequency || "daily";
@@ -39,7 +44,7 @@
       } catch (schedErr) {
         console.warn("Failed to load schedules:", schedErr);
       }
-      
+
       // Get last backup
       if (backupHistory.length > 0) {
         lastBackup = backupHistory[0]?.created_at || null;
@@ -74,7 +79,7 @@
         backup_type: "full",
         include_versions: true,
         include_database: true,
-        description: "Manual backup from settings"
+        description: "Manual backup from settings",
       });
       toastSuccess(tr("settings.backup.created"));
       lastBackup = new Date().toISOString();
