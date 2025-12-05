@@ -198,7 +198,9 @@
         <div class="card-content">
           <div class="compact-grid">
             <div class="input-group">
-              <label>{tr("settings.security.min_length")}</label>
+              <span class="field-label"
+                >{tr("settings.security.min_length")}</span
+              >
               <input
                 type="number"
                 bind:value={minPasswordLength}
@@ -207,7 +209,9 @@
               />
             </div>
             <div class="input-group">
-              <label>{tr("settings.security.password_expiry")}</label>
+              <span class="field-label"
+                >{tr("settings.security.password_expiry")}</span
+              >
               <select bind:value={passwordExpiryDays}>
                 <option value={0}>{tr("settings.security.never")}</option>
                 <option value={30}>30 {tr("common.days")}</option>
@@ -314,7 +318,9 @@
         <div class="card-content">
           <div class="compact-grid">
             <div class="input-group">
-              <label>{tr("settings.security.session_timeout")}</label>
+              <span class="field-label"
+                >{tr("settings.security.session_timeout")}</span
+              >
               <select bind:value={sessionTimeoutMinutes}>
                 <option value={30}>30 min</option>
                 <option value={60}>1h</option>
@@ -324,7 +330,9 @@
               </select>
             </div>
             <div class="input-group">
-              <label>{tr("settings.security.max_sessions")}</label>
+              <span class="field-label"
+                >{tr("settings.security.max_sessions")}</span
+              >
               <input
                 type="number"
                 bind:value={maxConcurrentSessions}
@@ -359,7 +367,9 @@
         <div class="card-content">
           <div class="compact-grid">
             <div class="input-group">
-              <label>{tr("settings.security.max_login_attempts")}</label>
+              <span class="field-label"
+                >{tr("settings.security.max_login_attempts")}</span
+              >
               <input
                 type="number"
                 bind:value={maxLoginAttempts}
@@ -368,7 +378,9 @@
               />
             </div>
             <div class="input-group">
-              <label>{tr("settings.security.lockout_duration")}</label>
+              <span class="field-label"
+                >{tr("settings.security.lockout_duration")}</span
+              >
               <select bind:value={lockoutDurationMinutes}>
                 <option value={5}>5 min</option>
                 <option value={15}>15 min</option>
@@ -645,7 +657,7 @@
     gap: 0.25rem;
   }
 
-  .input-group label {
+  .input-group .field-label {
     font-size: 0.6875rem;
     font-weight: 500;
     color: #6b7280;
@@ -653,7 +665,7 @@
     letter-spacing: 0.025em;
   }
 
-  :global(.dark) .input-group label {
+  :global(.dark) .input-group .field-label {
     color: #9ca3af;
   }
 
