@@ -1,7 +1,11 @@
 <script>
   import { t } from "../../i18n.js";
+  import { currentLang } from "../../stores/ui.js";
   import { onMount } from "svelte";
-  import api from "../../lib/api.js";
+  import { users as usersApi } from "../../lib/api.js";
+  import { success as toastSuccess, error as toastError } from "../../stores/toast.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let users = $state([]);
   let loading = $state(true);
@@ -25,11 +29,35 @@
 
   async function loadUsers() {
     loading = true;
+    error = null;
     try {
-      const data = await api.getUsers();
-      users = data || [];
+      const response = await usersApi.getAll();
+      // Handle different response formats
+      if (Array.isArray(response)) {
+        users = response;
+      } else if (response?.data) {
+        users = response.data;
+      } else if (response?.users) {
+        users = response.users;
+      } else {
+        users = [];
+      }
     } catch (err) {
-      error = err.message;
+      console.error("Failed to load users:", err);
+      // Fallback: Try listAll if getAll doesn't exist yet
+      try {
+        const fallbackResponse = await usersApi.listAll();
+        if (Array.isArray(fallbackResponse)) {
+          users = fallbackResponse;
+        } else if (fallbackResponse?.data) {
+          users = fallbackResponse.data;
+        } else {
+          users = [];
+        }
+      } catch (fallbackErr) {
+        error = tr("settings.users.load_error") || "Failed to load users";
+        users = [];
+      }
     } finally {
       loading = false;
     }
@@ -37,21 +65,20 @@
 
   async function handleAddUser() {
     if (!newUser.username || !newUser.password) {
-      error = $t("settings.users.fill_required");
+      error = tr("settings.users.fill_required");
       return;
     }
 
     addingUser = true;
     error = null;
     try {
-      await api.createUser(newUser);
-      success = $t("settings.users.user_created");
+      await usersApi.create(newUser);
+      toastSuccess(tr("settings.users.user_created"));
       showAddModal = false;
       newUser = { username: "", password: "", email: "", role: "user" };
       await loadUsers();
-      setTimeout(() => (success = null), 3000);
     } catch (err) {
-      error = err.message;
+      toastError(err.message || tr("settings.users.create_error"));
     } finally {
       addingUser = false;
     }
@@ -66,14 +93,13 @@
     savingUser = true;
     error = null;
     try {
-      await api.updateUser(editUser.id, editUser);
-      success = $t("settings.users.user_updated");
+      await usersApi.update(editUser.id, editUser);
+      toastSuccess(tr("settings.users.user_updated"));
       showEditModal = false;
       editUser = null;
       await loadUsers();
-      setTimeout(() => (success = null), 3000);
     } catch (err) {
-      error = err.message;
+      toastError(err.message || tr("settings.users.update_error"));
     } finally {
       savingUser = false;
     }
@@ -88,16 +114,37 @@
     deletingUser = true;
     error = null;
     try {
-      await api.deleteUser(deleteTarget.id);
-      success = $t("settings.users.user_deleted");
+      await usersApi.delete(deleteTarget.id);
+      toastSuccess(tr("settings.users.user_deleted"));
       showDeleteModal = false;
       deleteTarget = null;
       await loadUsers();
-      setTimeout(() => (success = null), 3000);
     } catch (err) {
-      error = err.message;
+      toastError(err.message || tr("settings.users.delete_error"));
     } finally {
       deletingUser = false;
+    }
+  }
+
+  async function handleResetPassword(user) {
+    const newPassword = prompt(tr("settings.users.enter_new_password"));
+    if (!newPassword) return;
+    
+    try {
+      await usersApi.resetPassword(user.id, newPassword);
+      toastSuccess(tr("settings.users.password_reset_success"));
+    } catch (err) {
+      toastError(err.message || tr("settings.users.password_reset_error"));
+    }
+  }
+
+  async function handleForcePasswordChange(user) {
+    try {
+      await usersApi.forcePasswordChange(user.id);
+      toastSuccess(tr("settings.users.force_password_change_success"));
+      await loadUsers();
+    } catch (err) {
+      toastError(err.message || tr("settings.users.force_password_change_error"));
     }
   }
 
@@ -136,12 +183,12 @@
   <!-- Header -->
   <div class="page-header">
     <div>
-      <h2>{$t("settings.users.title")}</h2>
-      <p>{$t("settings.users.description")}</p>
+      <h2>{tr("settings.users.title")}</h2>
+      <p>{tr("settings.users.description")}</p>
     </div>
     <button class="btn btn-primary" onclick={() => (showAddModal = true)}>
       <i class="bi bi-plus-lg"></i>
-      {$t("settings.users.add_user")}
+      {tr("settings.users.add_user")}
     </button>
   </div>
 
@@ -152,10 +199,10 @@
         <i class="bi bi-people"></i>
       </div>
       <div>
-        <h3>{$t("settings.users.user_list")}</h3>
+        <h3>{tr("settings.users.user_list")}</h3>
         <p class="card-subtitle">
           {users.length}
-          {$t("settings.users.users_total")}
+          {tr("settings.users.users_total")}
         </p>
       </div>
     </div>
@@ -164,24 +211,24 @@
       {#if loading}
         <div class="loading-container">
           <div class="loading-spinner"></div>
-          <p>{$t("common.loading")}</p>
+          <p>{tr("common.loading")}</p>
         </div>
       {:else if users.length === 0}
         <div class="empty-state">
           <i class="bi bi-people"></i>
-          <p>{$t("settings.users.no_users")}</p>
+          <p>{tr("settings.users.no_users")}</p>
         </div>
       {:else}
         <div class="table-container">
           <table class="data-table">
             <thead>
               <tr>
-                <th>{$t("settings.users.username")}</th>
-                <th>{$t("settings.users.email")}</th>
-                <th>{$t("settings.users.role")}</th>
-                <th>{$t("settings.users.created")}</th>
-                <th>{$t("settings.users.status")}</th>
-                <th>{$t("common.actions")}</th>
+                <th>{tr("settings.users.username")}</th>
+                <th>{tr("settings.users.email")}</th>
+                <th>{tr("settings.users.role")}</th>
+                <th>{tr("settings.users.created")}</th>
+                <th>{tr("settings.users.status")}</th>
+                <th>{tr("common.actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -203,8 +250,8 @@
                         : 'badge-blue'}"
                     >
                       {user.role === "admin"
-                        ? $t("settings.users.admin")
-                        : $t("settings.users.user")}
+                        ? tr("settings.users.admin")
+                        : tr("settings.users.user")}
                     </span>
                   </td>
                   <td>{formatDate(user.created_at)}</td>
@@ -215,22 +262,22 @@
                         : 'inactive'}"
                     ></span>
                     {user.is_active !== false
-                      ? $t("settings.users.active")
-                      : $t("settings.users.inactive")}
+                      ? tr("settings.users.active")
+                      : tr("settings.users.inactive")}
                   </td>
                   <td>
                     <div class="action-buttons">
                       <button
                         class="btn-icon"
                         onclick={() => openEditModal(user)}
-                        title={$t("common.edit")}
+                        title={tr("common.edit")}
                       >
                         <i class="bi bi-pencil"></i>
                       </button>
                       <button
                         class="btn-icon btn-danger"
                         onclick={() => openDeleteModal(user)}
-                        title={$t("common.delete")}
+                        title={tr("common.delete")}
                         disabled={user.username === "admin"}
                       >
                         <i class="bi bi-trash"></i>
@@ -265,7 +312,7 @@
       role="document"
     >
       <div class="modal-header">
-        <h3>{$t("settings.users.add_user")}</h3>
+        <h3>{tr("settings.users.add_user")}</h3>
         <button
           class="modal-close"
           onclick={() => (showAddModal = false)}
@@ -277,43 +324,43 @@
 
       <div class="modal-body">
         <div class="form-group">
-          <label for="add-username">{$t("settings.users.username")} *</label>
+          <label for="add-username">{tr("settings.users.username")} *</label>
           <input
             type="text"
             id="add-username"
             class="form-input"
             bind:value={newUser.username}
-            placeholder={$t("settings.users.username_placeholder")}
+            placeholder={tr("settings.users.username_placeholder")}
           />
         </div>
 
         <div class="form-group">
-          <label for="add-password">{$t("settings.users.password")} *</label>
+          <label for="add-password">{tr("settings.users.password")} *</label>
           <input
             type="password"
             id="add-password"
             class="form-input"
             bind:value={newUser.password}
-            placeholder={$t("settings.users.password_placeholder")}
+            placeholder={tr("settings.users.password_placeholder")}
           />
         </div>
 
         <div class="form-group">
-          <label for="add-email">{$t("settings.users.email")}</label>
+          <label for="add-email">{tr("settings.users.email")}</label>
           <input
             type="email"
             id="add-email"
             class="form-input"
             bind:value={newUser.email}
-            placeholder={$t("settings.users.email_placeholder")}
+            placeholder={tr("settings.users.email_placeholder")}
           />
         </div>
 
         <div class="form-group">
-          <label for="add-role">{$t("settings.users.role")}</label>
+          <label for="add-role">{tr("settings.users.role")}</label>
           <select id="add-role" class="form-input" bind:value={newUser.role}>
-            <option value="user">{$t("settings.users.user")}</option>
-            <option value="admin">{$t("settings.users.admin")}</option>
+            <option value="user">{tr("settings.users.user")}</option>
+            <option value="admin">{tr("settings.users.admin")}</option>
           </select>
         </div>
       </div>
@@ -323,7 +370,7 @@
           class="btn btn-secondary"
           onclick={() => (showAddModal = false)}
         >
-          {$t("common.cancel")}
+          {tr("common.cancel")}
         </button>
         <button
           class="btn btn-primary"
@@ -333,7 +380,7 @@
           {#if addingUser}
             <span class="btn-spinner"></span>
           {/if}
-          {$t("common.create")}
+          {tr("common.create")}
         </button>
       </div>
     </div>
@@ -358,7 +405,7 @@
       role="document"
     >
       <div class="modal-header">
-        <h3>{$t("settings.users.edit_user")}</h3>
+        <h3>{tr("settings.users.edit_user")}</h3>
         <button
           class="modal-close"
           onclick={() => (showEditModal = false)}
@@ -370,7 +417,7 @@
 
       <div class="modal-body">
         <div class="form-group">
-          <label for="edit-username">{$t("settings.users.username")}</label>
+          <label for="edit-username">{tr("settings.users.username")}</label>
           <input
             type="text"
             id="edit-username"
@@ -381,21 +428,21 @@
         </div>
 
         <div class="form-group">
-          <label for="edit-email">{$t("settings.users.email")}</label>
+          <label for="edit-email">{tr("settings.users.email")}</label>
           <input
             type="email"
             id="edit-email"
             class="form-input"
             bind:value={editUser.email}
-            placeholder={$t("settings.users.email_placeholder")}
+            placeholder={tr("settings.users.email_placeholder")}
           />
         </div>
 
         <div class="form-group">
-          <label for="edit-role">{$t("settings.users.role")}</label>
+          <label for="edit-role">{tr("settings.users.role")}</label>
           <select id="edit-role" class="form-input" bind:value={editUser.role}>
-            <option value="user">{$t("settings.users.user")}</option>
-            <option value="admin">{$t("settings.users.admin")}</option>
+            <option value="user">{tr("settings.users.user")}</option>
+            <option value="admin">{tr("settings.users.admin")}</option>
           </select>
         </div>
       </div>
@@ -405,7 +452,7 @@
           class="btn btn-secondary"
           onclick={() => (showEditModal = false)}
         >
-          {$t("common.cancel")}
+          {tr("common.cancel")}
         </button>
         <button
           class="btn btn-primary"
@@ -415,7 +462,7 @@
           {#if savingUser}
             <span class="btn-spinner"></span>
           {/if}
-          {$t("common.save")}
+          {tr("common.save")}
         </button>
       </div>
     </div>
@@ -440,7 +487,7 @@
       role="document"
     >
       <div class="modal-header">
-        <h3>{$t("settings.users.delete_user")}</h3>
+        <h3>{tr("settings.users.delete_user")}</h3>
         <button
           class="modal-close"
           onclick={() => (showDeleteModal = false)}
@@ -452,7 +499,7 @@
 
       <div class="modal-body">
         <p>
-          {$t("settings.users.delete_confirm", {
+          {tr("settings.users.delete_confirm", {
             username: deleteTarget.username,
           })}
         </p>
@@ -463,7 +510,7 @@
           class="btn btn-secondary"
           onclick={() => (showDeleteModal = false)}
         >
-          {$t("common.cancel")}
+          {tr("common.cancel")}
         </button>
         <button
           class="btn btn-danger"
@@ -473,7 +520,7 @@
           {#if deletingUser}
             <span class="btn-spinner"></span>
           {/if}
-          {$t("common.delete")}
+          {tr("common.delete")}
         </button>
       </div>
     </div>

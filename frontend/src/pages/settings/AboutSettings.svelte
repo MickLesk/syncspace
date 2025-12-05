@@ -1,5 +1,9 @@
 <script>
   import { t } from "../../i18n.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { success as toastSuccess, error as toastError } from "../../stores/toast.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   const appInfo = {
     name: "SyncSpace",
@@ -37,7 +41,7 @@
   }
 
   function checkUpdates() {
-    alert($t("settings.about.no_updates"));
+    alert(tr("settings.about.no_updates"));
   }
 </script>
 
@@ -58,11 +62,11 @@
     <div class="hero-actions">
       <button class="btn btn-primary" onclick={checkUpdates}>
         <i class="bi bi-arrow-repeat"></i>
-        {$t("settings.about.check_updates")}
+        {tr("settings.about.check_updates")}
       </button>
       <button class="btn btn-secondary" onclick={openWebsite}>
         <i class="bi bi-globe"></i>
-        {$t("settings.about.website")}
+        {tr("settings.about.website")}
       </button>
       <button class="btn btn-secondary" onclick={openGithub}>
         <i class="bi bi-github"></i>
@@ -78,8 +82,8 @@
         <i class="bi bi-stack"></i>
       </div>
       <div>
-        <h3>{$t("settings.about.tech_stack")}</h3>
-        <p class="card-subtitle">{$t("settings.about.tech_stack_desc")}</p>
+        <h3>{tr("settings.about.tech_stack")}</h3>
+        <p class="card-subtitle">{tr("settings.about.tech_stack_desc")}</p>
       </div>
     </div>
 
@@ -107,8 +111,8 @@
         <i class="bi bi-check2-circle"></i>
       </div>
       <div>
-        <h3>{$t("settings.about.features")}</h3>
-        <p class="card-subtitle">{$t("settings.about.features_desc")}</p>
+        <h3>{tr("settings.about.features")}</h3>
+        <p class="card-subtitle">{tr("settings.about.features_desc")}</p>
       </div>
     </div>
 
@@ -117,7 +121,7 @@
         {#each features as feature}
           <div class="feature-item">
             <i class="bi {feature.icon}"></i>
-            <span>{$t("settings.about.feature_" + feature.key)}</span>
+            <span>{tr("settings.about.feature_" + feature.key)}</span>
           </div>
         {/each}
       </div>
@@ -131,8 +135,8 @@
         <i class="bi bi-file-text"></i>
       </div>
       <div>
-        <h3>{$t("settings.about.license")}</h3>
-        <p class="card-subtitle">{$t("settings.about.license_desc")}</p>
+        <h3>{tr("settings.about.license")}</h3>
+        <p class="card-subtitle">{tr("settings.about.license_desc")}</p>
       </div>
     </div>
 
@@ -143,12 +147,12 @@
           <span>{appInfo.license} License</span>
         </div>
         <p class="license-text">
-          {$t("settings.about.license_text")}
+          {tr("settings.about.license_text")}
         </p>
         <p class="credits">
-          {$t("settings.about.made_with")}
+          {tr("settings.about.made_with")}
           <i class="bi bi-heart-fill text-red"></i>
-          {$t("settings.about.by")}
+          {tr("settings.about.by")}
           {appInfo.author}
         </p>
       </div>

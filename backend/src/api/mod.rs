@@ -2,6 +2,7 @@
 //! Centralizes all API route definitions
 
 pub mod activity;
+pub mod admin;
 pub mod api_tokens;
 pub mod audit_compliance;
 pub mod auth;
@@ -121,6 +122,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(cleanup::router()) // Auto-cleanup of deleted files
                 .merge(smart_folders::router()) // Smart folders with dynamic rules
                 .merge(storage_analytics::router()) // Storage analytics and statistics
+                .merge(admin::router()) // Admin user management
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

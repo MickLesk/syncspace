@@ -1,7 +1,11 @@
 <script>
   import { t } from "../../i18n.js";
+  import { currentLang } from "../../stores/ui.js";
   import { onMount, onDestroy } from "svelte";
   import api from "../../lib/api.js";
+  import { success as toastSuccess, error as toastError } from "../../stores/toast.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let performanceData = $state(null);
   let loading = $state(true);
@@ -100,7 +104,7 @@
   {#if loading}
     <div class="loading-container">
       <div class="loading-spinner"></div>
-      <p>{$t("common.loading")}</p>
+      <p>{tr("common.loading")}</p>
     </div>
   {:else if performanceData}
     <!-- System Status Overview -->
@@ -129,7 +133,7 @@
         </div>
         <div class="stat-content">
           <span class="stat-value">{performanceData.memory_usage}%</span>
-          <span class="stat-label">{$t("settings.performance.memory")}</span>
+          <span class="stat-label">{tr("settings.performance.memory")}</span>
         </div>
         <div class="stat-bar">
           <div
@@ -147,7 +151,7 @@
         </div>
         <div class="stat-content">
           <span class="stat-value">{performanceData.disk_usage}%</span>
-          <span class="stat-label">{$t("settings.performance.disk")}</span>
+          <span class="stat-label">{tr("settings.performance.disk")}</span>
         </div>
         <div class="stat-bar">
           <div
@@ -167,7 +171,7 @@
           <span class="stat-value"
             >{formatUptime(performanceData.uptime_seconds)}</span
           >
-          <span class="stat-label">{$t("settings.performance.uptime")}</span>
+          <span class="stat-label">{tr("settings.performance.uptime")}</span>
         </div>
       </div>
     </div>
@@ -179,8 +183,8 @@
           <i class="bi bi-speedometer2"></i>
         </div>
         <div>
-          <h3>{$t("settings.performance.metrics")}</h3>
-          <p class="card-subtitle">{$t("settings.performance.metrics_desc")}</p>
+          <h3>{tr("settings.performance.metrics")}</h3>
+          <p class="card-subtitle">{tr("settings.performance.metrics_desc")}</p>
         </div>
       </div>
 
@@ -188,7 +192,7 @@
         <div class="metrics-grid">
           <div class="metric-item">
             <span class="metric-label"
-              >{$t("settings.performance.memory_used")}</span
+              >{tr("settings.performance.memory_used")}</span
             >
             <span class="metric-value"
               >{performanceData.memory_used?.toFixed(1)} / {performanceData.memory_total?.toFixed(
@@ -199,7 +203,7 @@
 
           <div class="metric-item">
             <span class="metric-label"
-              >{$t("settings.performance.disk_used")}</span
+              >{tr("settings.performance.disk_used")}</span
             >
             <span class="metric-value"
               >{performanceData.disk_used?.toFixed(1)} / {performanceData.disk_total?.toFixed(
@@ -210,7 +214,7 @@
 
           <div class="metric-item">
             <span class="metric-label"
-              >{$t("settings.performance.connections")}</span
+              >{tr("settings.performance.connections")}</span
             >
             <span class="metric-value"
               >{performanceData.active_connections}</span
@@ -219,7 +223,7 @@
 
           <div class="metric-item">
             <span class="metric-label"
-              >{$t("settings.performance.requests")}</span
+              >{tr("settings.performance.requests")}</span
             >
             <span class="metric-value"
               >{performanceData.requests_per_minute}/min</span
@@ -228,14 +232,14 @@
 
           <div class="metric-item">
             <span class="metric-label"
-              >{$t("settings.performance.cache_rate")}</span
+              >{tr("settings.performance.cache_rate")}</span
             >
             <span class="metric-value">{performanceData.cache_hit_rate}%</span>
           </div>
 
           <div class="metric-item">
             <span class="metric-label"
-              >{$t("settings.performance.database_size")}</span
+              >{tr("settings.performance.database_size")}</span
             >
             <span class="metric-value"
               >{performanceData.database_size?.toFixed(1)} MB</span
@@ -244,7 +248,7 @@
 
           <div class="metric-item">
             <span class="metric-label"
-              >{$t("settings.performance.index_size")}</span
+              >{tr("settings.performance.index_size")}</span
             >
             <span class="metric-value"
               >{performanceData.search_index_size?.toFixed(1)} MB</span
@@ -261,9 +265,9 @@
           <i class="bi bi-tools"></i>
         </div>
         <div>
-          <h3>{$t("settings.performance.maintenance")}</h3>
+          <h3>{tr("settings.performance.maintenance")}</h3>
           <p class="card-subtitle">
-            {$t("settings.performance.maintenance_desc")}
+            {tr("settings.performance.maintenance_desc")}
           </p>
         </div>
       </div>
@@ -276,10 +280,10 @@
             </div>
             <div class="action-content">
               <span class="action-title"
-                >{$t("settings.performance.clear_cache")}</span
+                >{tr("settings.performance.clear_cache")}</span
               >
               <span class="action-desc"
-                >{$t("settings.performance.clear_cache_desc")}</span
+                >{tr("settings.performance.clear_cache_desc")}</span
               >
             </div>
           </button>
@@ -290,10 +294,10 @@
             </div>
             <div class="action-content">
               <span class="action-title"
-                >{$t("settings.performance.optimize_db")}</span
+                >{tr("settings.performance.optimize_db")}</span
               >
               <span class="action-desc"
-                >{$t("settings.performance.optimize_db_desc")}</span
+                >{tr("settings.performance.optimize_db_desc")}</span
               >
             </div>
           </button>
@@ -304,10 +308,10 @@
             </div>
             <div class="action-content">
               <span class="action-title"
-                >{$t("settings.performance.refresh")}</span
+                >{tr("settings.performance.refresh")}</span
               >
               <span class="action-desc"
-                >{$t("settings.performance.refresh_desc")}</span
+                >{tr("settings.performance.refresh_desc")}</span
               >
             </div>
           </button>

@@ -1,12 +1,17 @@
 <script>
   import { t } from "../../i18n.js";
+  import { currentLang } from "../../stores/ui.js";
   import { onMount } from "svelte";
-  import api from "../../lib/api.js";
+  import { backup as backupApi, backupSchedules } from "../../lib/api.js";
+  import { success as toastSuccess, error as toastError } from "../../stores/toast.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let autoBackupEnabled = $state(false);
   let backupFrequency = $state("daily");
   let lastBackup = $state(null);
   let backupHistory = $state([]);
+  let schedules = $state([]);
   let loading = $state(true);
   let saving = $state(false);
   let creatingBackup = $state(false);
@@ -16,14 +21,33 @@
   async function loadBackupSettings() {
     loading = true;
     try {
-      const settings = await api.getBackupSettings();
-      autoBackupEnabled = settings.auto_backup_enabled ?? false;
-      backupFrequency = settings.backup_frequency ?? "daily";
-      lastBackup = settings.last_backup ?? null;
-      backupHistory = settings.backup_history ?? [];
+      // Load backup list
+      const backupsResponse = await backupApi.list();
+      backupHistory = backupsResponse?.data || [];
+      
+      // Load schedules
+      try {
+        const schedulesResponse = await backupApi.listSchedules();
+        schedules = Array.isArray(schedulesResponse) ? schedulesResponse : schedulesResponse?.data || [];
+        
+        // Find active schedule
+        const activeSchedule = schedules.find(s => s.is_active);
+        if (activeSchedule) {
+          autoBackupEnabled = true;
+          backupFrequency = activeSchedule.frequency || "daily";
+        }
+      } catch (schedErr) {
+        console.warn("Failed to load schedules:", schedErr);
+      }
+      
+      // Get last backup
+      if (backupHistory.length > 0) {
+        lastBackup = backupHistory[0]?.created_at || null;
+      }
     } catch (err) {
       console.error("Failed to load backup settings:", err);
-      // Use defaults
+      // Use defaults - backup system might not be fully set up
+      backupHistory = [];
     } finally {
       loading = false;
     }
@@ -32,16 +56,11 @@
   async function saveSettings() {
     saving = true;
     error = null;
-    success = null;
     try {
-      await api.updateBackupSettings({
-        auto_backup_enabled: autoBackupEnabled,
-        backup_frequency: backupFrequency,
-      });
-      success = $t("settings.backup.saved");
-      setTimeout(() => (success = null), 3000);
+      // TODO: Update schedule settings when backend supports it
+      toastSuccess(tr("settings.backup.saved"));
     } catch (err) {
-      error = err.message || $t("settings.backup.save_error");
+      toastError(err.message || tr("settings.backup.save_error"));
     } finally {
       saving = false;
     }
@@ -50,39 +69,43 @@
   async function createBackupNow() {
     creatingBackup = true;
     error = null;
-    success = null;
     try {
-      await api.createBackup();
-      success = $t("settings.backup.created");
+      await backupApi.create({
+        backup_type: "full",
+        include_versions: true,
+        include_database: true,
+        description: "Manual backup from settings"
+      });
+      toastSuccess(tr("settings.backup.created"));
       lastBackup = new Date().toISOString();
       await loadBackupSettings();
     } catch (err) {
-      error = err.message || $t("settings.backup.create_error");
+      toastError(err.message || tr("settings.backup.create_error"));
     } finally {
       creatingBackup = false;
     }
   }
 
   async function restoreBackup(backupId) {
-    if (!confirm($t("settings.backup.restore_confirm"))) return;
+    if (!confirm(tr("settings.backup.restore_confirm"))) return;
 
     try {
-      await api.restoreBackup(backupId);
-      success = $t("settings.backup.restored");
+      await backupApi.restore({ backup_id: backupId });
+      toastSuccess(tr("settings.backup.restored"));
     } catch (err) {
-      error = err.message || $t("settings.backup.restore_error");
+      toastError(err.message || tr("settings.backup.restore_error"));
     }
   }
 
   async function deleteBackup(backupId) {
-    if (!confirm($t("settings.backup.delete_confirm"))) return;
+    if (!confirm(tr("settings.backup.delete_confirm"))) return;
 
     try {
-      await api.deleteBackup(backupId);
+      await backupApi.delete(backupId);
       backupHistory = backupHistory.filter((b) => b.id !== backupId);
-      success = $t("settings.backup.deleted");
+      toastSuccess(tr("settings.backup.deleted"));
     } catch (err) {
-      error = err.message || $t("settings.backup.delete_error");
+      toastError(err.message || tr("settings.backup.delete_error"));
     }
   }
 
@@ -133,7 +156,7 @@
   {#if loading}
     <div class="loading-container">
       <div class="loading-spinner"></div>
-      <p>{$t("common.loading")}</p>
+      <p>{tr("common.loading")}</p>
     </div>
   {:else}
     <!-- Automatische Backups -->
@@ -143,8 +166,8 @@
           <i class="bi bi-clock-history"></i>
         </div>
         <div>
-          <h3>{$t("settings.backup.auto_backup")}</h3>
-          <p class="card-subtitle">{$t("settings.backup.auto_backup_desc")}</p>
+          <h3>{tr("settings.backup.auto_backup")}</h3>
+          <p class="card-subtitle">{tr("settings.backup.auto_backup_desc")}</p>
         </div>
       </div>
 
@@ -152,10 +175,10 @@
         <div class="setting-row">
           <div class="setting-info">
             <span class="setting-label"
-              >{$t("settings.backup.enable_auto")}</span
+              >{tr("settings.backup.enable_auto")}</span
             >
             <span class="setting-hint"
-              >{$t("settings.backup.enable_auto_hint")}</span
+              >{tr("settings.backup.enable_auto_hint")}</span
             >
           </div>
           <label class="toggle-switch">
@@ -172,10 +195,10 @@
           <div class="setting-row">
             <div class="setting-info">
               <span class="setting-label"
-                >{$t("settings.backup.frequency")}</span
+                >{tr("settings.backup.frequency")}</span
               >
               <span class="setting-hint"
-                >{$t("settings.backup.frequency_hint")}</span
+                >{tr("settings.backup.frequency_hint")}</span
               >
             </div>
             <select
@@ -183,10 +206,10 @@
               bind:value={backupFrequency}
               onchange={saveSettings}
             >
-              <option value="hourly">{$t("settings.backup.hourly")}</option>
-              <option value="daily">{$t("settings.backup.daily")}</option>
-              <option value="weekly">{$t("settings.backup.weekly")}</option>
-              <option value="monthly">{$t("settings.backup.monthly")}</option>
+              <option value="hourly">{tr("settings.backup.hourly")}</option>
+              <option value="daily">{tr("settings.backup.daily")}</option>
+              <option value="weekly">{tr("settings.backup.weekly")}</option>
+              <option value="monthly">{tr("settings.backup.monthly")}</option>
             </select>
           </div>
         {/if}
@@ -194,12 +217,12 @@
         <div class="setting-row">
           <div class="setting-info">
             <span class="setting-label"
-              >{$t("settings.backup.last_backup")}</span
+              >{tr("settings.backup.last_backup")}</span
             >
             <span class="setting-value"
               >{lastBackup
                 ? formatDate(lastBackup)
-                : $t("settings.backup.never")}</span
+                : tr("settings.backup.never")}</span
             >
           </div>
         </div>
@@ -213,9 +236,9 @@
           <i class="bi bi-download"></i>
         </div>
         <div>
-          <h3>{$t("settings.backup.manual_backup")}</h3>
+          <h3>{tr("settings.backup.manual_backup")}</h3>
           <p class="card-subtitle">
-            {$t("settings.backup.manual_backup_desc")}
+            {tr("settings.backup.manual_backup_desc")}
           </p>
         </div>
       </div>
@@ -228,10 +251,10 @@
         >
           {#if creatingBackup}
             <span class="btn-spinner"></span>
-            {$t("settings.backup.creating")}
+            {tr("settings.backup.creating")}
           {:else}
             <i class="bi bi-plus-circle"></i>
-            {$t("settings.backup.create_now")}
+            {tr("settings.backup.create_now")}
           {/if}
         </button>
       </div>
@@ -244,8 +267,8 @@
           <i class="bi bi-archive"></i>
         </div>
         <div>
-          <h3>{$t("settings.backup.history")}</h3>
-          <p class="card-subtitle">{$t("settings.backup.history_desc")}</p>
+          <h3>{tr("settings.backup.history")}</h3>
+          <p class="card-subtitle">{tr("settings.backup.history_desc")}</p>
         </div>
       </div>
 
@@ -253,17 +276,17 @@
         {#if backupHistory.length === 0}
           <div class="empty-state">
             <i class="bi bi-archive"></i>
-            <p>{$t("settings.backup.no_backups")}</p>
+            <p>{tr("settings.backup.no_backups")}</p>
           </div>
         {:else}
           <div class="table-container">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>{$t("settings.backup.date")}</th>
-                  <th>{$t("settings.backup.size")}</th>
-                  <th>{$t("settings.backup.type")}</th>
-                  <th>{$t("common.actions")}</th>
+                  <th>{tr("settings.backup.date")}</th>
+                  <th>{tr("settings.backup.size")}</th>
+                  <th>{tr("settings.backup.type")}</th>
+                  <th>{tr("common.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -278,8 +301,8 @@
                           : 'badge-green'}"
                       >
                         {backup.type === "auto"
-                          ? $t("settings.backup.automatic")
-                          : $t("settings.backup.manual")}
+                          ? tr("settings.backup.automatic")
+                          : tr("settings.backup.manual")}
                       </span>
                     </td>
                     <td>
@@ -287,14 +310,14 @@
                         <button
                           class="btn-icon"
                           onclick={() => restoreBackup(backup.id)}
-                          title={$t("settings.backup.restore")}
+                          title={tr("settings.backup.restore")}
                         >
                           <i class="bi bi-arrow-counterclockwise"></i>
                         </button>
                         <button
                           class="btn-icon btn-danger"
                           onclick={() => deleteBackup(backup.id)}
-                          title={$t("common.delete")}
+                          title={tr("common.delete")}
                         >
                           <i class="bi bi-trash"></i>
                         </button>

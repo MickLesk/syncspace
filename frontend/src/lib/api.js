@@ -223,6 +223,76 @@ export const users = {
     });
     return handleResponse(response);
   },
+
+  // ========== Admin User Management ==========
+
+  /**
+   * Get all users (admin)
+   */
+  async getAll() {
+    const response = await fetch(`${API_BASE}/admin/users`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a new user (admin)
+   */
+  async create(userData) {
+    const response = await fetch(`${API_BASE}/admin/users`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(userData),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update a user (admin)
+   */
+  async update(userId, userData) {
+    const response = await fetch(`${API_BASE}/admin/users/${userId}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(userData),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a user (admin)
+   */
+  async delete(userId) {
+    const response = await fetch(`${API_BASE}/admin/users/${userId}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Reset user password (admin)
+   */
+  async resetPassword(userId, newPassword) {
+    const response = await fetch(`${API_BASE}/admin/users/${userId}/reset-password`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ password: newPassword }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Force password change on next login (admin)
+   */
+  async forcePasswordChange(userId) {
+    const response = await fetch(`${API_BASE}/admin/users/${userId}/force-password-change`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
 };
 
 // ============================================
