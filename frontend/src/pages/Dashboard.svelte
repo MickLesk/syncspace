@@ -23,21 +23,24 @@
   let activeSessions = $state(0);
   let uploadTrend = $state(0);
   let storageTrend = $state(0);
-  
+
   // Auto-refresh
   let refreshInterval = null;
   let lastRefresh = $state(new Date());
 
   onMount(async () => {
     await loadDashboardData();
-    
+
     // Auto-refresh every 5 minutes
-    refreshInterval = setInterval(async () => {
-      await loadDashboardData();
-      lastRefresh = new Date();
-    }, 5 * 60 * 1000);
+    refreshInterval = setInterval(
+      async () => {
+        await loadDashboardData();
+        lastRefresh = new Date();
+      },
+      5 * 60 * 1000
+    );
   });
-  
+
   onDestroy(() => {
     if (refreshInterval) {
       clearInterval(refreshInterval);
@@ -161,9 +164,12 @@
           {lastRefresh.toLocaleTimeString()}
         </span>
       </div>
-      <button 
-        class="refresh-btn" 
-        onclick={async () => { await loadDashboardData(); lastRefresh = new Date(); }}
+      <button
+        class="refresh-btn"
+        onclick={async () => {
+          await loadDashboardData();
+          lastRefresh = new Date();
+        }}
         disabled={loading}
         title="Refresh Dashboard"
       >
@@ -557,8 +563,12 @@
   }
 
   @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   /* Skeleton classes are from global animations.css */
