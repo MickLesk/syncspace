@@ -65,7 +65,7 @@
   import ThemeCustomizationView from "./pages/ThemeCustomizationView.svelte";
 
   // User & Settings Views
-  import SettingsView from "./pages/settings/SettingsView.svelte";
+  import SettingsHub from "./pages/settings/SettingsHub.svelte";
   import UserProfileView from "./pages/user/UserProfileView.svelte";
   import UserSettingsView from "./pages/user/UserSettingsView.svelte";
   import SecurityView from "./pages/user/SecurityView.svelte";
@@ -496,8 +496,8 @@
                 <TrashView />
               {:else if $currentView === "users"}
                 <UsersView />
-              {:else if $currentView === "settings"}
-                <SettingsView />
+              {:else if $currentView === "settings" || $currentView === "admin"}
+                <SettingsHub />
               {:else if $currentView === "profile"}
                 <UserProfileView />
               {:else if $currentView === "user-settings"}
@@ -550,8 +550,6 @@
                 <GuestAccessView />
               {:else if $currentView === "theme-customization"}
                 <ThemeCustomizationView />
-              {:else if $currentView === "admin"}
-                <AdminView />
               {/if}
             </main>
           </ErrorBoundary>

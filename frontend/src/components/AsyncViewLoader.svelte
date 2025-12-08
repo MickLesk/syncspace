@@ -46,7 +46,8 @@
 
 {#if isLoading}
   {#if fallback}
-    <svelte:component this={fallback} />
+    {@const FallbackComponent = fallback}
+    <FallbackComponent />
   {:else}
     <div class="flex items-center justify-center h-full min-h-96">
       <div class="text-center">
@@ -57,7 +58,8 @@
   {/if}
 {:else if error}
   {#if errorComponent}
-    <svelte:component this={errorComponent} error={error} />
+    {@const ErrorComp = errorComponent}
+    <ErrorComp {error} />
   {:else}
     <div class="flex items-center justify-center h-full min-h-96">
       <div class="text-center text-red-600 dark:text-red-400">
@@ -73,8 +75,9 @@
       </div>
     </div>
   {/if}
-{:else}
-  <svelte:component this={resolvedComponent} {...$$restProps} />
+{:else if resolvedComponent}
+  {@const ResolvedComp = resolvedComponent}
+  <ResolvedComp {...$$restProps} />
 {/if}
 
 <style>

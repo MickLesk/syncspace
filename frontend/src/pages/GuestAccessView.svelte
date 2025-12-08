@@ -931,7 +931,14 @@
         </button>
       </div>
     </div>
-    <div class="modal-backdrop" role="button" tabindex="0" aria-label="Close modal" onclick={() => (showLinkModal = false)} onkeydown={(e) => e.key === 'Escape' && (showLinkModal = false)}></div>
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Close modal"
+      onclick={() => (showLinkModal = false)}
+      onkeydown={(e) => e.key === "Escape" && (showLinkModal = false)}
+    ></div>
   </div>
 {/if}
 
@@ -1038,7 +1045,7 @@
       tabindex="0"
       aria-label="Close modal"
       onclick={() => (showInvitationModal = false)}
-      onkeydown={(e) => e.key === 'Escape' && (showInvitationModal = false)}
+      onkeydown={(e) => e.key === "Escape" && (showInvitationModal = false)}
     ></div>
   </div>
 {/if}
@@ -1090,8 +1097,7 @@
       aria-label={$t("common.close")}
       onclick={() => (selectedGuestActivity = null)}
       onkeydown={(e) =>
-        (e.key === "Enter" || e.key === " ") &&
-        (selectedGuestActivity = null)}
+        (e.key === "Enter" || e.key === " ") && (selectedGuestActivity = null)}
     ></div>
   </div>
 {/if}

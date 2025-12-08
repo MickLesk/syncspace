@@ -124,14 +124,7 @@
       label: t($currentLang, "tagCloud") || "Tags",
       category: "tools",
     },
-    // Admin section - single entry point to Admin page with tabs
-    {
-      id: "admin",
-      icon: "gear-wide-connected",
-      label: t($currentLang, "admin") || "Administration",
-      category: "admin",
-    },
-    // System section
+    // Settings - consolidated entry point for all settings + admin
     {
       id: "settings",
       icon: "gear-fill",
@@ -143,9 +136,6 @@
   let mainItems = $derived(navItems.filter((item) => item.category === "main"));
   let toolsItems = $derived(
     navItems.filter((item) => item.category === "tools")
-  );
-  let adminItems = $derived(
-    navItems.filter((item) => item.category === "admin")
   );
   let systemItems = $derived(
     navItems.filter((item) => item.category === "system")
@@ -347,48 +337,8 @@
       {/each}
     </ul>
 
-    <!-- Admin Section -->
+    <!-- System Section (Settings) -->
     <div class="nav-divider"></div>
-    {#if showLabels}
-      <div class="nav-category">{tr("admin") || "Admin"}</div>
-    {/if}
-    <ul class="nav-list">
-      {#each adminItems as item (item.id)}
-        <li>
-          <button
-            class="nav-item"
-            class:active={$currentView === item.id}
-            class:collapsed={isCollapsed}
-            onclick={() => selectView(item.id)}
-            title={isCollapsed ? item.label : ""}
-          >
-            <span class="nav-icon">
-              <i class="bi bi-{item.icon}" aria-hidden="true"></i>
-            </span>
-            {#if showLabels}
-              <span class="nav-label">{item.label}</span>
-            {/if}
-            {#if item.badge && item.badge > 0}
-              <span
-                class="nav-badge {item.badgeColor}"
-                class:mini={isCollapsed}
-              >
-                {item.badge}
-              </span>
-            {/if}
-            {#if isCollapsed}
-              <span class="tooltip">{item.label}</span>
-            {/if}
-          </button>
-        </li>
-      {/each}
-    </ul>
-
-    <!-- System Section -->
-    <div class="nav-divider"></div>
-    {#if showLabels}
-      <div class="nav-category">{tr("system")}</div>
-    {/if}
     <ul class="nav-list">
       {#each systemItems as item (item.id)}
         <li>

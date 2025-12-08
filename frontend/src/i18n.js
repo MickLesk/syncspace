@@ -22,6 +22,15 @@ export const translations = {
     system: 'SYSTEM',
     admin: 'Administration',
     
+    // Settings Hub Categories
+    settingsHub: {
+      personal: 'Persönlich',
+      userManagement: 'Benutzerverwaltung',
+      systemStorage: 'System & Speicher',
+      automation: 'Automatisierung',
+      analytics: 'Analyse & Audit',
+    },
+    
     // Admin Section
     'admin.title': 'Administration',
     'admin.userAccess': 'Benutzer & Zugriff',
@@ -3698,6 +3707,41 @@ export const translations = {
     profile: 'Profile',
     users: 'Users',
     settings: 'Settings',
+    
+    // Settings Hub (Unified Settings Page)
+    settingsHub: {
+      title: 'Settings & Administration',
+      subtitle: 'All settings and administrative options in one place',
+      categories: {
+        profile: 'Profile & Personal',
+        system: 'System & Users',
+        security: 'Security & Storage',
+        advanced: 'Advanced',
+      },
+      tabs: {
+        profile: 'Profile',
+        appearance: 'Appearance',
+        notifications: 'Notifications',
+        apiTokens: 'API Tokens',
+        users: 'Users',
+        groups: 'Groups',
+        roles: 'Roles',
+        guests: 'Guests',
+        backup: 'Backup',
+        encryption: 'Encryption',
+        cloudStorage: 'Cloud Storage',
+        quotas: 'Quotas',
+        workflows: 'Workflows',
+        webhooks: 'Webhooks',
+        jobs: 'Jobs',
+        audit: 'Audit Log',
+      },
+      personal: 'Personal',
+      userManagement: 'User Management',
+      systemStorage: 'System & Storage',
+      automation: 'Automation',
+      analytics: 'Analytics & Audit',
+    },
     recentFiles: 'Recent Files',
     activity: 'Activity',
     activityHistory: 'Activity History',

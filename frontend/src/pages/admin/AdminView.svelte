@@ -13,39 +13,94 @@
   const tabs = [
     // User & Access Management
     { id: "users", icon: "people-fill", label: "users", group: "users" },
-    { id: "guests", icon: "person-badge", label: "guests.title", group: "users" },
-    { id: "roles", icon: "person-badge-fill", label: "roles.title", group: "users" },
+    {
+      id: "guests",
+      icon: "person-badge",
+      label: "guests.title",
+      group: "users",
+    },
+    {
+      id: "roles",
+      icon: "person-badge-fill",
+      label: "roles.title",
+      group: "users",
+    },
     { id: "groups", icon: "people", label: "groups.title", group: "users" },
-    
+
     // System Management
-    { id: "backup", icon: "cloud-arrow-up-fill", label: "backup.title", group: "system" },
+    {
+      id: "backup",
+      icon: "cloud-arrow-up-fill",
+      label: "backup.title",
+      group: "system",
+    },
     { id: "jobs", icon: "list-task", label: "jobs.title", group: "system" },
-    { id: "workflows", icon: "diagram-3-fill", label: "workflows.title", group: "system" },
-    { id: "webhooks", icon: "link-45deg", label: "webhooks.title", group: "system" },
-    
+    {
+      id: "workflows",
+      icon: "diagram-3-fill",
+      label: "workflows.title",
+      group: "system",
+    },
+    {
+      id: "webhooks",
+      icon: "link-45deg",
+      label: "webhooks.title",
+      group: "system",
+    },
+
     // Storage & Security
-    { id: "cloud-storage", icon: "cloud-fill", label: "cloudStorage.title", group: "storage" },
-    { id: "quotas", icon: "speedometer2", label: "quotas.title", group: "storage" },
-    { id: "encryption", icon: "shield-lock-fill", label: "encryption.title", group: "storage" },
-    { id: "analytics", icon: "bar-chart-line-fill", label: "storageAnalytics", group: "storage" },
-    
+    {
+      id: "cloud-storage",
+      icon: "cloud-fill",
+      label: "cloudStorage.title",
+      group: "storage",
+    },
+    {
+      id: "quotas",
+      icon: "speedometer2",
+      label: "quotas.title",
+      group: "storage",
+    },
+    {
+      id: "encryption",
+      icon: "shield-lock-fill",
+      label: "encryption.title",
+      group: "storage",
+    },
+    {
+      id: "analytics",
+      icon: "bar-chart-line-fill",
+      label: "storageAnalytics",
+      group: "storage",
+    },
+
     // Configuration & Audit
-    { id: "config", icon: "sliders", label: "systemConfig.title", group: "config" },
-    { id: "audit", icon: "shield-check", label: "audit.title", group: "config" },
+    {
+      id: "config",
+      icon: "sliders",
+      label: "systemConfig.title",
+      group: "config",
+    },
+    {
+      id: "audit",
+      icon: "shield-check",
+      label: "audit.title",
+      group: "config",
+    },
   ];
 
   // Group tabs by category
-  let userTabs = $derived(tabs.filter(t => t.group === "users"));
-  let systemTabs = $derived(tabs.filter(t => t.group === "system"));
-  let storageTabs = $derived(tabs.filter(t => t.group === "storage"));
-  let configTabs = $derived(tabs.filter(t => t.group === "config"));
+  let userTabs = $derived(tabs.filter((t) => t.group === "users"));
+  let systemTabs = $derived(tabs.filter((t) => t.group === "system"));
+  let storageTabs = $derived(tabs.filter((t) => t.group === "storage"));
+  let configTabs = $derived(tabs.filter((t) => t.group === "config"));
 
   // Handle URL hash for deep linking
   onMount(() => {
     const hash = window.location.hash;
     if (hash.includes("?tab=")) {
       const tabParam = hash.split("?tab=")[1];
-      if (tabs.find(t => t.id === tabParam)) {
+      if (tabs.find((t) => t.id === tabParam)) {
         activeTab = tabParam;
       }
     }
@@ -66,7 +121,9 @@
       <div class="admin-tabs">
         <!-- User & Access -->
         <div class="tab-group">
-          <span class="tab-group-label">{tr("admin.userAccess") || "Users & Access"}</span>
+          <span class="tab-group-label"
+            >{tr("admin.userAccess") || "Users & Access"}</span
+          >
           <div class="tab-group-items">
             {#each userTabs as tab}
               <button
@@ -83,7 +140,9 @@
 
         <!-- System Management -->
         <div class="tab-group">
-          <span class="tab-group-label">{tr("admin.systemManagement") || "System"}</span>
+          <span class="tab-group-label"
+            >{tr("admin.systemManagement") || "System"}</span
+          >
           <div class="tab-group-items">
             {#each systemTabs as tab}
               <button
@@ -100,7 +159,9 @@
 
         <!-- Storage & Security -->
         <div class="tab-group">
-          <span class="tab-group-label">{tr("admin.storageSecurity") || "Storage"}</span>
+          <span class="tab-group-label"
+            >{tr("admin.storageSecurity") || "Storage"}</span
+          >
           <div class="tab-group-items">
             {#each storageTabs as tab}
               <button
@@ -117,7 +178,9 @@
 
         <!-- Configuration & Audit -->
         <div class="tab-group">
-          <span class="tab-group-label">{tr("admin.configuration") || "Config"}</span>
+          <span class="tab-group-label"
+            >{tr("admin.configuration") || "Config"}</span
+          >
           <div class="tab-group-items">
             {#each configTabs as tab}
               <button
@@ -138,59 +201,59 @@
     <div class="admin-content">
       {#if activeTab === "users"}
         {#await import("../system/UsersView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {:else if activeTab === "guests"}
         {#await import("../GuestAccessView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {:else if activeTab === "roles"}
         {#await import("../rbac/RoleManagementView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {:else if activeTab === "groups"}
         {#await import("./UserGroupsView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {:else if activeTab === "backup"}
         {#await import("../system/BackupView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {:else if activeTab === "jobs"}
         {#await import("../jobs/JobsQueueView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {:else if activeTab === "workflows"}
         {#await import("../workflow/WorkflowBuilderView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {:else if activeTab === "webhooks"}
         {#await import("./WebhooksView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {:else if activeTab === "cloud-storage"}
         {#await import("./CloudStorageView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {:else if activeTab === "quotas"}
         {#await import("../system/QuotasView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {:else if activeTab === "encryption"}
         {#await import("../EncryptionView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {:else if activeTab === "analytics"}
         {#await import("../analytics/StorageAnalyticsView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {:else if activeTab === "config"}
         {#await import("./SystemConfigView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {:else if activeTab === "audit"}
         {#await import("../AuditComplianceView.svelte") then module}
-          <svelte:component this={module.default} />
+          <module.default />
         {/await}
       {/if}
     </div>

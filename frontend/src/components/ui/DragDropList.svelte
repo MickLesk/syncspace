@@ -97,7 +97,8 @@
 
       <!-- Item Content -->
       <div class="item-content">
-        <svelte:component this={renderItem} {item} />
+        {@const RenderComponent = renderItem}
+        <RenderComponent {item} />
       </div>
 
       <!-- Drop Indicator -->
