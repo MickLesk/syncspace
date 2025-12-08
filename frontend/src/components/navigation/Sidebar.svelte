@@ -166,6 +166,18 @@
       category: "admin",
     },
     {
+      id: "cloud-storage",
+      icon: "cloud-fill",
+      label: t($currentLang, "cloudStorage.title") || "Cloud Storage",
+      category: "admin",
+    },
+    {
+      id: "webhooks",
+      icon: "link-45deg",
+      label: t($currentLang, "webhooks.title") || "Webhooks",
+      category: "admin",
+    },
+    {
       id: "audit",
       icon: "shield-check",
       label: t($currentLang, "audit.title") || "Audit & Compliance",
