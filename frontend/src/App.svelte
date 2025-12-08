@@ -22,6 +22,7 @@
   // Navigation & Header
   import Sidebar from "./components/navigation/Sidebar.svelte";
   import AppHeader from "./components/ui/AppHeader.svelte";
+  import MobileBottomNav from "./components/navigation/MobileBottomNav.svelte";
 
   // File Views
   import FilesView from "./pages/files/FilesView.svelte";
@@ -418,10 +419,10 @@
     {#if isMobile}
       <button
         onclick={() => (isMobileMenuOpen = !isMobileMenuOpen)}
-        class="mobile-menu-toggle fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg md:hidden"
-        aria-label="Toggle menu"
+        class="mobile-menu-toggle fixed top-4 left-4 z-50 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 md:hidden touch-target"
+        aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
       >
-        <span class="text-2xl">{isMobileMenuOpen ? "✕" : "☰"}</span>
+        <i class="bi bi-{isMobileMenuOpen ? 'x-lg' : 'list'} text-xl text-gray-700 dark:text-gray-200" aria-hidden="true"></i>
       </button>
     {/if}
 
@@ -431,7 +432,7 @@
       class:mobile-open={isMobileMenuOpen && isMobile}
       class:mobile-closed={!isMobileMenuOpen && isMobile}
     >
-      <Sidebar />
+      <Sidebar on:navigate={() => isMobile && (isMobileMenuOpen = false)} />
     </div>
 
     <!-- Overlay for mobile -->
@@ -561,6 +562,11 @@
         {/if}
       </div>
     </div>
+    
+    <!-- Mobile Bottom Navigation -->
+    {#if isMobile}
+      <MobileBottomNav />
+    {/if}
   </div>
 {/if}
 
@@ -624,6 +630,13 @@
 
   .main-content::-webkit-scrollbar {
     display: none; /* Chrome/Safari/Opera */
+  }
+
+  /* Mobile bottom nav spacing */
+  @media (max-width: 768px) {
+    .main-content {
+      padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    }
   }
 
   /* Mobile Sidebar Support */

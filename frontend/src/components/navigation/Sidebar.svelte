@@ -2,9 +2,10 @@
   import { currentView, sidebarCollapsed, currentLang } from "../../stores/ui";
   import { auth } from "../../stores/auth";
   import { t } from "../../i18n";
-  import { onMount } from "svelte";
+  import { onMount, createEventDispatcher } from "svelte";
   import api from "../../lib/api.js";
 
+  const dispatch = createEventDispatcher();
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   // Sidebar state
@@ -248,6 +249,8 @@
     if (window.location.hash !== newHash) {
       window.history.pushState({ view: viewId }, "", newHash);
     }
+    // Emit event to close mobile menu
+    dispatch("navigate", { viewId });
   }
 
   function toggleSidebar() {
