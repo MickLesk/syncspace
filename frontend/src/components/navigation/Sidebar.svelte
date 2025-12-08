@@ -118,6 +118,12 @@
       badgeColor: "amber",
     },
     {
+      id: "audit",
+      icon: "shield-check",
+      label: t($currentLang, "audit.title") || "Audit & Compliance",
+      category: "system",
+    },
+    {
       id: "storage-analytics",
       icon: "bar-chart-line-fill",
       label: t($currentLang, "storageAnalytics"),
