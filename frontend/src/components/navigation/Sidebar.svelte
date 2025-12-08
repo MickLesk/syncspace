@@ -88,6 +88,12 @@
       category: "main",
     },
     {
+      id: "recent",
+      icon: "clock-fill",
+      label: t($currentLang, "recentFiles") || "Recent Files",
+      category: "main",
+    },
+    {
       id: "smart-folders",
       icon: "lightning-fill",
       label: t($currentLang, "smartFolders") || "Smart Folders",

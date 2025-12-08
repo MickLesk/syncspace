@@ -387,7 +387,15 @@
   <!-- Create/Edit Modal -->
   {#if showCreateModal}
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <div class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1" onclick={closeModal} onkeydown={(e) => e.key === 'Escape' && closeModal()}>
+    <div
+      class="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      tabindex="-1"
+      onclick={closeModal}
+      onkeydown={(e) => e.key === "Escape" && closeModal()}
+    >
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <div class="modal-content" onclick={(e) => e.stopPropagation()}>
@@ -398,7 +406,11 @@
               ? tr("smartFolders.edit") || "Edit Smart Folder"
               : tr("smartFolders.create") || "Create Smart Folder"}
           </h2>
-          <button class="close-btn" onclick={closeModal} aria-label="Close modal">
+          <button
+            class="close-btn"
+            onclick={closeModal}
+            aria-label="Close modal"
+          >
             <i class="bi bi-x-lg" aria-hidden="true"></i>
           </button>
         </div>
@@ -434,8 +446,14 @@
 
             <div class="form-row">
               <div class="form-group">
-                <span class="label-text">{tr("smartFolders.icon") || "Icon"}</span>
-                <div class="icon-picker" role="radiogroup" aria-label="Select icon">
+                <span class="label-text"
+                  >{tr("smartFolders.icon") || "Icon"}</span
+                >
+                <div
+                  class="icon-picker"
+                  role="radiogroup"
+                  aria-label="Select icon"
+                >
                   {#each iconOptions as icon}
                     <button
                       type="button"
@@ -452,8 +470,14 @@
               </div>
 
               <div class="form-group">
-                <span class="label-text">{tr("smartFolders.color") || "Color"}</span>
-                <div class="color-picker" role="radiogroup" aria-label="Select color">
+                <span class="label-text"
+                  >{tr("smartFolders.color") || "Color"}</span
+                >
+                <div
+                  class="color-picker"
+                  role="radiogroup"
+                  aria-label="Select color"
+                >
                   {#each colorOptions as color}
                     <button
                       type="button"
@@ -465,7 +489,8 @@
                       aria-pressed={formColor === color}
                     >
                       {#if formColor === color}
-                        <i class="bi bi-check text-white" aria-hidden="true"></i>
+                        <i class="bi bi-check text-white" aria-hidden="true"
+                        ></i>
                       {/if}
                     </button>
                   {/each}
