@@ -53,6 +53,7 @@
   import WebhooksView from "./pages/admin/WebhooksView.svelte";
   import SystemHealthView from "./pages/admin/SystemHealthView.svelte";
   import StorageAnalyticsView from "./pages/analytics/StorageAnalyticsView.svelte";
+  import EncryptionView from "./pages/EncryptionView.svelte";
 
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
@@ -176,6 +177,7 @@
         roles: "roles",
         workflows: "workflows",
         "cloud-storage": "cloud-storage",
+        encryption: "encryption",
         audit: "audit",
         admin: "admin",
         webhooks: "webhooks",
@@ -508,6 +510,8 @@
                 <WorkflowBuilderView />
               {:else if $currentView === "cloud-storage"}
                 <CloudStorageView />
+              {:else if $currentView === "encryption"}
+                <EncryptionView />
               {:else if $currentView === "audit"}
                 <AuditComplianceView />
               {:else if $currentView === "dashboard"}

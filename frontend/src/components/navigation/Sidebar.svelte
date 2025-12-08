@@ -172,6 +172,12 @@
       category: "admin",
     },
     {
+      id: "encryption",
+      icon: "shield-lock-fill",
+      label: t($currentLang, "encryption.title") || "Encryption",
+      category: "admin",
+    },
+    {
       id: "webhooks",
       icon: "link-45deg",
       label: t($currentLang, "webhooks.title") || "Webhooks",

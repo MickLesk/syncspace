@@ -15,6 +15,7 @@ mod cron;
 mod database;
 mod database_monitor;
 mod db_monitor;
+mod encryption;
 mod jobs;
 mod middleware;
 mod models;

@@ -4011,4 +4011,151 @@ export const api = {
   webhooks,
   systemHealth,
   apiTokens,
+  encryption,
+};
+
+// ============================================================================
+// FILE ENCRYPTION AT REST
+// ============================================================================
+
+export const encryption = {
+  // --- Key Management ---
+  
+  /**
+   * List all encryption keys for the current user
+   */
+  async listKeys() {
+    const response = await fetch(`${API_BASE}/encryption/keys`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a new encryption key
+   * @param {string} name - Key name/description
+   * @param {string} password - Password to protect the key
+   */
+  async createKey(name, password) {
+    const response = await fetch(`${API_BASE}/encryption/keys`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ name, password }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete (deactivate) an encryption key
+   * @param {string} keyId - Key ID to delete
+   */
+  async deleteKey(keyId) {
+    const response = await fetch(`${API_BASE}/encryption/keys/${keyId}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Rotate an encryption key's password
+   * @param {string} keyId - Key ID to rotate
+   * @param {string} oldPassword - Current password
+   * @param {string} newPassword - New password
+   */
+  async rotateKey(keyId, oldPassword, newPassword) {
+    const response = await fetch(`${API_BASE}/encryption/keys/${keyId}/rotate`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
+    });
+    return handleResponse(response);
+  },
+
+  // --- File Operations ---
+  
+  /**
+   * Get encryption status of a file
+   * @param {string} fileId - File ID to check
+   */
+  async getFileStatus(fileId) {
+    const response = await fetch(`${API_BASE}/encryption/files/${fileId}/status`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Encrypt a file
+   * @param {string} fileId - File ID to encrypt
+   * @param {string} keyId - Encryption key to use
+   * @param {string} password - Password to decrypt the key
+   */
+  async encryptFile(fileId, keyId, password) {
+    const response = await fetch(`${API_BASE}/encryption/files/${fileId}/encrypt`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ key_id: keyId, password }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Decrypt a file
+   * @param {string} fileId - File ID to decrypt
+   * @param {string} password - Password to decrypt the key
+   */
+  async decryptFile(fileId, password) {
+    const response = await fetch(`${API_BASE}/encryption/files/${fileId}/decrypt`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ password }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Encrypt all files in a folder
+   * @param {string} folderPath - Folder path to encrypt
+   * @param {string} keyId - Encryption key to use
+   * @param {string} password - Password to decrypt the key
+   * @param {boolean} includeSubfolders - Whether to include subfolders
+   */
+  async encryptFolder(folderPath, keyId, password, includeSubfolders = true) {
+    const response = await fetch(`${API_BASE}/encryption/folders/${encodeURIComponent(folderPath)}/encrypt`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ 
+        key_id: keyId, 
+        password, 
+        include_subfolders: includeSubfolders 
+      }),
+    });
+    return handleResponse(response);
+  },
+
+  // --- Settings ---
+  
+  /**
+   * Get encryption settings
+   */
+  async getSettings() {
+    const response = await fetch(`${API_BASE}/encryption/settings`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update encryption settings
+   * @param {Object} settings - Encryption settings
+   */
+  async updateSettings(settings) {
+    const response = await fetch(`${API_BASE}/encryption/settings`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(settings),
+    });
+    return handleResponse(response);
+  },
 };

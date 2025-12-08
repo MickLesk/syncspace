@@ -21,6 +21,7 @@ pub mod database_health;
 pub mod db_health;
 pub mod directories;
 pub mod duplicates;
+pub mod encryption;
 pub mod errors;
 pub mod favorites;
 pub mod file_comparison;
@@ -123,6 +124,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(smart_folders::router()) // Smart folders with dynamic rules
                 .merge(storage_analytics::router()) // Storage analytics and statistics
                 .merge(admin::router()) // Admin user management
+                .merge(encryption::router()) // File encryption at rest
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,
