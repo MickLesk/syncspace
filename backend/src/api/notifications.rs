@@ -21,7 +21,7 @@ pub fn router() -> Router<AppState> {
 
 async fn get_notifications(user_info: UserInfo, State(state): State<AppState>) -> Result<Json<serde_json::Value>, StatusCode> {
     match sqlx::query_as::<_, (String, String, String, String, bool)>(
-        "SELECT id, type, title, message, read_status FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 100"
+        "SELECT id, type, title, message, is_read FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 100"
     )
     .bind(&user_info.id)
     .fetch_all(&state.db_pool)
@@ -29,13 +29,13 @@ async fn get_notifications(user_info: UserInfo, State(state): State<AppState>) -
     {
         Ok(notifications) => {
             let result: Vec<_> = notifications.into_iter()
-                .map(|(id, notification_type, title, message, read_status)| {
+                .map(|(id, notification_type, title, message, is_read)| {
                     json!({
                         "id": id,
                         "type": notification_type,
                         "title": title,
                         "message": message,
-                        "read": read_status
+                        "read": is_read
                     })
                 })
                 .collect();
@@ -63,7 +63,7 @@ async fn delete_all_notifications(user_info: UserInfo, State(state): State<AppSt
 }
 
 async fn mark_notification_read(user_info: UserInfo, State(state): State<AppState>, Path(id): Path<String>) -> Result<StatusCode, StatusCode> {
-    match sqlx::query("UPDATE notifications SET read_status = true WHERE id = ? AND user_id = ?")
+    match sqlx::query("UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?")
         .bind(&id)
         .bind(&user_info.id)
         .execute(&state.db_pool)
@@ -78,7 +78,7 @@ async fn mark_notification_read(user_info: UserInfo, State(state): State<AppStat
 }
 
 async fn mark_all_notifications_read(user_info: UserInfo, State(state): State<AppState>) -> Result<StatusCode, StatusCode> {
-    match sqlx::query("UPDATE notifications SET read_status = true WHERE user_id = ?")
+    match sqlx::query("UPDATE notifications SET is_read = 1 WHERE user_id = ?")
         .bind(&user_info.id)
         .execute(&state.db_pool)
         .await

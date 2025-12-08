@@ -215,9 +215,10 @@ async fn send_critical_error_alert(state: &AppState, error: &ErrorReport) -> Res
     // In production, this would send email/Slack/webhook notifications
     // For now, just log as critical
     sqlx::query(
-        "INSERT INTO notifications (user_id, type, title, message, read_status) 
-         VALUES ('system', 'error_alert', ?, ?, false)"
+        "INSERT INTO notifications (id, user_id, type, title, message, is_read, created_at) 
+         VALUES (?, 'system', 'error_alert', ?, ?, 0, datetime('now'))"
     )
+    .bind(uuid::Uuid::new_v4().to_string())
     .bind(&error.error_type)
     .bind(&error.message)
     .execute(&state.db_pool)

@@ -9,7 +9,7 @@
   // Active tab state
   let activeTab = $state("users");
 
-  // Admin tabs configuration
+  // Admin tabs configuration - using correct i18n keys
   const tabs = [
     // User & Access Management
     { id: "users", icon: "people-fill", label: "users", group: "users" },

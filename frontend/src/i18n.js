@@ -15,9 +15,12 @@ export const translations = {
     activityHistory: 'Aktivitätsverlauf',
     duplicates: 'Duplikate',
     cloudStorage: 'Cloud-Speicher',
+    tagCloud: 'Tags',
+    storageAnalytics: 'Speicheranalyse',
     main: 'HAUPT',
     tools: 'WERKZEUGE',
     system: 'SYSTEM',
+    admin: 'Administration',
     
     // Admin Section
     'admin.title': 'Administration',
@@ -25,6 +28,19 @@ export const translations = {
     'admin.systemManagement': 'System',
     'admin.storageSecurity': 'Speicher & Sicherheit',
     'admin.configuration': 'Konfiguration',
+    
+    // Admin Tab Labels (short versions for tabs)
+    'roles.title': 'Rollen',
+    'groups.title': 'Gruppen',
+    'guests.title': 'Gastzugang',
+    'backup.title': 'Sicherung',
+    'jobs.title': 'Aufträge',
+    'workflows.title': 'Workflows',
+    'webhooks.title': 'Webhooks',
+    'cloudStorage.title': 'Cloud-Speicher',
+    'encryption.title': 'Verschlüsselung',
+    'systemConfig.title': 'Systemkonfiguration',
+    'audit.title': 'Audit & Compliance',
     
     // Smart Folders
     'smartFolders.title': 'Smart Folders',
@@ -3619,9 +3635,12 @@ export const translations = {
     activityHistory: 'Activity History',
     duplicates: 'Duplicates',
     cloudStorage: 'Cloud Storage',
+    tagCloud: 'Tags',
+    storageAnalytics: 'Storage Analytics',
     main: 'MAIN',
     tools: 'TOOLS',
     system: 'SYSTEM',
+    admin: 'Administration',
     
     // Admin Section
     'admin.title': 'Administration',
@@ -3629,6 +3648,19 @@ export const translations = {
     'admin.systemManagement': 'System',
     'admin.storageSecurity': 'Storage & Security',
     'admin.configuration': 'Configuration',
+    
+    // Admin Tab Labels (short versions for tabs)
+    'roles.title': 'Roles',
+    'groups.title': 'Groups',
+    'guests.title': 'Guests',
+    'backup.title': 'Backup',
+    'jobs.title': 'Jobs',
+    'workflows.title': 'Workflows',
+    'webhooks.title': 'Webhooks',
+    'cloudStorage.title': 'Cloud Storage',
+    'encryption.title': 'Encryption',
+    'systemConfig.title': 'System Config',
+    'audit.title': 'Audit & Compliance',
     
     // Smart Folders
     'smartFolders.title': 'Smart Folders',

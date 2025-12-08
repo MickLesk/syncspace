@@ -115,7 +115,7 @@
     {
       id: "duplicates",
       icon: "copy",
-      label: t($currentLang, "duplicates.title") || "Duplicates",
+      label: t($currentLang, "duplicates") || "Duplicates",
       category: "tools",
     },
     {
@@ -128,7 +128,7 @@
     {
       id: "admin",
       icon: "gear-wide-connected",
-      label: t($currentLang, "admin.title") || "Administration",
+      label: t($currentLang, "admin") || "Administration",
       category: "admin",
     },
     // System section
