@@ -135,6 +135,8 @@ pub async fn validate_token_against_db(pool: &SqlitePool, token: &str) -> Result
         id: user.id,
         username: user.username,
         totp_enabled: user.totp_enabled,
+        role: user.role,
+        is_admin: user.is_admin,
     })
 }
 
@@ -292,6 +294,8 @@ where
             id: user_id.to_string(),
             username: claims.username,
             totp_enabled: false,
+            role: None,
+            is_admin: false,
         }))
     }
 }
@@ -330,6 +334,10 @@ pub struct UserInfo {
     pub id: String,
     pub username: String,
     pub totp_enabled: bool,
+    #[serde(default)]
+    pub role: Option<String>,
+    #[serde(default)]
+    pub is_admin: bool,
 }
 
 impl UserInfo {

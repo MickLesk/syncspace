@@ -2,14 +2,14 @@
   /**
    * Async View Loader Component
    * Shows loading state while async component loads
-   * 
+   *
    * Usage:
    * <AsyncViewLoader component={FilesView} let:Component>
    *   <svelte:component this={Component} />
    * </AsyncViewLoader>
    */
 
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
 
   let { component, fallback = null, error: errorComponent = null } = $props();
 
@@ -26,18 +26,18 @@
       if (component && !component.then) {
         resolvedComponent = component;
         isLoading = false;
-      } else if (component && typeof component.then === 'function') {
+      } else if (component && typeof component.then === "function") {
         // Component is a Promise (async import)
         resolvedComponent = await component;
         isLoading = false;
       } else {
-        throw new Error('Invalid component');
+        throw new Error("Invalid component");
       }
 
       loadTime = performance.now() - startTime;
       console.debug(`Component loaded in ${loadTime.toFixed(0)}ms`);
     } catch (err) {
-      console.error('Failed to load async component:', err);
+      console.error("Failed to load async component:", err);
       error = err;
       isLoading = false;
     }
@@ -51,7 +51,9 @@
   {:else}
     <div class="flex items-center justify-center h-full min-h-96">
       <div class="text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"
+        ></div>
         <p class="text-gray-600 dark:text-gray-400">Loading...</p>
       </div>
     </div>
@@ -63,9 +65,14 @@
   {:else}
     <div class="flex items-center justify-center h-full min-h-96">
       <div class="text-center text-red-600 dark:text-red-400">
-        <i class="bi bi-exclamation-triangle-fill text-4xl mb-4" aria-hidden="true"></i>
+        <i
+          class="bi bi-exclamation-triangle-fill text-4xl mb-4"
+          aria-hidden="true"
+        ></i>
         <p class="font-semibold">Failed to load component</p>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{error.message}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+          {error.message}
+        </p>
         <button
           onclick={() => window.location.reload()}
           class="mt-4 px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600"

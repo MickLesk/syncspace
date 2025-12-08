@@ -421,6 +421,11 @@ pub struct User {
     pub totp_enabled: bool,
     pub token_version: i32, // For global token invalidation
 
+    // Admin & Role
+    #[serde(default)]
+    pub is_admin: bool,
+    pub role: Option<String>,
+
     // Quota
     pub storage_quota_bytes: i64,
     pub storage_used_bytes: i64,

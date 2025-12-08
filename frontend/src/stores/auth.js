@@ -22,6 +22,15 @@ function createAuthStore() {
   // Auto-refresh timer
   let refreshTimer = null;
   let refreshTokenExpiryCheck = null;
+  
+  // Parse stored user data
+  const storedUser = localStorage.getItem('user');
+  let parsedUser = null;
+  try {
+    parsedUser = storedUser ? JSON.parse(storedUser) : null;
+  } catch (e) {
+    console.warn('Failed to parse stored user data');
+  }
 
   const { subscribe, set, update } = writable({
     isLoggedIn: false, // Start als ausgeloggt
@@ -29,6 +38,7 @@ function createAuthStore() {
     refreshToken: storedRefreshToken,
     username: localStorage.getItem('username'),
     userId: localStorage.getItem('userId'),
+    user: parsedUser,
     isValidating: true // Flag um zu wissen dass wir noch validieren
   });
 
@@ -136,14 +146,17 @@ function createAuthStore() {
 
         if (response.ok) {
           const userData = await response.json();
+          // Store updated user data
+          localStorage.setItem('user', JSON.stringify(userData));
           update(state => ({
             ...state,
             isLoggedIn: true,
             isValidating: false,
             username: userData.username,
-            userId: userData.id
+            userId: userData.id,
+            user: userData
           }));
-          console.log('✅ Token valid, user authenticated');
+          console.log('✅ Token valid, user authenticated:', userData.username, 'isAdmin:', userData.is_admin || userData.role === 'admin');
           
           // Start auto-refresh schedule
           authStore.scheduleTokenRefresh();
@@ -179,6 +192,7 @@ function createAuthStore() {
           localStorage.setItem('authToken', data.token);
           localStorage.setItem('username', data.user.username);
           localStorage.setItem('userId', data.user.id);
+          localStorage.setItem('user', JSON.stringify(data.user));
           
           // Store refresh token if provided
           if (data.refresh_token) {
@@ -191,6 +205,7 @@ function createAuthStore() {
             refreshToken: data.refresh_token,
             username: data.user.username,
             userId: data.user.id,
+            user: data.user,
             isValidating: false
           });
           
@@ -224,12 +239,14 @@ function createAuthStore() {
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('username');
       localStorage.removeItem('userId');
+      localStorage.removeItem('user');
       set({
         isLoggedIn: false,
         token: null,
         refreshToken: null,
         username: null,
         userId: null,
+        user: null,
         isValidating: false
       });
     }

@@ -48,11 +48,32 @@ pub fn router() -> Router<AppState> {
 }
 
 /// Get current authenticated user info (for token validation)
-async fn get_current_user(user: UserInfo) -> Result<Json<serde_json::Value>, StatusCode> {
-    Ok(Json(serde_json::json!({
-        "id": user.user_id(),
-        "username": user.username
-    })))
+async fn get_current_user(
+    State(state): State<AppState>,
+    user: UserInfo,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    // Get full user profile to include admin status
+    let user_id = user.user_id();
+    
+    let db_user = sqlx::query_as::<_, (String, Option<String>, i64)>(
+        "SELECT username, role, is_admin FROM users WHERE id = ?"
+    )
+    .bind(&user_id)
+    .fetch_optional(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    match db_user {
+        Some((username, role, is_admin)) => {
+            Ok(Json(serde_json::json!({
+                "id": user_id,
+                "username": username,
+                "role": role.unwrap_or_else(|| "user".to_string()),
+                "is_admin": is_admin == 1
+            })))
+        }
+        None => Err(StatusCode::NOT_FOUND)
+    }
 }
 
 async fn get_profile(
