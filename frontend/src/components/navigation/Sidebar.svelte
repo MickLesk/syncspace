@@ -184,6 +184,12 @@
       category: "admin",
     },
     {
+      id: "system-config",
+      icon: "sliders",
+      label: t($currentLang, "systemConfig.title") || "System Configuration",
+      category: "admin",
+    },
+    {
       id: "webhooks",
       icon: "link-45deg",
       label: t($currentLang, "webhooks.title") || "Webhooks",
