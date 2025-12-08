@@ -106,7 +106,7 @@
 
       <!-- Content -->
       <div class="px-6 py-4">
-        <slot />
+        {@render children?.()}
       </div>
 
       <!-- Footer with accessible buttons -->

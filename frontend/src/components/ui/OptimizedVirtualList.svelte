@@ -48,7 +48,7 @@
   <div style="height: {offsetTop}px;"></div>
 
   <!-- Rendered items -->
-  <div class="virtual-items">
+  <div class="virtual-items" role="list">
     {#each visibleItems as item, i (item.id || i)}
       <div
         class="virtual-item"
@@ -57,8 +57,11 @@
         ondragstart={(e) => ondragstart?.(item, e, visibleRange.start + i)}
         ondragend={(e) => ondragend?.(item, e, visibleRange.start + i)}
         ondrop={(e) => ondrop?.(item, e, visibleRange.start + i)}
+        role="listitem"
       >
-        <svelte:component this={renderItem} {item} />
+        {#if typeof renderItem === "function"}
+          {renderItem({ item })}
+        {/if}
       </div>
     {/each}
   </div>

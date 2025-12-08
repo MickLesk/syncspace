@@ -27,15 +27,15 @@
 
   let { filePath = "", readOnly = false } = $props();
 
-  let activeTab = "tags"; // 'tags' | 'comments'
-  let newTagName = "";
-  let newTagColor = "#3b82f6";
-  let newCommentText = "";
-  let replyingToId = null;
-  let editingCommentId = null;
-  let editingText = "";
-  let showEmojiPicker = false;
-  let selectedCommentId = null;
+  let activeTab = $state("tags"); // 'tags' | 'comments'
+  let newTagName = $state("");
+  let newTagColor = $state("#3b82f6");
+  let newCommentText = $state("");
+  let replyingToId = $state(null);
+  let editingCommentId = $state(null);
+  let editingText = $state("");
+  let showEmojiPicker = $state(false);
+  let selectedCommentId = $state(null);
 
   const tagColors = [
     "#ef4444", // red
@@ -210,8 +210,8 @@
                     class:border-transparent={newTagColor !== color}
                     style="background-color: {color}"
                     onclick={() => (newTagColor = color)}
-                    title={color}
-                  />
+                    title="Select color {color}"
+                  ></button>
                 {/each}
               </div>
 
@@ -219,6 +219,7 @@
                 onclick={handleAddTag}
                 disabled={!newTagName.trim()}
                 class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-slate-300 text-white rounded text-sm font-medium transition-colors"
+                title="Add tag"
               >
                 <i class="bi bi-plus" aria-hidden="true"></i>
               </button>
@@ -319,7 +320,7 @@
                       bind:value={editingText}
                       class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
                       rows="3"
-                    />
+                    ></textarea>
                     <div class="flex gap-2">
                       <button
                         onclick={handleEditComment}
@@ -394,6 +395,7 @@
                         <button
                           onclick={() => handleDeleteComment(reply.id)}
                           class="text-red-500 hover:text-red-700 text-xs"
+                          title="Delete reply"
                         >
                           <i class="bi bi-trash" aria-hidden="true"></i>
                         </button>
@@ -434,7 +436,7 @@
               bind:value={newCommentText}
               class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
               rows="3"
-            />
+            ></textarea>
 
             <div class="flex gap-2 mt-2">
               <button

@@ -1,9 +1,12 @@
 <script>
   import { currentLang } from "../../stores/ui";
   import { t } from "../../i18n.js";
-  import { DEFAULT_SHORTCUTS, formatShortcut } from "../../lib/keyboardNavigation.js";
+  import {
+    DEFAULT_SHORTCUTS,
+    formatShortcut,
+  } from "../../lib/keyboardNavigation.js";
 
-  const tr = $derive((key, ...args) => t($currentLang, key, ...args));
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let { isOpen = false, onClose = null } = $props();
 
@@ -53,25 +56,33 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby="shortcuts-title"
-    ondragover={(e) = tabindex="0"> e.preventDefault()}
+    tabindex="-1"
   >
     <div
       class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto"
     >
       <!-- Header -->
-      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800">
-        <h2 id="shortcuts-title" class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+      <div
+        class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800"
+      >
+        <h2
+          id="shortcuts-title"
+          class="text-2xl font-bold text-gray-900 dark:text-gray-100"
+        >
           Keyboard Shortcuts
         </h2>
-        <button type="button"
-          aria-label="Close" onclick={onClose}
+        <button
+          type="button"
+          onclick={onClose}
           class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-          aria-label="Close"
-        ><i class="bi bi-x" aria-hidden="true"></i></button>
+          aria-label="Close"><i class="bi bi-x" aria-hidden="true"></i></button
+        >
       </div>
 
       <!-- OS Selector -->
-      <div class="px-6 py-3 border-b border-gray-200 dark:border-gray-700 flex gap-2">
+      <div
+        class="px-6 py-3 border-b border-gray-200 dark:border-gray-700 flex gap-2"
+      >
         {#each ["windows", "mac", "linux"] as osOption}
           <button
             type="button"
@@ -93,7 +104,9 @@
       <div class="px-6 py-4 space-y-8">
         {#each Object.entries(shortcuts) as [_key, category]}
           <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+            <h3
+              class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3"
+            >
               {category.title}
             </h3>
 
@@ -102,7 +115,9 @@
                 <div
                   class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded"
                 >
-                  <span class="text-gray-700 dark:text-gray-300">{item.name}</span>
+                  <span class="text-gray-700 dark:text-gray-300"
+                    >{item.name}</span
+                  >
                   <kbd
                     class="px-3 py-1 bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-gray-100 rounded font-mono text-sm border border-gray-300 dark:border-gray-500"
                   >
@@ -123,7 +138,9 @@
           💡 Tips
         </h4>
         <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-          <li>• Use arrow keys to navigate through files in the file browser</li>
+          <li>
+            • Use arrow keys to navigate through files in the file browser
+          </li>
           <li>• Press Escape to close any dialog or cancel operations</li>
           <li>• In file preview, use arrow keys to browse through files</li>
           <li>• All keyboard shortcuts can be customized in Settings</li>
@@ -131,7 +148,9 @@
       </div>
 
       <!-- Footer -->
-      <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+      <div
+        class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end"
+      >
         <button
           type="button"
           onclick={onClose}

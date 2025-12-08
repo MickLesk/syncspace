@@ -422,11 +422,12 @@
       </div>
 
       <div class="form-control mt-4">
-        <label class="label">
+        <label for="expires-in-select" class="label">
           <span class="label-text font-medium">{$t("apiTokens.expiresIn")}</span
           >
         </label>
         <select
+          id="expires-in-select"
           bind:value={expiresInDays}
           class="select select-bordered w-full"
         >

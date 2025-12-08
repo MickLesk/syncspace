@@ -278,6 +278,10 @@
         <div
           class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer"
           onclick={() => toggleExpanded(activity.id)}
+          onkeydown={(e) =>
+            (e.key === "Enter" || e.key === " ") && toggleExpanded(activity.id)}
+          role="button"
+          tabindex="0"
         >
           <div class="flex items-start gap-4">
             <!-- Icon -->

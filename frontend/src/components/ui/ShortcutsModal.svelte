@@ -102,6 +102,7 @@
             isOpen = false;
             onClose?.();
           }}
+          aria-label="Close"
           class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
         >
           <i class="bi bi-x text-2xl" aria-hidden="true"></i>

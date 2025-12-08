@@ -202,10 +202,12 @@
             >
               <div class="flex items-center gap-2">
                 <label
+                  for="color-mode-select"
                   class="text-sm font-medium text-gray-700 dark:text-gray-300"
                   >{tr("tagCloud.colorMode")}:</label
                 >
                 <select
+                  id="color-mode-select"
                   bind:value={colorMode}
                   class="px-3 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white text-sm border border-gray-300 dark:border-gray-600"
                 >
@@ -217,10 +219,12 @@
 
               <div class="flex items-center gap-2">
                 <label
+                  for="sort-by-select"
                   class="text-sm font-medium text-gray-700 dark:text-gray-300"
                   >{tr("tagCloud.sortBy")}:</label
                 >
                 <select
+                  id="sort-by-select"
                   bind:value={sortBy}
                   class="px-3 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white text-sm border border-gray-300 dark:border-gray-600"
                 >

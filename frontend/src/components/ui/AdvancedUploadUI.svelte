@@ -69,6 +69,8 @@
     <div
       class="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-4 cursor-pointer flex justify-between items-center"
       onclick={() => (isExpanded = !isExpanded)}
+      onkeydown={(e) =>
+        (e.key === "Enter" || e.key === " ") && (isExpanded = !isExpanded)}
       role="button"
       tabindex="0"
     >
@@ -105,7 +107,7 @@
           <div
             class="bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full transition-all duration-300"
             style="width: {stats.percentage}%"
-          />
+          ></div>
         </div>
 
         <div class="grid grid-cols-3 gap-2 text-xs">
@@ -165,7 +167,7 @@
                   <div
                     class="bg-primary-500 h-1.5 rounded-full transition-all duration-300"
                     style="width: {job.progress}%"
-                  />
+                  ></div>
                 </div>
                 <div
                   class="flex justify-between text-xs text-gray-600 dark:text-gray-400"

@@ -13,7 +13,7 @@
 
   let searchQuery = $state("");
   let selectedIndex = $state(0);
-  let inputElement;
+  let inputElement = $state(null);
   let actions = $state([]);
   let recentCommandIds = $state([]);
 
@@ -140,6 +140,7 @@
   <div
     class="fixed inset-0 bg-black/50 dark:bg-black/70 z-[9998] backdrop-blur-sm"
     onclick={handleBackdropClick}
+    onkeydown={(e) => e.key === "Escape" && closeCommandPalette()}
     role="button"
     tabindex="-1"
     aria-label="Close command palette"

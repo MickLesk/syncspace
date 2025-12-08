@@ -629,14 +629,14 @@
         <!-- Share URL -->
         {#if allowExternal}
           <div class="form-control">
-            <label class="label py-0 mb-2">
+            <div class="label py-0 mb-2">
               <span
                 class="label-text font-semibold text-base flex items-center gap-2"
               >
                 <i class="bi bi-link-45deg" aria-hidden="true"></i>
                 {tr("shareUrl")}
               </span>
-            </label>
+            </div>
             <div class="join w-full shadow-sm">
               <input
                 type="text"
@@ -699,14 +699,14 @@
         <!-- Selected Users (for user shares) -->
         {#if shareType === "users" && selectedUsers.length > 0}
           <div class="form-control">
-            <label class="label py-0 mb-2">
+            <div class="label py-0 mb-2">
               <span
                 class="label-text font-semibold text-base flex items-center gap-2"
               >
                 <i class="bi bi-people-fill" aria-hidden="true"></i>
                 {tr("sharedWithUsers")}
               </span>
-            </label>
+            </div>
             <div class="space-y-2">
               {#each selectedUsers as user}
                 <div

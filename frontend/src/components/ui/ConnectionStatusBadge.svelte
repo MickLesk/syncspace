@@ -1,7 +1,7 @@
 <script>
   /**
    * Connection Status Badge Component
-   * 
+   *
    * Visual indicator for WebSocket connection status with:
    * - Connection status display (Connected/Connecting/Reconnecting/Failed)
    * - Auto-hide when connected
@@ -9,20 +9,24 @@
    * - Tooltip with details
    * - Dark mode support
    * - Accessible ARIA labels
-   * 
+   *
    * @component
    * @example
    *   <ConnectionStatusBadge />
    */
 
-  import { wsState, wsReconnectAttempts, WS_STATES } from '../stores/websocket.js';
-  import { websocketManager } from '../stores/websocket.js';
+  import {
+    wsState,
+    wsReconnectAttempts,
+    WS_STATES,
+  } from "../stores/websocket.js";
+  import { websocketManager } from "../stores/websocket.js";
 
   // Props
-  let { position = 'bottom-left' } = $props(); // bottom-left, bottom-right, top-left, top-right
+  let { position = "bottom-left" } = $props(); // bottom-left, bottom-right, top-left, top-right
 
   // State
-  let nextRetryIn = 0;
+  let nextRetryIn = $state(0);
   let countdownInterval = null;
 
   /**
@@ -31,45 +35,47 @@
   function getBadgeConfig(status) {
     const configs = {
       [WS_STATES.CONNECTED]: {
-        icon: 'bi-wifi',
-        label: 'Verbunden',
-        color: 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300',
-        dotColor: 'bg-green-500',
+        icon: "bi-wifi",
+        label: "Verbunden",
+        color:
+          "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300",
+        dotColor: "bg-green-500",
         show: false, // Hide when connected
       },
       [WS_STATES.CONNECTING]: {
-        icon: 'bi-wifi-1',
-        label: 'Verbinden...',
-        color: 'bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300',
-        dotColor: 'bg-cyan-500 animate-pulse',
+        icon: "bi-wifi-1",
+        label: "Verbinden...",
+        color: "bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300",
+        dotColor: "bg-cyan-500 animate-pulse",
         show: true,
       },
       [WS_STATES.RECONNECTING]: {
-        icon: 'bi-arrow-repeat',
-        label: 'Erneut verbinden...',
-        color: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300',
-        dotColor: 'bg-yellow-500 animate-pulse',
+        icon: "bi-arrow-repeat",
+        label: "Erneut verbinden...",
+        color:
+          "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300",
+        dotColor: "bg-yellow-500 animate-pulse",
         show: true,
       },
       [WS_STATES.ERROR]: {
-        icon: 'bi-exclamation-triangle',
-        label: 'Fehler',
-        color: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300',
-        dotColor: 'bg-red-500',
+        icon: "bi-exclamation-triangle",
+        label: "Fehler",
+        color: "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300",
+        dotColor: "bg-red-500",
         show: true,
       },
       [WS_STATES.MAX_RETRIES_REACHED]: {
-        icon: 'bi-x-circle',
-        label: 'Verbindung verloren',
-        color: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300',
-        dotColor: 'bg-red-500',
+        icon: "bi-x-circle",
+        label: "Verbindung verloren",
+        color: "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300",
+        dotColor: "bg-red-500",
         show: true,
       },
       [WS_STATES.DISCONNECTED]: {
-        icon: 'bi-wifi-off',
-        label: 'Getrennt',
-        color: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
-        dotColor: 'bg-gray-500',
+        icon: "bi-wifi-off",
+        label: "Getrennt",
+        color: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300",
+        dotColor: "bg-gray-500",
         show: false,
       },
     };
@@ -82,12 +88,12 @@
    */
   function getPositionClasses() {
     const positions = {
-      'bottom-left': 'bottom-4 left-4',
-      'bottom-right': 'bottom-4 right-4',
-      'top-left': 'top-4 left-4',
-      'top-right': 'top-4 right-4',
+      "bottom-left": "bottom-4 left-4",
+      "bottom-right": "bottom-4 right-4",
+      "top-left": "top-4 left-4",
+      "top-right": "top-4 right-4",
     };
-    return positions[position] || positions['bottom-left'];
+    return positions[position] || positions["bottom-left"];
   }
 
   /**
@@ -143,14 +149,19 @@
   >
     <div
       class="flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg border {config.color} backdrop-blur-sm"
-      title="{config.label}{$wsReconnectAttempts > 0 ? ` (Versuch ${$wsReconnectAttempts})` : ''}"
+      title="{config.label}{$wsReconnectAttempts > 0
+        ? ` (Versuch ${$wsReconnectAttempts})`
+        : ''}"
     >
       <!-- Status dot -->
-      <div class="flex-shrink-0 w-2 h-2 rounded-full {config.dotColor}" aria-hidden="true" />
+      <div
+        class="flex-shrink-0 w-2 h-2 rounded-full {config.dotColor}"
+        aria-hidden="true"
+      ></div>
 
       <!-- Icon + Label -->
       <div class="flex items-center gap-1">
-        <i class="bi {config.icon} text-sm" />
+        <i class="bi {config.icon} text-sm" aria-hidden="true"></i>
         <span class="text-sm font-medium whitespace-nowrap">
           {config.label}
         </span>
@@ -184,14 +195,24 @@
     </div>
 
     <!-- Details tooltip on hover -->
-    <div class="opacity-0 hover:opacity-100 transition-opacity absolute top-full mt-2 left-0 pointer-events-none text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
-      <div class="bg-gray-900 dark:bg-gray-200 text-white dark:text-gray-900 px-2 py-1 rounded">
-        {$wsState === WS_STATES.CONNECTED ? 'Alle Systeme funktionieren' : ''}
-        {$wsState === WS_STATES.CONNECTING ? 'Verbindung wird hergestellt...' : ''}
-        {$wsState === WS_STATES.RECONNECTING ? `Erneut verbinden... (${$wsReconnectAttempts}/15)` : ''}
-        {$wsState === WS_STATES.ERROR ? 'Verbindungsfehler aufgetreten' : ''}
-        {$wsState === WS_STATES.MAX_RETRIES_REACHED ? 'Maximale Versuche erreicht' : ''}
-        {$wsState === WS_STATES.DISCONNECTED ? 'Vom Server getrennt' : ''}
+    <div
+      class="opacity-0 hover:opacity-100 transition-opacity absolute top-full mt-2 left-0 pointer-events-none text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap"
+    >
+      <div
+        class="bg-gray-900 dark:bg-gray-200 text-white dark:text-gray-900 px-2 py-1 rounded"
+      >
+        {$wsState === WS_STATES.CONNECTED ? "Alle Systeme funktionieren" : ""}
+        {$wsState === WS_STATES.CONNECTING
+          ? "Verbindung wird hergestellt..."
+          : ""}
+        {$wsState === WS_STATES.RECONNECTING
+          ? `Erneut verbinden... (${$wsReconnectAttempts}/15)`
+          : ""}
+        {$wsState === WS_STATES.ERROR ? "Verbindungsfehler aufgetreten" : ""}
+        {$wsState === WS_STATES.MAX_RETRIES_REACHED
+          ? "Maximale Versuche erreicht"
+          : ""}
+        {$wsState === WS_STATES.DISCONNECTED ? "Vom Server getrennt" : ""}
       </div>
     </div>
   </div>

@@ -82,7 +82,8 @@
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4"
     role="dialog"
     aria-modal="true"
-    ondragover={(e = tabindex = "0" > e.preventDefault())}
+    tabindex="0"
+    ondragover={(e) => e.preventDefault()}
     ondrop={(e) => e.preventDefault()}
   >
     <!-- Close Button -->
@@ -98,6 +99,8 @@
     <div
       class="flex flex-col items-center justify-center max-w-4xl max-h-screen"
       ondragover={(e) => e.preventDefault()}
+      role="region"
+      aria-label="File preview area"
     >
       <!-- Preview Content -->
       <div
@@ -124,6 +127,7 @@
               src={`/api/files/${currentFile.path || currentFile.name}`}
               type={`video/${currentFile.name.split(".").pop()}`}
             />
+            <track kind="captions" label="No captions available" />
             Your browser does not support the video tag.
           </video>
         {:else if previewType === "pdf"}

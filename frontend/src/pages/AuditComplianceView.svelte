@@ -989,10 +989,12 @@
         </div>
         <div>
           <label
+            for="report-type-select"
             class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
             >{tr("audit.reportType")}</label
           >
           <select
+            id="report-type-select"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             bind:value={newReport.report_type}
           >
@@ -1004,10 +1006,12 @@
         </div>
         <div>
           <label
+            for="report-description-input"
             class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
             >{tr("audit.description")}</label
           >
           <textarea
+            id="report-description-input"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             rows="2"
             bind:value={newReport.description}
@@ -1016,10 +1020,12 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label
+              for="report-start-date"
               class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
               >{tr("audit.startDate")}</label
             >
             <input
+              id="report-start-date"
               type="date"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               bind:value={newReport.start_date}
@@ -1027,10 +1033,12 @@
           </div>
           <div>
             <label
+              for="report-end-date"
               class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
               >{tr("audit.endDate")}</label
             >
             <input
+              id="report-end-date"
               type="date"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               bind:value={newReport.end_date}
@@ -1039,10 +1047,12 @@
         </div>
         <div>
           <label
+            for="report-file-format"
             class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
             >{tr("audit.fileFormat")}</label
           >
           <select
+            id="report-file-format"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             bind:value={newReport.file_format}
           >
@@ -1091,10 +1101,12 @@
       <div class="p-6 space-y-4">
         <div>
           <label
+            for="policy-name-input"
             class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
             >{tr("audit.policyName")} *</label
           >
           <input
+            id="policy-name-input"
             type="text"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             bind:value={newPolicy.name}
@@ -1102,10 +1114,12 @@
         </div>
         <div>
           <label
+            for="policy-description-input"
             class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
             >{tr("audit.description")}</label
           >
           <input
+            id="policy-description-input"
             type="text"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             bind:value={newPolicy.description}
@@ -1114,10 +1128,12 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label
+              for="policy-resource-type"
               class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
               >{tr("audit.resourceType")}</label
             >
             <select
+              id="policy-resource-type"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               bind:value={newPolicy.resource_type}
             >
@@ -1132,10 +1148,12 @@
           </div>
           <div>
             <label
+              for="policy-retention-days"
               class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
               >{tr("audit.retentionDays")}</label
             >
             <input
+              id="policy-retention-days"
               type="number"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               bind:value={newPolicy.retention_days}
@@ -1228,18 +1246,18 @@
       <div class="p-6 space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label
-              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
-              >{tr("audit.timestamp")}</label
+            <span
+              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase block"
+              >{tr("audit.timestamp")}</span
             >
             <p class="text-gray-900 dark:text-white">
               {formatDate(selectedLog.created_at)}
             </p>
           </div>
           <div>
-            <label
-              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
-              >{tr("audit.severity")}</label
+            <span
+              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase block"
+              >{tr("audit.severity")}</span
             >
             <span
               class="px-2 py-1 text-xs font-medium rounded-full {getSeverityColor(
@@ -1250,34 +1268,34 @@
             </span>
           </div>
           <div>
-            <label
-              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
-              >{tr("audit.user")}</label
+            <span
+              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase block"
+              >{tr("audit.user")}</span
             >
             <p class="text-gray-900 dark:text-white">
               {selectedLog.username || selectedLog.user_id}
             </p>
           </div>
           <div>
-            <label
-              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
-              >{tr("audit.category")}</label
+            <span
+              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase block"
+              >{tr("audit.category")}</span
             >
             <p class="text-gray-900 dark:text-white capitalize">
               {selectedLog.action_category || "general"}
             </p>
           </div>
           <div class="col-span-2">
-            <label
-              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
-              >{tr("audit.action")}</label
+            <span
+              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase block"
+              >{tr("audit.action")}</span
             >
             <p class="text-gray-900 dark:text-white">{selectedLog.action}</p>
           </div>
           <div class="col-span-2">
-            <label
-              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
-              >{tr("audit.resource")}</label
+            <span
+              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase block"
+              >{tr("audit.resource")}</span
             >
             <p class="text-gray-900 dark:text-white">
               {selectedLog.resource_name || selectedLog.resource_id || "-"}
@@ -1285,9 +1303,9 @@
           </div>
           {#if selectedLog.ip_address}
             <div>
-              <label
-                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
-                >{tr("audit.ipAddress")}</label
+              <span
+                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase block"
+                >{tr("audit.ipAddress")}</span
               >
               <p class="text-gray-900 dark:text-white font-mono">
                 {selectedLog.ip_address}
@@ -1296,9 +1314,9 @@
           {/if}
           {#if selectedLog.user_agent}
             <div class="col-span-2">
-              <label
-                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
-                >{tr("audit.userAgent")}</label
+              <span
+                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase block"
+                >{tr("audit.userAgent")}</span
               >
               <p class="text-gray-900 dark:text-white text-sm truncate">
                 {selectedLog.user_agent}
@@ -1308,9 +1326,9 @@
         </div>
         {#if selectedLog.metadata}
           <div>
-            <label
-              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
-              >{tr("audit.metadata")}</label
+            <span
+              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase block"
+              >{tr("audit.metadata")}</span
             >
             <pre
               class="mt-1 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm overflow-x-auto">{JSON.stringify(
@@ -1324,9 +1342,9 @@
           <div class="grid grid-cols-2 gap-4">
             {#if selectedLog.old_value}
               <div>
-                <label
-                  class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
-                  >{tr("audit.oldValue")}</label
+                <span
+                  class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase block"
+                  >{tr("audit.oldValue")}</span
                 >
                 <pre
                   class="mt-1 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-sm overflow-x-auto">{JSON.stringify(
@@ -1338,9 +1356,9 @@
             {/if}
             {#if selectedLog.new_value}
               <div>
-                <label
-                  class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
-                  >{tr("audit.newValue")}</label
+                <span
+                  class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase block"
+                  >{tr("audit.newValue")}</span
                 >
                 <pre
                   class="mt-1 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg text-sm overflow-x-auto">{JSON.stringify(

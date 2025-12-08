@@ -159,12 +159,13 @@
         <!-- Modern Filters in Grid -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div class="form-control">
-            <label class="label">
+            <label class="label" for="filter-trigger">
               <span class="label-text font-semibold"
                 >{t($currentLang, "workflow.filterByTrigger")}</span
               >
             </label>
             <select
+              id="filter-trigger"
               bind:value={filterTriggerType}
               class="select select-bordered bg-base-100/80 backdrop-blur"
             >
@@ -177,12 +178,13 @@
           </div>
 
           <div class="form-control">
-            <label class="label">
+            <label class="label" for="filter-action">
               <span class="label-text font-semibold"
                 >{t($currentLang, "workflow.filterByAction")}</span
               >
             </label>
             <select
+              id="filter-action"
               bind:value={filterActionType}
               class="select select-bordered bg-base-100/80 backdrop-blur"
             >
@@ -195,12 +197,13 @@
 
           <div class="form-control">
             <div class="form-control">
-              <label class="label">
+              <label class="label" for="filter-status">
                 <span class="label-text font-semibold"
                   >{t($currentLang, "workflow.filterByStatus")}</span
                 >
               </label>
               <select
+                id="filter-status"
                 bind:value={filterStatus}
                 class="select select-bordered bg-base-100/80 backdrop-blur"
               >

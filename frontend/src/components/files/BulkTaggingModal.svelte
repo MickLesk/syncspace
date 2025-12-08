@@ -163,12 +163,12 @@
 
     <!-- Available Tags -->
     <div class="form-control mb-4">
-      <label class="label">
+      <div class="label">
         <span class="label-text font-medium"
           >{$t("bulkTagging.availableTags")}</span
         >
         <span class="badge badge-sm badge-primary">{availableTags.length}</span>
-      </label>
+      </div>
 
       {#if loading}
         <div class="flex justify-center py-4">
@@ -208,7 +208,7 @@
     <div class="divider my-3">{$t("bulkTagging.or")}</div>
 
     <div class="form-control mb-4">
-      <label class="label">
+      <label for="new-tag-input" class="label">
         <span class="label-text font-medium text-sm"
           >{$t("bulkTagging.createNewTag")}</span
         >
@@ -216,6 +216,7 @@
 
       <div class="flex gap-2">
         <input
+          id="new-tag-input"
           type="text"
           placeholder={$t("bulkTagging.tagNamePlaceholder")}
           bind:value={newTagName}

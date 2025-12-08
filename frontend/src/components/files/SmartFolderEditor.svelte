@@ -16,16 +16,30 @@
     onSave = () => {},
   } = $props();
 
-  // State
-  let name = $state(folder?.name || "");
-  let description = $state(folder?.description || "");
-  let icon = $state(folder?.icon || "bi-folder-fill");
-  let color = $state(folder?.color || "#3B82F6");
-  let logic = $state(folder?.logic || "AND");
-  let sortBy = $state(folder?.sort_by || "name");
-  let sortOrder = $state(folder?.sort_order || "asc");
-  let conditions = $state(folder?.conditions || []);
+  // State - initialize without folder reference to avoid capture warning
+  let name = $state("");
+  let description = $state("");
+  let icon = $state("bi-folder-fill");
+  let color = $state("#3B82F6");
+  let logic = $state("AND");
+  let sortBy = $state("name");
+  let sortOrder = $state("asc");
+  let conditions = $state([]);
   let isSaving = $state(false);
+
+  // Sync state when folder prop changes
+  $effect(() => {
+    if (folder) {
+      name = folder.name || "";
+      description = folder.description || "";
+      icon = folder.icon || "bi-folder-fill";
+      color = folder.color || "#3B82F6";
+      logic = folder.logic || "AND";
+      sortBy = folder.sort_by || "name";
+      sortOrder = folder.sort_order || "asc";
+      conditions = folder.conditions || [];
+    }
+  });
 
   // New condition being added
   let newCondition = $state({

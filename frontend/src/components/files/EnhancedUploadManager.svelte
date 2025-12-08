@@ -242,12 +242,13 @@
             <div class="modal-body">
               <!-- Speed Limit -->
               <div class="form-group">
-                <label>
+                <label for="speed-limit-input">
                   <i class="bi bi-speedometer2" aria-hidden="true"></i>
                   {$t("uploads.speedLimit")}
                 </label>
                 <div class="input-group">
                   <input
+                    id="speed-limit-input"
                     type="number"
                     bind:value={settingsForm.speedLimit}
                     min="0"
@@ -263,11 +264,14 @@
 
               <!-- Duplicate Handling -->
               <div class="form-group">
-                <label>
+                <label for="duplicate-handling-select">
                   <i class="bi bi-files" aria-hidden="true"></i>
                   {$t("uploads.duplicateHandling")}
                 </label>
-                <select bind:value={settingsForm.duplicateAction}>
+                <select
+                  id="duplicate-handling-select"
+                  bind:value={settingsForm.duplicateAction}
+                >
                   <option value="ask">{$t("uploads.duplicateAsk")}</option>
                   <option value="skip">{$t("uploads.duplicateSkip")}</option>
                   <option value="replace"

@@ -30,7 +30,7 @@
     <div
       class="preview-container"
       onclick={(e) => e.stopPropagation()}
-      role="dialog" tabindex="0"
+      role="dialog"
       tabindex="-1"
     >
       <div class="preview-header">
@@ -41,7 +41,8 @@
         <button
           class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 flex items-center justify-center transition-colors"
           onclick={onClose}
-          aria-label="Close preview"><i class="bi bi-x-lg" aria-hidden="true"></i></button
+          aria-label="Close preview"
+          ><i class="bi bi-x-lg" aria-hidden="true"></i></button
         >
       </div>
 
@@ -60,7 +61,10 @@
           <pre class="preview-text">{file.content || tr("loading")}</pre>
         {:else}
           <div class="preview-unsupported">
-            <i class="bi bi-file-earmark-x text-6xl opacity-30" aria-hidden="true"></i>
+            <i
+              class="bi bi-file-earmark-x text-6xl opacity-30"
+              aria-hidden="true"
+            ></i>
             <p>{tr("previewNotAvailable")}</p>
             <button
               class="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors flex items-center gap-2"
@@ -72,7 +76,10 @@
 
       <div class="preview-footer">
         <div class="preview-info">
-          <span><i class="bi bi-hdd" aria-hidden="true"></i> {file.size || "Unknown size"}</span>
+          <span
+            ><i class="bi bi-hdd" aria-hidden="true"></i>
+            {file.size || "Unknown size"}</span
+          >
           <span
             ><i class="bi bi-calendar" aria-hidden="true"></i>
             {file.modified || "Unknown date"}</span

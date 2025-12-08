@@ -391,9 +391,3 @@
     {/if}
   </div>
 </div>
-
-<style>
-  :global(.activity-timeline) {
-    @apply w-full max-w-2xl;
-  }
-</style>

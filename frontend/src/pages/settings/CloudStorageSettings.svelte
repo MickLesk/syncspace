@@ -492,10 +492,12 @@
       <div class="p-4 space-y-4">
         <div>
           <label
+            for="backend-name-input"
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >{tr("settings.storage.backend_name")}</label
           >
           <input
+            id="backend-name-input"
             type="text"
             bind:value={newBackend.name}
             placeholder="My S3 Bucket"
@@ -504,10 +506,12 @@
         </div>
         <div>
           <label
+            for="backend-type-select"
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >{tr("settings.storage.backend_type")}</label
           >
           <select
+            id="backend-type-select"
             bind:value={newBackend.type}
             class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
           >
@@ -519,10 +523,12 @@
         {#if newBackend.type !== "local"}
           <div>
             <label
+              for="backend-endpoint-input"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >{tr("settings.storage.endpoint")}</label
             >
             <input
+              id="backend-endpoint-input"
               type="text"
               bind:value={newBackend.endpoint}
               placeholder="https://s3.amazonaws.com"
@@ -531,10 +537,12 @@
           </div>
           <div>
             <label
+              for="backend-bucket-input"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >{tr("settings.storage.bucket")}</label
             >
             <input
+              id="backend-bucket-input"
               type="text"
               bind:value={newBackend.bucket}
               placeholder="my-bucket"
@@ -543,10 +551,12 @@
           </div>
           <div>
             <label
+              for="backend-region-input"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >{tr("settings.storage.region")}</label
             >
             <input
+              id="backend-region-input"
               type="text"
               bind:value={newBackend.region}
               placeholder="eu-central-1"
@@ -555,10 +565,12 @@
           </div>
           <div>
             <label
+              for="backend-access-key-input"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >{tr("settings.storage.access_key")}</label
             >
             <input
+              id="backend-access-key-input"
               type="text"
               bind:value={newBackend.accessKey}
               placeholder="AKIAIOSFODNN7EXAMPLE"
@@ -567,10 +579,12 @@
           </div>
           <div>
             <label
+              for="backend-secret-key-input"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >{tr("settings.storage.secret_key")}</label
             >
             <input
+              id="backend-secret-key-input"
               type="password"
               bind:value={newBackend.secretKey}
               placeholder="••••••••"

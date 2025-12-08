@@ -35,8 +35,8 @@
   } = $props();
 
   // State
-  let isOpen = true;
-  let isDeleting = false;
+  let isOpen = $state(true);
+  let isDeleting = $state(false);
   let focusableElements = [];
   let initialFocus = null;
 
@@ -314,7 +314,7 @@
                     class="bi {item.type === 'folder'
                       ? 'bi-folder'
                       : 'bi-file'} flex-shrink-0 text-gray-500 dark:text-gray-500"
-                  />
+                  ></i>
                   <span class="truncate">{item.name || item.path}</span>
                 </div>
               {/each}
