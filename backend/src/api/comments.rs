@@ -107,6 +107,26 @@ async fn create_comment(
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
+    // Log activity
+    let file_name = req.file_path.split('/').last().unwrap_or(&req.file_path).to_string();
+    let state_clone = state.clone();
+    let user_id = user_info.id.clone();
+    let file_path = req.file_path.clone();
+    tokio::spawn(async move {
+        let _ = crate::services::activity::log(
+            &state_clone,
+            &user_id,
+            crate::services::activity::actions::COMMENT_ADD,
+            &file_path,
+            &file_name,
+            None,
+            None,
+            "success",
+            None,
+            None,
+        ).await;
+    });
+
     Ok((
         StatusCode::CREATED,
         Json(serde_json::json!({
@@ -201,6 +221,16 @@ async fn delete_comment(
     Path(comment_id): Path<String>,
     user_info: UserInfo,
 ) -> Result<impl IntoResponse, StatusCode> {
+    // First get the comment to log the file path
+    let comment = sqlx::query_as::<_, Comment>(
+        "SELECT * FROM comments WHERE id = ? AND author_id = ?"
+    )
+    .bind(&comment_id)
+    .bind(&user_info.id)
+    .fetch_optional(&state.db_pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
     let result = sqlx::query(
         r#"
         DELETE FROM comments
@@ -218,6 +248,27 @@ async fn delete_comment(
 
     if result.rows_affected() == 0 {
         return Err(StatusCode::NOT_FOUND);
+    }
+
+    // Log activity
+    if let Some(c) = comment {
+        let file_name = c.file_path.split('/').last().unwrap_or(&c.file_path).to_string();
+        let state_clone = state.clone();
+        let user_id = user_info.id.clone();
+        tokio::spawn(async move {
+            let _ = crate::services::activity::log(
+                &state_clone,
+                &user_id,
+                crate::services::activity::actions::COMMENT_DELETE,
+                &c.file_path,
+                &file_name,
+                None,
+                None,
+                "success",
+                None,
+                None,
+            ).await;
+        });
     }
 
     Ok(StatusCode::NO_CONTENT)

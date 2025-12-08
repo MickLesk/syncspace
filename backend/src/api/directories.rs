@@ -89,10 +89,31 @@ async fn create_dir_handler(
         return Err(StatusCode::BAD_REQUEST);
     };
 
-    services::directory::create_directory(&state, &user, &path)
+    let result = services::directory::create_directory(&state, &user, &path)
         .await
-        .map(Json)
-        .map_err(|_| StatusCode::BAD_REQUEST)
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    // Log activity
+    let folder_name = path.split('/').last().unwrap_or(&path).to_string();
+    let state_clone = state.clone();
+    let user_id = user.id.clone();
+    let path_clone = path.clone();
+    tokio::spawn(async move {
+        let _ = crate::services::activity::log(
+            &state_clone,
+            &user_id,
+            crate::services::activity::actions::FOLDER_CREATE,
+            &path_clone,
+            &folder_name,
+            None,
+            None,
+            "success",
+            None,
+            None,
+        ).await;
+    });
+
+    Ok(Json(result))
 }
 
 /// Create directory from path parameter (for API compatibility)
@@ -117,7 +138,28 @@ async fn move_dir_handler(
 ) -> Result<StatusCode, StatusCode> {
     services::directory::move_directory(&state, &user, &dir_id, &req.new_parent_path)
         .await
-        .map(|_| StatusCode::OK)
+        .map(|_| {
+            // Log activity
+            let state_clone = state.clone();
+            let user_id = user.id.clone();
+            let dir_id_clone = dir_id.clone();
+            let new_path = req.new_parent_path.clone();
+            tokio::spawn(async move {
+                let _ = crate::services::activity::log(
+                    &state_clone,
+                    &user_id,
+                    crate::services::activity::actions::FOLDER_MOVE,
+                    &new_path,
+                    &dir_id_clone,
+                    None,
+                    Some(&dir_id_clone),
+                    "success",
+                    None,
+                    None,
+                ).await;
+            });
+            StatusCode::OK
+        })
         .map_err(|_| StatusCode::BAD_REQUEST)
 }
 
@@ -130,7 +172,28 @@ async fn rename_dir_handler(
 ) -> Result<StatusCode, StatusCode> {
     services::directory::rename_directory(&state, &user, &dir_id, &req.new_name)
         .await
-        .map(|_| StatusCode::OK)
+        .map(|_| {
+            // Log activity
+            let state_clone = state.clone();
+            let user_id = user.id.clone();
+            let new_name = req.new_name.clone();
+            let dir_id_clone = dir_id.clone();
+            tokio::spawn(async move {
+                let _ = crate::services::activity::log(
+                    &state_clone,
+                    &user_id,
+                    crate::services::activity::actions::FOLDER_RENAME,
+                    &dir_id_clone,
+                    &new_name,
+                    None,
+                    None,
+                    "success",
+                    None,
+                    None,
+                ).await;
+            });
+            StatusCode::OK
+        })
         .map_err(|_| StatusCode::BAD_REQUEST)
 }
 
@@ -142,7 +205,27 @@ async fn delete_dir_handler(
 ) -> Result<StatusCode, StatusCode> {
     services::directory::delete_directory(&state, &user, &dir_id)
         .await
-        .map(|_| StatusCode::NO_CONTENT)
+        .map(|_| {
+            // Log activity
+            let state_clone = state.clone();
+            let user_id = user.id.clone();
+            let dir_id_clone = dir_id.clone();
+            tokio::spawn(async move {
+                let _ = crate::services::activity::log(
+                    &state_clone,
+                    &user_id,
+                    crate::services::activity::actions::FOLDER_DELETE,
+                    &dir_id_clone,
+                    "",
+                    None,
+                    None,
+                    "success",
+                    None,
+                    None,
+                ).await;
+            });
+            StatusCode::NO_CONTENT
+        })
         .map_err(|_| StatusCode::NOT_FOUND)
 }
 

@@ -91,9 +91,31 @@ async fn tag_file(
         .get("tag_id")
         .and_then(|v| v.as_str())
         .ok_or(StatusCode::BAD_REQUEST)?;
+    
     services::tag::tag_file(&state, &user, file_id, tag_id)
         .await
-        .map(|_| StatusCode::CREATED)
+        .map(|_| {
+            // Log activity
+            let state_clone = state.clone();
+            let user_id = user.id.clone();
+            let file_id_clone = file_id.to_string();
+            let tag_id_clone = tag_id.to_string();
+            tokio::spawn(async move {
+                let _ = crate::services::activity::log(
+                    &state_clone,
+                    &user_id,
+                    crate::services::activity::actions::TAG_ADD,
+                    &file_id_clone,
+                    "",
+                    None,
+                    None,
+                    "success",
+                    None,
+                    Some(serde_json::json!({ "tag_id": tag_id_clone })),
+                ).await;
+            });
+            StatusCode::CREATED
+        })
         .map_err(|_| StatusCode::BAD_REQUEST)
 }
 
@@ -106,9 +128,31 @@ async fn untag_file(
     if parts.len() != 2 {
         return Err(StatusCode::BAD_REQUEST);
     }
-    services::tag::untag_file(&state, &user, parts[0], parts[1])
+    let file_id = parts[0].to_string();
+    let tag_id = parts[1].to_string();
+    
+    services::tag::untag_file(&state, &user, &file_id, &tag_id)
         .await
-        .map(|_| StatusCode::NO_CONTENT)
+        .map(|_| {
+            // Log activity
+            let state_clone = state.clone();
+            let user_id = user.id.clone();
+            tokio::spawn(async move {
+                let _ = crate::services::activity::log(
+                    &state_clone,
+                    &user_id,
+                    crate::services::activity::actions::TAG_REMOVE,
+                    &file_id,
+                    "",
+                    None,
+                    None,
+                    "success",
+                    None,
+                    Some(serde_json::json!({ "tag_id": tag_id })),
+                ).await;
+            });
+            StatusCode::NO_CONTENT
+        })
         .map_err(|_| StatusCode::NOT_FOUND)
 }
 

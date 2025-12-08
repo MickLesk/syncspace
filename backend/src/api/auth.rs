@@ -123,14 +123,32 @@ async fn login_handler(
 ) -> Result<Json<AuthResponse>, (StatusCode, Json<serde_json::Value>)> {
     tracing::info!("Login attempt");
 
+    let username = req.username.clone();
     services::login(&state, req.username.clone(), req.password, req.totp_code)
         .await
         .map(|response| {
-            tracing::info!("Login successful for: {}", req.username);
+            tracing::info!("Login successful for: {}", username);
+            // Log successful login
+            let state_clone = state.clone();
+            let user_id = response.user.id.clone();
+            tokio::spawn(async move {
+                let _ = crate::services::activity::log(
+                    &state_clone,
+                    &user_id,
+                    crate::services::activity::actions::LOGIN,
+                    "",
+                    "",
+                    None,
+                    None,
+                    "success",
+                    None,
+                    Some(serde_json::json!({ "method": "password" })),
+                ).await;
+            });
             Json(response)
         })
         .map_err(|e| {
-            tracing::warn!("Login failed for {}: {}", req.username, e);
+            tracing::warn!("Login failed for {}: {}", username, e);
             (
                 StatusCode::UNAUTHORIZED,
                 Json(serde_json::json!({
@@ -156,10 +174,27 @@ async fn change_password_handler(
 ) -> Result<StatusCode, StatusCode> {
     tracing::info!("Password change attempt");
 
+    let user_id = user.id.clone();
     services::change_password(&state, &user, req.old_password, req.new_password)
         .await
         .map(|_| {
             tracing::info!("Password changed successfully");
+            // Log password change
+            let state_clone = state.clone();
+            tokio::spawn(async move {
+                let _ = crate::services::activity::log(
+                    &state_clone,
+                    &user_id,
+                    crate::services::activity::actions::PASSWORD_CHANGE,
+                    "",
+                    "",
+                    None,
+                    None,
+                    "success",
+                    None,
+                    None,
+                ).await;
+            });
             StatusCode::OK
         })
         .map_err(|e| {
@@ -185,9 +220,28 @@ async fn enable_2fa_handler(
     user: UserInfo,
     Json(req): Json<Enable2FARequest>,
 ) -> Result<StatusCode, StatusCode> {
+    let user_id = user.id.clone();
     services::enable_2fa(&state, &user, req.totp_code)
         .await
-        .map(|_| StatusCode::OK)
+        .map(|_| {
+            // Log 2FA enable
+            let state_clone = state.clone();
+            tokio::spawn(async move {
+                let _ = crate::services::activity::log(
+                    &state_clone,
+                    &user_id,
+                    crate::services::activity::actions::TOTP_ENABLE,
+                    "",
+                    "",
+                    None,
+                    None,
+                    "success",
+                    None,
+                    None,
+                ).await;
+            });
+            StatusCode::OK
+        })
         .map_err(|_| StatusCode::BAD_REQUEST)
 }
 
@@ -197,9 +251,28 @@ async fn disable_2fa_handler(
     user: UserInfo,
     Json(req): Json<Disable2FARequest>,
 ) -> Result<StatusCode, StatusCode> {
+    let user_id = user.id.clone();
     services::disable_2fa(&state, &user, req.password)
         .await
-        .map(|_| StatusCode::OK)
+        .map(|_| {
+            // Log 2FA disable
+            let state_clone = state.clone();
+            tokio::spawn(async move {
+                let _ = crate::services::activity::log(
+                    &state_clone,
+                    &user_id,
+                    crate::services::activity::actions::TOTP_DISABLE,
+                    "",
+                    "",
+                    None,
+                    None,
+                    "success",
+                    None,
+                    None,
+                ).await;
+            });
+            StatusCode::OK
+        })
         .map_err(|_| StatusCode::UNAUTHORIZED)
 }
 
@@ -222,10 +295,27 @@ async fn logout_handler(
 ) -> Result<StatusCode, StatusCode> {
     tracing::info!("Logout attempt");
 
+    let user_id = user.id.clone();
     services::logout(&state, &user)
         .await
         .map(|_| {
             tracing::info!("Logout successful");
+            // Log logout
+            let state_clone = state.clone();
+            tokio::spawn(async move {
+                let _ = crate::services::activity::log(
+                    &state_clone,
+                    &user_id,
+                    crate::services::activity::actions::LOGOUT,
+                    "",
+                    "",
+                    None,
+                    None,
+                    "success",
+                    None,
+                    None,
+                ).await;
+            });
             StatusCode::OK
         })
         .map_err(|e| {

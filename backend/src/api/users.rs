@@ -77,9 +77,28 @@ async fn update_profile(
         }
     }
 
+    let user_id = user.id.clone();
     services::update_profile(&state, &user, req)
         .await
-        .map(|_| StatusCode::OK)
+        .map(|_| {
+            // Log activity
+            let state_clone = state.clone();
+            tokio::spawn(async move {
+                let _ = crate::services::activity::log(
+                    &state_clone,
+                    &user_id,
+                    crate::services::activity::actions::PROFILE_UPDATE,
+                    "",
+                    "",
+                    None,
+                    None,
+                    "success",
+                    None,
+                    None,
+                ).await;
+            });
+            StatusCode::OK
+        })
         .map_err(|_| StatusCode::BAD_REQUEST)
 }
 
@@ -98,9 +117,33 @@ async fn update_settings(
     user: UserInfo,
     Json(req): Json<UpdateSettingsRequest>,
 ) -> Result<StatusCode, StatusCode> {
+    let user_id = user.id.clone();
+    let metadata = serde_json::json!({
+        "theme": req.theme,
+        "language": req.language,
+        "default_view": req.default_view
+    });
     services::update_settings(&state, &user, req)
         .await
-        .map(|_| StatusCode::OK)
+        .map(|_| {
+            // Log activity
+            let state_clone = state.clone();
+            tokio::spawn(async move {
+                let _ = crate::services::activity::log(
+                    &state_clone,
+                    &user_id,
+                    crate::services::activity::actions::SETTINGS_CHANGE,
+                    "",
+                    "",
+                    None,
+                    None,
+                    "success",
+                    None,
+                    Some(metadata),
+                ).await;
+            });
+            StatusCode::OK
+        })
         .map_err(|_| StatusCode::BAD_REQUEST)
 }
 

@@ -128,9 +128,37 @@ async fn delete_share(
     user: UserInfo,
     Path(share_id): Path<String>,
 ) -> Result<StatusCode, StatusCode> {
+    // Get share info before deletion for logging
+    let share_info = services::sharing::get_share(&state, &share_id)
+        .await
+        .ok();
+
     services::sharing::delete_share(&state, &user, &share_id)
         .await
-        .map(|_| StatusCode::NO_CONTENT)
+        .map(|_| {
+            // Log activity
+            if let Some(s) = share_info {
+                let file_path = s.file_path.clone();
+                let file_name = file_path.split('/').last().unwrap_or(&file_path).to_string();
+                let state_clone = state.clone();
+                let user_id = user.id.clone();
+                tokio::spawn(async move {
+                    let _ = crate::services::activity::log(
+                        &state_clone,
+                        &user_id,
+                        crate::services::activity::actions::UNSHARE,
+                        &file_path,
+                        &file_name,
+                        None,
+                        None,
+                        "success",
+                        None,
+                        None,
+                    ).await;
+                });
+            }
+            StatusCode::NO_CONTENT
+        })
         .map_err(|_| StatusCode::NOT_FOUND)
 }
 

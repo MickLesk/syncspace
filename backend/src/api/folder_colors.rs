@@ -76,7 +76,7 @@ async fn set_folder_color(
     let _ = crate::services::activity::log(
         &state,
         &user_info.id,
-        "folder_color",
+        crate::services::activity::actions::FOLDER_COLOR,
         file_path,
         folder_name,
         None,

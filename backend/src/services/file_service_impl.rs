@@ -180,7 +180,7 @@ pub async fn download_file(
 
     // Log activity
     let _ = crate::services::activity::log(
-        state, &user.id, "download", path, &filename, file_size, None, "success", None, None,
+        state, &user.id, crate::services::activity::actions::DOWNLOAD, path, &filename, file_size, None, "success", None, None,
     )
     .await;
 
@@ -278,7 +278,7 @@ pub async fn upload_file(
     let _ = crate::services::activity::log(
         state,
         &user.id,
-        "upload",
+        crate::services::activity::actions::UPLOAD,
         path,
         &filename,
         Some(size_bytes),
@@ -381,7 +381,7 @@ pub async fn delete_file(state: &AppState, user: &UserInfo, path: &str) -> Resul
         .unwrap_or("unknown")
         .to_string();
     let _ = crate::services::activity::log(
-        state, &user.id, "delete", path, &filename, None, None, "success", None, None,
+        state, &user.id, crate::services::activity::actions::DELETE, path, &filename, None, None, "success", None, None,
     )
     .await;
 
@@ -429,7 +429,7 @@ pub async fn rename_file(
     let _ = crate::services::activity::log(
         state,
         &user.id,
-        "rename",
+        crate::services::activity::actions::RENAME,
         new_path,
         &filename,
         None,
@@ -470,7 +470,7 @@ pub async fn move_file(
     let _ = crate::services::activity::log(
         state,
         &user.id,
-        "move",
+        crate::services::activity::actions::MOVE,
         new_path,
         &filename,
         None,
@@ -514,7 +514,7 @@ pub async fn copy_file(
     let _ = crate::services::activity::log(
         state,
         &user.id,
-        "copy",
+        crate::services::activity::actions::COPY,
         dest_path,
         &filename,
         file_size,

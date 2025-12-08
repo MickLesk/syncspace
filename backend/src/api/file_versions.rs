@@ -429,7 +429,7 @@ async fn delete_version_by_number(
     State(state): State<AppState>,
     Path(version_num): Path<i32>,
     Query(query): Query<FilePathQuery>,
-    _user: UserInfo,
+    user: UserInfo,
 ) -> Result<StatusCode, StatusCode> {
     sqlx::query("DELETE FROM file_versions WHERE file_path = ? AND version_number = ?")
         .bind(&query.path)
@@ -437,6 +437,26 @@ async fn delete_version_by_number(
         .execute(&state.db_pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Log activity
+    let file_name = query.path.split('/').last().unwrap_or(&query.path).to_string();
+    let state_clone = state.clone();
+    let user_id = user.id.clone();
+    let file_path = query.path.clone();
+    tokio::spawn(async move {
+        let _ = crate::services::activity::log(
+            &state_clone,
+            &user_id,
+            crate::services::activity::actions::VERSION_DELETE,
+            &file_path,
+            &file_name,
+            None,
+            None,
+            "success",
+            None,
+            Some(serde_json::json!({ "version_number": version_num })),
+        ).await;
+    });
 
     Ok(StatusCode::NO_CONTENT)
 }
@@ -526,18 +546,25 @@ async fn restore_version_by_number(
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    // Log the restoration action
-    let activity_id = Uuid::new_v4().to_string();
-    sqlx::query(
-        "INSERT INTO activity (id, user_id, action, file_path, created_at) VALUES (?, ?, 'version_restored', ?, ?)"
-    )
-    .bind(&activity_id)
-    .bind(&user_info.id)
-    .bind(&file_path)
-    .bind(&now)
-    .execute(&state.db_pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    // Log the restoration action using activity service
+    let file_name = file_path.split('/').last().unwrap_or(&file_path).to_string();
+    let state_clone = state.clone();
+    let user_id = user_info.id.clone();
+    let file_path_clone = file_path.clone();
+    tokio::spawn(async move {
+        let _ = crate::services::activity::log(
+            &state_clone,
+            &user_id,
+            crate::services::activity::actions::VERSION_RESTORE,
+            &file_path_clone,
+            &file_name,
+            Some(version_size),
+            None,
+            "success",
+            None,
+            Some(serde_json::json!({ "version_number": version_num })),
+        ).await;
+    });
 
     Ok(Json(serde_json::json!({
         "restored": true,
