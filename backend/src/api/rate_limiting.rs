@@ -15,26 +15,26 @@ pub fn router() -> Router<AppState> {
     Router::new()
         // Storage Quotas
         .route("/quotas/storage", get(list_storage_quotas))
-        .route("/quotas/storage/:user_id", get(get_user_storage_quota))
-        .route("/quotas/storage/:user_id", put(update_storage_quota))
-        .route("/quotas/storage/:user_id/usage", get(get_storage_usage))
+        .route("/quotas/storage/{user_id}", get(get_user_storage_quota))
+        .route("/quotas/storage/{user_id}", put(update_storage_quota))
+        .route("/quotas/storage/{user_id}/usage", get(get_storage_usage))
         
         // Bandwidth Quotas
         .route("/quotas/bandwidth", get(list_bandwidth_quotas))
-        .route("/quotas/bandwidth/:user_id", get(get_user_bandwidth_quota))
-        .route("/quotas/bandwidth/:user_id", put(update_bandwidth_quota))
-        .route("/quotas/bandwidth/:user_id/usage", get(get_bandwidth_usage))
+        .route("/quotas/bandwidth/{user_id}", get(get_user_bandwidth_quota))
+        .route("/quotas/bandwidth/{user_id}", put(update_bandwidth_quota))
+        .route("/quotas/bandwidth/{user_id}/usage", get(get_bandwidth_usage))
         
         // Rate Limits
         .route("/rate-limits", get(list_rate_limits))
         .route("/rate-limits", post(create_rate_limit))
-        .route("/rate-limits/:id", get(get_rate_limit))
-        .route("/rate-limits/:id", put(update_rate_limit))
-        .route("/rate-limits/:id", delete(delete_rate_limit))
+        .route("/rate-limits/{id}", get(get_rate_limit))
+        .route("/rate-limits/{id}", put(update_rate_limit))
+        .route("/rate-limits/{id}", delete(delete_rate_limit))
         
         // Alerts
         .route("/quotas/alerts", get(list_quota_alerts))
-        .route("/quotas/alerts/:id/acknowledge", post(acknowledge_alert))
+        .route("/quotas/alerts/{id}/acknowledge", post(acknowledge_alert))
         
         // Analytics
         .route("/quotas/stats", get(get_quota_stats))
