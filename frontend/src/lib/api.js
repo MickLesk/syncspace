@@ -4011,9 +4011,6 @@ export const api = {
   webhooks,
   systemHealth,
   apiTokens,
-  encryption,
-  quota,
-  groups,
 };
 
 // ============================================================================
@@ -4341,3 +4338,6 @@ export const groups = {
     return handleResponse(response);
   },
 };
+
+// Add late-defined exports to api object
+Object.assign(api, { encryption, quota, groups });

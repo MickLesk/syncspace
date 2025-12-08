@@ -23,18 +23,16 @@ use crate::{
 pub fn router() -> Router<AppState> {
     Router::new()
         // Encryption keys management
-        .route("/encryption/keys", get(list_keys))
-        .route("/encryption/keys", post(create_key))
-        .route("/encryption/keys/:key_id", delete(delete_key))
-        .route("/encryption/keys/:key_id/rotate", post(rotate_key))
+        .route("/encryption/keys", get(list_keys).post(create_key))
+        .route("/encryption/keys/{key_id}", delete(delete_key))
+        .route("/encryption/keys/{key_id}/rotate", post(rotate_key))
         // File encryption operations
-        .route("/encryption/files/:file_id/status", get(get_file_encryption_status))
-        .route("/encryption/files/:file_id/encrypt", post(encrypt_file_handler))
-        .route("/encryption/files/:file_id/decrypt", post(decrypt_file_handler))
+        .route("/encryption/files/{file_id}/status", get(get_file_encryption_status))
+        .route("/encryption/files/{file_id}/encrypt", post(encrypt_file_handler))
+        .route("/encryption/files/{file_id}/decrypt", post(decrypt_file_handler))
         // Bulk operations
-        .route("/encryption/folders/*folder_path/encrypt", post(encrypt_folder))
-        .route("/encryption/settings", get(get_encryption_settings))
-        .route("/encryption/settings", put(update_encryption_settings))
+        .route("/encryption/folders/{*folder_path}/encrypt", post(encrypt_folder))
+        .route("/encryption/settings", get(get_encryption_settings).put(update_encryption_settings))
 }
 
 // ============================================================================
