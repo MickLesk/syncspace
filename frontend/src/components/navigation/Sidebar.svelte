@@ -232,6 +232,12 @@
       label: t($currentLang, "settings"),
       category: "system",
     },
+    {
+      id: "theme-customization",
+      icon: "palette-fill",
+      label: t($currentLang, "theme.title") || "Theme",
+      category: "system",
+    },
   ]);
 
   let mainItems = $derived(navItems.filter((item) => item.category === "main"));

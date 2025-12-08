@@ -59,6 +59,7 @@
   import SystemConfigView from "./pages/admin/SystemConfigView.svelte";
   import UserGroupsView from "./pages/admin/UserGroupsView.svelte";
   import GuestAccessView from "./pages/GuestAccessView.svelte";
+  import ThemeCustomizationView from "./pages/ThemeCustomizationView.svelte";
 
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
@@ -544,6 +545,8 @@
                 <NotificationsView />
               {:else if $currentView === "guests"}
                 <GuestAccessView />
+              {:else if $currentView === "theme-customization"}
+                <ThemeCustomizationView />
               {/if}
             </main>
           </ErrorBoundary>
