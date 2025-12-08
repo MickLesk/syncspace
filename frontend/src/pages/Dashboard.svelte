@@ -13,6 +13,16 @@
   let recentUploads = $state([]);
   let recentShares = $state([]);
   let loading = $state(true);
+  
+  // Enhanced stats
+  let totalFiles = $state(0);
+  let totalUsers = $state(0);
+  let activeUsersToday = $state(0);
+  let totalSharesCount = $state(0);
+  let pendingJobs = $state(0);
+  let activeSessions = $state(0);
+  let uploadTrend = $state(0);
+  let storageTrend = $state(0);
 
   onMount(async () => {
     await loadDashboardData();
@@ -42,6 +52,20 @@
           storageUsed = usedGB;
           storageTotal = 100; // 100 GB limit
           storagePercent = Math.min((usedGB / storageTotal) * 100, 100);
+          
+          // Enhanced stats from backend
+          totalFiles = data.overview.total_files || 0;
+          totalUsers = data.overview.total_users || 0;
+          activeUsersToday = data.overview.active_users_today || 0;
+          totalSharesCount = data.overview.total_shares || 0;
+          pendingJobs = data.overview.pending_jobs || 0;
+          activeSessions = data.overview.active_sessions || 0;
+        }
+        
+        // Get trends
+        if (data.trends) {
+          uploadTrend = data.trends.upload_trend || 0;
+          storageTrend = data.trends.storage_trend || 0;
         }
       }
 
@@ -118,10 +142,86 @@
     </div>
 
     {#if loading}
-      <div class="loading-container">
-        <div class="spinner"></div>
+      <!-- Skeleton Loading -->
+      <div class="stats-grid">
+        {#each Array(4) as _}
+          <div class="skeleton h-28 w-full rounded-xl"></div>
+        {/each}
+      </div>
+      <div class="skeleton h-32 w-full rounded-xl mt-4"></div>
+      <div class="quick-actions">
+        {#each Array(4) as _}
+          <div class="skeleton h-24 w-full rounded-xl"></div>
+        {/each}
       </div>
     {:else}
+      <!-- Stats Cards Grid -->
+      <div class="stats-grid">
+        <!-- Total Files -->
+        <div class="stat-card">
+          <div class="stat-icon files-stat-icon">
+            <i class="bi bi-files"></i>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Total Files</p>
+            <p class="stat-value">{totalFiles.toLocaleString()}</p>
+            {#if uploadTrend !== 0}
+              <p class="stat-trend" class:positive={uploadTrend > 0} class:negative={uploadTrend < 0}>
+                <i class="bi {uploadTrend > 0 ? 'bi-arrow-up' : 'bi-arrow-down'}"></i>
+                {Math.abs(uploadTrend)}% this week
+              </p>
+            {/if}
+          </div>
+        </div>
+        
+        <!-- Active Shares -->
+        <div class="stat-card">
+          <div class="stat-icon shares-stat-icon">
+            <i class="bi bi-share"></i>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Active Shares</p>
+            <p class="stat-value">{totalSharesCount.toLocaleString()}</p>
+            <p class="stat-trend neutral">
+              <i class="bi bi-link-45deg"></i>
+              {recentShares.length} recent
+            </p>
+          </div>
+        </div>
+        
+        <!-- Active Users -->
+        <div class="stat-card">
+          <div class="stat-icon users-stat-icon">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Active Today</p>
+            <p class="stat-value">{activeUsersToday}</p>
+            <p class="stat-trend neutral">
+              <i class="bi bi-person-check"></i>
+              of {totalUsers} users
+            </p>
+          </div>
+        </div>
+        
+        <!-- Sessions -->
+        <div class="stat-card">
+          <div class="stat-icon sessions-stat-icon">
+            <i class="bi bi-display"></i>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Active Sessions</p>
+            <p class="stat-value">{activeSessions}</p>
+            {#if pendingJobs > 0}
+              <p class="stat-trend neutral">
+                <i class="bi bi-hourglass-split"></i>
+                {pendingJobs} jobs pending
+              </p>
+            {/if}
+          </div>
+        </div>
+      </div>
+
       <!-- Storage Usage Card -->
       <div class="card storage-card">
         <div class="card-header">
@@ -160,13 +260,22 @@
             <p>View and manage your shared files</p>
           </div>
         </a>
-        <a href="#/files" class="action-card">
-          <div class="action-icon receive-icon">
-            <i class="bi bi-inbox"></i>
+        <a href="#/search" class="action-card">
+          <div class="action-icon search-icon">
+            <i class="bi bi-search"></i>
           </div>
           <div class="action-text">
-            <h3>Receive Files</h3>
-            <p>Create links for others to send files to you</p>
+            <h3>Search Files</h3>
+            <p>Find files with full-text search</p>
+          </div>
+        </a>
+        <a href="#/activity" class="action-card">
+          <div class="action-icon activity-icon">
+            <i class="bi bi-activity"></i>
+          </div>
+          <div class="action-text">
+            <h3>Activity Log</h3>
+            <p>View recent file activity</p>
           </div>
         </a>
       </div>
@@ -353,26 +462,146 @@
     color: #f9fafb;
   }
 
-  .loading-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 400px;
+  /* Skeleton classes are from global animations.css */
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
   }
 
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #e5e7eb;
-    border-top-color: #22c55e;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
+  @media (max-width: 1024px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
     }
+  }
+
+  @media (max-width: 640px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .stat-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: all 0.2s;
+  }
+
+  :global(.dark) .stat-card {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .stat-card:hover {
+    border-color: #22c55e;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .files-stat-icon {
+    background: #dbeafe;
+    color: #3b82f6;
+  }
+
+  .shares-stat-icon {
+    background: #dcfce7;
+    color: #22c55e;
+  }
+
+  .users-stat-icon {
+    background: #fef3c7;
+    color: #f59e0b;
+  }
+
+  .sessions-stat-icon {
+    background: #e0e7ff;
+    color: #6366f1;
+  }
+
+  :global(.dark) .files-stat-icon {
+    background: rgba(59, 130, 246, 0.2);
+  }
+
+  :global(.dark) .shares-stat-icon {
+    background: rgba(34, 197, 94, 0.2);
+  }
+
+  :global(.dark) .users-stat-icon {
+    background: rgba(245, 158, 11, 0.2);
+  }
+
+  :global(.dark) .sessions-stat-icon {
+    background: rgba(99, 102, 241, 0.2);
+  }
+
+  .stat-content {
+    min-width: 0;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+
+  :global(.dark) .stat-label {
+    color: #9ca3af;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+  }
+
+  :global(.dark) .stat-value {
+    color: #f9fafb;
+  }
+
+  .stat-trend {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .stat-trend.positive {
+    color: #22c55e;
+  }
+
+  .stat-trend.negative {
+    color: #ef4444;
+  }
+
+  .stat-trend.neutral {
+    color: #6b7280;
+  }
+
+  :global(.dark) .stat-trend.neutral {
+    color: #9ca3af;
   }
 
   /* Cards */
@@ -472,12 +701,18 @@
   /* Quick Actions */
   .quick-actions {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
     margin-bottom: 1.5rem;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
+    .quick-actions {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
     .quick-actions {
       grid-template-columns: 1fr;
     }
@@ -525,9 +760,14 @@
     color: #22c55e;
   }
 
-  .receive-icon {
+  .search-icon {
     background: #fef3c7;
     color: #f59e0b;
+  }
+
+  .activity-icon {
+    background: #e0e7ff;
+    color: #6366f1;
   }
 
   :global(.dark) .files-icon {
@@ -538,8 +778,12 @@
     background: rgba(34, 197, 94, 0.2);
   }
 
-  :global(.dark) .receive-icon {
+  :global(.dark) .search-icon {
     background: rgba(245, 158, 11, 0.2);
+  }
+
+  :global(.dark) .activity-icon {
+    background: rgba(99, 102, 241, 0.2);
   }
 
   .action-text h3 {

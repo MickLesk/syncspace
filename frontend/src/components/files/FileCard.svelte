@@ -117,6 +117,25 @@
     loadFolderColor();
   });
 
+  // Check if file is an image that can be thumbnailed
+  function isImageFile(fileName) {
+    const ext = (fileName || "").split(".").pop()?.toLowerCase();
+    return ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"].includes(ext);
+  }
+
+  // Generate thumbnail URL for images
+  function getThumbnailUrl(file) {
+    if (!file || file.is_directory || !isImageFile(file.name)) return null;
+    const filePath = file.file_path || file.path || file.name;
+    const token = localStorage.getItem("authToken");
+    // Use download endpoint with token
+    return `http://localhost:8080/api/download/${encodeURIComponent(filePath)}?token=${token}`;
+  }
+
+  // Track thumbnail loading state
+  let thumbnailLoaded = $state(false);
+  let thumbnailError = $state(false);
+
   // getFileIcon returns just icon name like "folder-fill", need to add "bi bi-"
   function getIconClass(file) {
     const iconName = getFileIcon(file.name, file.is_directory);
@@ -247,15 +266,32 @@
       {/if}
       <div class="flex flex-col items-center gap-3 text-center">
         <div class="relative">
-          <i
-            class="{getIconClass(file)} text-5xl {file.is_directory &&
-            folderColor
-              ? ''
-              : getFileIconColor(file.name)}"
-            style={file.is_directory && folderColor
-              ? `color: ${folderColor};`
-              : ""}
-          ></i>
+          {#if isImageFile(file.name) && !file.is_directory && !thumbnailError}
+            <!-- Image Thumbnail -->
+            <div class="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+              {#if !thumbnailLoaded}
+                <div class="animate-pulse w-full h-full bg-gray-200 dark:bg-gray-600"></div>
+              {/if}
+              <img 
+                src={getThumbnailUrl(file)} 
+                alt={file.name}
+                class="w-full h-full object-cover {thumbnailLoaded ? '' : 'hidden'}"
+                onload={() => thumbnailLoaded = true}
+                onerror={() => thumbnailError = true}
+              />
+            </div>
+          {:else}
+            <!-- Default Icon -->
+            <i
+              class="{getIconClass(file)} text-5xl {file.is_directory &&
+              folderColor
+                ? ''
+                : getFileIconColor(file.name)}"
+              style={file.is_directory && folderColor
+                ? `color: ${folderColor};`
+                : ""}
+            ></i>
+          {/if}
           {#if file.is_directory && folderColor}
             <div
               class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-gray-800"
@@ -367,14 +403,31 @@
         </div>
       {/if}
       <div class="relative flex-shrink-0">
-        <i
-          class="{getIconClass(file)} text-3xl {file.is_directory && folderColor
-            ? ''
-            : getFileIconColor(file.name)}"
-          style={file.is_directory && folderColor
-            ? `color: ${folderColor};`
-            : ""}
-        ></i>
+        {#if isImageFile(file.name) && !file.is_directory && !thumbnailError}
+          <!-- Image Thumbnail for List View -->
+          <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+            {#if !thumbnailLoaded}
+              <div class="animate-pulse w-full h-full bg-gray-200 dark:bg-gray-600"></div>
+            {/if}
+            <img 
+              src={getThumbnailUrl(file)} 
+              alt={file.name}
+              class="w-full h-full object-cover {thumbnailLoaded ? '' : 'hidden'}"
+              onload={() => thumbnailLoaded = true}
+              onerror={() => thumbnailError = true}
+            />
+          </div>
+        {:else}
+          <!-- Default Icon for List View -->
+          <i
+            class="{getIconClass(file)} text-3xl {file.is_directory && folderColor
+              ? ''
+              : getFileIconColor(file.name)}"
+            style={file.is_directory && folderColor
+              ? `color: ${folderColor};`
+              : ""}
+          ></i>
+        {/if}
         {#if file.is_directory && folderColor}
           <div
             class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800"

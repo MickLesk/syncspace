@@ -18,6 +18,9 @@
         { keys: ["Ctrl", "3"], description: tr("shortcuts.tagsView") },
         { keys: ["Ctrl", "4"], description: tr("shortcuts.favoritesView") },
         { keys: ["Ctrl", "5"], description: tr("shortcuts.trashView") },
+        { keys: ["Ctrl", "Home"], description: "Go to Dashboard" },
+        { keys: ["Backspace"], description: "Navigate to parent folder" },
+        { keys: ["←", "→"], description: "Navigate breadcrumbs" },
       ],
     },
     {
@@ -37,6 +40,11 @@
           keys: ["Ctrl", "Shift", "Del"],
           description: tr("shortcuts.permanentDelete"),
         },
+        { keys: ["F2"], description: "Rename selected file" },
+        { keys: ["Enter"], description: "Open file / Enter folder" },
+        { keys: ["Ctrl", "A"], description: "Select all files" },
+        { keys: ["Escape"], description: "Deselect all / Close modal" },
+        { keys: ["Ctrl", "I"], description: "File info / Properties" },
       ],
     },
     {
@@ -52,6 +60,8 @@
           description: tr("shortcuts.fullTextSearch"),
         },
         { keys: ["Ctrl", "L"], description: tr("shortcuts.searchByTag") },
+        { keys: ["Ctrl", "G"], description: "Go to path..." },
+        { keys: ["↑", "↓"], description: "Navigate search results" },
       ],
     },
     {
@@ -65,6 +75,9 @@
         { keys: ["Ctrl", "-"], description: tr("shortcuts.zoomOut") },
         { keys: ["Ctrl", "0"], description: tr("shortcuts.resetZoom") },
         { keys: ["F11"], description: tr("shortcuts.fullscreen") },
+        { keys: ["Ctrl", "B"], description: "Toggle sidebar" },
+        { keys: ["Ctrl", "\\"], description: "Toggle grid/list view" },
+        { keys: ["Ctrl", "Shift", "P"], description: "Toggle preview panel" },
       ],
     },
     {
@@ -75,6 +88,17 @@
         { keys: ["Ctrl", "Shift", "Z"], description: tr("shortcuts.redo") },
         { keys: ["Ctrl", "F"], description: tr("shortcuts.findInEditor") },
         { keys: ["Ctrl", "H"], description: tr("shortcuts.findReplace") },
+      ],
+    },
+    {
+      category: "Quick Actions",
+      items: [
+        { keys: ["Ctrl", "Shift", "S"], description: "Share selected file" },
+        { keys: ["Ctrl", "Shift", "D"], description: "Download selected" },
+        { keys: ["Ctrl", "E"], description: "Edit file / Quick edit" },
+        { keys: ["Space"], description: "Quick preview file" },
+        { keys: ["Ctrl", "M"], description: "Move file to..." },
+        { keys: ["Ctrl", "Shift", "C"], description: "Copy file path" },
       ],
     },
   ];
