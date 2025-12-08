@@ -143,6 +143,12 @@
       category: "admin",
     },
     {
+      id: "guests",
+      icon: "person-badge",
+      label: t($currentLang, "guests.title") || "Guest Access",
+      category: "admin",
+    },
+    {
       id: "roles",
       icon: "person-badge-fill",
       label: t($currentLang, "roles.title") || "Role Management",

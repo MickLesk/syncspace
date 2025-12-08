@@ -3426,9 +3426,134 @@ export const translations = {
       nameRequired: 'Token-Name ist erforderlich',
       scopeRequired: 'Mindestens eine Berechtigung ist erforderlich',
     },
+    
+    // Guest/External User Management
+    guests: {
+      title: 'Gastzugang',
+      subtitle: 'Externe Benutzer und temporäre Zugänge verwalten',
+      
+      // Tabs
+      tabUsers: 'Gastbenutzer',
+      tabLinks: 'Zugriffslinks',
+      tabInvitations: 'Einladungen',
+      
+      // Stats
+      activeGuests: 'Aktive Gäste',
+      activeLinks: 'Aktive Links',
+      pendingInvitations: 'Offene Einladungen',
+      totalAccesses: 'Zugriffe gesamt',
+      
+      // Empty states
+      noGuests: 'Keine Gastbenutzer',
+      noGuestsHint: 'Erstelle Gastbenutzer für temporären Zugriff auf deine Dateien.',
+      noLinks: 'Keine Zugriffslinks',
+      noLinksHint: 'Erstelle Links für passwortgeschützten oder zeitbegrenzten Dateizugriff.',
+      noInvitations: 'Keine Einladungen',
+      noInvitationsHint: 'Lade externe Benutzer per E-Mail ein.',
+      
+      // Guest user
+      createGuest: 'Gastbenutzer erstellen',
+      editGuest: 'Gastbenutzer bearbeiten',
+      deleteGuest: 'Gastbenutzer löschen',
+      guestName: 'Name',
+      guestEmail: 'E-Mail',
+      guestNotes: 'Notizen',
+      expiresIn: 'Läuft ab in',
+      maxAccesses: 'Max. Zugriffe',
+      unlimited: 'Unbegrenzt',
+      accessCount: 'Zugriffe',
+      lastAccess: 'Letzter Zugriff',
+      
+      // Permissions
+      permissions: 'Berechtigungen',
+      canView: 'Anzeigen',
+      canDownload: 'Herunterladen',
+      canUpload: 'Hochladen',
+      canComment: 'Kommentieren',
+      
+      // Links
+      createLink: 'Link erstellen',
+      editLink: 'Link bearbeiten',
+      deleteLink: 'Link löschen',
+      linkUrl: 'Link-URL',
+      copyLink: 'Link kopieren',
+      linkCopied: 'Link in Zwischenablage kopiert',
+      filePath: 'Dateipfad',
+      accessType: 'Zugriffstyp',
+      typeFile: 'Datei',
+      typeFolder: 'Ordner',
+      passwordProtected: 'Passwortgeschützt',
+      password: 'Passwort',
+      setPassword: 'Passwort festlegen',
+      noPassword: 'Kein Passwort',
+      toggleActive: 'Aktivieren/Deaktivieren',
+      
+      // Invitations
+      sendInvitation: 'Einladung senden',
+      resendInvitation: 'Erneut senden',
+      deleteInvitation: 'Einladung löschen',
+      inviteEmail: 'E-Mail-Adresse',
+      inviteMessage: 'Persönliche Nachricht',
+      invitationSent: 'Einladung gesendet',
+      invitationResent: 'Einladung erneut gesendet',
+      accepted: 'Angenommen',
+      pending: 'Ausstehend',
+      
+      // Convert to user
+      convertToUser: 'In Benutzer umwandeln',
+      convertToUserHint: 'Wandle diesen Gast in einen vollständigen Benutzer um.',
+      newUsername: 'Neuer Benutzername',
+      newPassword: 'Neues Passwort',
+      
+      // Activity
+      viewActivity: 'Aktivität anzeigen',
+      guestActivity: 'Gastaktivität',
+      
+      // Status
+      active: 'Aktiv',
+      inactive: 'Inaktiv',
+      expired: 'Abgelaufen',
+      
+      // Actions
+      create: 'Erstellen',
+      save: 'Speichern',
+      cancel: 'Abbrechen',
+      delete: 'Löschen',
+      
+      // Confirmations
+      deleteGuestConfirm: 'Gastbenutzer wirklich löschen? Der Gast verliert sofort den Zugriff.',
+      deleteLinkConfirm: 'Zugriffslink wirklich löschen? Der Link funktioniert nicht mehr.',
+      deleteInvitationConfirm: 'Einladung wirklich löschen?',
+      
+      // Success messages
+      guestCreated: 'Gastbenutzer erstellt',
+      guestUpdated: 'Gastbenutzer aktualisiert',
+      guestDeleted: 'Gastbenutzer gelöscht',
+      linkCreated: 'Zugriffslink erstellt',
+      linkUpdated: 'Zugriffslink aktualisiert',
+      linkDeleted: 'Zugriffslink gelöscht',
+      linkToggled: 'Link-Status geändert',
+      invitationCreated: 'Einladung gesendet',
+      invitationDeleted: 'Einladung gelöscht',
+      convertedToUser: 'Gast wurde in Benutzer umgewandelt',
+      
+      // Error messages
+      loadError: 'Fehler beim Laden der Gastdaten',
+      createError: 'Fehler beim Erstellen',
+      updateError: 'Fehler beim Aktualisieren',
+      deleteError: 'Fehler beim Löschen',
+      nameRequired: 'Name ist erforderlich',
+      emailRequired: 'E-Mail ist erforderlich',
+      filePathRequired: 'Dateipfad ist erforderlich',
+      usernameRequired: 'Benutzername ist erforderlich',
+      passwordRequired: 'Passwort ist erforderlich',
+      
+      // Time units
+      days: 'Tage',
+      hours: 'Stunden',
+      never: 'Nie',
+    },
   },
-  
-  en: {
     // Navigation
     files: 'Files',
     shared: 'Shared',
@@ -6799,6 +6924,133 @@ export const translations = {
       deleteError: 'Failed to delete token',
       nameRequired: 'Token name is required',
       scopeRequired: 'At least one permission is required',
+    },
+    
+    // Guest/External User Management
+    guests: {
+      title: 'Guest Access',
+      subtitle: 'Manage external users and temporary access',
+      
+      // Tabs
+      tabUsers: 'Guest Users',
+      tabLinks: 'Access Links',
+      tabInvitations: 'Invitations',
+      
+      // Stats
+      activeGuests: 'Active Guests',
+      activeLinks: 'Active Links',
+      pendingInvitations: 'Pending Invitations',
+      totalAccesses: 'Total Accesses',
+      
+      // Empty states
+      noGuests: 'No guest users',
+      noGuestsHint: 'Create guest users for temporary access to your files.',
+      noLinks: 'No access links',
+      noLinksHint: 'Create links for password-protected or time-limited file access.',
+      noInvitations: 'No invitations',
+      noInvitationsHint: 'Invite external users via email.',
+      
+      // Guest user
+      createGuest: 'Create Guest User',
+      editGuest: 'Edit Guest User',
+      deleteGuest: 'Delete Guest User',
+      guestName: 'Name',
+      guestEmail: 'Email',
+      guestNotes: 'Notes',
+      expiresIn: 'Expires in',
+      maxAccesses: 'Max Accesses',
+      unlimited: 'Unlimited',
+      accessCount: 'Accesses',
+      lastAccess: 'Last Access',
+      
+      // Permissions
+      permissions: 'Permissions',
+      canView: 'View',
+      canDownload: 'Download',
+      canUpload: 'Upload',
+      canComment: 'Comment',
+      
+      // Links
+      createLink: 'Create Link',
+      editLink: 'Edit Link',
+      deleteLink: 'Delete Link',
+      linkUrl: 'Link URL',
+      copyLink: 'Copy Link',
+      linkCopied: 'Link copied to clipboard',
+      filePath: 'File Path',
+      accessType: 'Access Type',
+      typeFile: 'File',
+      typeFolder: 'Folder',
+      passwordProtected: 'Password Protected',
+      password: 'Password',
+      setPassword: 'Set Password',
+      noPassword: 'No Password',
+      toggleActive: 'Enable/Disable',
+      
+      // Invitations
+      sendInvitation: 'Send Invitation',
+      resendInvitation: 'Resend',
+      deleteInvitation: 'Delete Invitation',
+      inviteEmail: 'Email Address',
+      inviteMessage: 'Personal Message',
+      invitationSent: 'Invitation sent',
+      invitationResent: 'Invitation resent',
+      accepted: 'Accepted',
+      pending: 'Pending',
+      
+      // Convert to user
+      convertToUser: 'Convert to User',
+      convertToUserHint: 'Convert this guest to a full user account.',
+      newUsername: 'New Username',
+      newPassword: 'New Password',
+      
+      // Activity
+      viewActivity: 'View Activity',
+      guestActivity: 'Guest Activity',
+      
+      // Status
+      active: 'Active',
+      inactive: 'Inactive',
+      expired: 'Expired',
+      
+      // Actions
+      create: 'Create',
+      save: 'Save',
+      cancel: 'Cancel',
+      delete: 'Delete',
+      
+      // Confirmations
+      deleteGuestConfirm: 'Really delete this guest user? The guest will immediately lose access.',
+      deleteLinkConfirm: 'Really delete this access link? The link will no longer work.',
+      deleteInvitationConfirm: 'Really delete this invitation?',
+      
+      // Success messages
+      guestCreated: 'Guest user created',
+      guestUpdated: 'Guest user updated',
+      guestDeleted: 'Guest user deleted',
+      linkCreated: 'Access link created',
+      linkUpdated: 'Access link updated',
+      linkDeleted: 'Access link deleted',
+      linkToggled: 'Link status changed',
+      invitationCreated: 'Invitation sent',
+      invitationDeleted: 'Invitation deleted',
+      convertedToUser: 'Guest converted to user',
+      
+      // Error messages
+      loadError: 'Failed to load guest data',
+      createError: 'Failed to create',
+      updateError: 'Failed to update',
+      deleteError: 'Failed to delete',
+      nameRequired: 'Name is required',
+      emailRequired: 'Email is required',
+      filePathRequired: 'File path is required',
+      usernameRequired: 'Username is required',
+      passwordRequired: 'Password is required',
+      
+      // Time units
+      days: 'days',
+      hours: 'hours',
+      never: 'Never',
     },
   },
   

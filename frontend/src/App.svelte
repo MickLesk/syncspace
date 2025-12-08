@@ -58,6 +58,7 @@
   import QuotaManagementView from "./pages/QuotaManagementView.svelte";
   import SystemConfigView from "./pages/admin/SystemConfigView.svelte";
   import UserGroupsView from "./pages/admin/UserGroupsView.svelte";
+  import GuestAccessView from "./pages/GuestAccessView.svelte";
 
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
@@ -422,7 +423,12 @@
         class="mobile-menu-toggle fixed top-4 left-4 z-50 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 md:hidden touch-target"
         aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
       >
-        <i class="bi bi-{isMobileMenuOpen ? 'x-lg' : 'list'} text-xl text-gray-700 dark:text-gray-200" aria-hidden="true"></i>
+        <i
+          class="bi bi-{isMobileMenuOpen
+            ? 'x-lg'
+            : 'list'} text-xl text-gray-700 dark:text-gray-200"
+          aria-hidden="true"
+        ></i>
       </button>
     {/if}
 
@@ -536,6 +542,8 @@
                 <ApiTokensView />
               {:else if $currentView === "notifications"}
                 <NotificationsView />
+              {:else if $currentView === "guests"}
+                <GuestAccessView />
               {/if}
             </main>
           </ErrorBoundary>
@@ -562,7 +570,7 @@
         {/if}
       </div>
     </div>
-    
+
     <!-- Mobile Bottom Navigation -->
     {#if isMobile}
       <MobileBottomNav />

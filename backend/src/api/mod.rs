@@ -30,6 +30,7 @@ pub mod file_versions;
 pub mod files;
 pub mod folder_colors;
 pub mod groups;
+pub mod guest;
 pub mod jobs;
 pub mod metadata;
 pub mod notifications;
@@ -66,6 +67,8 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
         .merge(setup::router())
         // Public sharing routes (NO AUTH - must come before protected routes)
         .merge(sharing::public_router())
+        // Public guest access routes (NO AUTH - token-based access)
+        .merge(guest::public_router())
         // Protected routes
         .merge(
             Router::new()
@@ -125,6 +128,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(storage_analytics::router()) // Storage analytics and statistics
                 .merge(admin::router()) // Admin user management
                 .merge(encryption::router()) // File encryption at rest
+                .merge(guest::router()) // Guest/external user access
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

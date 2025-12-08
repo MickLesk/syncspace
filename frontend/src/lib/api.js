@@ -4340,5 +4340,308 @@ export const groups = {
   },
 };
 
+// ============================================================================
+// Guest/External User API
+// ============================================================================
+
+export const guests = {
+  // --- Guest Users ---
+  
+  /**
+   * List all guest users
+   * @param {Object} options - Query options
+   * @param {boolean} options.includeExpired - Include expired guests
+   * @param {boolean} options.includeInactive - Include inactive guests
+   */
+  async list(options = {}) {
+    const params = new URLSearchParams();
+    if (options.includeExpired) params.append("include_expired", "true");
+    if (options.includeInactive) params.append("include_inactive", "true");
+    const response = await fetch(`${API_BASE}/guests?${params}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Create a new guest user
+   * @param {Object} data - Guest data
+   * @param {string} data.display_name - Display name
+   * @param {string} data.email - Email address
+   * @param {number} data.expires_in_days - Days until expiration
+   * @param {number} data.max_accesses - Maximum access count
+   * @param {string} data.notes - Notes
+   * @param {boolean} data.can_view - Can view files
+   * @param {boolean} data.can_download - Can download files
+   * @param {boolean} data.can_upload - Can upload files
+   * @param {boolean} data.can_comment - Can add comments
+   */
+  async create(data) {
+    const response = await fetch(`${API_BASE}/guests`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Get a single guest user
+   * @param {string} guestId - Guest ID
+   */
+  async get(guestId) {
+    const response = await fetch(`${API_BASE}/guests/${guestId}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Update a guest user
+   * @param {string} guestId - Guest ID
+   * @param {Object} data - Updated data
+   */
+  async update(guestId, data) {
+    const response = await fetch(`${API_BASE}/guests/${guestId}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Delete a guest user
+   * @param {string} guestId - Guest ID
+   */
+  async delete(guestId) {
+    const response = await fetch(`${API_BASE}/guests/${guestId}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Get guest statistics
+   */
+  async getStats() {
+    const response = await fetch(`${API_BASE}/guests/stats`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Get guest activity log
+   * @param {string} guestId - Guest ID
+   * @param {Object} options - Query options
+   * @param {number} options.limit - Limit results
+   * @param {number} options.offset - Offset for pagination
+   */
+  async getActivity(guestId, options = {}) {
+    const params = new URLSearchParams();
+    if (options.limit) params.append("limit", options.limit);
+    if (options.offset) params.append("offset", options.offset);
+    const response = await fetch(`${API_BASE}/guests/${guestId}/activity?${params}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Convert guest to full user
+   * @param {string} guestId - Guest ID
+   * @param {Object} data - User data
+   * @param {string} data.username - New username
+   * @param {string} data.password - New password
+   * @param {string} data.email - Email address
+   */
+  async convertToUser(guestId, data) {
+    const response = await fetch(`${API_BASE}/guests/${guestId}/convert`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+  
+  // --- Guest Access Links ---
+  
+  /**
+   * List all guest access links
+   * @param {Object} options - Query options
+   * @param {boolean} options.includeExpired - Include expired links
+   * @param {boolean} options.includeInactive - Include inactive links
+   */
+  async listLinks(options = {}) {
+    const params = new URLSearchParams();
+    if (options.includeExpired) params.append("include_expired", "true");
+    if (options.includeInactive) params.append("include_inactive", "true");
+    const response = await fetch(`${API_BASE}/guest-links?${params}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Create a new guest access link
+   * @param {Object} data - Link data
+   * @param {string} data.file_path - Path to file/folder
+   * @param {string} data.guest_id - Optional guest to associate
+   * @param {string} data.access_type - "file" or "folder"
+   * @param {number} data.expires_in_days - Days until expiration
+   * @param {string} data.password - Optional password protection
+   * @param {number} data.max_accesses - Maximum access count
+   * @param {boolean} data.can_view - Can view
+   * @param {boolean} data.can_download - Can download
+   * @param {boolean} data.can_upload - Can upload
+   */
+  async createLink(data) {
+    const response = await fetch(`${API_BASE}/guest-links`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Get a single link
+   * @param {string} linkId - Link ID
+   */
+  async getLink(linkId) {
+    const response = await fetch(`${API_BASE}/guest-links/${linkId}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Update a link
+   * @param {string} linkId - Link ID
+   * @param {Object} data - Updated data
+   */
+  async updateLink(linkId, data) {
+    const response = await fetch(`${API_BASE}/guest-links/${linkId}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Delete a link
+   * @param {string} linkId - Link ID
+   */
+  async deleteLink(linkId) {
+    const response = await fetch(`${API_BASE}/guest-links/${linkId}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Toggle link active status
+   * @param {string} linkId - Link ID
+   */
+  async toggleLink(linkId) {
+    const response = await fetch(`${API_BASE}/guest-links/${linkId}/toggle`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  // --- Guest Invitations ---
+  
+  /**
+   * List all invitations
+   * @param {Object} options - Query options
+   * @param {boolean} options.includeExpired - Include expired
+   * @param {boolean} options.includeAccepted - Include accepted
+   */
+  async listInvitations(options = {}) {
+    const params = new URLSearchParams();
+    if (options.includeExpired) params.append("include_expired", "true");
+    if (options.includeAccepted) params.append("include_accepted", "true");
+    const response = await fetch(`${API_BASE}/guest-invitations?${params}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Send a new invitation
+   * @param {Object} data - Invitation data
+   * @param {string} data.email - Email to invite
+   * @param {number} data.expires_in_days - Days until expiration
+   * @param {string} data.message - Personal message
+   * @param {boolean} data.can_view - Can view files
+   * @param {boolean} data.can_download - Can download files
+   * @param {boolean} data.can_upload - Can upload files
+   * @param {boolean} data.can_comment - Can add comments
+   */
+  async createInvitation(data) {
+    const response = await fetch(`${API_BASE}/guest-invitations`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Delete/revoke an invitation
+   * @param {string} invitationId - Invitation ID
+   */
+  async deleteInvitation(invitationId) {
+    const response = await fetch(`${API_BASE}/guest-invitations/${invitationId}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Resend an invitation email
+   * @param {string} invitationId - Invitation ID
+   */
+  async resendInvitation(invitationId) {
+    const response = await fetch(`${API_BASE}/guest-invitations/${invitationId}/resend`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  // --- Public Access (no auth) ---
+  
+  /**
+   * Access a guest link (public, no auth required)
+   * @param {string} token - Access token
+   */
+  async accessLink(token) {
+    const response = await fetch(`${API_BASE}/guest-access/${token}`);
+    return handleResponse(response);
+  },
+  
+  /**
+   * Access a password-protected link (public, no auth required)
+   * @param {string} token - Access token
+   * @param {string} password - Password
+   */
+  async accessLinkWithPassword(token, password) {
+    const response = await fetch(`${API_BASE}/guest-access/${token}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+    return handleResponse(response);
+  },
+};
+
 // Add late-defined exports to api object
-Object.assign(api, { encryption, quota, groups });
+Object.assign(api, { encryption, quota, groups, guests });
