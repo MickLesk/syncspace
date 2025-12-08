@@ -30,8 +30,8 @@ pub fn router() -> Router<AppState> {
         .route("/encryption/files/{file_id}/status", get(get_file_encryption_status))
         .route("/encryption/files/{file_id}/encrypt", post(encrypt_file_handler))
         .route("/encryption/files/{file_id}/decrypt", post(decrypt_file_handler))
-        // Bulk operations
-        .route("/encryption/folders/{*folder_path}/encrypt", post(encrypt_folder))
+        // Bulk operations - folder path is passed as query param or request body
+        .route("/encryption/folders/encrypt", post(encrypt_folder))
         .route("/encryption/settings", get(get_encryption_settings).put(update_encryption_settings))
 }
 
@@ -58,6 +58,7 @@ pub struct DecryptFileRequest {
 
 #[derive(Debug, Deserialize)]
 pub struct EncryptFolderRequest {
+    pub folder_path: Option<String>,
     pub key_id: String,
     pub password: String,
     pub include_subfolders: bool,
@@ -519,9 +520,11 @@ async fn decrypt_file_handler(
 async fn encrypt_folder(
     State(_state): State<AppState>,
     user: UserInfo,
-    Path(folder_path): Path<String>,
     Json(req): Json<EncryptFolderRequest>,
 ) -> Result<Json<OperationResponse>, StatusCode> {
+    // Folder path now comes from request body
+    let folder_path = req.folder_path.clone().unwrap_or_default();
+    
     // This would be a background job in production
     tracing::info!(
         "User {} requested folder encryption for {} with key {} (include_subfolders: {})",

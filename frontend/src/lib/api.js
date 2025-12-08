@@ -4121,10 +4121,11 @@ export const encryption = {
    * @param {boolean} includeSubfolders - Whether to include subfolders
    */
   async encryptFolder(folderPath, keyId, password, includeSubfolders = true) {
-    const response = await fetch(`${API_BASE}/encryption/folders/${encodeURIComponent(folderPath)}/encrypt`, {
+    const response = await fetch(`${API_BASE}/encryption/folders/encrypt`, {
       method: "POST",
       headers: getHeaders(),
       body: JSON.stringify({ 
+        folder_path: folderPath,
         key_id: keyId, 
         password, 
         include_subfolders: includeSubfolders 
