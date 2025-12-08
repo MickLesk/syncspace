@@ -4643,5 +4643,231 @@ export const guests = {
   },
 };
 
+// ============================================
+// RATE LIMITING & QUOTAS
+// ============================================
+
+export const rateLimiting = {
+  // --- Storage Quotas ---
+  
+  /**
+   * List all storage quotas
+   * @param {Object} params - { page, limit }
+   */
+  async listStorageQuotas(params = {}) {
+    const searchParams = new URLSearchParams();
+    if (params.page) searchParams.set("page", params.page);
+    if (params.limit) searchParams.set("limit", params.limit);
+    const queryString = searchParams.toString();
+    const url = queryString ? `${API_BASE}/quotas/storage?${queryString}` : `${API_BASE}/quotas/storage`;
+    const response = await fetch(url, { headers: getHeaders() });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Get storage quota for a specific user
+   * @param {string} userId - User ID
+   */
+  async getStorageQuota(userId) {
+    const response = await fetch(`${API_BASE}/quotas/storage/${userId}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Update storage quota for a user
+   * @param {string} userId - User ID
+   * @param {Object} data - { storage_limit_bytes, warning_threshold_percent, is_unlimited }
+   */
+  async updateStorageQuota(userId, data) {
+    const response = await fetch(`${API_BASE}/quotas/storage/${userId}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Get storage usage for a user
+   * @param {string} userId - User ID
+   */
+  async getStorageUsage(userId) {
+    const response = await fetch(`${API_BASE}/quotas/storage/${userId}/usage`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  // --- Bandwidth Quotas ---
+  
+  /**
+   * List all bandwidth quotas
+   * @param {Object} params - { page, limit }
+   */
+  async listBandwidthQuotas(params = {}) {
+    const searchParams = new URLSearchParams();
+    if (params.page) searchParams.set("page", params.page);
+    if (params.limit) searchParams.set("limit", params.limit);
+    const queryString = searchParams.toString();
+    const url = queryString ? `${API_BASE}/quotas/bandwidth?${queryString}` : `${API_BASE}/quotas/bandwidth`;
+    const response = await fetch(url, { headers: getHeaders() });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Get bandwidth quota for a specific user
+   * @param {string} userId - User ID
+   */
+  async getBandwidthQuota(userId) {
+    const response = await fetch(`${API_BASE}/quotas/bandwidth/${userId}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Update bandwidth quota for a user
+   * @param {string} userId - User ID
+   * @param {Object} data - { daily_upload_limit_bytes, daily_download_limit_bytes, monthly_upload_limit_bytes, monthly_download_limit_bytes, is_unlimited }
+   */
+  async updateBandwidthQuota(userId, data) {
+    const response = await fetch(`${API_BASE}/quotas/bandwidth/${userId}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Get bandwidth usage for a user
+   * @param {string} userId - User ID
+   * @param {Object} params - { start_date, end_date }
+   */
+  async getBandwidthUsage(userId, params = {}) {
+    const searchParams = new URLSearchParams();
+    if (params.start_date) searchParams.set("start_date", params.start_date);
+    if (params.end_date) searchParams.set("end_date", params.end_date);
+    const queryString = searchParams.toString();
+    const url = queryString ? `${API_BASE}/quotas/bandwidth/${userId}/usage?${queryString}` : `${API_BASE}/quotas/bandwidth/${userId}/usage`;
+    const response = await fetch(url, { headers: getHeaders() });
+    return handleResponse(response);
+  },
+  
+  // --- Rate Limits ---
+  
+  /**
+   * List all rate limits
+   * @param {Object} params - { page, limit }
+   */
+  async listRateLimits(params = {}) {
+    const searchParams = new URLSearchParams();
+    if (params.page) searchParams.set("page", params.page);
+    if (params.limit) searchParams.set("limit", params.limit);
+    const queryString = searchParams.toString();
+    const url = queryString ? `${API_BASE}/rate-limits?${queryString}` : `${API_BASE}/rate-limits`;
+    const response = await fetch(url, { headers: getHeaders() });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Create a new rate limit rule
+   * @param {Object} data - { user_id, role_name, endpoint_pattern, requests_per_minute, requests_per_hour, requests_per_day, burst_limit }
+   */
+  async createRateLimit(data) {
+    const response = await fetch(`${API_BASE}/rate-limits`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Get a specific rate limit rule
+   * @param {string} id - Rate limit ID
+   */
+  async getRateLimit(id) {
+    const response = await fetch(`${API_BASE}/rate-limits/${id}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Update a rate limit rule
+   * @param {string} id - Rate limit ID
+   * @param {Object} data - { endpoint_pattern, requests_per_minute, requests_per_hour, requests_per_day, burst_limit, is_enabled }
+   */
+  async updateRateLimit(id, data) {
+    const response = await fetch(`${API_BASE}/rate-limits/${id}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Delete a rate limit rule
+   * @param {string} id - Rate limit ID
+   */
+  async deleteRateLimit(id) {
+    const response = await fetch(`${API_BASE}/rate-limits/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  // --- Alerts ---
+  
+  /**
+   * List quota alerts for current user
+   */
+  async listAlerts() {
+    const response = await fetch(`${API_BASE}/quotas/alerts`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Acknowledge a quota alert
+   * @param {string} alertId - Alert ID
+   */
+  async acknowledgeAlert(alertId) {
+    const response = await fetch(`${API_BASE}/quotas/alerts/${alertId}/acknowledge`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  // --- Statistics ---
+  
+  /**
+   * Get quota statistics overview
+   */
+  async getQuotaStats() {
+    const response = await fetch(`${API_BASE}/quotas/stats`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+  
+  /**
+   * Get rate limit statistics
+   */
+  async getRateLimitStats() {
+    const response = await fetch(`${API_BASE}/rate-limits/stats`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
 // Add late-defined exports to api object
-Object.assign(api, { encryption, quota, groups, guests });
+Object.assign(api, { encryption, quota, groups, guests, rateLimiting });

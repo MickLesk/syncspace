@@ -25,6 +25,7 @@
     
     // Storage & Security
     { id: "cloud-storage", icon: "cloud-fill", label: "cloudStorage.title", group: "storage" },
+    { id: "quotas", icon: "speedometer2", label: "quotas.title", group: "storage" },
     { id: "encryption", icon: "shield-lock-fill", label: "encryption.title", group: "storage" },
     { id: "analytics", icon: "bar-chart-line-fill", label: "storageAnalytics", group: "storage" },
     
@@ -169,6 +170,10 @@
         {/await}
       {:else if activeTab === "cloud-storage"}
         {#await import("./CloudStorageView.svelte") then module}
+          <svelte:component this={module.default} />
+        {/await}
+      {:else if activeTab === "quotas"}
+        {#await import("../system/QuotasView.svelte") then module}
           <svelte:component this={module.default} />
         {/await}
       {:else if activeTab === "encryption"}

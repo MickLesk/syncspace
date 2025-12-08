@@ -37,6 +37,7 @@ pub mod notifications;
 pub mod peers;
 pub mod performance;
 pub mod quota;
+pub mod rate_limiting;
 pub mod rbac;
 pub mod recent;
 pub mod search;
@@ -129,6 +130,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(admin::router()) // Admin user management
                 .merge(encryption::router()) // File encryption at rest
                 .merge(guest::router()) // Guest/external user access
+                .merge(rate_limiting::router()) // Rate limiting & quotas management
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,
