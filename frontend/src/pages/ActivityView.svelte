@@ -31,18 +31,94 @@
     { value: "delete", label: "Deletes", icon: "trash" },
     { value: "rename", label: "Renames", icon: "pencil" },
     { value: "move", label: "Moves", icon: "arrow-right" },
+    { value: "copy", label: "Copies", icon: "files" },
+    { value: "share", label: "Shares", icon: "share" },
+    { value: "auth", label: "Auth", icon: "shield-lock" },
+    { value: "folder", label: "Folders", icon: "folder" },
   ];
 
   const typeConfig = {
+    // File operations
     upload: { label: "Uploaded", color: "success", icon: "upload" },
     download: { label: "Downloaded", color: "info", icon: "download" },
     delete: { label: "Deleted", color: "error", icon: "trash" },
     rename: { label: "Renamed", color: "warning", icon: "pencil" },
     create: { label: "Created", color: "primary", icon: "plus-circle" },
     move: { label: "Moved", color: "secondary", icon: "arrow-right" },
-    share: { label: "Shared", color: "accent", icon: "share" },
+    copy: { label: "Copied", color: "info", icon: "files" },
+    // Sharing
+    share: { label: "Shared", color: "accent", icon: "share-fill" },
+    unshare: { label: "Unshared", color: "neutral", icon: "share" },
+    // Favorites
     favorite: { label: "Favorited", color: "warning", icon: "star-fill" },
     unfavorite: { label: "Unfavorited", color: "neutral", icon: "star" },
+    // Folder operations
+    folder_create: {
+      label: "Folder Created",
+      color: "primary",
+      icon: "folder-plus",
+    },
+    folder_delete: {
+      label: "Folder Deleted",
+      color: "error",
+      icon: "folder-minus",
+    },
+    folder_rename: {
+      label: "Folder Renamed",
+      color: "warning",
+      icon: "folder",
+    },
+    folder_move: {
+      label: "Folder Moved",
+      color: "secondary",
+      icon: "folder-symlink",
+    },
+    folder_color: { label: "Color Changed", color: "accent", icon: "palette" },
+    // Authentication
+    login: { label: "Logged In", color: "success", icon: "box-arrow-in-right" },
+    logout: { label: "Logged Out", color: "neutral", icon: "box-arrow-right" },
+    password_change: {
+      label: "Password Changed",
+      color: "warning",
+      icon: "key",
+    },
+    totp_enable: {
+      label: "2FA Enabled",
+      color: "success",
+      icon: "shield-check",
+    },
+    totp_disable: { label: "2FA Disabled", color: "error", icon: "shield-x" },
+    // Profile & Settings
+    profile_update: {
+      label: "Profile Updated",
+      color: "info",
+      icon: "person-gear",
+    },
+    settings_change: { label: "Settings Changed", color: "info", icon: "gear" },
+    // Comments & Tags
+    comment_add: {
+      label: "Comment Added",
+      color: "primary",
+      icon: "chat-left-text",
+    },
+    comment_delete: {
+      label: "Comment Deleted",
+      color: "error",
+      icon: "chat-left",
+    },
+    tag_add: { label: "Tag Added", color: "accent", icon: "tag-fill" },
+    tag_remove: { label: "Tag Removed", color: "neutral", icon: "tag" },
+    // Versions
+    version_delete: {
+      label: "Version Deleted",
+      color: "error",
+      icon: "clock-history",
+    },
+    version_restore: {
+      label: "Version Restored",
+      color: "success",
+      icon: "arrow-counterclockwise",
+    },
   };
 
   onMount(async () => {
@@ -85,7 +161,32 @@
     let filtered = activities;
 
     if (filter !== "all") {
-      filtered = filtered.filter((a) => a.type === filter);
+      // Group filters for combined categories
+      const filterGroups = {
+        auth: [
+          "login",
+          "logout",
+          "password_change",
+          "totp_enable",
+          "totp_disable",
+        ],
+        folder: [
+          "folder_create",
+          "folder_delete",
+          "folder_rename",
+          "folder_move",
+          "folder_color",
+        ],
+        share: ["share", "unshare"],
+      };
+
+      if (filterGroups[filter]) {
+        filtered = filtered.filter((a) =>
+          filterGroups[filter].includes(a.type)
+        );
+      } else {
+        filtered = filtered.filter((a) => a.type === filter);
+      }
     }
 
     if (search.trim()) {

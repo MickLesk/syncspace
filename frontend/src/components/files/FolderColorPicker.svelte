@@ -93,27 +93,33 @@
 </script>
 
 {#if visible}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
     onclick={close}
-    onkeydown={(e) = role="button" tabindex="0"> e.key === "Escape" && close()}
-    role="button"
+    onkeydown={(e) => e.key === "Escape" && close()}
+    role="presentation"
     tabindex="-1"
   >
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       class="bg-base-100 rounded-2xl shadow-2xl w-full max-w-md"
       onclick={(e) => e.stopPropagation()}
-      onkeydown={(e) = role="button" tabindex="0"> e.stopPropagation()}
+      onkeydown={(e) => e.stopPropagation()}
       role="dialog"
       aria-modal="true"
-      tabindex="0"
+      tabindex="-1"
     >
       <!-- Header -->
       <div
         class="flex items-center justify-between px-6 py-4 border-b border-base-300"
       >
         <div class="flex items-center gap-3">
-          <i class="bi bi-folder text-2xl" style="color: {selectedColor}" aria-hidden="true"></i>
+          <i
+            class="bi bi-folder text-2xl"
+            style="color: {selectedColor}"
+            aria-hidden="true"
+          ></i>
           <div>
             <h2 class="text-lg font-semibold">Folder Color</h2>
             <p class="text-sm text-base-content/60 truncate max-w-xs">
@@ -121,18 +127,23 @@
             </p>
           </div>
         </div>
-        <button aria-label="Close" onclick={close}
+        <button
+          aria-label="Close"
+          onclick={close}
           class="btn btn-sm btn-circle btn-ghost"
-          title="Close"
-        ><i class="bi bi-x" aria-hidden="true"></i></button>
+          title="Close"><i class="bi bi-x" aria-hidden="true"></i></button
+        >
       </div>
 
       <!-- Body -->
       <div class="p-6 space-y-4">
         <!-- Preview -->
         <div class="flex justify-center py-8">
-          <i class="bi bi-folder-fill text-8xl" style="color: {selectedColor}"
-           aria-hidden="true"></i>
+          <i
+            class="bi bi-folder-fill text-8xl"
+            style="color: {selectedColor}"
+            aria-hidden="true"
+          ></i>
         </div>
 
         <!-- Color Picker -->

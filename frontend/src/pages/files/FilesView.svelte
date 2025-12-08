@@ -20,6 +20,7 @@
   import FilePreviewPanel from "../../components/files/FilePreviewPanel.svelte";
   import BulkTaggingModal from "../../components/files/BulkTaggingModal.svelte";
   import BatchRenameModal from "../../components/files/BatchRenameModal.svelte";
+  import BatchProgressPanel from "../../components/files/BatchProgressPanel.svelte";
   import CopyFileModal from "../../components/modals/CopyFileModal.svelte";
   import MoveFileModal from "../../components/modals/MoveFileModal.svelte";
   import FileEditorModal from "../../components/editor/FileEditorModal.svelte";
@@ -75,6 +76,9 @@
 
   // Batch Rename Modal State
   let showBatchRenameModal = $state(false);
+
+  // Batch Progress Panel State
+  let showBatchProgress = $state(false);
 
   let searchFilters = $state({
     type: "all",
@@ -1526,6 +1530,9 @@
     }}
   />
 {/if}
+
+<!-- Batch Progress Panel -->
+<BatchProgressPanel bind:visible={showBatchProgress} />
 
 <!-- All modals now rendered globally in ModalPortal.svelte -->
 

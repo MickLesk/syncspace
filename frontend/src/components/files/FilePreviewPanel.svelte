@@ -798,17 +798,17 @@
 {/if}
 
 <style>
-  /* Backdrop Overlay */
+  /* Backdrop Overlay - Subtle for sidebar mode */
   .preview-backdrop {
     position: fixed;
     top: 4rem;
     left: 0;
-    right: 0;
+    right: 480px; /* Don't cover preview panel */
     bottom: 0;
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(4px);
-    z-index: 45;
-    transition: background 0.3s ease;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(2px);
+    z-index: 35;
+    transition: all 0.3s ease;
     border: none;
     padding: 0;
     cursor: pointer;
@@ -823,18 +823,18 @@
     background: rgba(0, 0, 0, 0.6);
   }
 
-  /* Preview Panel - Similar to Activity Feed */
+  /* Preview Panel - Modern Right Sidebar */
   .preview-panel {
     position: fixed;
     top: 4rem;
     right: 0;
-    width: 50vw;
-    min-width: 600px;
-    max-width: 1200px;
+    width: 480px;
+    max-width: calc(100vw - 280px); /* Leave space for main sidebar */
     height: calc(100vh - 4rem);
     background: var(--md-sys-color-surface);
-    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.15);
-    z-index: 50;
+    border-left: 1px solid var(--md-sys-color-outline-variant);
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.08);
+    z-index: 40;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -1766,8 +1766,10 @@
   /* Responsive Adjustments */
   @media (max-width: 1400px) {
     .preview-panel {
-      width: 60vw;
-      min-width: 500px;
+      width: 420px;
+    }
+    .preview-backdrop {
+      right: 420px;
     }
   }
 
@@ -1777,20 +1779,24 @@
     }
 
     .preview-panel {
-      width: 70vw;
-      min-width: 400px;
+      width: 380px;
+    }
+    .preview-backdrop {
+      right: 380px;
     }
   }
 
   @media (max-width: 768px) {
     .preview-panel {
       width: 100vw;
-      min-width: 100vw;
+      max-width: 100vw;
       top: 0;
     }
 
     .preview-backdrop {
+      right: 0;
       top: 0;
+      background: rgba(0, 0, 0, 0.4);
     }
 
     .preview-header {
