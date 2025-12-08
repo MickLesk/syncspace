@@ -268,16 +268,22 @@
         <div class="relative">
           {#if isImageFile(file.name) && !file.is_directory && !thumbnailError}
             <!-- Image Thumbnail -->
-            <div class="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+            <div
+              class="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center"
+            >
               {#if !thumbnailLoaded}
-                <div class="animate-pulse w-full h-full bg-gray-200 dark:bg-gray-600"></div>
+                <div
+                  class="animate-pulse w-full h-full bg-gray-200 dark:bg-gray-600"
+                ></div>
               {/if}
-              <img 
-                src={getThumbnailUrl(file)} 
+              <img
+                src={getThumbnailUrl(file)}
                 alt={file.name}
-                class="w-full h-full object-cover {thumbnailLoaded ? '' : 'hidden'}"
-                onload={() => thumbnailLoaded = true}
-                onerror={() => thumbnailError = true}
+                class="w-full h-full object-cover {thumbnailLoaded
+                  ? ''
+                  : 'hidden'}"
+                onload={() => (thumbnailLoaded = true)}
+                onerror={() => (thumbnailError = true)}
               />
             </div>
           {:else}
@@ -405,22 +411,29 @@
       <div class="relative flex-shrink-0">
         {#if isImageFile(file.name) && !file.is_directory && !thumbnailError}
           <!-- Image Thumbnail for List View -->
-          <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+          <div
+            class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center"
+          >
             {#if !thumbnailLoaded}
-              <div class="animate-pulse w-full h-full bg-gray-200 dark:bg-gray-600"></div>
+              <div
+                class="animate-pulse w-full h-full bg-gray-200 dark:bg-gray-600"
+              ></div>
             {/if}
-            <img 
-              src={getThumbnailUrl(file)} 
+            <img
+              src={getThumbnailUrl(file)}
               alt={file.name}
-              class="w-full h-full object-cover {thumbnailLoaded ? '' : 'hidden'}"
-              onload={() => thumbnailLoaded = true}
-              onerror={() => thumbnailError = true}
+              class="w-full h-full object-cover {thumbnailLoaded
+                ? ''
+                : 'hidden'}"
+              onload={() => (thumbnailLoaded = true)}
+              onerror={() => (thumbnailError = true)}
             />
           </div>
         {:else}
           <!-- Default Icon for List View -->
           <i
-            class="{getIconClass(file)} text-3xl {file.is_directory && folderColor
+            class="{getIconClass(file)} text-3xl {file.is_directory &&
+            folderColor
               ? ''
               : getFileIconColor(file.name)}"
             style={file.is_directory && folderColor

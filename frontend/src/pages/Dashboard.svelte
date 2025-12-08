@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { currentLang } from "../stores/ui";
   import { t } from "../i18n.js";
   import PageWrapper from "../components/PageWrapper.svelte";
@@ -13,7 +13,7 @@
   let recentUploads = $state([]);
   let recentShares = $state([]);
   let loading = $state(true);
-  
+
   // Enhanced stats
   let totalFiles = $state(0);
   let totalUsers = $state(0);
@@ -23,9 +23,25 @@
   let activeSessions = $state(0);
   let uploadTrend = $state(0);
   let storageTrend = $state(0);
+  
+  // Auto-refresh
+  let refreshInterval = null;
+  let lastRefresh = $state(new Date());
 
   onMount(async () => {
     await loadDashboardData();
+    
+    // Auto-refresh every 5 minutes
+    refreshInterval = setInterval(async () => {
+      await loadDashboardData();
+      lastRefresh = new Date();
+    }, 5 * 60 * 1000);
+  });
+  
+  onDestroy(() => {
+    if (refreshInterval) {
+      clearInterval(refreshInterval);
+    }
   });
 
   async function loadDashboardData() {
@@ -52,7 +68,7 @@
           storageUsed = usedGB;
           storageTotal = 100; // 100 GB limit
           storagePercent = Math.min((usedGB / storageTotal) * 100, 100);
-          
+
           // Enhanced stats from backend
           totalFiles = data.overview.total_files || 0;
           totalUsers = data.overview.total_users || 0;
@@ -61,7 +77,7 @@
           pendingJobs = data.overview.pending_jobs || 0;
           activeSessions = data.overview.active_sessions || 0;
         }
-        
+
         // Get trends
         if (data.trends) {
           uploadTrend = data.trends.upload_trend || 0;
@@ -135,10 +151,24 @@
   <div class="dashboard">
     <!-- Header -->
     <div class="dashboard-header">
-      <h1 class="dashboard-title">
-        <i class="bi bi-grid-1x2-fill"></i>
-        Dashboard
-      </h1>
+      <div class="header-left">
+        <h1 class="dashboard-title">
+          <i class="bi bi-grid-1x2-fill"></i>
+          Dashboard
+        </h1>
+        <span class="last-refresh">
+          <i class="bi bi-clock"></i>
+          {lastRefresh.toLocaleTimeString()}
+        </span>
+      </div>
+      <button 
+        class="refresh-btn" 
+        onclick={async () => { await loadDashboardData(); lastRefresh = new Date(); }}
+        disabled={loading}
+        title="Refresh Dashboard"
+      >
+        <i class="bi bi-arrow-clockwise {loading ? 'spinning' : ''}"></i>
+      </button>
     </div>
 
     {#if loading}
@@ -166,14 +196,20 @@
             <p class="stat-label">Total Files</p>
             <p class="stat-value">{totalFiles.toLocaleString()}</p>
             {#if uploadTrend !== 0}
-              <p class="stat-trend" class:positive={uploadTrend > 0} class:negative={uploadTrend < 0}>
-                <i class="bi {uploadTrend > 0 ? 'bi-arrow-up' : 'bi-arrow-down'}"></i>
+              <p
+                class="stat-trend"
+                class:positive={uploadTrend > 0}
+                class:negative={uploadTrend < 0}
+              >
+                <i
+                  class="bi {uploadTrend > 0 ? 'bi-arrow-up' : 'bi-arrow-down'}"
+                ></i>
                 {Math.abs(uploadTrend)}% this week
               </p>
             {/if}
           </div>
         </div>
-        
+
         <!-- Active Shares -->
         <div class="stat-card">
           <div class="stat-icon shares-stat-icon">
@@ -188,7 +224,7 @@
             </p>
           </div>
         </div>
-        
+
         <!-- Active Users -->
         <div class="stat-card">
           <div class="stat-icon users-stat-icon">
@@ -203,7 +239,7 @@
             </p>
           </div>
         </div>
-        
+
         <!-- Sessions -->
         <div class="stat-card">
           <div class="stat-icon sessions-stat-icon">
@@ -446,7 +482,16 @@
   }
 
   .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1.5rem;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
 
   .dashboard-title {
@@ -460,6 +505,60 @@
 
   :global(.dark) .dashboard-title {
     color: #f9fafb;
+  }
+
+  .last-refresh {
+    font-size: 0.75rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  :global(.dark) .last-refresh {
+    color: #9ca3af;
+  }
+
+  .refresh-btn {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .refresh-btn:hover:not(:disabled) {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+  }
+
+  .refresh-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  :global(.dark) .refresh-btn {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+
+  :global(.dark) .refresh-btn:hover:not(:disabled) {
+    background: #4b5563;
+  }
+
+  .spinning {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
 
   /* Skeleton classes are from global animations.css */
