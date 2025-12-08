@@ -8,7 +8,7 @@
   let activeTab = $state("users");
   let loading = $state(true);
   let stats = $state(null);
-  
+
   // Guest users
   let guestUsers = $state([]);
   let showGuestModal = $state(false);
@@ -24,7 +24,7 @@
     can_upload: false,
     can_comment: false,
   });
-  
+
   // Access links
   let accessLinks = $state([]);
   let showLinkModal = $state(false);
@@ -40,7 +40,7 @@
     can_download: true,
     can_upload: false,
   });
-  
+
   // Invitations
   let invitations = $state([]);
   let showInvitationModal = $state(false);
@@ -53,7 +53,7 @@
     can_upload: false,
     can_comment: false,
   });
-  
+
   // Activity
   let selectedGuestActivity = $state(null);
   let guestActivity = $state([]);
@@ -65,13 +65,18 @@
   async function loadData() {
     loading = true;
     try {
-      const [statsRes, guestsRes, linksRes, invitationsRes] = await Promise.all([
-        guests.getStats().catch(() => null),
-        guests.list({ includeExpired: false, includeInactive: false }),
-        guests.listLinks({ includeExpired: false, includeInactive: false }),
-        guests.listInvitations({ includeExpired: false, includeAccepted: false }),
-      ]);
-      
+      const [statsRes, guestsRes, linksRes, invitationsRes] = await Promise.all(
+        [
+          guests.getStats().catch(() => null),
+          guests.list({ includeExpired: false, includeInactive: false }),
+          guests.listLinks({ includeExpired: false, includeInactive: false }),
+          guests.listInvitations({
+            includeExpired: false,
+            includeAccepted: false,
+          }),
+        ]
+      );
+
       stats = statsRes;
       guestUsers = guestsRes?.guests || [];
       accessLinks = linksRes?.links || [];
@@ -120,7 +125,7 @@
       addToast($t("guests.nameRequired"), "error");
       return;
     }
-    
+
     try {
       if (editingGuest) {
         await guests.update(editingGuest.id, guestForm);
@@ -139,7 +144,7 @@
 
   async function deleteGuest(guest) {
     if (!confirm($t("guests.deleteGuestConfirm"))) return;
-    
+
     try {
       await guests.delete(guest.id);
       addToast($t("guests.guestDeleted"), "success");
@@ -197,7 +202,7 @@
       addToast($t("guests.filePathRequired"), "error");
       return;
     }
-    
+
     try {
       if (editingLink) {
         await guests.updateLink(editingLink.id, linkForm);
@@ -227,7 +232,7 @@
 
   async function deleteLink(link) {
     if (!confirm($t("guests.deleteLinkConfirm"))) return;
-    
+
     try {
       await guests.deleteLink(link.id);
       addToast($t("guests.linkDeleted"), "success");
@@ -263,7 +268,7 @@
       addToast($t("guests.emailRequired"), "error");
       return;
     }
-    
+
     try {
       await guests.createInvitation(invitationForm);
       addToast($t("guests.invitationCreated"), "success");
@@ -287,7 +292,7 @@
 
   async function deleteInvitation(invitation) {
     if (!confirm($t("guests.deleteInvitationConfirm"))) return;
-    
+
     try {
       await guests.deleteInvitation(invitation.id);
       addToast($t("guests.invitationDeleted"), "success");
@@ -327,20 +332,36 @@
   {#if stats}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
       <div class="bg-base-200 rounded-xl p-4">
-        <div class="text-3xl font-bold text-primary">{stats.active_guests || 0}</div>
-        <div class="text-sm text-base-content/60">{$t("guests.activeGuests")}</div>
+        <div class="text-3xl font-bold text-primary">
+          {stats.active_guests || 0}
+        </div>
+        <div class="text-sm text-base-content/60">
+          {$t("guests.activeGuests")}
+        </div>
       </div>
       <div class="bg-base-200 rounded-xl p-4">
-        <div class="text-3xl font-bold text-secondary">{stats.active_links || 0}</div>
-        <div class="text-sm text-base-content/60">{$t("guests.activeLinks")}</div>
+        <div class="text-3xl font-bold text-secondary">
+          {stats.active_links || 0}
+        </div>
+        <div class="text-sm text-base-content/60">
+          {$t("guests.activeLinks")}
+        </div>
       </div>
       <div class="bg-base-200 rounded-xl p-4">
-        <div class="text-3xl font-bold text-accent">{stats.pending_invitations || 0}</div>
-        <div class="text-sm text-base-content/60">{$t("guests.pendingInvitations")}</div>
+        <div class="text-3xl font-bold text-accent">
+          {stats.pending_invitations || 0}
+        </div>
+        <div class="text-sm text-base-content/60">
+          {$t("guests.pendingInvitations")}
+        </div>
       </div>
       <div class="bg-base-200 rounded-xl p-4">
-        <div class="text-3xl font-bold text-info">{stats.total_accesses || 0}</div>
-        <div class="text-sm text-base-content/60">{$t("guests.totalAccesses")}</div>
+        <div class="text-3xl font-bold text-info">
+          {stats.total_accesses || 0}
+        </div>
+        <div class="text-sm text-base-content/60">
+          {$t("guests.totalAccesses")}
+        </div>
       </div>
     </div>
   {/if}
@@ -348,21 +369,27 @@
   <!-- Tabs -->
   <div class="tabs tabs-boxed mb-6 bg-base-200 p-1">
     <button
-      class="tab {activeTab === 'users' ? 'tab-active bg-primary text-primary-content' : ''}"
+      class="tab {activeTab === 'users'
+        ? 'tab-active bg-primary text-primary-content'
+        : ''}"
       onclick={() => (activeTab = "users")}
     >
       <i class="bi bi-person-badge mr-2"></i>
       {$t("guests.tabUsers")}
     </button>
     <button
-      class="tab {activeTab === 'links' ? 'tab-active bg-primary text-primary-content' : ''}"
+      class="tab {activeTab === 'links'
+        ? 'tab-active bg-primary text-primary-content'
+        : ''}"
       onclick={() => (activeTab = "links")}
     >
       <i class="bi bi-link-45deg mr-2"></i>
       {$t("guests.tabLinks")}
     </button>
     <button
-      class="tab {activeTab === 'invitations' ? 'tab-active bg-primary text-primary-content' : ''}"
+      class="tab {activeTab === 'invitations'
+        ? 'tab-active bg-primary text-primary-content'
+        : ''}"
       onclick={() => (activeTab = "invitations")}
     >
       <i class="bi bi-envelope mr-2"></i>
@@ -410,10 +437,18 @@
                 <td>{guest.email || "-"}</td>
                 <td>
                   <div class="flex gap-1">
-                    {#if guest.can_view}<span class="badge badge-sm badge-outline">View</span>{/if}
-                    {#if guest.can_download}<span class="badge badge-sm badge-outline">DL</span>{/if}
-                    {#if guest.can_upload}<span class="badge badge-sm badge-outline">UL</span>{/if}
-                    {#if guest.can_comment}<span class="badge badge-sm badge-outline">Comment</span>{/if}
+                    {#if guest.can_view}<span
+                        class="badge badge-sm badge-outline">View</span
+                      >{/if}
+                    {#if guest.can_download}<span
+                        class="badge badge-sm badge-outline">DL</span
+                      >{/if}
+                    {#if guest.can_upload}<span
+                        class="badge badge-sm badge-outline">UL</span
+                      >{/if}
+                    {#if guest.can_comment}<span
+                        class="badge badge-sm badge-outline">Comment</span
+                      >{/if}
                   </div>
                 </td>
                 <td>
@@ -422,7 +457,9 @@
                 </td>
                 <td>
                   {#if isExpired(guest.expires_at)}
-                    <span class="badge badge-error badge-sm">{$t("guests.expired")}</span>
+                    <span class="badge badge-error badge-sm"
+                      >{$t("guests.expired")}</span
+                    >
                   {:else}
                     {formatDate(guest.expires_at)}
                   {/if}
@@ -458,7 +495,6 @@
         </table>
       </div>
     {/if}
-
   {:else if activeTab === "links"}
     <!-- Access Links Tab -->
     <div class="flex justify-end mb-4">
@@ -477,11 +513,19 @@
     {:else}
       <div class="space-y-3">
         {#each accessLinks as link}
-          <div class="bg-base-200 rounded-xl p-4 {!link.is_active ? 'opacity-50' : ''}">
+          <div
+            class="bg-base-200 rounded-xl p-4 {!link.is_active
+              ? 'opacity-50'
+              : ''}"
+          >
             <div class="flex items-start justify-between">
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-2">
-                  <i class="bi {link.access_type === 'folder' ? 'bi-folder' : 'bi-file-earmark'} text-primary"></i>
+                  <i
+                    class="bi {link.access_type === 'folder'
+                      ? 'bi-folder'
+                      : 'bi-file-earmark'} text-primary"
+                  ></i>
                   <span class="font-mono text-sm">{link.file_path}</span>
                   {#if link.password_hash}
                     <span class="badge badge-warning badge-sm">
@@ -493,7 +537,8 @@
                 <div class="flex gap-4 text-sm text-base-content/60">
                   <span>
                     <i class="bi bi-eye mr-1"></i>
-                    {link.access_count} {$t("guests.accessCount").toLowerCase()}
+                    {link.access_count}
+                    {$t("guests.accessCount").toLowerCase()}
                   </span>
                   {#if link.expires_at}
                     <span>
@@ -538,7 +583,6 @@
         {/each}
       </div>
     {/if}
-
   {:else if activeTab === "invitations"}
     <!-- Invitations Tab -->
     <div class="flex justify-end mb-4">
@@ -552,7 +596,9 @@
       <div class="text-center py-12 bg-base-200 rounded-xl">
         <i class="bi bi-envelope text-5xl text-base-content/30"></i>
         <p class="mt-4 text-base-content/60">{$t("guests.noInvitations")}</p>
-        <p class="text-sm text-base-content/40">{$t("guests.noInvitationsHint")}</p>
+        <p class="text-sm text-base-content/40">
+          {$t("guests.noInvitationsHint")}
+        </p>
       </div>
     {:else}
       <div class="overflow-x-auto">
@@ -571,15 +617,25 @@
                 <td>{invitation.email}</td>
                 <td>
                   <div class="flex gap-1">
-                    {#if invitation.can_view}<span class="badge badge-sm badge-outline">View</span>{/if}
-                    {#if invitation.can_download}<span class="badge badge-sm badge-outline">DL</span>{/if}
-                    {#if invitation.can_upload}<span class="badge badge-sm badge-outline">UL</span>{/if}
-                    {#if invitation.can_comment}<span class="badge badge-sm badge-outline">Comment</span>{/if}
+                    {#if invitation.can_view}<span
+                        class="badge badge-sm badge-outline">View</span
+                      >{/if}
+                    {#if invitation.can_download}<span
+                        class="badge badge-sm badge-outline">DL</span
+                      >{/if}
+                    {#if invitation.can_upload}<span
+                        class="badge badge-sm badge-outline">UL</span
+                      >{/if}
+                    {#if invitation.can_comment}<span
+                        class="badge badge-sm badge-outline">Comment</span
+                      >{/if}
                   </div>
                 </td>
                 <td>
                   {#if isExpired(invitation.expires_at)}
-                    <span class="badge badge-error badge-sm">{$t("guests.expired")}</span>
+                    <span class="badge badge-error badge-sm"
+                      >{$t("guests.expired")}</span
+                    >
                   {:else}
                     {formatDate(invitation.expires_at)}
                   {/if}
@@ -619,7 +675,7 @@
       <h3 class="font-bold text-lg mb-4">
         {editingGuest ? $t("guests.editGuest") : $t("guests.createGuest")}
       </h3>
-      
+
       <div class="space-y-4">
         <div class="form-control">
           <label class="label" for="guest-name">
@@ -633,7 +689,7 @@
             placeholder="John Doe"
           />
         </div>
-        
+
         <div class="form-control">
           <label class="label" for="guest-email">
             <span class="label-text">{$t("guests.guestEmail")}</span>
@@ -646,13 +702,17 @@
             placeholder="john@example.com"
           />
         </div>
-        
+
         <div class="grid grid-cols-2 gap-4">
           <div class="form-control">
             <label class="label" for="guest-expires">
               <span class="label-text">{$t("guests.expiresIn")}</span>
             </label>
-            <select id="guest-expires" class="select select-bordered" bind:value={guestForm.expires_in_days}>
+            <select
+              id="guest-expires"
+              class="select select-bordered"
+              bind:value={guestForm.expires_in_days}
+            >
               <option value={7}>7 {$t("guests.days")}</option>
               <option value={14}>14 {$t("guests.days")}</option>
               <option value={30}>30 {$t("guests.days")}</option>
@@ -660,7 +720,7 @@
               <option value={365}>365 {$t("guests.days")}</option>
             </select>
           </div>
-          
+
           <div class="form-control">
             <label class="label" for="guest-max">
               <span class="label-text">{$t("guests.maxAccesses")}</span>
@@ -675,7 +735,7 @@
             />
           </div>
         </div>
-        
+
         <div class="form-control">
           <label class="label" for="guest-notes">
             <span class="label-text">{$t("guests.guestNotes")}</span>
@@ -687,32 +747,48 @@
             rows="2"
           ></textarea>
         </div>
-        
-        <div class="form-control">
-          <label class="label">
+
+        <fieldset class="form-control">
+          <legend class="label">
             <span class="label-text">{$t("guests.permissions")}</span>
-          </label>
+          </legend>
           <div class="flex flex-wrap gap-4">
             <label class="label cursor-pointer gap-2">
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" bind:checked={guestForm.can_view} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-sm"
+                bind:checked={guestForm.can_view}
+              />
               <span class="label-text">{$t("guests.canView")}</span>
             </label>
             <label class="label cursor-pointer gap-2">
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" bind:checked={guestForm.can_download} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-sm"
+                bind:checked={guestForm.can_download}
+              />
               <span class="label-text">{$t("guests.canDownload")}</span>
             </label>
             <label class="label cursor-pointer gap-2">
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" bind:checked={guestForm.can_upload} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-sm"
+                bind:checked={guestForm.can_upload}
+              />
               <span class="label-text">{$t("guests.canUpload")}</span>
             </label>
             <label class="label cursor-pointer gap-2">
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" bind:checked={guestForm.can_comment} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-sm"
+                bind:checked={guestForm.can_comment}
+              />
               <span class="label-text">{$t("guests.canComment")}</span>
             </label>
           </div>
-        </div>
+        </fieldset>
       </div>
-      
+
       <div class="modal-action">
         <button class="btn" onclick={() => (showGuestModal = false)}>
           {$t("guests.cancel")}
@@ -722,7 +798,14 @@
         </button>
       </div>
     </div>
-    <div class="modal-backdrop" onclick={() => (showGuestModal = false)}></div>
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Close modal"
+      onclick={() => (showGuestModal = false)}
+      onkeydown={(e) => e.key === "Escape" && (showGuestModal = false)}
+    ></div>
   </div>
 {/if}
 
@@ -733,7 +816,7 @@
       <h3 class="font-bold text-lg mb-4">
         {editingLink ? $t("guests.editLink") : $t("guests.createLink")}
       </h3>
-      
+
       <div class="space-y-4">
         <div class="form-control">
           <label class="label" for="link-path">
@@ -747,23 +830,31 @@
             placeholder="/documents/report.pdf"
           />
         </div>
-        
+
         <div class="grid grid-cols-2 gap-4">
           <div class="form-control">
             <label class="label" for="link-type">
               <span class="label-text">{$t("guests.accessType")}</span>
             </label>
-            <select id="link-type" class="select select-bordered" bind:value={linkForm.access_type}>
+            <select
+              id="link-type"
+              class="select select-bordered"
+              bind:value={linkForm.access_type}
+            >
               <option value="file">{$t("guests.typeFile")}</option>
               <option value="folder">{$t("guests.typeFolder")}</option>
             </select>
           </div>
-          
+
           <div class="form-control">
             <label class="label" for="link-expires">
               <span class="label-text">{$t("guests.expiresIn")}</span>
             </label>
-            <select id="link-expires" class="select select-bordered" bind:value={linkForm.expires_in_days}>
+            <select
+              id="link-expires"
+              class="select select-bordered"
+              bind:value={linkForm.expires_in_days}
+            >
               <option value={1}>1 {$t("guests.days")}</option>
               <option value={7}>7 {$t("guests.days")}</option>
               <option value={14}>14 {$t("guests.days")}</option>
@@ -772,7 +863,7 @@
             </select>
           </div>
         </div>
-        
+
         <div class="form-control">
           <label class="label" for="link-password">
             <span class="label-text">{$t("guests.password")}</span>
@@ -785,7 +876,7 @@
             placeholder={$t("guests.noPassword")}
           />
         </div>
-        
+
         <div class="form-control">
           <label class="label" for="link-max">
             <span class="label-text">{$t("guests.maxAccesses")}</span>
@@ -799,28 +890,38 @@
             min="1"
           />
         </div>
-        
+
         <div class="form-control">
-          <label class="label">
-            <span class="label-text">{$t("guests.permissions")}</span>
-          </label>
-          <div class="flex flex-wrap gap-4">
+          <span class="label-text">{$t("guests.permissions")}</span>
+          <div class="flex flex-wrap gap-4 mt-2">
             <label class="label cursor-pointer gap-2">
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" bind:checked={linkForm.can_view} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-sm"
+                bind:checked={linkForm.can_view}
+              />
               <span class="label-text">{$t("guests.canView")}</span>
             </label>
             <label class="label cursor-pointer gap-2">
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" bind:checked={linkForm.can_download} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-sm"
+                bind:checked={linkForm.can_download}
+              />
               <span class="label-text">{$t("guests.canDownload")}</span>
             </label>
             <label class="label cursor-pointer gap-2">
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" bind:checked={linkForm.can_upload} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-sm"
+                bind:checked={linkForm.can_upload}
+              />
               <span class="label-text">{$t("guests.canUpload")}</span>
             </label>
           </div>
         </div>
       </div>
-      
+
       <div class="modal-action">
         <button class="btn" onclick={() => (showLinkModal = false)}>
           {$t("guests.cancel")}
@@ -830,7 +931,7 @@
         </button>
       </div>
     </div>
-    <div class="modal-backdrop" onclick={() => (showLinkModal = false)}></div>
+    <div class="modal-backdrop" role="button" tabindex="0" aria-label="Close modal" onclick={() => (showLinkModal = false)} onkeydown={(e) => e.key === 'Escape' && (showLinkModal = false)}></div>
   </div>
 {/if}
 
@@ -839,7 +940,7 @@
   <div class="modal modal-open">
     <div class="modal-box">
       <h3 class="font-bold text-lg mb-4">{$t("guests.sendInvitation")}</h3>
-      
+
       <div class="space-y-4">
         <div class="form-control">
           <label class="label" for="invite-email">
@@ -853,19 +954,23 @@
             placeholder="guest@example.com"
           />
         </div>
-        
+
         <div class="form-control">
           <label class="label" for="invite-expires">
             <span class="label-text">{$t("guests.expiresIn")}</span>
           </label>
-          <select id="invite-expires" class="select select-bordered" bind:value={invitationForm.expires_in_days}>
+          <select
+            id="invite-expires"
+            class="select select-bordered"
+            bind:value={invitationForm.expires_in_days}
+          >
             <option value={1}>1 {$t("guests.days")}</option>
             <option value={7}>7 {$t("guests.days")}</option>
             <option value={14}>14 {$t("guests.days")}</option>
             <option value={30}>30 {$t("guests.days")}</option>
           </select>
         </div>
-        
+
         <div class="form-control">
           <label class="label" for="invite-message">
             <span class="label-text">{$t("guests.inviteMessage")}</span>
@@ -878,32 +983,46 @@
             placeholder="Optional personal message..."
           ></textarea>
         </div>
-        
+
         <div class="form-control">
-          <label class="label">
-            <span class="label-text">{$t("guests.permissions")}</span>
-          </label>
-          <div class="flex flex-wrap gap-4">
+          <span class="label-text">{$t("guests.permissions")}</span>
+          <div class="flex flex-wrap gap-4 mt-2">
             <label class="label cursor-pointer gap-2">
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" bind:checked={invitationForm.can_view} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-sm"
+                bind:checked={invitationForm.can_view}
+              />
               <span class="label-text">{$t("guests.canView")}</span>
             </label>
             <label class="label cursor-pointer gap-2">
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" bind:checked={invitationForm.can_download} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-sm"
+                bind:checked={invitationForm.can_download}
+              />
               <span class="label-text">{$t("guests.canDownload")}</span>
             </label>
             <label class="label cursor-pointer gap-2">
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" bind:checked={invitationForm.can_upload} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-sm"
+                bind:checked={invitationForm.can_upload}
+              />
               <span class="label-text">{$t("guests.canUpload")}</span>
             </label>
             <label class="label cursor-pointer gap-2">
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" bind:checked={invitationForm.can_comment} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-sm"
+                bind:checked={invitationForm.can_comment}
+              />
               <span class="label-text">{$t("guests.canComment")}</span>
             </label>
           </div>
         </div>
       </div>
-      
+
       <div class="modal-action">
         <button class="btn" onclick={() => (showInvitationModal = false)}>
           {$t("guests.cancel")}
@@ -913,7 +1032,14 @@
         </button>
       </div>
     </div>
-    <div class="modal-backdrop" onclick={() => (showInvitationModal = false)}></div>
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Close modal"
+      onclick={() => (showInvitationModal = false)}
+      onkeydown={(e) => e.key === 'Escape' && (showInvitationModal = false)}
+    ></div>
   </div>
 {/if}
 
@@ -924,7 +1050,7 @@
       <h3 class="font-bold text-lg mb-4">
         {$t("guests.guestActivity")}: {selectedGuestActivity.display_name}
       </h3>
-      
+
       {#if guestActivity.length === 0}
         <div class="text-center py-8 text-base-content/60">
           <i class="bi bi-activity text-3xl mb-2"></i>
@@ -938,21 +1064,34 @@
               <div class="flex-1">
                 <span class="font-medium">{activity.action}</span>
                 {#if activity.file_path}
-                  <span class="text-sm text-base-content/60 ml-2">{activity.file_path}</span>
+                  <span class="text-sm text-base-content/60 ml-2"
+                    >{activity.file_path}</span
+                  >
                 {/if}
               </div>
-              <span class="text-xs text-base-content/40">{formatDate(activity.accessed_at)}</span>
+              <span class="text-xs text-base-content/40"
+                >{formatDate(activity.accessed_at)}</span
+              >
             </div>
           {/each}
         </div>
       {/if}
-      
+
       <div class="modal-action">
         <button class="btn" onclick={() => (selectedGuestActivity = null)}>
           Close
         </button>
       </div>
     </div>
-    <div class="modal-backdrop" onclick={() => (selectedGuestActivity = null)}></div>
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label={$t("common.close")}
+      onclick={() => (selectedGuestActivity = null)}
+      onkeydown={(e) =>
+        (e.key === "Enter" || e.key === " ") &&
+        (selectedGuestActivity = null)}
+    ></div>
   </div>
 {/if}
