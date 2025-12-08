@@ -19,6 +19,13 @@ export const translations = {
     tools: 'WERKZEUGE',
     system: 'SYSTEM',
     
+    // Admin Section
+    'admin.title': 'Administration',
+    'admin.userAccess': 'Benutzer & Zugriff',
+    'admin.systemManagement': 'System',
+    'admin.storageSecurity': 'Speicher & Sicherheit',
+    'admin.configuration': 'Konfiguration',
+    
     // Smart Folders
     'smartFolders.title': 'Smart Folders',
     'smartFolders.subtitle': 'Erstelle dynamische Ordner basierend auf Regeln',
@@ -3597,6 +3604,7 @@ export const translations = {
       auto_system: 'System-Einstellung',
     },
   },
+  en: {
     // Navigation
     files: 'Files',
     shared: 'Shared',
@@ -3614,6 +3622,13 @@ export const translations = {
     main: 'MAIN',
     tools: 'TOOLS',
     system: 'SYSTEM',
+    
+    // Admin Section
+    'admin.title': 'Administration',
+    'admin.userAccess': 'Users & Access',
+    'admin.systemManagement': 'System',
+    'admin.storageSecurity': 'Storage & Security',
+    'admin.configuration': 'Configuration',
     
     // Smart Folders
     'smartFolders.title': 'Smart Folders',

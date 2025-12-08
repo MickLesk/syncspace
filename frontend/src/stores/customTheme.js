@@ -1,6 +1,6 @@
 import { writable, derived } from 'svelte/store';
-import { toast } from './toast.js';
-import { t } from '$lib/i18n.js';
+import { showToast } from './toast.js';
+import { t } from '../i18n.js';
 
 /**
  * Theme Customization Store

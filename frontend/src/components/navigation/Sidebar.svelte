@@ -68,8 +68,9 @@
     return null;
   }
 
-  // Navigation items
+  // Navigation items - simplified and consolidated
   let navItems = $derived([
+    // Main navigation
     {
       id: "dashboard",
       icon: "speedometer2",
@@ -95,20 +96,6 @@
       category: "main",
     },
     {
-      id: "smart-folders",
-      icon: "lightning-fill",
-      label: t($currentLang, "smartFolders") || "Smart Folders",
-      category: "main",
-    },
-    {
-      id: "activity",
-      icon: "clock-history",
-      label: t($currentLang, "activityHistory"),
-      category: "main",
-      badge: notificationCount,
-      badgeColor: "purple",
-    },
-    {
       id: "shared",
       icon: "share-fill",
       label: t($currentLang, "shared"),
@@ -116,6 +103,7 @@
       badge: sharedCount,
       badgeColor: "blue",
     },
+    // Tools section
     {
       id: "trash",
       icon: "trash-fill",
@@ -136,106 +124,18 @@
       label: t($currentLang, "tagCloud") || "Tags",
       category: "tools",
     },
+    // Admin section - single entry point to Admin page with tabs
     {
-      id: "users",
-      icon: "people-fill",
-      label: t($currentLang, "users") || "Users",
+      id: "admin",
+      icon: "gear-wide-connected",
+      label: t($currentLang, "admin.title") || "Administration",
       category: "admin",
     },
-    {
-      id: "guests",
-      icon: "person-badge",
-      label: t($currentLang, "guests.title") || "Guest Access",
-      category: "admin",
-    },
-    {
-      id: "roles",
-      icon: "person-badge-fill",
-      label: t($currentLang, "roles.title") || "Role Management",
-      category: "admin",
-    },
-    {
-      id: "workflows",
-      icon: "diagram-3-fill",
-      label: t($currentLang, "workflows.title") || "Workflows",
-      category: "admin",
-    },
-    {
-      id: "backup",
-      icon: "cloud-arrow-up-fill",
-      label: t($currentLang, "backup.title") || "Backup & Restore",
-      category: "admin",
-    },
-    {
-      id: "jobs-queue",
-      icon: "list-task",
-      label: t($currentLang, "jobs.title") || "Jobs Queue",
-      category: "admin",
-    },
-    {
-      id: "cloud-storage",
-      icon: "cloud-fill",
-      label: t($currentLang, "cloudStorage.title") || "Cloud Storage",
-      category: "admin",
-    },
-    {
-      id: "encryption",
-      icon: "shield-lock-fill",
-      label: t($currentLang, "encryption.title") || "Encryption",
-      category: "admin",
-    },
-    {
-      id: "quota",
-      icon: "pie-chart-fill",
-      label: t($currentLang, "quota.title") || "Storage Quota",
-      category: "admin",
-    },
-    {
-      id: "system-config",
-      icon: "sliders",
-      label: t($currentLang, "systemConfig.title") || "System Configuration",
-      category: "admin",
-    },
-    {
-      id: "user-groups",
-      icon: "people",
-      label: t($currentLang, "groups.title") || "User Groups",
-      category: "admin",
-    },
-    {
-      id: "webhooks",
-      icon: "link-45deg",
-      label: t($currentLang, "webhooks.title") || "Webhooks",
-      category: "admin",
-    },
-    {
-      id: "audit",
-      icon: "shield-check",
-      label: t($currentLang, "audit.title") || "Audit & Compliance",
-      category: "system",
-    },
-    {
-      id: "notifications",
-      icon: "bell-fill",
-      label: t($currentLang, "notifications") || "Notifications",
-      category: "system",
-    },
-    {
-      id: "storage-analytics",
-      icon: "bar-chart-line-fill",
-      label: t($currentLang, "storageAnalytics"),
-      category: "system",
-    },
+    // System section
     {
       id: "settings",
       icon: "gear-fill",
       label: t($currentLang, "settings"),
-      category: "system",
-    },
-    {
-      id: "theme-customization",
-      icon: "palette-fill",
-      label: t($currentLang, "theme.title") || "Theme",
       category: "system",
     },
   ]);

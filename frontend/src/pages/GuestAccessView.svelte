@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { t } from "../i18n.js";
   import { guests } from "../lib/api.js";
-  import { addToast } from "../stores/toast.js";
+  import { showToast } from "../stores/toast.js";
 
   // State
   let activeTab = $state("users");
@@ -83,7 +83,7 @@
       invitations = invitationsRes?.invitations || [];
     } catch (error) {
       console.error("Failed to load guest data:", error);
-      addToast($t("guests.loadError"), "error");
+      showToast($t("guests.loadError"), "error");
     } finally {
       loading = false;
     }
@@ -122,23 +122,23 @@
 
   async function saveGuest() {
     if (!guestForm.display_name.trim()) {
-      addToast($t("guests.nameRequired"), "error");
+      showToast($t("guests.nameRequired"), "error");
       return;
     }
 
     try {
       if (editingGuest) {
         await guests.update(editingGuest.id, guestForm);
-        addToast($t("guests.guestUpdated"), "success");
+        showToast($t("guests.guestUpdated"), "success");
       } else {
         await guests.create(guestForm);
-        addToast($t("guests.guestCreated"), "success");
+        showToast($t("guests.guestCreated"), "success");
       }
       showGuestModal = false;
       await loadData();
     } catch (error) {
       console.error("Failed to save guest:", error);
-      addToast($t("guests.createError"), "error");
+      showToast($t("guests.createError"), "error");
     }
   }
 
@@ -147,11 +147,11 @@
 
     try {
       await guests.delete(guest.id);
-      addToast($t("guests.guestDeleted"), "success");
+      showToast($t("guests.guestDeleted"), "success");
       await loadData();
     } catch (error) {
       console.error("Failed to delete guest:", error);
-      addToast($t("guests.deleteError"), "error");
+      showToast($t("guests.deleteError"), "error");
     }
   }
 
@@ -199,34 +199,34 @@
 
   async function saveLink() {
     if (!linkForm.file_path.trim()) {
-      addToast($t("guests.filePathRequired"), "error");
+      showToast($t("guests.filePathRequired"), "error");
       return;
     }
 
     try {
       if (editingLink) {
         await guests.updateLink(editingLink.id, linkForm);
-        addToast($t("guests.linkUpdated"), "success");
+        showToast($t("guests.linkUpdated"), "success");
       } else {
         await guests.createLink(linkForm);
-        addToast($t("guests.linkCreated"), "success");
+        showToast($t("guests.linkCreated"), "success");
       }
       showLinkModal = false;
       await loadData();
     } catch (error) {
       console.error("Failed to save link:", error);
-      addToast($t("guests.createError"), "error");
+      showToast($t("guests.createError"), "error");
     }
   }
 
   async function toggleLink(link) {
     try {
       await guests.toggleLink(link.id);
-      addToast($t("guests.linkToggled"), "success");
+      showToast($t("guests.linkToggled"), "success");
       await loadData();
     } catch (error) {
       console.error("Failed to toggle link:", error);
-      addToast($t("guests.updateError"), "error");
+      showToast($t("guests.updateError"), "error");
     }
   }
 
@@ -235,18 +235,18 @@
 
     try {
       await guests.deleteLink(link.id);
-      addToast($t("guests.linkDeleted"), "success");
+      showToast($t("guests.linkDeleted"), "success");
       await loadData();
     } catch (error) {
       console.error("Failed to delete link:", error);
-      addToast($t("guests.deleteError"), "error");
+      showToast($t("guests.deleteError"), "error");
     }
   }
 
   function copyLink(link) {
     const url = `${window.location.origin}/guest/${link.token}`;
     navigator.clipboard.writeText(url);
-    addToast($t("guests.linkCopied"), "success");
+    showToast($t("guests.linkCopied"), "success");
   }
 
   // Invitation Functions
@@ -265,28 +265,28 @@
 
   async function sendInvitation() {
     if (!invitationForm.email.trim()) {
-      addToast($t("guests.emailRequired"), "error");
+      showToast($t("guests.emailRequired"), "error");
       return;
     }
 
     try {
       await guests.createInvitation(invitationForm);
-      addToast($t("guests.invitationCreated"), "success");
+      showToast($t("guests.invitationCreated"), "success");
       showInvitationModal = false;
       await loadData();
     } catch (error) {
       console.error("Failed to send invitation:", error);
-      addToast($t("guests.createError"), "error");
+      showToast($t("guests.createError"), "error");
     }
   }
 
   async function resendInvitation(invitation) {
     try {
       await guests.resendInvitation(invitation.id);
-      addToast($t("guests.invitationResent"), "success");
+      showToast($t("guests.invitationResent"), "success");
     } catch (error) {
       console.error("Failed to resend invitation:", error);
-      addToast($t("guests.updateError"), "error");
+      showToast($t("guests.updateError"), "error");
     }
   }
 
@@ -295,11 +295,11 @@
 
     try {
       await guests.deleteInvitation(invitation.id);
-      addToast($t("guests.invitationDeleted"), "success");
+      showToast($t("guests.invitationDeleted"), "success");
       await loadData();
     } catch (error) {
       console.error("Failed to delete invitation:", error);
-      addToast($t("guests.deleteError"), "error");
+      showToast($t("guests.deleteError"), "error");
     }
   }
 

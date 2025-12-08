@@ -43,7 +43,10 @@
   import DuplicatesView from "./pages/tools/DuplicatesView.svelte";
   import TagCloudView from "./pages/TagCloudView.svelte";
 
-  // Jobs & System Management
+  // Admin View - Consolidated admin page with tabs
+  import AdminView from "./pages/admin/AdminView.svelte";
+
+  // Jobs & System Management (legacy - kept for direct access if needed)
   import JobsDashboard from "./pages/JobsDashboard.svelte";
   import JobsQueueView from "./pages/jobs/JobsQueueView.svelte";
   import RoleManagementView from "./pages/rbac/RoleManagementView.svelte";
@@ -547,6 +550,8 @@
                 <GuestAccessView />
               {:else if $currentView === "theme-customization"}
                 <ThemeCustomizationView />
+              {:else if $currentView === "admin"}
+                <AdminView />
               {/if}
             </main>
           </ErrorBoundary>
