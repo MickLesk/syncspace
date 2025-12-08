@@ -4012,6 +4012,7 @@ export const api = {
   systemHealth,
   apiTokens,
   encryption,
+  quota,
 };
 
 // ============================================================================
@@ -4155,6 +4156,57 @@ export const encryption = {
       method: "PUT",
       headers: getHeaders(),
       body: JSON.stringify(settings),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ============================================================================
+// STORAGE QUOTA MANAGEMENT
+// ============================================================================
+
+export const quota = {
+  /**
+   * Get current user's quota info
+   */
+  async getMyQuota() {
+    const response = await fetch(`${API_BASE}/quota`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get all users' quota info (admin only)
+   */
+  async listAll() {
+    const response = await fetch(`${API_BASE}/quota/all`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get quota info for a specific user (admin only)
+   * @param {string} userId - User ID
+   */
+  async getUserQuota(userId) {
+    const response = await fetch(`${API_BASE}/quota/${userId}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Set quota for a user (admin only)
+   * @param {string} userId - User ID
+   * @param {number} quotaBytes - Quota in bytes
+   */
+  async setUserQuota(userId, quotaBytes) {
+    const response = await fetch(`${API_BASE}/quota/${userId}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify({ quota_bytes: quotaBytes }),
     });
     return handleResponse(response);
   },

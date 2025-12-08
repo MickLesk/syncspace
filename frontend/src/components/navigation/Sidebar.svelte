@@ -178,6 +178,12 @@
       category: "admin",
     },
     {
+      id: "quota",
+      icon: "pie-chart-fill",
+      label: t($currentLang, "quota.title") || "Storage Quota",
+      category: "admin",
+    },
+    {
       id: "webhooks",
       icon: "link-45deg",
       label: t($currentLang, "webhooks.title") || "Webhooks",

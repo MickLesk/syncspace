@@ -54,6 +54,7 @@
   import SystemHealthView from "./pages/admin/SystemHealthView.svelte";
   import StorageAnalyticsView from "./pages/analytics/StorageAnalyticsView.svelte";
   import EncryptionView from "./pages/EncryptionView.svelte";
+  import QuotaManagementView from "./pages/QuotaManagementView.svelte";
 
   // User & Settings Views
   import SettingsView from "./pages/settings/SettingsView.svelte";
@@ -512,6 +513,8 @@
                 <CloudStorageView />
               {:else if $currentView === "encryption"}
                 <EncryptionView />
+              {:else if $currentView === "quota"}
+                <QuotaManagementView />
               {:else if $currentView === "audit"}
                 <AuditComplianceView />
               {:else if $currentView === "dashboard"}
