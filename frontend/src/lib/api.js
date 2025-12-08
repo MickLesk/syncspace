@@ -4013,6 +4013,7 @@ export const api = {
   apiTokens,
   encryption,
   quota,
+  groups,
 };
 
 // ============================================================================
@@ -4207,6 +4208,135 @@ export const quota = {
       method: "PUT",
       headers: getHeaders(),
       body: JSON.stringify({ quota_bytes: quotaBytes }),
+    });
+    return handleResponse(response);
+  },
+};
+
+// USER GROUPS API
+export const groups = {
+  /**
+   * List all user groups
+   */
+  async list() {
+    const response = await fetch(`${API_BASE}/groups`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a new group
+   * @param {string} name - Group name
+   * @param {string} description - Group description (optional)
+   */
+  async create(name, description = null) {
+    const response = await fetch(`${API_BASE}/groups`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ name, description }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get group details with members
+   * @param {string} groupId - Group ID
+   */
+  async get(groupId) {
+    const response = await fetch(`${API_BASE}/groups/${groupId}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a group
+   * @param {string} groupId - Group ID
+   */
+  async delete(groupId) {
+    const response = await fetch(`${API_BASE}/groups/${groupId}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Add a member to a group
+   * @param {string} groupId - Group ID
+   * @param {string} userId - User ID to add
+   */
+  async addMember(groupId, userId) {
+    const response = await fetch(`${API_BASE}/groups/${groupId}/members`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ user_id: userId }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Remove a member from a group
+   * @param {string} groupId - Group ID
+   * @param {string} userId - User ID to remove
+   */
+  async removeMember(groupId, userId) {
+    const response = await fetch(`${API_BASE}/groups/${groupId}/members/${userId}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get user roles
+   * @param {string} userId - User ID
+   */
+  async getUserRoles(userId) {
+    const response = await fetch(`${API_BASE}/users/${userId}/roles`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Assign a role to a user
+   * @param {string} userId - User ID
+   * @param {string} role - Role to assign (admin, moderator, user, guest)
+   */
+  async assignRole(userId, role) {
+    const response = await fetch(`${API_BASE}/users/${userId}/roles`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ role }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Suspend a user
+   * @param {string} userId - User ID
+   * @param {string} reason - Suspension reason
+   * @param {number} durationDays - Suspension duration in days (optional)
+   */
+  async suspendUser(userId, reason, durationDays = null) {
+    const response = await fetch(`${API_BASE}/users/${userId}/suspend`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ reason, duration_days: durationDays }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Unsuspend a user
+   * @param {string} userId - User ID
+   */
+  async unsuspendUser(userId) {
+    const response = await fetch(`${API_BASE}/users/${userId}/unsuspend`, {
+      method: "POST",
+      headers: getHeaders(),
     });
     return handleResponse(response);
   },
