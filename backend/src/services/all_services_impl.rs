@@ -546,6 +546,7 @@ pub mod activity {
     use super::*;
 
     /// All supported activity action types
+    #[allow(dead_code)]
     pub mod actions {
         // File operations
         pub const UPLOAD: &str = "upload";
@@ -636,6 +637,7 @@ pub mod activity {
 
     /// List activities with pagination and permission filtering
     /// Only shows activities for files/folders the user can access
+    #[allow(dead_code)]
     pub async fn list(
         state: &AppState,
         user: &UserInfo,

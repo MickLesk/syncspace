@@ -16,6 +16,7 @@ pub struct ActivityQuery {
     #[serde(default = "default_limit")]
     pub limit: usize,
     #[serde(default)]
+    #[allow(dead_code)]
     pub offset: usize,
     pub action: Option<String>,
 }
