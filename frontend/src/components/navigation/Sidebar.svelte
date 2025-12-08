@@ -130,6 +130,12 @@
       category: "tools",
     },
     {
+      id: "tag-cloud",
+      icon: "tags-fill",
+      label: t($currentLang, "tagCloud") || "Tags",
+      category: "tools",
+    },
+    {
       id: "users",
       icon: "people-fill",
       label: t($currentLang, "users") || "Users",
@@ -163,6 +169,12 @@
       id: "audit",
       icon: "shield-check",
       label: t($currentLang, "audit.title") || "Audit & Compliance",
+      category: "system",
+    },
+    {
+      id: "notifications",
+      icon: "bell-fill",
+      label: t($currentLang, "notifications") || "Notifications",
       category: "system",
     },
     {
