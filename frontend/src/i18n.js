@@ -1,6 +1,12 @@
 // i18n translations for SyncSpace
 export const translations = {
   de: {
+    // Theme Toggle
+    toggleTheme: 'Design wechseln',
+    themeSystem: 'Systemeinstellung',
+    themeLight: 'Hellmodus',
+    themeDark: 'Dunkelmodus',
+    
     // Navigation
     files: 'Dateien',
     shared: 'Geteilt',
@@ -3927,6 +3933,12 @@ export const translations = {
     },
   },
   en: {
+    // Theme Toggle
+    toggleTheme: 'Toggle theme',
+    themeSystem: 'System setting',
+    themeLight: 'Light mode',
+    themeDark: 'Dark mode',
+    
     // Navigation
     files: 'Files',
     shared: 'Shared',

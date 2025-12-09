@@ -194,7 +194,7 @@
         <!-- Cloud Container -->
         <div class="lg:col-span-3">
           <div
-            class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-200 dark:border-gray-700"
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700"
           >
             <!-- Controls -->
             <div
@@ -287,7 +287,7 @@
         <div class="space-y-4">
           <!-- Filter Card -->
           <div
-            class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
           >
             <h3
               class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
@@ -363,7 +363,7 @@
           <!-- Selected Tags Card -->
           {#if selectedTagsArray.length > 0}
             <div
-              class="bg-green-50 dark:bg-green-900/20 rounded-2xl p-6 border border-green-200 dark:border-green-800"
+              class="bg-green-50 dark:bg-green-900/20 rounded-xl p-6 border border-green-200 dark:border-green-800"
             >
               <h3
                 class="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2"
@@ -410,7 +410,7 @@
 
           <!-- Stats Card -->
           <div
-            class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 border border-green-200 dark:border-green-800"
+            class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-6 border border-green-200 dark:border-green-800"
           >
             <h3
               class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"

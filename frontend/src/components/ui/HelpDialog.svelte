@@ -76,7 +76,7 @@
   >
     <!-- Dialog -->
     <div
-      class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden animate-scale-in"
+      class="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden animate-scale-in"
       onclick={(e) => e.stopPropagation()}
       onkeydown={(e) => e.key === "Escape" && closeDialog()}
       role="dialog"

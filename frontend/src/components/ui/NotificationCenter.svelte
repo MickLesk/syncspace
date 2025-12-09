@@ -93,9 +93,9 @@
     role="presentation"
   >
     <div
-      class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
+      class="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
       onclick={(e) => e.stopPropagation()}
-      role="dialog" tabindex="0"
+      role="dialog"
       aria-modal="true"
       aria-labelledby="notification-center-title"
       tabindex="-1"

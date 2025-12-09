@@ -103,7 +103,7 @@
   >
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="bg-base-100 rounded-2xl shadow-2xl w-full max-w-md"
+      class="bg-base-100 rounded-xl shadow-2xl w-full max-w-md"
       onclick={(e) => e.stopPropagation()}
       onkeydown={(e) => e.stopPropagation()}
       role="dialog"

@@ -205,7 +205,7 @@
     tabindex="0"
   >
     <div
-      class="w-full h-full max-w-7xl max-h-[90vh] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col"
+      class="w-full h-full max-w-7xl max-h-[90vh] bg-white dark:bg-gray-900 rounded-xl shadow-2xl flex flex-col"
     >
       <!-- Header -->
       <div

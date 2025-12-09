@@ -471,7 +471,11 @@
   });
 
   async function loadFiles(path = null) {
-    loading = true;
+    // Only show loading indicator after 150ms to prevent flicker on fast loads
+    const loadingTimeout = setTimeout(() => {
+      loading = true;
+    }, 150);
+    
     try {
       const targetPath = path || $currentPath;
       const response = await api.files.list(targetPath);
@@ -482,6 +486,7 @@
       errorToast(tr("failedToLoadFiles"));
       console.error(err);
     } finally {
+      clearTimeout(loadingTimeout);
       loading = false;
     }
   }
@@ -1228,7 +1233,7 @@
     <!-- Search Mode Banner -->
     {#if isSearchMode}
       <div
-        class="mb-4 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-teal-500/10 dark:from-green-500/20 dark:via-emerald-500/20 dark:to-teal-500/20 backdrop-blur-sm border border-green-200/50 dark:border-green-700/50 rounded-2xl p-4 flex items-center justify-between shadow-lg"
+        class="mb-4 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-teal-500/10 dark:from-green-500/20 dark:via-emerald-500/20 dark:to-teal-500/20 backdrop-blur-sm border border-green-200/50 dark:border-green-700/50 rounded-xl p-4 flex items-center justify-between shadow-lg"
       >
         <div class="flex items-center gap-3">
           <svg

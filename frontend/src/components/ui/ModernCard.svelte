@@ -22,7 +22,7 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
-  const baseClasses = "rounded-2xl transition-all duration-200";
+  const baseClasses = "rounded-xl transition-all duration-200";
 
   const variantClasses = {
     default:

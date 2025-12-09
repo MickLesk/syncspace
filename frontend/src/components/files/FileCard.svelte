@@ -188,7 +188,7 @@
       type="button"
       draggable="true"
       data-file-name={file.name}
-      class="file-card-grid p-5 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl dark:shadow-gray-900/50 text-left w-full transition-all border-2 {selected
+      class="file-card-grid p-5 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl dark:shadow-gray-900/50 text-left w-full transition-all border-2 {selected
         ? 'border-green-500 dark:border-green-500 bg-green-50 dark:bg-green-900/20'
         : isDropTarget
           ? 'border-green-400 bg-green-50'

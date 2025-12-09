@@ -394,22 +394,25 @@
   }
 
   .toggle-btn:hover {
-    color: #111827;
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
   }
 
   :global(.dark) .toggle-btn:hover {
-    color: #f3f4f6;
+    color: #4ade80;
+    background: rgba(34, 197, 94, 0.15);
   }
 
   .toggle-btn.active {
-    background: white;
-    color: #111827;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    box-shadow: 0 2px 6px rgba(34, 197, 94, 0.3);
   }
 
   :global(.dark) .toggle-btn.active {
-    background: #374151;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
     color: white;
+    box-shadow: 0 2px 6px rgba(34, 197, 94, 0.3);
   }
 
   /* Divider */

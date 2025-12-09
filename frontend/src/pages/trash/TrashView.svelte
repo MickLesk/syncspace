@@ -210,13 +210,14 @@
   });
 </script>
 
-<PageWrapper title={tr("trash")} showSidebar={true}>
+<PageWrapper showSidebar={true}>
   <div class="trash-view">
     <!-- Header -->
     <div class="view-header">
       <h1 class="view-title">
         <i class="bi bi-trash3-fill"></i>
         {tr("trash")}
+        <span class="item-count">{trashItems.length}</span>
       </h1>
       <div class="header-actions">
         <button
@@ -428,6 +429,17 @@
   :global(.dark) .view-title {
     color: #f9fafb;
   }
+
+  .item-count {
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    margin-left: 0.5rem;
+  }
+
   .header-actions {
     display: flex;
     gap: 0.5rem;

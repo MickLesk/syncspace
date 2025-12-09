@@ -143,7 +143,7 @@
 </script>
 
 <div
-  class="audio-player bg-gradient-to-br from-base-200 to-base-300 rounded-2xl p-6 shadow-lg"
+  class="audio-player bg-gradient-to-br from-base-200 to-base-300 rounded-xl p-6 shadow-lg"
 >
   <!-- Header with file info -->
   <div class="flex items-center gap-4 mb-6">

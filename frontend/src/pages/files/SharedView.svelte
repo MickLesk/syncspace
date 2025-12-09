@@ -524,7 +524,7 @@
       onkeydown={(e = tabindex = "0" > e.key === "Escape" && closeAnalytics())}
     >
       <div
-        class="max-w-7xl w-full max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 rounded-2xl shadow-2xl modal-content"
+        class="max-w-7xl w-full max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 rounded-xl shadow-2xl modal-content"
         role="button"
         tabindex="0"
         onclick={(e) => e.stopPropagation()}

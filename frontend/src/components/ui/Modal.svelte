@@ -125,7 +125,7 @@
       bind:this={modalElement}
       class="relative {sizeClasses[
         size
-      ]} w-full z-50 mx-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-slideIn"
+      ]} w-full z-50 mx-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-slideIn"
       class:modal-primary={variant === "primary"}
       class:modal-success={variant === "success"}
       class:modal-warning={variant === "warning"}
@@ -156,7 +156,7 @@
         >
           {#if icon}
             <div
-              class="w-12 h-12 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400"
+              class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400"
             >
               <i class="bi bi-{icon} text-2xl" aria-hidden="true"></i>
             </div>

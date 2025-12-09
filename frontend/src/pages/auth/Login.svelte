@@ -1,6 +1,6 @@
 <script>
   import { auth } from "../../stores/auth.js";
-  import { loading, currentLang } from "../../stores/ui.js";
+  import { loading, currentLang, theme } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import * as api from "../../lib/api.js";
   import { onMount } from "svelte";
@@ -18,12 +18,58 @@
   let backendOnline = $state(false);
   let checkingBackend = $state(true);
 
+  // Theme state: 'system', 'light', 'dark'
+  let currentTheme = $state("system");
+  let isDark = $state(false);
+
   // Check backend status on mount and periodically
   onMount(() => {
     checkBackendStatus();
     const interval = setInterval(checkBackendStatus, 3000); // Check every 3 seconds
-    return () => clearInterval(interval);
+
+    // Initialize theme from localStorage or system preference
+    initTheme();
+
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    mediaQuery.addEventListener("change", handleSystemThemeChange);
+
+    return () => {
+      clearInterval(interval);
+      mediaQuery.removeEventListener("change", handleSystemThemeChange);
+    };
   });
+
+  function initTheme() {
+    const stored = localStorage.getItem("loginTheme") || "system";
+    currentTheme = stored;
+    applyTheme(stored);
+  }
+
+  function handleSystemThemeChange(e) {
+    if (currentTheme === "system") {
+      isDark = e.matches;
+      document.documentElement.classList.toggle("dark", isDark);
+    }
+  }
+
+  function applyTheme(themeValue) {
+    if (themeValue === "system") {
+      isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    } else {
+      isDark = themeValue === "dark";
+    }
+    document.documentElement.classList.toggle("dark", isDark);
+  }
+
+  function cycleTheme() {
+    const themes = ["system", "light", "dark"];
+    const currentIndex = themes.indexOf(currentTheme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    currentTheme = themes[nextIndex];
+    localStorage.setItem("loginTheme", currentTheme);
+    applyTheme(currentTheme);
+  }
 
   async function checkBackendStatus() {
     try {
@@ -110,7 +156,34 @@
 </script>
 
 <!-- Background with animated gradient -->
-<div class="login-container">
+<div class="login-container" class:dark-mode={isDark}>
+  <!-- Theme Toggle -->
+  <button
+    class="theme-toggle"
+    onclick={cycleTheme}
+    aria-label={tr("toggleTheme")}
+    title={currentTheme === "system"
+      ? tr("themeSystem")
+      : currentTheme === "light"
+        ? tr("themeLight")
+        : tr("themeDark")}
+  >
+    {#if currentTheme === "system"}
+      <i class="bi bi-circle-half" aria-hidden="true"></i>
+    {:else if currentTheme === "light"}
+      <i class="bi bi-sun-fill" aria-hidden="true"></i>
+    {:else}
+      <i class="bi bi-moon-fill" aria-hidden="true"></i>
+    {/if}
+    <span class="theme-label">
+      {currentTheme === "system"
+        ? "Auto"
+        : currentTheme === "light"
+          ? "Light"
+          : "Dark"}
+    </span>
+  </button>
+
   <!-- Backend Status Indicator -->
   <div class="backend-status-indicator">
     <div class="status-circle {backendOnline ? 'online' : 'offline'}">
@@ -340,9 +413,26 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background: linear-gradient(
+      135deg,
+      #10b981 0%,
+      #059669 35%,
+      #047857 70%,
+      #065f46 100%
+    );
     overflow: hidden;
     padding: 1rem;
+    transition: background 0.3s ease;
+  }
+
+  .login-container.dark-mode {
+    background: linear-gradient(
+      135deg,
+      #064e3b 0%,
+      #065f46 35%,
+      #047857 70%,
+      #059669 100%
+    );
   }
 
   /* Animated Background Blobs */
@@ -357,7 +447,7 @@
   .blob-1 {
     width: 500px;
     height: 500px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #34d399, #10b981);
     top: -10%;
     left: -10%;
     animation-delay: 0s;
@@ -366,7 +456,7 @@
   .blob-2 {
     width: 400px;
     height: 400px;
-    background: linear-gradient(135deg, #f093fb, #f5576c);
+    background: linear-gradient(135deg, #6ee7b7, #059669);
     top: 40%;
     right: -5%;
     animation-delay: 5s;
@@ -375,7 +465,7 @@
   .blob-3 {
     width: 350px;
     height: 350px;
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    background: linear-gradient(135deg, #a7f3d0, #047857);
     bottom: -10%;
     left: 30%;
     animation-delay: 10s;
@@ -390,9 +480,9 @@
     padding: 2.5rem;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px) saturate(180%);
-    border-radius: 24px;
+    border-radius: 0.75rem;
     box-shadow:
-      0 8px 32px 0 rgba(31, 38, 135, 0.15),
+      0 8px 32px 0 rgba(16, 185, 129, 0.15),
       0 0 0 1px rgba(255, 255, 255, 0.18) inset;
     animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -413,11 +503,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #10b981, #059669);
     border-radius: 50%;
     box-shadow:
-      0 10px 40px rgba(102, 126, 234, 0.4),
-      0 0 0 8px rgba(102, 126, 234, 0.1);
+      0 10px 40px rgba(16, 185, 129, 0.4),
+      0 0 0 8px rgba(16, 185, 129, 0.1);
     animation: pulse 3s ease-in-out infinite;
   }
 
@@ -455,14 +545,14 @@
     100% {
       transform: scale(1);
       box-shadow:
-        0 10px 40px rgba(102, 126, 234, 0.4),
-        0 0 0 8px rgba(102, 126, 234, 0.1);
+        0 10px 40px rgba(16, 185, 129, 0.4),
+        0 0 0 8px rgba(16, 185, 129, 0.1);
     }
     50% {
       transform: scale(1.05);
       box-shadow:
-        0 15px 60px rgba(102, 126, 234, 0.6),
-        0 0 0 12px rgba(102, 126, 234, 0.15);
+        0 15px 60px rgba(16, 185, 129, 0.6),
+        0 0 0 12px rgba(16, 185, 129, 0.15);
     }
   }
 
@@ -615,5 +705,53 @@
       width: 10px;
       height: 10px;
     }
+
+    .theme-toggle {
+      top: 1rem;
+      left: 1rem;
+      padding: 0.375rem 0.75rem;
+    }
+
+    .theme-label {
+      display: none;
+    }
+  }
+
+  /* Theme Toggle Button */
+  .theme-toggle {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.35);
+    transform: translateY(-1px);
+  }
+
+  .theme-toggle i {
+    font-size: 1rem;
+  }
+
+  .theme-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 </style>
