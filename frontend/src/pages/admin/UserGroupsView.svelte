@@ -253,7 +253,11 @@
     <div class="alert alert-error mb-4">
       <i class="bi bi-exclamation-triangle"></i>
       <span>{error}</span>
-      <button class="btn btn-ghost btn-sm" onclick={() => (error = "")}>
+      <button
+        class="btn btn-ghost btn-sm"
+        onclick={() => (error = "")}
+        aria-label="Close"
+      >
         <i class="bi bi-x"></i>
       </button>
     </div>
@@ -463,25 +467,27 @@
 
       <div class="py-4 space-y-4">
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("groups.groupName")}</span>
-          </label>
+          </div>
           <input
             type="text"
             class="input input-bordered"
             placeholder={$t("groups.groupNamePlaceholder")}
             bind:value={newGroupName}
+            aria-label={$t("groups.groupName")}
           />
         </div>
 
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("groups.description")}</span>
-          </label>
+          </div>
           <textarea
             class="textarea textarea-bordered"
             placeholder={$t("groups.descriptionPlaceholder")}
             bind:value={newGroupDescription}
+            aria-label={$t("groups.description")}
           ></textarea>
         </div>
       </div>
@@ -508,7 +514,13 @@
         </button>
       </div>
     </div>
-    <div class="modal-backdrop" onclick={closeCreateModal}></div>
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="-1"
+      onclick={closeCreateModal}
+      onkeydown={(e) => e.key === "Escape" && closeCreateModal()}
+    ></div>
   </div>
 {/if}
 
@@ -523,12 +535,13 @@
 
       <div class="py-4">
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("groups.selectUser")}</span>
-          </label>
+          </div>
           <select
             class="select select-bordered w-full"
             bind:value={selectedUserId}
+            aria-label={$t("groups.selectUser")}
           >
             <option value="">{$t("groups.selectUserPlaceholder")}</option>
             {#each availableUsers as user}
@@ -562,7 +575,13 @@
         </button>
       </div>
     </div>
-    <div class="modal-backdrop" onclick={closeAddMemberModal}></div>
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="-1"
+      onclick={closeAddMemberModal}
+      onkeydown={(e) => e.key === "Escape" && closeAddMemberModal()}
+    ></div>
   </div>
 {/if}
 
@@ -595,7 +614,13 @@
         </button>
       </div>
     </div>
-    <div class="modal-backdrop" onclick={() => (showDeleteModal = false)}></div>
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="-1"
+      onclick={() => (showDeleteModal = false)}
+      onkeydown={(e) => e.key === "Escape" && (showDeleteModal = false)}
+    ></div>
   </div>
 {/if}
 
@@ -614,20 +639,21 @@
         </p>
 
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("groups.reason")}</span>
-          </label>
+          </div>
           <textarea
             class="textarea textarea-bordered"
             placeholder={$t("groups.reasonPlaceholder")}
             bind:value={suspendReason}
+            aria-label={$t("groups.reason")}
           ></textarea>
         </div>
 
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("groups.duration")}</span>
-          </label>
+          </div>
           <div class="flex gap-2">
             <input
               type="number"
@@ -635,6 +661,7 @@
               bind:value={suspendDuration}
               min="1"
               max="365"
+              aria-label={$t("groups.duration")}
             />
             <span class="btn btn-ghost pointer-events-none"
               >{$t("groups.days")}</span
@@ -667,7 +694,10 @@
     </div>
     <div
       class="modal-backdrop"
+      role="button"
+      tabindex="-1"
       onclick={() => (showSuspendModal = false)}
+      onkeydown={(e) => e.key === "Escape" && (showSuspendModal = false)}
     ></div>
   </div>
 {/if}

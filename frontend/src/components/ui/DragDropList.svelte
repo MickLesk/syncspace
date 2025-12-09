@@ -77,13 +77,14 @@
   });
 </script>
 
-<div class="drag-drop-list {className}">
+<div class="drag-drop-list {className}" role="list">
   {#each items as item, index (item.id || index)}
     <div
       class="drag-drop-item"
       class:dragging={isDragging === index}
       class:drag-over={dragOverIndex === index}
       draggable="true"
+      role="listitem"
       ondragstart={(e) => handleDragStart(e, index)}
       ondragend={(e) => handleDragEnd(e, index)}
       ondragover={(e) => handleDragOver(e, index)}
@@ -97,8 +98,10 @@
 
       <!-- Item Content -->
       <div class="item-content">
-        {@const RenderComponent = renderItem}
-        <RenderComponent {item} />
+        {#if renderItem}
+          {@const RenderComponent = renderItem}
+          <RenderComponent {item} />
+        {/if}
       </div>
 
       <!-- Drop Indicator -->

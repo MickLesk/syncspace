@@ -180,7 +180,11 @@
     <div class="alert alert-error mb-4">
       <i class="bi bi-exclamation-triangle"></i>
       <span>{error}</span>
-      <button class="btn btn-ghost btn-sm" onclick={() => (error = "")}>
+      <button
+        class="btn btn-ghost btn-sm"
+        onclick={() => (error = "")}
+        aria-label="Close"
+      >
         <i class="bi bi-x"></i>
       </button>
     </div>
@@ -437,9 +441,9 @@
         </div>
 
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("quota.newQuota")}</span>
-          </label>
+          </div>
           <div class="flex gap-2">
             <input
               type="number"
@@ -447,6 +451,7 @@
               bind:value={editQuotaValue}
               min="0"
               step="0.1"
+              aria-label={$t("quota.newQuota")}
             />
             <select
               class="select select-bordered w-24"
@@ -461,9 +466,9 @@
 
         <!-- Quick presets -->
         <div class="mt-4">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("quota.presets")}</span>
-          </label>
+          </div>
           <div class="flex flex-wrap gap-2">
             <button
               class="btn btn-sm btn-outline"
@@ -546,7 +551,13 @@
         </button>
       </div>
     </div>
-    <div class="modal-backdrop" onclick={closeEditModal}></div>
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="-1"
+      onclick={closeEditModal}
+      onkeydown={(e) => e.key === "Escape" && closeEditModal()}
+    ></div>
   </div>
 {/if}
 

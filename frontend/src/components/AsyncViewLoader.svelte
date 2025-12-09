@@ -11,7 +11,12 @@
 
   import { onMount } from "svelte";
 
-  let { component, fallback = null, error: errorComponent = null } = $props();
+  let {
+    component,
+    fallback = null,
+    error: errorComponent = null,
+    ...restProps
+  } = $props();
 
   let resolvedComponent = $state(null);
   let isLoading = $state(true);
@@ -84,7 +89,7 @@
   {/if}
 {:else if resolvedComponent}
   {@const ResolvedComp = resolvedComponent}
-  <ResolvedComp {...$$restProps} />
+  <ResolvedComp {...restProps} />
 {/if}
 
 <style>

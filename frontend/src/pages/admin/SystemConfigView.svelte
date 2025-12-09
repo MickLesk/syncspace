@@ -190,7 +190,11 @@
     <div class="alert alert-error mb-4">
       <i class="bi bi-exclamation-triangle"></i>
       <span>{error}</span>
-      <button class="btn btn-ghost btn-sm" onclick={() => (error = "")}>
+      <button
+        class="btn btn-ghost btn-sm"
+        onclick={() => (error = "")}
+        aria-label="Close"
+      >
         <i class="bi bi-x"></i>
       </button>
     </div>
@@ -296,11 +300,11 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text"
                   >{$t("systemConfig.trashRetention")}</span
                 >
-              </label>
+              </div>
               <div class="flex gap-2">
                 <input
                   type="number"
@@ -308,24 +312,25 @@
                   bind:value={config.trash_retention_days}
                   min="1"
                   max="365"
+                  aria-label={$t("systemConfig.trashRetention")}
                 />
                 <span class="btn btn-ghost pointer-events-none"
                   >{$t("systemConfig.days")}</span
                 >
               </div>
-              <label class="label">
+              <div class="label">
                 <span class="label-text-alt text-base-content/60"
                   >{$t("systemConfig.trashRetentionHint")}</span
                 >
-              </label>
+              </div>
             </div>
 
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text"
                   >{$t("systemConfig.versionRetention")}</span
                 >
-              </label>
+              </div>
               <div class="flex gap-2">
                 <input
                   type="number"
@@ -333,16 +338,17 @@
                   bind:value={config.version_retention_count}
                   min="1"
                   max="100"
+                  aria-label={$t("systemConfig.versionRetention")}
                 />
                 <span class="btn btn-ghost pointer-events-none"
                   >{$t("systemConfig.versions")}</span
                 >
               </div>
-              <label class="label">
+              <div class="label">
                 <span class="label-text-alt text-base-content/60"
                   >{$t("systemConfig.versionRetentionHint")}</span
                 >
-              </label>
+              </div>
             </div>
           </div>
         </div>
@@ -360,16 +366,17 @@
 
           <!-- Upload Size Limit -->
           <div class="form-control mb-6">
-            <label class="label">
+            <div class="label">
               <span class="label-text font-medium"
                 >{$t("systemConfig.maxUploadSize")}</span
               >
               <span class="label-text-alt"
                 >{formatBytes(config.max_upload_size)}</span
               >
-            </label>
+            </div>
             <input
               type="range"
+              aria-label={$t("systemConfig.maxUploadSize")}
               class="range range-primary"
               min={1048576}
               max={5368709120}
@@ -391,21 +398,22 @@
 
           <!-- Allowed File Types -->
           <div class="form-control">
-            <label class="label">
+            <div class="label">
               <span class="label-text font-medium"
                 >{$t("systemConfig.allowedFileTypes")}</span
               >
-            </label>
+            </div>
             <textarea
               class="textarea textarea-bordered h-24"
               placeholder="jpg, png, pdf, docx..."
               bind:value={config.allowed_file_types}
+              aria-label={$t("systemConfig.allowedFileTypes")}
             ></textarea>
-            <label class="label">
+            <div class="label">
               <span class="label-text-alt text-base-content/60"
                 >{$t("systemConfig.allowedFileTypesHint")}</span
               >
-            </label>
+            </div>
             <div class="flex flex-wrap gap-2 mt-2">
               {#each fileTypePresets as preset}
                 <button
@@ -434,17 +442,18 @@
           <h3 class="font-medium mb-4">{$t("systemConfig.passwordPolicy")}</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text"
                   >{$t("systemConfig.minPasswordLength")}</span
                 >
-              </label>
+              </div>
               <input
                 type="number"
                 class="input input-bordered"
                 bind:value={securitySettings.password_min_length}
                 min="6"
                 max="32"
+                aria-label={$t("systemConfig.minPasswordLength")}
               />
             </div>
 
@@ -506,11 +515,11 @@
           <h3 class="font-medium mb-4">{$t("systemConfig.sessionSettings")}</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text"
                   >{$t("systemConfig.sessionTimeout")}</span
                 >
-              </label>
+              </div>
               <div class="flex gap-2">
                 <input
                   type="number"
@@ -518,6 +527,7 @@
                   bind:value={securitySettings.session_timeout_minutes}
                   min="5"
                   max="1440"
+                  aria-label={$t("systemConfig.sessionTimeout")}
                 />
                 <span class="btn btn-ghost pointer-events-none"
                   >{$t("systemConfig.minutes")}</span
@@ -526,26 +536,27 @@
             </div>
 
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text"
                   >{$t("systemConfig.maxLoginAttempts")}</span
                 >
-              </label>
+              </div>
               <input
                 type="number"
                 class="input input-bordered"
                 bind:value={securitySettings.max_login_attempts}
                 min="3"
                 max="20"
+                aria-label={$t("systemConfig.maxLoginAttempts")}
               />
             </div>
 
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text"
                   >{$t("systemConfig.lockoutDuration")}</span
                 >
-              </label>
+              </div>
               <div class="flex gap-2">
                 <input
                   type="number"
@@ -553,6 +564,7 @@
                   bind:value={securitySettings.lockout_duration_minutes}
                   min="1"
                   max="60"
+                  aria-label={$t("systemConfig.lockoutDuration")}
                 />
                 <span class="btn btn-ghost pointer-events-none"
                   >{$t("systemConfig.minutes")}</span
@@ -637,91 +649,98 @@
             class:opacity-50={!smtpSettings.enabled}
           >
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text">{$t("systemConfig.smtpHost")}</span>
-              </label>
+              </div>
               <input
                 type="text"
                 class="input input-bordered"
                 placeholder="smtp.example.com"
                 bind:value={smtpSettings.host}
                 disabled={!smtpSettings.enabled}
+                aria-label={$t("systemConfig.smtpHost")}
               />
             </div>
 
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text">{$t("systemConfig.smtpPort")}</span>
-              </label>
+              </div>
               <input
                 type="number"
                 class="input input-bordered"
                 bind:value={smtpSettings.port}
                 disabled={!smtpSettings.enabled}
+                aria-label={$t("systemConfig.smtpPort")}
               />
             </div>
 
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text">{$t("systemConfig.smtpUsername")}</span
                 >
-              </label>
+              </div>
               <input
                 type="text"
                 class="input input-bordered"
                 bind:value={smtpSettings.username}
                 disabled={!smtpSettings.enabled}
+                aria-label={$t("systemConfig.smtpUsername")}
               />
             </div>
 
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text">{$t("systemConfig.smtpPassword")}</span
                 >
-              </label>
+              </div>
               <input
                 type="password"
                 class="input input-bordered"
                 placeholder="••••••••"
                 bind:value={smtpSettings.password}
                 disabled={!smtpSettings.enabled}
+                aria-label={$t("systemConfig.smtpPassword")}
               />
             </div>
 
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text">{$t("systemConfig.fromEmail")}</span>
-              </label>
+              </div>
               <input
                 type="email"
                 class="input input-bordered"
                 placeholder="noreply@example.com"
                 bind:value={smtpSettings.from_email}
                 disabled={!smtpSettings.enabled}
+                aria-label={$t("systemConfig.fromEmail")}
               />
             </div>
 
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text">{$t("systemConfig.fromName")}</span>
-              </label>
+              </div>
               <input
                 type="text"
                 class="input input-bordered"
                 placeholder="SyncSpace"
                 bind:value={smtpSettings.from_name}
                 disabled={!smtpSettings.enabled}
+                aria-label={$t("systemConfig.fromName")}
               />
             </div>
 
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text">{$t("systemConfig.encryption")}</span>
-              </label>
+              </div>
               <select
                 class="select select-bordered"
                 bind:value={smtpSettings.encryption}
                 disabled={!smtpSettings.enabled}
+                aria-label={$t("systemConfig.encryption")}
               >
                 <option value="none">{$t("systemConfig.encryptionNone")}</option
                 >

@@ -409,6 +409,7 @@
                       <button
                         class="btn btn-sm btn-ghost"
                         onclick={() => openQuotaModal(user)}
+                        aria-label="Edit quota"
                       >
                         <i class="bi bi-pencil"></i>
                       </button>
@@ -503,6 +504,7 @@
                       <button
                         class="btn btn-sm btn-ghost"
                         onclick={() => openQuotaModal(user)}
+                        aria-label="Edit quota"
                       >
                         <i class="bi bi-pencil"></i>
                       </button>
@@ -601,12 +603,14 @@
                         <button
                           class="btn btn-sm btn-ghost"
                           onclick={() => openRateLimitModal(limit)}
+                          aria-label="Edit rate limit"
                         >
                           <i class="bi bi-pencil"></i>
                         </button>
                         <button
                           class="btn btn-sm btn-ghost text-error"
                           onclick={() => deleteRateLimit(limit.id)}
+                          aria-label="Delete rate limit"
                         >
                           <i class="bi bi-trash"></i>
                         </button>
@@ -648,9 +652,9 @@
 
       {#if !quotaForm.is_unlimited}
         <div class="form-control mb-4">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("quotas.storageLimit")} (GB)</span>
-          </label>
+          </div>
           <input
             type="number"
             class="input input-bordered"
@@ -660,19 +664,21 @@
                 parseFloat(e.target.value) || 10
               ))}
             min="1"
+            aria-label="Storage limit in GB"
           />
         </div>
 
         <div class="form-control mb-4">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("quotas.warningThreshold")} (%)</span>
-          </label>
+          </div>
           <input
             type="number"
             class="input input-bordered"
             bind:value={quotaForm.warning_threshold_percent}
             min="50"
             max="99"
+            aria-label="Warning threshold percentage"
           />
         </div>
       {/if}
@@ -696,9 +702,9 @@
       {#if !bandwidthForm.is_unlimited}
         <div class="grid grid-cols-2 gap-4">
           <div class="form-control">
-            <label class="label">
+            <div class="label">
               <span class="label-text">{$t("quotas.dailyUpload")} (GB)</span>
-            </label>
+            </div>
             <input
               type="number"
               class="input input-bordered"
@@ -710,12 +716,13 @@
                   ? gbToBytes(parseFloat(e.target.value))
                   : null)}
               placeholder={$t("quotas.noLimit")}
+              aria-label="Daily upload limit in GB"
             />
           </div>
           <div class="form-control">
-            <label class="label">
+            <div class="label">
               <span class="label-text">{$t("quotas.dailyDownload")} (GB)</span>
-            </label>
+            </div>
             <input
               type="number"
               class="input input-bordered"
@@ -727,12 +734,13 @@
                   ? gbToBytes(parseFloat(e.target.value))
                   : null)}
               placeholder={$t("quotas.noLimit")}
+              aria-label="Daily download limit in GB"
             />
           </div>
           <div class="form-control">
-            <label class="label">
+            <div class="label">
               <span class="label-text">{$t("quotas.monthlyUpload")} (GB)</span>
-            </label>
+            </div>
             <input
               type="number"
               class="input input-bordered"
@@ -744,13 +752,14 @@
                   ? gbToBytes(parseFloat(e.target.value))
                   : null)}
               placeholder={$t("quotas.noLimit")}
+              aria-label="Monthly upload limit in GB"
             />
           </div>
           <div class="form-control">
-            <label class="label">
+            <div class="label">
               <span class="label-text">{$t("quotas.monthlyDownload")} (GB)</span
               >
-            </label>
+            </div>
             <input
               type="number"
               class="input input-bordered"
@@ -762,6 +771,7 @@
                   ? gbToBytes(parseFloat(e.target.value))
                   : null)}
               placeholder={$t("quotas.noLimit")}
+              aria-label="Monthly download limit in GB"
             />
           </div>
         </div>
@@ -776,7 +786,13 @@
         >
       </div>
     </div>
-    <div class="modal-backdrop" onclick={() => (showQuotaModal = false)}></div>
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="-1"
+      onclick={() => (showQuotaModal = false)}
+      onkeydown={(e) => e.key === "Escape" && (showQuotaModal = false)}
+    ></div>
   </div>
 {/if}
 
@@ -791,13 +807,14 @@
       </h3>
 
       <div class="form-control mb-4">
-        <label class="label">
+        <div class="label">
           <span class="label-text">{$t("quotas.targetType")}</span>
-        </label>
+        </div>
         <select
           class="select select-bordered"
           bind:value={rateLimitForm.role_name}
           onchange={() => (rateLimitForm.user_id = null)}
+          aria-label="Target type"
         >
           <option value={null}>{$t("quotas.selectRole")}</option>
           <option value="admin">Admin</option>
@@ -808,63 +825,68 @@
       </div>
 
       <div class="form-control mb-4">
-        <label class="label">
+        <div class="label">
           <span class="label-text">{$t("quotas.endpointPattern")}</span>
-        </label>
+        </div>
         <input
           type="text"
           class="input input-bordered font-mono"
           bind:value={rateLimitForm.endpoint_pattern}
           placeholder="* or /api/files/*"
+          aria-label="Endpoint pattern"
         />
-        <label class="label">
+        <div class="label">
           <span class="label-text-alt">{$t("quotas.endpointHelp")}</span>
-        </label>
+        </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("quotas.perMinute")}</span>
-          </label>
+          </div>
           <input
             type="number"
             class="input input-bordered"
             bind:value={rateLimitForm.requests_per_minute}
             min="1"
+            aria-label="Requests per minute"
           />
         </div>
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("quotas.perHour")}</span>
-          </label>
+          </div>
           <input
             type="number"
             class="input input-bordered"
             bind:value={rateLimitForm.requests_per_hour}
             min="1"
+            aria-label="Requests per hour"
           />
         </div>
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("quotas.perDay")}</span>
-          </label>
+          </div>
           <input
             type="number"
             class="input input-bordered"
             bind:value={rateLimitForm.requests_per_day}
             min="1"
+            aria-label="Requests per day"
           />
         </div>
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("quotas.burstLimit")}</span>
-          </label>
+          </div>
           <input
             type="number"
             class="input input-bordered"
             bind:value={rateLimitForm.burst_limit}
             min="1"
+            aria-label="Burst limit"
           />
         </div>
       </div>
@@ -893,7 +915,10 @@
     </div>
     <div
       class="modal-backdrop"
+      role="button"
+      tabindex="-1"
       onclick={() => (showRateLimitModal = false)}
+      onkeydown={(e) => e.key === "Escape" && (showRateLimitModal = false)}
     ></div>
   </div>
 {/if}

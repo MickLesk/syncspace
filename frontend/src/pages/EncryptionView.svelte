@@ -174,7 +174,11 @@
     <div class="alert alert-error m-4">
       <i class="bi bi-exclamation-triangle"></i>
       <span>{error}</span>
-      <button class="btn btn-ghost btn-sm" onclick={() => (error = null)}>
+      <button
+        class="btn btn-ghost btn-sm"
+        onclick={() => (error = null)}
+        aria-label="Close"
+      >
         <i class="bi bi-x-lg"></i>
       </button>
     </div>
@@ -380,11 +384,11 @@
 
               {#if settings.encryption_enabled && keys.length > 0}
                 <div class="form-control">
-                  <label class="label">
+                  <div class="label">
                     <span class="label-text font-medium"
                       >{$t("encryption.defaultKey")}</span
                     >
-                  </label>
+                  </div>
                   <select
                     class="select select-bordered w-full"
                     bind:value={settings.default_key_id}
@@ -424,41 +428,44 @@
       </h3>
       <div class="py-4 space-y-4">
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("encryption.keyName")}</span>
-          </label>
+          </div>
           <input
             type="text"
             class="input input-bordered w-full"
             placeholder={$t("encryption.keyNamePlaceholder")}
             bind:value={newKeyName}
+            aria-label={$t("encryption.keyName")}
           />
         </div>
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("encryption.password")}</span>
-          </label>
+          </div>
           <input
             type="password"
             class="input input-bordered w-full"
             placeholder={$t("encryption.passwordPlaceholder")}
             bind:value={newKeyPassword}
+            aria-label={$t("encryption.password")}
           />
-          <label class="label">
+          <div class="label">
             <span class="label-text-alt text-base-content/60"
               >{$t("encryption.passwordHint")}</span
             >
-          </label>
+          </div>
         </div>
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("encryption.confirmPassword")}</span>
-          </label>
+          </div>
           <input
             type="password"
             class="input input-bordered w-full"
             placeholder={$t("encryption.confirmPasswordPlaceholder")}
             bind:value={confirmPassword}
+            aria-label={$t("encryption.confirmPassword")}
           />
         </div>
       </div>
@@ -482,7 +489,10 @@
     </div>
     <div
       class="modal-backdrop"
+      role="button"
+      tabindex="-1"
       onclick={() => (showCreateKeyModal = false)}
+      onkeydown={(e) => e.key === "Escape" && (showCreateKeyModal = false)}
     ></div>
   </div>
 {/if}
@@ -500,34 +510,37 @@
       </p>
       <div class="py-4 space-y-4">
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("encryption.currentPassword")}</span>
-          </label>
+          </div>
           <input
             type="password"
             class="input input-bordered w-full"
             bind:value={rotateOldPassword}
+            aria-label={$t("encryption.currentPassword")}
           />
         </div>
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("encryption.newPassword")}</span>
-          </label>
+          </div>
           <input
             type="password"
             class="input input-bordered w-full"
             bind:value={rotateNewPassword}
+            aria-label={$t("encryption.newPassword")}
           />
         </div>
         <div class="form-control">
-          <label class="label">
+          <div class="label">
             <span class="label-text">{$t("encryption.confirmNewPassword")}</span
             >
-          </label>
+          </div>
           <input
             type="password"
             class="input input-bordered w-full"
             bind:value={rotateConfirmPassword}
+            aria-label={$t("encryption.confirmNewPassword")}
           />
         </div>
       </div>
@@ -552,7 +565,10 @@
     </div>
     <div
       class="modal-backdrop"
+      role="button"
+      tabindex="-1"
       onclick={() => (showRotateKeyModal = false)}
+      onkeydown={(e) => e.key === "Escape" && (showRotateKeyModal = false)}
     ></div>
   </div>
 {/if}
@@ -586,7 +602,10 @@
     </div>
     <div
       class="modal-backdrop"
+      role="button"
+      tabindex="-1"
       onclick={() => (showDeleteConfirm = false)}
+      onkeydown={(e) => e.key === "Escape" && (showDeleteConfirm = false)}
     ></div>
   </div>
 {/if}
