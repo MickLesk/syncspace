@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
-  import { api } from "../../lib/api";
-  import { t } from "../../i18n";
+  import api from "../../lib/api.js";
+  import { t } from "../../i18n.js";
 
   let schedules = $state([]);
   let backups = $state([]);

@@ -104,19 +104,24 @@
   });
 </script>
 
-<AppBar title={$t("jobs.title")} />
-
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="p-6">
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
-      <div>
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-          {$t("jobs.title")}
-        </h2>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          {$t("jobs.description")}
-        </p>
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg"
+        >
+          <i class="bi bi-list-task text-white text-lg" aria-hidden="true"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+            {$t("jobs.title")}
+          </h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            {$t("jobs.description")}
+          </p>
+        </div>
       </div>
 
       <button

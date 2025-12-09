@@ -34,10 +34,10 @@ pub fn router() -> Router<AppState> {
 /// Frontend should call: /api/file-tags/list?path={path}
 pub fn file_tags_router() -> Router<AppState> {
     Router::new()
-        .route("/api/file-tags/list", get(list_file_tags))
-        .route("/api/file-tags/create", post(create_file_tag))
-        .route("/api/file-tags/update/{tag_id}", put(update_file_tag))
-        .route("/api/file-tags/delete/{tag_id}", delete(delete_file_tag))
+        .route("/file-tags/list", get(list_file_tags))
+        .route("/file-tags/create", post(create_file_tag))
+        .route("/file-tags/update/{tag_id}", put(update_file_tag))
+        .route("/file-tags/delete/{tag_id}", delete(delete_file_tag))
 }
 
 async fn list_tags(

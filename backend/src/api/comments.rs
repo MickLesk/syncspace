@@ -288,14 +288,14 @@ pub fn router() -> Router<AppState> {
 /// Frontend should call: /api/file-comments/list?path={path}
 pub fn file_comments_router() -> Router<AppState> {
     Router::new()
-        .route("/api/file-comments/list", get(list_file_comments))
-        .route("/api/file-comments/create", post(create_file_comment))
+        .route("/file-comments/list", get(list_file_comments))
+        .route("/file-comments/create", post(create_file_comment))
         .route(
-            "/api/file-comments/update/{comment_id}",
+            "/file-comments/update/{comment_id}",
             put(update_file_comment),
         )
         .route(
-            "/api/file-comments/delete/{comment_id}",
+            "/file-comments/delete/{comment_id}",
             routing::delete(delete_file_comment),
         )
         .route(

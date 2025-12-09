@@ -232,44 +232,44 @@ async fn get_version_count(
     })))
 }
 
-/// Router
+/// Router - uses /file-versions/* prefix to avoid conflicts with /files/{*path} catch-all
 pub fn router() -> Router<AppState> {
     Router::new()
-        .route("/api/files/{file_id}/versions", get(list_file_versions))
+        .route("/file-versions/by-id/{file_id}", get(list_file_versions))
         .route(
-            "/api/files/{file_id}/versions/count",
+            "/file-versions/by-id/{file_id}/count",
             get(get_version_count),
         )
         .route(
-            "/api/files/{file_id}/versions/restore",
+            "/file-versions/by-id/{file_id}/restore",
             post(restore_version),
         )
-        .route("/api/versions/{version_id}", get(get_version_details))
+        .route("/file-versions/details/{version_id}", get(get_version_details))
 }
 
 /// File-scoped versions routes: /api/file-versions/*
 /// This is the primary interface for frontend
 pub fn file_versions_router() -> Router<AppState> {
     Router::new()
-        .route("/api/file-versions/list", get(list_path_versions))
+        .route("/file-versions/list", get(list_path_versions))
         .route(
-            "/api/file-versions/get/{version_num}",
+            "/file-versions/get/{version_num}",
             get(get_version_by_number),
         )
         .route(
-            "/api/file-versions/delete/{version_num}",
+            "/file-versions/delete/{version_num}",
             delete(delete_version_by_number),
         )
         .route(
-            "/api/file-versions/download/{version_num}",
+            "/file-versions/download/{version_num}",
             get(download_version_content),
         )
         .route(
-            "/api/file-versions/restore/{version_num}",
+            "/file-versions/restore/{version_num}",
             post(restore_version_by_number),
         )
-        .route("/api/file-versions/diff", post(diff_versions_content))
-        .route("/api/file-versions/cleanup", post(cleanup_old_versions))
+        .route("/file-versions/diff", post(diff_versions_content))
+        .route("/file-versions/cleanup", post(cleanup_old_versions))
 }
 
 // ============================================================================

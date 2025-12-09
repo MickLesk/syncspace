@@ -405,6 +405,80 @@ The `database.rs` file contains **ALL database models and connection setup**. It
 - **State updates**: Use Svelte runes correctly for reactivity
 - **Memory leaks**: Unsubscribe from WebSocket and interval timers
 
+## Accessibility (a11y) Requirements
+
+**CRITICAL: All Svelte components MUST follow these accessibility patterns to avoid compiler warnings.**
+
+### Buttons with Icons Only
+
+```svelte
+<!-- ❌ WRONG: No accessible label -->
+<button onclick={close}>
+  <i class="bi bi-x"></i>
+</button>
+
+<!-- ✅ CORRECT: Add aria-label -->
+<button onclick={close} aria-label="Close">
+  <i class="bi bi-x"></i>
+</button>
+```
+
+### Modal Backdrops
+
+```svelte
+<!-- ❌ WRONG: div with onclick but no keyboard support -->
+<div class="modal-backdrop" onclick={() => showModal = false}></div>
+
+<!-- ✅ CORRECT: Add role, tabindex, and keyboard handler -->
+<div 
+  class="modal-backdrop" 
+  role="button"
+  tabindex="-1"
+  onclick={() => showModal = false}
+  onkeydown={(e) => e.key === 'Escape' && (showModal = false)}
+></div>
+```
+
+### Form Labels
+
+```svelte
+<!-- ❌ WRONG: Label not associated with control -->
+<label class="label">
+  <span class="label-text">Username</span>
+</label>
+<input type="text" bind:value={username} />
+
+<!-- ✅ CORRECT Option 1: Wrap input in label -->
+<label class="label">
+  <span class="label-text">Username</span>
+  <input type="text" bind:value={username} />
+</label>
+
+<!-- ✅ CORRECT Option 2: Use for/id -->
+<label for="username" class="label">
+  <span class="label-text">Username</span>
+</label>
+<input id="username" type="text" bind:value={username} />
+
+<!-- ✅ CORRECT Option 3: Use aria-label on input (for visual-only labels) -->
+<div class="label">
+  <span class="label-text">Username</span>
+</div>
+<input type="text" bind:value={username} aria-label="Username" />
+```
+
+### Interactive Elements Checklist
+
+When creating UI components, always verify:
+
+1. **Buttons**: Have visible text OR `aria-label`
+2. **Links**: Have visible text OR `aria-label`  
+3. **Inputs**: Have associated `<label>` OR `aria-label`
+4. **Clickable divs**: Must have `role="button"`, `tabindex`, and `onkeydown`
+5. **Images**: Have `alt` attribute (empty `alt=""` for decorative images)
+6. **Modals**: Close on Escape key, trap focus inside
+7. **Icons**: Decorative icons use `aria-hidden="true"`
+
 ## Testing & Debugging
 
 **Backend Testing**:

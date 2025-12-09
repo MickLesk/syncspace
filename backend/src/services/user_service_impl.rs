@@ -164,7 +164,7 @@ pub async fn list_users(
     status_filter: Option<String>,
 ) -> Result<Vec<serde_json::Value>> {
     let mut query = String::from(
-        "SELECT id, username, email, display_name, avatar_base64, role, is_active, created_at 
+        "SELECT id, username, email, display_name, avatar_base64, role, status, created_at 
          FROM users WHERE 1=1",
     );
 
@@ -176,9 +176,9 @@ pub async fn list_users(
 
     if let Some(status) = &status_filter {
         if status == "active" {
-            conditions.push("is_active = 1".to_string());
+            conditions.push("status = 'active'".to_string());
         } else if status == "inactive" {
-            conditions.push("is_active = 0".to_string());
+            conditions.push("status = 'inactive'".to_string());
         }
     }
 
@@ -196,8 +196,8 @@ pub async fn list_users(
         email: Option<String>,
         display_name: Option<String>,
         avatar_base64: Option<String>,
-        role: String,
-        is_active: i32,
+        role: Option<String>,
+        status: Option<String>,
         created_at: String,
     }
 
@@ -212,8 +212,8 @@ pub async fn list_users(
                 "email": u.email,
                 "display_name": u.display_name,
                 "avatar_base64": u.avatar_base64,
-                "role": u.role,
-                "is_active": u.is_active == 1,
+                "role": u.role.unwrap_or_else(|| "user".to_string()),
+                "is_active": u.status.as_deref() == Some("active"),
                 "created_at": u.created_at,
             })
         })

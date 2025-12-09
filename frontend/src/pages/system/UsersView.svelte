@@ -21,12 +21,12 @@
 
   onMount(async () => {
     try {
-      const response =
-        (await api.users.listUsers?.()) || (await api.users.list?.());
+      // Use admin endpoint to get all users with full details
+      const response = await api.users.getAll();
       if (!response) {
         throw new Error("User list API not available");
       }
-      users = response;
+      users = Array.isArray(response) ? response : response.users || [];
     } catch (error) {
       console.error("Failed to load users from API:", error);
       showToast(tr("users.error_loading"), "error");

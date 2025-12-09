@@ -59,14 +59,8 @@
   // Load users
   async function loadUsers() {
     try {
-      const response = await fetch("http://localhost:8080/api/admin/users", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-      if (response.ok) {
-        users = await response.json();
-      }
+      const response = await api.users.getAll();
+      users = Array.isArray(response) ? response : response?.users || [];
     } catch (e) {
       console.error("Failed to load users:", e);
     }

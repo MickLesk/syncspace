@@ -10,6 +10,20 @@
   // Active tab state
   let activeTab = $state("general");
 
+  // Collapsible group state
+  let collapsedGroups = $state({
+    personal: false,
+    "admin-users": false,
+    "admin-system": false,
+    "admin-tools": false,
+    "admin-audit": false,
+    about: false,
+  });
+
+  function toggleGroup(groupId) {
+    collapsedGroups[groupId] = !collapsedGroups[groupId];
+  }
+
   // Check if user is admin
   let isAdmin = $derived(
     $auth?.user?.role === "admin" || $auth?.user?.is_admin
@@ -211,96 +225,158 @@
     <aside class="settings-sidebar">
       <!-- Personal Section -->
       <div class="settings-group">
-        <h3 class="group-title">{tr("settingsHub.personal") || "Personal"}</h3>
-        <nav class="settings-nav">
-          {#each personalTabs as tab}
-            <button
-              class="nav-item"
-              class:active={activeTab === tab.id}
-              onclick={() => setTab(tab.id)}
-            >
-              <i class="bi bi-{tab.icon}"></i>
-              <span>{tr(tab.label) || tab.label}</span>
-            </button>
-          {/each}
-        </nav>
+        <button
+          class="group-header"
+          onclick={() => toggleGroup("personal")}
+          aria-expanded={!collapsedGroups.personal}
+        >
+          <span class="group-title"
+            >{tr("settingsHub.personal") || "Personal"}</span
+          >
+          <i
+            class="bi bi-chevron-down toggle-icon"
+            class:collapsed={collapsedGroups.personal}
+          ></i>
+        </button>
+        {#if !collapsedGroups.personal}
+          <nav class="settings-nav">
+            {#each personalTabs as tab}
+              <button
+                class="nav-item"
+                class:active={activeTab === tab.id}
+                onclick={() => setTab(tab.id)}
+              >
+                <i class="bi bi-{tab.icon}"></i>
+                <span>{tr(tab.label) || tab.label}</span>
+              </button>
+            {/each}
+          </nav>
+        {/if}
       </div>
 
       {#if isAdmin}
         <!-- Admin: Users -->
         <div class="settings-group">
-          <h3 class="group-title">
-            {tr("settingsHub.userManagement") || "User Management"}
-          </h3>
-          <nav class="settings-nav">
-            {#each adminUserTabs as tab}
-              <button
-                class="nav-item"
-                class:active={activeTab === tab.id}
-                onclick={() => setTab(tab.id)}
-              >
-                <i class="bi bi-{tab.icon}"></i>
-                <span>{tr(tab.label) || tab.label}</span>
-              </button>
-            {/each}
-          </nav>
+          <button
+            class="group-header"
+            onclick={() => toggleGroup("admin-users")}
+            aria-expanded={!collapsedGroups["admin-users"]}
+          >
+            <span class="group-title"
+              >{tr("settingsHub.userManagement") || "User Management"}</span
+            >
+            <i
+              class="bi bi-chevron-down toggle-icon"
+              class:collapsed={collapsedGroups["admin-users"]}
+            ></i>
+          </button>
+          {#if !collapsedGroups["admin-users"]}
+            <nav class="settings-nav">
+              {#each adminUserTabs as tab}
+                <button
+                  class="nav-item"
+                  class:active={activeTab === tab.id}
+                  onclick={() => setTab(tab.id)}
+                >
+                  <i class="bi bi-{tab.icon}"></i>
+                  <span>{tr(tab.label) || tab.label}</span>
+                </button>
+              {/each}
+            </nav>
+          {/if}
         </div>
 
-        <!-- Admin: System -->
+        <!-- Admin: Storage -->
         <div class="settings-group">
-          <h3 class="group-title">
-            {tr("settingsHub.systemStorage") || "System & Storage"}
-          </h3>
-          <nav class="settings-nav">
-            {#each adminSystemTabs as tab}
-              <button
-                class="nav-item"
-                class:active={activeTab === tab.id}
-                onclick={() => setTab(tab.id)}
-              >
-                <i class="bi bi-{tab.icon}"></i>
-                <span>{tr(tab.label) || tab.label}</span>
-              </button>
-            {/each}
-          </nav>
+          <button
+            class="group-header"
+            onclick={() => toggleGroup("admin-system")}
+            aria-expanded={!collapsedGroups["admin-system"]}
+          >
+            <span class="group-title"
+              >{tr("settingsHub.storage") || "Storage"}</span
+            >
+            <i
+              class="bi bi-chevron-down toggle-icon"
+              class:collapsed={collapsedGroups["admin-system"]}
+            ></i>
+          </button>
+          {#if !collapsedGroups["admin-system"]}
+            <nav class="settings-nav">
+              {#each adminSystemTabs as tab}
+                <button
+                  class="nav-item"
+                  class:active={activeTab === tab.id}
+                  onclick={() => setTab(tab.id)}
+                >
+                  <i class="bi bi-{tab.icon}"></i>
+                  <span>{tr(tab.label) || tab.label}</span>
+                </button>
+              {/each}
+            </nav>
+          {/if}
         </div>
 
-        <!-- Admin: Tools -->
+        <!-- Admin: Automation -->
         <div class="settings-group">
-          <h3 class="group-title">
-            {tr("settingsHub.automation") || "Automation"}
-          </h3>
-          <nav class="settings-nav">
-            {#each adminToolsTabs as tab}
-              <button
-                class="nav-item"
-                class:active={activeTab === tab.id}
-                onclick={() => setTab(tab.id)}
-              >
-                <i class="bi bi-{tab.icon}"></i>
-                <span>{tr(tab.label) || tab.label}</span>
-              </button>
-            {/each}
-          </nav>
+          <button
+            class="group-header"
+            onclick={() => toggleGroup("admin-tools")}
+            aria-expanded={!collapsedGroups["admin-tools"]}
+          >
+            <span class="group-title"
+              >{tr("settingsHub.automation") || "Automation"}</span
+            >
+            <i
+              class="bi bi-chevron-down toggle-icon"
+              class:collapsed={collapsedGroups["admin-tools"]}
+            ></i>
+          </button>
+          {#if !collapsedGroups["admin-tools"]}
+            <nav class="settings-nav">
+              {#each adminToolsTabs as tab}
+                <button
+                  class="nav-item"
+                  class:active={activeTab === tab.id}
+                  onclick={() => setTab(tab.id)}
+                >
+                  <i class="bi bi-{tab.icon}"></i>
+                  <span>{tr(tab.label) || tab.label}</span>
+                </button>
+              {/each}
+            </nav>
+          {/if}
         </div>
 
-        <!-- Admin: Audit -->
+        <!-- Admin: Analytics & Audit -->
         <div class="settings-group">
-          <h3 class="group-title">
-            {tr("settingsHub.analytics") || "Analytics & Audit"}
-          </h3>
-          <nav class="settings-nav">
-            {#each adminAuditTabs as tab}
-              <button
-                class="nav-item"
-                class:active={activeTab === tab.id}
-                onclick={() => setTab(tab.id)}
-              >
-                <i class="bi bi-{tab.icon}"></i>
-                <span>{tr(tab.label) || tab.label}</span>
-              </button>
-            {/each}
-          </nav>
+          <button
+            class="group-header"
+            onclick={() => toggleGroup("admin-audit")}
+            aria-expanded={!collapsedGroups["admin-audit"]}
+          >
+            <span class="group-title"
+              >{tr("settingsHub.analytics") || "Analytics & Audit"}</span
+            >
+            <i
+              class="bi bi-chevron-down toggle-icon"
+              class:collapsed={collapsedGroups["admin-audit"]}
+            ></i>
+          </button>
+          {#if !collapsedGroups["admin-audit"]}
+            <nav class="settings-nav">
+              {#each adminAuditTabs as tab}
+                <button
+                  class="nav-item"
+                  class:active={activeTab === tab.id}
+                  onclick={() => setTab(tab.id)}
+                >
+                  <i class="bi bi-{tab.icon}"></i>
+                  <span>{tr(tab.label) || tab.label}</span>
+                </button>
+              {/each}
+            </nav>
+          {/if}
         </div>
       {/if}
 
@@ -448,17 +524,50 @@
     margin-bottom: 0;
   }
 
+  .group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.15s ease;
+  }
+
+  .group-header:hover {
+    background: var(--hover-bg, #f3f4f6);
+  }
+
+  :global(.dark) .group-header:hover {
+    background: var(--hover-bg-dark, #334155);
+  }
+
   .group-title {
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-muted, #6b7280);
-    margin-bottom: 0.5rem;
-    padding: 0 0.75rem;
   }
 
   :global(.dark) .group-title {
+    color: var(--text-muted-dark, #9ca3af);
+  }
+
+  .toggle-icon {
+    font-size: 0.75rem;
+    color: var(--text-muted, #6b7280);
+    transition: transform 0.2s ease;
+  }
+
+  .toggle-icon.collapsed {
+    transform: rotate(-90deg);
+  }
+
+  :global(.dark) .toggle-icon {
     color: var(--text-muted-dark, #9ca3af);
   }
 
@@ -466,6 +575,19 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    padding-top: 0.25rem;
+    animation: slideDown 0.2s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .nav-item {

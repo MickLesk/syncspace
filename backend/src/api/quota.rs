@@ -204,10 +204,10 @@ async fn list_all_quotas(
 /// Router
 pub fn router() -> Router<AppState> {
     Router::new()
-        .route("/api/quota", get(get_my_quota))
-        .route("/api/quota/all", get(list_all_quotas))
+        .route("/quota", get(get_my_quota))
+        .route("/quota/all", get(list_all_quotas))
         .route(
-            "/api/quota/{user_id}",
+            "/quota/{user_id}",
             get(get_user_quota).put(set_user_quota),
         )
 }

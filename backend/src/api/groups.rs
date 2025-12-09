@@ -367,22 +367,22 @@ async fn unsuspend_user(
 pub fn router() -> Router<AppState> {
     Router::new()
         // Groups
-        .route("/api/groups", get(list_groups).post(create_group))
+        .route("/groups", get(list_groups).post(create_group))
         .route(
-            "/api/groups/{group_id}",
+            "/groups/{group_id}",
             get(get_group).delete(delete_group),
         )
-        .route("/api/groups/{group_id}/members", post(add_member))
+        .route("/groups/{group_id}/members", post(add_member))
         .route(
-            "/api/groups/{group_id}/members/{user_id}",
+            "/groups/{group_id}/members/{user_id}",
             delete(remove_member),
         )
-        // Roles
+        // User group roles (different from RBAC roles)
         .route(
-            "/api/users/{user_id}/roles",
+            "/groups/users/{user_id}/roles",
             get(get_user_roles).post(assign_role),
         )
         // Suspensions
-        .route("/api/users/{user_id}/suspend", post(suspend_user))
-        .route("/api/users/{user_id}/unsuspend", post(unsuspend_user))
+        .route("/users/{user_id}/suspend", post(suspend_user))
+        .route("/users/{user_id}/unsuspend", post(unsuspend_user))
 }
