@@ -105,7 +105,10 @@
   <div class="register-container">
     <div class="register-header">
       <div class="logo">
-        <i class="bi bi-person-plus-fill text-5xl text-primary-600" aria-hidden="true"></i>
+        <i
+          class="bi bi-person-plus-fill text-5xl text-primary-600"
+          aria-hidden="true"
+        ></i>
       </div>
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
         Create Account
@@ -118,7 +121,8 @@
     {#if registrationEnabled === false}
       <ModernCard>
         <div class="text-center py-8">
-          <i class="bi bi-x-circle text-5xl text-error mb-4" aria-hidden="true"></i>
+          <i class="bi bi-x-circle text-5xl text-error mb-4" aria-hidden="true"
+          ></i>
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
             Registration Disabled
           </h2>
@@ -188,7 +192,7 @@
             <!-- Password -->
             <div class="form-control">
               <label class="label" for="password">
-                <span class="label-text">Password *</span>
+                <span class="label-text">{tr("password")} *</span>
               </label>
               <input
                 id="password"
@@ -201,14 +205,15 @@
                 disabled={loading}
               />
               <div class="label">
-                <span class="label-text-alt">Minimum 8 characters</span>
+                <span class="label-text-alt">{tr("passwordMinimum8Chars")}</span
+                >
               </div>
             </div>
 
             <!-- Password Confirmation -->
             <div class="form-control">
               <label class="label" for="password-confirm">
-                <span class="label-text">Confirm Password *</span>
+                <span class="label-text">{tr("confirmPassword")} *</span>
               </label>
               <input
                 id="password-confirm"
@@ -230,19 +235,19 @@
               {loading}
               disabled={loading}
             >
-              {loading ? "Creating Account..." : "Create Account"}
+              {loading ? tr("creatingAccount") : tr("createAccount")}
             </ModernButton>
 
             <!-- Login Link -->
             <div class="text-center mt-4">
               <span class="text-gray-600 dark:text-gray-400">
-                Already have an account?
+                {tr("alreadyHaveAccount")}
               </span>
               <a
                 href="#/login"
                 class="text-primary-600 hover:text-primary-700 font-medium ml-1"
               >
-                Sign In
+                {tr("signIn")}
               </a>
             </div>
           </div>

@@ -71,13 +71,13 @@
         user.avatar = e.target.result;
       };
       reader.readAsDataURL(file);
-      showToast("Avatar updated", "success");
+      showToast(tr("avatarUpdated"), "success");
     }
   }
 
   function saveProfile() {
     editMode = false;
-    showToast("Profile saved", "success");
+    showToast(tr("profileSavedSuccessfully"), "success");
   }
 </script>
 
@@ -284,8 +284,10 @@
                   class="glass-card p-4 rounded-xl hover:scale-[1.02] transition-transform cursor-pointer"
                 >
                   <div class="flex items-center gap-4">
-                    <i class="bi bi-file-earmark-fill text-3xl text-primary"
-                     aria-hidden="true"></i>
+                    <i
+                      class="bi bi-file-earmark-fill text-3xl text-primary"
+                      aria-hidden="true"
+                    ></i>
                     <div class="flex-1">
                       <div class="font-semibold text-base-content">
                         {file.name}
@@ -298,7 +300,8 @@
                       class="btn btn-ghost btn-sm btn-square"
                       aria-label="File options"
                     >
-                      <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+                      <i class="bi bi-three-dots-vertical" aria-hidden="true"
+                      ></i>
                     </button>
                   </div>
                 </div>

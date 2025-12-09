@@ -472,12 +472,12 @@
                 data={fileTypeChartData}
                 type="doughnut"
                 size="md"
-                title="Files"
+                title={tr("files")}
               />
             {:else}
               <div class="text-center py-12 text-gray-500 dark:text-gray-400">
                 <i class="bi bi-inbox text-5xl mb-3" aria-hidden="true"></i>
-                <p>No files yet</p>
+                <p>{tr("noFiles")}</p>
               </div>
             {/if}
           </div>
@@ -489,7 +489,7 @@
           >
             <i class="bi bi-bar-chart-fill text-green-600" aria-hidden="true"
             ></i>
-            Storage by Category
+            {tr("storageByCategory")}
           </h2>
           <div class="mt-4">
             {#if fileTypeChartData.length > 0}
@@ -497,7 +497,7 @@
             {:else}
               <div class="text-center py-12 text-gray-500 dark:text-gray-400">
                 <i class="bi bi-inbox text-5xl mb-3" aria-hidden="true"></i>
-                <p>No files yet</p>
+                <p>{tr("noFiles")}</p>
               </div>
             {/if}
           </div>

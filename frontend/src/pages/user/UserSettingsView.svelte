@@ -1,10 +1,13 @@
 <script>
   import { onMount } from "svelte";
   import { showToast } from "../../stores/toast.js";
-  import { theme, language } from "../../stores/ui.js";
+  import { theme, language, currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import api from "../../lib/api.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let loading = $state(false);
   let settings = $state({
@@ -40,7 +43,7 @@
       language.set(settings.language);
     } catch (err) {
       console.error("[UserSettings] Failed to load settings:", err);
-      showToast("Failed to load settings", "error");
+      showToast(tr("failedToLoadSettings"), "error");
     } finally {
       loading = false;
     }
@@ -72,10 +75,10 @@
       // Reload settings to verify persistence
       await loadUserSettings();
 
-      showToast("Settings saved successfully", "success");
+      showToast(tr("settingsSavedSuccessfully"), "success");
     } catch (err) {
       console.error("[UserSettings] Failed to save settings:", err);
-      showToast("Failed to save settings", "error");
+      showToast(tr("failedToSaveSettings"), "error");
     } finally {
       loading = false;
     }
@@ -90,8 +93,11 @@
         <h2
           class="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2"
         >
-          <i class="bi bi-palette text-primary-600 dark:text-primary-400" aria-hidden="true"></i>
-          Appearance
+          <i
+            class="bi bi-palette text-primary-600 dark:text-primary-400"
+            aria-hidden="true"
+          ></i>
+          {tr("appearance")}
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -101,16 +107,16 @@
               for="theme-select"
               class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1"
             >
-              Theme
+              {tr("theme")}
             </label>
             <select
               id="theme-select"
               bind:value={settings.theme}
               class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition"
             >
-              <option value="auto">🔄 Auto (System)</option>
-              <option value="light">☀️ Light Mode</option>
-              <option value="dark">🌙 Dark Mode</option>
+              <option value="auto">🔄 {tr("autoSystem")}</option>
+              <option value="light">☀️ {tr("lightMode")}</option>
+              <option value="dark">🌙 {tr("darkMode")}</option>
             </select>
           </div>
 
@@ -120,7 +126,7 @@
               for="language-select"
               class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1"
             >
-              Language
+              {tr("language")}
             </label>
             <select
               id="language-select"
@@ -140,15 +146,15 @@
               for="default-view-select"
               class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1"
             >
-              Default File View
+              {tr("defaultView")}
             </label>
             <select
               id="default-view-select"
               bind:value={settings.defaultView}
               class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition"
             >
-              <option value="grid">📱 Grid View</option>
-              <option value="list">📋 List View</option>
+              <option value="grid">📱 {tr("gridView")}</option>
+              <option value="list">📋 {tr("listView")}</option>
             </select>
           </div>
 
@@ -165,7 +171,7 @@
               ></div>
             </label>
             <div class="text-sm text-gray-700 dark:text-gray-300">
-              Compact Mode
+              {tr("compactMode")}
             </div>
           </div>
         </div>
@@ -180,8 +186,11 @@
         <h2
           class="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2"
         >
-          <i class="bi bi-bell text-primary-600 dark:text-primary-400" aria-hidden="true"></i>
-          Notifications
+          <i
+            class="bi bi-bell text-primary-600 dark:text-primary-400"
+            aria-hidden="true"
+          ></i>
+          {tr("notifications")}
         </h2>
 
         <div class="space-y-3">
@@ -190,7 +199,7 @@
             class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
           >
             <div class="text-sm text-gray-900 dark:text-gray-100">
-              Email Notifications
+              {tr("emailNotifications")}
             </div>
             <label class="relative inline-flex items-center cursor-pointer">
               <input
@@ -209,7 +218,7 @@
             class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
           >
             <div class="text-sm text-gray-900 dark:text-gray-100">
-              Desktop Notifications
+              {tr("desktopNotifications")}
             </div>
             <label class="relative inline-flex items-center cursor-pointer">
               <input
@@ -228,7 +237,7 @@
             class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
           >
             <div class="text-sm text-gray-900 dark:text-gray-100">
-              Sound Effects
+              {tr("soundEffects")}
             </div>
             <label class="relative inline-flex items-center cursor-pointer">
               <input
@@ -250,7 +259,7 @@
   <div class="flex justify-end">
     <ModernButton variant="gradient" onclick={saveSettings} disabled={loading}>
       <i class="bi bi-check-lg mr-2" aria-hidden="true"></i>
-      {loading ? "Saving..." : "Save Changes"}
+      {loading ? tr("saving") : tr("saveChanges")}
     </ModernButton>
   </div>
 </div>

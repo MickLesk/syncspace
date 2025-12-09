@@ -11,7 +11,9 @@
    */
 
   import { onMount } from "svelte";
-  import { t } from "../lib/i18n.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import {
     adminConsole,
     filteredUsers,
@@ -169,7 +171,8 @@
         class:border-transparent={activeTab !== "roles"}
         class:text-gray-600={activeTab !== "roles"}
       >
-        <i class="bi bi-shield-check" aria-hidden="true"></i> Roles
+        <i class="bi bi-shield-check" aria-hidden="true"></i>
+        {tr("roles")}
       </button>
 
       <button
@@ -180,7 +183,8 @@
         class:border-transparent={activeTab !== "audit"}
         class:text-gray-600={activeTab !== "audit"}
       >
-        <i class="bi bi-clock-history" aria-hidden="true"></i> Audit Log
+        <i class="bi bi-clock-history" aria-hidden="true"></i>
+        {tr("auditLog")}
       </button>
 
       <button
@@ -191,7 +195,8 @@
         class:border-transparent={activeTab !== "stats"}
         class:text-gray-600={activeTab !== "stats"}
       >
-        <i class="bi bi-bar-chart" aria-hidden="true"></i> Statistics
+        <i class="bi bi-bar-chart" aria-hidden="true"></i>
+        {tr("statistics")}
       </button>
     </div>
   </div>
@@ -216,10 +221,10 @@
             onchange={(e) => updateFilter({ role: e.target.value })}
             class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
           >
-            <option value="all">All Roles</option>
-            <option value="admin">Administrator</option>
-            <option value="moderator">Moderator</option>
-            <option value="user">User</option>
+            <option value="all">{tr("allRoles")}</option>
+            <option value="admin">{tr("administrator")}</option>
+            <option value="moderator">{tr("moderator")}</option>
+            <option value="user">{tr("user")}</option>
           </select>
 
           <select
@@ -227,9 +232,9 @@
             onchange={(e) => updateFilter({ status: e.target.value })}
             class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
           >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="all">{tr("allStatus")}</option>
+            <option value="active">{tr("active")}</option>
+            <option value="inactive">{tr("inactive")}</option>
           </select>
 
           <button
@@ -399,7 +404,7 @@
           {#if users.length === 0}
             <div class="p-8 text-center text-gray-500 dark:text-gray-400">
               <i class="bi bi-inbox text-4xl mb-2 block" aria-hidden="true"></i>
-              <p>No users found</p>
+              <p>{tr("noUsersFound")}</p>
             </div>
           {/if}
         </div>
@@ -429,23 +434,25 @@
             onchange={(e) => updateAuditFilter({ status: e.target.value })}
             class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
           >
-            <option value="all">All Status</option>
-            <option value="success">Success</option>
-            <option value="failed">Failed</option>
+            <option value="all">{tr("allStatus")}</option>
+            <option value="success">{tr("success")}</option>
+            <option value="failed">{tr("failed")}</option>
           </select>
 
           <button
             onclick={() => exportData("audit", "json")}
             class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
           >
-            <i class="bi bi-download" aria-hidden="true"></i> Export JSON
+            <i class="bi bi-download" aria-hidden="true"></i>
+            {tr("exportJSON")}
           </button>
 
           <button
             onclick={() => exportData("audit", "csv")}
             class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
           >
-            <i class="bi bi-download" aria-hidden="true"></i> Export CSV
+            <i class="bi bi-download" aria-hidden="true"></i>
+            {tr("exportCSV")}
           </button>
         </div>
 
@@ -517,7 +524,7 @@
           {#if auditLog.length === 0}
             <div class="p-8 text-center text-gray-500 dark:text-gray-400">
               <i class="bi bi-inbox text-4xl mb-2 block" aria-hidden="true"></i>
-              <p>No audit logs found</p>
+              <p>{tr("noAuditLogsFound")}</p>
             </div>
           {/if}
         </div>
@@ -528,14 +535,18 @@
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-            <p class="text-sm text-gray-600 dark:text-gray-400">Total Users</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              {tr("totalUsers")}
+            </p>
             <p class="text-3xl font-bold text-gray-900 dark:text-white">
               {userStatistics.total || 0}
             </p>
           </div>
 
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-            <p class="text-sm text-gray-600 dark:text-gray-400">Active Users</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              {tr("activeUsers")}
+            </p>
             <p class="text-3xl font-bold text-green-600">
               {userStatistics.active || 0}
             </p>
@@ -543,7 +554,7 @@
 
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
             <p class="text-sm text-gray-600 dark:text-gray-400">
-              Inactive Users
+              {tr("inactiveUsers")}
             </p>
             <p class="text-3xl font-bold text-gray-600">
               {userStatistics.inactive || 0}
@@ -551,7 +562,9 @@
           </div>
 
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-            <p class="text-sm text-gray-600 dark:text-gray-400">Storage Used</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              {tr("storageUsed")}
+            </p>
             <p class="text-3xl font-bold text-primary-600">
               {Math.round((storageStatistics.used || 0) / 1000000)} MB
             </p>

@@ -1061,7 +1061,7 @@
       {#if guestActivity.length === 0}
         <div class="text-center py-8 text-base-content/60">
           <i class="bi bi-activity text-3xl mb-2"></i>
-          <p>No activity recorded</p>
+          <p>{$t("guests.noActivity")}</p>
         </div>
       {:else}
         <div class="space-y-2 max-h-96 overflow-y-auto">

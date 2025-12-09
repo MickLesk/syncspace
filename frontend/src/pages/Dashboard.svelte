@@ -150,14 +150,14 @@
   }
 </script>
 
-<PageWrapper title="Dashboard" showSidebar={true}>
+<PageWrapper title={tr("dashboard.title")} showSidebar={true}>
   <div class="dashboard">
     <!-- Header -->
     <div class="dashboard-header">
       <div class="header-left">
         <h1 class="dashboard-title">
           <i class="bi bi-grid-1x2-fill"></i>
-          Dashboard
+          {tr("dashboard.title")}
         </h1>
         <span class="last-refresh">
           <i class="bi bi-clock"></i>
@@ -171,7 +171,8 @@
           lastRefresh = new Date();
         }}
         disabled={loading}
-        title="Refresh Dashboard"
+        title={tr("dashboard.refresh")}
+        aria-label={tr("dashboard.refresh")}
       >
         <i class="bi bi-arrow-clockwise {loading ? 'spinning' : ''}"></i>
       </button>
@@ -199,7 +200,7 @@
             <i class="bi bi-files"></i>
           </div>
           <div class="stat-content">
-            <p class="stat-label">Total Files</p>
+            <p class="stat-label">{tr("dashboard.totalFiles")}</p>
             <p class="stat-value">{totalFiles.toLocaleString()}</p>
             {#if uploadTrend !== 0}
               <p
@@ -210,7 +211,7 @@
                 <i
                   class="bi {uploadTrend > 0 ? 'bi-arrow-up' : 'bi-arrow-down'}"
                 ></i>
-                {Math.abs(uploadTrend)}% this week
+                {Math.abs(uploadTrend)}% {tr("dashboard.thisWeek")}
               </p>
             {/if}
           </div>
@@ -222,11 +223,12 @@
             <i class="bi bi-share"></i>
           </div>
           <div class="stat-content">
-            <p class="stat-label">Active Shares</p>
+            <p class="stat-label">{tr("dashboard.activeShares")}</p>
             <p class="stat-value">{totalSharesCount.toLocaleString()}</p>
             <p class="stat-trend neutral">
               <i class="bi bi-link-45deg"></i>
-              {recentShares.length} recent
+              {recentShares.length}
+              {tr("dashboard.recent")}
             </p>
           </div>
         </div>
@@ -237,11 +239,11 @@
             <i class="bi bi-people"></i>
           </div>
           <div class="stat-content">
-            <p class="stat-label">Active Today</p>
+            <p class="stat-label">{tr("dashboard.activeToday")}</p>
             <p class="stat-value">{activeUsersToday}</p>
             <p class="stat-trend neutral">
               <i class="bi bi-person-check"></i>
-              of {totalUsers} users
+              {tr("dashboard.ofUsers", totalUsers)}
             </p>
           </div>
         </div>
@@ -252,12 +254,13 @@
             <i class="bi bi-display"></i>
           </div>
           <div class="stat-content">
-            <p class="stat-label">Active Sessions</p>
+            <p class="stat-label">{tr("dashboard.activeSessions")}</p>
             <p class="stat-value">{activeSessions}</p>
             {#if pendingJobs > 0}
               <p class="stat-trend neutral">
                 <i class="bi bi-hourglass-split"></i>
-                {pendingJobs} jobs pending
+                {pendingJobs}
+                {tr("dashboard.jobsPending")}
               </p>
             {/if}
           </div>
@@ -270,15 +273,21 @@
           <div class="card-icon storage-icon">
             <i class="bi bi-hdd-stack"></i>
           </div>
-          <h2>Storage Usage</h2>
-          <span class="storage-total">Total: {storageTotal.toFixed(2)} GB</span>
+          <h2>{tr("dashboard.storageUsage")}</h2>
+          <span class="storage-total"
+            >{tr("dashboard.total")}: {storageTotal.toFixed(2)} GB</span
+          >
         </div>
         <div class="storage-bar-container">
           <div class="storage-bar" style="width: {storagePercent}%"></div>
         </div>
         <div class="storage-info">
-          <span>{storageUsed.toFixed(2)} GB used</span>
-          <span>{(storageTotal - storageUsed).toFixed(2)} GB available</span>
+          <span>{storageUsed.toFixed(2)} GB {tr("dashboard.used")}</span>
+          <span
+            >{(storageTotal - storageUsed).toFixed(2)} GB {tr(
+              "dashboard.available"
+            )}</span
+          >
         </div>
       </div>
 
@@ -289,8 +298,8 @@
             <i class="bi bi-folder2-open"></i>
           </div>
           <div class="action-text">
-            <h3>My Files</h3>
-            <p>Access and manage your uploaded files</p>
+            <h3>{tr("dashboard.myFiles")}</h3>
+            <p>{tr("dashboard.myFilesDesc")}</p>
           </div>
         </a>
         <a href="#/shared" class="action-card">
@@ -298,8 +307,8 @@
             <i class="bi bi-share"></i>
           </div>
           <div class="action-text">
-            <h3>My Shares</h3>
-            <p>View and manage your shared files</p>
+            <h3>{tr("dashboard.myShares")}</h3>
+            <p>{tr("dashboard.mySharesDesc")}</p>
           </div>
         </a>
         <a href="#/search" class="action-card">
@@ -307,8 +316,8 @@
             <i class="bi bi-search"></i>
           </div>
           <div class="action-text">
-            <h3>Search Files</h3>
-            <p>Find files with full-text search</p>
+            <h3>{tr("dashboard.searchFiles")}</h3>
+            <p>{tr("dashboard.searchFilesDesc")}</p>
           </div>
         </a>
         <a href="#/activity" class="action-card">
@@ -316,8 +325,8 @@
             <i class="bi bi-activity"></i>
           </div>
           <div class="action-text">
-            <h3>Activity Log</h3>
-            <p>View recent file activity</p>
+            <h3>{tr("dashboard.activityLog")}</h3>
+            <p>{tr("dashboard.activityLogDesc")}</p>
           </div>
         </a>
       </div>
@@ -327,16 +336,16 @@
         <div class="card-header-row">
           <h2>
             <i class="bi bi-cloud-arrow-up"></i>
-            Recent Uploads
+            {tr("dashboard.recentUploads")}
           </h2>
           <div class="header-actions">
             <a href="#/files" class="btn-outline">
               <i class="bi bi-folder2"></i>
-              View All
+              {tr("dashboard.viewAll")}
             </a>
             <a href="#/files" class="btn-primary">
               <i class="bi bi-upload"></i>
-              Upload
+              {tr("dashboard.upload")}
             </a>
           </div>
         </div>
@@ -344,7 +353,7 @@
         {#if recentUploads.length === 0}
           <div class="empty-state">
             <i class="bi bi-cloud-arrow-up"></i>
-            <p>No recent uploads</p>
+            <p>{tr("dashboard.noUploadsYet")}</p>
           </div>
         {:else}
           <div class="table-container">
@@ -352,20 +361,23 @@
               <thead>
                 <tr>
                   <th></th>
-                  <th>NAME</th>
-                  <th>DESCRIPTION</th>
-                  <th>SIZE</th>
-                  <th>CREATED AT</th>
-                  <th>UPDATED AT</th>
-                  <th>ACTIONS</th>
+                  <th>{tr("dashboard.name")}</th>
+                  <th>{tr("dashboard.description")}</th>
+                  <th>{tr("dashboard.size")}</th>
+                  <th>{tr("dashboard.createdAt")}</th>
+                  <th>{tr("dashboard.updatedAt")}</th>
+                  <th>{tr("dashboard.actions")}</th>
                 </tr>
               </thead>
               <tbody>
                 {#each recentUploads as file (file.id)}
                   <tr>
-                    <td class="checkbox-cell"><input type="checkbox" /></td>
+                    <td class="checkbox-cell"
+                      ><input type="checkbox" aria-label="Select file" /></td
+                    >
                     <td class="name-cell">
-                      <i class="bi bi-file-earmark file-icon"></i>
+                      <i class="bi bi-file-earmark file-icon" aria-hidden="true"
+                      ></i>
                       {file.name}
                     </td>
                     <td class="desc-cell">-</td>
@@ -373,7 +385,9 @@
                     <td>{file.date}</td>
                     <td>{file.updatedAt}</td>
                     <td class="actions-cell">
-                      <button class="action-dot" aria-label="File actions menu"
+                      <button
+                        class="action-dot"
+                        aria-label={tr("dashboard.actions")}
                         ><i class="bi bi-three-dots-vertical" aria-hidden="true"
                         ></i></button
                       >
@@ -391,16 +405,16 @@
         <div class="card-header-row">
           <h2>
             <i class="bi bi-share"></i>
-            Recent Shares
+            {tr("dashboard.recentShares")}
           </h2>
           <div class="header-actions">
             <a href="#/shared" class="btn-outline">
               <i class="bi bi-share"></i>
-              View All
+              {tr("dashboard.viewAll")}
             </a>
             <a href="#/shared" class="btn-primary">
               <i class="bi bi-plus-lg"></i>
-              Create Share
+              {tr("dashboard.createShare")}
             </a>
           </div>
         </div>
@@ -408,7 +422,7 @@
         {#if recentShares.length === 0}
           <div class="empty-state">
             <i class="bi bi-share"></i>
-            <p>No shares yet</p>
+            <p>{tr("dashboard.noSharesYet")}</p>
           </div>
         {:else}
           <div class="table-container">
@@ -416,21 +430,23 @@
               <thead>
                 <tr>
                   <th></th>
-                  <th>NAME</th>
-                  <th>DESCRIPTION</th>
-                  <th>CREATED AT</th>
-                  <th>EXPIRES AT</th>
-                  <th>STATUS</th>
-                  <th>SECURITY</th>
-                  <th>FILES</th>
-                  <th>RECIPIENTS</th>
-                  <th>ACTIONS</th>
+                  <th>{tr("dashboard.name")}</th>
+                  <th>{tr("dashboard.description")}</th>
+                  <th>{tr("dashboard.createdAt")}</th>
+                  <th>{tr("dashboard.expiresAt")}</th>
+                  <th>{tr("dashboard.status")}</th>
+                  <th>{tr("dashboard.security")}</th>
+                  <th>{tr("dashboard.filesCount")}</th>
+                  <th>{tr("dashboard.recipients")}</th>
+                  <th>{tr("dashboard.actions")}</th>
                 </tr>
               </thead>
               <tbody>
                 {#each recentShares as share (share.id)}
                   <tr>
-                    <td class="checkbox-cell"><input type="checkbox" /></td>
+                    <td class="checkbox-cell"
+                      ><input type="checkbox" aria-label="Select share" /></td
+                    >
                     <td class="name-cell">{share.name}</td>
                     <td class="desc-cell">-</td>
                     <td>{share.createdAt}</td>
@@ -441,8 +457,8 @@
                         class:expired={share.status === "expired"}
                       >
                         {share.status === "expired"
-                          ? "Expired"
-                          : "Never Expires"}
+                          ? tr("dashboard.expired")
+                          : tr("dashboard.neverExpires")}
                       </span>
                     </td>
                     <td>
@@ -450,15 +466,21 @@
                         class="security-badge"
                         class:protected={!share.isPublic}
                       >
-                        <i class="bi {share.isPublic ? 'bi-globe' : 'bi-lock'}"
+                        <i
+                          class="bi {share.isPublic ? 'bi-globe' : 'bi-lock'}"
+                          aria-hidden="true"
                         ></i>
-                        {share.isPublic ? "Public" : "Protected"}
+                        {share.isPublic
+                          ? tr("dashboard.public")
+                          : tr("dashboard.protected")}
                       </span>
                     </td>
-                    <td>{share.files} files</td>
-                    <td>{share.recipients} recipients</td>
+                    <td>{share.files} {tr("files")}</td>
+                    <td>{share.recipients} {tr("dashboard.recipients")}</td>
                     <td class="actions-cell">
-                      <button class="action-dot" aria-label="Share actions menu"
+                      <button
+                        class="action-dot"
+                        aria-label={tr("dashboard.actions")}
                         ><i class="bi bi-three-dots-vertical" aria-hidden="true"
                         ></i></button
                       >
@@ -473,7 +495,10 @@
 
       <!-- Footer -->
       <div class="dashboard-footer">
-        <span>Powered by <span class="font-semibold">SyncSpace</span></span>
+        <span
+          >{tr("dashboard.poweredBy")}
+          <span class="font-semibold">SyncSpace</span></span
+        >
         <span>v1.0-beta</span>
       </div>
     {/if}

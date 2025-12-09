@@ -1,5 +1,8 @@
 <script>
   import { onMount, onDestroy } from "svelte";
+  import { currentLang } from "../stores/ui.js";
+  import { t } from "../i18n.js";
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import * as api from "../lib/api.js";
   import { modals, modalEvents } from "../stores/modals.js";
 
@@ -306,13 +309,15 @@
             ></i>
             <span
               class="text-xs font-semibold text-cyan-600 dark:text-cyan-400 bg-cyan-500/20 px-3 py-1 rounded-full"
-              >Pending</span
+              >{tr("pending")}</span
             >
           </div>
           <div class="text-4xl font-bold text-cyan-600 dark:text-cyan-400 mb-1">
             {stats.pending}
           </div>
-          <div class="text-sm text-base-content/60">Waiting to start</div>
+          <div class="text-sm text-base-content/60">
+            {tr("jobs.waitingToStart")}
+          </div>
         </div>
 
         <!-- Running Card -->
@@ -326,7 +331,7 @@
             ></i>
             <span
               class="text-xs font-semibold text-orange-600 dark:text-orange-400 bg-orange-500/20 px-3 py-1 rounded-full"
-              >Running</span
+              >{tr("jobs.running")}</span
             >
           </div>
           <div
@@ -334,7 +339,9 @@
           >
             {stats.running}
           </div>
-          <div class="text-sm text-base-content/60">Currently active</div>
+          <div class="text-sm text-base-content/60">
+            {tr("jobs.currentlyActive")}
+          </div>
         </div>
 
         <!-- Completed Card -->
@@ -348,7 +355,7 @@
             ></i>
             <span
               class="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-500/20 px-3 py-1 rounded-full"
-              >Success</span
+              >{tr("success")}</span
             >
           </div>
           <div
@@ -356,7 +363,9 @@
           >
             {stats.completed}
           </div>
-          <div class="text-sm text-base-content/60">Finished successfully</div>
+          <div class="text-sm text-base-content/60">
+            {tr("jobs.finishedSuccessfully")}
+          </div>
         </div>
 
         <!-- Failed Card -->
@@ -370,13 +379,15 @@
             ></i>
             <span
               class="text-xs font-semibold text-red-600 dark:text-red-400 bg-red-500/20 px-3 py-1 rounded-full"
-              >Failed</span
+              >{tr("failed")}</span
             >
           </div>
           <div class="text-4xl font-bold text-red-600 dark:text-red-400 mb-1">
             {stats.failed}
           </div>
-          <div class="text-sm text-base-content/60">Errors occurred</div>
+          <div class="text-sm text-base-content/60">
+            {tr("jobs.errorsOccurred")}
+          </div>
         </div>
 
         <!-- Total Card -->
@@ -390,7 +401,7 @@
             ></i>
             <span
               class="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full"
-              >Total</span
+              >{tr("jobs.total")}</span
             >
           </div>
           <div
@@ -398,7 +409,9 @@
           >
             {stats.total}
           </div>
-          <div class="text-sm text-base-content/60">All jobs tracked</div>
+          <div class="text-sm text-base-content/60">
+            {tr("jobs.allJobsTracked")}
+          </div>
         </div>
       </div>
     {/if}
@@ -415,7 +428,7 @@
         onclick={() => (selectedTab = "overview")}
       >
         <i class="bi bi-speedometer2" aria-hidden="true"></i>
-        <span>Overview</span>
+        <span>{tr("jobs.overview")}</span>
       </button>
       <button
         class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 {selectedTab ===
@@ -425,7 +438,7 @@
         onclick={() => (selectedTab = "active")}
       >
         <i class="bi bi-play-circle" aria-hidden="true"></i>
-        <span>Active Jobs</span>
+        <span>{tr("jobs.activeJobs")}</span>
         {#if activeJobs.length > 0}
           <span class="badge badge-sm bg-orange-500 text-white border-0"
             >{activeJobs.length}</span
@@ -440,7 +453,7 @@
         onclick={() => (selectedTab = "history")}
       >
         <i class="bi bi-clock-history" aria-hidden="true"></i>
-        <span>History</span>
+        <span>{tr("jobs.history")}</span>
       </button>
       <button
         class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 {selectedTab ===
@@ -450,7 +463,7 @@
         onclick={() => (selectedTab = "cron")}
       >
         <i class="bi bi-calendar-event" aria-hidden="true"></i>
-        <span>Cron Jobs</span>
+        <span>{tr("jobs.cronJobs")}</span>
         {#if cronJobs.length > 0}
           <span class="badge badge-sm bg-purple-500 text-white border-0"
             >{cronJobs.length}</span
@@ -470,26 +483,27 @@
         <div class="space-y-6">
           <div class="card bg-base-200">
             <div class="card-body">
-              <h2 class="card-title">System Status</h2>
+              <h2 class="card-title">{tr("jobs.systemStatus")}</h2>
               <div class="stats stats-vertical lg:stats-horizontal shadow">
                 <div class="stat">
                   <div class="stat-figure text-success">
                     <i class="bi bi-check-circle text-4xl" aria-hidden="true"
                     ></i>
                   </div>
-                  <div class="stat-title">Worker Pool</div>
-                  <div class="stat-value text-success">Active</div>
-                  <div class="stat-desc">4 workers running</div>
+                  <div class="stat-title">{tr("jobs.workerPool")}</div>
+                  <div class="stat-value text-success">{tr("active")}</div>
+                  <div class="stat-desc">4 {tr("jobs.workersActive")}</div>
                 </div>
 
                 <div class="stat">
                   <div class="stat-figure text-info">
                     <i class="bi bi-clock text-4xl" aria-hidden="true"></i>
                   </div>
-                  <div class="stat-title">Cron Scheduler</div>
-                  <div class="stat-value text-info">Active</div>
+                  <div class="stat-title">{tr("jobs.cronScheduler")}</div>
+                  <div class="stat-value text-info">{tr("active")}</div>
                   <div class="stat-desc">
-                    {cronJobs.filter((j) => j.enabled).length} enabled jobs
+                    {cronJobs.filter((j) => j.enabled).length}
+                    {tr("jobs.jobsScheduled")}
                   </div>
                 </div>
               </div>

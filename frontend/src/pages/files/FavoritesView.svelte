@@ -74,8 +74,8 @@
       console.log("[FavoritesView] Display files:", favoriteFiles);
     } catch (err) {
       console.error("Failed to load favorites:", err);
-      errorMsg = "Failed to load favorites";
-      error("Failed to load favorites: " + err.message);
+      errorMsg = tr("failedToLoadFavorites");
+      error(tr("failedToLoadFavorites") + ": " + err.message);
     } finally {
       loading = false;
     }
@@ -85,11 +85,11 @@
     e?.stopPropagation();
     try {
       await favorites.remove(fav.itemId);
-      success(`${fav.name} removed from favorites`);
+      success(`${fav.name} ${tr("removedFromFavorites").toLowerCase()}`);
       await loadFavorites();
     } catch (err) {
       console.error("Failed to remove favorite:", err);
-      error("Failed to remove favorite");
+      error(tr("failedToRemoveFavorite"));
     }
   }
 
@@ -120,7 +120,7 @@
         }
       } catch (err) {
         console.error("Failed to open file:", err);
-        error("Failed to open file");
+        error(tr("failedToOpenFile"));
       }
     }
   }
@@ -136,7 +136,7 @@
         }
       );
 
-      if (!response.ok) throw new Error("Download failed");
+      if (!response.ok) throw new Error(tr("downloadFailed"));
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -148,10 +148,10 @@
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      success(`${file.name} downloaded`);
+      success(`${file.name} ${tr("downloaded").toLowerCase()}`);
     } catch (err) {
       console.error("Download failed:", err);
-      error("Download failed");
+      error(tr("downloadFailed"));
     }
   }
 
@@ -285,7 +285,7 @@
             class="px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto"
           >
             <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
-            Try Again
+            {tr("common.tryAgain")}
           </button>
         </div>
       {:else if favoriteFiles.length === 0}
@@ -295,9 +295,9 @@
             <i class="bi bi-star text-6xl text-yellow-500/30" aria-hidden="true"
             ></i>
           </div>
-          <h3 class="text-2xl font-bold mb-3">No favorites yet</h3>
+          <h3 class="text-2xl font-bold mb-3">{tr("noFavoritesYet")}</h3>
           <p class="text-gray-600 dark:text-gray-400">
-            Mark files as favorites to see them here
+            {tr("markFilesAsFavorites")}
           </p>
         </div>
       {:else}
@@ -398,7 +398,7 @@
                 class="w-full px-4 py-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 font-semibold rounded-xl hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-all flex items-center justify-center gap-2"
               >
                 <i class="bi bi-star-fill" aria-hidden="true"></i>
-                <span>Remove Favorite</span>
+                <span>{tr("removeFromFavorites")}</span>
               </button>
             </div>
           {/each}

@@ -1,12 +1,15 @@
 <script>
   import { onMount } from "svelte";
   import { showToast } from "../../stores/toast.js";
-  import { theme, language } from "../../stores/ui.js";
+  import { theme, language, currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
   import * as api from "../../lib/api.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let user = $state({
     username: "Loading...",
@@ -64,7 +67,7 @@
       };
     } catch (err) {
       console.error("[Profile] Failed to load profile:", err);
-      showToast("Failed to load profile", "error");
+      showToast(tr("failedToLoadProfile"), "error");
     } finally {
       loading = false;
     }
@@ -150,7 +153,7 @@
         user.avatar = e.target.result;
       };
       reader.readAsDataURL(file);
-      showToast("Avatar updated", "success");
+      showToast(tr("avatarUpdated"), "success");
     }
   }
 
@@ -162,10 +165,10 @@
         avatar_base64: user.avatar,
       });
       editMode = false;
-      showToast("Profile saved successfully", "success");
+      showToast(tr("profileSavedSuccessfully"), "success");
     } catch (err) {
       console.error("[Profile] Failed to save profile:", err);
-      showToast("Failed to save profile", "error");
+      showToast(tr("failedToSaveProfile"), "error");
     }
   }
 
@@ -181,24 +184,21 @@
       theme.set(settings.theme);
       language.set(settings.language);
 
-      showToast("Settings saved successfully", "success");
+      showToast(tr("settingsSavedSuccessfully"), "success");
     } catch (err) {
       console.error("[Profile] Failed to save settings:", err);
-      showToast("Failed to save settings", "error");
+      showToast(tr("failedToSaveSettings"), "error");
     }
   }
 
   async function reindexSearch() {
     try {
-      showToast("Rebuilding search index...", "info");
+      showToast(tr("rebuildingSearchIndex"), "info");
       const result = await api.search.reindex();
-      showToast(
-        `Search index rebuilt: ${result.files_indexed} files indexed`,
-        "success"
-      );
+      showToast(tr("searchIndexRebuilt", result.files_indexed), "success");
     } catch (err) {
       console.error("[Profile] Failed to rebuild search index:", err);
-      showToast("Failed to rebuild search index", "error");
+      showToast(tr("failedToRebuildSearchIndex"), "error");
     }
   }
 </script>

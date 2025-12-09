@@ -241,7 +241,7 @@
   {#if loading}
     <div class="flex flex-col items-center justify-center py-16">
       <span class="loading loading-spinner loading-lg text-primary"></span>
-      <p class="mt-4 text-base-content/60">Loading tokens...</p>
+      <p class="mt-4 text-base-content/60">{$t("common.loading")}</p>
     </div>
   {:else if tokens.length === 0}
     <!-- Empty State -->

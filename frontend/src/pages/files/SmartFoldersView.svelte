@@ -339,7 +339,7 @@
               <span class="meta-item">
                 <i class="bi bi-funnel"></i>
                 {folder.conditions_count}
-                {folder.conditions_count === 1 ? "rule" : "rules"}
+                {folder.conditions_count === 1 ? tr("rule") : tr("rules")}
               </span>
               <span class="meta-item">
                 <i
@@ -351,7 +351,7 @@
                 <i
                   class="bi bi-{folder.is_active ? 'check-circle' : 'x-circle'}"
                 ></i>
-                {folder.is_active ? "Active" : "Inactive"}
+                {folder.is_active ? tr("active") : tr("inactive")}
               </span>
             </div>
 
@@ -542,14 +542,20 @@
 
                   {#if condition.field === "file_type"}
                     <select bind:value={condition.value}>
-                      <option value="">Select type...</option>
+                      <option value=""
+                        >{tr("smartFolders.selectType") ||
+                          "Select type..."}</option
+                      >
                       {#each fileTypePresets as preset}
                         <option value={preset.value}>{preset.label}</option>
                       {/each}
                     </select>
                   {:else if condition.field === "size"}
                     <select bind:value={condition.value}>
-                      <option value="">Select size...</option>
+                      <option value=""
+                        >{tr("smartFolders.selectSize") ||
+                          "Select size..."}</option
+                      >
                       {#each sizePresets as preset}
                         <option value={preset.value}>{preset.label}</option>
                       {/each}
@@ -558,7 +564,8 @@
                     <input
                       type="number"
                       bind:value={condition.value}
-                      placeholder="Number of days"
+                      placeholder={tr("smartFolders.numberOfDays") ||
+                        "Number of days"}
                       min="1"
                     />
                   {:else if condition.field === "date"}
@@ -567,7 +574,8 @@
                     <input
                       type="text"
                       bind:value={condition.value}
-                      placeholder="Enter value..."
+                      placeholder={tr("smartFolders.enterValue") ||
+                        "Enter value..."}
                     />
                   {/if}
 
@@ -603,10 +611,19 @@
                   >{tr("smartFolders.sortBy") || "Sort by"}</label
                 >
                 <select id="sortBy" bind:value={formSortBy}>
-                  <option value="name">Name</option>
-                  <option value="modified">Modified Date</option>
-                  <option value="size">Size</option>
-                  <option value="type">Type</option>
+                  <option value="name"
+                    >{tr("smartFolders.name") || "Name"}</option
+                  >
+                  <option value="modified"
+                    >{tr("smartFolders.modifiedDate") ||
+                      "Modified Date"}</option
+                  >
+                  <option value="size"
+                    >{tr("smartFolders.fields.size") || "Size"}</option
+                  >
+                  <option value="type"
+                    >{tr("smartFolders.type") || "Type"}</option
+                  >
                 </select>
               </div>
               <div class="form-group">
@@ -614,8 +631,12 @@
                   >{tr("smartFolders.sortOrder") || "Order"}</label
                 >
                 <select id="sortOrder" bind:value={formSortOrder}>
-                  <option value="asc">Ascending</option>
-                  <option value="desc">Descending</option>
+                  <option value="asc"
+                    >{tr("smartFolders.ascending") || "Ascending"}</option
+                  >
+                  <option value="desc"
+                    >{tr("smartFolders.descending") || "Descending"}</option
+                  >
                 </select>
               </div>
             </div>
