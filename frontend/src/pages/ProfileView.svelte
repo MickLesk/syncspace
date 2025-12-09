@@ -89,9 +89,7 @@
 
   <div class="relative z-10 max-w-6xl mx-auto">
     <!-- Cover Photo -->
-    <div
-      class="relative h-64 rounded-xl overflow-hidden mb-8 animate-slide-up"
-    >
+    <div class="relative h-64 rounded-xl overflow-hidden mb-8 animate-slide-up">
       {#if user.coverPhoto}
         <img
           src={user.coverPhoto}

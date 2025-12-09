@@ -475,7 +475,7 @@
     const loadingTimeout = setTimeout(() => {
       loading = true;
     }, 150);
-    
+
     try {
       const targetPath = path || $currentPath;
       const response = await api.files.list(targetPath);

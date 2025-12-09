@@ -199,10 +199,15 @@
         <i class="bi bi-skip-backward-fill text-2xl" aria-hidden="true"></i>
       </button>
 
-      <button aria-label={isPlaying ? "Pause" : "Play"} onclick={togglePlay}
+      <button
+        aria-label={isPlaying ? "Pause" : "Play"}
+        onclick={togglePlay}
         class="btn btn-circle btn-primary btn-xl shadow-lg hover:shadow-xl transition-shadow"
         title={isPlaying ? "Pause" : "Play"}
-      ><i class="bi" aria-hidden="true"></i><span class="sr-only">Toggle play</span></button>
+        ><i class="bi" aria-hidden="true"></i><span class="sr-only"
+          >Toggle play</span
+        ></button
+      >
 
       <button
         onclick={skipForward}

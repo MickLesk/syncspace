@@ -123,12 +123,22 @@
             </button>
           {/if}
           {#if onBatchTag}
-            <button type="button" class="btn-action green" onclick={onBatchTag} title={tr("tags")}>
+            <button
+              type="button"
+              class="btn-action green"
+              onclick={onBatchTag}
+              title={tr("tags")}
+            >
               <i class="bi bi-tags"></i>
               <span class="hidden sm:inline">{tr("tags")}</span>
             </button>
           {/if}
-          <button type="button" class="btn-action red" onclick={onBatchDelete} title={tr("delete")}>
+          <button
+            type="button"
+            class="btn-action red"
+            onclick={onBatchDelete}
+            title={tr("delete")}
+          >
             <i class="bi bi-trash"></i>
             <span class="hidden sm:inline">{tr("delete")}</span>
           </button>

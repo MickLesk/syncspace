@@ -224,6 +224,16 @@ export const translations = {
       searchFilesDesc: 'Volltextsuche in Ihren Dateien',
       activityLog: 'Aktivitätsprotokoll',
       activityLogDesc: 'Letzte Dateiaktivitäten anzeigen',
+      noRecentActivity: 'Keine aktuellen Aktivitäten',
+      // Activity actions
+      activityUpload: 'hat hochgeladen',
+      activityDownload: 'hat heruntergeladen',
+      activityDelete: 'hat gelöscht',
+      activityCreate: 'hat erstellt',
+      activityRename: 'hat umbenannt',
+      activityMove: 'hat verschoben',
+      activityShare: 'hat geteilt',
+      activityDefault: 'hat Aktion ausgeführt',
       // Tables
       recentUploads: 'Letzte Uploads',
       recentShares: 'Letzte Freigaben',
@@ -4182,6 +4192,16 @@ export const translations = {
       searchFilesDesc: 'Find files with full-text search',
       activityLog: 'Activity Log',
       activityLogDesc: 'View recent file activity',
+      noRecentActivity: 'No recent activity',
+      // Activity actions
+      activityUpload: 'uploaded',
+      activityDownload: 'downloaded',
+      activityDelete: 'deleted',
+      activityCreate: 'created',
+      activityRename: 'renamed',
+      activityMove: 'moved',
+      activityShare: 'shared',
+      activityDefault: 'performed action on',
       // Tables
       recentUploads: 'Recent Uploads',
       recentShares: 'Recent Shares',

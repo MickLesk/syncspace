@@ -50,8 +50,10 @@
     <h1
       class="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3"
     >
-      <i class="bi bi-question-circle text-primary-600 dark:text-primary-400"
-       aria-hidden="true"></i>
+      <i
+        class="bi bi-question-circle text-primary-600 dark:text-primary-400"
+        aria-hidden="true"
+      ></i>
       {tr("helpAndSupport")}
     </h1>
     <p class="text-gray-600 dark:text-gray-400 mt-2">
@@ -82,7 +84,8 @@
         class="card bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow rounded-xl"
       >
         <div class="card-body items-center text-center">
-          <i class="bi bi-rocket text-4xl text-primary-600" aria-hidden="true"></i>
+          <i class="bi bi-rocket text-4xl text-primary-600" aria-hidden="true"
+          ></i>
           <h3 class="card-title text-lg">{tr("gettingStarted")}</h3>
           <p class="text-sm text-gray-600 dark:text-gray-400">
             {tr("quickStartGuide")}
@@ -95,7 +98,8 @@
         class="card bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow rounded-xl"
       >
         <div class="card-body items-center text-center">
-          <i class="bi bi-book text-4xl text-secondary-600" aria-hidden="true"></i>
+          <i class="bi bi-book text-4xl text-secondary-600" aria-hidden="true"
+          ></i>
           <h3 class="card-title text-lg">{tr("documentation")}</h3>
           <p class="text-sm text-gray-600 dark:text-gray-400">
             {tr("fullDocumentation")}
@@ -108,7 +112,8 @@
         class="card bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow rounded-xl"
       >
         <div class="card-body items-center text-center">
-          <i class="bi bi-envelope text-4xl text-accent-600" aria-hidden="true"></i>
+          <i class="bi bi-envelope text-4xl text-accent-600" aria-hidden="true"
+          ></i>
           <h3 class="card-title text-lg">{tr("contactUs")}</h3>
           <p class="text-sm text-gray-600 dark:text-gray-400">
             {tr("getInTouch")}
@@ -121,7 +126,8 @@
     <div class="card bg-white dark:bg-gray-800 shadow-xl rounded-xl">
       <div class="card-body">
         <h2 class="card-title text-xl mb-6">
-          <i class="bi bi-chat-question text-primary-600" aria-hidden="true"></i>
+          <i class="bi bi-chat-question text-primary-600" aria-hidden="true"
+          ></i>
           {tr("frequentlyAskedQuestions")}
         </h2>
 
@@ -146,7 +152,10 @@
 
         {#if filteredFAQ.length === 0}
           <div class="text-center py-8">
-            <i class="bi bi-search text-4xl text-gray-400 mb-4" aria-hidden="true"></i>
+            <i
+              class="bi bi-search text-4xl text-gray-400 mb-4"
+              aria-hidden="true"
+            ></i>
             <p class="text-gray-600 dark:text-gray-400">
               {tr("noResultsFoundFor", searchQuery)}
             </p>

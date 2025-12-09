@@ -54,18 +54,21 @@
       const token = localStorage.getItem("authToken");
       const headers = { Authorization: `Bearer ${token}` };
 
-      const [statsRes, activityRes, sharesRes, allActivityRes] = await Promise.all([
-        fetch("http://localhost:8080/api/dashboard/stats", { headers }),
-        fetch("http://localhost:8080/api/activity?limit=10&action=upload", {
-          headers,
-        }),
-        fetch("http://localhost:8080/api/shares", { headers }).catch(() => ({
-          ok: false,
-        })),
-        fetch("http://localhost:8080/api/activity?limit=8", { headers }).catch(() => ({
-          ok: false,
-        })),
-      ]);
+      const [statsRes, activityRes, sharesRes, allActivityRes] =
+        await Promise.all([
+          fetch("http://localhost:8080/api/dashboard/stats", { headers }),
+          fetch("http://localhost:8080/api/activity?limit=10&action=upload", {
+            headers,
+          }),
+          fetch("http://localhost:8080/api/shares", { headers }).catch(() => ({
+            ok: false,
+          })),
+          fetch("http://localhost:8080/api/activity?limit=8", {
+            headers,
+          }).catch(() => ({
+            ok: false,
+          })),
+        ]);
 
       // Process storage stats
       if (statsRes.ok) {
@@ -121,11 +124,89 @@
           recipients: s.recipient_count || 0,
         }));
       }
+
+      // Process all recent activities for timeline
+      if (allActivityRes.ok) {
+        const activities = await allActivityRes.json();
+        recentActivities = (activities || []).slice(0, 8).map((a) => {
+          const action = a.action || "default";
+          return {
+            id: a.id,
+            action: action,
+            actionClass: action,
+            actionText: getActivityActionText(action),
+            file: extractFileName(a.file_path || a.file_name),
+            user: a.username || "System",
+            timeAgo: formatRelativeTime(a.created_at),
+            icon: getActivityIcon(action),
+          };
+        });
+      }
     } catch (err) {
       console.error("Failed to load dashboard:", err);
     } finally {
       loading = false;
     }
+  }
+
+  function getActivityIcon(action) {
+    const icons = {
+      upload: "cloud-arrow-up",
+      download: "cloud-arrow-down",
+      delete: "trash",
+      rename: "pencil",
+      move: "arrow-right-square",
+      copy: "copy",
+      share: "share",
+      create: "plus-circle",
+      view: "eye",
+      edit: "pencil-square",
+    };
+    return icons[action] || "file-earmark";
+  }
+
+  function getActivityActionText(action) {
+    const texts = {
+      upload: tr("dashboard.activityUpload"),
+      download: tr("dashboard.activityDownload"),
+      delete: tr("dashboard.activityDelete"),
+      create: tr("dashboard.activityCreate"),
+      rename: tr("dashboard.activityRename"),
+      move: tr("dashboard.activityMove"),
+      share: tr("dashboard.activityShare"),
+    };
+    return texts[action] || tr("dashboard.activityDefault");
+  }
+
+  function getActivityColor(action) {
+    const colors = {
+      upload: "text-green-500",
+      download: "text-blue-500",
+      delete: "text-red-500",
+      rename: "text-yellow-500",
+      move: "text-purple-500",
+      copy: "text-cyan-500",
+      share: "text-indigo-500",
+      view: "text-gray-500",
+      edit: "text-orange-500",
+    };
+    return colors[action] || "text-gray-500";
+  }
+
+  function formatRelativeTime(dateStr) {
+    if (!dateStr) return "-";
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now - date;
+    const mins = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (mins < 1) return tr("justNow");
+    if (mins < 60) return tr("minutesAgo", mins);
+    if (hours < 24) return tr("hoursAgo", hours);
+    if (days < 7) return tr("daysAgo", days);
+    return formatDate(dateStr);
   }
 
   function extractFileName(path) {
@@ -292,6 +373,45 @@
               "dashboard.available"
             )}</span
           >
+        </div>
+      </div>
+
+      <!-- Activity Timeline -->
+      <div class="card activity-timeline-card">
+        <div class="card-header">
+          <div class="card-icon activity-timeline-icon">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <h2>{tr("dashboard.recentActivity")}</h2>
+          <a href="#/activity" class="view-all-link">
+            {tr("dashboard.viewAll")} <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+        <div class="activity-timeline">
+          {#if recentActivities.length === 0}
+            <div class="empty-timeline">
+              <i class="bi bi-inbox"></i>
+              <p>{tr("dashboard.noRecentActivity")}</p>
+            </div>
+          {:else}
+            {#each recentActivities as activity}
+              <div class="timeline-item">
+                <div class="timeline-icon {activity.actionClass}">
+                  <i class="bi bi-{activity.icon}"></i>
+                </div>
+                <div class="timeline-content">
+                  <p class="timeline-action">
+                    <strong>{activity.user}</strong>
+                    {activity.actionText}
+                    {#if activity.file}
+                      <span class="timeline-file">{activity.file}</span>
+                    {/if}
+                  </p>
+                  <p class="timeline-time">{activity.timeAgo}</p>
+                </div>
+              </div>
+            {/each}
+          {/if}
         </div>
       </div>
 
@@ -1188,6 +1308,156 @@
 
   .empty-state p {
     font-size: 0.875rem;
+  }
+
+  /* Activity Timeline */
+  .activity-timeline-card {
+    grid-column: span 2;
+  }
+
+  .activity-timeline-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .activity-timeline-icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+  }
+
+  .view-all-link {
+    margin-left: auto;
+    font-size: 0.875rem;
+    color: #10b981;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: color 0.2s;
+  }
+
+  .view-all-link:hover {
+    color: #059669;
+  }
+
+  .activity-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .empty-timeline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #9ca3af;
+  }
+
+  .empty-timeline i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+  }
+
+  .timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: background 0.2s;
+  }
+
+  .timeline-item:hover {
+    background: #f3f4f6;
+  }
+
+  :global(.dark) .timeline-item:hover {
+    background: #374151;
+  }
+
+  .timeline-icon {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+  }
+
+  .timeline-icon.upload {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+  }
+
+  .timeline-icon.download {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+
+  .timeline-icon.delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+  }
+
+  .timeline-icon.create {
+    background: rgba(168, 85, 247, 0.1);
+    color: #a855f7;
+  }
+
+  .timeline-icon.rename {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+  }
+
+  .timeline-icon.move {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+  }
+
+  .timeline-icon.share {
+    background: rgba(6, 182, 212, 0.1);
+    color: #06b6d4;
+  }
+
+  .timeline-icon.default {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+  }
+
+  .timeline-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .timeline-action {
+    font-size: 0.875rem;
+    color: #374151;
+    margin: 0;
+  }
+
+  :global(.dark) .timeline-action {
+    color: #e5e7eb;
+  }
+
+  .timeline-file {
+    color: #10b981;
+    font-weight: 500;
+  }
+
+  .timeline-time {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin: 0.125rem 0 0 0;
   }
 
   /* Footer */
