@@ -33,6 +33,7 @@
   async function loadAllData() {
     loading = true;
     error = "";
+    console.log("[StorageAnalytics] Loading data...");
     try {
       const results = await Promise.allSettled([
         api.storageAnalytics.getOverview(),
@@ -42,20 +43,34 @@
         api.storageAnalytics.getGrowth(30),
         api.storageAnalytics.getDuplicateWaste(),
       ]);
-      if (results[0].status === "fulfilled") overview = results[0].value;
+
+      console.log("[StorageAnalytics] Results:", results);
+
+      if (results[0].status === "fulfilled") {
+        overview = results[0].value;
+        console.log("[StorageAnalytics] Overview:", overview);
+      } else {
+        console.error("[StorageAnalytics] Overview failed:", results[0].reason);
+      }
+
       if (results[1].status === "fulfilled") userStats = results[1].value || [];
       if (results[2].status === "fulfilled")
         folderStats = results[2].value || [];
       if (results[3].status === "fulfilled") topFiles = results[3].value || [];
       if (results[4].status === "fulfilled") growth = results[4].value || [];
       if (results[5].status === "fulfilled") duplicateWaste = results[5].value;
+
       const allFailed = results.every((r) => r.status === "rejected");
-      if (allFailed) error = tr("failedToLoadAnalytics");
+      if (allFailed) {
+        error = tr("failedToLoadAnalytics") || "Fehler beim Laden der Daten";
+        console.error("[StorageAnalytics] All requests failed");
+      }
     } catch (err) {
       console.error("Failed to load storage analytics:", err);
-      error = tr("failedToLoadAnalytics");
+      error = tr("failedToLoadAnalytics") || "Fehler beim Laden der Daten";
     } finally {
       loading = false;
+      console.log("[StorageAnalytics] Loading complete. Overview:", overview);
     }
   }
 
@@ -113,12 +128,17 @@
       <div class="error-banner">
         <i class="bi bi-exclamation-triangle"></i>
         <span>{error}</span>
+        <button onclick={loadAllData} class="retry-btn">
+          <i class="bi bi-arrow-clockwise"></i>
+          {tr("retry")}
+        </button>
       </div>
     {/if}
 
     {#if loading}
       <div class="loading-container">
         <div class="spinner"></div>
+        <p>{tr("loadingAnalytics")}</p>
       </div>
     {:else}
       <div class="tabs-container">
@@ -135,77 +155,66 @@
       </div>
 
       {#if activeTab === "overview"}
-        {#if overview}
-          <div class="card storage-card">
-            <div class="card-header">
-              <div class="card-icon storage-icon">
-                <i class="bi bi-hdd-stack"></i>
-              </div>
-              <h2>{tr("storageUsage")}</h2>
-              <span class="storage-total"
-                >{overview.total_size_formatted || "0 B"}</span
-              >
+        <!-- Always show overview with fallback values -->
+        <div class="card storage-card">
+          <div class="card-header">
+            <div class="card-icon storage-icon">
+              <i class="bi bi-hdd-stack"></i>
             </div>
-            {#if overview.storage_limit_bytes}
-              <div class="storage-bar-container">
-                <div
-                  class="storage-bar"
-                  style="width: {Math.min(
-                    overview.usage_percentage || 0,
-                    100
-                  )}%"
-                ></div>
-              </div>
-              <div class="storage-info">
-                <span>{overview.total_size_formatted} {tr("used")}</span>
-                <span>{overview.usage_percentage?.toFixed(1) || 0}%</span>
-              </div>
-            {/if}
+            <h2>{tr("storageUsage")}</h2>
+            <span class="storage-total"
+              >{overview?.total_size_formatted || "0 B"}</span
+            >
           </div>
-          <div class="quick-stats">
-            <div class="stat-card">
-              <div class="stat-icon files-icon">
-                <i class="bi bi-files"></i>
-              </div>
-              <div class="stat-text">
-                <h3>{overview.total_files?.toLocaleString() || 0}</h3>
-                <p>{tr("totalFiles")}</p>
-              </div>
+          <div class="storage-bar-container">
+            <div
+              class="storage-bar"
+              style="width: {Math.min(overview?.usage_percentage || 0, 100)}%"
+            ></div>
+          </div>
+          <div class="storage-info">
+            <span>{overview?.total_size_formatted || "0 B"} {tr("used")}</span>
+            <span>{(overview?.usage_percentage || 0).toFixed(1)}%</span>
+          </div>
+        </div>
+        <div class="quick-stats">
+          <div class="stat-card">
+            <div class="stat-icon files-icon">
+              <i class="bi bi-files"></i>
             </div>
-            <div class="stat-card">
-              <div class="stat-icon users-icon">
-                <i class="bi bi-people"></i>
-              </div>
-              <div class="stat-text">
-                <h3>{overview.active_users?.toLocaleString() || 0}</h3>
-                <p>{tr("activeUsers")}</p>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon size-icon">
-                <i class="bi bi-file-earmark-bar-graph"></i>
-              </div>
-              <div class="stat-text">
-                <h3>{formatBytes(overview.avg_file_size_bytes || 0)}</h3>
-                <p>{tr("avgFileSize")}</p>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon trophy-icon">
-                <i class="bi bi-trophy"></i>
-              </div>
-              <div class="stat-text">
-                <h3>{formatBytes(overview.largest_file_bytes || 0)}</h3>
-                <p>{tr("largestFile")}</p>
-              </div>
+            <div class="stat-text">
+              <h3>{(overview?.total_files || 0).toLocaleString()}</h3>
+              <p>{tr("totalFiles")}</p>
             </div>
           </div>
-        {:else}
-          <div class="card empty-state">
-            <i class="bi bi-inbox"></i>
-            <p>{tr("noDataAvailable")}</p>
+          <div class="stat-card">
+            <div class="stat-icon users-icon">
+              <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-text">
+              <h3>{(overview?.active_users || 0).toLocaleString()}</h3>
+              <p>{tr("activeUsers")}</p>
+            </div>
           </div>
-        {/if}
+          <div class="stat-card">
+            <div class="stat-icon size-icon">
+              <i class="bi bi-file-earmark-bar-graph"></i>
+            </div>
+            <div class="stat-text">
+              <h3>{formatBytes(overview?.avg_file_size_bytes || 0)}</h3>
+              <p>{tr("avgFileSize")}</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon trophy-icon">
+              <i class="bi bi-trophy"></i>
+            </div>
+            <div class="stat-text">
+              <h3>{formatBytes(overview?.largest_file_bytes || 0)}</h3>
+              <p>{tr("largestFile")}</p>
+            </div>
+          </div>
+        </div>
       {/if}
 
       {#if activeTab === "users"}

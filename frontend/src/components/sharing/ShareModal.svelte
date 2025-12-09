@@ -63,7 +63,8 @@
     loadingUsers = true;
     try {
       const response = await api.users.listAll();
-      availableUsers = response.data || [];
+      // Handle both array response and {data: [...]} response
+      availableUsers = Array.isArray(response) ? response : response.data || [];
     } catch (err) {
       errorToast(tr("failedToLoadUsers"));
     } finally {

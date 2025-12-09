@@ -1,10 +1,10 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import { favorites } from "../../stores/favorites";
-  import { currentPath } from "../../stores/ui.js";
+  import { currentPath, currentView } from "../../stores/ui.js";
   import { success, error } from "../../stores/toast";
   import { modals } from "../../stores/modals";
   import api from "../../lib/api.js";
@@ -95,11 +95,15 @@
 
   async function handleItemClick(file) {
     if (file.itemType === "folder") {
-      // Navigate to folder in Files view
-      window.location.hash = "#/files";
-      setTimeout(() => {
-        currentPath.set(file.fullPath);
-      }, 100);
+      // Set the path first, then navigate to Files view with the path in the URL
+      const folderPath = file.fullPath.startsWith("/")
+        ? file.fullPath
+        : `/${file.fullPath}`;
+      currentPath.set(folderPath);
+      await tick(); // Wait for store update
+      currentView.set("files");
+      // Include the path in the hash so FilesView loads the correct directory
+      window.location.hash = `#/files${folderPath}`;
     } else {
       // For files, show preview or download
       try {

@@ -61,30 +61,31 @@
   }
 
   function toggleSelection(itemPath) {
-    if (selectedItems.has(itemPath)) {
-      selectedItems.delete(itemPath);
+    const newSet = new Set(selectedItems);
+    if (newSet.has(itemPath)) {
+      newSet.delete(itemPath);
     } else {
-      selectedItems.add(itemPath);
+      newSet.add(itemPath);
     }
-    selectedItems = selectedItems; // Trigger reactivity
+    selectedItems = newSet; // Create new Set for reactivity
   }
 
   function handleConfirm() {
     const selected = Array.from(selectedItems);
     onSelect(selected);
     isOpen = false;
-    selectedItems.clear();
+    selectedItems = new Set();
   }
 
   function handleCancel() {
     isOpen = false;
-    selectedItems.clear();
+    selectedItems = new Set();
   }
 
   $effect(() => {
     if (isOpen) {
       loadDirectory("");
-      selectedItems.clear();
+      selectedItems = new Set();
     }
   });
 
@@ -152,7 +153,12 @@
           <div
             class="flex items-center gap-2 mt-3 text-sm text-gray-600 dark:text-gray-400"
           >
-            <button aria-label="Home" onclick={() => loadDirectory("")} class="hover:text-primary-600 dark:hover:text-primary-400"><i class="bi bi-house-fill" aria-hidden="true"></i></button>
+            <button
+              aria-label="Home"
+              onclick={() => loadDirectory("")}
+              class="hover:text-primary-600 dark:hover:text-primary-400"
+              ><i class="bi bi-house-fill" aria-hidden="true"></i></button
+            >
             {#each currentPath.split("/").filter((p) => p) as part, i}
               <i class="bi bi-chevron-right text-xs" aria-hidden="true"></i>
               <button
@@ -192,17 +198,29 @@
                   {tr("folders")}
                 </h3>
                 {#each filteredFolders() as folder}
+                  {@const folderPath = currentPath
+                    ? `${currentPath.replace(/\/$/, "")}/${folder.name}`
+                    : folder.name}
                   <div
-                    class="glass-card p-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer group"
+                    class="glass-card p-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer group transition-colors {selectedItems.has(
+                      folderPath
+                    )
+                      ? 'bg-primary-50 dark:bg-primary-900/20'
+                      : ''}"
                   >
                     {#if mode === "both"}
-                      <input
-                        type="checkbox"
-                        checked={selectedItems.has(folder.path || folder.name)}
-                        onchange={() =>
-                          toggleSelection(folder.path || folder.name)}
-                        class="checkbox checkbox-primary"
-                      />
+                      <span
+                        class="flex items-center cursor-pointer p-1"
+                        role="presentation"
+                        onclick={(e) => e.stopPropagation()}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.has(folderPath)}
+                          onchange={() => toggleSelection(folderPath)}
+                          class="checkbox checkbox-primary"
+                        />
+                      </span>
                     {/if}
                     <button
                       onclick={() => navigateToFolder(folder.name)}
@@ -236,19 +254,37 @@
                   {tr("files")}
                 </h3>
                 {#each filteredFiles() as file}
+                  {@const filePath = currentPath
+                    ? `${currentPath.replace(/\/$/, "")}/${file.name}`
+                    : file.name}
                   <div
-                    class="glass-card p-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
-                    class:bg-primary-50={selectedItems.has(
-                      file.path || file.name
-                    )}
+                    class="glass-card p-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors {selectedItems.has(
+                      filePath
+                    )
+                      ? 'bg-primary-50 dark:bg-primary-900/20'
+                      : ''}"
+                    onclick={() => toggleSelection(filePath)}
+                    role="button"
+                    tabindex="0"
+                    onkeydown={(e) =>
+                      e.key === "Enter" && toggleSelection(filePath)}
                   >
-                    <input
-                      type="checkbox"
-                      checked={selectedItems.has(file.path || file.name)}
-                      onchange={() => toggleSelection(file.path || file.name)}
-                      class="checkbox checkbox-primary"
-                    />
-                    <i class="bi bi-file-earmark text-gray-400 text-2xl" aria-hidden="true"></i>
+                    <span
+                      class="flex items-center cursor-pointer p-1"
+                      role="presentation"
+                      onclick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.has(filePath)}
+                        onchange={() => toggleSelection(filePath)}
+                        class="checkbox checkbox-primary"
+                      />
+                    </span>
+                    <i
+                      class="bi bi-file-earmark text-gray-400 text-2xl"
+                      aria-hidden="true"
+                    ></i>
                     <div class="flex-1">
                       <div class="font-medium text-gray-900 dark:text-gray-100">
                         {file.name}

@@ -922,9 +922,10 @@ pub mod tag {
         color: Option<String>,
     ) -> Result<Tag> {
         let id = Uuid::new_v4();
+        let id_str = id.to_string();
         let now = Utc::now().to_rfc3339();
         sqlx::query("INSERT INTO tags (id, name, color, owner_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)")
-            .bind(&id).bind(name).bind(color.as_deref()).bind(&user.id).bind(&now).bind(&now).execute(&state.db_pool).await?;
+            .bind(&id_str).bind(name).bind(color.as_deref()).bind(&user.id).bind(&now).bind(&now).execute(&state.db_pool).await?;
         Ok(Tag {
             id,
             name: name.to_string(),

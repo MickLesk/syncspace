@@ -936,6 +936,13 @@ export const tags = {
     });
     return handleResponse(response);
   },
+  
+  async getFiles(tagId) {
+    const response = await fetch(`${API_BASE}/tags/${encodeURIComponent(tagId)}/files`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
 
   async tagFile(req) {
     const response = await fetch(`${API_BASE}/file-tags`, {

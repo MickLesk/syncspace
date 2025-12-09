@@ -21,9 +21,6 @@
   let recentActivity = $state([]);
   let loading = $state(true);
 
-  // Search
-  let searchInput = $state("");
-
   // Upload
   let isDragging = $state(false);
   let uploadInput;
@@ -146,39 +143,6 @@
     return actionConfig[action]?.color || "gray";
   }
 
-  // Search state
-  let searchResults = $state([]);
-  let isSearching = $state(false);
-
-  async function handleSearch(e) {
-    e.preventDefault();
-    if (!searchInput.trim()) return;
-
-    isSearching = true;
-    try {
-      const token = localStorage.getItem("authToken");
-      const res = await fetch(
-        `http://localhost:8080/api/search?q=${encodeURIComponent(searchInput.trim())}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        searchResults = data.results || data || [];
-      }
-    } catch (err) {
-      console.error("Search failed:", err);
-    } finally {
-      isSearching = false;
-    }
-  }
-
-  function clearSearch() {
-    searchInput = "";
-    searchResults = [];
-  }
-
   function handleDragOver(e) {
     e.preventDefault();
     isDragging = true;
@@ -295,84 +259,8 @@
         <div class="spinner"></div>
       </div>
     {:else}
-      <!-- Top Row: Search + Quick Stats -->
+      <!-- Top Row: Quick Stats Only -->
       <div class="top-row">
-        <!-- Search Card -->
-        <div class="card search-card">
-          <form onsubmit={handleSearch}>
-            <div class="search-input-wrapper">
-              <i class="bi bi-search"></i>
-              <input
-                type="text"
-                bind:value={searchInput}
-                placeholder="Dateien suchen..."
-                class="search-input"
-              />
-              {#if searchInput}
-                <button
-                  type="button"
-                  class="clear-btn"
-                  onclick={clearSearch}
-                  aria-label="Clear search"
-                >
-                  <i class="bi bi-x" aria-hidden="true"></i>
-                </button>
-              {/if}
-              <button type="submit" class="search-btn" disabled={isSearching}>
-                {#if isSearching}
-                  <i class="bi bi-hourglass-split"></i>
-                {:else}
-                  Suchen
-                {/if}
-              </button>
-            </div>
-          </form>
-
-          {#if searchResults.length > 0}
-            <div class="search-results">
-              <div class="search-results-header">
-                <span
-                  >{searchResults.length} Ergebnis{searchResults.length !== 1
-                    ? "se"
-                    : ""}</span
-                >
-                <button class="link-btn" onclick={clearSearch}>Schließen</button
-                >
-              </div>
-              <div class="search-results-list">
-                {#each searchResults.slice(0, 5) as result}
-                  <button
-                    class="search-result-item"
-                    onclick={() => {
-                      selectedFile = result;
-                      showPreview = true;
-                    }}
-                  >
-                    <i
-                      class="bi {result.is_directory
-                        ? 'bi-folder-fill'
-                        : 'bi-file-earmark'}"
-                    ></i>
-                    <span class="result-name"
-                      >{result.name ||
-                        result.filename ||
-                        extractFileName(result.path)}</span
-                    >
-                  </button>
-                {/each}
-                {#if searchResults.length > 5}
-                  <button
-                    class="link-btn show-more"
-                    onclick={() => navigateTo("search")}
-                  >
-                    Alle {searchResults.length} Ergebnisse anzeigen →
-                  </button>
-                {/if}
-              </div>
-            </div>
-          {/if}
-        </div>
-
         <!-- Quick Stats -->
         <div class="stats-row">
           <div class="stat-item">
@@ -683,60 +571,6 @@
     display: flex;
     gap: 1.5rem;
     margin-bottom: 1.5rem;
-  }
-
-  .search-card {
-    flex: 1;
-    padding: 1rem;
-  }
-
-  .search-input-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background: #f3f4f6;
-    border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
-  }
-
-  :global(.dark) .search-input-wrapper {
-    background: #374151;
-  }
-
-  .search-input-wrapper i {
-    color: #9ca3af;
-  }
-
-  .search-input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    font-size: 0.95rem;
-    color: #111827;
-    outline: none;
-  }
-
-  :global(.dark) .search-input {
-    color: #f9fafb;
-  }
-
-  .search-input::placeholder {
-    color: #9ca3af;
-  }
-
-  .search-btn {
-    background: #22c55e;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .search-btn:hover {
-    background: #16a34a;
   }
 
   .stats-row {
@@ -1192,95 +1026,6 @@
     padding: 2rem 0 1rem;
     font-size: 0.75rem;
     color: #9ca3af;
-  }
-
-  /* Search Results */
-  .search-results {
-    margin-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-    padding-top: 1rem;
-  }
-
-  :global(.dark) .search-results {
-    border-color: #374151;
-  }
-
-  .search-results-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-    font-size: 0.875rem;
-    color: #6b7280;
-  }
-
-  .search-results-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .search-result-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0.75rem;
-    background: #f9fafb;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    text-align: left;
-    width: 100%;
-    transition: background 0.15s;
-  }
-
-  :global(.dark) .search-result-item {
-    background: #111827;
-  }
-
-  .search-result-item:hover {
-    background: #e5e7eb;
-  }
-
-  :global(.dark) .search-result-item:hover {
-    background: #374151;
-  }
-
-  .search-result-item i {
-    color: #6b7280;
-  }
-
-  .result-name {
-    font-size: 0.875rem;
-    color: #374151;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  :global(.dark) .result-name {
-    color: #d1d5db;
-  }
-
-  .show-more {
-    margin-top: 0.5rem;
-    text-align: center;
-    width: 100%;
-  }
-
-  .clear-btn {
-    background: none;
-    border: none;
-    color: #9ca3af;
-    cursor: pointer;
-    padding: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .clear-btn:hover {
-    color: #6b7280;
   }
 
   /* Upload Progress */

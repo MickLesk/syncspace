@@ -5,6 +5,8 @@
   import PageWrapper from "../components/PageWrapper.svelte";
   import LoadingState from "../components/ui/LoadingState.svelte";
   import EmptyState from "../components/ui/EmptyState.svelte";
+  import Modal from "../components/ui/Modal.svelte";
+  import ModernButton from "../components/ui/ModernButton.svelte";
   import { tags as tagsApi } from "../lib/api.js";
   import { success, error as errorToast } from "../stores/toast.js";
 
@@ -15,6 +17,18 @@
   let error = $state(null);
   let selectedTags = $state(new Set());
   let selectedTagsArray = $state([]);
+
+  // Tag detail modal
+  let showTagModal = $state(false);
+  let selectedTag = $state(null);
+  let tagFiles = $state([]);
+  let loadingTagFiles = $state(false);
+
+  // Create tag modal
+  let showCreateTagModal = $state(false);
+  let newTagName = $state("");
+  let newTagColor = $state("#10B981");
+  let creatingTag = $state(false);
 
   // Cloud config
   let minFontSize = $state(16);
@@ -27,19 +41,41 @@
   let searchQuery = $state("");
 
   const colorCategories = [
+    "#10B981", // emerald (primary)
     "#3B82F6", // blue
-    "#EF4444", // red
-    "#10B981", // emerald
     "#F59E0B", // amber
     "#8B5CF6", // violet
     "#EC4899", // pink
     "#06B6D4", // cyan
+    "#EF4444", // red
     "#6B7280", // gray
   ];
 
   onMount(async () => {
     await loadTagCloud();
   });
+
+  async function createTag() {
+    if (!newTagName.trim()) {
+      errorToast(tr("tagCloud.enterTagName"));
+      return;
+    }
+
+    creatingTag = true;
+    try {
+      await tagsApi.create({ name: newTagName.trim(), color: newTagColor });
+      success(tr("tagCloud.tagCreated"));
+      showCreateTagModal = false;
+      newTagName = "";
+      newTagColor = "#10B981";
+      await loadTagCloud();
+    } catch (e) {
+      console.error("Failed to create tag:", e);
+      errorToast(tr("tagCloud.createError"));
+    } finally {
+      creatingTag = false;
+    }
+  }
 
   async function loadTagCloud() {
     loading = true;
@@ -112,6 +148,30 @@
     updateSelectedArray();
   }
 
+  async function openTagModal(tag, e) {
+    e.stopPropagation();
+    selectedTag = tag;
+    showTagModal = true;
+    loadingTagFiles = true;
+
+    try {
+      // Load files associated with this tag
+      const files = await tagsApi.getFiles(tag.id);
+      tagFiles = files || [];
+    } catch (err) {
+      console.error("Failed to load tag files:", err);
+      tagFiles = [];
+    } finally {
+      loadingTagFiles = false;
+    }
+  }
+
+  function closeTagModal() {
+    showTagModal = false;
+    selectedTag = null;
+    tagFiles = [];
+  }
+
   function updateSelectedArray() {
     selectedTagsArray = Array.from(selectedTags)
       .map((id) => tags.find((t) => t.id === id))
@@ -168,18 +228,118 @@
 <PageWrapper>
   <div class="container mx-auto px-4 py-8 max-w-6xl">
     <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-        <i class="bi bi-cloud text-green-500 mr-3" aria-hidden="true"></i>{tr(
-          "tagCloud.title"
-        )}
-      </h1>
-      <p class="text-gray-600 dark:text-gray-400">
-        {tr("tagCloud.description")} • {tags.length}
-        {tr("tagCloud.tags")} • {totalFiles}
-        {tr("tagCloud.files")}
-      </p>
+    <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          <i class="bi bi-tags text-green-500 mr-3" aria-hidden="true"></i>{tr(
+            "tagCloud.title"
+          )}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          {tr("tagCloud.description")} • {tags.length}
+          {tr("tagCloud.tags")} • {totalFiles}
+          {tr("tagCloud.files")}
+        </p>
+      </div>
+      <button
+        type="button"
+        class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl shadow-lg shadow-green-500/25 font-medium flex items-center gap-2 transition-all"
+        onclick={() => (showCreateTagModal = true)}
+      >
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+        {tr("tagCloud.createTag")}
+      </button>
     </div>
+
+    <!-- Create Tag Modal -->
+    <Modal
+      visible={showCreateTagModal}
+      title={tr("tagCloud.createTag")}
+      icon="tag"
+      size="sm"
+      variant="primary"
+      onclose={() => (showCreateTagModal = false)}
+    >
+      {#snippet children()}
+        <div class="space-y-4">
+          <div>
+            <label
+              for="newTagName"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              {tr("tagCloud.tagName")}
+            </label>
+            <input
+              id="newTagName"
+              type="text"
+              bind:value={newTagName}
+              placeholder={tr("tagCloud.tagNamePlaceholder")}
+              class="w-full px-4 py-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none"
+            />
+          </div>
+          <div>
+            <label
+              for="newTagColor"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              {tr("tagCloud.tagColor")}
+            </label>
+            <div class="flex items-center gap-3">
+              <input
+                id="newTagColor"
+                type="color"
+                bind:value={newTagColor}
+                class="w-12 h-12 rounded-lg border-2 border-gray-200 dark:border-gray-700 cursor-pointer"
+              />
+              <div class="flex flex-wrap gap-2">
+                {#each colorCategories as color}
+                  <button
+                    type="button"
+                    class="w-8 h-8 rounded-full transition-transform hover:scale-110 {newTagColor ===
+                    color
+                      ? 'ring-2 ring-offset-2 ring-green-500'
+                      : ''}"
+                    style="background-color: {color};"
+                    onclick={() => (newTagColor = color)}
+                    aria-label="Select color {color}"
+                  ></button>
+                {/each}
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 pt-2">
+            <span
+              class="px-4 py-2 rounded-full text-white font-medium"
+              style="background-color: {newTagColor};"
+            >
+              {newTagName || tr("tagCloud.preview")}
+            </span>
+          </div>
+        </div>
+      {/snippet}
+      {#snippet actions()}
+        <button
+          type="button"
+          class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+          onclick={() => (showCreateTagModal = false)}
+        >
+          {tr("cancel")}
+        </button>
+        <button
+          type="button"
+          class="px-5 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl shadow-lg shadow-green-500/25 font-medium flex items-center gap-2 transition-all disabled:opacity-50"
+          onclick={createTag}
+          disabled={creatingTag || !newTagName.trim()}
+        >
+          {#if creatingTag}
+            <i class="bi bi-arrow-repeat animate-spin" aria-hidden="true"></i>
+          {:else}
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
+          {/if}
+          {tr("tagCloud.createTag")}
+        </button>
+      {/snippet}
+    </Modal>
 
     {#if loading}
       <LoadingState />
@@ -256,6 +416,19 @@
                 >
                   {tag.name}
                   <span class="text-xs opacity-75 ml-1">({tag.usage})</span>
+
+                  <!-- Info Button on Hover -->
+                  <div
+                    class="absolute -top-2 -left-2 bg-green-500 rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-green-600"
+                    onclick={(e) => openTagModal(tag, e)}
+                    role="button"
+                    tabindex="0"
+                    title={tr("tagCloud.viewDetails")}
+                    onkeydown={(e) => e.key === "Enter" && openTagModal(tag, e)}
+                  >
+                    <i class="bi bi-info text-white text-sm" aria-hidden="true"
+                    ></i>
+                  </div>
 
                   <!-- Delete Button on Hover (Admin) -->
                   <div
@@ -459,6 +632,107 @@
     {/if}
   </div>
 </PageWrapper>
+
+<!-- Tag Detail Modal -->
+{#if showTagModal && selectedTag}
+  <Modal title={selectedTag.name} onclose={closeTagModal}>
+    <div class="space-y-6">
+      <!-- Tag Info Header -->
+      <div
+        class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl"
+      >
+        <div
+          class="w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold"
+          style="background-color: {getTagColor(selectedTag)}"
+        >
+          <i class="bi bi-tag-fill" aria-hidden="true"></i>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+            {selectedTag.name}
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            {selectedTag.usage}
+            {tr("tagCloud.files")}
+          </p>
+          {#if selectedTag.created_at}
+            <p class="text-sm text-gray-500 dark:text-gray-500">
+              {tr("tagCloud.createdAt")}: {new Date(
+                selectedTag.created_at
+              ).toLocaleDateString()}
+            </p>
+          {/if}
+        </div>
+      </div>
+
+      <!-- Files with this tag -->
+      <div>
+        <h4
+          class="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2"
+        >
+          <i class="bi bi-files" aria-hidden="true"></i>
+          {tr("tagCloud.filesWithTag")}
+        </h4>
+
+        {#if loadingTagFiles}
+          <div class="flex items-center justify-center py-8">
+            <div
+              class="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full animate-spin"
+            ></div>
+          </div>
+        {:else if tagFiles.length === 0}
+          <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+            <i
+              class="bi bi-folder2-open text-4xl opacity-50 mb-2"
+              aria-hidden="true"
+            ></i>
+            <p>{tr("tagCloud.noFilesWithTag")}</p>
+          </div>
+        {:else}
+          <div class="max-h-64 overflow-y-auto space-y-2">
+            {#each tagFiles as file}
+              <div
+                class="flex items-center gap-3 p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-green-500 dark:hover:border-green-500 transition-colors"
+              >
+                <i
+                  class="bi bi-file-earmark text-gray-400 dark:text-gray-500"
+                  aria-hidden="true"
+                ></i>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium text-gray-900 dark:text-white truncate">
+                    {file.name || file.filename}
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {file.path || file.file_path}
+                  </p>
+                </div>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+
+      <!-- Actions -->
+      <div
+        class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700"
+      >
+        <ModernButton variant="secondary" onclick={closeTagModal}>
+          {tr("close")}
+        </ModernButton>
+        <ModernButton
+          variant="danger"
+          onclick={(e) => {
+            closeTagModal();
+            deleteTag(selectedTag, e);
+          }}
+        >
+          <i class="bi bi-trash mr-2" aria-hidden="true"></i>
+          {tr("delete")}
+        </ModernButton>
+      </div>
+    </div>
+  </Modal>
+{/if}
 
 <style>
   :global(body.dark) {

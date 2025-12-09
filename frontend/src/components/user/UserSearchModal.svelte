@@ -54,7 +54,8 @@
     loading = true;
     try {
       const response = await api.users.listAll(null, statusFilter);
-      users = response.data || [];
+      // Handle both array response and {data: [...]} response
+      users = Array.isArray(response) ? response : response.data || [];
       filteredUsers = users;
     } catch (err) {
       console.error("Failed to load users:", err);

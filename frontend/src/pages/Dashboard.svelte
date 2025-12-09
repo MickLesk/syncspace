@@ -210,7 +210,7 @@
   }
 
   function extractFileName(path) {
-    if (!path) return "Unbekannt";
+    if (!path) return tr("dashboard.unknownFile");
     return path.split("/").pop() || path;
   }
 
@@ -433,15 +433,6 @@
           <div class="action-text">
             <h3>{tr("dashboard.myShares")}</h3>
             <p>{tr("dashboard.mySharesDesc")}</p>
-          </div>
-        </a>
-        <a href="#/search" class="action-card">
-          <div class="action-icon search-icon">
-            <i class="bi bi-search"></i>
-          </div>
-          <div class="action-text">
-            <h3>{tr("dashboard.searchFiles")}</h3>
-            <p>{tr("dashboard.searchFilesDesc")}</p>
           </div>
         </a>
         <a href="#/activity" class="action-card">

@@ -7,6 +7,7 @@
     success as toastSuccess,
     error as toastError,
   } from "../../stores/toast.js";
+  import Modal from "../../components/ui/Modal.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -300,237 +301,216 @@
 </div>
 
 <!-- Add User Modal -->
-{#if showAddModal}
-  <div
-    class="modal-overlay"
-    onclick={() => (showAddModal = false)}
-    onkeydown={(e) => e.key === "Escape" && (showAddModal = false)}
-    role="dialog"
-    aria-modal="true"
-    tabindex="-1"
-  >
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <div
-      class="modal"
-      onclick={(e) => e.stopPropagation()}
-      onkeydown={(e) => e.stopPropagation()}
-      role="document"
-    >
-      <div class="modal-header">
-        <h3>{tr("settings.users.add_user")}</h3>
-        <button
-          class="modal-close"
-          onclick={() => (showAddModal = false)}
-          aria-label="Close"
+<Modal
+  bind:visible={showAddModal}
+  title={tr("settings.users.add_user")}
+  icon="person-plus"
+  size="md"
+  variant="primary"
+  onclose={() => (showAddModal = false)}
+>
+  {#snippet children()}
+    <div class="space-y-4">
+      <div class="form-group">
+        <label
+          for="add-username"
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >{tr("settings.users.username")} *</label
         >
-          <i class="bi bi-x"></i>
-        </button>
+        <input
+          type="text"
+          id="add-username"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          bind:value={newUser.username}
+          placeholder={tr("settings.users.username_placeholder")}
+        />
       </div>
 
-      <div class="modal-body">
-        <div class="form-group">
-          <label for="add-username">{tr("settings.users.username")} *</label>
-          <input
-            type="text"
-            id="add-username"
-            class="form-input"
-            bind:value={newUser.username}
-            placeholder={tr("settings.users.username_placeholder")}
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="add-password">{tr("settings.users.password")} *</label>
-          <input
-            type="password"
-            id="add-password"
-            class="form-input"
-            bind:value={newUser.password}
-            placeholder={tr("settings.users.password_placeholder")}
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="add-email">{tr("settings.users.email")}</label>
-          <input
-            type="email"
-            id="add-email"
-            class="form-input"
-            bind:value={newUser.email}
-            placeholder={tr("settings.users.email_placeholder")}
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="add-role">{tr("settings.users.role")}</label>
-          <select id="add-role" class="form-input" bind:value={newUser.role}>
-            <option value="user">{tr("settings.users.user")}</option>
-            <option value="admin">{tr("settings.users.admin")}</option>
-          </select>
-        </div>
+      <div class="form-group">
+        <label
+          for="add-password"
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >{tr("settings.users.password")} *</label
+        >
+        <input
+          type="password"
+          id="add-password"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          bind:value={newUser.password}
+          placeholder={tr("settings.users.password_placeholder")}
+        />
       </div>
 
-      <div class="modal-footer">
-        <button
-          class="btn btn-secondary"
-          onclick={() => (showAddModal = false)}
+      <div class="form-group">
+        <label
+          for="add-email"
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >{tr("settings.users.email")}</label
         >
-          {tr("common.cancel")}
-        </button>
-        <button
-          class="btn btn-primary"
-          onclick={handleAddUser}
-          disabled={addingUser}
+        <input
+          type="email"
+          id="add-email"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          bind:value={newUser.email}
+          placeholder={tr("settings.users.email_placeholder")}
+        />
+      </div>
+
+      <div class="form-group">
+        <label
+          for="add-role"
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >{tr("settings.users.role")}</label
         >
-          {#if addingUser}
-            <span class="btn-spinner"></span>
-          {/if}
-          {tr("common.create")}
-        </button>
+        <select
+          id="add-role"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          bind:value={newUser.role}
+        >
+          <option value="user">{tr("settings.users.user")}</option>
+          <option value="admin">{tr("settings.users.admin")}</option>
+        </select>
       </div>
     </div>
-  </div>
-{/if}
+  {/snippet}
+
+  {#snippet actions()}
+    <button class="btn btn-ghost" onclick={() => (showAddModal = false)}>
+      {tr("common.cancel")}
+    </button>
+    <button
+      class="btn btn-primary"
+      onclick={handleAddUser}
+      disabled={addingUser}
+    >
+      {#if addingUser}
+        <span class="loading loading-spinner loading-sm"></span>
+      {/if}
+      {tr("common.create")}
+    </button>
+  {/snippet}
+</Modal>
 
 <!-- Edit User Modal -->
-{#if showEditModal && editUser}
-  <div
-    class="modal-overlay"
-    onclick={() => (showEditModal = false)}
-    onkeydown={(e) => e.key === "Escape" && (showEditModal = false)}
-    role="dialog"
-    aria-modal="true"
-    tabindex="-1"
-  >
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <div
-      class="modal"
-      onclick={(e) => e.stopPropagation()}
-      onkeydown={(e) => e.stopPropagation()}
-      role="document"
-    >
-      <div class="modal-header">
-        <h3>{tr("settings.users.edit_user")}</h3>
-        <button
-          class="modal-close"
-          onclick={() => (showEditModal = false)}
-          aria-label="Close"
-        >
-          <i class="bi bi-x"></i>
-        </button>
-      </div>
-
-      <div class="modal-body">
+<Modal
+  visible={showEditModal && !!editUser}
+  title={tr("settings.users.edit_user")}
+  icon="pencil"
+  size="md"
+  variant="primary"
+  onclose={() => (showEditModal = false)}
+>
+  {#snippet children()}
+    {#if editUser}
+      <div class="space-y-4">
         <div class="form-group">
-          <label for="edit-username">{tr("settings.users.username")}</label>
+          <label
+            for="edit-username"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >{tr("settings.users.username")}</label
+          >
           <input
             type="text"
             id="edit-username"
-            class="form-input"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
             bind:value={editUser.username}
             disabled
           />
         </div>
 
         <div class="form-group">
-          <label for="edit-email">{tr("settings.users.email")}</label>
+          <label
+            for="edit-email"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >{tr("settings.users.email")}</label
+          >
           <input
             type="email"
             id="edit-email"
-            class="form-input"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             bind:value={editUser.email}
             placeholder={tr("settings.users.email_placeholder")}
           />
         </div>
 
         <div class="form-group">
-          <label for="edit-role">{tr("settings.users.role")}</label>
-          <select id="edit-role" class="form-input" bind:value={editUser.role}>
+          <label
+            for="edit-role"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >{tr("settings.users.role")}</label
+          >
+          <select
+            id="edit-role"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            bind:value={editUser.role}
+          >
             <option value="user">{tr("settings.users.user")}</option>
             <option value="admin">{tr("settings.users.admin")}</option>
           </select>
         </div>
       </div>
+    {/if}
+  {/snippet}
 
-      <div class="modal-footer">
-        <button
-          class="btn btn-secondary"
-          onclick={() => (showEditModal = false)}
-        >
-          {tr("common.cancel")}
-        </button>
-        <button
-          class="btn btn-primary"
-          onclick={handleSaveUser}
-          disabled={savingUser}
-        >
-          {#if savingUser}
-            <span class="btn-spinner"></span>
-          {/if}
-          {tr("common.save")}
-        </button>
-      </div>
-    </div>
-  </div>
-{/if}
+  {#snippet actions()}
+    <button class="btn btn-ghost" onclick={() => (showEditModal = false)}>
+      {tr("common.cancel")}
+    </button>
+    <button
+      class="btn btn-primary"
+      onclick={handleSaveUser}
+      disabled={savingUser}
+    >
+      {#if savingUser}
+        <span class="loading loading-spinner loading-sm"></span>
+      {/if}
+      {tr("common.save")}
+    </button>
+  {/snippet}
+</Modal>
 
 <!-- Delete Confirmation Modal -->
-{#if showDeleteModal && deleteTarget}
-  <div
-    class="modal-overlay"
-    onclick={() => (showDeleteModal = false)}
-    onkeydown={(e) => e.key === "Escape" && (showDeleteModal = false)}
-    role="dialog"
-    aria-modal="true"
-    tabindex="-1"
-  >
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <div
-      class="modal modal-sm"
-      onclick={(e) => e.stopPropagation()}
-      onkeydown={(e) => e.stopPropagation()}
-      role="document"
-    >
-      <div class="modal-header">
-        <h3>{tr("settings.users.delete_user")}</h3>
-        <button
-          class="modal-close"
-          onclick={() => (showDeleteModal = false)}
-          aria-label="Close"
+<Modal
+  visible={showDeleteModal && !!deleteTarget}
+  title={tr("settings.users.delete_user")}
+  icon="trash"
+  size="sm"
+  variant="danger"
+  onclose={() => (showDeleteModal = false)}
+>
+  {#snippet children()}
+    {#if deleteTarget}
+      <div class="text-center py-4">
+        <div
+          class="w-16 h-16 mx-auto mb-4 rounded-full bg-error/10 flex items-center justify-center"
         >
-          <i class="bi bi-x"></i>
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <p>
+          <i class="bi bi-exclamation-triangle text-3xl text-error"></i>
+        </div>
+        <p class="text-gray-700 dark:text-gray-300">
           {tr("settings.users.delete_confirm", {
             username: deleteTarget.username,
           })}
         </p>
       </div>
+    {/if}
+  {/snippet}
 
-      <div class="modal-footer">
-        <button
-          class="btn btn-secondary"
-          onclick={() => (showDeleteModal = false)}
-        >
-          {tr("common.cancel")}
-        </button>
-        <button
-          class="btn btn-danger"
-          onclick={handleDeleteUser}
-          disabled={deletingUser}
-        >
-          {#if deletingUser}
-            <span class="btn-spinner"></span>
-          {/if}
-          {tr("common.delete")}
-        </button>
-      </div>
-    </div>
-  </div>
-{/if}
+  {#snippet actions()}
+    <button class="btn btn-ghost" onclick={() => (showDeleteModal = false)}>
+      {tr("common.cancel")}
+    </button>
+    <button
+      class="btn btn-error"
+      onclick={handleDeleteUser}
+      disabled={deletingUser}
+    >
+      {#if deletingUser}
+        <span class="loading loading-spinner loading-sm"></span>
+      {/if}
+      {tr("common.delete")}
+    </button>
+  {/snippet}
+</Modal>
 
 <style>
   .users-settings {
@@ -703,24 +683,6 @@
     background: #16a34a;
   }
 
-  .btn-secondary {
-    background: #f3f4f6;
-    color: #374151;
-  }
-
-  .btn-secondary:hover:not(:disabled) {
-    background: #e5e7eb;
-  }
-
-  :global([data-theme="dark"]) .btn-secondary {
-    background: #374151;
-    color: #e5e7eb;
-  }
-
-  :global([data-theme="dark"]) .btn-secondary:hover:not(:disabled) {
-    background: #4b5563;
-  }
-
   .btn-danger {
     background: #ef4444;
     color: white;
@@ -728,15 +690,6 @@
 
   .btn-danger:hover:not(:disabled) {
     background: #dc2626;
-  }
-
-  .btn-spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
   }
 
   @keyframes spin {
@@ -942,102 +895,6 @@
     border-color: rgba(220, 38, 38, 0.3);
   }
 
-  /* Modal */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: 1rem;
-  }
-
-  .modal {
-    background: white;
-    border-radius: 0.75rem;
-    width: 100%;
-    max-width: 450px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-  }
-
-  .modal-sm {
-    max-width: 360px;
-  }
-
-  :global([data-theme="dark"]) .modal {
-    background: #1f2937;
-    border: 1px solid #374151;
-  }
-
-  .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.25rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-theme="dark"]) .modal-header {
-    border-bottom-color: #374151;
-  }
-
-  .modal-header h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0;
-  }
-
-  :global([data-theme="dark"]) .modal-header h3 {
-    color: #f9fafb;
-  }
-
-  .modal-close {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    background: none;
-    color: #6b7280;
-    cursor: pointer;
-    border-radius: 0.375rem;
-  }
-
-  .modal-close:hover {
-    background: #f3f4f6;
-    color: #374151;
-  }
-
-  :global([data-theme="dark"]) .modal-close:hover {
-    background: #374151;
-    color: #e5e7eb;
-  }
-
-  .modal-body {
-    padding: 1.25rem;
-  }
-
-  .modal-body p {
-    color: #6b7280;
-    margin: 0;
-  }
-
-  .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    padding: 1.25rem;
-    border-top: 1px solid #e5e7eb;
-  }
-
-  :global([data-theme="dark"]) .modal-footer {
-    border-top-color: #374151;
-  }
-
   /* Form */
   .form-group {
     margin-bottom: 1rem;
@@ -1057,36 +914,5 @@
 
   :global([data-theme="dark"]) .form-group label {
     color: #e5e7eb;
-  }
-
-  .form-input {
-    width: 100%;
-    padding: 0.625rem 0.875rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    background: white;
-    color: #374151;
-  }
-
-  .form-input:focus {
-    outline: none;
-    border-color: #22c55e;
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
-  }
-
-  .form-input:disabled {
-    background: #f9fafb;
-    cursor: not-allowed;
-  }
-
-  :global([data-theme="dark"]) .form-input {
-    background: #374151;
-    border-color: #4b5563;
-    color: #e5e7eb;
-  }
-
-  :global([data-theme="dark"]) .form-input:disabled {
-    background: #1f2937;
   }
 </style>

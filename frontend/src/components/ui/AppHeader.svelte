@@ -906,19 +906,19 @@
     width: 40px;
     height: 40px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #3b82f6 0%, #a855f7 50%, #ec4899 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
     color: white;
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
   }
 
   .brand-name {
     font-size: 1.25rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #3b82f6 0%, #a855f7 50%, #ec4899 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

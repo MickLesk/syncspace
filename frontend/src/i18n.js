@@ -202,6 +202,7 @@ export const translations = {
       today: 'Heute',
       activeToday: 'Heute aktiv',
       actionsToday: 'Aktionen heute',
+      unknownFile: 'Unbekannte Datei',
       // Stats
       totalFiles: 'Dateien gesamt',
       activeShares: 'Aktive Freigaben',
@@ -872,7 +873,7 @@ export const translations = {
     },
 
     tagCloud: {
-      title: 'Tag-Wolke',
+      title: 'Tags',
       description: 'Visualisiere die Häufigkeit deiner Tags',
       tags: 'Tags',
       files: 'Dateien',
@@ -904,6 +905,18 @@ export const translations = {
       deleted: 'Tag gelöscht',
       deleteError: 'Fehler beim Löschen des Tags',
       noResults: 'Keine Tags gefunden, die den Kriterien entsprechen',
+      viewDetails: 'Details anzeigen',
+      createdAt: 'Erstellt am',
+      filesWithTag: 'Dateien mit diesem Tag',
+      noFilesWithTag: 'Keine Dateien mit diesem Tag',
+      createTag: 'Tag erstellen',
+      tagName: 'Tag-Name',
+      tagNamePlaceholder: 'z.B. Wichtig, Projekt, ...',
+      tagColor: 'Tag-Farbe',
+      preview: 'Vorschau',
+      tagCreated: 'Tag erfolgreich erstellt',
+      createError: 'Fehler beim Erstellen des Tags',
+      enterTagName: 'Bitte gib einen Tag-Namen ein',
     },
     cleanup: {
       title: 'Bereinigung',
@@ -4170,6 +4183,7 @@ export const translations = {
       today: 'Today',
       activeToday: 'Active today',
       actionsToday: 'Actions today',
+      unknownFile: 'Unknown file',
       // Stats
       totalFiles: 'Total Files',
       activeShares: 'Active Shares',
@@ -4697,7 +4711,7 @@ export const translations = {
     },
 
     tagCloud: {
-      title: 'Tag Cloud',
+      title: 'Tags',
       description: 'Visualize the frequency of your tags',
       tags: 'Tags',
       files: 'Files',
@@ -4729,6 +4743,18 @@ export const translations = {
       deleted: 'Tag deleted',
       deleteError: 'Error deleting tag',
       noResults: 'No tags found matching your criteria',
+      viewDetails: 'View Details',
+      createdAt: 'Created at',
+      filesWithTag: 'Files with this tag',
+      noFilesWithTag: 'No files with this tag',
+      createTag: 'Create Tag',
+      tagName: 'Tag Name',
+      tagNamePlaceholder: 'e.g. Important, Project, ...',
+      tagColor: 'Tag Color',
+      preview: 'Preview',
+      tagCreated: 'Tag created successfully',
+      createError: 'Error creating tag',
+      enterTagName: 'Please enter a tag name',
     },
     cleanup: {
       title: 'Cleanup',

@@ -139,8 +139,8 @@
 
         loading.show(tr("loginSuccessfulRedirecting"));
 
-        // Redirect to main app
-        window.location.hash = "#/files";
+        // Redirect to dashboard (main app)
+        window.location.hash = "#/dashboard";
         // Force reload to trigger App.svelte onMount
         setTimeout(() => window.location.reload(), 100);
       } else {

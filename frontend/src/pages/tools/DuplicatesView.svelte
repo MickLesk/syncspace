@@ -140,11 +140,11 @@
     <PageHeader
       title={tr("duplicateFinderTitle")}
       subtitle={tr("duplicateFinderSubtitle")}
-      icon="bi-files"
+      icon="files"
     >
-      <svelte:fragment slot="actions">
+      {#snippet actions()}
         <ModernButton
-          variant="primary"
+          variant="gradient"
           onclick={scanCurrentFolder}
           disabled={scanning}
         >
@@ -165,7 +165,7 @@
             {tr("duplicateFinderDeleteSelected", selectedDuplicates.size)}
           </ModernButton>
         {/if}
-      </svelte:fragment>
+      {/snippet}
     </PageHeader>
 
     <div class="space-y-6">

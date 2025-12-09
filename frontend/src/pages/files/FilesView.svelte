@@ -194,10 +194,11 @@
   let unsubscribeFileEvent;
   let handlePopstateRef = null;
   let preferencesLoaded = $state(false);
+  let initialViewModeSet = $state(false);
 
-  // Save view mode to backend when it changes (only after initial load)
+  // Save view mode to backend when it changes (only after initial load and initial value is set)
   $effect(() => {
-    if (viewMode && preferencesLoaded) {
+    if (viewMode && preferencesLoaded && initialViewModeSet) {
       console.log("💾 Saving view mode to backend:", viewMode);
       userPreferences.updatePreference("view_mode", viewMode);
     }
@@ -212,14 +213,21 @@
       const unsubscribe = preferences.subscribe((prefs) => {
         if (prefs && typeof prefs.view_mode === "string") {
           viewMode = prefs.view_mode;
+          console.log("📖 Loaded view mode from backend:", viewMode);
         }
       });
       unsubscribe(); // Immediately unsubscribe after getting value
 
       preferencesLoaded = true; // Enable auto-save after loading
+
+      // Mark that initial value is set - allow future saves
+      setTimeout(() => {
+        initialViewModeSet = true;
+      }, 100);
     } catch (err) {
       console.error("Failed to load preferences:", err);
       preferencesLoaded = true; // Enable even if load fails
+      initialViewModeSet = true;
     }
 
     try {
@@ -559,11 +567,83 @@
       // Apply additional filters from advanced search
       if (filters.fileType && filters.fileType !== "all") {
         searchResults = searchResults.filter((file) => {
-          if (filters.fileType === "folder") return file.is_directory;
-          if (filters.fileType === "file") return !file.is_directory;
-          // Add more file type filters as needed
-          return true;
+          if (file.is_directory) return filters.fileType === "folder";
+
+          const mime = (file.mime_type || "").toLowerCase();
+          const name = (file.name || "").toLowerCase();
+
+          switch (filters.fileType) {
+            case "folder":
+              return file.is_directory;
+            case "image":
+              return (
+                mime.startsWith("image/") ||
+                /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)$/i.test(name)
+              );
+            case "video":
+              return (
+                mime.startsWith("video/") ||
+                /\.(mp4|webm|mkv|avi|mov|wmv)$/i.test(name)
+              );
+            case "audio":
+              return (
+                mime.startsWith("audio/") ||
+                /\.(mp3|wav|ogg|flac|aac|m4a)$/i.test(name)
+              );
+            case "document":
+              return (
+                /\.(doc|docx|odt|rtf)$/i.test(name) || mime.includes("word")
+              );
+            case "archive":
+              return (
+                /\.(zip|rar|7z|tar|gz|bz2)$/i.test(name) ||
+                mime.includes("zip") ||
+                mime.includes("archive")
+              );
+            case "code":
+              return /\.(js|ts|jsx|tsx|py|java|c|cpp|h|rs|go|rb|php|html|css|scss|vue|svelte|json|xml|yaml|yml|md|sql)$/i.test(
+                name
+              );
+            case "pdf":
+              return mime.includes("pdf") || name.endsWith(".pdf");
+            case "text":
+              return (
+                mime.startsWith("text/") ||
+                /\.(txt|log|ini|cfg|conf)$/i.test(name)
+              );
+            default:
+              return true;
+          }
         });
+      }
+
+      // Apply size filters
+      if (filters.sizeMin) {
+        const minBytes = parseFloat(filters.sizeMin) * 1024 * 1024; // MB to bytes
+        searchResults = searchResults.filter(
+          (file) => (file.size_bytes || 0) >= minBytes
+        );
+      }
+      if (filters.sizeMax) {
+        const maxBytes = parseFloat(filters.sizeMax) * 1024 * 1024; // MB to bytes
+        searchResults = searchResults.filter(
+          (file) => (file.size_bytes || 0) <= maxBytes
+        );
+      }
+
+      // Apply date filters
+      if (filters.dateFrom) {
+        const fromDate = new Date(filters.dateFrom);
+        searchResults = searchResults.filter(
+          (file) => new Date(file.modified_at) >= fromDate
+        );
+      }
+      if (filters.dateTo) {
+        const toDate = new Date(filters.dateTo);
+        toDate.setHours(23, 59, 59, 999); // End of day
+        searchResults = searchResults.filter(
+          (file) => new Date(file.modified_at) <= toDate
+        );
       }
 
       // Apply sort from search parameters

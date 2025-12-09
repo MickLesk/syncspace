@@ -35,7 +35,17 @@
     try {
       const sharedResponse = await api.sharing?.list();
       sharedCount = sharedResponse?.data?.length || sharedResponse?.length || 0;
-      trashCount = 5; // Placeholder
+
+      // Fetch actual trash count from backend
+      const trashResponse = await api.trash?.list();
+      if (trashResponse?.ok) {
+        const trashData = await trashResponse.json();
+        trashCount = Array.isArray(trashData)
+          ? trashData.length
+          : trashData?.value?.length || 0;
+      } else {
+        trashCount = 0;
+      }
 
       const activityStats = await fetchActivityStats();
       notificationCount = activityStats?.unread_count || 0;
@@ -90,12 +100,6 @@
       category: "main",
     },
     {
-      id: "recent",
-      icon: "clock-fill",
-      label: t($currentLang, "recentFiles") || "Recent Files",
-      category: "main",
-    },
-    {
       id: "shared",
       icon: "share-fill",
       label: t($currentLang, "shared"),
@@ -113,9 +117,9 @@
       badgeColor: "amber",
     },
     {
-      id: "duplicates",
-      icon: "copy",
-      label: t($currentLang, "duplicates") || "Duplicates",
+      id: "storage-analytics",
+      icon: "bar-chart-line-fill",
+      label: t($currentLang, "storageAnalytics") || "Storage Analysis",
       category: "tools",
     },
     {
