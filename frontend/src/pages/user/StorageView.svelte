@@ -106,7 +106,7 @@
 
   {#if loading}
     <div class="space-y-6">
-      <div class="skeleton h-64 w-full rounded-2xl"></div>
+      <div class="skeleton h-64 w-full rounded-xl"></div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {#each Array(3) as _}
           <div class="skeleton h-32 w-full rounded-xl"></div>
@@ -117,7 +117,7 @@
     <div class="space-y-6">
       <!-- Storage Overview -->
       <div
-        class="card bg-white dark:bg-gray-800 shadow-xl rounded-2xl hover-scale"
+        class="card bg-white dark:bg-gray-800 shadow-xl rounded-xl hover-scale"
       >
         <div class="card-body">
           <h2 class="card-title text-xl mb-6">
@@ -159,7 +159,7 @@
 
       <!-- Storage by Type -->
       <div
-        class="card bg-white dark:bg-gray-800 shadow-xl rounded-2xl hover-scale"
+        class="card bg-white dark:bg-gray-800 shadow-xl rounded-xl hover-scale"
       >
         <div class="card-body">
           <h2 class="card-title text-xl mb-6">

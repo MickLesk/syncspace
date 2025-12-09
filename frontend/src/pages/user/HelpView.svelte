@@ -79,7 +79,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <a
         href="#getting-started"
-        class="card bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow rounded-2xl"
+        class="card bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow rounded-xl"
       >
         <div class="card-body items-center text-center">
           <i class="bi bi-rocket text-4xl text-primary-600" aria-hidden="true"></i>
@@ -92,7 +92,7 @@
 
       <a
         href="#documentation"
-        class="card bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow rounded-2xl"
+        class="card bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow rounded-xl"
       >
         <div class="card-body items-center text-center">
           <i class="bi bi-book text-4xl text-secondary-600" aria-hidden="true"></i>
@@ -105,7 +105,7 @@
 
       <a
         href="#contact"
-        class="card bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow rounded-2xl"
+        class="card bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow rounded-xl"
       >
         <div class="card-body items-center text-center">
           <i class="bi bi-envelope text-4xl text-accent-600" aria-hidden="true"></i>
@@ -118,7 +118,7 @@
     </div>
 
     <!-- FAQ -->
-    <div class="card bg-white dark:bg-gray-800 shadow-xl rounded-2xl">
+    <div class="card bg-white dark:bg-gray-800 shadow-xl rounded-xl">
       <div class="card-body">
         <h2 class="card-title text-xl mb-6">
           <i class="bi bi-chat-question text-primary-600" aria-hidden="true"></i>
@@ -157,7 +157,7 @@
 
     <!-- Contact Support -->
     <div
-      class="card bg-gradient-to-br from-primary-600 to-primary-400 text-white shadow-xl rounded-2xl"
+      class="card bg-gradient-to-br from-primary-600 to-primary-400 text-white shadow-xl rounded-xl"
     >
       <div class="card-body">
         <h2 class="card-title text-xl">

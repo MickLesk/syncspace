@@ -23,6 +23,7 @@
   let activeSessions = $state(0);
   let uploadTrend = $state(0);
   let storageTrend = $state(0);
+  let recentActivities = $state([]);
 
   // Auto-refresh
   let refreshInterval = null;
@@ -53,12 +54,15 @@
       const token = localStorage.getItem("authToken");
       const headers = { Authorization: `Bearer ${token}` };
 
-      const [statsRes, activityRes, sharesRes] = await Promise.all([
+      const [statsRes, activityRes, sharesRes, allActivityRes] = await Promise.all([
         fetch("http://localhost:8080/api/dashboard/stats", { headers }),
         fetch("http://localhost:8080/api/activity?limit=10&action=upload", {
           headers,
         }),
         fetch("http://localhost:8080/api/shares", { headers }).catch(() => ({
+          ok: false,
+        })),
+        fetch("http://localhost:8080/api/activity?limit=8", { headers }).catch(() => ({
           ok: false,
         })),
       ]);

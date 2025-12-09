@@ -23,6 +23,11 @@
     onBatchDelete,
     onBatchTag,
     onBatchRename,
+    onBatchCopy,
+    onBatchMove,
+    onBatchDownload,
+    onBatchShare,
+    onBatchFavorite,
     selectedFiles = [],
   } = $props();
 
@@ -51,25 +56,81 @@
       </div>
       <div class="selection-actions">
         {#if selectedCount > 0}
+          {#if onBatchCopy}
+            <button
+              type="button"
+              class="btn-action blue"
+              onclick={onBatchCopy}
+              title={tr("copy")}
+            >
+              <i class="bi bi-copy"></i>
+              <span class="hidden sm:inline">{tr("copy")}</span>
+            </button>
+          {/if}
+          {#if onBatchMove}
+            <button
+              type="button"
+              class="btn-action cyan"
+              onclick={onBatchMove}
+              title={tr("move")}
+            >
+              <i class="bi bi-arrow-right-square"></i>
+              <span class="hidden sm:inline">{tr("move")}</span>
+            </button>
+          {/if}
+          {#if onBatchDownload}
+            <button
+              type="button"
+              class="btn-action teal"
+              onclick={onBatchDownload}
+              title={tr("download")}
+            >
+              <i class="bi bi-download"></i>
+              <span class="hidden sm:inline">{tr("download")}</span>
+            </button>
+          {/if}
+          {#if onBatchShare}
+            <button
+              type="button"
+              class="btn-action indigo"
+              onclick={onBatchShare}
+              title={tr("share")}
+            >
+              <i class="bi bi-share"></i>
+              <span class="hidden sm:inline">{tr("share")}</span>
+            </button>
+          {/if}
+          {#if onBatchFavorite}
+            <button
+              type="button"
+              class="btn-action yellow"
+              onclick={onBatchFavorite}
+              title={tr("favorite")}
+            >
+              <i class="bi bi-star"></i>
+              <span class="hidden sm:inline">{tr("favorite")}</span>
+            </button>
+          {/if}
           {#if onBatchRename}
             <button
               type="button"
               class="btn-action purple"
               onclick={onBatchRename}
+              title={tr("rename")}
             >
               <i class="bi bi-type"></i>
-              <span class="hidden sm:inline">Rename</span>
+              <span class="hidden sm:inline">{tr("rename")}</span>
             </button>
           {/if}
           {#if onBatchTag}
-            <button type="button" class="btn-action green" onclick={onBatchTag}>
+            <button type="button" class="btn-action green" onclick={onBatchTag} title={tr("tags")}>
               <i class="bi bi-tags"></i>
-              <span class="hidden sm:inline">Tag</span>
+              <span class="hidden sm:inline">{tr("tags")}</span>
             </button>
           {/if}
-          <button type="button" class="btn-action red" onclick={onBatchDelete}>
+          <button type="button" class="btn-action red" onclick={onBatchDelete} title={tr("delete")}>
             <i class="bi bi-trash"></i>
-            <span class="hidden sm:inline">Delete</span>
+            <span class="hidden sm:inline">{tr("delete")}</span>
           </button>
         {/if}
         <button
@@ -78,7 +139,7 @@
           onclick={onSelectionToggle}
         >
           <i class="bi bi-x-lg"></i>
-          <span class="hidden sm:inline">Cancel</span>
+          <span class="hidden sm:inline">{tr("cancel")}</span>
         </button>
       </div>
     </div>
@@ -339,6 +400,36 @@
   }
   .btn-action.red:hover {
     background: #dc2626;
+  }
+  .btn-action.blue {
+    background: #3b82f6;
+  }
+  .btn-action.blue:hover {
+    background: #2563eb;
+  }
+  .btn-action.cyan {
+    background: #06b6d4;
+  }
+  .btn-action.cyan:hover {
+    background: #0891b2;
+  }
+  .btn-action.teal {
+    background: #14b8a6;
+  }
+  .btn-action.teal:hover {
+    background: #0d9488;
+  }
+  .btn-action.indigo {
+    background: #6366f1;
+  }
+  .btn-action.indigo:hover {
+    background: #4f46e5;
+  }
+  .btn-action.yellow {
+    background: #f59e0b;
+  }
+  .btn-action.yellow:hover {
+    background: #d97706;
   }
   .btn-action.gray {
     background: #e5e7eb;

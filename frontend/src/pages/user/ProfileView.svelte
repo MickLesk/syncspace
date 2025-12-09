@@ -257,7 +257,7 @@
         <!-- Cover Photo & Profile -->
         <div class="relative">
           <!-- Cover Photo -->
-          <div class="relative h-48 md:h-64 rounded-2xl overflow-hidden">
+          <div class="relative h-48 md:h-64 rounded-xl overflow-hidden">
             {#if user.coverPhoto}
               <img
                 src={user.coverPhoto}
