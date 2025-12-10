@@ -4,7 +4,7 @@
   import { t } from "../../i18n.js";
   import { format, formatDistanceToNow, parseISO } from "date-fns";
   import { de, enUS } from "date-fns/locale";
-  import api from "../../lib/api.js";
+  import api, { API_BASE } from "../../lib/api.js";
 
   const tr = (key, ...args) => t($currentLang, key, ...args);
 
@@ -28,7 +28,7 @@
     loading = true;
     try {
       const response = await fetch(
-        `http://localhost:8080/api/files/${encodeURIComponent(filePath)}/activity?limit=100`,
+        `${API_BASE}/files/${encodeURIComponent(filePath)}/activity?limit=100`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,

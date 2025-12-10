@@ -1592,8 +1592,11 @@ export const rbac = {
 // WEBSOCKET
 // ============================================
 
+// WebSocket base URL (ws:// or wss://)
+const WS_BASE = API_HOST.replace(/^http/, 'ws') + '/api/ws';
+
 export function createWebSocket() {
-  const ws = new WebSocket("ws://localhost:8080/api/ws");
+  const ws = new WebSocket(WS_BASE);
   return ws;
 }
 
@@ -2632,7 +2635,7 @@ export const system = {
    * Get server status
    */
   async getStatus() {
-    const response = await fetch(`http://localhost:8080/status/json`, {
+    const response = await fetch(`${API_HOST}/status/json`, {
       headers: getHeaders(),
     });
     return handleResponse(response);

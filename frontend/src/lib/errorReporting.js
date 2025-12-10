@@ -3,7 +3,9 @@
  * Sends client-side errors to backend for centralized logging
  */
 
-const ERROR_REPORT_ENDPOINT = 'http://localhost:8080/api/errors/report';
+import { API_BASE } from './api.js';
+
+const ERROR_REPORT_ENDPOINT = `${API_BASE}/errors/report`;
 const MAX_STACK_LENGTH = 2000; // Limit stack trace size
 const REPORT_DEBOUNCE_MS = 1000; // Prevent spam
 

@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import api from "../../lib/api.js";
+  import api, { API_BASE } from "../../lib/api.js";
   import { t } from "../../i18n.js";
   import DiffMatchPatch from "diff-match-patch";
 
@@ -40,7 +40,7 @@
 
       const path = fileA.path || fileA;
       const response = await fetch(
-        `http://localhost:8080/api/compare/${encodeURIComponent(path)}?${params}`,
+        `${API_BASE}/compare/${encodeURIComponent(path)}?${params}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,

@@ -4,7 +4,10 @@
  */
 
 import { writable, derived } from 'svelte/store';
-import { API_BASE } from '../lib/api.js';
+import { API_BASE, API_HOST } from '../lib/api.js';
+
+// WebSocket base URL (ws:// or wss://)
+const WS_BASE = API_HOST.replace(/^http/, 'ws') + '/api/ws';
 
 // Get auth token
 function getToken() {
@@ -52,7 +55,7 @@ function createActivityStore() {
     if (websocket) return;
     
     try {
-      websocket = new WebSocket('ws://localhost:8080/api/ws');
+      websocket = new WebSocket(WS_BASE);
       
       websocket.onopen = () => {
         console.log('[Activity] WebSocket connected for real-time updates');

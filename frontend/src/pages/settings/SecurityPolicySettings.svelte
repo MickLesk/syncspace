@@ -53,7 +53,7 @@
     loading = true;
     try {
       const data = await admin.getSecurityPolicy();
-      
+
       // Password Policy
       minPasswordLength = data.min_password_length || 8;
       requireUppercase = data.require_uppercase !== false;

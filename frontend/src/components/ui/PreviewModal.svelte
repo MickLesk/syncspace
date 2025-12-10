@@ -3,6 +3,7 @@
   import Icon from "./Icon.svelte";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
+  import { API_BASE } from "../../lib/api.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -65,7 +66,7 @@
       );
 
       const response = await fetch(
-        `http://localhost:8080/api/file/${encodeURIComponent(fullPath)}`,
+        `${API_BASE}/file/${encodeURIComponent(fullPath)}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -190,7 +191,7 @@
     <div
       class="preview-modal"
       onclick={(e) => e.stopPropagation()}
-      role="dialog" tabindex="0"
+      role="dialog"
       tabindex="-1"
     >
       <div class="preview-header">

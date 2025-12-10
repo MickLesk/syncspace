@@ -60,7 +60,11 @@
     loading = true;
 
     try {
-      const data = await authApi.register(username, password, email || undefined);
+      const data = await authApi.register(
+        username,
+        password,
+        email || undefined
+      );
 
       // Auto-login after successful registration
       auth.login(data.token, {

@@ -4,6 +4,7 @@
   import { onMount } from "svelte";
   import Modal from "../ui/Modal.svelte";
   import * as api from "../../lib/api.js";
+  import { API_BASE, API_HOST } from "../../lib/api.js";
 
   let { visible = $bindable(false) } = $props();
 
@@ -219,20 +220,19 @@
         <div
           class="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-2 font-mono text-sm"
         >
-          <code class="flex-1 text-gray-900 dark:text-gray-100"
-            >http://localhost:8080/api</code
+          <code class="flex-1 text-gray-900 dark:text-gray-100">{API_BASE}</code
           >
           <button
             class="btn btn-ghost btn-xs btn-square"
             onclick={() => {
-              navigator.clipboard.writeText("http://localhost:8080/api");
+              navigator.clipboard.writeText(API_BASE);
             }}
             title="Copy to clipboard"
           >
             <i class="bi bi-clipboard" aria-hidden="true"></i>
           </button>
           <a
-            href="http://localhost:8080/api"
+            href={API_BASE}
             target="_blank"
             rel="noopener noreferrer"
             class="btn btn-ghost btn-xs btn-square"
@@ -325,7 +325,7 @@
           </div>
           <div class="mt-3 text-xs text-center">
             <a
-              href="http://localhost:8080/status"
+              href="{API_HOST}/status"
               target="_blank"
               rel="noopener noreferrer"
               class="text-primary-600 dark:text-primary-400 hover:underline"

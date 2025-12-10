@@ -3,6 +3,10 @@
   import Modal from "../ui/Modal.svelte";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
+  import { API_HOST } from "../../lib/api.js";
+
+  // WebSocket base URL (ws:// or wss://)
+  const WS_BASE = API_HOST.replace(/^http/, "ws") + "/api/ws";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -303,7 +307,7 @@
               <span
                 class="ml-2 font-mono text-xs text-gray-900 dark:text-gray-100"
               >
-                {serverInfo.websocket.endpoint || "ws://localhost:8080/api/ws"}
+                {serverInfo.websocket.endpoint || WS_BASE}
               </span>
             </div>
           </div>

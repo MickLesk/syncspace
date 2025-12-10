@@ -4,7 +4,10 @@
  */
 
 import { writable, derived } from 'svelte/store';
-import { get as apiGet, put as apiPut, deleteRequest as apiDelete } from '../lib/api.js';
+import { get as apiGet, put as apiPut, deleteRequest as apiDelete, API_HOST } from '../lib/api.js';
+
+// WebSocket base URL (ws:// or wss://)
+const WS_BASE = API_HOST.replace(/^http/, 'ws') + '/api/ws';
 
 // Notifications store
 const notificationsStore = writable([]);
@@ -141,7 +144,7 @@ const createNotificationsStore = () => {
           return;
         }
         
-        const wsUrl = `ws://localhost:8080/api/ws?token=${encodeURIComponent(token)}`;
+        const wsUrl = `${WS_BASE}?token=${encodeURIComponent(token)}`;
         ws = new WebSocket(wsUrl);
         
         ws.onopen = () => {

@@ -1,6 +1,6 @@
 <script>
   import { getFileIcon, getFileIconColor } from "../../utils/fileIcons.js";
-  import api from "../../lib/api.js";
+  import api, { API_BASE } from "../../lib/api.js";
   import { onMount } from "svelte";
   import { currentLang } from "../../stores/ui";
   import { t } from "../../i18n.js";
@@ -129,7 +129,7 @@
     const filePath = file.file_path || file.path || file.name;
     const token = localStorage.getItem("authToken");
     // Use download endpoint with token
-    return `http://localhost:8080/api/download/${encodeURIComponent(filePath)}?token=${token}`;
+    return `${API_BASE}/download/${encodeURIComponent(filePath)}?token=${token}`;
   }
 
   // Track thumbnail loading state

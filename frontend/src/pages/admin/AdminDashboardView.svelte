@@ -39,9 +39,9 @@
         [
           fetch(`${API_BASE}/dashboard/stats`, { headers }),
           fetch(`${API_BASE}/activity?limit=8`, { headers }),
-          fetch(`${API_BASE}/favorites/list`, { headers }).catch(
-            () => ({ ok: false })
-          ),
+          fetch(`${API_BASE}/favorites/list`, { headers }).catch(() => ({
+            ok: false,
+          })),
           fetch(`${API_BASE}/files`, { headers }).catch(() => ({
             ok: false,
           })),

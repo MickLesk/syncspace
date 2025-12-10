@@ -71,9 +71,6 @@
   import SecurityView from "./pages/user/SecurityView.svelte";
   import ApiTokensView from "./pages/user/ApiTokensView.svelte";
 
-  // Showcase (Development)
-  import DesignShowcase from "./pages/showcase/DesignShowcase.svelte";
-
   // UI Components
   import Toast from "./components/ui/Toast.svelte";
   import LoadingOverlay from "./components/LoadingOverlay.svelte";
@@ -481,9 +478,7 @@
             <main
               class="main-content bg-gray-50 dark:bg-gray-900 overflow-x-hidden"
             >
-              {#if $currentView === "design"}
-                <DesignShowcase />
-              {:else if $currentView === "files"}
+              {#if $currentView === "files"}
                 <FilesView />
               {:else if $currentView === "shared"}
                 <SharedView />

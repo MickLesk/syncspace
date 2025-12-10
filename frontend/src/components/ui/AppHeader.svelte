@@ -12,7 +12,7 @@
   import { userPreferences } from "../../stores/preferences.js";
   import { wsConnected } from "@stores/websocket.js";
   import { isDarkMode, toggleDarkMode } from "../../stores/serverState.js";
-  import api from "../../lib/api.js";
+  import api, { API_BASE } from "../../lib/api.js";
   import { onMount } from "svelte";
 
   const dispatch = createEventDispatcher();
@@ -55,7 +55,7 @@
 
   async function checkBackendStatus() {
     try {
-      const response = await fetch("http://localhost:8080/api/status", {
+      const response = await fetch(`${API_BASE}/status`, {
         method: "GET",
       });
       backendOnline = response.ok;

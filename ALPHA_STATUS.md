@@ -1,6 +1,6 @@
 # SyncSpace Alpha Release Status
 
-**Stand**: 10. Dezember 2025
+**Stand**: 10. Januar 2025
 **Version**: Alpha 1.0
 **Status**: 🟢 READY FOR ALPHA TESTING
 
@@ -62,9 +62,16 @@
 
 ## 🔧 Alpha Cleanup Completed
 
-- [x] ~~Hardcoded localhost URLs~~ → API-Modul verwendet
+- [x] ~~Hardcoded localhost URLs~~ → Zentralisiert in `api.js` (API_BASE/API_HOST exports)
 - [x] ~~PerformanceTest Dev-Komponente~~ → Entfernt
 - [x] ~~Legacy Rust-Dateien~~ → Entfernt (main_legacy.rs, main_legacy_backup.rs)
+- [x] ~~WebSocket URLs~~ → Dynamisch aus API_HOST generiert
+
+### Umgebungsvariablen für Deployment:
+```bash
+VITE_API_URL=https://your-server.com/api   # Für API-Calls
+VITE_API_HOST=https://your-server.com      # Für Status/WS
+```
 
 ---
 
