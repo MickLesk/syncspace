@@ -12,21 +12,8 @@ CREATE TABLE IF NOT EXISTS oauth_providers (
 );
 
 -- OAuth tokens for linked accounts (may already exist from 012)
-CREATE TABLE IF NOT EXISTS oauth_tokens (
-    id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    provider TEXT NOT NULL,
-    access_token_encrypted TEXT NOT NULL,
-    refresh_token_encrypted TEXT,
-    expires_at TEXT NOT NULL,
-    scope TEXT NOT NULL DEFAULT '',
-    provider_user_id TEXT,
-    provider_email TEXT,
-    created_at TEXT DEFAULT (datetime('now')),
-    updated_at TEXT DEFAULT (datetime('now'))
-);
-
--- Add missing columns to oauth_tokens if they don't exist (from 012 migration)
+-- We need to recreate if it doesn't have provider_user_id column
+-- First check and add columns if missing
 ALTER TABLE oauth_tokens ADD COLUMN provider_user_id TEXT;
 ALTER TABLE oauth_tokens ADD COLUMN provider_email TEXT;
 
@@ -42,27 +29,7 @@ CREATE TABLE IF NOT EXISTS oauth_states (
 );
 
 -- LDAP configurations (may already exist from 011)
-CREATE TABLE IF NOT EXISTS ldap_configs (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    server_url TEXT NOT NULL,
-    base_dn TEXT NOT NULL,
-    bind_dn TEXT NOT NULL,
-    bind_password_encrypted TEXT NOT NULL,
-    user_filter TEXT NOT NULL DEFAULT '(uid={username})',
-    group_filter TEXT NOT NULL DEFAULT '(member={user_dn})',
-    username_attribute TEXT NOT NULL DEFAULT 'uid',
-    email_attribute TEXT NOT NULL DEFAULT 'mail',
-    display_name_attribute TEXT NOT NULL DEFAULT 'cn',
-    enabled INTEGER DEFAULT 0,
-    auto_create_users INTEGER DEFAULT 1,
-    default_role TEXT DEFAULT 'user',
-    group_role_mapping TEXT DEFAULT '{}', -- JSON: {"cn=admins": "admin"}
-    created_at TEXT DEFAULT (datetime('now')),
-    updated_at TEXT
-);
-
--- Add missing columns to ldap_configs if they don't exist (from 011 migration)
+-- Add missing columns
 ALTER TABLE ldap_configs ADD COLUMN name TEXT;
 ALTER TABLE ldap_configs ADD COLUMN user_filter TEXT DEFAULT '(uid={username})';
 ALTER TABLE ldap_configs ADD COLUMN group_filter TEXT DEFAULT '(member={user_dn})';
@@ -84,10 +51,9 @@ CREATE TABLE IF NOT EXISTS ldap_user_mappings (
     UNIQUE(ldap_config_id, ldap_dn)
 );
 
--- Indexes for OAuth
+-- Indexes for OAuth (only create if columns exist)
 CREATE INDEX IF NOT EXISTS idx_oauth_tokens_user ON oauth_tokens(user_id);
 CREATE INDEX IF NOT EXISTS idx_oauth_tokens_provider ON oauth_tokens(provider);
-CREATE INDEX IF NOT EXISTS idx_oauth_tokens_provider_user ON oauth_tokens(provider, provider_user_id);
 CREATE INDEX IF NOT EXISTS idx_oauth_states_state ON oauth_states(state);
 CREATE INDEX IF NOT EXISTS idx_oauth_states_expires ON oauth_states(expires_at);
 

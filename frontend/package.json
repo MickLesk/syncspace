@@ -28,6 +28,7 @@
     "mammoth": "^1.11.0",
     "monaco-editor": "^0.55.1",
     "prismjs": "^1.30.0",
+    "qrcode": "^1.5.4",
     "svelte-virtual-list": "^3.0.1",
     "three": "^0.181.2",
     "wavesurfer.js": "^7.12.1",

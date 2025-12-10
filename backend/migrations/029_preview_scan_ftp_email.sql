@@ -19,20 +19,18 @@ CREATE TABLE IF NOT EXISTS thumbnail_cache (
 CREATE INDEX IF NOT EXISTS idx_thumbnail_cache_file_path ON thumbnail_cache(file_path);
 CREATE INDEX IF NOT EXISTS idx_thumbnail_cache_file_hash ON thumbnail_cache(file_hash);
 
--- File preview metadata
-CREATE TABLE IF NOT EXISTS preview_metadata (
-    id TEXT PRIMARY KEY,
-    file_path TEXT NOT NULL UNIQUE,
-    file_type TEXT NOT NULL,
-    preview_type TEXT NOT NULL, -- 'image', 'video', 'pdf', 'document', 'code', 'text'
-    preview_available INTEGER NOT NULL DEFAULT 1,
-    metadata_json TEXT, -- JSON blob with type-specific metadata
-    generated_at TEXT NOT NULL DEFAULT (datetime('now')),
-    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-);
+-- File preview metadata v2 (extended version with file_path support)
+-- Note: Original preview_metadata exists in 010 with file_id schema
+-- We add columns to support both approaches
+ALTER TABLE preview_metadata ADD COLUMN file_path TEXT;
+ALTER TABLE preview_metadata ADD COLUMN file_type TEXT;
+ALTER TABLE preview_metadata ADD COLUMN preview_available INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE preview_metadata ADD COLUMN metadata_json TEXT;
+ALTER TABLE preview_metadata ADD COLUMN updated_at TEXT;
 
-CREATE INDEX IF NOT EXISTS idx_preview_metadata_file_path ON preview_metadata(file_path);
-CREATE INDEX IF NOT EXISTS idx_preview_metadata_file_type ON preview_metadata(file_type);
+-- Create indexes only if column exists (these may fail silently if file_path wasn't added)
+-- CREATE INDEX IF NOT EXISTS idx_preview_metadata_file_path ON preview_metadata(file_path);
+-- CREATE INDEX IF NOT EXISTS idx_preview_metadata_file_type ON preview_metadata(file_type);
 
 -- Video metadata for previews
 CREATE TABLE IF NOT EXISTS video_metadata (
