@@ -6,7 +6,7 @@ export const translations = {
     themeSystem: 'Systemeinstellung',
     themeLight: 'Hellmodus',
     themeDark: 'Dunkelmodus',
-    
+
     // Navigation
     files: 'Dateien',
     shared: 'Geteilt',
@@ -27,7 +27,7 @@ export const translations = {
     tools: 'WERKZEUGE',
     system: 'SYSTEM',
     admin: 'Administration',
-    
+
     // Common status words
     active: 'Aktiv',
     inactive: 'Inaktiv',
@@ -37,7 +37,7 @@ export const translations = {
     rule: 'Regel',
     rules: 'Regeln',
     noFiles: 'Noch keine Dateien',
-    
+
     // Settings Hub Categories
     settingsHub: {
       personal: 'Persönlich',
@@ -47,14 +47,14 @@ export const translations = {
       automation: 'Automatisierung',
       analytics: 'Analyse & Audit',
     },
-    
+
     // Admin Section
     'admin.title': 'Administration',
     'admin.userAccess': 'Benutzer & Zugriff',
     'admin.systemManagement': 'System',
     'admin.storageSecurity': 'Speicher & Sicherheit',
     'admin.configuration': 'Konfiguration',
-    
+
     // Admin Tab Labels (short versions for tabs)
     'roles.title': 'Rollen',
     'groups.title': 'Gruppen',
@@ -69,7 +69,7 @@ export const translations = {
     'encryption.title': 'Verschlüsselung',
     'systemConfig.title': 'Systemkonfiguration',
     'audit.title': 'Audit & Compliance',
-    
+
     // Settings Security Policy
     'settings.security.password_policy': 'Passwortrichtlinie',
     'settings.security.password_policy_desc': 'Legen Sie Anforderungen für sichere Passwörter fest',
@@ -102,7 +102,7 @@ export const translations = {
     'settings.security.block_tor': 'Tor-Exit-Nodes blockieren',
     'settings.security.saved': 'Sicherheitseinstellungen gespeichert',
     'settings.security.save_error': 'Fehler beim Speichern',
-    
+
     // Settings Notifications
     'settings.notifications.smtp': 'E-Mail (SMTP)',
     'settings.notifications.smtp_desc': 'E-Mail-Benachrichtigungen konfigurieren',
@@ -139,7 +139,7 @@ export const translations = {
     'settings.notifications.on_error': 'Bei Fehler',
     'settings.notifications.saved': 'Benachrichtigungseinstellungen gespeichert',
     'settings.notifications.save_error': 'Fehler beim Speichern',
-    
+
     // Smart Folders
     'smartFolders.title': 'Smart Folders',
     'smartFolders.subtitle': 'Erstelle dynamische Ordner basierend auf Regeln',
@@ -170,7 +170,7 @@ export const translations = {
     'smartFolders.sorting': 'Sortierung',
     'smartFolders.sortBy': 'Sortieren nach',
     'smartFolders.sortOrder': 'Reihenfolge',
-    
+
     // Breadcrumb
     quickActions: 'Schnellaktionen',
     showHiddenPathSegments: 'Versteckte Pfadsegmente anzeigen',
@@ -178,12 +178,12 @@ export const translations = {
     openInNewTab: 'In neuem Tab öffnen',
     addToFavorites: 'Zu Favoriten hinzufügen',
     addedToFavorites: 'Zu Favoriten hinzugefügt',
-    
+
     // FolderTree
     folders: 'Ordner',
     loadingFolders: 'Ordner werden geladen...',
     noFolders: 'Keine Ordner',
-    
+
     // Dashboard (User Dashboard)
     dashboard: {
       title: 'Dashboard',
@@ -262,7 +262,7 @@ export const translations = {
       poweredBy: 'Unterstützt von',
       refresh: 'Aktualisieren',
     },
-    
+
     // ActivityView
     activityTimeline: 'Aktivitätsverlauf',
     trackAllFileOperations: 'Verfolgen Sie alle Dateioperationen und Änderungen',
@@ -296,7 +296,7 @@ export const translations = {
     minutesAgo: '{0}m her',
     hoursAgo: '{0}h her',
     daysAgo: '{0}d her',
-    
+
     // UsersView
     users: 'Benutzer',
     userSingular: 'Benutzer',
@@ -310,7 +310,7 @@ export const translations = {
     editUser: 'Benutzer bearbeiten',
     deleteUser: 'Benutzer löschen',
     selectedCount: '{0} ausgewählt',
-    
+
     // NotificationsView
     fileUploadedSuccessfully: 'Datei erfolgreich hochgeladen',
     newShareRequest: 'Neue Freigabeanfrage',
@@ -322,7 +322,7 @@ export const translations = {
     markAllAsRead: 'Alle als gelesen markieren',
     clearAll: 'Alle löschen',
     noNotifications: 'Keine Benachrichtigungen',
-    
+
     // FileCard & Common
     removeFromFavorites: 'Aus Favoriten entfernen',
     addToFavorites: 'Zu Favoriten hinzufügen',
@@ -340,7 +340,7 @@ export const translations = {
     newSubfolderName: 'Neuer Unterordner-Name:',
     subfolderCreatedSuccessfully: 'Unterordner erfolgreich erstellt',
     failedToCreateSubfolder: 'Fehler beim Erstellen des Unterordners',
-    
+
     // Enhanced Preview
     preview: {
       loading3DModel: 'Lade 3D-Modell...',
@@ -408,7 +408,7 @@ export const translations = {
       creationDate: 'Erstellungsdatum',
       modificationDate: 'Änderungsdatum',
     },
-    
+
     // Version Management
     versions: {
       title: 'Versionsverlauf',
@@ -471,7 +471,7 @@ export const translations = {
       restoreCommentPlaceholder: 'Grund für die Wiederherstellung...',
       restoreCommentRequired: 'Bitte geben Sie einen Wiederherstellungs-Kommentar ein',
     },
-    
+
     // Common actions
     upload: 'Hochladen',
     download: 'Herunterladen',
@@ -484,7 +484,7 @@ export const translations = {
     cancel: 'Abbrechen',
     save: 'Speichern',
     close: 'Schließen',
-    
+
     // Login page
     loginTitle: 'SyncSpace',
     loginSubtitle: 'Moderne Datei-Synchronisation',
@@ -503,22 +503,42 @@ export const translations = {
     rememberMe: 'Angemeldet bleiben',
     enter2FACode: '2FA-Code eingeben',
     verifyAndLogin: 'Verifizieren & Anmelden',
-    
+
+    // Server Management
+    serverManagement: 'Server-Verwaltung',
+    selectOrAddServer: 'Server auswählen oder hinzufügen',
+    manageServers: 'Server verwalten',
+    clickToManageServers: 'Klicken Sie, um Server zu verwalten',
+    addNewServer: 'Neuen Server hinzufügen',
+    addServer: 'Server hinzufügen',
+    editServer: 'Server bearbeiten',
+    deleteServer: 'Server löschen',
+    serverName: 'Servername',
+    serverNamePlaceholder: 'z.B. Heimserver',
+    serverUrl: 'Server-URL',
+    testConnection: 'Verbindung testen',
+    test: 'Test',
+    connectionSuccessful: 'Verbindung erfolgreich!',
+    connectionFailed: 'Verbindung fehlgeschlagen',
+    connectionTimeout: 'Zeitüberschreitung',
+    saveChanges: 'Änderungen speichern',
+    closeDialog: 'Dialog schließen',
+
     // Files view
     noFiles: 'Noch keine Dateien',
     dragAndDropHere: 'Dateien hier ablegen oder klicken zum Hochladen',
     uploadFiles: 'Dateien hochladen',
-    
+
     // Shared view
     noSharedFiles: 'Noch keine geteilten Dateien',
     shareWithOthers: 'Teilen Sie Dateien mit anderen Benutzern',
-    
+
     // Favorites view
     noFavorites: 'Noch keine Favoriten',
     noFavoritesYet: 'Noch keine Favoriten',
     markFilesAsFavorite: 'Markieren Sie Dateien als Favoriten',
     markFilesAsFavorites: 'Markieren Sie Dateien als Favoriten, um sie hier zu sehen',
-    
+
     // Common
     common: {
       tryAgain: 'Erneut versuchen',
@@ -537,7 +557,7 @@ export const translations = {
       noResults: 'Keine Ergebnisse',
       viewAll: 'Alle anzeigen',
     },
-    
+
     // Comments
     comments: {
       title: 'Kommentare',
@@ -556,7 +576,7 @@ export const translations = {
       mentions: 'Erwähnungen',
       justNow: 'Gerade eben',
     },
-    
+
     newestFirst: 'Neueste zuerst',
     oldestFirst: 'Älteste zuerst',
     mostReplies: 'Meiste Antworten',
@@ -565,7 +585,7 @@ export const translations = {
     writeComment: 'Kommentar schreiben...',
     failedToLoadComments: 'Fehler beim Laden der Kommentare',
     failedToCreateComment: 'Fehler beim Erstellen des Kommentars',
-    
+
     // Storage Analytics
     storageAnalytics: 'Speicheranalyse',
     storageAnalyticsDescription: 'Übersicht über Speichernutzung und Statistiken',
@@ -608,7 +628,7 @@ export const translations = {
     sizeAdded: 'Hinzugefügt',
     last30Days: 'Letzte 30 Tage',
     showingTop50of: 'Zeige Top 50 von',
-    
+
     // Command Palette
     commandPalette: 'Befehlspalette',
     commandPalettePlaceholder: 'Befehl eingeben oder suchen...',
@@ -621,14 +641,14 @@ export const translations = {
     close: 'Schließen',
     toClose: 'zum Schließen',
     viewShortcuts: 'Shortcuts anzeigen',
-    
+
     // NotFound page
     pageNotFound: 'Seite nicht gefunden',
     pageNotFoundDescription: 'Oops! Die gesuchte Seite existiert nicht. Sie wurde möglicherweise verschoben oder gelöscht.',
     goHome: 'Zur Startseite',
     goBack: 'Zurück',
     quickLinks: 'Schnelllinks',
-    
+
     // Trash view
     trashIsEmpty: 'Papierkorb ist leer',
     deletedFilesStored: 'Gelöschte Dateien werden 30 Tage hier gespeichert',
@@ -657,7 +677,7 @@ export const translations = {
     oldestItem: 'Ältestes Element',
     sortAscending: 'Aufsteigend sortieren',
     sortDescending: 'Absteigend sortieren',
-    
+
     // Users view
     addUser: 'Benutzer hinzufügen',
     created: 'Erstellt',
@@ -665,7 +685,7 @@ export const translations = {
     actions: 'Aktionen',
     enabled: 'Aktiviert',
     disabled: 'Deaktiviert',
-    
+
     // Settings
     appearance: 'Erscheinungsbild',
     theme: 'Theme',
@@ -725,7 +745,7 @@ export const translations = {
     storageDistribution: 'Speicherverteilung',
     storageUsed: 'Verwendeter Speicher',
     fileTypes: 'Dateitypen',
-    
+
     // User Settings Page
     desktopNotifications: 'Desktop-Benachrichtigungen',
     soundEffects: 'Sound-Effekte',
@@ -740,7 +760,7 @@ export const translations = {
     autoSystem: 'Automatisch (System)',
     lightMode: 'Heller Modus',
     darkMode: 'Dunkler Modus',
-    
+
     // Errors
     errorOccurred: 'Ein Fehler ist aufgetreten',
     loginFailed: 'Anmeldung fehlgeschlagen',
@@ -763,7 +783,7 @@ export const translations = {
     failedToLoadTags: 'Fehler beim Laden der Tags',
     failedToAddTag: 'Fehler beim Hinzufügen des Tags. Bitte versuchen Sie es erneut.',
     failedToRemoveTag: 'Fehler beim Entfernen des Tags. Bitte versuchen Sie es erneut.',
-    
+
     // Bulk Tagging
     bulkTagging: {
       title: 'Mehrere Dateien taggen',
@@ -1053,7 +1073,7 @@ export const translations = {
       details: 'Details',
       ip: 'IP-Adresse',
     },
-    
+
     // Success messages
     uploadSuccess: 'Erfolgreich hochgeladen',
     deleteSuccess: 'Erfolgreich gelöscht',
@@ -1062,7 +1082,7 @@ export const translations = {
     downloadStarted: 'Download gestartet',
     addedToFavorites: 'Zu Favoriten hinzugefügt',
     removedFromFavorites: 'Von Favoriten entfernt',
-    
+
     // FilesView
     manageFiles: 'Verwalten Sie Ihre Dateien und Ordner',
     refresh: 'Aktualisieren',
@@ -1075,7 +1095,7 @@ export const translations = {
     uploadingFile: 'Datei wird hochgeladen',
     uploadProgress: 'Upload-Fortschritt',
     selectedFiles: 'Ausgewählte Dateien',
-    
+
     // Modals
     uploadFilesTitle: 'Dateien hochladen',
     selectFiles: 'Dateien auswählen',
@@ -1090,7 +1110,7 @@ export const translations = {
     enterNewName: 'Neuen Namen eingeben...',
     deleteConfirm: 'Wirklich löschen?',
     deleteWarning: 'Diese Aktion kann nicht rückgängig gemacht werden.',
-    
+
     // Context Menu
     preview: 'Vorschau',
     addToFavorites: 'Zu Favoriten hinzufügen',
@@ -1106,7 +1126,7 @@ export const translations = {
     detailsComingSoon: 'Details demnächst',
     versionHistoryComingSoon: 'Versionsverlauf demnächst',
     edit: 'Bearbeiten',
-    
+
     // SharedView
     sharedFiles: 'Geteilte Dateien',
     manageFileSharesAndCollaboration: 'Verwalten Sie Dateifreigaben und Zusammenarbeit',
@@ -1146,7 +1166,7 @@ export const translations = {
     noFilesSelected: 'Keine Dateien ausgewählt',
     pleaseSelectAtLeastOneFile: 'Bitte wählen Sie mindestens eine Datei aus',
     sharesCreatedSuccessfully: '{0} Freigaben erfolgreich erstellt',
-    
+
     // Favorites
     addToFavorites: 'Zu Favoriten hinzufügen',
     removeFromFavorites: 'Aus Favoriten entfernen',
@@ -1158,7 +1178,7 @@ export const translations = {
     failedToLoadFavorites: 'Fehler beim Laden der Favoriten',
     failedToAddFavorite: 'Fehler beim Hinzufügen zu Favoriten',
     failedToRemoveFavorite: 'Fehler beim Entfernen aus Favoriten',
-    
+
     // Admin Console
     searchUsers: 'Benutzer suchen',
     allRoles: 'Alle Rollen',
@@ -1183,7 +1203,7 @@ export const translations = {
     reset: 'Zurücksetzen',
     done: 'Fertig',
     clickSearchToAddUsers: 'Klicken Sie auf "Benutzer suchen", um Personen hinzuzufügen',
-    
+
     // ShareModal
     shareFileName: 'Teilen: {0}',
     shareType: 'Freigabe-Typ',
@@ -1211,7 +1231,7 @@ export const translations = {
     sharedWith: 'Geteilt mit',
     users: 'Benutzern',
     sharedWithUsers: 'Geteilt mit Benutzern',
-    
+
     // Share Analytics
     analytics: 'Analytik',
     shareAnalytics: 'Freigabe-Analytik',
@@ -1242,7 +1262,7 @@ export const translations = {
     noAnalyticsAvailable: 'Keine Analytik verfügbar',
     failedToLoadAnalytics: 'Fehler beim Laden der Analytik',
     noDataForPeriod: 'Keine Daten für diesen Zeitraum',
-    
+
     // File Editor
     fileEditor: 'Datei-Editor',
     unsavedChanges: 'Nicht gespeicherte Änderungen',
@@ -1261,7 +1281,7 @@ export const translations = {
     toSearch: 'zum Suchen',
     editFile: 'Datei bearbeiten',
     fileNotEditable: 'Dieser Dateityp kann nicht bearbeitet werden',
-    
+
     // Jobs Queue
     jobs: {
       title: 'Hintergrund-Aufträge',
@@ -1328,7 +1348,7 @@ export const translations = {
       cronExpression: 'Cron-Ausdruck',
       cronExpressionHint: 'Format: Minute Stunde Tag Monat Wochentag (z.B. 0 0 * * * = täglich um Mitternacht)',
     },
-    
+
     // File Comparison
     comparison: {
       title: 'Dateivergleich',
@@ -1339,7 +1359,7 @@ export const translations = {
       current: 'Aktuelle Version',
       binaryNotSupported: 'Binärdateien können nicht verglichen werden',
     },
-    
+
     // Enhanced Uploads
     uploads: {
       title: 'Uploads',
@@ -1368,7 +1388,7 @@ export const translations = {
       skipDuplicates: 'Duplikate automatisch überspringen',
       skipDuplicatesHint: 'Dateien mit identischem Namen werden übersprungen',
     },
-    
+
     // File Templates
     templates: {
       title: 'Dateivorlagen',
@@ -1390,7 +1410,7 @@ export const translations = {
       createError: 'Fehler beim Erstellen der Datei',
       newFromTemplate: 'Neu aus Vorlage',
     },
-    
+
     // RBAC System
     rbac: {
       title: 'Rollenverwaltung',
@@ -1424,7 +1444,7 @@ export const translations = {
       deleteRoleError: 'Fehler beim Löschen der Rolle',
       noRoles: 'Keine Rollen gefunden',
     },
-    
+
     // Cloud Storage
     cloudStorage: {
       title: 'Cloud-Speicher',
@@ -1489,7 +1509,7 @@ export const translations = {
       migrationError: 'Fehler beim Erstellen der Migration',
       cancelError: 'Fehler beim Abbrechen der Migration',
     },
-    
+
     // File Encryption at Rest
     encryption: {
       title: 'Dateiverschlüsselung',
@@ -1544,7 +1564,7 @@ export const translations = {
       errorPasswordMin: 'Passwort muss mindestens 8 Zeichen haben',
       errorPasswordMismatch: 'Passwörter stimmen nicht überein',
     },
-    
+
     // Storage Quota Management
     quota: {
       title: 'Speicherkontingent',
@@ -1573,7 +1593,7 @@ export const translations = {
       updateSuccess: 'Kontingent erfolgreich aktualisiert',
       updateError: 'Fehler beim Aktualisieren des Kontingents',
     },
-    
+
     // Rate Limiting & Quotas Management
     quotas: {
       title: 'Quotas & Rate Limiting',
@@ -1641,7 +1661,7 @@ export const translations = {
       deleteError: 'Fehler beim Löschen',
       toggleError: 'Fehler beim Umschalten',
     },
-    
+
     // System Configuration
     systemConfig: {
       title: 'Systemkonfiguration',
@@ -1706,7 +1726,7 @@ export const translations = {
       saveSuccess: 'Konfiguration erfolgreich gespeichert',
       saveError: 'Fehler beim Speichern der Konfiguration',
     },
-    
+
     // User Groups
     groups: {
       title: 'Benutzergruppen',
@@ -1754,7 +1774,7 @@ export const translations = {
       userUnsuspended: 'Sperrung erfolgreich aufgehoben',
       unsuspendError: 'Fehler beim Aufheben der Sperrung',
     },
-    
+
     workflow: {
       title: 'Workflow-Automatisierung',
       description: 'Erstelle automatisierte Regeln mit Wenn-Dies-Dann-Das Logik',
@@ -1822,7 +1842,7 @@ export const translations = {
       maxFileSize: 'Max. Dateigröße (Bytes)',
       mimeTypes: 'MIME-Typen',
     },
-    
+
     passwordProtected: 'Passwort-geschützt',
     externalSharingEnabled: 'Externe Freigabe aktiviert',
     createShare: 'Freigabe erstellen',
@@ -1858,7 +1878,7 @@ export const translations = {
     done: 'Fertig',
     shareUrlCopiedToClipboard: 'Freigabe-URL in Zwischenablage kopiert',
     failedToCopyUrl: 'Fehler beim Kopieren der URL',
-    
+
     // HelpView section
     helpAndSupport: 'Hilfe & Support',
     findAnswersToCommonQuestions: 'Antworten auf häufige Fragen finden und Support erhalten',
@@ -1886,17 +1906,17 @@ export const translations = {
     faqRecoverQuestion: 'Wie stelle ich gelöschte Dateien wieder her?',
     faqRecoverAnswer: 'Überprüfen Sie den Papierkorb. Dateien werden 30 Tage lang aufbewahrt, bevor sie endgültig gelöscht werden.',
     sharing: 'Teilen',
-  faqTwoFactorQuestion: 'Wie aktiviere ich die Zwei-Faktor-Authentifizierung?',
-  faqTwoFactorAnswer: "Gehen Sie zu Einstellungen → Sicherheit, klicken Sie auf '2FA aktivieren', scannen Sie den QR-Code mit Ihrer Authenticator-App und geben Sie den Verifizierungscode ein.",
-  faqThemeQuestion: 'Kann ich mein Standard-Theme ändern?',
-  faqThemeAnswer: 'Ja! Gehen Sie zu Einstellungen → Allgemein und wählen Sie zwischen Licht-, Dunkel- oder Automatikmodus.',
-  faqSearchQuestion: 'Wie suche ich nach Dateien?',
-  faqSearchAnswer: 'Verwenden Sie die Suchleiste in der Kopfzeile. Die Suche nutzt Tantivy mit Fuzzy-Matching und findet auch Dateien mit Tippfehlern.',
-  faqOrganizeQuestion: 'Wie organisiere ich Dateien?',
-  faqOrganizeAnswer: 'Nutzen Sie Ordner, Rechtsklick-Menüs, Drag & Drop und Mehrfachauswahl für Stapelaktionen.',
-  faqSecurityQuestion: 'Ist meine Daten sicher?',
-  faqSecurityAnswer: 'Ja! Alle Daten bleiben auf Ihrem Server. Passwörter werden mit Argon2 gehasht, JWTs sichern Authentifizierung und 2FA schützt zusätzlich.',
-    
+    faqTwoFactorQuestion: 'Wie aktiviere ich die Zwei-Faktor-Authentifizierung?',
+    faqTwoFactorAnswer: "Gehen Sie zu Einstellungen → Sicherheit, klicken Sie auf '2FA aktivieren', scannen Sie den QR-Code mit Ihrer Authenticator-App und geben Sie den Verifizierungscode ein.",
+    faqThemeQuestion: 'Kann ich mein Standard-Theme ändern?',
+    faqThemeAnswer: 'Ja! Gehen Sie zu Einstellungen → Allgemein und wählen Sie zwischen Licht-, Dunkel- oder Automatikmodus.',
+    faqSearchQuestion: 'Wie suche ich nach Dateien?',
+    faqSearchAnswer: 'Verwenden Sie die Suchleiste in der Kopfzeile. Die Suche nutzt Tantivy mit Fuzzy-Matching und findet auch Dateien mit Tippfehlern.',
+    faqOrganizeQuestion: 'Wie organisiere ich Dateien?',
+    faqOrganizeAnswer: 'Nutzen Sie Ordner, Rechtsklick-Menüs, Drag & Drop und Mehrfachauswahl für Stapelaktionen.',
+    faqSecurityQuestion: 'Ist meine Daten sicher?',
+    faqSecurityAnswer: 'Ja! Alle Daten bleiben auf Ihrem Server. Passwörter werden mit Argon2 gehasht, JWTs sichern Authentifizierung und 2FA schützt zusätzlich.',
+
     // StorageView
     manageStorage: 'Verwalten Sie Ihren Speicherplatz',
     totalSpace: 'Gesamtspeicher',
@@ -1906,19 +1926,19 @@ export const translations = {
     fileBreakdown: 'Dateiverteilung',
     recentUploads: 'Letzte Uploads',
     largestFiles: 'Größte Dateien',
-  recentFilesSubtitle: 'Dateien, auf die Sie zuletzt zugegriffen haben',
-  recentLastCount: 'Letzte {0}',
-  recentLoadFailed: 'Letzte Dateien konnten nicht geladen werden',
-  recentNoFilesTitle: 'Keine letzten Dateien',
-  recentNoFilesDescription: 'Dateien, auf die Sie zugreifen, erscheinen hier',
-  recentBadgeViewed: 'Angesehen',
-  recentBadgeEdited: 'Bearbeitet',
-  recentBadgeDownloaded: 'Heruntergeladen',
-  recentBadgeUploaded: 'Hochgeladen',
-  recentBadgeAccessed: 'Zugegriffen',
-  recentAccessCountSingular: '{0} Mal',
-  recentAccessCountPlural: '{0} Mal',
-    
+    recentFilesSubtitle: 'Dateien, auf die Sie zuletzt zugegriffen haben',
+    recentLastCount: 'Letzte {0}',
+    recentLoadFailed: 'Letzte Dateien konnten nicht geladen werden',
+    recentNoFilesTitle: 'Keine letzten Dateien',
+    recentNoFilesDescription: 'Dateien, auf die Sie zugreifen, erscheinen hier',
+    recentBadgeViewed: 'Angesehen',
+    recentBadgeEdited: 'Bearbeitet',
+    recentBadgeDownloaded: 'Heruntergeladen',
+    recentBadgeUploaded: 'Hochgeladen',
+    recentBadgeAccessed: 'Zugegriffen',
+    recentAccessCountSingular: '{0} Mal',
+    recentAccessCountPlural: '{0} Mal',
+
     // ActivityView
     recentActivity: 'Letzte Aktivitäten',
     viewActivity: 'Zeigen Sie alle Dateiaktivitäten',
@@ -1928,7 +1948,7 @@ export const translations = {
     todayActivity: 'Heute',
     yesterdayActivity: 'Gestern',
     thisWeekActivity: 'Diese Woche',
-    
+
     // DuplicatesView
     duplicateFiles: 'Doppelte Dateien',
     findDuplicates: 'Finden Sie doppelte Dateien',
@@ -1937,40 +1957,40 @@ export const translations = {
     duplicatesFound: 'Duplikate gefunden',
     noDuplicates: 'Keine Duplikate gefunden',
     potentialSavings: 'Mögliche Einsparungen',
-  duplicateFinderTitle: 'Duplikat-Suche',
-  duplicateFinderSubtitle: 'Scannen Sie nach doppelten Dateien und geben Sie Speicherplatz frei',
-  duplicateFinderScanningToast: 'Suche nach Duplikaten läuft...',
-  duplicateFinderScanResult: '{0} Duplikatgruppen gefunden ({1} eingespart)',
-  duplicateFinderNoDuplicatesToast: 'Keine Duplikate gefunden',
-  duplicateFinderScanFailed: 'Suche nach Duplikaten fehlgeschlagen',
-  duplicateFinderScanCurrentFolder: 'Aktuellen Ordner scannen',
-  duplicateFinderScanInProgress: 'Scan läuft...',
-  duplicateFinderDeleteSelected: '{0} ausgewählte löschen',
-  duplicateFinderNoSelection: 'Keine Duplikate ausgewählt',
-  duplicateFinderDeleteConfirm: '{0} doppelte Dateien löschen?',
-  duplicateFinderDeleteSuccess: '{0} doppelte Dateien gelöscht',
-  duplicateFinderDeleteFailed: 'Löschen von {0} Dateien fehlgeschlagen',
-  duplicateFinderQuickScan: 'Schneller Scan läuft...',
-  duplicateFinderDeepScan: 'Ausführlicher Scan möglicher Duplikate...',
-  duplicateFinderScanningFiles: 'Dateien werden gescannt...',
-  duplicateFinderInitializing: 'Initialisierung...',
-  duplicateFinderStatsGroups: 'Duplikat-Gruppen',
-  duplicateFinderStatsFiles: '{0} doppelte Dateien',
-  duplicateFinderStatsWasted: 'Verschwendeter Speicher',
-  duplicateFinderStatsReclaim: 'Kann freigegeben werden',
-  duplicateFinderStatsSelected: 'Ausgewählt',
-  duplicateFinderStatsToDelete: 'Dateien zum Löschen',
-  duplicateFinderEmptyTitle: 'Keine Duplikate gefunden',
-  duplicateFinderEmptyDescription: 'Klicken Sie auf „{0}“, um nach doppelten Dateien zu suchen',
-  duplicateFinderStartScanning: 'Scan starten',
-  duplicateFinderCopiesBadge: '{0} Kopien',
-  duplicateFinderEachBadge: '{0} pro Datei',
-  duplicateFinderWastedBadge: '{0} verschwendet',
-  duplicateFinderOriginalBadge: 'Original (behalten)',
-  duplicateFinderWillDeleteBadge: 'Wird gelöscht',
-  duplicateFinderSelectAll: 'Alle auswählen',
-  duplicateFinderDeselect: 'Abwählen',
-    
+    duplicateFinderTitle: 'Duplikat-Suche',
+    duplicateFinderSubtitle: 'Scannen Sie nach doppelten Dateien und geben Sie Speicherplatz frei',
+    duplicateFinderScanningToast: 'Suche nach Duplikaten läuft...',
+    duplicateFinderScanResult: '{0} Duplikatgruppen gefunden ({1} eingespart)',
+    duplicateFinderNoDuplicatesToast: 'Keine Duplikate gefunden',
+    duplicateFinderScanFailed: 'Suche nach Duplikaten fehlgeschlagen',
+    duplicateFinderScanCurrentFolder: 'Aktuellen Ordner scannen',
+    duplicateFinderScanInProgress: 'Scan läuft...',
+    duplicateFinderDeleteSelected: '{0} ausgewählte löschen',
+    duplicateFinderNoSelection: 'Keine Duplikate ausgewählt',
+    duplicateFinderDeleteConfirm: '{0} doppelte Dateien löschen?',
+    duplicateFinderDeleteSuccess: '{0} doppelte Dateien gelöscht',
+    duplicateFinderDeleteFailed: 'Löschen von {0} Dateien fehlgeschlagen',
+    duplicateFinderQuickScan: 'Schneller Scan läuft...',
+    duplicateFinderDeepScan: 'Ausführlicher Scan möglicher Duplikate...',
+    duplicateFinderScanningFiles: 'Dateien werden gescannt...',
+    duplicateFinderInitializing: 'Initialisierung...',
+    duplicateFinderStatsGroups: 'Duplikat-Gruppen',
+    duplicateFinderStatsFiles: '{0} doppelte Dateien',
+    duplicateFinderStatsWasted: 'Verschwendeter Speicher',
+    duplicateFinderStatsReclaim: 'Kann freigegeben werden',
+    duplicateFinderStatsSelected: 'Ausgewählt',
+    duplicateFinderStatsToDelete: 'Dateien zum Löschen',
+    duplicateFinderEmptyTitle: 'Keine Duplikate gefunden',
+    duplicateFinderEmptyDescription: 'Klicken Sie auf „{0}“, um nach doppelten Dateien zu suchen',
+    duplicateFinderStartScanning: 'Scan starten',
+    duplicateFinderCopiesBadge: '{0} Kopien',
+    duplicateFinderEachBadge: '{0} pro Datei',
+    duplicateFinderWastedBadge: '{0} verschwendet',
+    duplicateFinderOriginalBadge: 'Original (behalten)',
+    duplicateFinderWillDeleteBadge: 'Wird gelöscht',
+    duplicateFinderSelectAll: 'Alle auswählen',
+    duplicateFinderDeselect: 'Abwählen',
+
     // BackupView
     backupAndRestore: 'Backup & Wiederherstellung',
     createBackup: 'Backup erstellen',
@@ -1981,12 +2001,12 @@ export const translations = {
     backupComplete: 'Backup abgeschlossen',
     restoreInProgress: 'Wiederherstellung läuft...',
     restoreComplete: 'Wiederherstellung abgeschlossen',
-    
+
     // TrashView
     restoreFile: 'Wiederherstellen',
     deleteForever: 'Endgültig löschen',
     deletedOn: 'Gelöscht am',
-    
+
     // ProfileView
     editProfile: 'Profil bearbeiten',
     displayName: 'Anzeigename',
@@ -2013,7 +2033,7 @@ export const translations = {
     viewMode: 'Anzeigemodus',
     uploadAvatar: 'Avatar hochladen',
     changeAvatar: 'Avatar ändern',
-    
+
     // UsersView
     userName: 'Benutzername',
     role: 'Rolle',
@@ -2022,7 +2042,7 @@ export const translations = {
     lastLogin: 'Letzte Anmeldung',
     editUser: 'Benutzer bearbeiten',
     deleteUser: 'Benutzer löschen',
-    
+
     // Header/Sidebar
     notifications: 'Benachrichtigungen',
     noNotifications: 'Keine Benachrichtigungen',
@@ -2032,7 +2052,7 @@ export const translations = {
     activity: 'Aktivität',
     duplicates: 'Duplikate',
     backup: 'Backup',
-    
+
     // Time/Date
     justNow: 'Gerade eben',
     minutesAgo: 'vor {0} Minuten',
@@ -2041,7 +2061,7 @@ export const translations = {
     weeksAgo: 'vor {0} Wochen',
     monthsAgo: 'vor {0} Monaten',
     yearsAgo: 'vor {0} Jahren',
-    
+
     // File Types
     file: 'Datei',
     image: 'Bild',
@@ -2050,19 +2070,19 @@ export const translations = {
     document: 'Dokument',
     archive: 'Archiv',
     code: 'Code',
-    
+
     // Table Headers
     name: 'Name',
     type: 'Typ',
     size: 'Größe',
     modified: 'Geändert',
     owner: 'Eigentümer',
-    
+
     // Empty States
     noFilesFound: 'Keine Dateien gefunden',
     uploadToGetStarted: 'Hochladen, um zu beginnen',
     dropOrClick: 'Ablegen oder klicken',
-    
+
     // Breadcrumb
     goUpOneLevel: 'Eine Ebene nach oben',
     copyFullPath: 'Vollständigen Pfad kopieren',
@@ -2094,7 +2114,7 @@ export const translations = {
     viewSavedSearches: 'Gespeicherte Suchen anzeigen',
     saveCurrentSearch: 'Aktuelle Suche speichern',
     close: 'Schließen',
-    
+
     // Storage Quota
     storage: {
       title: 'Speicherkontingent',
@@ -2114,7 +2134,7 @@ export const translations = {
       last_updated: 'Zuletzt aktualisiert:',
       error_loading: 'Fehler beim Laden der Speicherdaten',
     },
-    
+
     // Theme Customization
     theme: {
       title: 'Theme anpassen',
@@ -2156,7 +2176,7 @@ export const translations = {
       import_failed: 'Theme-Import fehlgeschlagen',
       reset_confirm: 'Zum Standard-Design zurücksetzen?',
     },
-    
+
     // Activity Feed
     activity: {
       feed_title: 'Aktivitätsfeed',
@@ -2196,7 +2216,7 @@ export const translations = {
       just_now: 'Gerade eben',
       ago: 'her',
     },
-    
+
     // File Statistics
     statistics: {
       dashboard_title: 'Dateien Statistik Dashboard',
@@ -2219,7 +2239,7 @@ export const translations = {
       title: 'Sicherungen & Wiederherstellung',
       subtitle: 'Sicherungen, Zeitpläne und Wiederherstellungen verwalten',
       description: 'Verwalten Sie automatische Sicherungen und stellen Sie Dateien wieder her',
-      
+
       // Stats
       total_backups: 'Gesamte Sicherungen',
       totalBackups: 'Gesamte Sicherungen',
@@ -2234,14 +2254,14 @@ export const translations = {
       avg_duration: 'Ø Dauer',
       of: 'von',
       total: 'Gesamt',
-      
+
       // Tabs
       backups: 'Sicherungen',
       schedules: 'Zeitpläne',
       history: 'Verlauf',
       destinations: 'Ziele',
       restoreHistory: 'Wiederherstellungsverlauf',
-      
+
       // Search & Filter
       search_placeholder: 'Sicherungen durchsuchen...',
       all_types: 'Alle Typen',
@@ -2255,7 +2275,7 @@ export const translations = {
       ascending: 'Aufsteigend',
       descending: 'Absteigend',
       export_list: 'Sicherungsliste exportieren',
-      
+
       // Status
       status: 'Status',
       status_success: 'Erfolgreich',
@@ -2266,7 +2286,7 @@ export const translations = {
       noSchedules: 'Keine Zeitpläne konfiguriert',
       noDestinations: 'Keine Ziele konfiguriert',
       noRestores: 'Keine Wiederherstellungen',
-      
+
       // Details
       type: 'Typ',
       size: 'Größe',
@@ -2281,7 +2301,7 @@ export const translations = {
       pending: 'Ausstehend',
       encrypted: 'Verschlüsselt',
       not_encrypted: 'Nicht verschlüsselt',
-      
+
       // Types
       typeFull: 'Vollständige Sicherung',
       typeIncremental: 'Inkrementell',
@@ -2290,7 +2310,7 @@ export const translations = {
       typeLocal: 'Lokaler Speicher',
       typeS3: 'Amazon S3',
       typeSFTP: 'SFTP',
-      
+
       // Actions
       createBackup: 'Sicherung erstellen',
       startBackup: 'Sicherung starten',
@@ -2309,14 +2329,14 @@ export const translations = {
       backupId: 'Backup-ID',
       backupStarted: 'Backup gestartet',
       confirmCleanup: 'Alte Backups aufräumen?',
-      
+
       // Create Modal
       description: 'Beschreibung',
       descriptionPlaceholder: 'Optionale Sicherungsbeschreibung...',
       includeVersions: 'Versionen einschließen',
       includeDatabase: 'Datenbank einschließen',
       encryptBackup: 'Sicherung verschlüsseln',
-      
+
       // Schedules
       createSchedule: 'Zeitplan erstellen',
       scheduleName: 'Zeitplanname',
@@ -2354,7 +2374,7 @@ export const translations = {
       enable: 'Aktivieren',
       disable: 'Deaktivieren',
       runNow: 'Jetzt ausführen',
-      
+
       // Destinations
       addDestination: 'Ziel hinzufügen',
       destinationName: 'Zielname',
@@ -2364,7 +2384,7 @@ export const translations = {
       default: 'Standard',
       testConnection: 'Verbindung testen',
       lastVerified: 'Zuletzt überprüft',
-      
+
       // Restore
       restoreBackup: 'Sicherung wiederherstellen',
       restoreWarning: 'Das Wiederherstellen einer Sicherung überschreibt vorhandene Dateien. Diese Aktion kann nicht rückgängig gemacht werden.',
@@ -2385,7 +2405,7 @@ export const translations = {
       restore_confirm: 'Wiederherstellen',
       restoreStarted: 'Wiederherstellung gestartet',
       restoreFailed: 'Wiederherstellung fehlgeschlagen',
-      
+
       // Messages
       created: 'Sicherung erfolgreich erstellt',
       deleted: 'Sicherung gelöscht',
@@ -2412,12 +2432,12 @@ export const translations = {
       confirm_delete: 'Sicherung löschen?',
       delete_warning: 'Diese Sicherung wird dauerhaft gelöscht und kann nicht wiederhergestellt werden.',
     },
-    
+
     // Settings Tab Labels
     security_policy: 'Sicherheit',
     cloud_storage: 'Cloud-Speicher',
     notifications: 'Benachrichtigungen',
-    
+
     // Security & 2FA
     security: 'Sicherheit',
     securitySettings: 'Sicherheitseinstellungen',
@@ -2446,14 +2466,14 @@ export const translations = {
     disabling: 'Deaktiviert...',
     enabling: 'Aktiviert...',
     verifying: 'Überprüft...',
-    
+
     // Storage View
     used: 'Verwendet',
     available: 'Verfügbar',
     total: 'Gesamt',
     failedToLoadDiskStatistics: 'Fehler beim Laden der Festplatten-Statistiken',
     failedToLoadStorageStatistics: 'Fehler beim Laden der Speicher-Statistiken',
-    
+
     // Trash View
     tryAgain: 'Erneut versuchen',
     noItemsFound: 'Keine Elemente gefunden',
@@ -2466,7 +2486,7 @@ export const translations = {
     sortBy: 'Sortieren nach',
     dateModified: 'Änderungsdatum',
     dateDeleted: 'Gelöscht am',
-    
+
     // Signup/Register
     signup: 'Registrieren',
     createAccount: 'Konto erstellen',
@@ -2488,7 +2508,7 @@ export const translations = {
     createFreeAccount: 'Erstellen Sie ein kostenloses Konto',
     passwordMinimum8Chars: 'Mindestens 8 Zeichen',
     and: 'und',
-    
+
     // General UI
     on: 'EIN',
     off: 'AUS',
@@ -2505,128 +2525,128 @@ export const translations = {
     continue: 'Weiter',
     submit: 'Absenden',
     confirm: 'Bestätigen',
-  deselect: 'Abwählen',
-  random: 'Zufällig',
-  custom: 'Individuell',
-  selectedColor: 'Ausgewählte Farbe',
-  changeFolderColor: 'Ordnerfarbe ändern',
-  folderColor: 'Ordnerfarbe',
-  randomColor: 'Zufällige Farbe',
-  customColor: 'Eigene Farbe',
-  selectColor: 'Farbe auswählen',
-  saveColor: 'Farbe speichern',
-  deleteFile: 'Datei löschen',
-  deleteConfirmTitle: 'Datei löschen',
-  sureDeleteFile: 'Möchten Sie {0} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
-  moveFile: 'Datei verschieben',
-  selectDestinationFolder: 'Zielordner auswählen',
-  filterFolders: 'Ordner filtern...',
-  noFoldersAvailable: 'Keine Ordner verfügbar',
-  selectedDestination: 'Ausgewähltes Ziel',
-  moveHere: 'Hierher verschieben',
-  copyFile: 'Datei kopieren',
-  copyDestinationPath: 'Zielpfad',
-  destinationPath: 'Zielpfad',
-  pathToDestination: '/pfad/zum/ziel',
-  shareFile: 'Datei teilen',
-  shareLinkGenerated: 'Freigabe-Link wird generiert',
-  createLink: 'Link erstellen',
-  versionHistory: 'Versionsverlauf',
-  currentVersion: 'Aktuelle Version',
-  previousVersions: 'Frühere Versionen',
-  noPreviousVersions: 'Keine früheren Versionen verfügbar',
-  protectWithPassword: 'Mit Passwort schützen',
-  setupWizard: 'Einrichtungsassistent',
-  adminAccount: 'Admin-Konto',
-  createAdminAccount: 'Erstellen Sie Ihr Administrator-Konto',
-  serverInfo: 'Server-Informationen',
-  configureServer: 'Konfigurieren Sie die Servereinstellungen',
-  chooseDefaultLanguage: 'Wählen Sie die Standardsprache',
-  configureStorageSettings: 'Konfigurieren Sie die Speichereinstellungen',
-  securityRegistrationSettings: 'Sicherheits- und Registrierungseinstellungen',
-  finishSetup: 'Einrichtung fertigstellen',
-  usernameAtLeast3: 'Benutzername muss mindestens 3 Zeichen lang sein',
-  passwordAtLeast8: 'Passwort muss mindestens 8 Zeichen lang sein',
-  validEmailRequired: 'Gültige E-Mail erforderlich',
-  displayNameRequired: 'Anzeigename erforderlich',
-  passwordRequired: 'Passwort erforderlich',
-  confirmPasswordRequired: 'Passwortbestätigung erforderlich',
-  serverNameRequired: 'Servername erforderlich',
-  stepCompleted: 'Schritt erfolgreich abgeschlossen',
-  continueNextStep: 'Weiter zum nächsten Schritt',
-  previousStep: 'Vorheriger Schritt',
-  skipSetup: 'Einrichtung überspringen',
-  serverDescription: 'Beschreibung',
-  defaultStorageQuota: 'Standard-Speicherkontingent',
-  allowRegistration: 'Benutzerregistrierung zulassen',
-  requireEmailVerification: 'E-Mail-Verifizierung erforderlich',
-  require2FA: '2FA für alle Benutzer erforderlich',
-  passwordMinLength: 'Mindestlänge',
-  passwordRequirements: 'Passwortanforderungen',
-  uppercaseLetters: 'Großbuchstaben',
-  lowercaseLetters: 'Kleinbuchstaben',
-  numbers: 'Zahlen',
-  specialCharacters: 'Sonderzeichen',
-  sessionTimeout: 'Sitzungs-Zeitüberschreitung',
-  minutesUnit: 'Minuten',
-  hoursUnit: 'Stunden',
-  daysUnit: 'Tage',
-  gb: 'GB',
-  mb: 'MB',
-  kb: 'KB',
-  bytes: 'Bytes',
-  // More SetupWizard terms
-  thisWillBePrimaryAdminAccount: 'Dies wird Ihr primäres Administrator-Konto sein',
-  quotaMustBeBetween: 'Kontingent muss zwischen 1 und 1000 GB liegen',
-  selfHostedFileSync: 'Selbst gehostete Datei-Synchronisation',
-  description: 'Beschreibung',
-  username: 'Benutzername',
-  adminPassword: 'Admin Passwort',
-  confirmPassword: 'Passwort bestätigen',
-  createPassword: 'Erstellen Sie ein Passwort',
-  confirmYourPassword: 'Bestätigen Sie Ihr Passwort',
-  serverName: 'Servername',
-  serverDescription: 'Serverbeschreibung',
-  language: 'Sprache',
-  selectDefaultLanguage: 'Wählen Sie die Standardsprache für neue Benutzer',
-  storageQuotaPerUser: 'Speicherkontingent pro Benutzer',
-  allowNewUserRegistration: 'Neue Benutzerregistrierung zulassen',
-  emailVerificationRequired: 'E-Mail-Verifizierung erforderlich',
-  twoFactorAuthRequired: '2FA für alle Benutzer erforderlich',
-  passwordMinimumLength: 'Mindestlänge des Passworts',
-  characterMinimum: 'Zeichen Minimum',
-  uppercaseRequired: 'Großbuchstaben erforderlich',
-  lowercaseRequired: 'Kleinbuchstaben erforderlich',
-  numbersRequired: 'Zahlen erforderlich',
-  specialCharsRequired: 'Sonderzeichen erforderlich',
-  sessionTimeoutMinutes: 'Sitzungs-Zeitüberschreitung (Minuten)',
-  hoursOfInactivity: 'Stunden Inaktivität',
-  setupWizardComplete: 'Einrichtung abgeschlossen',
-  setupSuccessRedirect: 'Einrichtung erfolgreich! Weiterleitung...',
-  // Common form labels
-  email: 'E-Mail',
-  bioOptional: 'Bio (Optional)',
-  avatarOptional: 'Avatar (Optional)',
-  // Messages
-  stepSuccess: 'Schritt erfolgreich',
-  proceedToNext: 'Weiter zum nächsten Schritt',
-  goBack: 'Zurück',
-  skipThisStep: 'Diesen Schritt überspringen',
-  // Validation
-  fieldRequired: 'Dieses Feld ist erforderlich',
-  invalidEmail: 'Ungültige E-Mail-Adresse',
-  passwordTooShort: 'Passwort ist zu kurz',
-  passwordMismatch: 'Passwörter stimmen nicht überein',
-  
-  colorBlue: 'Blau',
-  colorGreen: 'Grün',
-  colorPurple: 'Lila',
-  colorOrange: 'Orange',
-  colorPink: 'Pink',
-  colorRed: 'Rot',
-  colorYellow: 'Gelb',
-  colorCyan: 'Cyan',
-    
+    deselect: 'Abwählen',
+    random: 'Zufällig',
+    custom: 'Individuell',
+    selectedColor: 'Ausgewählte Farbe',
+    changeFolderColor: 'Ordnerfarbe ändern',
+    folderColor: 'Ordnerfarbe',
+    randomColor: 'Zufällige Farbe',
+    customColor: 'Eigene Farbe',
+    selectColor: 'Farbe auswählen',
+    saveColor: 'Farbe speichern',
+    deleteFile: 'Datei löschen',
+    deleteConfirmTitle: 'Datei löschen',
+    sureDeleteFile: 'Möchten Sie {0} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+    moveFile: 'Datei verschieben',
+    selectDestinationFolder: 'Zielordner auswählen',
+    filterFolders: 'Ordner filtern...',
+    noFoldersAvailable: 'Keine Ordner verfügbar',
+    selectedDestination: 'Ausgewähltes Ziel',
+    moveHere: 'Hierher verschieben',
+    copyFile: 'Datei kopieren',
+    copyDestinationPath: 'Zielpfad',
+    destinationPath: 'Zielpfad',
+    pathToDestination: '/pfad/zum/ziel',
+    shareFile: 'Datei teilen',
+    shareLinkGenerated: 'Freigabe-Link wird generiert',
+    createLink: 'Link erstellen',
+    versionHistory: 'Versionsverlauf',
+    currentVersion: 'Aktuelle Version',
+    previousVersions: 'Frühere Versionen',
+    noPreviousVersions: 'Keine früheren Versionen verfügbar',
+    protectWithPassword: 'Mit Passwort schützen',
+    setupWizard: 'Einrichtungsassistent',
+    adminAccount: 'Admin-Konto',
+    createAdminAccount: 'Erstellen Sie Ihr Administrator-Konto',
+    serverInfo: 'Server-Informationen',
+    configureServer: 'Konfigurieren Sie die Servereinstellungen',
+    chooseDefaultLanguage: 'Wählen Sie die Standardsprache',
+    configureStorageSettings: 'Konfigurieren Sie die Speichereinstellungen',
+    securityRegistrationSettings: 'Sicherheits- und Registrierungseinstellungen',
+    finishSetup: 'Einrichtung fertigstellen',
+    usernameAtLeast3: 'Benutzername muss mindestens 3 Zeichen lang sein',
+    passwordAtLeast8: 'Passwort muss mindestens 8 Zeichen lang sein',
+    validEmailRequired: 'Gültige E-Mail erforderlich',
+    displayNameRequired: 'Anzeigename erforderlich',
+    passwordRequired: 'Passwort erforderlich',
+    confirmPasswordRequired: 'Passwortbestätigung erforderlich',
+    serverNameRequired: 'Servername erforderlich',
+    stepCompleted: 'Schritt erfolgreich abgeschlossen',
+    continueNextStep: 'Weiter zum nächsten Schritt',
+    previousStep: 'Vorheriger Schritt',
+    skipSetup: 'Einrichtung überspringen',
+    serverDescription: 'Beschreibung',
+    defaultStorageQuota: 'Standard-Speicherkontingent',
+    allowRegistration: 'Benutzerregistrierung zulassen',
+    requireEmailVerification: 'E-Mail-Verifizierung erforderlich',
+    require2FA: '2FA für alle Benutzer erforderlich',
+    passwordMinLength: 'Mindestlänge',
+    passwordRequirements: 'Passwortanforderungen',
+    uppercaseLetters: 'Großbuchstaben',
+    lowercaseLetters: 'Kleinbuchstaben',
+    numbers: 'Zahlen',
+    specialCharacters: 'Sonderzeichen',
+    sessionTimeout: 'Sitzungs-Zeitüberschreitung',
+    minutesUnit: 'Minuten',
+    hoursUnit: 'Stunden',
+    daysUnit: 'Tage',
+    gb: 'GB',
+    mb: 'MB',
+    kb: 'KB',
+    bytes: 'Bytes',
+    // More SetupWizard terms
+    thisWillBePrimaryAdminAccount: 'Dies wird Ihr primäres Administrator-Konto sein',
+    quotaMustBeBetween: 'Kontingent muss zwischen 1 und 1000 GB liegen',
+    selfHostedFileSync: 'Selbst gehostete Datei-Synchronisation',
+    description: 'Beschreibung',
+    username: 'Benutzername',
+    adminPassword: 'Admin Passwort',
+    confirmPassword: 'Passwort bestätigen',
+    createPassword: 'Erstellen Sie ein Passwort',
+    confirmYourPassword: 'Bestätigen Sie Ihr Passwort',
+    serverName: 'Servername',
+    serverDescription: 'Serverbeschreibung',
+    language: 'Sprache',
+    selectDefaultLanguage: 'Wählen Sie die Standardsprache für neue Benutzer',
+    storageQuotaPerUser: 'Speicherkontingent pro Benutzer',
+    allowNewUserRegistration: 'Neue Benutzerregistrierung zulassen',
+    emailVerificationRequired: 'E-Mail-Verifizierung erforderlich',
+    twoFactorAuthRequired: '2FA für alle Benutzer erforderlich',
+    passwordMinimumLength: 'Mindestlänge des Passworts',
+    characterMinimum: 'Zeichen Minimum',
+    uppercaseRequired: 'Großbuchstaben erforderlich',
+    lowercaseRequired: 'Kleinbuchstaben erforderlich',
+    numbersRequired: 'Zahlen erforderlich',
+    specialCharsRequired: 'Sonderzeichen erforderlich',
+    sessionTimeoutMinutes: 'Sitzungs-Zeitüberschreitung (Minuten)',
+    hoursOfInactivity: 'Stunden Inaktivität',
+    setupWizardComplete: 'Einrichtung abgeschlossen',
+    setupSuccessRedirect: 'Einrichtung erfolgreich! Weiterleitung...',
+    // Common form labels
+    email: 'E-Mail',
+    bioOptional: 'Bio (Optional)',
+    avatarOptional: 'Avatar (Optional)',
+    // Messages
+    stepSuccess: 'Schritt erfolgreich',
+    proceedToNext: 'Weiter zum nächsten Schritt',
+    goBack: 'Zurück',
+    skipThisStep: 'Diesen Schritt überspringen',
+    // Validation
+    fieldRequired: 'Dieses Feld ist erforderlich',
+    invalidEmail: 'Ungültige E-Mail-Adresse',
+    passwordTooShort: 'Passwort ist zu kurz',
+    passwordMismatch: 'Passwörter stimmen nicht überein',
+
+    colorBlue: 'Blau',
+    colorGreen: 'Grün',
+    colorPurple: 'Lila',
+    colorOrange: 'Orange',
+    colorPink: 'Pink',
+    colorRed: 'Rot',
+    colorYellow: 'Gelb',
+    colorCyan: 'Cyan',
+
     // FilesView - noch mehr Keys
     adminDisplayName: 'Admin Anzeigename',
     adminEmail: 'Admin E-Mail',
@@ -2662,7 +2682,7 @@ export const translations = {
     uploading: 'Wird hochgeladen...',
     downloading: 'Wird heruntergeladen...',
     searching: 'Wird gesucht...',
-    
+
     // Additional SetupWizard Terms
     storage: 'Speicherkonfiguration',
     eachNewUserReceives: 'Jeder neue Benutzer erhält {0} {1} Speicher',
@@ -2684,7 +2704,7 @@ export const translations = {
     disabled: 'Deaktiviert',
     settingUp: 'Wird eingerichtet...',
     completeSetup: 'Einrichtung abschließen',
-    
+
     // FilesView
     searchResults: 'Suchergebnisse',
     found: 'Gefunden',
@@ -2726,7 +2746,7 @@ export const translations = {
     newSearch: 'Neue Suche',
     deleteFilesConfirm: 'Möchten Sie {0} Dateien löschen?',
     moved: 'Verschoben {0} nach {1}',
-    
+
     // UsersView
     loadingUsers: 'Benutzer laden...',
     noUsersFound: 'Keine Benutzer gefunden',
@@ -2741,7 +2761,7 @@ export const translations = {
     minutesAgo: '{0}m ago',
     hoursAgo: '{0}h ago',
     justNow: 'Gerade eben',
-    
+
     // SecurityView
     failedToGenerateQRCode: 'QR-Code-Generierung fehlgeschlagen',
     connectionError: 'Verbindungsfehler. Läuft das Backend?',
@@ -2758,7 +2778,7 @@ export const translations = {
     reviewActiveSessions: 'Überprüfen Sie regelmäßig Ihre aktiven Sitzungen und Geräte',
     changePassword: 'Passwort ändern',
     updateAccountPassword: 'Aktualisieren Sie Ihr Kontokennwort',
-    
+
     // Additional UI translations
     from: 'Von',
     to: 'Bis',
@@ -2770,7 +2790,7 @@ export const translations = {
     features: 'Funktionen',
     enableFavorites: 'Favoriten aktivieren',
     markFilesForQuickAccess: 'Dateien für schnellen Zugriff markieren',
-    
+
     // GeneralSettings
     loadingSettings: 'Einstellungen werden geladen...',
     settingsSavedSuccess: '✅ Einstellungen erfolgreich gespeichert!',
@@ -2793,7 +2813,7 @@ export const translations = {
     off: 'Aus',
     enableFavoritesSystem: 'Favoritensystem aktivieren',
     showFavoritesInSidebar: 'Favoriten in der Seitenleiste anzeigen und Favoriten-Markierungen auf Dateien/Ordnern aktivieren',
-    
+
     // SecuritySettings
     failedToGenerateQRCode2: 'QR-Code konnte nicht generiert werden',
     failedToGenerate2FASecret: 'Fehler beim Erstellen des 2FA-Geheimnisses. Bitte versuchen Sie es erneut.',
@@ -2805,7 +2825,7 @@ export const translations = {
     areSureDisable2FA: 'Sind Sie sicher, dass Sie 2FA deaktivieren möchten?',
     twoFADisabledSuccess2: '2FA erfolgreich deaktiviert',
     failedToDisable2FA2: 'Fehler beim Deaktivieren von 2FA',
-    
+
     // StorageSettings
     manageBucketsDescription: 'Verwalten Sie Speicherbereiche und Kontingente',
     totalStorage: 'Gesamtspeicher',
@@ -2814,7 +2834,7 @@ export const translations = {
     storageUsagePercentage: 'Speichernutzung: {0}%',
     cleanupOldFiles: 'Alte Dateien bereinigen',
     archiveInactiveData: 'Inaktive Daten archivieren',
-    
+
     // BackupSettings
     backupConfigDescription: 'Konfigurieren Sie Sicherungen und Wiederherstellungen',
     enableAutoBackup: 'Automatische Sicherung aktivieren',
@@ -2826,7 +2846,7 @@ export const translations = {
     backupInProgress: 'Sicherung läuft...',
     backupCompleted: 'Sicherung abgeschlossen',
     backupFailed: 'Sicherung fehlgeschlagen',
-    
+
     // PerformanceSettings
     optimizePerformanceDescription: 'Optimieren Sie Caching und Datenbankleistung',
     enableCaching: 'Caching aktivieren',
@@ -2842,7 +2862,7 @@ export const translations = {
     systemLoad: 'Systemauslastung',
     memoryUsage: 'Speichernutzung',
     ramUtilization: 'RAM-Auslastung',
-    
+
     // UsersSettings
     manageUsersDescription: 'Verwalten Sie Benutzerrollen und Berechtigungen',
     addNewUser: 'Neuen Benutzer hinzufügen',
@@ -2855,7 +2875,7 @@ export const translations = {
     fillAllFields: 'Bitte füllen Sie alle Felder aus',
     userCreated: 'Benutzer "{0}" erstellt',
     userDeleted: 'Benutzer "{0}" gelöscht',
-    
+
     // AboutSettings
     aboutSyncSpaceDescription: 'Informationen über SyncSpace',
     version: 'Version',
@@ -2875,7 +2895,7 @@ export const translations = {
     copyright: '© 2025 SyncSpace. Alle Rechte vorbehalten.',
     noUpdatesAvailable: 'Keine Updates verfügbar',
     updateAvailable: 'Ein Update ist verfügbar',
-    
+
     // Settings View - Nested structure for settings pages
     settings: {
       users: {
@@ -3129,7 +3149,7 @@ export const translations = {
         by: 'von',
       },
     },
-    
+
     // Common keys used across settings
     common: {
       loading: 'Wird geladen...',
@@ -3150,7 +3170,7 @@ export const translations = {
       minutes: 'Minuten',
       hour: 'Stunde',
     },
-    
+
     // Dialog & Input
     ok: 'OK',
     cancel: 'Abbrechen',
@@ -3209,7 +3229,7 @@ export const translations = {
     failedToMoveFile: 'Fehler beim Verschieben der Datei',
     moving: 'Verschiebe...',
     failedToRemoveFolderColor: 'Fehler beim Entfernen der Ordnerfarbe',
-    
+
     // Keyboard Shortcuts
     keyboardShortcuts: 'Tastaturkürzel',
     pressKeyToPerformAction: 'Drücke {0} um {1}',
@@ -3220,14 +3240,14 @@ export const translations = {
     shortcutDelete: 'Entf - Datei löschen',
     shortcutEscape: 'ESC - Schließen',
     shortcutArrows: '← → - Navigation',
-    
+
     // Collaboration
     fileLockedSuccessfully: 'Datei erfolgreich gesperrt',
     failedToLockFile: 'Fehler beim Sperren der Datei',
     fileUnlockedSuccessfully: 'Datei erfolgreich entsperrt',
     failedToUnlockFile: 'Fehler beim Entsperren der Datei',
     failedToLoadActivity: 'Fehler beim Laden der Aktivität',
-    
+
     // Backend-First Settings (Gerätübergreifend synchronisiert)
     settingsLoadedFromBackend: 'Einstellungen vom Backend geladen',
     settingsSyncedToBackend: 'Einstellungen mit Backend synchronisiert',
@@ -3241,7 +3261,7 @@ export const translations = {
     devicesSyncing: 'Geräte werden synchronisiert',
     settingsWillSyncWhenOnline: 'Einstellungen werden synchronisiert, wenn Sie online sind',
     allDevicesSynced: 'Alle Geräte synchronisiert',
-    
+
     // Backend-First User State
     loadingUserState: 'Benutzerzustand wird geladen...',
     initializingServerState: 'Server-Zustand wird initialisiert...',
@@ -3256,7 +3276,7 @@ export const translations = {
     syncInProgress: 'Synchronisierung läuft...',
     syncFailed: 'Synchronisierung fehlgeschlagen',
     syncCompleted: 'Synchronisierung abgeschlossen',
-    
+
     // Audit & Compliance
     audit: {
       title: 'Audit & Compliance',
@@ -3417,14 +3437,14 @@ export const translations = {
       degraded: 'Beeinträchtigt',
       unhealthy: 'Ungesund',
       unknown: 'Unbekannt',
-      
+
       // Time ranges
       timeRange: 'Zeitraum',
       last24Hours: 'Letzte 24 Stunden',
       last7Days: 'Letzte 7 Tage',
       last30Days: 'Letzte 30 Tage',
       last90Days: 'Letzte 90 Tage',
-      
+
       // Overview stats
       totalUsers: 'Benutzer gesamt',
       totalFiles: 'Dateien gesamt',
@@ -3434,13 +3454,13 @@ export const translations = {
       activeSessions: 'Aktive Sitzungen',
       backups: 'Backups',
       actionsToday: 'Aktionen heute',
-      
+
       // Trends
       vsLastPeriod: 'vs. letzter Zeitraum',
       increase: 'Anstieg',
       decrease: 'Rückgang',
       noChange: 'Keine Änderung',
-      
+
       // Storage overview
       storageOverview: 'Speicherübersicht',
       usedStorage: 'Belegt',
@@ -3453,7 +3473,7 @@ export const translations = {
       audio: 'Audio',
       archives: 'Archive',
       other: 'Sonstige',
-      
+
       // Activity overview
       activityOverview: 'Aktivitätsübersicht',
       actionsByType: 'Aktionen nach Typ',
@@ -3464,7 +3484,7 @@ export const translations = {
       deletes: 'Löschungen',
       shares: 'Freigaben',
       edits: 'Bearbeitungen',
-      
+
       // Users overview
       usersOverview: 'Benutzerübersicht',
       activeUsers: 'Aktive Benutzer',
@@ -3474,7 +3494,7 @@ export const translations = {
       moderators: 'Moderatoren',
       regularUsers: 'Normale Benutzer',
       guests: 'Gäste',
-      
+
       // Jobs overview
       jobsOverview: 'Jobs-Übersicht',
       pending: 'Ausstehend',
@@ -3485,14 +3505,14 @@ export const translations = {
       scheduledJobs: 'Geplante Jobs',
       noRecentJobs: 'Keine kürzlichen Jobs',
       noScheduledJobs: 'Keine geplanten Jobs',
-      
+
       // Top items
       topUploaders: 'Top Uploader',
       largestFiles: 'Größte Dateien',
       mostShared: 'Am meisten geteilt',
       mostActiveUsers: 'Aktivste Benutzer',
       filesUploaded: 'Dateien hochgeladen',
-      
+
       // System info
       systemInfo: 'Systeminformationen',
       version: 'Version',
@@ -3500,14 +3520,14 @@ export const translations = {
       cpuUsage: 'CPU-Auslastung',
       memoryUsage: 'Speicherauslastung',
       diskUsage: 'Festplattennutzung',
-      
+
       // Real-time
       realTimeStats: 'Echtzeit-Statistiken',
       activeConnections: 'Aktive Verbindungen',
       requestsPerMinute: 'Anfragen/Minute',
       uploadsInProgress: 'Uploads in Bearbeitung',
       downloadsInProgress: 'Downloads in Bearbeitung',
-      
+
       // Errors
       loadError: 'Fehler beim Laden des Dashboards',
       refreshError: 'Fehler beim Aktualisieren',
@@ -3584,7 +3604,7 @@ export const translations = {
       lastCheck: 'Letzte Prüfung',
       refreshing: 'Aktualisiere...',
       autoRefresh: 'Auto-Aktualisierung',
-      
+
       // CPU
       cpu: 'Prozessor',
       cpuUsage: 'CPU-Auslastung',
@@ -3594,7 +3614,7 @@ export const translations = {
       min1: '1 Min',
       min5: '5 Min',
       min15: '15 Min',
-      
+
       // Memory
       memory: 'Arbeitsspeicher',
       memoryUsage: 'Speicherauslastung',
@@ -3604,7 +3624,7 @@ export const translations = {
       availableMemory: 'Verfügbar',
       cached: 'Zwischengespeichert',
       swapUsage: 'Swap-Auslastung',
-      
+
       // Disk
       disk: 'Festplatte',
       diskUsage: 'Festplattennutzung',
@@ -3617,7 +3637,7 @@ export const translations = {
       writeOps: 'Schreibvorgänge',
       readBytes: 'Gelesene Bytes',
       writeBytes: 'Geschriebene Bytes',
-      
+
       // Database
       database: 'Datenbank',
       databaseHealth: 'Datenbankzustand',
@@ -3632,7 +3652,7 @@ export const translations = {
       tableCount: 'Anzahl Tabellen',
       walSize: 'WAL-Größe',
       lastVacuum: 'Letzte Bereinigung',
-      
+
       // Search
       search: 'Suche',
       searchHealth: 'Suchindex-Zustand',
@@ -3641,7 +3661,7 @@ export const translations = {
       lastIndexed: 'Zuletzt indiziert',
       pendingIndexing: 'Ausstehende Indizierung',
       indexingRate: 'Indizierungsrate',
-      
+
       // WebSocket
       websocket: 'WebSocket',
       websocketHealth: 'WebSocket-Zustand',
@@ -3649,7 +3669,7 @@ export const translations = {
       messagesPerSec: 'Nachrichten/Sek',
       avgLatency: 'Ø Latenz',
       connectionErrors: 'Verbindungsfehler',
-      
+
       // Process
       process: 'Prozess',
       processInfo: 'Prozessinformationen',
@@ -3659,7 +3679,7 @@ export const translations = {
       threads: 'Threads',
       openFiles: 'Offene Dateien',
       processMemory: 'Prozessspeicher',
-      
+
       // Application Metrics
       metrics: 'Metriken',
       applicationMetrics: 'Anwendungsmetriken',
@@ -3670,7 +3690,7 @@ export const translations = {
       activeRequests: 'Aktive Anfragen',
       uploadsTotal: 'Uploads gesamt',
       downloadsTotal: 'Downloads gesamt',
-      
+
       // Historical
       history: 'Verlauf',
       historicalMetrics: 'Historische Metriken',
@@ -3680,7 +3700,7 @@ export const translations = {
       last24Hours: 'Letzte 24 Stunden',
       last7Days: 'Letzte 7 Tage',
       noHistoricalData: 'Keine historischen Daten verfügbar',
-      
+
       // Alerts
       alerts: 'Warnungen',
       alertConfig: 'Warnungskonfiguration',
@@ -3704,14 +3724,14 @@ export const translations = {
       alertEnabled: 'Aktiviert',
       alertTriggered: 'Ausgelöst',
       alertCleared: 'Gelöscht',
-      
+
       // Status indicators
       online: 'Online',
       offline: 'Offline',
       warning: 'Warnung',
       critical: 'Kritisch',
       ok: 'OK',
-      
+
       // Errors
       loadError: 'Fehler beim Laden des Systemzustands',
       refreshError: 'Fehler beim Aktualisieren',
@@ -3729,7 +3749,7 @@ export const translations = {
       noTokens: 'Keine API-Token',
       noTokensDesc: 'Erstelle API-Token für Skripte, CI/CD-Pipelines oder Drittanbieter-Integrationen',
       createFirst: 'Erstes Token erstellen',
-      
+
       // Token form
       name: 'Token-Name',
       namePlaceholder: 'z.B. CI/CD-Pipeline',
@@ -3741,7 +3761,7 @@ export const translations = {
       days60: '60 Tage',
       days90: '90 Tage',
       days365: '1 Jahr',
-      
+
       // Scopes
       scopeReadFiles: 'Dateien lesen',
       scopeWriteFiles: 'Dateien schreiben',
@@ -3750,7 +3770,7 @@ export const translations = {
       scopeManageUsers: 'Benutzer verwalten',
       scopeAdmin: 'Administrator',
       scopeFull: 'Vollzugriff',
-      
+
       // Token display
       token: 'Token',
       tokenCreated: 'Token erfolgreich erstellt',
@@ -3763,7 +3783,7 @@ export const translations = {
       expires: 'Läuft ab',
       expired: 'Abgelaufen',
       noExpiration: 'Kein Ablauf',
-      
+
       // Actions
       revoke: 'Widerrufen',
       revokeToken: 'Token widerrufen',
@@ -3772,11 +3792,11 @@ export const translations = {
       delete: 'Löschen',
       deleteToken: 'Token löschen',
       deleteConfirm: 'Token "{0}" wirklich dauerhaft löschen?',
-      
+
       // Status
       active: 'Aktiv',
       inactive: 'Inaktiv',
-      
+
       // Errors
       loadError: 'Fehler beim Laden der Token',
       createError: 'Fehler beim Erstellen des Tokens',
@@ -3785,23 +3805,23 @@ export const translations = {
       nameRequired: 'Token-Name ist erforderlich',
       scopeRequired: 'Mindestens eine Berechtigung ist erforderlich',
     },
-    
+
     // Guest/External User Management
     guests: {
       title: 'Gastzugang',
       subtitle: 'Externe Benutzer und temporäre Zugänge verwalten',
-      
+
       // Tabs
       tabUsers: 'Gastbenutzer',
       tabLinks: 'Zugriffslinks',
       tabInvitations: 'Einladungen',
-      
+
       // Stats
       activeGuests: 'Aktive Gäste',
       activeLinks: 'Aktive Links',
       pendingInvitations: 'Offene Einladungen',
       totalAccesses: 'Zugriffe gesamt',
-      
+
       // Empty states
       noGuests: 'Keine Gastbenutzer',
       noGuestsHint: 'Erstelle Gastbenutzer für temporären Zugriff auf deine Dateien.',
@@ -3809,7 +3829,7 @@ export const translations = {
       noLinksHint: 'Erstelle Links für passwortgeschützten oder zeitbegrenzten Dateizugriff.',
       noInvitations: 'Keine Einladungen',
       noInvitationsHint: 'Lade externe Benutzer per E-Mail ein.',
-      
+
       // Guest user
       createGuest: 'Gastbenutzer erstellen',
       editGuest: 'Gastbenutzer bearbeiten',
@@ -3822,14 +3842,14 @@ export const translations = {
       unlimited: 'Unbegrenzt',
       accessCount: 'Zugriffe',
       lastAccess: 'Letzter Zugriff',
-      
+
       // Permissions
       permissions: 'Berechtigungen',
       canView: 'Anzeigen',
       canDownload: 'Herunterladen',
       canUpload: 'Hochladen',
       canComment: 'Kommentieren',
-      
+
       // Links
       createLink: 'Link erstellen',
       editLink: 'Link bearbeiten',
@@ -3846,7 +3866,7 @@ export const translations = {
       setPassword: 'Passwort festlegen',
       noPassword: 'Kein Passwort',
       toggleActive: 'Aktivieren/Deaktivieren',
-      
+
       // Invitations
       sendInvitation: 'Einladung senden',
       resendInvitation: 'Erneut senden',
@@ -3857,34 +3877,34 @@ export const translations = {
       invitationResent: 'Einladung erneut gesendet',
       accepted: 'Angenommen',
       pending: 'Ausstehend',
-      
+
       // Convert to user
       convertToUser: 'In Benutzer umwandeln',
       convertToUserHint: 'Wandle diesen Gast in einen vollständigen Benutzer um.',
       newUsername: 'Neuer Benutzername',
       newPassword: 'Neues Passwort',
-      
+
       // Activity
       viewActivity: 'Aktivität anzeigen',
       guestActivity: 'Gastaktivität',
       noActivity: 'Keine Aktivität aufgezeichnet',
-      
+
       // Status
       active: 'Aktiv',
       inactive: 'Inaktiv',
       expired: 'Abgelaufen',
-      
+
       // Actions
       create: 'Erstellen',
       save: 'Speichern',
       cancel: 'Abbrechen',
       delete: 'Löschen',
-      
+
       // Confirmations
       deleteGuestConfirm: 'Gastbenutzer wirklich löschen? Der Gast verliert sofort den Zugriff.',
       deleteLinkConfirm: 'Zugriffslink wirklich löschen? Der Link funktioniert nicht mehr.',
       deleteInvitationConfirm: 'Einladung wirklich löschen?',
-      
+
       // Success messages
       guestCreated: 'Gastbenutzer erstellt',
       guestUpdated: 'Gastbenutzer aktualisiert',
@@ -3896,7 +3916,7 @@ export const translations = {
       invitationCreated: 'Einladung gesendet',
       invitationDeleted: 'Einladung gelöscht',
       convertedToUser: 'Gast wurde in Benutzer umgewandelt',
-      
+
       // Error messages
       loadError: 'Fehler beim Laden der Gastdaten',
       createError: 'Fehler beim Erstellen',
@@ -3907,13 +3927,13 @@ export const translations = {
       filePathRequired: 'Dateipfad ist erforderlich',
       usernameRequired: 'Benutzername ist erforderlich',
       passwordRequired: 'Passwort ist erforderlich',
-      
+
       // Time units
       days: 'Tage',
       hours: 'Stunden',
       never: 'Nie',
     },
-    
+
     // Theme Customization
     theme: {
       title: 'Design',
@@ -3963,7 +3983,7 @@ export const translations = {
     themeSystem: 'System setting',
     themeLight: 'Light mode',
     themeDark: 'Dark mode',
-    
+
     // Navigation
     files: 'Files',
     shared: 'Shared',
@@ -3973,7 +3993,7 @@ export const translations = {
     profile: 'Profile',
     users: 'Users',
     settings: 'Settings',
-    
+
     // Settings Hub (Unified Settings Page)
     settingsHub: {
       title: 'Settings & Administration',
@@ -4020,7 +4040,7 @@ export const translations = {
     tools: 'TOOLS',
     system: 'SYSTEM',
     admin: 'Administration',
-    
+
     // Common status words
     active: 'Active',
     inactive: 'Inactive',
@@ -4030,14 +4050,14 @@ export const translations = {
     rule: 'rule',
     rules: 'rules',
     noFiles: 'No files yet',
-    
+
     // Admin Section
     'admin.title': 'Administration',
     'admin.userAccess': 'Users & Access',
     'admin.systemManagement': 'System',
     'admin.storageSecurity': 'Storage & Security',
     'admin.configuration': 'Configuration',
-    
+
     // Admin Tab Labels (short versions for tabs)
     'roles.title': 'Roles',
     'groups.title': 'Groups',
@@ -4052,7 +4072,7 @@ export const translations = {
     'encryption.title': 'Encryption',
     'systemConfig.title': 'System Config',
     'audit.title': 'Audit & Compliance',
-    
+
     // Settings Security Policy
     'settings.security.password_policy': 'Password Policy',
     'settings.security.password_policy_desc': 'Set requirements for secure passwords',
@@ -4085,7 +4105,7 @@ export const translations = {
     'settings.security.block_tor': 'Block Tor exit nodes',
     'settings.security.saved': 'Security settings saved',
     'settings.security.save_error': 'Failed to save',
-    
+
     // Settings Notifications
     'settings.notifications.smtp': 'Email (SMTP)',
     'settings.notifications.smtp_desc': 'Configure email notifications',
@@ -4122,7 +4142,7 @@ export const translations = {
     'settings.notifications.on_error': 'On error',
     'settings.notifications.saved': 'Notification settings saved',
     'settings.notifications.save_error': 'Failed to save',
-    
+
     // Smart Folders
     'smartFolders.title': 'Smart Folders',
     'smartFolders.subtitle': 'Create dynamic folders based on rules',
@@ -4153,7 +4173,7 @@ export const translations = {
     'smartFolders.sorting': 'Sorting',
     'smartFolders.sortBy': 'Sort by',
     'smartFolders.sortOrder': 'Order',
-    
+
     // Breadcrumb
     quickActions: 'Quick Actions',
     showHiddenPathSegments: 'Show hidden path segments',
@@ -4161,12 +4181,12 @@ export const translations = {
     openInNewTab: 'Open in New Tab',
     addToFavorites: 'Add to Favorites',
     addedToFavorites: 'Added to favorites',
-    
+
     // FolderTree
     folders: 'Folders',
     loadingFolders: 'Loading folders...',
     noFolders: 'No folders',
-    
+
     // Dashboard (User Dashboard)
     dashboard: {
       title: 'Dashboard',
@@ -4245,7 +4265,7 @@ export const translations = {
       poweredBy: 'Powered by',
       refresh: 'Refresh',
     },
-    
+
     // ActivityView
     activityTimeline: 'Activity Timeline',
     trackAllFileOperations: 'Track all file operations and changes',
@@ -4279,7 +4299,7 @@ export const translations = {
     minutesAgo: '{0}m ago',
     hoursAgo: '{0}h ago',
     daysAgo: '{0}d ago',
-    
+
     // UsersView
     users: 'Users',
     userSingular: 'user',
@@ -4293,7 +4313,7 @@ export const translations = {
     editUser: 'Edit user',
     deleteUser: 'Delete user',
     selectedCount: '{0} selected',
-    
+
     // NotificationsView
     fileUploadedSuccessfully: 'File uploaded successfully',
     newShareRequest: 'New share request',
@@ -4305,7 +4325,7 @@ export const translations = {
     markAllAsRead: 'Mark all as read',
     clearAll: 'Clear all',
     noNotifications: 'No notifications',
-    
+
     // FileCard & Common
     removeFromFavorites: 'Remove from favorites',
     addToFavorites: 'Add to favorites',
@@ -4323,7 +4343,7 @@ export const translations = {
     newSubfolderName: 'New subfolder name:',
     subfolderCreatedSuccessfully: 'Subfolder created successfully',
     failedToCreateSubfolder: 'Failed to create subfolder',
-    
+
     // Enhanced Preview
     preview: {
       loading3DModel: 'Loading 3D model...',
@@ -4454,7 +4474,7 @@ export const translations = {
       restoreCommentPlaceholder: 'Reason for restoring...',
       restoreCommentRequired: 'Please enter a restore comment',
     },
-    
+
     // Common actions
     upload: 'Upload',
     download: 'Download',
@@ -4467,7 +4487,7 @@ export const translations = {
     cancel: 'Cancel',
     save: 'Save',
     close: 'Close',
-    
+
     // Login page
     loginTitle: 'SyncSpace',
     loginSubtitle: 'Modern File Synchronization',
@@ -4486,22 +4506,42 @@ export const translations = {
     rememberMe: 'Remember me',
     enter2FACode: 'Enter 2FA code',
     verifyAndLogin: 'Verify & Login',
-    
+
+    // Server Management
+    serverManagement: 'Server Management',
+    selectOrAddServer: 'Select or add a server',
+    manageServers: 'Manage servers',
+    clickToManageServers: 'Click to manage servers',
+    addNewServer: 'Add New Server',
+    addServer: 'Add Server',
+    editServer: 'Edit Server',
+    deleteServer: 'Delete Server',
+    serverName: 'Server Name',
+    serverNamePlaceholder: 'e.g. Home Server',
+    serverUrl: 'Server URL',
+    testConnection: 'Test Connection',
+    test: 'Test',
+    connectionSuccessful: 'Connection successful!',
+    connectionFailed: 'Connection failed',
+    connectionTimeout: 'Connection timed out',
+    saveChanges: 'Save Changes',
+    closeDialog: 'Close dialog',
+
     // Files view
     noFiles: 'No files yet',
     dragAndDropHere: 'Drag and drop files here or click to upload',
     uploadFiles: 'Upload Files',
-    
+
     // Shared view
     noSharedFiles: 'No shared files yet',
     shareWithOthers: 'Share files with other users',
-    
+
     // Favorites view
     noFavorites: 'No favorites yet',
     noFavoritesYet: 'No favorites yet',
     markFilesAsFavorite: 'Mark files as favorites',
     markFilesAsFavorites: 'Mark files as favorites to see them here',
-    
+
     // Common
     common: {
       tryAgain: 'Try Again',
@@ -4520,7 +4560,7 @@ export const translations = {
       noResults: 'No results',
       viewAll: 'View all',
     },
-    
+
     // Comments
     comments: {
       title: 'Comments',
@@ -4539,7 +4579,7 @@ export const translations = {
       mentions: 'Mentions',
       justNow: 'Just now',
     },
-    
+
     newestFirst: 'Newest first',
     oldestFirst: 'Oldest first',
     mostReplies: 'Most replies',
@@ -4548,7 +4588,7 @@ export const translations = {
     writeComment: 'Write a comment...',
     failedToLoadComments: 'Failed to load comments',
     failedToCreateComment: 'Failed to create comment',
-    
+
     // Storage Analytics
     storageAnalytics: 'Storage Analytics',
     storageAnalyticsDescription: 'Overview of storage usage and statistics',
@@ -4591,7 +4631,7 @@ export const translations = {
     sizeAdded: 'Size Added',
     last30Days: 'Last 30 days',
     showingTop50of: 'Showing top 50 of',
-    
+
     // Command Palette
     commandPalette: 'Command Palette',
     commandPalettePlaceholder: 'Type a command or search...',
@@ -4604,7 +4644,7 @@ export const translations = {
     close: 'Close',
     toClose: 'to close',
     viewShortcuts: 'View Shortcuts',
-    
+
     bulkTagging: {
       title: 'Tag Multiple Files',
       filesSelected: 'Files Selected',
@@ -4893,14 +4933,14 @@ export const translations = {
       details: 'Details',
       ip: 'IP Address',
     },
-    
+
     // NotFound page
     pageNotFound: 'Page Not Found',
     pageNotFoundDescription: 'Oops! The page you\'re looking for doesn\'t exist. It might have been moved or deleted.',
     goHome: 'Go Home',
     goBack: 'Go Back',
     quickLinks: 'Quick Links',
-    
+
     // Trash view
     trashIsEmpty: 'Trash is empty',
     deletedFilesStored: 'Deleted files will be stored here for 30 days',
@@ -4929,7 +4969,7 @@ export const translations = {
     oldestItem: 'Oldest Item',
     sortAscending: 'Sort ascending',
     sortDescending: 'Sort descending',
-    
+
     // Users view
     addUser: 'Add User',
     created: 'Created',
@@ -4937,7 +4977,7 @@ export const translations = {
     actions: 'Actions',
     enabled: 'Enabled',
     disabled: 'Disabled',
-    
+
     // Settings
     appearance: 'Appearance',
     theme: 'Theme',
@@ -4997,7 +5037,7 @@ export const translations = {
     storageDistribution: 'Storage Distribution',
     storageUsed: 'Storage Used',
     fileTypes: 'File Types',
-    
+
     // User Settings Page
     desktopNotifications: 'Desktop Notifications',
     soundEffects: 'Sound Effects',
@@ -5012,7 +5052,7 @@ export const translations = {
     autoSystem: 'Auto (System)',
     lightMode: 'Light Mode',
     darkMode: 'Dark Mode',
-    
+
     // Errors
     errorOccurred: 'An error occurred',
     loginFailed: 'Login failed',
@@ -5035,7 +5075,7 @@ export const translations = {
     failedToLoadTags: 'Failed to load tags',
     failedToAddTag: 'Failed to add tag. Please try again.',
     failedToRemoveTag: 'Failed to remove tag. Please try again.',
-    
+
     // Success messages
     uploadSuccess: 'Successfully uploaded',
     deleteSuccess: 'Successfully deleted',
@@ -5044,7 +5084,7 @@ export const translations = {
     downloadStarted: 'Download started',
     addedToFavorites: 'Added to favorites',
     removedFromFavorites: 'Removed from favorites',
-    
+
     // FilesView
     manageFiles: 'Manage your files and folders',
     refresh: 'Refresh',
@@ -5057,7 +5097,7 @@ export const translations = {
     uploadingFile: 'Uploading file',
     uploadProgress: 'Upload progress',
     selectedFiles: 'Selected files',
-    
+
     // Modals
     uploadFilesTitle: 'Upload Files',
     selectFiles: 'Select Files',
@@ -5072,7 +5112,7 @@ export const translations = {
     enterNewName: 'Enter new name...',
     deleteConfirm: 'Delete permanently?',
     deleteWarning: 'This action cannot be undone.',
-    
+
     // Context Menu
     preview: 'Preview',
     addToFavorites: 'Add to Favorites',
@@ -5088,7 +5128,7 @@ export const translations = {
     detailsComingSoon: 'Details panel coming soon',
     versionHistoryComingSoon: 'Version history coming soon',
     edit: 'Edit',
-    
+
     // SharedView
     sharedFiles: 'Shared Files',
     manageFileSharesAndCollaboration: 'Manage file shares and collaboration',
@@ -5128,7 +5168,7 @@ export const translations = {
     noFilesSelected: 'No files selected',
     pleaseSelectAtLeastOneFile: 'Please select at least one file',
     sharesCreatedSuccessfully: '{0} shares created successfully',
-    
+
     // Favorites
     addToFavorites: 'Add to Favorites',
     removeFromFavorites: 'Remove from Favorites',
@@ -5140,7 +5180,7 @@ export const translations = {
     failedToLoadFavorites: 'Failed to load favorites',
     failedToAddFavorite: 'Failed to add to favorites',
     failedToRemoveFavorite: 'Failed to remove from favorites',
-    
+
     // Admin Console / User Search Modal
     searchUsers: 'Search Users',
     allRoles: 'All Roles',
@@ -5165,7 +5205,7 @@ export const translations = {
     reset: 'Reset',
     done: 'Done',
     clickSearchToAddUsers: 'Click "Search Users" to add people',
-    
+
     // Share Analytics
     analytics: 'Analytics',
     shareAnalytics: 'Share Analytics',
@@ -5196,7 +5236,7 @@ export const translations = {
     noAnalyticsAvailable: 'No analytics available',
     failedToLoadAnalytics: 'Failed to load analytics',
     noDataForPeriod: 'No data for this period',
-    
+
     // File Editor
     fileEditor: 'File Editor',
     unsavedChanges: 'Unsaved changes',
@@ -5215,7 +5255,7 @@ export const translations = {
     toSearch: 'to search',
     editFile: 'Edit File',
     fileNotEditable: 'This file type cannot be edited',
-    
+
     // Jobs Queue
     jobs: {
       title: 'Background Jobs',
@@ -5282,7 +5322,7 @@ export const translations = {
       cronExpression: 'Cron Expression',
       cronExpressionHint: 'Format: minute hour day month weekday (e.g. 0 0 * * * = daily at midnight)',
     },
-    
+
     // File Comparison
     comparison: {
       title: 'File Comparison',
@@ -5293,7 +5333,7 @@ export const translations = {
       current: 'Current Version',
       binaryNotSupported: 'Binary files cannot be compared',
     },
-    
+
     // Enhanced Uploads
     uploads: {
       title: 'Uploads',
@@ -5322,7 +5362,7 @@ export const translations = {
       skipDuplicates: 'Automatically skip duplicates',
       skipDuplicatesHint: 'Files with identical names will be skipped',
     },
-    
+
     // File Templates
     templates: {
       title: 'File Templates',
@@ -5344,7 +5384,7 @@ export const translations = {
       createError: 'Error creating file',
       newFromTemplate: 'New from Template',
     },
-    
+
     // RBAC System
     rbac: {
       title: 'Role Management',
@@ -5378,7 +5418,7 @@ export const translations = {
       deleteRoleError: 'Error deleting role',
       noRoles: 'No roles found',
     },
-    
+
     // Cloud Storage
     cloudStorage: {
       title: 'Cloud Storage',
@@ -5443,7 +5483,7 @@ export const translations = {
       migrationError: 'Error creating migration',
       cancelError: 'Error cancelling migration',
     },
-    
+
     // File Encryption at Rest
     encryption: {
       title: 'File Encryption',
@@ -5498,7 +5538,7 @@ export const translations = {
       errorPasswordMin: 'Password must be at least 8 characters',
       errorPasswordMismatch: 'Passwords do not match',
     },
-    
+
     // Storage Quota Management
     quota: {
       title: 'Storage Quota',
@@ -5527,7 +5567,7 @@ export const translations = {
       updateSuccess: 'Quota updated successfully',
       updateError: 'Error updating quota',
     },
-    
+
     // Rate Limiting & Quotas Management
     quotas: {
       title: 'Quotas & Rate Limiting',
@@ -5595,7 +5635,7 @@ export const translations = {
       deleteError: 'Error deleting',
       toggleError: 'Error toggling',
     },
-    
+
     // System Configuration
     systemConfig: {
       title: 'System Configuration',
@@ -5660,7 +5700,7 @@ export const translations = {
       saveSuccess: 'Configuration saved successfully',
       saveError: 'Error saving configuration',
     },
-    
+
     // User Groups
     groups: {
       title: 'User Groups',
@@ -5708,7 +5748,7 @@ export const translations = {
       userUnsuspended: 'User unsuspended successfully',
       unsuspendError: 'Error unsuspending user',
     },
-    
+
     workflow: {
       title: 'Workflow Automation',
       description: 'Create automated rules with If-This-Then-That logic',
@@ -5776,7 +5816,7 @@ export const translations = {
       maxFileSize: 'Max File Size (Bytes)',
       mimeTypes: 'MIME Types',
     },
-    
+
     allRoles: 'All Roles',
     moderator: 'Moderator',
     activeUsers: 'Active Users',
@@ -5787,7 +5827,7 @@ export const translations = {
     usersSelected: 'users selected',
     done: 'Done',
     clickSearchToAddUsers: 'Click "Search Users" to add people',
-    
+
     // ShareModal
     shareFileName: 'Share: {0}',
     shareType: 'Share Type',
@@ -5850,7 +5890,7 @@ export const translations = {
     done: 'Done',
     shareUrlCopiedToClipboard: 'Share URL copied to clipboard',
     failedToCopyUrl: 'Failed to copy URL',
-    
+
     // HelpView section
     helpAndSupport: 'Help & Support',
     findAnswersToCommonQuestions: 'Find answers to common questions and get support',
@@ -5878,17 +5918,17 @@ export const translations = {
     faqRecoverQuestion: 'How do I recover deleted files?',
     faqRecoverAnswer: 'Check the Trash section. Files are kept for 30 days before permanent deletion.',
     sharing: 'Sharing',
-  faqTwoFactorQuestion: 'How do I enable Two-Factor Authentication?',
-  faqTwoFactorAnswer: "Go to Settings → Security, click 'Enable 2FA', scan the QR code with your authenticator app, and enter the verification code to finish setup.",
-  faqThemeQuestion: 'Can I change my default theme?',
-  faqThemeAnswer: 'Yes! Go to Settings → General and choose between Light, Dark, or Auto mode. Auto follows your system preference.',
-  faqSearchQuestion: 'How do I search for files?',
-  faqSearchAnswer: 'Use the search bar in the header. The search uses Tantivy with fuzzy matching so it can find files even if you make typos.',
-  faqOrganizeQuestion: 'How do I organize files?',
-  faqOrganizeAnswer: 'Use folders, right-click menus, drag and drop, and multi-select mode for batch actions.',
-  faqSecurityQuestion: 'Is my data secure?',
-  faqSecurityAnswer: 'Yes! All data stays on your server. Passwords are hashed with Argon2, JWTs protect authentication, and 2FA adds extra security.',
-    
+    faqTwoFactorQuestion: 'How do I enable Two-Factor Authentication?',
+    faqTwoFactorAnswer: "Go to Settings → Security, click 'Enable 2FA', scan the QR code with your authenticator app, and enter the verification code to finish setup.",
+    faqThemeQuestion: 'Can I change my default theme?',
+    faqThemeAnswer: 'Yes! Go to Settings → General and choose between Light, Dark, or Auto mode. Auto follows your system preference.',
+    faqSearchQuestion: 'How do I search for files?',
+    faqSearchAnswer: 'Use the search bar in the header. The search uses Tantivy with fuzzy matching so it can find files even if you make typos.',
+    faqOrganizeQuestion: 'How do I organize files?',
+    faqOrganizeAnswer: 'Use folders, right-click menus, drag and drop, and multi-select mode for batch actions.',
+    faqSecurityQuestion: 'Is my data secure?',
+    faqSecurityAnswer: 'Yes! All data stays on your server. Passwords are hashed with Argon2, JWTs protect authentication, and 2FA adds extra security.',
+
     // StorageView
     manageStorage: 'Manage your storage space',
     totalSpace: 'Total Space',
@@ -5898,19 +5938,19 @@ export const translations = {
     fileBreakdown: 'File Breakdown',
     recentUploads: 'Recent Uploads',
     largestFiles: 'Largest Files',
-  recentFilesSubtitle: "Files you've recently accessed",
-  recentLastCount: 'Last {0}',
-  recentLoadFailed: 'Failed to load recent files',
-  recentNoFilesTitle: 'No recent files',
-  recentNoFilesDescription: 'Files you access will appear here',
-  recentBadgeViewed: 'Viewed',
-  recentBadgeEdited: 'Edited',
-  recentBadgeDownloaded: 'Downloaded',
-  recentBadgeUploaded: 'Uploaded',
-  recentBadgeAccessed: 'Accessed',
-  recentAccessCountSingular: '{0} time',
-  recentAccessCountPlural: '{0} times',
-    
+    recentFilesSubtitle: "Files you've recently accessed",
+    recentLastCount: 'Last {0}',
+    recentLoadFailed: 'Failed to load recent files',
+    recentNoFilesTitle: 'No recent files',
+    recentNoFilesDescription: 'Files you access will appear here',
+    recentBadgeViewed: 'Viewed',
+    recentBadgeEdited: 'Edited',
+    recentBadgeDownloaded: 'Downloaded',
+    recentBadgeUploaded: 'Uploaded',
+    recentBadgeAccessed: 'Accessed',
+    recentAccessCountSingular: '{0} time',
+    recentAccessCountPlural: '{0} times',
+
     // ActivityView
     recentActivity: 'Recent Activity',
     viewActivity: 'View all file activities',
@@ -5920,7 +5960,7 @@ export const translations = {
     todayActivity: 'Today',
     yesterdayActivity: 'Yesterday',
     thisWeekActivity: 'This Week',
-    
+
     // DuplicatesView
     duplicateFiles: 'Duplicate Files',
     findDuplicates: 'Find duplicate files',
@@ -5929,40 +5969,40 @@ export const translations = {
     duplicatesFound: 'Duplicates found',
     noDuplicates: 'No duplicates found',
     potentialSavings: 'Potential Savings',
-  duplicateFinderTitle: 'Duplicate File Finder',
-  duplicateFinderSubtitle: 'Scan and remove duplicate files to free up storage space',
-  duplicateFinderScanningToast: 'Scanning for duplicates...',
-  duplicateFinderScanResult: 'Found {0} duplicate groups ({1} saved)',
-  duplicateFinderNoDuplicatesToast: 'No duplicates found',
-  duplicateFinderScanFailed: 'Failed to scan for duplicates',
-  duplicateFinderScanCurrentFolder: 'Scan Current Folder',
-  duplicateFinderScanInProgress: 'Scanning...',
-  duplicateFinderDeleteSelected: 'Delete {0} selected',
-  duplicateFinderNoSelection: 'No duplicates selected',
-  duplicateFinderDeleteConfirm: 'Delete {0} duplicate files?',
-  duplicateFinderDeleteSuccess: 'Deleted {0} duplicate files',
-  duplicateFinderDeleteFailed: 'Failed to delete {0} files',
-  duplicateFinderQuickScan: 'Quick scanning files...',
-  duplicateFinderDeepScan: 'Deep scanning potential duplicates...',
-  duplicateFinderScanningFiles: 'Scanning files...',
-  duplicateFinderInitializing: 'Initializing...',
-  duplicateFinderStatsGroups: 'Duplicate Groups',
-  duplicateFinderStatsFiles: '{0} duplicate files',
-  duplicateFinderStatsWasted: 'Wasted Space',
-  duplicateFinderStatsReclaim: 'Can be reclaimed',
-  duplicateFinderStatsSelected: 'Selected',
-  duplicateFinderStatsToDelete: 'Files to delete',
-  duplicateFinderEmptyTitle: 'No Duplicates Found',
-  duplicateFinderEmptyDescription: 'Click "{0}" to search for duplicate files',
-  duplicateFinderStartScanning: 'Start Scanning',
-  duplicateFinderCopiesBadge: '{0} copies',
-  duplicateFinderEachBadge: '{0} each',
-  duplicateFinderWastedBadge: '{0} wasted',
-  duplicateFinderOriginalBadge: 'Original (keep)',
-  duplicateFinderWillDeleteBadge: 'Will delete',
-  duplicateFinderSelectAll: 'Select All',
-  duplicateFinderDeselect: 'Deselect',
-    
+    duplicateFinderTitle: 'Duplicate File Finder',
+    duplicateFinderSubtitle: 'Scan and remove duplicate files to free up storage space',
+    duplicateFinderScanningToast: 'Scanning for duplicates...',
+    duplicateFinderScanResult: 'Found {0} duplicate groups ({1} saved)',
+    duplicateFinderNoDuplicatesToast: 'No duplicates found',
+    duplicateFinderScanFailed: 'Failed to scan for duplicates',
+    duplicateFinderScanCurrentFolder: 'Scan Current Folder',
+    duplicateFinderScanInProgress: 'Scanning...',
+    duplicateFinderDeleteSelected: 'Delete {0} selected',
+    duplicateFinderNoSelection: 'No duplicates selected',
+    duplicateFinderDeleteConfirm: 'Delete {0} duplicate files?',
+    duplicateFinderDeleteSuccess: 'Deleted {0} duplicate files',
+    duplicateFinderDeleteFailed: 'Failed to delete {0} files',
+    duplicateFinderQuickScan: 'Quick scanning files...',
+    duplicateFinderDeepScan: 'Deep scanning potential duplicates...',
+    duplicateFinderScanningFiles: 'Scanning files...',
+    duplicateFinderInitializing: 'Initializing...',
+    duplicateFinderStatsGroups: 'Duplicate Groups',
+    duplicateFinderStatsFiles: '{0} duplicate files',
+    duplicateFinderStatsWasted: 'Wasted Space',
+    duplicateFinderStatsReclaim: 'Can be reclaimed',
+    duplicateFinderStatsSelected: 'Selected',
+    duplicateFinderStatsToDelete: 'Files to delete',
+    duplicateFinderEmptyTitle: 'No Duplicates Found',
+    duplicateFinderEmptyDescription: 'Click "{0}" to search for duplicate files',
+    duplicateFinderStartScanning: 'Start Scanning',
+    duplicateFinderCopiesBadge: '{0} copies',
+    duplicateFinderEachBadge: '{0} each',
+    duplicateFinderWastedBadge: '{0} wasted',
+    duplicateFinderOriginalBadge: 'Original (keep)',
+    duplicateFinderWillDeleteBadge: 'Will delete',
+    duplicateFinderSelectAll: 'Select All',
+    duplicateFinderDeselect: 'Deselect',
+
     // BackupView
     backupAndRestore: 'Backup & Restore',
     createBackup: 'Create Backup',
@@ -5973,12 +6013,12 @@ export const translations = {
     backupComplete: 'Backup complete',
     restoreInProgress: 'Restore in progress...',
     restoreComplete: 'Restore complete',
-    
+
     // TrashView
     restoreFile: 'Restore',
     deleteForever: 'Delete Forever',
     deletedOn: 'Deleted on',
-    
+
     // ProfileView
     editProfile: 'Edit Profile',
     displayName: 'Display Name',
@@ -6005,7 +6045,7 @@ export const translations = {
     viewMode: 'View mode',
     uploadAvatar: 'Upload avatar',
     changeAvatar: 'Change avatar',
-    
+
     // UsersView
     userName: 'Username',
     role: 'Role',
@@ -6014,7 +6054,7 @@ export const translations = {
     lastLogin: 'Last Login',
     editUser: 'Edit User',
     deleteUser: 'Delete User',
-    
+
     // Header/Sidebar
     notifications: 'Notifications',
     noNotifications: 'No notifications',
@@ -6024,7 +6064,7 @@ export const translations = {
     activity: 'Activity',
     duplicates: 'Duplicates',
     backup: 'Backup',
-    
+
     // Time/Date
     justNow: 'Just now',
     minutesAgo: '{0} minutes ago',
@@ -6033,7 +6073,7 @@ export const translations = {
     weeksAgo: '{0} weeks ago',
     monthsAgo: '{0} months ago',
     yearsAgo: '{0} years ago',
-    
+
     // File Types
     file: 'File',
     image: 'Image',
@@ -6042,19 +6082,19 @@ export const translations = {
     document: 'Document',
     archive: 'Archive',
     code: 'Code',
-    
+
     // Table Headers
     name: 'Name',
     type: 'Type',
     size: 'Size',
     modified: 'Modified',
     owner: 'Owner',
-    
+
     // Empty States
     noFilesFound: 'No files found',
     uploadToGetStarted: 'Upload to get started',
     dropOrClick: 'Drop or click to upload',
-    
+
     // Breadcrumb
     goUpOneLevel: 'Go up one level',
     copyFullPath: 'Copy full path',
@@ -6086,7 +6126,7 @@ export const translations = {
     viewSavedSearches: 'View saved searches',
     saveCurrentSearch: 'Save current search',
     close: 'Close',
-    
+
     // File Statistics
     statistics: {
       dashboard_title: 'File Statistics Dashboard',
@@ -6109,7 +6149,7 @@ export const translations = {
       title: 'Backups & Restore',
       subtitle: 'Manage backups, schedules, and restore files',
       description: 'Manage automatic backups and restore files',
-      
+
       // Stats
       total_backups: 'Total Backups',
       totalBackups: 'Total Backups',
@@ -6124,14 +6164,14 @@ export const translations = {
       avg_duration: 'Avg Duration',
       of: 'of',
       total: 'Total',
-      
+
       // Tabs
       backups: 'Backups',
       schedules: 'Schedules',
       history: 'History',
       destinations: 'Destinations',
       restoreHistory: 'Restore History',
-      
+
       // Search & Filter
       search_placeholder: 'Search backups...',
       all_types: 'All Types',
@@ -6145,7 +6185,7 @@ export const translations = {
       ascending: 'Ascending',
       descending: 'Descending',
       export_list: 'Export backup list',
-      
+
       // Status
       status: 'Status',
       status_success: 'Successful',
@@ -6156,7 +6196,7 @@ export const translations = {
       noSchedules: 'No schedules configured',
       noDestinations: 'No destinations configured',
       noRestores: 'No restore history',
-      
+
       // Details
       type: 'Type',
       size: 'Size',
@@ -6171,7 +6211,7 @@ export const translations = {
       pending: 'Pending',
       encrypted: 'Encrypted',
       not_encrypted: 'Not encrypted',
-      
+
       // Types
       typeFull: 'Full Backup',
       typeIncremental: 'Incremental',
@@ -6180,7 +6220,7 @@ export const translations = {
       typeLocal: 'Local Storage',
       typeS3: 'Amazon S3',
       typeSFTP: 'SFTP',
-      
+
       // Actions
       createBackup: 'Create Backup',
       startBackup: 'Start Backup',
@@ -6199,14 +6239,14 @@ export const translations = {
       backupId: 'Backup ID',
       backupStarted: 'Backup started',
       confirmCleanup: 'Cleanup old backups?',
-      
+
       // Create Modal
       description: 'Description',
       descriptionPlaceholder: 'Optional backup description...',
       includeVersions: 'Include versions',
       includeDatabase: 'Include database',
       encryptBackup: 'Encrypt backup',
-      
+
       // Schedules
       createSchedule: 'Create Schedule',
       scheduleName: 'Schedule Name',
@@ -6244,7 +6284,7 @@ export const translations = {
       enable: 'Enable',
       disable: 'Disable',
       runNow: 'Run Now',
-      
+
       // Destinations
       addDestination: 'Add Destination',
       destinationName: 'Destination Name',
@@ -6254,7 +6294,7 @@ export const translations = {
       default: 'Default',
       testConnection: 'Test Connection',
       lastVerified: 'Last verified',
-      
+
       // Restore
       restoreBackup: 'Restore Backup',
       restoreWarning: 'Restoring a backup will overwrite existing files. This action cannot be undone.',
@@ -6275,7 +6315,7 @@ export const translations = {
       restore_confirm: 'Restore',
       restoreStarted: 'Restore started',
       restoreFailed: 'Restore failed',
-      
+
       // Messages
       created: 'Backup created successfully',
       deleted: 'Backup deleted',
@@ -6302,12 +6342,12 @@ export const translations = {
       confirm_delete: 'Delete this backup?',
       delete_warning: 'This backup will be permanently deleted and cannot be recovered.',
     },
-    
+
     // Settings Tab Labels
     security_policy: 'Security',
     cloud_storage: 'Cloud Storage',
     notifications: 'Notifications',
-    
+
     // Security & 2FA
     security: 'Security',
     securitySettings: 'Security Settings',
@@ -6336,14 +6376,14 @@ export const translations = {
     disabling: 'Disabling...',
     enabling: 'Enabling...',
     verifying: 'Verifying...',
-    
+
     // Storage View
     used: 'Used',
     available: 'Available',
     total: 'Total',
     failedToLoadDiskStatistics: 'Failed to load disk statistics',
     failedToLoadStorageStatistics: 'Failed to load storage statistics',
-    
+
     // Trash View
     tryAgain: 'Try Again',
     noItemsFound: 'No items found',
@@ -6356,7 +6396,7 @@ export const translations = {
     sortBy: 'Sort by',
     dateModified: 'Date Modified',
     dateDeleted: 'Date Deleted',
-    
+
     // Signup/Register
     signup: 'Sign Up',
     createAccount: 'Create Account',
@@ -6378,7 +6418,7 @@ export const translations = {
     createFreeAccount: 'Create your free account',
     passwordMinimum8Chars: 'Minimum 8 characters',
     and: 'and',
-    
+
     // General UI
     on: 'ON',
     off: 'OFF',
@@ -6395,149 +6435,149 @@ export const translations = {
     continue: 'Continue',
     submit: 'Submit',
     confirm: 'Confirm',
-  deselect: 'Deselect',
-  random: 'Random',
-  custom: 'Custom',
-  selectedColor: 'Selected Color',
-  changeFolderColor: 'Change Folder Color',
-  folderColor: 'Folder Color',
-  randomColor: 'Random Color',
-  customColor: 'Custom Color',
-  selectColor: 'Select Color',
-  saveColor: 'Save Color',
-  deleteFile: 'Delete File',
-  deleteConfirmTitle: 'Delete File',
-  sureDeleteFile: 'Are you sure you want to delete {0}? This action cannot be undone.',
-  moveFile: 'Move File',
-  selectDestinationFolder: 'Select Destination Folder',
-  filterFolders: 'Filter folders...',
-  noFoldersAvailable: 'No folders available',
-  selectedDestination: 'Selected Destination',
-  moveHere: 'Move Here',
-  copyFile: 'Copy File',
-  copyDestinationPath: 'Destination Path',
-  destinationPath: 'Destination Path',
-  pathToDestination: '/path/to/destination',
-  shareFile: 'Share File',
-  shareLinkGenerated: 'Share link will be generated',
-  createLink: 'Create Link',
-  versionHistory: 'Version History',
-  currentVersion: 'Current Version',
-  previousVersions: 'Previous Versions',
-  noPreviousVersions: 'No previous versions available',
-  protectWithPassword: 'Password protect',
-  setupWizard: 'Setup Wizard',
-  adminAccount: 'Admin Account',
-  createAdminAccount: 'Create your administrator account',
-  serverInfo: 'Server Information',
-  configureServer: 'Configure server settings',
-  chooseDefaultLanguage: 'Choose default language',
-  configureStorageSettings: 'Configure storage settings',
-  securityRegistrationSettings: 'Security and registration settings',
-  finishSetup: 'Finish setup',
-  usernameAtLeast3: 'Username must be at least 3 characters',
-  passwordAtLeast8: 'Password must be at least 8 characters',
-  validEmailRequired: 'Valid email required',
-  displayNameRequired: 'Display name required',
-  passwordRequired: 'Password required',
-  confirmPasswordRequired: 'Password confirmation required',
-  serverNameRequired: 'Server name required',
-  stepCompleted: 'Step completed successfully',
-  continueNextStep: 'Continue to next step',
-  previousStep: 'Previous step',
-  skipSetup: 'Skip setup',
-  serverDescription: 'Description',
-  defaultStorageQuota: 'Default storage quota',
-  allowRegistration: 'Allow user registration',
-  requireEmailVerification: 'Require email verification',
-  require2FA: 'Require 2FA for all users',
-  passwordMinLength: 'Minimum length',
-  passwordRequirements: 'Password requirements',
-  uppercaseLetters: 'Uppercase letters',
-  lowercaseLetters: 'Lowercase letters',
-  numbers: 'Numbers',
-  specialCharacters: 'Special characters',
-  sessionTimeout: 'Session timeout',
-  minutesUnit: 'Minutes',
-  hoursUnit: 'Hours',
-  daysUnit: 'Days',
-  gb: 'GB',
-  mb: 'MB',
-  kb: 'KB',
-  bytes: 'Bytes',
-  // More SetupWizard terms
-  thisWillBePrimaryAdminAccount: 'This will be your primary administrator account',
-  quotaMustBeBetween: 'Quota must be between 1 and 1000 GB',
-  selfHostedFileSync: 'Self-hosted file synchronization',
-  description: 'Description',
-  username: 'Username',
-  adminPassword: 'Admin Password',
-  confirmPassword: 'Confirm Password',
-  createPassword: 'Create a password',
-  confirmYourPassword: 'Confirm your password',
-  serverName: 'Server Name',
-  serverDescription: 'Server Description',
-  language: 'Language',
-  selectDefaultLanguage: 'Select the default language for new users',
-  storageQuotaPerUser: 'Storage quota per user',
-  allowNewUserRegistration: 'Allow new user registration',
-  emailVerificationRequired: 'Email verification required',
-  twoFactorAuthRequired: '2FA required for all users',
-  passwordMinimumLength: 'Password minimum length',
-  characterMinimum: 'Character minimum',
-  uppercaseRequired: 'Uppercase required',
-  lowercaseRequired: 'Lowercase required',
-  numbersRequired: 'Numbers required',
-  specialCharsRequired: 'Special characters required',
-  sessionTimeoutMinutes: 'Session timeout (minutes)',
-  hoursOfInactivity: 'Hours of inactivity',
-  setupWizardComplete: 'Setup complete',
-  setupSuccessRedirect: 'Setup successful! Redirecting...',
-  // Common form labels
-  email: 'Email',
-  bioOptional: 'Bio (Optional)',
-  avatarOptional: 'Avatar (Optional)',
-  // Messages
-  stepSuccess: 'Step successful',
-  proceedToNext: 'Proceed to next step',
-  goBack: 'Go back',
-  skipThisStep: 'Skip this step',
-  // Validation
-  fieldRequired: 'This field is required',
-  invalidEmail: 'Invalid email address',
-  passwordTooShort: 'Password is too short',
-  passwordMismatch: 'Passwords do not match',
-  // Additional SetupWizard
-  storage: 'Storage Configuration',
-  eachNewUserReceives: 'Each new user will receive {0} {1} of storage',
-  allowUserSelfRegistration: 'Allow user self-registration',
-  userCanCreateAccountsWithout: 'Users can create accounts without admin approval',
-  requireEmailVerification: 'Require email verification',
-  passwordRequirements: 'Password Requirements',
-  uppercaseLetters: 'Uppercase letters',
-  lowercaseLetters: 'Lowercase letters',
-  numbers: 'Numbers',
-  specialCharacters: 'Special characters',
-  yourSyncSpaceInstanceIsConfigured: 'Your SyncSpace instance is configured and ready to use.',
-  setupSummary: 'Setup Summary',
-  admin: 'Admin',
-  server: 'Server',
-  defaultQuota: 'Default Quota',
-  registration: 'Registration',
-  enabled: 'Enabled',
-  disabled: 'Disabled',
-  settingUp: 'Setting up...',
-  completeSetup: 'Complete Setup',
-  
-  colorBlue: 'Blue',
-  colorGreen: 'Green',
-  colorPurple: 'Purple',
-  colorOrange: 'Orange',
-  colorPink: 'Pink',
-  colorRed: 'Red',
-  colorYellow: 'Yellow',
-  colorCyan: 'Cyan',
-    
+    deselect: 'Deselect',
+    random: 'Random',
+    custom: 'Custom',
+    selectedColor: 'Selected Color',
+    changeFolderColor: 'Change Folder Color',
+    folderColor: 'Folder Color',
+    randomColor: 'Random Color',
+    customColor: 'Custom Color',
+    selectColor: 'Select Color',
+    saveColor: 'Save Color',
+    deleteFile: 'Delete File',
+    deleteConfirmTitle: 'Delete File',
+    sureDeleteFile: 'Are you sure you want to delete {0}? This action cannot be undone.',
+    moveFile: 'Move File',
+    selectDestinationFolder: 'Select Destination Folder',
+    filterFolders: 'Filter folders...',
+    noFoldersAvailable: 'No folders available',
+    selectedDestination: 'Selected Destination',
+    moveHere: 'Move Here',
+    copyFile: 'Copy File',
+    copyDestinationPath: 'Destination Path',
+    destinationPath: 'Destination Path',
+    pathToDestination: '/path/to/destination',
+    shareFile: 'Share File',
+    shareLinkGenerated: 'Share link will be generated',
+    createLink: 'Create Link',
+    versionHistory: 'Version History',
+    currentVersion: 'Current Version',
+    previousVersions: 'Previous Versions',
+    noPreviousVersions: 'No previous versions available',
+    protectWithPassword: 'Password protect',
+    setupWizard: 'Setup Wizard',
+    adminAccount: 'Admin Account',
+    createAdminAccount: 'Create your administrator account',
+    serverInfo: 'Server Information',
+    configureServer: 'Configure server settings',
+    chooseDefaultLanguage: 'Choose default language',
+    configureStorageSettings: 'Configure storage settings',
+    securityRegistrationSettings: 'Security and registration settings',
+    finishSetup: 'Finish setup',
+    usernameAtLeast3: 'Username must be at least 3 characters',
+    passwordAtLeast8: 'Password must be at least 8 characters',
+    validEmailRequired: 'Valid email required',
+    displayNameRequired: 'Display name required',
+    passwordRequired: 'Password required',
+    confirmPasswordRequired: 'Password confirmation required',
+    serverNameRequired: 'Server name required',
+    stepCompleted: 'Step completed successfully',
+    continueNextStep: 'Continue to next step',
+    previousStep: 'Previous step',
+    skipSetup: 'Skip setup',
+    serverDescription: 'Description',
+    defaultStorageQuota: 'Default storage quota',
+    allowRegistration: 'Allow user registration',
+    requireEmailVerification: 'Require email verification',
+    require2FA: 'Require 2FA for all users',
+    passwordMinLength: 'Minimum length',
+    passwordRequirements: 'Password requirements',
+    uppercaseLetters: 'Uppercase letters',
+    lowercaseLetters: 'Lowercase letters',
+    numbers: 'Numbers',
+    specialCharacters: 'Special characters',
+    sessionTimeout: 'Session timeout',
+    minutesUnit: 'Minutes',
+    hoursUnit: 'Hours',
+    daysUnit: 'Days',
+    gb: 'GB',
+    mb: 'MB',
+    kb: 'KB',
+    bytes: 'Bytes',
+    // More SetupWizard terms
+    thisWillBePrimaryAdminAccount: 'This will be your primary administrator account',
+    quotaMustBeBetween: 'Quota must be between 1 and 1000 GB',
+    selfHostedFileSync: 'Self-hosted file synchronization',
+    description: 'Description',
+    username: 'Username',
+    adminPassword: 'Admin Password',
+    confirmPassword: 'Confirm Password',
+    createPassword: 'Create a password',
+    confirmYourPassword: 'Confirm your password',
+    serverName: 'Server Name',
+    serverDescription: 'Server Description',
+    language: 'Language',
+    selectDefaultLanguage: 'Select the default language for new users',
+    storageQuotaPerUser: 'Storage quota per user',
+    allowNewUserRegistration: 'Allow new user registration',
+    emailVerificationRequired: 'Email verification required',
+    twoFactorAuthRequired: '2FA required for all users',
+    passwordMinimumLength: 'Password minimum length',
+    characterMinimum: 'Character minimum',
+    uppercaseRequired: 'Uppercase required',
+    lowercaseRequired: 'Lowercase required',
+    numbersRequired: 'Numbers required',
+    specialCharsRequired: 'Special characters required',
+    sessionTimeoutMinutes: 'Session timeout (minutes)',
+    hoursOfInactivity: 'Hours of inactivity',
+    setupWizardComplete: 'Setup complete',
+    setupSuccessRedirect: 'Setup successful! Redirecting...',
+    // Common form labels
+    email: 'Email',
+    bioOptional: 'Bio (Optional)',
+    avatarOptional: 'Avatar (Optional)',
+    // Messages
+    stepSuccess: 'Step successful',
+    proceedToNext: 'Proceed to next step',
+    goBack: 'Go back',
+    skipThisStep: 'Skip this step',
+    // Validation
+    fieldRequired: 'This field is required',
+    invalidEmail: 'Invalid email address',
+    passwordTooShort: 'Password is too short',
+    passwordMismatch: 'Passwords do not match',
+    // Additional SetupWizard
+    storage: 'Storage Configuration',
+    eachNewUserReceives: 'Each new user will receive {0} {1} of storage',
+    allowUserSelfRegistration: 'Allow user self-registration',
+    userCanCreateAccountsWithout: 'Users can create accounts without admin approval',
+    requireEmailVerification: 'Require email verification',
+    passwordRequirements: 'Password Requirements',
+    uppercaseLetters: 'Uppercase letters',
+    lowercaseLetters: 'Lowercase letters',
+    numbers: 'Numbers',
+    specialCharacters: 'Special characters',
+    yourSyncSpaceInstanceIsConfigured: 'Your SyncSpace instance is configured and ready to use.',
+    setupSummary: 'Setup Summary',
+    admin: 'Admin',
+    server: 'Server',
+    defaultQuota: 'Default Quota',
+    registration: 'Registration',
+    enabled: 'Enabled',
+    disabled: 'Disabled',
+    settingUp: 'Setting up...',
+    completeSetup: 'Complete Setup',
+
+    colorBlue: 'Blue',
+    colorGreen: 'Green',
+    colorPurple: 'Purple',
+    colorOrange: 'Orange',
+    colorPink: 'Pink',
+    colorRed: 'Red',
+    colorYellow: 'Yellow',
+    colorCyan: 'Cyan',
+
     // FilesView - noch mehr Keys
     adminDisplayName: 'Admin Display Name',
     adminEmail: 'Admin Email',
@@ -6573,7 +6613,7 @@ export const translations = {
     uploading: 'Uploading...',
     downloading: 'Downloading...',
     searching: 'Searching...',
-    
+
     // Additional SetupWizard Terms
     storage: 'Storage Configuration',
     eachNewUserReceives: 'Each new user will receive {0} {1} of storage',
@@ -6595,7 +6635,7 @@ export const translations = {
     disabled: 'Disabled',
     settingUp: 'Setting up...',
     completeSetup: 'Complete Setup',
-    
+
     // FilesView
     searchResults: 'Search Results',
     found: 'Found',
@@ -6637,7 +6677,7 @@ export const translations = {
     modernUIComponentsDescription: 'Modern UI components with glassmorphism design',
     deleteFilesConfirm: 'Delete {0} files?',
     moved: 'Moved {0} to {1}',
-    
+
     // UsersView
     loadingUsers: 'Loading users...',
     noUsersFound: 'No users found',
@@ -6652,7 +6692,7 @@ export const translations = {
     minutesAgo: '{0}m ago',
     hoursAgo: '{0}h ago',
     justNow: 'Just now',
-    
+
     // SecurityView
     failedToGenerateQRCode: 'Failed to generate QR code',
     connectionError: 'Connection error. Is the backend running?',
@@ -6669,7 +6709,7 @@ export const translations = {
     reviewActiveSessions: 'Regularly review your active sessions and devices',
     changePassword: 'Change Password',
     updateAccountPassword: 'Update your account password',
-    
+
     // Additional UI translations
     from: 'From',
     to: 'To',
@@ -6681,7 +6721,7 @@ export const translations = {
     features: 'Features',
     enableFavorites: 'Enable Favorites',
     markFilesForQuickAccess: 'Mark files for quick access',
-    
+
     // GeneralSettings
     loadingSettings: 'Loading settings...',
     settingsSavedSuccess: '✅ Settings saved successfully!',
@@ -6704,7 +6744,7 @@ export const translations = {
     off: 'Off',
     enableFavoritesSystem: 'Enable Favorites System',
     showFavoritesInSidebar: 'Show favorites in sidebar and enable favorite markers on files/folders',
-    
+
     // SecuritySettings
     failedToGenerateQRCode2: 'Failed to generate QR code',
     failedToGenerate2FASecret: 'Failed to generate 2FA secret. Please try again.',
@@ -6716,7 +6756,7 @@ export const translations = {
     areSureDisable2FA: 'Are you sure you want to disable 2FA?',
     twoFADisabledSuccess2: '2FA disabled successfully',
     failedToDisable2FA2: 'Failed to disable 2FA',
-    
+
     // StorageSettings
     manageBucketsDescription: 'Manage storage buckets and quotas',
     totalStorage: 'Total Storage',
@@ -6725,7 +6765,7 @@ export const translations = {
     storageUsagePercentage: 'Storage usage: {0}%',
     cleanupOldFiles: 'Clean up old files',
     archiveInactiveData: 'Archive inactive data',
-    
+
     // BackupSettings
     backupConfigDescription: 'Configure backups and restore points',
     enableAutoBackup: 'Enable automatic backups',
@@ -6737,7 +6777,7 @@ export const translations = {
     backupInProgress: 'Backup in progress...',
     backupCompleted: 'Backup completed',
     backupFailed: 'Backup failed',
-    
+
     // PerformanceSettings
     optimizePerformanceDescription: 'Optimize caching and database performance',
     enableCaching: 'Enable Caching',
@@ -6757,7 +6797,7 @@ export const translations = {
     enableIndexing: 'Enable Indexing',
     rebuildIndex: 'Rebuild Index',
     indexRebuildInProgress: 'Index rebuild in progress...',
-    
+
     // UsersSettings
     manageUsersDescription: 'Manage user roles and permissions',
     addNewUser: 'Add New User',
@@ -6770,7 +6810,7 @@ export const translations = {
     fillAllFields: 'Please fill all fields',
     userCreated: 'User "{0}" created',
     userDeleted: 'User "{0}" deleted',
-    
+
     // AboutSettings
     aboutSyncSpaceDescription: 'Information about SyncSpace',
     version: 'Version',
@@ -6781,7 +6821,7 @@ export const translations = {
     noUpdatesAvailable: 'No updates available',
     updateAvailable: 'Update available',
     secureCloudStorage: 'Secure Cloud Storage Platform',
-    
+
     // Copy/Move/Share Modal keys (English)
     originalFile: 'Original File',
     destinationFolder: 'Destination Folder',
@@ -6800,7 +6840,7 @@ export const translations = {
     fileMovedSuccessfully: 'File "{0}" moved successfully',
     failedToMoveFile: 'Failed to move file',
     moving: 'Moving...',
-    
+
     // Keyboard Shortcuts
     keyboardShortcuts: 'Keyboard Shortcuts',
     pressKeyToPerformAction: 'Press {0} to {1}',
@@ -6811,7 +6851,7 @@ export const translations = {
     shortcutDelete: 'Del - Delete file',
     shortcutEscape: 'ESC - Close',
     shortcutArrows: '← → - Navigate',
-    
+
     latestRelease: 'Latest Release',
     license: 'License',
     openSource: 'Open Source',
@@ -6821,7 +6861,7 @@ export const translations = {
     copyright: '© 2025 SyncSpace. All rights reserved.',
     userRemoved: 'User removed',
     failedToRemoveUser: 'Failed to remove user',
-    
+
     // AboutSettings
     aboutSyncSpaceDescription: 'Information about SyncSpace',
     version: 'Version',
@@ -6831,7 +6871,7 @@ export const translations = {
     checkUpdates: 'Check for Updates',
     noUpdatesAvailable: 'No updates available',
     updateAvailable: 'An update is available',
-    
+
     // Settings View - Nested structure for settings pages
     settings: {
       users: {
@@ -7085,7 +7125,7 @@ export const translations = {
         by: 'by',
       },
     },
-    
+
     // Common keys used across settings
     common: {
       loading: 'Loading...',
@@ -7106,7 +7146,7 @@ export const translations = {
       minutes: 'minutes',
       hour: 'hour',
     },
-    
+
     // Dialog & Input
     ok: 'OK',
     cancel: 'Cancel',
@@ -7147,14 +7187,14 @@ export const translations = {
     removeFolderColor: 'Remove folder color?',
     folderColorRemoved: 'Folder color removed',
     failedToRemoveFolderColor: 'Failed to remove folder color',
-    
+
     // Collaboration
     fileLockedSuccessfully: 'File locked successfully',
     failedToLockFile: 'Failed to lock file',
     fileUnlockedSuccessfully: 'File unlocked successfully',
     failedToUnlockFile: 'Failed to unlock file',
     failedToLoadActivity: 'Failed to load activity',
-    
+
     // Backend-First Settings (synced across devices)
     settingsLoadedFromBackend: 'Settings loaded from backend',
     settingsSyncedToBackend: 'Settings synced to backend',
@@ -7168,7 +7208,7 @@ export const translations = {
     devicesSyncing: 'Syncing across devices',
     settingsWillSyncWhenOnline: 'Settings will sync when online',
     allDevicesSynced: 'All devices synced',
-    
+
     // Backend-First User State
     loadingUserState: 'Loading user state...',
     initializingServerState: 'Initializing server state...',
@@ -7183,7 +7223,7 @@ export const translations = {
     syncInProgress: 'Sync in progress...',
     syncFailed: 'Sync failed',
     syncCompleted: 'Sync completed',
-    
+
     // Audit & Compliance
     audit: {
       title: 'Audit & Compliance',
@@ -7344,14 +7384,14 @@ export const translations = {
       degraded: 'Degraded',
       unhealthy: 'Unhealthy',
       unknown: 'Unknown',
-      
+
       // Time ranges
       timeRange: 'Time Range',
       last24Hours: 'Last 24 Hours',
       last7Days: 'Last 7 Days',
       last30Days: 'Last 30 Days',
       last90Days: 'Last 90 Days',
-      
+
       // Overview stats
       totalUsers: 'Total Users',
       totalFiles: 'Total Files',
@@ -7361,13 +7401,13 @@ export const translations = {
       activeSessions: 'Active Sessions',
       backups: 'Backups',
       actionsToday: 'Actions Today',
-      
+
       // Trends
       vsLastPeriod: 'vs. last period',
       increase: 'increase',
       decrease: 'decrease',
       noChange: 'no change',
-      
+
       // Storage overview
       storageOverview: 'Storage Overview',
       usedStorage: 'Used',
@@ -7380,7 +7420,7 @@ export const translations = {
       audio: 'Audio',
       archives: 'Archives',
       other: 'Other',
-      
+
       // Activity overview
       activityOverview: 'Activity Overview',
       actionsByType: 'Actions by Type',
@@ -7391,7 +7431,7 @@ export const translations = {
       deletes: 'Deletes',
       shares: 'Shares',
       edits: 'Edits',
-      
+
       // Users overview
       usersOverview: 'Users Overview',
       activeUsers: 'Active Users',
@@ -7401,7 +7441,7 @@ export const translations = {
       moderators: 'Moderators',
       regularUsers: 'Regular Users',
       guests: 'Guests',
-      
+
       // Jobs overview
       jobsOverview: 'Jobs Overview',
       pending: 'Pending',
@@ -7412,14 +7452,14 @@ export const translations = {
       scheduledJobs: 'Scheduled Jobs',
       noRecentJobs: 'No recent jobs',
       noScheduledJobs: 'No scheduled jobs',
-      
+
       // Top items
       topUploaders: 'Top Uploaders',
       largestFiles: 'Largest Files',
       mostShared: 'Most Shared',
       mostActiveUsers: 'Most Active Users',
       filesUploaded: 'files uploaded',
-      
+
       // System info
       systemInfo: 'System Info',
       version: 'Version',
@@ -7427,14 +7467,14 @@ export const translations = {
       cpuUsage: 'CPU Usage',
       memoryUsage: 'Memory Usage',
       diskUsage: 'Disk Usage',
-      
+
       // Real-time
       realTimeStats: 'Real-time Stats',
       activeConnections: 'Active Connections',
       requestsPerMinute: 'Requests/min',
       uploadsInProgress: 'Uploads in Progress',
       downloadsInProgress: 'Downloads in Progress',
-      
+
       // Errors
       loadError: 'Failed to load dashboard',
       refreshError: 'Failed to refresh',
@@ -7511,7 +7551,7 @@ export const translations = {
       lastCheck: 'Last check',
       refreshing: 'Refreshing...',
       autoRefresh: 'Auto-refresh',
-      
+
       // CPU
       cpu: 'CPU',
       cpuUsage: 'CPU Usage',
@@ -7521,7 +7561,7 @@ export const translations = {
       min1: '1 min',
       min5: '5 min',
       min15: '15 min',
-      
+
       // Memory
       memory: 'Memory',
       memoryUsage: 'Memory Usage',
@@ -7531,7 +7571,7 @@ export const translations = {
       availableMemory: 'Available',
       cached: 'Cached',
       swapUsage: 'Swap Usage',
-      
+
       // Disk
       disk: 'Disk',
       diskUsage: 'Disk Usage',
@@ -7544,7 +7584,7 @@ export const translations = {
       writeOps: 'Write Operations',
       readBytes: 'Bytes Read',
       writeBytes: 'Bytes Written',
-      
+
       // Database
       database: 'Database',
       databaseHealth: 'Database Health',
@@ -7559,7 +7599,7 @@ export const translations = {
       tableCount: 'Table Count',
       walSize: 'WAL Size',
       lastVacuum: 'Last Vacuum',
-      
+
       // Search
       search: 'Search',
       searchHealth: 'Search Index Health',
@@ -7568,7 +7608,7 @@ export const translations = {
       lastIndexed: 'Last Indexed',
       pendingIndexing: 'Pending Indexing',
       indexingRate: 'Indexing Rate',
-      
+
       // WebSocket
       websocket: 'WebSocket',
       websocketHealth: 'WebSocket Health',
@@ -7576,7 +7616,7 @@ export const translations = {
       messagesPerSec: 'Messages/sec',
       avgLatency: 'Avg Latency',
       connectionErrors: 'Connection Errors',
-      
+
       // Process
       process: 'Process',
       processInfo: 'Process Information',
@@ -7586,7 +7626,7 @@ export const translations = {
       threads: 'Threads',
       openFiles: 'Open Files',
       processMemory: 'Process Memory',
-      
+
       // Application Metrics
       metrics: 'Metrics',
       applicationMetrics: 'Application Metrics',
@@ -7597,7 +7637,7 @@ export const translations = {
       activeRequests: 'Active Requests',
       uploadsTotal: 'Total Uploads',
       downloadsTotal: 'Total Downloads',
-      
+
       // Historical
       history: 'History',
       historicalMetrics: 'Historical Metrics',
@@ -7607,7 +7647,7 @@ export const translations = {
       last24Hours: 'Last 24 Hours',
       last7Days: 'Last 7 Days',
       noHistoricalData: 'No historical data available',
-      
+
       // Alerts
       alerts: 'Alerts',
       alertConfig: 'Alert Configuration',
@@ -7631,14 +7671,14 @@ export const translations = {
       alertEnabled: 'Enabled',
       alertTriggered: 'Triggered',
       alertCleared: 'Cleared',
-      
+
       // Status indicators
       online: 'Online',
       offline: 'Offline',
       warning: 'Warning',
       critical: 'Critical',
       ok: 'OK',
-      
+
       // Errors
       loadError: 'Failed to load system health',
       refreshError: 'Failed to refresh',
@@ -7656,7 +7696,7 @@ export const translations = {
       noTokens: 'No API Tokens',
       noTokensDesc: 'Create API tokens for scripts, CI/CD pipelines, or third-party integrations',
       createFirst: 'Create First Token',
-      
+
       // Token form
       name: 'Token Name',
       namePlaceholder: 'e.g., CI/CD Pipeline',
@@ -7668,7 +7708,7 @@ export const translations = {
       days60: '60 days',
       days90: '90 days',
       days365: '1 year',
-      
+
       // Scopes
       scopeReadFiles: 'Read Files',
       scopeWriteFiles: 'Write Files',
@@ -7677,7 +7717,7 @@ export const translations = {
       scopeManageUsers: 'Manage Users',
       scopeAdmin: 'Administrator',
       scopeFull: 'Full Access',
-      
+
       // Token display
       token: 'Token',
       tokenCreated: 'Token created successfully',
@@ -7690,7 +7730,7 @@ export const translations = {
       expires: 'Expires',
       expired: 'Expired',
       noExpiration: 'No expiration',
-      
+
       // Actions
       revoke: 'Revoke',
       revokeToken: 'Revoke Token',
@@ -7699,11 +7739,11 @@ export const translations = {
       delete: 'Delete',
       deleteToken: 'Delete Token',
       deleteConfirm: 'Really permanently delete token "{0}"?',
-      
+
       // Status
       active: 'Active',
       inactive: 'Inactive',
-      
+
       // Errors
       loadError: 'Failed to load tokens',
       createError: 'Failed to create token',
@@ -7712,23 +7752,23 @@ export const translations = {
       nameRequired: 'Token name is required',
       scopeRequired: 'At least one permission is required',
     },
-    
+
     // Guest/External User Management
     guests: {
       title: 'Guest Access',
       subtitle: 'Manage external users and temporary access',
-      
+
       // Tabs
       tabUsers: 'Guest Users',
       tabLinks: 'Access Links',
       tabInvitations: 'Invitations',
-      
+
       // Stats
       activeGuests: 'Active Guests',
       activeLinks: 'Active Links',
       pendingInvitations: 'Pending Invitations',
       totalAccesses: 'Total Accesses',
-      
+
       // Empty states
       noGuests: 'No guest users',
       noGuestsHint: 'Create guest users for temporary access to your files.',
@@ -7736,7 +7776,7 @@ export const translations = {
       noLinksHint: 'Create links for password-protected or time-limited file access.',
       noInvitations: 'No invitations',
       noInvitationsHint: 'Invite external users via email.',
-      
+
       // Guest user
       createGuest: 'Create Guest User',
       editGuest: 'Edit Guest User',
@@ -7749,14 +7789,14 @@ export const translations = {
       unlimited: 'Unlimited',
       accessCount: 'Accesses',
       lastAccess: 'Last Access',
-      
+
       // Permissions
       permissions: 'Permissions',
       canView: 'View',
       canDownload: 'Download',
       canUpload: 'Upload',
       canComment: 'Comment',
-      
+
       // Links
       createLink: 'Create Link',
       editLink: 'Edit Link',
@@ -7773,7 +7813,7 @@ export const translations = {
       setPassword: 'Set Password',
       noPassword: 'No Password',
       toggleActive: 'Enable/Disable',
-      
+
       // Invitations
       sendInvitation: 'Send Invitation',
       resendInvitation: 'Resend',
@@ -7784,34 +7824,34 @@ export const translations = {
       invitationResent: 'Invitation resent',
       accepted: 'Accepted',
       pending: 'Pending',
-      
+
       // Convert to user
       convertToUser: 'Convert to User',
       convertToUserHint: 'Convert this guest to a full user account.',
       newUsername: 'New Username',
       newPassword: 'New Password',
-      
+
       // Activity
       viewActivity: 'View Activity',
       guestActivity: 'Guest Activity',
       noActivity: 'No activity recorded',
-      
+
       // Status
       active: 'Active',
       inactive: 'Inactive',
       expired: 'Expired',
-      
+
       // Actions
       create: 'Create',
       save: 'Save',
       cancel: 'Cancel',
       delete: 'Delete',
-      
+
       // Confirmations
       deleteGuestConfirm: 'Really delete this guest user? The guest will immediately lose access.',
       deleteLinkConfirm: 'Really delete this access link? The link will no longer work.',
       deleteInvitationConfirm: 'Really delete this invitation?',
-      
+
       // Success messages
       guestCreated: 'Guest user created',
       guestUpdated: 'Guest user updated',
@@ -7823,7 +7863,7 @@ export const translations = {
       invitationCreated: 'Invitation sent',
       invitationDeleted: 'Invitation deleted',
       convertedToUser: 'Guest converted to user',
-      
+
       // Error messages
       loadError: 'Failed to load guest data',
       createError: 'Failed to create',
@@ -7834,13 +7874,13 @@ export const translations = {
       filePathRequired: 'File path is required',
       usernameRequired: 'Username is required',
       passwordRequired: 'Password is required',
-      
+
       // Time units
       days: 'days',
       hours: 'hours',
       never: 'Never',
     },
-    
+
     // Theme Customization
     theme: {
       title: 'Theme',
@@ -7884,7 +7924,7 @@ export const translations = {
       auto_system: 'System preference',
     },
   },
-  
+
   // French
   fr: {
     // Navigation
@@ -7895,7 +7935,7 @@ export const translations = {
     profile: 'Profil',
     users: 'Utilisateurs',
     settings: 'Paramètres',
-    
+
     // Common actions
     upload: 'Téléverser',
     download: 'Télécharger',
@@ -7908,7 +7948,7 @@ export const translations = {
     cancel: 'Annuler',
     save: 'Enregistrer',
     close: 'Fermer',
-    
+
     // Login page
     loginTitle: 'SyncSpace',
     loginSubtitle: 'Synchronisation de fichiers moderne',
@@ -7918,25 +7958,25 @@ export const translations = {
     demoCredentials: 'Identifiants de démonstration',
     enterUsername: 'Entrez le nom d\'utilisateur',
     enterPassword: 'Entrez le mot de passe',
-    
+
     // Files view
     noFiles: 'Aucun fichier',
     dragAndDropHere: 'Glissez-déposez ou cliquez pour téléverser',
     uploadFiles: 'Téléverser des fichiers',
-    
+
     // Shared view
     noSharedFiles: 'Aucun fichier partagé',
     shareWithOthers: 'Partagez des fichiers avec d\'autres utilisateurs',
-    
+
     // Favorites view
     noFavorites: 'Aucun favori',
     markFilesAsFavorite: 'Marquez des fichiers comme favoris',
-    
+
     // Trash view
     trashIsEmpty: 'La corbeille est vide',
     deletedFilesStored: 'Les fichiers supprimés sont conservés 30 jours',
     emptyTrash: 'Vider la corbeille',
-    
+
     // Success messages
     uploadSuccess: 'Téléversement réussi',
     deleteSuccess: 'Suppression réussie',
@@ -7945,7 +7985,7 @@ export const translations = {
     downloadStarted: 'Téléchargement démarré',
     addedToFavorites: 'Ajouté aux favoris',
     removedFromFavorites: 'Retiré des favoris',
-    
+
     // FilesView
     manageFiles: 'Gérez vos fichiers et dossiers',
     refresh: 'Actualiser',
@@ -7955,7 +7995,7 @@ export const translations = {
     folder: 'Dossier',
     dropFilesHere: 'Déposez les fichiers ici',
     releaseToUpload: 'Relâchez pour téléverser',
-    
+
     // Modals
     uploadFilesTitle: 'Téléverser des fichiers',
     createNewFolder: 'Créer un nouveau dossier',
@@ -7967,7 +8007,7 @@ export const translations = {
     enterNewName: 'Entrez le nouveau nom...',
     deleteConfirm: 'Supprimer définitivement ?',
     deleteWarning: 'Cette action est irréversible.',
-    
+
     // Context Menu
     preview: 'Aperçu',
     addToFavorites: 'Ajouter aux favoris',
@@ -7978,7 +8018,7 @@ export const translations = {
     versionHistory: 'Historique des versions',
     share: 'Partager',
     previewComingSoon: 'Aperçu bientôt disponible',
-    
+
     // Header/Sidebar
     notifications: 'Notifications',
     noNotifications: 'Aucune notification',
@@ -7988,20 +8028,20 @@ export const translations = {
     activity: 'Activité',
     duplicates: 'Doublons',
     backup: 'Sauvegarde',
-    
+
     // Time/Date
     justNow: 'À l\'instant',
     minutesAgo: 'il y a {0} minutes',
     hoursAgo: 'il y a {0} heures',
     daysAgo: 'il y a {0} jours',
-    
+
     // Table Headers
     name: 'Nom',
     type: 'Type',
     size: 'Taille',
     modified: 'Modifié',
     actions: 'Actions',
-    
+
     // Breadcrumb
     goUpOneLevel: 'Monter d\'un niveau',
     copyFullPath: 'Copier le chemin complet',
@@ -8029,7 +8069,7 @@ export const translations = {
     removeFilter: 'Supprimer le filtre',
     clearFilters: 'Effacer les Filtres',
   },
-  
+
   // Spanish
   es: {
     // Navigation
@@ -8040,7 +8080,7 @@ export const translations = {
     profile: 'Perfil',
     users: 'Usuarios',
     settings: 'Configuración',
-    
+
     // Common actions
     upload: 'Subir',
     download: 'Descargar',
@@ -8053,7 +8093,7 @@ export const translations = {
     cancel: 'Cancelar',
     save: 'Guardar',
     close: 'Cerrar',
-    
+
     // Login page
     loginTitle: 'SyncSpace',
     loginSubtitle: 'Sincronización de archivos moderna',
@@ -8063,25 +8103,25 @@ export const translations = {
     demoCredentials: 'Credenciales de demostración',
     enterUsername: 'Ingrese nombre de usuario',
     enterPassword: 'Ingrese contraseña',
-    
+
     // Files view
     noFiles: 'No hay archivos',
     dragAndDropHere: 'Arrastra y suelta o haz clic para subir',
     uploadFiles: 'Subir archivos',
-    
+
     // Shared view
     noSharedFiles: 'No hay archivos compartidos',
     shareWithOthers: 'Comparte archivos con otros usuarios',
-    
+
     // Favorites view
     noFavorites: 'No hay favoritos',
     markFilesAsFavorite: 'Marca archivos como favoritos',
-    
+
     // Trash view
     trashIsEmpty: 'La papelera está vacía',
     deletedFilesStored: 'Los archivos eliminados se guardan 30 días',
     emptyTrash: 'Vaciar papelera',
-    
+
     // Success messages
     uploadSuccess: 'Subido exitosamente',
     deleteSuccess: 'Eliminado exitosamente',
@@ -8090,7 +8130,7 @@ export const translations = {
     downloadStarted: 'Descarga iniciada',
     addedToFavorites: 'Añadido a favoritos',
     removedFromFavorites: 'Eliminado de favoritos',
-    
+
     // FilesView
     manageFiles: 'Gestiona tus archivos y carpetas',
     refresh: 'Actualizar',
@@ -8100,7 +8140,7 @@ export const translations = {
     folder: 'Carpeta',
     dropFilesHere: 'Suelta los archivos aquí',
     releaseToUpload: 'Suelta para subir',
-    
+
     // Modals
     uploadFilesTitle: 'Subir archivos',
     createNewFolder: 'Crear nueva carpeta',
@@ -8112,7 +8152,7 @@ export const translations = {
     enterNewName: 'Ingrese nuevo nombre...',
     deleteConfirm: '¿Eliminar permanentemente?',
     deleteWarning: 'Esta acción no se puede deshacer.',
-    
+
     // Context Menu
     preview: 'Vista previa',
     addToFavorites: 'Añadir a favoritos',
@@ -8123,7 +8163,7 @@ export const translations = {
     versionHistory: 'Historial de versiones',
     share: 'Compartir',
     previewComingSoon: 'Vista previa próximamente',
-    
+
     // Header/Sidebar
     notifications: 'Notificaciones',
     noNotifications: 'No hay notificaciones',
@@ -8133,20 +8173,20 @@ export const translations = {
     activity: 'Actividad',
     duplicates: 'Duplicados',
     backup: 'Respaldo',
-    
+
     // Time/Date
     justNow: 'Justo ahora',
     minutesAgo: 'hace {0} minutos',
     hoursAgo: 'hace {0} horas',
     daysAgo: 'hace {0} días',
-    
+
     // Table Headers
     name: 'Nombre',
     type: 'Tipo',
     size: 'Tamaño',
     modified: 'Modificado',
     actions: 'Acciones',
-    
+
     // Breadcrumb
     goUpOneLevel: 'Subir un nivel',
     copyFullPath: 'Copiar ruta completa',
@@ -8174,7 +8214,7 @@ export const translations = {
     removeFilter: 'Eliminar filtro',
     clearFilters: 'Borrar Filtros',
   },
-  
+
   // Italian
   it: {
     // Navigation
@@ -8185,7 +8225,7 @@ export const translations = {
     profile: 'Profilo',
     users: 'Utenti',
     settings: 'Impostazioni',
-    
+
     // Common actions
     upload: 'Carica',
     download: 'Scarica',
@@ -8198,7 +8238,7 @@ export const translations = {
     cancel: 'Annulla',
     save: 'Salva',
     close: 'Chiudi',
-    
+
     // Login page
     loginTitle: 'SyncSpace',
     loginSubtitle: 'Sincronizzazione file moderna',
@@ -8208,25 +8248,25 @@ export const translations = {
     demoCredentials: 'Credenziali demo',
     enterUsername: 'Inserisci nome utente',
     enterPassword: 'Inserisci password',
-    
+
     // Files view
     noFiles: 'Nessun file',
     dragAndDropHere: 'Trascina o clicca per caricare',
     uploadFiles: 'Carica file',
-    
+
     // Shared view
     noSharedFiles: 'Nessun file condiviso',
     shareWithOthers: 'Condividi file con altri utenti',
-    
+
     // Favorites view
     noFavorites: 'Nessun preferito',
     markFilesAsFavorite: 'Contrassegna i file come preferiti',
-    
+
     // Trash view
     trashIsEmpty: 'Il cestino è vuoto',
     deletedFilesStored: 'I file eliminati vengono conservati per 30 giorni',
     emptyTrash: 'Svuota cestino',
-    
+
     // Success messages
     uploadSuccess: 'Caricato con successo',
     deleteSuccess: 'Eliminato con successo',
@@ -8235,7 +8275,7 @@ export const translations = {
     downloadStarted: 'Download avviato',
     addedToFavorites: 'Aggiunto ai preferiti',
     removedFromFavorites: 'Rimosso dai preferiti',
-    
+
     // FilesView
     manageFiles: 'Gestisci i tuoi file e cartelle',
     refresh: 'Aggiorna',
@@ -8245,7 +8285,7 @@ export const translations = {
     folder: 'Cartella',
     dropFilesHere: 'Rilascia i file qui',
     releaseToUpload: 'Rilascia per caricare',
-    
+
     // Modals
     uploadFilesTitle: 'Carica file',
     createNewFolder: 'Crea nuova cartella',
@@ -8257,7 +8297,7 @@ export const translations = {
     enterNewName: 'Inserisci nuovo nome...',
     deleteConfirm: 'Eliminare definitivamente?',
     deleteWarning: 'Questa azione non può essere annullata.',
-    
+
     // Context Menu
     preview: 'Anteprima',
     addToFavorites: 'Aggiungi ai preferiti',
@@ -8268,7 +8308,7 @@ export const translations = {
     versionHistory: 'Cronologia versioni',
     share: 'Condividi',
     previewComingSoon: 'Anteprima prossimamente',
-    
+
     // Header/Sidebar
     notifications: 'Notifiche',
     noNotifications: 'Nessuna notifica',
@@ -8278,20 +8318,20 @@ export const translations = {
     activity: 'Attività',
     duplicates: 'Duplicati',
     backup: 'Backup',
-    
+
     // Time/Date
     justNow: 'Proprio ora',
     minutesAgo: '{0} minuti fa',
     hoursAgo: '{0} ore fa',
     daysAgo: '{0} giorni fa',
-    
+
     // Table Headers
     name: 'Nome',
     type: 'Tipo',
     size: 'Dimensione',
     modified: 'Modificato',
     actions: 'Azioni',
-    
+
     // Breadcrumb
     goUpOneLevel: 'Salire di un livello',
     copyFullPath: 'Copia percorso completo',
@@ -8318,7 +8358,7 @@ export const translations = {
     activeFilters: 'Filtri Attivi',
     removeFilter: 'Rimuovi filtro',
     clearFilters: 'Cancella Filtri',
-    
+
     // Storage Quota
     storage: {
       title: 'Spazio di archiviazione',
@@ -8346,7 +8386,7 @@ export function t(lang, key, ...args) {
   // Handle nested keys like 'rbac.title'
   const keys = key.split('.');
   let text = translations[lang];
-  
+
   // Traverse the nested object
   for (const k of keys) {
     if (text && typeof text === 'object') {
@@ -8356,7 +8396,7 @@ export function t(lang, key, ...args) {
       break;
     }
   }
-  
+
   // Fallback to English if not found in current language
   if (text === undefined) {
     text = translations['en'];
@@ -8369,19 +8409,19 @@ export function t(lang, key, ...args) {
       }
     }
   }
-  
+
   // If still not found, return the key itself
   if (text === undefined || typeof text === 'object') {
     text = key;
   }
-  
+
   // Replace placeholders {0}, {1}, etc.
   if (args.length > 0) {
     args.forEach((arg, index) => {
       text = text.replace(`{${index}}`, arg);
     });
   }
-  
+
   return text;
 }
 
@@ -8414,10 +8454,10 @@ export function formatFileSize(bytes, lang = 'en') {
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   const value = (bytes / Math.pow(k, i)).toFixed(2);
-  
+
   // Use locale-specific decimal separator
   const decimal = lang === 'de' ? ',' : '.';
   const formatted = value.replace('.', decimal);
-  
+
   return `${formatted} ${sizes[i]}`;
 }

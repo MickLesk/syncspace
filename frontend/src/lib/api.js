@@ -3,9 +3,31 @@
  * Handles all HTTP requests to the backend
  */
 
-// Central API configuration - change this for production deployment
-export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
-export const API_HOST = import.meta.env.VITE_API_HOST || "http://localhost:8080";
+// Central API configuration - supports dynamic server selection
+function getApiBase() {
+  return localStorage.getItem("syncspace_api_base") ||
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:8080/api";
+}
+
+function getApiHost() {
+  return localStorage.getItem("syncspace_api_host") ||
+    import.meta.env.VITE_API_HOST ||
+    "http://localhost:8080";
+}
+
+// Export as getters for dynamic resolution
+export const API_BASE = getApiBase();
+export const API_HOST = getApiHost();
+
+// Helper to get current API base (always fresh)
+export function getCurrentApiBase() {
+  return getApiBase();
+}
+
+export function getCurrentApiHost() {
+  return getApiHost();
+}
 
 /**
  * Get auth token from localStorage
@@ -14,7 +36,7 @@ function getToken() {
   // Try new format first
   const token = localStorage.getItem("authToken");
   if (token) return token;
-  
+
   // Fallback to old format
   const authData = localStorage.getItem("auth");
   if (!authData) return null;
@@ -221,7 +243,7 @@ export const users = {
     if (roleFilter) params.append('role', roleFilter);
     if (statusFilter) params.append('status', statusFilter);
     const queryString = params.toString() ? `?${params.toString()}` : '';
-    
+
     const response = await fetch(`${API_BASE}/users/list${queryString}`, {
       headers: getHeaders(),
     });
@@ -310,16 +332,16 @@ export const files = {
   async list(path = "") {
     // Ensure path is a string
     const pathStr = String(path || "");
-    
+
     // Clean and encode path
     const cleanPath = pathStr.replace(/^\/+|\/+$/g, ''); // Remove leading/trailing slashes
-    
+
     // For root directory, use /api/files (no trailing slash)
     // For subdirectories, use /api/files/{path}
-    const url = cleanPath 
+    const url = cleanPath
       ? `${API_BASE}/files/${cleanPath.split('/').map(segment => encodeURIComponent(segment)).join('/')}`
       : `${API_BASE}/files`;
-    
+
     const response = await fetch(url, {
       headers: getHeaders(false),
     });
@@ -354,9 +376,9 @@ export const files = {
       .split('/')
       .map(segment => encodeURIComponent(segment))
       .join('/');
-    
+
     const headers = getHeaders(false);
-    
+
     const response = await fetch(`${API_BASE}/upload/${encodedPath}`, {
       method: "POST",
       headers,
@@ -372,16 +394,16 @@ export const files = {
   async uploadWithProgress(path, file, onProgress, onPause = null) {
     const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks
     const LARGE_FILE_THRESHOLD = 100 * 1024 * 1024; // 100MB
-    
+
     // Use chunked upload for large files
     if (file.size > LARGE_FILE_THRESHOLD) {
       return this.uploadChunked(path, file, onProgress, onPause);
     }
-    
+
     // Standard upload for smaller files
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-      
+
       // Store XHR for pause/cancel functionality
       if (onPause) {
         onPause(() => {
@@ -389,7 +411,7 @@ export const files = {
           reject(new Error('Upload paused by user'));
         });
       }
-      
+
       // Progress tracking
       if (onProgress) {
         xhr.upload.addEventListener('progress', (e) => {
@@ -399,7 +421,7 @@ export const files = {
           }
         });
       }
-      
+
       // Response handling
       xhr.addEventListener('load', () => {
         if (xhr.status >= 200 && xhr.status < 300) {
@@ -413,34 +435,34 @@ export const files = {
           reject(new Error(`Upload failed: ${xhr.status}`));
         }
       });
-      
+
       xhr.addEventListener('error', () => {
         reject(new Error('Network error during upload'));
       });
-      
+
       xhr.addEventListener('abort', () => {
         reject(new Error('Upload cancelled'));
       });
-      
+
       xhr.addEventListener('timeout', () => {
         reject(new Error('Upload timeout'));
       });
-      
+
       // Prepare FormData
       const formData = new FormData();
       formData.append('file', file);
       formData.append('path', path);
-      
+
       // Open and send request
       xhr.open('POST', `${API_BASE}/upload-multipart`);
       xhr.timeout = 300000; // 5 minute timeout
-      
+
       // Add auth header
       const token = getToken();
       if (token) {
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       }
-      
+
       xhr.send(formData);
     });
   },
@@ -453,17 +475,17 @@ export const files = {
     const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     const uploadId = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     let isPaused = false;
     let currentChunk = 0;
-    
+
     // Restore from localStorage if resuming
     const savedProgress = this.getUploadProgress(file.name);
     if (savedProgress && savedProgress.uploadId === uploadId) {
       currentChunk = savedProgress.currentChunk;
       console.log(`📦 Resuming chunked upload from chunk ${currentChunk}/${totalChunks}`);
     }
-    
+
     // Setup pause handler
     if (onPause) {
       onPause(() => {
@@ -478,30 +500,30 @@ export const files = {
         throw new Error('Upload paused');
       });
     }
-    
+
     try {
       // Upload chunks sequentially
       while (currentChunk < totalChunks) {
         if (isPaused) {
           throw new Error('Upload paused by user');
         }
-        
+
         const start = currentChunk * CHUNK_SIZE;
         const end = Math.min(start + CHUNK_SIZE, file.size);
         const chunk = file.slice(start, end);
-        
+
         // Upload chunk
         await this.uploadChunk(path, file.name, chunk, currentChunk, totalChunks, uploadId);
-        
+
         currentChunk++;
-        
+
         // Update progress
         if (onProgress) {
           const percentComplete = (currentChunk / totalChunks) * 100;
           const bytesUploaded = Math.min(currentChunk * CHUNK_SIZE, file.size);
           onProgress(percentComplete, bytesUploaded, file.size);
         }
-        
+
         // Save progress to localStorage
         this.saveUploadProgress(file.name, {
           uploadId,
@@ -511,15 +533,15 @@ export const files = {
           timestamp: Date.now()
         });
       }
-      
+
       // Finalize upload on backend
       await this.finalizeChunkedUpload(path, file.name, uploadId, totalChunks);
-      
+
       // Clear saved progress
       this.clearUploadProgress(file.name);
-      
+
       return { success: true, message: 'Chunked upload complete' };
-      
+
     } catch (error) {
       if (error.message !== 'Upload paused' && error.message !== 'Upload paused by user') {
         // Clear progress on error (but not on pause)
@@ -540,7 +562,7 @@ export const files = {
     formData.append('chunkIndex', chunkIndex.toString());
     formData.append('totalChunks', totalChunks.toString());
     formData.append('uploadId', uploadId);
-    
+
     const response = await fetch(`${API_BASE}/upload-chunk`, {
       method: 'POST',
       headers: {
@@ -548,11 +570,11 @@ export const files = {
       },
       body: formData
     });
-    
+
     if (!response.ok) {
       throw new Error(`Chunk upload failed: ${response.status}`);
     }
-    
+
     return response.json();
   },
 
@@ -570,7 +592,7 @@ export const files = {
         totalChunks
       })
     });
-    
+
     return handleResponse(response);
   },
 
@@ -848,7 +870,7 @@ export const activity = {
     if (actionFilter) {
       params.append('action', actionFilter);
     }
-    
+
     const response = await fetch(`${API_BASE}/activity?${params}`, {
       headers: getHeaders(),
     });
@@ -951,7 +973,7 @@ export const tags = {
     });
     return handleResponse(response);
   },
-  
+
   async getFiles(tagId) {
     const response = await fetch(`${API_BASE}/tags/${encodeURIComponent(tagId)}/files`, {
       headers: getHeaders(),
@@ -988,7 +1010,7 @@ export const folderColors = {
   async get(folderPath) {
     const response = await fetch(
       `${API_BASE}/folders/color/get`,
-      { 
+      {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ file_path: folderPath })
@@ -1080,13 +1102,13 @@ export const batch = {
     const response = await fetch(`${API_BASE}/batch/copy`, {
       method: "POST",
       headers: getHeaders(),
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         items: items.map(item => ({
           path: item.path,
           name: item.name,
           size: item.size
-        })), 
-        target_folder: targetFolder 
+        })),
+        target_folder: targetFolder
       }),
     });
     return handleResponse(response);
@@ -1099,12 +1121,12 @@ export const batch = {
     const response = await fetch(`${API_BASE}/batch/compress`, {
       method: "POST",
       headers: getHeaders(),
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         items: items.map(item => ({
           path: item.path,
           name: item.name,
           size: item.size
-        })), 
+        })),
         archive_name: archiveName,
         compression_level: compressionLevel
       }),
@@ -1214,7 +1236,7 @@ export const templates = {
     if (category) params.append('category', category);
     if (isPublic !== null) params.append('is_public', isPublic);
     if (search) params.append('search', search);
-    
+
     const url = `${API_BASE}/templates${params.toString() ? '?' + params.toString() : ''}`;
     const response = await fetch(url, {
       headers: getHeaders(false),
@@ -1327,7 +1349,7 @@ export const workflow = {
     if (actionType) params.append('action_type', actionType);
     if (isActive !== null && isActive !== undefined) params.append('is_active', isActive);
     if (includeStats) params.append('include_stats', 'true');
-    
+
     const url = `${API_BASE}/workflows${params.toString() ? '?' + params.toString() : ''}`;
     const response = await fetch(url, {
       headers: getHeaders(false),
@@ -1399,7 +1421,7 @@ export const workflow = {
     if (limit) params.append('limit', limit);
     if (offset) params.append('offset', offset);
     if (status) params.append('status', status);
-    
+
     const url = `${API_BASE}/workflows/${ruleId}/executions${params.toString() ? '?' + params.toString() : ''}`;
     const response = await fetch(url, {
       headers: getHeaders(false),
@@ -1415,7 +1437,7 @@ export const workflow = {
     if (limit) params.append('limit', limit);
     if (offset) params.append('offset', offset);
     if (status) params.append('status', status);
-    
+
     const url = `${API_BASE}/workflows/executions/recent${params.toString() ? '?' + params.toString() : ''}`;
     const response = await fetch(url, {
       headers: getHeaders(false),
@@ -1455,7 +1477,7 @@ export const rbac = {
   async listRoles(includeSystem = true) {
     const params = new URLSearchParams();
     if (includeSystem !== null) params.append('include_system', includeSystem);
-    
+
     const url = `${API_BASE}/roles${params.toString() ? '?' + params.toString() : ''}`;
     const response = await fetch(url, {
       headers: getHeaders(false),
@@ -1579,7 +1601,7 @@ export const rbac = {
     if (userId) params.append('user_id', userId);
     if (action) params.append('action', action);
     if (limit) params.append('limit', limit);
-    
+
     const url = `${API_BASE}/permissions/audit${params.toString() ? '?' + params.toString() : ''}`;
     const response = await fetch(url, {
       headers: getHeaders(false),
@@ -1731,414 +1753,414 @@ export const favorites = {
 
 // Recent files endpoints
 export const recent = {
-    async list(limit = 50) {
-      const response = await fetch(`${API_BASE}/recent?limit=${limit}`, {
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    },
-    
-    async accessed(limit = 50) {
-      const response = await fetch(`${API_BASE}/recent/accessed?limit=${limit}`, {
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    },
-    
-    async uploaded(limit = 50) {
-      const response = await fetch(`${API_BASE}/recent/uploaded?limit=${limit}`, {
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    }
-  };
-  
+  async list(limit = 50) {
+    const response = await fetch(`${API_BASE}/recent?limit=${limit}`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  async accessed(limit = 50) {
+    const response = await fetch(`${API_BASE}/recent/accessed?limit=${limit}`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  async uploaded(limit = 50) {
+    const response = await fetch(`${API_BASE}/recent/uploaded?limit=${limit}`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  }
+};
+
 export const sharing = {
-    // Create a share for a file or folder - ENHANCED
-    async create(requestData) {
-      // Support both old and new API format
-      const body = requestData.file_path ? requestData : {
-        file_id: requestData.fileId || requestData.file_id,
-        folder_id: requestData.folderId || requestData.folder_id,
-        shared_with: requestData.sharedWith || null,
-        expires_in_days: requestData.expiresInDays || null,
-        can_read: requestData.canRead !== false,
-        can_write: requestData.canWrite || false,
-        can_delete: requestData.canDelete || false,
-        can_share: requestData.canShare || false
-      };
+  // Create a share for a file or folder - ENHANCED
+  async create(requestData) {
+    // Support both old and new API format
+    const body = requestData.file_path ? requestData : {
+      file_id: requestData.fileId || requestData.file_id,
+      folder_id: requestData.folderId || requestData.folder_id,
+      shared_with: requestData.sharedWith || null,
+      expires_in_days: requestData.expiresInDays || null,
+      can_read: requestData.canRead !== false,
+      can_write: requestData.canWrite || false,
+      can_delete: requestData.canDelete || false,
+      can_share: requestData.canShare || false
+    };
 
-      const response = await fetch(`${API_BASE}/shares`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(body)
-      });
-      return handleResponse(response);
-    },
+    const response = await fetch(`${API_BASE}/shares`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(body)
+    });
+    return handleResponse(response);
+  },
 
-    // List shares created by current user
-    async list() {
-      const response = await fetch(`${API_BASE}/shares`, {
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    },
+  // List shares created by current user
+  async list() {
+    const response = await fetch(`${API_BASE}/shares`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
 
-    // List shares shared with current user
-    async listSharedWithMe() {
-      const response = await fetch(`${API_BASE}/shared-with-me`, {
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    },
+  // List shares shared with current user
+  async listSharedWithMe() {
+    const response = await fetch(`${API_BASE}/shared-with-me`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
 
-    // Delete a share
-    async delete(shareId) {
-      const response = await fetch(`${API_BASE}/shares/${shareId}`, {
-        method: 'DELETE',
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    },
+  // Delete a share
+  async delete(shareId) {
+    const response = await fetch(`${API_BASE}/shares/${shareId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
 
-    // Update share permissions
-    async updatePermissions(shareId, permissions) {
-      const response = await fetch(`${API_BASE}/shares/${shareId}/permissions`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify(permissions)
-      });
-      return handleResponse(response);
-    },
+  // Update share permissions
+  async updatePermissions(shareId, permissions) {
+    const response = await fetch(`${API_BASE}/shares/${shareId}/permissions`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(permissions)
+    });
+    return handleResponse(response);
+  },
 
-    // NEW: Get share users
-    async getUsers(shareId) {
-      const response = await fetch(`${API_BASE}/shares/${shareId}/users`, {
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    },
+  // NEW: Get share users
+  async getUsers(shareId) {
+    const response = await fetch(`${API_BASE}/shares/${shareId}/users`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
 
-    // NEW: Add users to share
-    async addUsers(shareId, userIds, permissions) {
-      const response = await fetch(`${API_BASE}/shares/${shareId}/users`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({
-          user_ids: userIds,
-          permissions: permissions
-        })
-      });
-      return handleResponse(response);
-    },
+  // NEW: Add users to share
+  async addUsers(shareId, userIds, permissions) {
+    const response = await fetch(`${API_BASE}/shares/${shareId}/users`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        user_ids: userIds,
+        permissions: permissions
+      })
+    });
+    return handleResponse(response);
+  },
 
-    // NEW: Remove user from share
-    async removeUser(shareId, userId) {
-      const response = await fetch(`${API_BASE}/shares/${shareId}/users/${userId}`, {
-        method: 'DELETE',
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    },
+  // NEW: Remove user from share
+  async removeUser(shareId, userId) {
+    const response = await fetch(`${API_BASE}/shares/${shareId}/users/${userId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
 
-    // NEW: Update user permission on share
-    async updateUserPermission(shareId, userId, permission) {
-      const response = await fetch(`${API_BASE}/shares/${shareId}/users/${userId}`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify({ permission })
-      });
-      return handleResponse(response);
-    },
+  // NEW: Update user permission on share
+  async updateUserPermission(shareId, userId, permission) {
+    const response = await fetch(`${API_BASE}/shares/${shareId}/users/${userId}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify({ permission })
+    });
+    return handleResponse(response);
+  },
 
-    // Get share analytics summary
-    async getShareAnalytics(shareId) {
-      const response = await fetch(`${API_BASE}/shares/${shareId}/analytics`, {
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    },
+  // Get share analytics summary
+  async getShareAnalytics(shareId) {
+    const response = await fetch(`${API_BASE}/shares/${shareId}/analytics`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
 
-    // Get detailed access log for share
-    async getShareAccessLog(shareId) {
-      const response = await fetch(`${API_BASE}/shares/${shareId}/access-log`, {
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    }
-  };
-  
-  // File versioning endpoints
+  // Get detailed access log for share
+  async getShareAccessLog(shareId) {
+    const response = await fetch(`${API_BASE}/shares/${shareId}/access-log`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  }
+};
+
+// File versioning endpoints
 export const versions = {
-    // List all versions for a file (with tags)
-    async list(fileId, includeTags = true) {
-      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}?include_tags=${includeTags}`, {
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
+  // List all versions for a file (with tags)
+  async list(fileId, includeTags = true) {
+    const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}?include_tags=${includeTags}`, {
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
 
-    // Get version timeline with stats
-    async getTimeline(fileId) {
-      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/timeline`, {
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
+  // Get version timeline with stats
+  async getTimeline(fileId) {
+    const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/timeline`, {
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
 
-    // Create a new version of a file
-    async create(fileId, versionData) {
-      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(versionData)
-      });
-      return { data: await handleResponse(response) };
-    },
+  // Create a new version of a file
+  async create(fileId, versionData) {
+    const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(versionData)
+    });
+    return { data: await handleResponse(response) };
+  },
 
-    // Update version (comment, pinned, starred)
-    async update(fileId, versionId, updateData) {
-      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify(updateData)
-      });
-      return { data: await handleResponse(response) };
-    },
+  // Update version (comment, pinned, starred)
+  async update(fileId, versionId, updateData) {
+    const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(updateData)
+    });
+    return { data: await handleResponse(response) };
+  },
 
-    // Delete a version (not current)
-    async delete(fileId, versionId) {
-      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}`, {
-        method: 'DELETE',
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
+  // Delete a version (not current)
+  async delete(fileId, versionId) {
+    const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
 
-    // Restore a version (creates new current version)
-    async restore(fileId, versionId, options = {}) {
-      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}/restore`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(options)
-      });
-      return { data: await handleResponse(response) };
-    },
+  // Restore a version (creates new current version)
+  async restore(fileId, versionId, options = {}) {
+    const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}/restore`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(options)
+    });
+    return { data: await handleResponse(response) };
+  },
 
-    // Get diff between two versions
-    async getDiff(fileId, fromVersionId, toVersionId) {
-      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${fromVersionId}/diff/${toVersionId}`, {
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
+  // Get diff between two versions
+  async getDiff(fileId, fromVersionId, toVersionId) {
+    const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${fromVersionId}/diff/${toVersionId}`, {
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
 
-    // Add tag to version
-    async addTag(fileId, versionId, tagData) {
-      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}/tags`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(tagData)
-      });
-      return { data: await handleResponse(response) };
-    },
+  // Add tag to version
+  async addTag(fileId, versionId, tagData) {
+    const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}/tags`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(tagData)
+    });
+    return { data: await handleResponse(response) };
+  },
 
-    // Remove tag from version
-    async removeTag(fileId, versionId, tagId) {
-      const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}/tags/${tagId}`, {
-        method: 'DELETE',
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
+  // Remove tag from version
+  async removeTag(fileId, versionId, tagId) {
+    const response = await fetch(`${API_BASE}/versions/${encodeURIComponent(fileId)}/${versionId}/tags/${tagId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
 
-    // Get tag templates
-    async getTagTemplates() {
-      const response = await fetch(`${API_BASE}/version-tags/templates`, {
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
+  // Get tag templates
+  async getTagTemplates() {
+    const response = await fetch(`${API_BASE}/version-tags/templates`, {
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
 
-    // Get storage stats for all files
-    async getStorageStats() {
-      const response = await fetch(`${API_BASE}/version-storage-stats`, {
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
+  // Get storage stats for all files
+  async getStorageStats() {
+    const response = await fetch(`${API_BASE}/version-storage-stats`, {
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
 
-    // Download a specific version
-    async download(versionId) {
-      const response = await fetch(`${API_BASE}/versions/${versionId}/download`, {
-        headers: getHeaders(false)
-      });
-      if (!response.ok) {
-        throw new Error(`Download failed: ${response.statusText}`);
-      }
-      return { data: await response.blob() };
+  // Download a specific version
+  async download(versionId) {
+    const response = await fetch(`${API_BASE}/versions/${versionId}/download`, {
+      headers: getHeaders(false)
+    });
+    if (!response.ok) {
+      throw new Error(`Download failed: ${response.statusText}`);
     }
-  };
-  
-  // Duplicate files detection endpoints
+    return { data: await response.blob() };
+  }
+};
+
+// Duplicate files detection endpoints
 export const duplicates = {
-    // Find all duplicate files
-    async find(minSizeBytes = 0) {
-      const response = await fetch(`${API_BASE}/duplicates?min_size_bytes=${minSizeBytes}`, {
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    },
-    
-    // Get duplicate statistics
-    async stats() {
-      const response = await fetch(`${API_BASE}/duplicates/stats`, {
-        headers: getHeaders()
-      });
-      return handleResponse(response);
-    },
-    
-    // Resolve duplicates by keeping one and deleting others
-    async resolve(checksum, keepFileId, deleteFileIds) {
-      const response = await fetch(`${API_BASE}/duplicates/resolve`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({
-          checksum,
-          keep_file_id: keepFileId,
-          delete_file_ids: deleteFileIds
-        })
-      });
-      return handleResponse(response);
-    }
-  };
-  
-  // Collaboration endpoints
+  // Find all duplicate files
+  async find(minSizeBytes = 0) {
+    const response = await fetch(`${API_BASE}/duplicates?min_size_bytes=${minSizeBytes}`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  // Get duplicate statistics
+  async stats() {
+    const response = await fetch(`${API_BASE}/duplicates/stats`, {
+      headers: getHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  // Resolve duplicates by keeping one and deleting others
+  async resolve(checksum, keepFileId, deleteFileIds) {
+    const response = await fetch(`${API_BASE}/duplicates/resolve`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        checksum,
+        keep_file_id: keepFileId,
+        delete_file_ids: deleteFileIds
+      })
+    });
+    return handleResponse(response);
+  }
+};
+
+// Collaboration endpoints
 export const collaboration = {
-    // File Locks
-    async listLocks(filePath = null) {
-      const params = filePath ? `?file_path=${encodeURIComponent(filePath)}` : '';
-      const response = await fetch(`${API_BASE}/collaboration/locks${params}`, {
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
-    
-    async acquireLock(filePath, lockType = 'exclusive', durationSeconds = 300) {
-      const response = await fetch(`${API_BASE}/collaboration/locks`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({
-          file_path: filePath,
-          lock_type: lockType,
-          duration_seconds: durationSeconds
-        })
-      });
-      return { data: await handleResponse(response) };
-    },
-    
-    async releaseLock(lockId) {
-      const response = await fetch(`${API_BASE}/collaboration/locks/${lockId}`, {
-        method: 'DELETE',
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
-    
-    async renewLock(lockId) {
-      const response = await fetch(`${API_BASE}/collaboration/locks/${lockId}/heartbeat`, {
-        method: 'POST',
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
-    
-    // User Presence
-    async getPresence(filePath = null) {
-      const params = filePath ? `?file_path=${encodeURIComponent(filePath)}` : '';
-      const response = await fetch(`${API_BASE}/collaboration/presence${params}`, {
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
-    
-    async updatePresence(filePath, activityType, metadata = null) {
-      const response = await fetch(`${API_BASE}/collaboration/presence`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({
-          file_path: filePath,
-          activity_type: activityType,
-          metadata
-        })
-      });
-      return { data: await handleResponse(response) };
-    },
-    
-    async removePresence(userId) {
-      const response = await fetch(`${API_BASE}/collaboration/presence/${userId}`, {
-        method: 'DELETE',
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
-    
-    // Activity
-    async getActivity(limit = 50) {
-      const response = await fetch(`${API_BASE}/collaboration/activity?limit=${limit}`, {
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
-    
-    async getFileActivity(filePath) {
-      const response = await fetch(`${API_BASE}/collaboration/activity/${encodeURIComponent(filePath)}`, {
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
-    
-    // Conflicts
-    async listConflicts(status = 'pending') {
-      const response = await fetch(`${API_BASE}/collaboration/conflicts?status=${status}`, {
-        headers: getHeaders()
-      });
-      return { data: await handleResponse(response) };
-    },
-    
-    async resolveConflict(conflictId, resolutionStrategy, details = null) {
-      const response = await fetch(`${API_BASE}/collaboration/conflicts/${conflictId}/resolve`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({
-          resolution_strategy: resolutionStrategy,
-          details
-        })
-      });
-      return { data: await handleResponse(response) };
-    }
-  };
-  
-  // Trash endpoints
+  // File Locks
+  async listLocks(filePath = null) {
+    const params = filePath ? `?file_path=${encodeURIComponent(filePath)}` : '';
+    const response = await fetch(`${API_BASE}/collaboration/locks${params}`, {
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  async acquireLock(filePath, lockType = 'exclusive', durationSeconds = 300) {
+    const response = await fetch(`${API_BASE}/collaboration/locks`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        file_path: filePath,
+        lock_type: lockType,
+        duration_seconds: durationSeconds
+      })
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  async releaseLock(lockId) {
+    const response = await fetch(`${API_BASE}/collaboration/locks/${lockId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  async renewLock(lockId) {
+    const response = await fetch(`${API_BASE}/collaboration/locks/${lockId}/heartbeat`, {
+      method: 'POST',
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  // User Presence
+  async getPresence(filePath = null) {
+    const params = filePath ? `?file_path=${encodeURIComponent(filePath)}` : '';
+    const response = await fetch(`${API_BASE}/collaboration/presence${params}`, {
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  async updatePresence(filePath, activityType, metadata = null) {
+    const response = await fetch(`${API_BASE}/collaboration/presence`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        file_path: filePath,
+        activity_type: activityType,
+        metadata
+      })
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  async removePresence(userId) {
+    const response = await fetch(`${API_BASE}/collaboration/presence/${userId}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  // Activity
+  async getActivity(limit = 50) {
+    const response = await fetch(`${API_BASE}/collaboration/activity?limit=${limit}`, {
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  async getFileActivity(filePath) {
+    const response = await fetch(`${API_BASE}/collaboration/activity/${encodeURIComponent(filePath)}`, {
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  // Conflicts
+  async listConflicts(status = 'pending') {
+    const response = await fetch(`${API_BASE}/collaboration/conflicts?status=${status}`, {
+      headers: getHeaders()
+    });
+    return { data: await handleResponse(response) };
+  },
+
+  async resolveConflict(conflictId, resolutionStrategy, details = null) {
+    const response = await fetch(`${API_BASE}/collaboration/conflicts/${conflictId}/resolve`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        resolution_strategy: resolutionStrategy,
+        details
+      })
+    });
+    return { data: await handleResponse(response) };
+  }
+};
+
+// Trash endpoints
 export const trash = {
-    list: () => fetch(`${API_BASE}/trash`, { headers: getHeaders() }),
-    restore: (path) => fetch(`${API_BASE}/trash/restore/${encodeURIComponent(path)}`, { 
-      method: 'POST', 
-      headers: getHeaders() 
-    }),
-    permanentDelete: (path) => fetch(`${API_BASE}/trash/permanent/${encodeURIComponent(path)}`, { 
-      method: 'DELETE', 
-      headers: getHeaders() 
-    }),
-    cleanup: () => fetch(`${API_BASE}/trash/cleanup`, { 
-      method: 'DELETE', 
-      headers: getHeaders() 
-    }),
-    empty: () => fetch(`${API_BASE}/trash/empty`, { 
-      method: 'DELETE', 
-      headers: getHeaders() 
-    })
-  };
+  list: () => fetch(`${API_BASE}/trash`, { headers: getHeaders() }),
+  restore: (path) => fetch(`${API_BASE}/trash/restore/${encodeURIComponent(path)}`, {
+    method: 'POST',
+    headers: getHeaders()
+  }),
+  permanentDelete: (path) => fetch(`${API_BASE}/trash/permanent/${encodeURIComponent(path)}`, {
+    method: 'DELETE',
+    headers: getHeaders()
+  }),
+  cleanup: () => fetch(`${API_BASE}/trash/cleanup`, {
+    method: 'DELETE',
+    headers: getHeaders()
+  }),
+  empty: () => fetch(`${API_BASE}/trash/empty`, {
+    method: 'DELETE',
+    headers: getHeaders()
+  })
+};
 
 // ============================================
 // BACKUP ENDPOINTS
@@ -2284,7 +2306,7 @@ export const backup = {
     const response = await fetch(`${API_BASE}/backups/create`, {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         backup_type: options.backup_type || 'full',
         include_versions: options.include_versions !== false,
         include_database: options.include_database !== false,
@@ -2766,7 +2788,7 @@ export const jobs = {
    * Get job statistics
    */
   stats: () => fetch(`${API_BASE}/jobs/stats`, { headers: getHeaders() }),
-  
+
   /**
    * List jobs with filters
    */
@@ -2776,28 +2798,28 @@ export const jobs = {
     if (params.job_type) query.set("job_type", params.job_type);
     if (params.limit) query.set("limit", params.limit);
     if (params.offset) query.set("offset", params.offset);
-    
+
     const queryString = query.toString();
     const url = queryString ? `${API_BASE}/jobs?${queryString}` : `${API_BASE}/jobs`;
-    
+
     return fetch(url, { headers: getHeaders() });
   },
-  
+
   /**
    * Get job by ID
    */
   get: (jobId) => fetch(`${API_BASE}/jobs/${jobId}`, { headers: getHeaders() }),
-  
+
   /**
    * Enqueue new job
    */
-  enqueue: (jobType, payload, priority = 5, scheduledAt = null) => 
+  enqueue: (jobType, payload, priority = 5, scheduledAt = null) =>
     fetch(`${API_BASE}/jobs`, {
       method: "POST",
       headers: getHeaders(),
       body: JSON.stringify({ job_type: jobType, payload, priority, scheduled_at: scheduledAt }),
     }),
-  
+
   /**
    * Cancel job
    */
@@ -2806,7 +2828,7 @@ export const jobs = {
       method: "POST",
       headers: getHeaders(),
     }),
-  
+
   /**
    * Cleanup old jobs
    */
@@ -2826,12 +2848,12 @@ export const cron = {
    * List all cron jobs
    */
   list: () => fetch(`${API_BASE}/cron`, { headers: getHeaders() }),
-  
+
   /**
    * Get cron job by ID
    */
   get: (cronId) => fetch(`${API_BASE}/cron/${cronId}`, { headers: getHeaders() }),
-  
+
   /**
    * Create cron job
    */
@@ -2841,7 +2863,7 @@ export const cron = {
       headers: getHeaders(),
       body: JSON.stringify({ name, job_type: jobType, cron_expression: cronExpression, payload }),
     }),
-  
+
   /**
    * Update cron job
    */
@@ -2851,7 +2873,7 @@ export const cron = {
       headers: getHeaders(),
       body: JSON.stringify({ cron_expression: cronExpression, payload }),
     }),
-  
+
   /**
    * Delete cron job
    */
@@ -2860,7 +2882,7 @@ export const cron = {
       method: "DELETE",
       headers: getHeaders(),
     }),
-  
+
   /**
    * Enable cron job
    */
@@ -2869,7 +2891,7 @@ export const cron = {
       method: "POST",
       headers: getHeaders(),
     }),
-  
+
   /**
    * Disable cron job
    */
@@ -3122,7 +3144,7 @@ export const audit = {
     if (params.from_date) queryParams.append('from_date', params.from_date);
     if (params.to_date) queryParams.append('to_date', params.to_date);
     if (params.search) queryParams.append('search', params.search);
-    
+
     const response = await fetch(`${API_BASE}/audit/logs?${queryParams}`, {
       headers: getHeaders(),
     });
@@ -3150,7 +3172,7 @@ export const audit = {
     if (params.user_id) queryParams.append('user_id', params.user_id);
     if (params.category) queryParams.append('category', params.category);
     if (params.severity) queryParams.append('severity', params.severity);
-    
+
     const response = await fetch(`${API_BASE}/audit/logs/export?${queryParams}`, {
       headers: getHeaders(),
     });
@@ -3302,7 +3324,7 @@ export const audit = {
     if (params.acknowledged !== undefined) queryParams.append('acknowledged', params.acknowledged);
     if (params.severity) queryParams.append('severity', params.severity);
     if (params.limit) queryParams.append('limit', params.limit);
-    
+
     const response = await fetch(`${API_BASE}/audit/alerts?${queryParams}`, {
       headers: getHeaders(),
     });
@@ -4044,7 +4066,7 @@ export const api = {
 
 export const encryption = {
   // --- Key Management ---
-  
+
   /**
    * List all encryption keys for the current user
    */
@@ -4097,7 +4119,7 @@ export const encryption = {
   },
 
   // --- File Operations ---
-  
+
   /**
    * Get encryption status of a file
    * @param {string} fileId - File ID to check
@@ -4149,18 +4171,18 @@ export const encryption = {
     const response = await fetch(`${API_BASE}/encryption/folders/encrypt`, {
       method: "POST",
       headers: getHeaders(),
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         folder_path: folderPath,
-        key_id: keyId, 
-        password, 
-        include_subfolders: includeSubfolders 
+        key_id: keyId,
+        password,
+        include_subfolders: includeSubfolders
       }),
     });
     return handleResponse(response);
   },
 
   // --- Settings ---
-  
+
   /**
    * Get encryption settings
    */
@@ -4371,7 +4393,7 @@ export const groups = {
 
 export const guests = {
   // --- Guest Users ---
-  
+
   /**
    * List all guest users
    * @param {Object} options - Query options
@@ -4387,7 +4409,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Create a new guest user
    * @param {Object} data - Guest data
@@ -4409,7 +4431,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Get a single guest user
    * @param {string} guestId - Guest ID
@@ -4420,7 +4442,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Update a guest user
    * @param {string} guestId - Guest ID
@@ -4434,7 +4456,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Delete a guest user
    * @param {string} guestId - Guest ID
@@ -4446,7 +4468,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Get guest statistics
    */
@@ -4456,7 +4478,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Get guest activity log
    * @param {string} guestId - Guest ID
@@ -4473,7 +4495,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Convert guest to full user
    * @param {string} guestId - Guest ID
@@ -4490,9 +4512,9 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   // --- Guest Access Links ---
-  
+
   /**
    * List all guest access links
    * @param {Object} options - Query options
@@ -4508,7 +4530,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Create a new guest access link
    * @param {Object} data - Link data
@@ -4530,7 +4552,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Get a single link
    * @param {string} linkId - Link ID
@@ -4541,7 +4563,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Update a link
    * @param {string} linkId - Link ID
@@ -4555,7 +4577,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Delete a link
    * @param {string} linkId - Link ID
@@ -4567,7 +4589,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Toggle link active status
    * @param {string} linkId - Link ID
@@ -4579,9 +4601,9 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   // --- Guest Invitations ---
-  
+
   /**
    * List all invitations
    * @param {Object} options - Query options
@@ -4597,7 +4619,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Send a new invitation
    * @param {Object} data - Invitation data
@@ -4617,7 +4639,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Delete/revoke an invitation
    * @param {string} invitationId - Invitation ID
@@ -4629,7 +4651,7 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Resend an invitation email
    * @param {string} invitationId - Invitation ID
@@ -4641,9 +4663,9 @@ export const guests = {
     });
     return handleResponse(response);
   },
-  
+
   // --- Public Access (no auth) ---
-  
+
   /**
    * Access a guest link (public, no auth required)
    * @param {string} token - Access token
@@ -4652,7 +4674,7 @@ export const guests = {
     const response = await fetch(`${API_BASE}/guest-access/${token}`);
     return handleResponse(response);
   },
-  
+
   /**
    * Access a password-protected link (public, no auth required)
    * @param {string} token - Access token
@@ -4674,7 +4696,7 @@ export const guests = {
 
 export const rateLimiting = {
   // --- Storage Quotas ---
-  
+
   /**
    * List all storage quotas
    * @param {Object} params - { page, limit }
@@ -4688,7 +4710,7 @@ export const rateLimiting = {
     const response = await fetch(url, { headers: getHeaders() });
     return handleResponse(response);
   },
-  
+
   /**
    * Get storage quota for a specific user
    * @param {string} userId - User ID
@@ -4699,7 +4721,7 @@ export const rateLimiting = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Update storage quota for a user
    * @param {string} userId - User ID
@@ -4713,7 +4735,7 @@ export const rateLimiting = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Get storage usage for a user
    * @param {string} userId - User ID
@@ -4724,9 +4746,9 @@ export const rateLimiting = {
     });
     return handleResponse(response);
   },
-  
+
   // --- Bandwidth Quotas ---
-  
+
   /**
    * List all bandwidth quotas
    * @param {Object} params - { page, limit }
@@ -4740,7 +4762,7 @@ export const rateLimiting = {
     const response = await fetch(url, { headers: getHeaders() });
     return handleResponse(response);
   },
-  
+
   /**
    * Get bandwidth quota for a specific user
    * @param {string} userId - User ID
@@ -4751,7 +4773,7 @@ export const rateLimiting = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Update bandwidth quota for a user
    * @param {string} userId - User ID
@@ -4765,7 +4787,7 @@ export const rateLimiting = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Get bandwidth usage for a user
    * @param {string} userId - User ID
@@ -4780,9 +4802,9 @@ export const rateLimiting = {
     const response = await fetch(url, { headers: getHeaders() });
     return handleResponse(response);
   },
-  
+
   // --- Rate Limits ---
-  
+
   /**
    * List all rate limits
    * @param {Object} params - { page, limit }
@@ -4796,7 +4818,7 @@ export const rateLimiting = {
     const response = await fetch(url, { headers: getHeaders() });
     return handleResponse(response);
   },
-  
+
   /**
    * Create a new rate limit rule
    * @param {Object} data - { user_id, role_name, endpoint_pattern, requests_per_minute, requests_per_hour, requests_per_day, burst_limit }
@@ -4809,7 +4831,7 @@ export const rateLimiting = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Get a specific rate limit rule
    * @param {string} id - Rate limit ID
@@ -4820,7 +4842,7 @@ export const rateLimiting = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Update a rate limit rule
    * @param {string} id - Rate limit ID
@@ -4834,7 +4856,7 @@ export const rateLimiting = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Delete a rate limit rule
    * @param {string} id - Rate limit ID
@@ -4846,9 +4868,9 @@ export const rateLimiting = {
     });
     return handleResponse(response);
   },
-  
+
   // --- Alerts ---
-  
+
   /**
    * List quota alerts for current user
    */
@@ -4858,7 +4880,7 @@ export const rateLimiting = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Acknowledge a quota alert
    * @param {string} alertId - Alert ID
@@ -4870,9 +4892,9 @@ export const rateLimiting = {
     });
     return handleResponse(response);
   },
-  
+
   // --- Statistics ---
-  
+
   /**
    * Get quota statistics overview
    */
@@ -4882,7 +4904,7 @@ export const rateLimiting = {
     });
     return handleResponse(response);
   },
-  
+
   /**
    * Get rate limit statistics
    */

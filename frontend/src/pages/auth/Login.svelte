@@ -22,8 +22,179 @@
   let currentTheme = $state("system");
   let isDark = $state(false);
 
+  // Server selector state
+  let showServerDialog = $state(false);
+  let servers = $state([]);
+  let activeServerId = $state(null);
+  let editingServer = $state(null);
+  let newServerName = $state("");
+  let newServerUrl = $state("");
+  let testingConnection = $state(false);
+  let connectionTestResult = $state(null); // { success: boolean, message: string }
+
+  // Get active server URL
+  const activeServer = $derived(() => {
+    const server = servers.find(s => s.id === activeServerId);
+    return server || { id: 'default', name: 'Local', url: `${window.location.protocol}//${window.location.hostname}:8080` };
+  });
+
+  function loadServers() {
+    try {
+      const stored = localStorage.getItem("syncspace_servers");
+      if (stored) {
+        servers = JSON.parse(stored);
+      }
+      // Add default server if none exist
+      if (servers.length === 0) {
+        const defaultServer = {
+          id: 'default',
+          name: 'Local Server',
+          url: `${window.location.protocol}//${window.location.hostname}:8080`
+        };
+        servers = [defaultServer];
+        saveServers();
+      }
+      // Load active server
+      activeServerId = localStorage.getItem("syncspace_active_server") || servers[0]?.id;
+    } catch (e) {
+      console.error("Failed to load servers:", e);
+    }
+  }
+
+  function saveServers() {
+    localStorage.setItem("syncspace_servers", JSON.stringify(servers));
+  }
+
+  function selectServer(serverId) {
+    activeServerId = serverId;
+    localStorage.setItem("syncspace_active_server", serverId);
+    connectionTestResult = null;
+    // Trigger backend check for new server
+    checkBackendStatus();
+  }
+
+  function addServer() {
+    if (!newServerName.trim() || !newServerUrl.trim()) return;
+    
+    // Normalize URL (remove trailing slash, ensure protocol)
+    let url = newServerUrl.trim();
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'http://' + url;
+    }
+    url = url.replace(/\/+$/, '');
+    
+    const newServer = {
+      id: crypto.randomUUID(),
+      name: newServerName.trim(),
+      url: url
+    };
+    
+    servers = [...servers, newServer];
+    saveServers();
+    newServerName = "";
+    newServerUrl = "";
+    connectionTestResult = null;
+  }
+
+  function updateServer() {
+    if (!editingServer || !newServerName.trim() || !newServerUrl.trim()) return;
+    
+    let url = newServerUrl.trim();
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'http://' + url;
+    }
+    url = url.replace(/\/+$/, '');
+    
+    servers = servers.map(s => 
+      s.id === editingServer.id 
+        ? { ...s, name: newServerName.trim(), url: url }
+        : s
+    );
+    saveServers();
+    editingServer = null;
+    newServerName = "";
+    newServerUrl = "";
+    connectionTestResult = null;
+    
+    // Re-check if edited server is active
+    if (activeServerId === editingServer?.id) {
+      checkBackendStatus();
+    }
+  }
+
+  function startEditServer(server) {
+    editingServer = server;
+    newServerName = server.name;
+    newServerUrl = server.url;
+    connectionTestResult = null;
+  }
+
+  function cancelEdit() {
+    editingServer = null;
+    newServerName = "";
+    newServerUrl = "";
+    connectionTestResult = null;
+  }
+
+  function deleteServer(serverId) {
+    if (servers.length <= 1) return; // Keep at least one server
+    servers = servers.filter(s => s.id !== serverId);
+    saveServers();
+    
+    // If deleted server was active, switch to first available
+    if (activeServerId === serverId) {
+      selectServer(servers[0]?.id);
+    }
+  }
+
+  async function testConnection(urlToTest = null) {
+    testingConnection = true;
+    connectionTestResult = null;
+    
+    const url = urlToTest || (editingServer ? newServerUrl : activeServer().url);
+    let normalizedUrl = url.trim();
+    if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+      normalizedUrl = 'http://' + normalizedUrl;
+    }
+    normalizedUrl = normalizedUrl.replace(/\/+$/, '');
+    
+    try {
+      const response = await fetch(`${normalizedUrl}/health`, {
+        method: 'GET',
+        signal: AbortSignal.timeout(5000) // 5 second timeout
+      });
+      
+      if (response.ok) {
+        connectionTestResult = { success: true, message: tr("connectionSuccessful") };
+      } else {
+        connectionTestResult = { success: false, message: `HTTP ${response.status}` };
+      }
+    } catch (err) {
+      connectionTestResult = { 
+        success: false, 
+        message: err.name === 'TimeoutError' ? tr("connectionTimeout") : tr("connectionFailed")
+      };
+    } finally {
+      testingConnection = false;
+    }
+  }
+
+  function openServerDialog() {
+    showServerDialog = true;
+    connectionTestResult = null;
+  }
+
+  function closeServerDialog() {
+    showServerDialog = false;
+    editingServer = null;
+    newServerName = "";
+    newServerUrl = "";
+    connectionTestResult = null;
+  }
+
   // Check backend status on mount and periodically
   onMount(() => {
+    loadServers();
     checkBackendStatus();
     const interval = setInterval(checkBackendStatus, 3000); // Check every 3 seconds
 
@@ -73,13 +244,12 @@
 
   async function checkBackendStatus() {
     try {
-      // Simple health check using api.js
-      const response = await fetch(
-        `${new URL(window.location.href).protocol}//${new URL(window.location.href).hostname}:8080/health`,
-        {
-          method: "GET",
-        }
-      );
+      // Use active server URL
+      const serverUrl = activeServer().url;
+      const response = await fetch(`${serverUrl}/health`, {
+        method: "GET",
+        signal: AbortSignal.timeout(3000)
+      });
       // If we get a response (even error 404/500), backend is online
       backendOnline = response.ok || response.status >= 400;
       checkingBackend = false;
@@ -103,6 +273,11 @@
     errorMessage = "";
 
     try {
+      // Save active server URL for api.js to use
+      const serverUrl = activeServer().url;
+      localStorage.setItem("syncspace_api_base", serverUrl + "/api");
+      localStorage.setItem("syncspace_api_host", serverUrl);
+      
       // Step 1: Try to login without 2FA first
       const loginData = { username, password };
 
@@ -111,11 +286,23 @@
         loginData.totp_code = twoFactorCode;
       }
 
-      const data = await api.auth.login(
-        username,
-        password,
-        showTwoFactor ? twoFactorCode : null
-      );
+      // Direct login call using active server
+      const response = await fetch(`${serverUrl}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username,
+          password,
+          totp_code: showTwoFactor ? twoFactorCode : undefined
+        })
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || tr("loginFailed"));
+      }
+      
+      const data = await response.json();
 
       // Check if 2FA is required
       if (data.requires_2fa === true) {
@@ -184,8 +371,13 @@
     </span>
   </button>
 
-  <!-- Backend Status Indicator -->
-  <div class="backend-status-indicator">
+  <!-- Backend Status Indicator (clickable to open server dialog) -->
+  <button
+    class="backend-status-indicator"
+    onclick={openServerDialog}
+    aria-label={tr("manageServers")}
+    title={tr("clickToManageServers")}
+  >
     <div class="status-circle {backendOnline ? 'online' : 'offline'}">
       <span class="status-pulse"></span>
       <span class="status-dot"></span>
@@ -197,7 +389,7 @@
         >
       {:else if backendOnline}
         <span class="text-green-300 text-xs font-semibold"
-          >{tr("backendOnline")}</span
+          >{activeServer().name}</span
         >
       {:else}
         <span class="text-red-300 text-xs font-semibold"
@@ -205,7 +397,8 @@
         >
       {/if}
     </div>
-  </div>
+    <i class="bi bi-chevron-down text-white/70 text-xs ml-1" aria-hidden="true"></i>
+  </button>
 
   <!-- Animated background blobs -->
   <div class="blob blob-1"></div>
@@ -403,6 +596,190 @@
   <div class="absolute bottom-6 text-center text-sm text-white/80">
     <p>© 2025 SyncSpace. Secure Cloud Storage Platform.</p>
   </div>
+
+  <!-- Server Selection Dialog -->
+  {#if showServerDialog}
+    <div 
+      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="server-dialog-title"
+    >
+      <!-- Backdrop -->
+      <div 
+        class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onclick={closeServerDialog}
+        onkeydown={(e) => e.key === 'Escape' && closeServerDialog()}
+        role="button"
+        tabindex="-1"
+        aria-label={tr("closeDialog")}
+      ></div>
+      
+      <!-- Dialog -->
+      <div class="relative w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden animate-scale-in">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+              <i class="bi bi-hdd-network text-white text-lg" aria-hidden="true"></i>
+            </div>
+            <div>
+              <h2 id="server-dialog-title" class="text-lg font-bold text-gray-900 dark:text-white">
+                {tr("serverManagement")}
+              </h2>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{tr("selectOrAddServer")}</p>
+            </div>
+          </div>
+          <button 
+            onclick={closeServerDialog}
+            class="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label={tr("close")}
+          >
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
+          </button>
+        </div>
+        
+        <!-- Server List -->
+        <div class="px-6 py-4 max-h-64 overflow-y-auto">
+          <div class="space-y-2">
+            {#each servers as server (server.id)}
+              <div 
+                class="flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer
+                  {activeServerId === server.id 
+                    ? 'border-green-500 bg-green-50 dark:bg-green-900/20' 
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-800/50'}"
+                onclick={() => selectServer(server.id)}
+                onkeydown={(e) => e.key === 'Enter' && selectServer(server.id)}
+                role="button"
+                tabindex="0"
+              >
+                <div class="flex-shrink-0">
+                  <div class="w-10 h-10 rounded-lg bg-gradient-to-br {activeServerId === server.id ? 'from-green-500 to-emerald-600' : 'from-gray-400 to-gray-500'} flex items-center justify-center">
+                    <i class="bi bi-server text-white" aria-hidden="true"></i>
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-gray-900 dark:text-white truncate">{server.name}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{server.url}</p>
+                </div>
+                <div class="flex items-center gap-1">
+                  {#if activeServerId === server.id}
+                    <span class="px-2 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 rounded-full">
+                      {tr("active")}
+                    </span>
+                  {/if}
+                  <button 
+                    onclick={(e) => { e.stopPropagation(); startEditServer(server); }}
+                    class="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                    aria-label={tr("editServer")}
+                  >
+                    <i class="bi bi-pencil text-sm" aria-hidden="true"></i>
+                  </button>
+                  {#if servers.length > 1}
+                    <button 
+                      onclick={(e) => { e.stopPropagation(); deleteServer(server.id); }}
+                      class="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                      aria-label={tr("deleteServer")}
+                    >
+                      <i class="bi bi-trash text-sm" aria-hidden="true"></i>
+                    </button>
+                  {/if}
+                </div>
+              </div>
+            {/each}
+          </div>
+        </div>
+        
+        <!-- Add/Edit Server Form -->
+        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+            {editingServer ? tr("editServer") : tr("addNewServer")}
+          </h3>
+          <div class="space-y-3">
+            <div>
+              <label for="server-name" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                {tr("serverName")}
+              </label>
+              <input
+                id="server-name"
+                type="text"
+                bind:value={newServerName}
+                placeholder={tr("serverNamePlaceholder")}
+                class="w-full px-3 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all text-gray-900 dark:text-white placeholder:text-gray-400"
+              />
+            </div>
+            <div>
+              <label for="server-url" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                {tr("serverUrl")}
+              </label>
+              <div class="flex gap-2">
+                <input
+                  id="server-url"
+                  type="text"
+                  bind:value={newServerUrl}
+                  placeholder="http://localhost:8080"
+                  class="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all text-gray-900 dark:text-white placeholder:text-gray-400"
+                />
+                <button
+                  onclick={() => testConnection(newServerUrl)}
+                  disabled={!newServerUrl.trim() || testingConnection}
+                  class="px-3 py-2 text-sm font-medium bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors flex items-center gap-1.5"
+                  aria-label={tr("testConnection")}
+                >
+                  {#if testingConnection}
+                    <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  {:else}
+                    <i class="bi bi-plug" aria-hidden="true"></i>
+                  {/if}
+                  <span class="hidden sm:inline">{tr("test")}</span>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Connection Test Result -->
+            {#if connectionTestResult}
+              <div class="flex items-center gap-2 p-2 rounded-lg {connectionTestResult.success ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'}">
+                <i class="bi {connectionTestResult.success ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}" aria-hidden="true"></i>
+                <span class="text-sm font-medium">{connectionTestResult.message}</span>
+              </div>
+            {/if}
+            
+            <!-- Action Buttons -->
+            <div class="flex gap-2 pt-2">
+              {#if editingServer}
+                <button
+                  onclick={cancelEdit}
+                  class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                >
+                  {tr("cancel")}
+                </button>
+                <button
+                  onclick={updateServer}
+                  disabled={!newServerName.trim() || !newServerUrl.trim()}
+                  class="flex-1 px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <i class="bi bi-check-lg" aria-hidden="true"></i>
+                  {tr("saveChanges")}
+                </button>
+              {:else}
+                <button
+                  onclick={addServer}
+                  disabled={!newServerName.trim() || !newServerUrl.trim()}
+                  class="w-full px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                  {tr("addServer")}
+                </button>
+              {/if}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -588,6 +965,22 @@
     }
   }
 
+  /* Dialog scale-in animation */
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
   /* Responsive */
   @media (max-width: 640px) {
     .login-card {
@@ -604,7 +997,7 @@
     }
   }
 
-  /* Backend Status Indicator */
+  /* Backend Status Indicator - Now a clickable button */
   .backend-status-indicator {
     position: absolute;
     top: 1.5rem;
@@ -612,13 +1005,23 @@
     z-index: 20;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     padding: 0.5rem 1rem;
     border-radius: 50px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+    font-size: inherit;
+  }
+
+  .backend-status-indicator:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
   }
 
   .status-circle {

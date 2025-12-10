@@ -398,8 +398,8 @@ async fn main() {
     // Build router
     let app = build_router(app_state.clone());
 
-    // Start server
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+    // Start server - bind to 0.0.0.0 for external access (tunnels, docker, etc.)
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     println!("🌐 Listening on http://{}", addr);
     println!("📡 WebSocket available at ws://{}/api/ws", addr);
     println!("✨ Ready to accept connections!");
