@@ -231,15 +231,27 @@
 </script>
 
 <aside
-  class="relative flex flex-col h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border-r border-green-500/15 dark:border-green-500/20 shadow-[2px_0_16px_rgba(34,197,94,0.06)] dark:shadow-[2px_0_16px_rgba(0,0,0,0.3)] overflow-hidden {isResizing ? '' : 'transition-[width] duration-300 ease-out'} {isResizing ? 'select-none' : ''}"
+  class="relative flex flex-col h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border-r border-green-500/15 dark:border-green-500/20 shadow-[2px_0_16px_rgba(34,197,94,0.06)] dark:shadow-[2px_0_16px_rgba(0,0,0,0.3)] overflow-hidden {isResizing
+    ? ''
+    : 'transition-[width] duration-300 ease-out'} {isResizing
+    ? 'select-none'
+    : ''}"
   style="width: {isCollapsed ? minWidth : sidebarWidth}px"
 >
   <!-- Header -->
-  <div class="flex items-center justify-between p-4 min-h-[64px] border-b border-green-500/10 dark:border-green-500/15">
-    <div class="flex items-center gap-3 flex-1 min-w-0 transition-all duration-300 {isCollapsed ? 'justify-center' : ''}">
+  <div
+    class="flex items-center justify-between p-4 min-h-[64px] border-b border-green-500/10 dark:border-green-500/15"
+  >
+    <div
+      class="flex items-center gap-3 flex-1 min-w-0 transition-all duration-300 {isCollapsed
+        ? 'justify-center'
+        : ''}"
+    >
       <div class="flex-shrink-0 flex items-center justify-center">
         <svg
-          class="drop-shadow-[0_2px_8px_rgba(34,197,94,0.4)] transition-all duration-300 {isCollapsed ? 'w-9 h-9' : 'w-8 h-8'}"
+          class="drop-shadow-[0_2px_8px_rgba(34,197,94,0.4)] transition-all duration-300 {isCollapsed
+            ? 'w-9 h-9'
+            : 'w-8 h-8'}"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -264,8 +276,16 @@
       </div>
       {#if showLabels}
         <div class="flex-1 min-w-0 animate-fadeIn">
-          <h1 class="text-lg font-bold bg-gradient-to-br from-green-500 to-green-600 bg-clip-text text-transparent m-0 leading-tight whitespace-nowrap">SyncSpace</h1>
-          <p class="text-[0.6875rem] text-gray-500 dark:text-gray-400 font-medium m-0 leading-tight whitespace-nowrap">{tr("cloudStorage")}</p>
+          <h1
+            class="text-lg font-bold bg-gradient-to-br from-green-500 to-green-600 bg-clip-text text-transparent m-0 leading-tight whitespace-nowrap"
+          >
+            SyncSpace
+          </h1>
+          <p
+            class="text-[0.6875rem] text-gray-500 dark:text-gray-400 font-medium m-0 leading-tight whitespace-nowrap"
+          >
+            {tr("cloudStorage")}
+          </p>
         </div>
       {/if}
     </div>
@@ -286,31 +306,58 @@
   <nav class="sidebar-nav flex-1 overflow-y-auto overflow-x-hidden p-3">
     <!-- Main Section -->
     {#if showLabels}
-      <div class="text-[0.625rem] font-bold tracking-widest uppercase text-gray-400 dark:text-gray-500 py-2 px-3 mt-1">{tr("main")}</div>
+      <div
+        class="text-[0.625rem] font-bold tracking-widest uppercase text-gray-400 dark:text-gray-500 py-2 px-3 mt-1"
+      >
+        {tr("main")}
+      </div>
     {/if}
     <ul class="list-none p-0 m-0 flex flex-col gap-0.5">
       {#each mainItems as item (item.id)}
         <li>
           <button
-            class="nav-item relative flex items-center gap-3 w-full py-2.5 px-3 rounded-[10px] bg-transparent border-none text-gray-600 dark:text-gray-300 text-sm font-medium cursor-pointer transition-all duration-200 text-left whitespace-nowrap overflow-hidden hover:bg-green-500/8 dark:hover:bg-green-500/12 hover:text-green-500 dark:hover:text-green-400 {$currentView === item.id ? 'active-nav bg-gradient-to-br from-green-500 to-green-600 !text-white shadow-[0_4px_12px_rgba(34,197,94,0.35)]' : ''} {isCollapsed ? 'justify-center !p-3' : ''}"
+            class="nav-item relative flex items-center gap-3 w-full py-2.5 px-3 rounded-[10px] bg-transparent border-none text-gray-600 dark:text-gray-300 text-sm font-medium cursor-pointer transition-all duration-200 text-left whitespace-nowrap overflow-hidden hover:bg-green-500/8 dark:hover:bg-green-500/12 hover:text-green-500 dark:hover:text-green-400 {$currentView ===
+            item.id
+              ? 'active-nav bg-gradient-to-br from-green-500 to-green-600 !text-white shadow-[0_4px_12px_rgba(34,197,94,0.35)]'
+              : ''} {isCollapsed ? 'justify-center !p-3' : ''}"
             onclick={() => selectView(item.id)}
             title={isCollapsed ? item.label : ""}
           >
-            <span class="flex items-center justify-center flex-shrink-0 transition-all duration-200 {isCollapsed ? 'w-7 h-7 text-xl' : 'w-6 h-6 text-lg'} {$currentView === item.id ? 'text-white' : 'text-gray-500 dark:text-gray-400'}">
+            <span
+              class="flex items-center justify-center flex-shrink-0 transition-all duration-200 {isCollapsed
+                ? 'w-7 h-7 text-xl'
+                : 'w-6 h-6 text-lg'} {$currentView === item.id
+                ? 'text-white'
+                : 'text-gray-500 dark:text-gray-400'}"
+            >
               <i class="bi bi-{item.icon}" aria-hidden="true"></i>
             </span>
             {#if showLabels}
-              <span class="flex-1 transition-opacity duration-200 overflow-hidden text-ellipsis">{item.label}</span>
+              <span
+                class="flex-1 transition-opacity duration-200 overflow-hidden text-ellipsis"
+                >{item.label}</span
+              >
             {/if}
             {#if item.badge && item.badge > 0}
               <span
-                class="nav-badge py-0.5 px-2 text-[0.6875rem] font-semibold rounded-full ml-auto transition-all duration-200 {isCollapsed ? 'absolute top-1 right-1 !p-0 w-4 h-4 text-[0.5625rem] flex items-center justify-center !ml-0' : ''} {$currentView === item.id ? 'bg-white/25 text-white' : item.badgeColor === 'blue' ? 'bg-blue-100 text-blue-600 dark:bg-blue-600/20 dark:text-blue-400' : item.badgeColor === 'amber' ? 'bg-amber-100 text-amber-600 dark:bg-amber-600/20 dark:text-amber-400' : 'bg-purple-100 text-purple-600 dark:bg-purple-600/20 dark:text-purple-400'}"
+                class="nav-badge py-0.5 px-2 text-[0.6875rem] font-semibold rounded-full ml-auto transition-all duration-200 {isCollapsed
+                  ? 'absolute top-1 right-1 !p-0 w-4 h-4 text-[0.5625rem] flex items-center justify-center !ml-0'
+                  : ''} {$currentView === item.id
+                  ? 'bg-white/25 text-white'
+                  : item.badgeColor === 'blue'
+                    ? 'bg-blue-100 text-blue-600 dark:bg-blue-600/20 dark:text-blue-400'
+                    : item.badgeColor === 'amber'
+                      ? 'bg-amber-100 text-amber-600 dark:bg-amber-600/20 dark:text-amber-400'
+                      : 'bg-purple-100 text-purple-600 dark:bg-purple-600/20 dark:text-purple-400'}"
               >
                 {item.badge}
               </span>
             {/if}
             {#if isCollapsed}
-              <span class="tooltip absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 py-1.5 px-3 bg-gray-800 dark:bg-gray-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 invisible transition-all duration-200 z-[100] pointer-events-none shadow-lg">{item.label}</span>
+              <span
+                class="tooltip absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 py-1.5 px-3 bg-gray-800 dark:bg-gray-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 invisible transition-all duration-200 z-[100] pointer-events-none shadow-lg"
+                >{item.label}</span
+              >
             {/if}
           </button>
         </li>
@@ -318,33 +365,62 @@
     </ul>
 
     <!-- Tools Section -->
-    <div class="h-px bg-gradient-to-r from-transparent via-green-500/20 to-transparent my-2"></div>
+    <div
+      class="h-px bg-gradient-to-r from-transparent via-green-500/20 to-transparent my-2"
+    ></div>
     {#if showLabels}
-      <div class="text-[0.625rem] font-bold tracking-widest uppercase text-gray-400 dark:text-gray-500 py-2 px-3">{tr("tools")}</div>
+      <div
+        class="text-[0.625rem] font-bold tracking-widest uppercase text-gray-400 dark:text-gray-500 py-2 px-3"
+      >
+        {tr("tools")}
+      </div>
     {/if}
     <ul class="list-none p-0 m-0 flex flex-col gap-0.5">
       {#each toolsItems as item (item.id)}
         <li>
           <button
-            class="nav-item relative flex items-center gap-3 w-full py-2.5 px-3 rounded-[10px] bg-transparent border-none text-gray-600 dark:text-gray-300 text-sm font-medium cursor-pointer transition-all duration-200 text-left whitespace-nowrap overflow-hidden hover:bg-green-500/8 dark:hover:bg-green-500/12 hover:text-green-500 dark:hover:text-green-400 {$currentView === item.id ? 'active-nav bg-gradient-to-br from-green-500 to-green-600 !text-white shadow-[0_4px_12px_rgba(34,197,94,0.35)]' : ''} {isCollapsed ? 'justify-center !p-3' : ''}"
+            class="nav-item relative flex items-center gap-3 w-full py-2.5 px-3 rounded-[10px] bg-transparent border-none text-gray-600 dark:text-gray-300 text-sm font-medium cursor-pointer transition-all duration-200 text-left whitespace-nowrap overflow-hidden hover:bg-green-500/8 dark:hover:bg-green-500/12 hover:text-green-500 dark:hover:text-green-400 {$currentView ===
+            item.id
+              ? 'active-nav bg-gradient-to-br from-green-500 to-green-600 !text-white shadow-[0_4px_12px_rgba(34,197,94,0.35)]'
+              : ''} {isCollapsed ? 'justify-center !p-3' : ''}"
             onclick={() => selectView(item.id)}
             title={isCollapsed ? item.label : ""}
           >
-            <span class="flex items-center justify-center flex-shrink-0 transition-all duration-200 {isCollapsed ? 'w-7 h-7 text-xl' : 'w-6 h-6 text-lg'} {$currentView === item.id ? 'text-white' : 'text-gray-500 dark:text-gray-400'}">
+            <span
+              class="flex items-center justify-center flex-shrink-0 transition-all duration-200 {isCollapsed
+                ? 'w-7 h-7 text-xl'
+                : 'w-6 h-6 text-lg'} {$currentView === item.id
+                ? 'text-white'
+                : 'text-gray-500 dark:text-gray-400'}"
+            >
               <i class="bi bi-{item.icon}" aria-hidden="true"></i>
             </span>
             {#if showLabels}
-              <span class="flex-1 transition-opacity duration-200 overflow-hidden text-ellipsis">{item.label}</span>
+              <span
+                class="flex-1 transition-opacity duration-200 overflow-hidden text-ellipsis"
+                >{item.label}</span
+              >
             {/if}
             {#if item.badge && item.badge > 0}
               <span
-                class="nav-badge py-0.5 px-2 text-[0.6875rem] font-semibold rounded-full ml-auto transition-all duration-200 {isCollapsed ? 'absolute top-1 right-1 !p-0 w-4 h-4 text-[0.5625rem] flex items-center justify-center !ml-0' : ''} {$currentView === item.id ? 'bg-white/25 text-white' : item.badgeColor === 'blue' ? 'bg-blue-100 text-blue-600 dark:bg-blue-600/20 dark:text-blue-400' : item.badgeColor === 'amber' ? 'bg-amber-100 text-amber-600 dark:bg-amber-600/20 dark:text-amber-400' : 'bg-purple-100 text-purple-600 dark:bg-purple-600/20 dark:text-purple-400'}"
+                class="nav-badge py-0.5 px-2 text-[0.6875rem] font-semibold rounded-full ml-auto transition-all duration-200 {isCollapsed
+                  ? 'absolute top-1 right-1 !p-0 w-4 h-4 text-[0.5625rem] flex items-center justify-center !ml-0'
+                  : ''} {$currentView === item.id
+                  ? 'bg-white/25 text-white'
+                  : item.badgeColor === 'blue'
+                    ? 'bg-blue-100 text-blue-600 dark:bg-blue-600/20 dark:text-blue-400'
+                    : item.badgeColor === 'amber'
+                      ? 'bg-amber-100 text-amber-600 dark:bg-amber-600/20 dark:text-amber-400'
+                      : 'bg-purple-100 text-purple-600 dark:bg-purple-600/20 dark:text-purple-400'}"
               >
                 {item.badge}
               </span>
             {/if}
             {#if isCollapsed}
-              <span class="tooltip absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 py-1.5 px-3 bg-gray-800 dark:bg-gray-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 invisible transition-all duration-200 z-[100] pointer-events-none shadow-lg">{item.label}</span>
+              <span
+                class="tooltip absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 py-1.5 px-3 bg-gray-800 dark:bg-gray-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 invisible transition-all duration-200 z-[100] pointer-events-none shadow-lg"
+                >{item.label}</span
+              >
             {/if}
           </button>
         </li>
@@ -352,23 +428,40 @@
     </ul>
 
     <!-- System Section (Settings) -->
-    <div class="h-px bg-gradient-to-r from-transparent via-green-500/20 to-transparent my-2"></div>
+    <div
+      class="h-px bg-gradient-to-r from-transparent via-green-500/20 to-transparent my-2"
+    ></div>
     <ul class="list-none p-0 m-0 flex flex-col gap-0.5">
       {#each systemItems as item (item.id)}
         <li>
           <button
-            class="nav-item relative flex items-center gap-3 w-full py-2.5 px-3 rounded-[10px] bg-transparent border-none text-gray-600 dark:text-gray-300 text-sm font-medium cursor-pointer transition-all duration-200 text-left whitespace-nowrap overflow-hidden hover:bg-green-500/8 dark:hover:bg-green-500/12 hover:text-green-500 dark:hover:text-green-400 {$currentView === item.id ? 'active-nav bg-gradient-to-br from-green-500 to-green-600 !text-white shadow-[0_4px_12px_rgba(34,197,94,0.35)]' : ''} {isCollapsed ? 'justify-center !p-3' : ''}"
+            class="nav-item relative flex items-center gap-3 w-full py-2.5 px-3 rounded-[10px] bg-transparent border-none text-gray-600 dark:text-gray-300 text-sm font-medium cursor-pointer transition-all duration-200 text-left whitespace-nowrap overflow-hidden hover:bg-green-500/8 dark:hover:bg-green-500/12 hover:text-green-500 dark:hover:text-green-400 {$currentView ===
+            item.id
+              ? 'active-nav bg-gradient-to-br from-green-500 to-green-600 !text-white shadow-[0_4px_12px_rgba(34,197,94,0.35)]'
+              : ''} {isCollapsed ? 'justify-center !p-3' : ''}"
             onclick={() => selectView(item.id)}
             title={isCollapsed ? item.label : ""}
           >
-            <span class="flex items-center justify-center flex-shrink-0 transition-all duration-200 {isCollapsed ? 'w-7 h-7 text-xl' : 'w-6 h-6 text-lg'} {$currentView === item.id ? 'text-white' : 'text-gray-500 dark:text-gray-400'}">
+            <span
+              class="flex items-center justify-center flex-shrink-0 transition-all duration-200 {isCollapsed
+                ? 'w-7 h-7 text-xl'
+                : 'w-6 h-6 text-lg'} {$currentView === item.id
+                ? 'text-white'
+                : 'text-gray-500 dark:text-gray-400'}"
+            >
               <i class="bi bi-{item.icon}" aria-hidden="true"></i>
             </span>
             {#if showLabels}
-              <span class="flex-1 transition-opacity duration-200 overflow-hidden text-ellipsis">{item.label}</span>
+              <span
+                class="flex-1 transition-opacity duration-200 overflow-hidden text-ellipsis"
+                >{item.label}</span
+              >
             {/if}
             {#if isCollapsed}
-              <span class="tooltip absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 py-1.5 px-3 bg-gray-800 dark:bg-gray-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 invisible transition-all duration-200 z-[100] pointer-events-none shadow-lg">{item.label}</span>
+              <span
+                class="tooltip absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 py-1.5 px-3 bg-gray-800 dark:bg-gray-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 invisible transition-all duration-200 z-[100] pointer-events-none shadow-lg"
+                >{item.label}</span
+              >
             {/if}
           </button>
         </li>
@@ -377,7 +470,9 @@
   </nav>
 
   <!-- Version Footer -->
-  <div class="p-3 border-t border-green-500/10 dark:border-green-500/15 text-center">
+  <div
+    class="p-3 border-t border-green-500/10 dark:border-green-500/15 text-center"
+  >
     {#if showLabels}
       <span class="text-[0.6875rem] text-gray-400 font-medium">v1.0-beta</span>
     {:else}
@@ -387,7 +482,9 @@
 
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
-    class="resize-handle absolute top-0 -right-1 w-2 h-full cursor-ew-resize z-10 transition-colors duration-200 hover:bg-green-500/15 {isResizing ? 'bg-green-500/15' : ''}"
+    class="resize-handle absolute top-0 -right-1 w-2 h-full cursor-ew-resize z-10 transition-colors duration-200 hover:bg-green-500/15 {isResizing
+      ? 'bg-green-500/15'
+      : ''}"
     onmousedown={startResize}
     ondblclick={resetWidth}
     role="separator"
