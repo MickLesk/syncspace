@@ -129,27 +129,21 @@
       category: "tools",
     },
     {
-      id: "ftp-sync",
-      icon: "cloud-arrow-down-fill",
-      label: "FTP Sync",
-      category: "tools",
-    },
-    {
-      id: "email-integration",
-      icon: "envelope-fill",
-      label: "Email Integration",
+      id: "duplicates",
+      icon: "files",
+      label: t($currentLang, "duplicates") || "Duplicates",
       category: "tools",
     },
     {
       id: "archives",
       icon: "file-earmark-zip-fill",
-      label: "Archives",
+      label: t($currentLang, "archives") || "Archives",
       category: "tools",
     },
     {
       id: "compression",
       icon: "box-arrow-in-down",
-      label: "Compression",
+      label: t($currentLang, "compression") || "Compression",
       category: "tools",
     },
     // Settings - consolidated entry point for all settings + admin

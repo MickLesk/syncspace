@@ -157,6 +157,20 @@
       group: "admin-tools",
       adminOnly: true,
     },
+    {
+      id: "ftp-sync",
+      icon: "cloud-arrow-down-fill",
+      label: "ftpSync.title",
+      group: "admin-tools",
+      adminOnly: true,
+    },
+    {
+      id: "email-integration",
+      icon: "envelope-fill",
+      label: "emailIntegration.title",
+      group: "admin-tools",
+      adminOnly: true,
+    },
 
     // Analytics & Audit (admin only)
     {
@@ -486,6 +500,14 @@
         {/await}
       {:else if activeTab === "webhooks"}
         {#await import("../admin/WebhooksView.svelte") then module}
+          <module.default />
+        {/await}
+      {:else if activeTab === "ftp-sync"}
+        {#await import("../tools/FtpSyncView.svelte") then module}
+          <module.default />
+        {/await}
+      {:else if activeTab === "email-integration"}
+        {#await import("../tools/EmailIntegrationView.svelte") then module}
           <module.default />
         {/await}
 

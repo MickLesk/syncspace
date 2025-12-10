@@ -264,6 +264,84 @@
     if (num == null) return "-";
     return num.toLocaleString();
   }
+
+  // Export functions
+  function exportToJson() {
+    const data = {
+      timestamp: new Date().toISOString(),
+      health,
+      cpu: cpuMetrics,
+      memory: memoryMetrics,
+      disk: diskMetrics,
+      database: databaseHealth,
+      connections: connectionStats,
+      search: searchHealth,
+      websocket: websocketHealth,
+      application: applicationMetrics,
+      alerts,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
+    downloadBlob(blob, `system-health-${Date.now()}.json`);
+  }
+
+  function exportToCsv() {
+    const rows = [
+      ["Metric", "Value", "Status", "Timestamp"],
+      [
+        "CPU Usage",
+        cpuMetrics?.usage_percent ?? "-",
+        health?.status ?? "-",
+        new Date().toISOString(),
+      ],
+      [
+        "Memory Used",
+        formatBytes(memoryMetrics?.used_bytes),
+        health?.status ?? "-",
+        new Date().toISOString(),
+      ],
+      [
+        "Memory Total",
+        formatBytes(memoryMetrics?.total_bytes),
+        "-",
+        new Date().toISOString(),
+      ],
+      [
+        "Disk Used",
+        formatBytes(diskMetrics?.used_bytes),
+        "-",
+        new Date().toISOString(),
+      ],
+      [
+        "Disk Total",
+        formatBytes(diskMetrics?.total_bytes),
+        "-",
+        new Date().toISOString(),
+      ],
+      [
+        "Database Connections",
+        connectionStats?.active ?? "-",
+        "-",
+        new Date().toISOString(),
+      ],
+      ["Uptime", formatUptime(health?.uptime), "-", new Date().toISOString()],
+    ];
+    const csv = rows.map((row) => row.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    downloadBlob(blob, `system-health-${Date.now()}.csv`);
+  }
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 </script>
 
 <div class="p-6 space-y-6">
@@ -300,6 +378,30 @@
         {/if}
         {$t("common.refresh")}
       </button>
+      <div class="dropdown dropdown-end">
+        <button
+          tabindex="0"
+          class="btn btn-outline btn-sm"
+          aria-label="Export options"
+        >
+          <i class="bi bi-download" aria-hidden="true"></i>
+          Export
+        </button>
+        <ul
+          class="dropdown-content z-10 menu p-2 shadow bg-base-100 rounded-box w-40"
+        >
+          <li>
+            <button onclick={exportToJson}
+              ><i class="bi bi-filetype-json" aria-hidden="true"></i> JSON</button
+            >
+          </li>
+          <li>
+            <button onclick={exportToCsv}
+              ><i class="bi bi-filetype-csv" aria-hidden="true"></i> CSV</button
+            >
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -403,7 +505,8 @@
       <div class="card bg-base-100 shadow-sm border border-base-300">
         <div class="card-body">
           <div class="flex items-center gap-2 mb-4">
-            <i class="bi bi-memory text-lg text-secondary" aria-hidden="true"></i>
+            <i class="bi bi-memory text-lg text-secondary" aria-hidden="true"
+            ></i>
             <h3 class="font-semibold">{$t("systemHealth.memory")}</h3>
           </div>
           {#if memoryMetrics}
@@ -545,7 +648,8 @@
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-              <i class="bi bi-database text-lg text-primary" aria-hidden="true"></i>
+              <i class="bi bi-database text-lg text-primary" aria-hidden="true"
+              ></i>
               <h3 class="font-semibold">{$t("systemHealth.database")}</h3>
             </div>
             {#if databaseHealth}
@@ -600,7 +704,10 @@
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-              <i class="bi bi-diagram-3 text-lg text-secondary" aria-hidden="true"></i>
+              <i
+                class="bi bi-diagram-3 text-lg text-secondary"
+                aria-hidden="true"
+              ></i>
               <h3 class="font-semibold">{$t("systemHealth.connectionPool")}</h3>
             </div>
           </div>
@@ -649,7 +756,8 @@
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-              <i class="bi bi-search text-lg text-accent" aria-hidden="true"></i>
+              <i class="bi bi-search text-lg text-accent" aria-hidden="true"
+              ></i>
               <h3 class="font-semibold">{$t("systemHealth.search")}</h3>
             </div>
             {#if searchHealth}
@@ -704,7 +812,8 @@
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-              <i class="bi bi-broadcast text-lg text-info" aria-hidden="true"></i>
+              <i class="bi bi-broadcast text-lg text-info" aria-hidden="true"
+              ></i>
               <h3 class="font-semibold">{$t("systemHealth.websocket")}</h3>
             </div>
             {#if websocketHealth}
@@ -922,7 +1031,8 @@
                       <button
                         class="btn btn-ghost btn-xs text-error"
                         onclick={() => deleteAlert(alert.id)}
-                       aria-label="Delete">
+                        aria-label="Delete"
+                      >
                         <i class="bi bi-trash" aria-hidden="true"></i>
                       </button>
                     </td>
@@ -959,7 +1069,9 @@
         }}
       >
         <div class="form-control mb-4">
-          <div class="label"><span class="label-text">{$t("systemHealth.alertName")}</span></div>
+          <div class="label">
+            <span class="label-text">{$t("systemHealth.alertName")}</span>
+          </div>
           <input
             type="text"
             class="input input-bordered"
@@ -968,7 +1080,9 @@
           />
         </div>
         <div class="form-control mb-4">
-          <div class="label"><span class="label-text">{$t("systemHealth.alertMetric")}</span></div>
+          <div class="label">
+            <span class="label-text">{$t("systemHealth.alertMetric")}</span>
+          </div>
           <select class="select select-bordered" bind:value={alertForm.metric}>
             {#each metricOptions as option}
               <option value={option.value}>{option.label()}</option>
@@ -977,13 +1091,14 @@
         </div>
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div class="form-control">
-            <label class="label">
+            <div class="label">
               <span class="label-text">{$t("systemHealth.alertCondition")}</span
               >
-            </label>
+            </div>
             <select
               class="select select-bordered"
               bind:value={alertForm.condition}
+              aria-label={$t("systemHealth.alertCondition")}
             >
               {#each conditionOptions as option}
                 <option value={option.value}>{option.label()}</option>
@@ -991,16 +1106,17 @@
             </select>
           </div>
           <div class="form-control">
-            <label class="label">
+            <div class="label">
               <span class="label-text">{$t("systemHealth.alertThreshold")}</span
               >
-            </label>
+            </div>
             <input
               type="number"
               class="input input-bordered"
               bind:value={alertForm.threshold}
               min="0"
               required
+              aria-label={$t("systemHealth.alertThreshold")}
             />
           </div>
         </div>
@@ -1024,6 +1140,12 @@
         </div>
       </form>
     </div>
-    <div class="modal-backdrop" role="dialog" tabindex="0" onclick={closeModal} onkeydown={(e) = tabindex="0"> e.key === "Escape" && (closeAlertModal)}></div>
+    <div
+      class="modal-backdrop"
+      role="dialog"
+      tabindex="0"
+      onclick={closeModal}
+      onkeydown={(e = tabindex = "0" > e.key === "Escape" && closeAlertModal)}
+    ></div>
   </div>
 {/if}
