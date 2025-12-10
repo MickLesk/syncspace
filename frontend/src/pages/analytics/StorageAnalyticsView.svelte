@@ -109,6 +109,90 @@
       return "bi-file-earmark-zip";
     return "bi-file-earmark";
   }
+
+  // Export functions
+  function exportToJson() {
+    const exportData = {
+      exported_at: new Date().toISOString(),
+      overview,
+      user_stats: userStats,
+      folder_stats: folderStats,
+      top_files: topFiles,
+      growth_data: growth,
+      duplicate_waste: duplicateWaste,
+    };
+    downloadFile(
+      JSON.stringify(exportData, null, 2),
+      `storage-analytics-${new Date().toISOString().split("T")[0]}.json`,
+      "application/json"
+    );
+  }
+
+  function exportToCsv() {
+    // Export different sections based on active tab
+    let csvContent = "";
+    let filename = "";
+
+    if (activeTab === "overview" && overview) {
+      csvContent = "Metric,Value\n";
+      csvContent += `Total Files,${overview.total_files || 0}\n`;
+      csvContent += `Total Size,${overview.total_size_formatted || "0 B"}\n`;
+      csvContent += `Usage Percentage,${overview.usage_percentage || 0}%\n`;
+      csvContent += `Active Users,${overview.active_users || 0}\n`;
+      csvContent += `Average File Size,${overview.avg_file_size_formatted || "0 B"}\n`;
+      filename = "storage-overview.csv";
+    } else if (activeTab === "users" && userStats.length > 0) {
+      csvContent =
+        "User ID,Username,File Count,Total Size (bytes),Total Size (formatted)\n";
+      userStats.forEach((u) => {
+        csvContent += `${u.user_id},"${u.username || "Unknown"}",${u.file_count},${u.total_size},${formatBytes(u.total_size)}\n`;
+      });
+      filename = "storage-by-user.csv";
+    } else if (activeTab === "folders" && folderStats.length > 0) {
+      csvContent =
+        "Folder Path,File Count,Total Size (bytes),Total Size (formatted)\n";
+      folderStats.forEach((f) => {
+        csvContent += `"${f.folder_path || "/"}",${f.file_count},${f.total_size},${formatBytes(f.total_size)}\n`;
+      });
+      filename = "storage-by-folder.csv";
+    } else if (activeTab === "top-files" && topFiles.length > 0) {
+      csvContent =
+        "Filename,Path,Size (bytes),Size (formatted),MIME Type,Owner\n";
+      topFiles.forEach((f) => {
+        csvContent += `"${f.filename}","${f.file_path}",${f.size_bytes},${formatBytes(f.size_bytes)},"${f.mime_type || ""}","${f.owner_name || ""}"\n`;
+      });
+      filename = "top-files.csv";
+    } else if (activeTab === "growth" && growth.length > 0) {
+      csvContent =
+        "Date,Files Added,Size Added (bytes),Size Added (formatted)\n";
+      growth.forEach((g) => {
+        csvContent += `${g.date},${g.files_added},${g.size_added},${formatBytes(g.size_added)}\n`;
+      });
+      filename = "storage-growth.csv";
+    } else if (activeTab === "duplicates" && duplicateWaste) {
+      csvContent = "Metric,Value\n";
+      csvContent += `Duplicate Groups,${duplicateWaste.duplicate_groups || 0}\n`;
+      csvContent += `Total Duplicate Files,${duplicateWaste.total_duplicate_files || 0}\n`;
+      csvContent += `Wasted Space,${duplicateWaste.wasted_space_formatted || "0 B"}\n`;
+      filename = "duplicate-analysis.csv";
+    } else {
+      return; // No data to export
+    }
+
+    downloadFile(csvContent, filename, "text/csv");
+  }
+
+  function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 </script>
 
 <PageWrapper title={tr("storageAnalytics")} showSidebar={true}>
@@ -118,10 +202,34 @@
         <i class="bi bi-bar-chart-line-fill"></i>
         {tr("storageAnalytics")}
       </h1>
-      <button onclick={loadAllData} disabled={loading} class="btn-primary">
-        <i class="bi bi-arrow-clockwise {loading ? 'spinning' : ''}"></i>
-        {tr("refresh")}
-      </button>
+      <div class="flex gap-2">
+        <div class="dropdown dropdown-end">
+          <button tabindex="0" class="btn-secondary" aria-label="Export data">
+            <i class="bi bi-download"></i>
+            Export
+          </button>
+          <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+          <ul
+            tabindex="0"
+            class="dropdown-content z-10 menu p-2 shadow bg-base-200 rounded-box w-40"
+          >
+            <li>
+              <button onclick={exportToJson} class="dropdown-item"
+                ><i class="bi bi-filetype-json"></i> JSON</button
+              >
+            </li>
+            <li>
+              <button onclick={exportToCsv} class="dropdown-item"
+                ><i class="bi bi-filetype-csv"></i> CSV</button
+              >
+            </li>
+          </ul>
+        </div>
+        <button onclick={loadAllData} disabled={loading} class="btn-primary">
+          <i class="bi bi-arrow-clockwise {loading ? 'spinning' : ''}"></i>
+          {tr("refresh")}
+        </button>
+      </div>
     </div>
 
     {#if error}
@@ -1187,5 +1295,49 @@
     font-size: 3rem;
     margin-bottom: 1rem;
     opacity: 0.5;
+  }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #e5e7eb;
+    color: #374151;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .btn-secondary:hover {
+    background: #d1d5db;
+  }
+  :global(.dark) .btn-secondary {
+    background: #374151;
+    color: #e5e7eb;
+  }
+  :global(.dark) .btn-secondary:hover {
+    background: #4b5563;
+  }
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    text-align: left;
+    color: inherit;
+    transition: background 0.15s;
+  }
+  .dropdown-item:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+  :global(.dark) .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
   }
 </style>

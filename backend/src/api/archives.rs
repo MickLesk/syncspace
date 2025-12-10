@@ -10,9 +10,11 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use std::path::Path as StdPath;
+use std::io::Read;
 use tokio::fs;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
+use flate2::read::GzDecoder;
 
 use crate::AppState;
 use crate::auth::UserInfo;
@@ -252,19 +254,148 @@ async fn list_archive_contents(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
-    // For now, return basic info without reading archive contents
-    // Full implementation would use zip/tar crates to list contents
+    let file_size = metadata.len();
+    let created_at = metadata.created().ok().map(|t| DateTime::from(t));
+    
+    // Read archive contents based on format
+    let full_path_clone = full_path.clone();
+    let decoded_path_clone = decoded_path.clone();
+    let format_clone = format.clone();
+    
+    let result = tokio::task::spawn_blocking(move || {
+        read_archive_entries(&full_path_clone, &format_clone)
+    })
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let entries = result.map_err(|e| {
+        tracing::error!("Failed to read archive contents: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+    
+    let file_count = entries.iter().filter(|e| !e.is_directory).count();
+    let total_uncompressed: u64 = entries.iter().map(|e| e.size).sum();
+    
     let info = ArchiveInfo {
-        path: decoded_path,
+        path: decoded_path_clone,
         format: format.extension().to_string(),
-        size_bytes: metadata.len(),
-        compressed_size: metadata.len(),
-        file_count: 0, // Would be populated by archive reading
-        entries: vec![], // Would be populated by archive reading
-        created_at: metadata.created().ok().map(|t| DateTime::from(t)),
+        size_bytes: total_uncompressed,
+        compressed_size: file_size,
+        file_count,
+        entries,
+        created_at,
     };
     
     Ok(Json(info))
+}
+
+/// Read archive entries synchronously (for spawn_blocking)
+fn read_archive_entries(path: &std::path::Path, format: &ArchiveFormat) -> Result<Vec<ArchiveEntry>, String> {
+    match format {
+        ArchiveFormat::Zip => read_zip_entries(path),
+        ArchiveFormat::TarGz => read_tar_gz_entries(path),
+        ArchiveFormat::Tar => read_tar_entries(path),
+        ArchiveFormat::SevenZ => {
+            // 7z reading not implemented - would need external library
+            Ok(vec![])
+        }
+    }
+}
+
+/// Read ZIP archive entries
+fn read_zip_entries(path: &std::path::Path) -> Result<Vec<ArchiveEntry>, String> {
+    let file = std::fs::File::open(path).map_err(|e| e.to_string())?;
+    let mut archive = zip::ZipArchive::new(file).map_err(|e| e.to_string())?;
+    
+    let mut entries = Vec::new();
+    
+    for i in 0..archive.len() {
+        let file = archive.by_index(i).map_err(|e| e.to_string())?;
+        let entry_path = file.name().to_string();
+        let is_directory = file.is_dir();
+        
+        // Extract just the filename for name field
+        let name = entry_path
+            .trim_end_matches('/')
+            .rsplit('/')
+            .next()
+            .unwrap_or(&entry_path)
+            .to_string();
+        
+        let modified = file.last_modified()
+            .and_then(|dt| dt.to_time().ok())
+            .and_then(|tm| DateTime::from_timestamp(tm.unix_timestamp(), 0));
+        
+        entries.push(ArchiveEntry {
+            name,
+            path: entry_path,
+            size: file.size(),
+            compressed_size: file.compressed_size(),
+            is_directory,
+            modified,
+        });
+    }
+    
+    Ok(entries)
+}
+
+/// Read TAR.GZ archive entries
+fn read_tar_gz_entries(path: &std::path::Path) -> Result<Vec<ArchiveEntry>, String> {
+    let file = std::fs::File::open(path).map_err(|e| e.to_string())?;
+    let decoder = GzDecoder::new(file);
+    let mut archive = tar::Archive::new(decoder);
+    
+    read_tar_archive_entries(&mut archive)
+}
+
+/// Read TAR archive entries
+fn read_tar_entries(path: &std::path::Path) -> Result<Vec<ArchiveEntry>, String> {
+    let file = std::fs::File::open(path).map_err(|e| e.to_string())?;
+    let mut archive = tar::Archive::new(file);
+    
+    read_tar_archive_entries(&mut archive)
+}
+
+/// Common function to read entries from a tar archive
+fn read_tar_archive_entries<R: Read>(archive: &mut tar::Archive<R>) -> Result<Vec<ArchiveEntry>, String> {
+    let mut entries = Vec::new();
+    
+    for entry_result in archive.entries().map_err(|e| e.to_string())? {
+        let entry = entry_result.map_err(|e| e.to_string())?;
+        let header = entry.header();
+        
+        let entry_path = entry.path()
+            .map_err(|e| e.to_string())?
+            .to_string_lossy()
+            .to_string();
+        
+        let is_directory = header.entry_type().is_dir();
+        
+        // Extract just the filename for name field
+        let name = entry_path
+            .trim_end_matches('/')
+            .rsplit('/')
+            .next()
+            .unwrap_or(&entry_path)
+            .to_string();
+        
+        let size = header.size().unwrap_or(0);
+        
+        let modified = header.mtime().ok().and_then(|mtime| {
+            DateTime::from_timestamp(mtime as i64, 0)
+        });
+        
+        entries.push(ArchiveEntry {
+            name,
+            path: entry_path,
+            size,
+            compressed_size: size, // TAR doesn't compress individual files
+            is_directory,
+            modified,
+        });
+    }
+    
+    Ok(entries)
 }
 
 /// Get supported archive formats

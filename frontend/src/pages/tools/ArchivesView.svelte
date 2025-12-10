@@ -37,6 +37,11 @@
     flatten: false,
   });
 
+  // Preview Archive Modal
+  let showPreviewModal = $state(false);
+  let previewLoading = $state(false);
+  let previewData = $state(null);
+
   // File Selection
   let selectedFiles = $state([]);
 
@@ -182,6 +187,76 @@
   function closeExtractModal() {
     showExtractModal = false;
   }
+
+  async function openPreviewModal(archive) {
+    previewData = null;
+    previewLoading = true;
+    showPreviewModal = true;
+    try {
+      previewData = await api.archives.getInfo(archive.path);
+    } catch (e) {
+      error = e.message || "Failed to load archive contents";
+      showPreviewModal = false;
+    } finally {
+      previewLoading = false;
+    }
+  }
+
+  function closePreviewModal() {
+    showPreviewModal = false;
+    previewData = null;
+  }
+
+  function getEntryIcon(entry) {
+    if (entry.is_directory) return "folder-fill";
+    const ext = entry.name.split(".").pop()?.toLowerCase() || "";
+    const iconMap = {
+      pdf: "file-earmark-pdf",
+      doc: "file-earmark-word",
+      docx: "file-earmark-word",
+      xls: "file-earmark-excel",
+      xlsx: "file-earmark-excel",
+      ppt: "file-earmark-ppt",
+      pptx: "file-earmark-ppt",
+      jpg: "file-earmark-image",
+      jpeg: "file-earmark-image",
+      png: "file-earmark-image",
+      gif: "file-earmark-image",
+      svg: "file-earmark-image",
+      mp3: "file-earmark-music",
+      wav: "file-earmark-music",
+      mp4: "file-earmark-play",
+      avi: "file-earmark-play",
+      zip: "file-earmark-zip",
+      rar: "file-earmark-zip",
+      "7z": "file-earmark-zip",
+      tar: "file-earmark-zip",
+      gz: "file-earmark-zip",
+      js: "file-earmark-code",
+      ts: "file-earmark-code",
+      py: "file-earmark-code",
+      rs: "file-earmark-code",
+      html: "file-earmark-code",
+      css: "file-earmark-code",
+      json: "file-earmark-code",
+      xml: "file-earmark-code",
+      txt: "file-earmark-text",
+      md: "file-earmark-text",
+    };
+    return iconMap[ext] || "file-earmark";
+  }
+
+  // Sort entries: directories first, then files, both alphabetically
+  function getSortedEntries(entries) {
+    if (!entries) return [];
+    const dirs = entries
+      .filter((e) => e.is_directory)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    const files = entries
+      .filter((e) => !e.is_directory)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return [...dirs, ...files];
+  }
 </script>
 
 <div class="archives-view p-6">
@@ -311,6 +386,13 @@
                   </td>
                   <td>
                     <div class="flex gap-1">
+                      <button
+                        class="btn btn-ghost btn-xs"
+                        onclick={() => openPreviewModal(archive)}
+                        aria-label="Preview archive contents"
+                      >
+                        <i class="bi bi-eye"></i>
+                      </button>
                       <button
                         class="btn btn-ghost btn-xs"
                         onclick={() => openExtractModal(archive)}
@@ -569,6 +651,146 @@
           {/if}
           Extract
         </button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<!-- Preview Archive Modal -->
+{#if showPreviewModal}
+  <div class="modal modal-open">
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="-1"
+      onclick={closePreviewModal}
+      onkeydown={(e) => e.key === "Escape" && closePreviewModal()}
+    ></div>
+    <div class="modal-box max-w-4xl">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-lg flex items-center gap-2">
+          <i class="bi bi-file-earmark-zip text-warning"></i>
+          Archive Contents
+        </h3>
+        <button
+          class="btn btn-ghost btn-sm btn-circle"
+          onclick={closePreviewModal}
+          aria-label="Close"
+        >
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      {#if previewLoading}
+        <div class="flex justify-center py-12">
+          <span class="loading loading-spinner loading-lg"></span>
+        </div>
+      {:else if previewData}
+        <!-- Archive Info Header -->
+        <div class="stats bg-base-200 w-full mb-4">
+          <div class="stat">
+            <div class="stat-title">Files</div>
+            <div class="stat-value text-primary">{previewData.file_count}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-title">Uncompressed</div>
+            <div class="stat-value text-sm">
+              {formatBytes(previewData.size_bytes)}
+            </div>
+          </div>
+          <div class="stat">
+            <div class="stat-title">Compressed</div>
+            <div class="stat-value text-sm">
+              {formatBytes(previewData.compressed_size)}
+            </div>
+          </div>
+          <div class="stat">
+            <div class="stat-title">Ratio</div>
+            <div class="stat-value text-sm text-success">
+              {previewData.size_bytes > 0
+                ? Math.round(
+                    (1 - previewData.compressed_size / previewData.size_bytes) *
+                      100
+                  ) + "%"
+                : "N/A"}
+            </div>
+          </div>
+        </div>
+
+        <!-- Archive Contents List -->
+        {#if previewData.entries && previewData.entries.length > 0}
+          <div
+            class="max-h-96 overflow-y-auto border border-base-300 rounded-lg"
+          >
+            <table class="table table-sm table-zebra">
+              <thead class="sticky top-0 bg-base-200">
+                <tr>
+                  <th>Name</th>
+                  <th class="w-24 text-right">Size</th>
+                  <th class="w-24 text-right">Compressed</th>
+                  <th class="w-32">Modified</th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each getSortedEntries(previewData.entries) as entry}
+                  <tr class={entry.is_directory ? "opacity-60" : ""}>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <i
+                          class="bi bi-{getEntryIcon(entry)} {entry.is_directory
+                            ? 'text-warning'
+                            : 'opacity-70'}"
+                        ></i>
+                        <span
+                          class="font-mono text-sm truncate max-w-md"
+                          title={entry.path}
+                        >
+                          {entry.path}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="text-right font-mono text-xs">
+                      {entry.is_directory ? "-" : formatBytes(entry.size)}
+                    </td>
+                    <td class="text-right font-mono text-xs">
+                      {entry.is_directory
+                        ? "-"
+                        : formatBytes(entry.compressed_size)}
+                    </td>
+                    <td class="text-xs">
+                      {#if entry.modified}
+                        {new Date(entry.modified).toLocaleString()}
+                      {:else}
+                        -
+                      {/if}
+                    </td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+        {:else}
+          <div class="text-center py-8 text-base-content/60">
+            <i class="bi bi-folder2-open text-4xl mb-2"></i>
+            <p>No entries found in archive</p>
+          </div>
+        {/if}
+      {/if}
+
+      <div class="modal-action">
+        <button class="btn btn-ghost" onclick={closePreviewModal}>Close</button>
+        {#if previewData}
+          <button
+            class="btn btn-primary"
+            onclick={() => {
+              closePreviewModal();
+              openExtractModal({ path: previewData.path });
+            }}
+          >
+            <i class="bi bi-box-arrow-up"></i>
+            Extract
+          </button>
+        {/if}
       </div>
     </div>
   </div>

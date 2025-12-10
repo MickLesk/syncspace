@@ -330,6 +330,41 @@ async fn main() {
     services::job_worker::spawn_worker(db_pool.clone());
     println!("✅ Background job worker started");
 
+    // Start trash auto-cleanup task (deletes items older than 30 days, runs every hour)
+    {
+        let cleanup_pool = db_pool.clone();
+        tokio::spawn(async move {
+            let cleanup_interval = tokio::time::Duration::from_secs(3600); // 1 hour
+            let retention_days = 30;
+            
+            loop {
+                tokio::time::sleep(cleanup_interval).await;
+                
+                // Delete files in trash older than 30 days
+                let cutoff = chrono::Utc::now() - chrono::Duration::days(retention_days);
+                let cutoff_str = cutoff.to_rfc3339();
+                
+                match sqlx::query(
+                    "DELETE FROM files WHERE is_deleted = 1 AND deleted_at < ?"
+                )
+                .bind(&cutoff_str)
+                .execute(&cleanup_pool)
+                .await {
+                    Ok(result) => {
+                        let deleted = result.rows_affected();
+                        if deleted > 0 {
+                            tracing::info!("🗑️ Trash auto-cleanup: removed {} files older than {} days", deleted, retention_days);
+                        }
+                    }
+                    Err(e) => {
+                        tracing::error!("❌ Trash auto-cleanup failed: {:?}", e);
+                    }
+                }
+            }
+        });
+        println!("✅ Trash auto-cleanup task started (30-day retention)");
+    }
+
     // Build application state
     let start_time = SystemTime::now()
         .duration_since(UNIX_EPOCH)

@@ -108,6 +108,47 @@
     return new Date(dateString).toLocaleString($currentLang);
   }
 
+  // Export functions
+  function exportToJson() {
+    const exportData = {
+      exported_at: new Date().toISOString(),
+      share_id: shareId,
+      time_range: timeRange,
+      analytics,
+      access_log: filteredAccessLog(),
+      chart_data: chartData(),
+      top_users: topUsers(),
+      action_breakdown: actionBreakdown(),
+    };
+    downloadFile(
+      JSON.stringify(exportData, null, 2),
+      `share-analytics-${shareId}-${new Date().toISOString().split("T")[0]}.json`,
+      "application/json"
+    );
+  }
+
+  function exportToCsv() {
+    const logs = filteredAccessLog();
+    let csvContent =
+      "Accessed At,User ID,Action,IP Address,User Agent,Referer\n";
+    logs.forEach((log) => {
+      csvContent += `"${formatDate(log.accessed_at)}","${log.user_id || "Anonymous"}","${log.action || "view"}","${log.ip_address || ""}","${(log.user_agent || "").replace(/"/g, '""')}","${log.referer || ""}"\n`;
+    });
+    downloadFile(csvContent, `share-access-log-${shareId}.csv`, "text/csv");
+  }
+
+  function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   function getActionIcon(action) {
     switch (action) {
       case "view":
@@ -147,16 +188,51 @@
       </p>
     </div>
 
-    <!-- Time Range Selector -->
-    <select
-      bind:value={timeRange}
-      class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg"
-    >
-      <option value="7d">{tr("last7Days")}</option>
-      <option value="30d">{tr("last30Days")}</option>
-      <option value="90d">{tr("last90Days")}</option>
-      <option value="all">{tr("allTime")}</option>
-    </select>
+    <div class="flex items-center gap-3">
+      <!-- Export Dropdown -->
+      <div class="dropdown dropdown-end">
+        <button
+          tabindex="0"
+          class="btn btn-outline btn-sm"
+          aria-label="Export analytics"
+        >
+          <i class="bi bi-download"></i>
+          Export
+        </button>
+        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+        <ul
+          tabindex="0"
+          class="dropdown-content z-10 menu p-2 shadow bg-base-200 rounded-box w-40"
+        >
+          <li>
+            <button
+              onclick={exportToJson}
+              class="btn btn-ghost btn-sm justify-start"
+              ><i class="bi bi-filetype-json"></i> JSON</button
+            >
+          </li>
+          <li>
+            <button
+              onclick={exportToCsv}
+              class="btn btn-ghost btn-sm justify-start"
+              ><i class="bi bi-filetype-csv"></i> CSV</button
+            >
+          </li>
+        </ul>
+      </div>
+
+      <!-- Time Range Selector -->
+      <select
+        bind:value={timeRange}
+        class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg"
+        aria-label="Select time range"
+      >
+        <option value="7d">{tr("last7Days")}</option>
+        <option value="30d">{tr("last30Days")}</option>
+        <option value="90d">{tr("last90Days")}</option>
+        <option value="all">{tr("allTime")}</option>
+      </select>
+    </div>
   </div>
 
   {#if loading}

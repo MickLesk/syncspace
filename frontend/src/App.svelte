@@ -74,6 +74,7 @@
   import UserSettingsView from "./pages/user/UserSettingsView.svelte";
   import SecurityView from "./pages/user/SecurityView.svelte";
   import ApiTokensView from "./pages/user/ApiTokensView.svelte";
+  import HelpView from "./pages/user/HelpView.svelte";
 
   // UI Components
   import Toast from "./components/ui/Toast.svelte";
@@ -504,6 +505,8 @@
                 <SettingsHub />
               {:else if $currentView === "profile"}
                 <UserProfileView />
+              {:else if $currentView === "help"}
+                <HelpView />
               {:else if $currentView === "user-settings"}
                 <UserSettingsView />
               {:else if $currentView === "security"}
