@@ -128,6 +128,18 @@
       label: t($currentLang, "tagCloud") || "Tags",
       category: "tools",
     },
+    {
+      id: "ftp-sync",
+      icon: "cloud-arrow-down-fill",
+      label: "FTP Sync",
+      category: "tools",
+    },
+    {
+      id: "email-integration",
+      icon: "envelope-fill",
+      label: "Email Integration",
+      category: "tools",
+    },
     // Settings - consolidated entry point for all settings + admin
     {
       id: "settings",

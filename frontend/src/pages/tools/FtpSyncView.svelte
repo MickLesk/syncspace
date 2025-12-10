@@ -208,12 +208,26 @@
                 </div>
               </div>
               <div class="dropdown dropdown-end">
-                <button tabindex="0" class="btn btn-ghost btn-sm btn-square" aria-label="More options">
+                <button
+                  tabindex="0"
+                  class="btn btn-ghost btn-sm btn-square"
+                  aria-label="More options"
+                >
                   <i class="bi bi-three-dots-vertical"></i>
                 </button>
-                <ul tabindex="0" class="dropdown-content z-10 menu p-2 shadow bg-base-100 rounded-box w-40">
-                  <li><button onclick={() => openEditModal(conn)}>Edit</button></li>
-                  <li><button onclick={() => deleteConnection(conn.id)} class="text-error">Delete</button></li>
+                <ul
+                  tabindex="0"
+                  class="dropdown-content z-10 menu p-2 shadow bg-base-100 rounded-box w-40"
+                >
+                  <li>
+                    <button onclick={() => openEditModal(conn)}>Edit</button>
+                  </li>
+                  <li>
+                    <button
+                      onclick={() => deleteConnection(conn.id)}
+                      class="text-error">Delete</button
+                    >
+                  </li>
                 </ul>
               </div>
             </div>
@@ -229,12 +243,20 @@
               </div>
               <div class="flex justify-between">
                 <span class="text-base-content/60">Direction:</span>
-                <span class="badge badge-sm badge-outline">{conn.sync_direction}</span>
+                <span class="badge badge-sm badge-outline"
+                  >{conn.sync_direction}</span
+                >
               </div>
               <div class="flex justify-between">
                 <span class="text-base-content/60">Auto Sync:</span>
-                <span class="badge badge-sm" class:badge-success={conn.auto_sync} class:badge-ghost={!conn.auto_sync}>
-                  {conn.auto_sync ? `Every ${conn.sync_interval_minutes}m` : "Manual"}
+                <span
+                  class="badge badge-sm"
+                  class:badge-success={conn.auto_sync}
+                  class:badge-ghost={!conn.auto_sync}
+                >
+                  {conn.auto_sync
+                    ? `Every ${conn.sync_interval_minutes}m`
+                    : "Manual"}
                 </span>
               </div>
               <div class="flex justify-between">
@@ -244,7 +266,11 @@
               {#if conn.last_sync_status}
                 <div class="flex justify-between">
                   <span class="text-base-content/60">Status:</span>
-                  <span class="badge badge-sm" class:badge-success={conn.last_sync_status === 'success'} class:badge-error={conn.last_sync_status === 'failed'}>
+                  <span
+                    class="badge badge-sm"
+                    class:badge-success={conn.last_sync_status === "success"}
+                    class:badge-error={conn.last_sync_status === "failed"}
+                  >
                     {conn.last_sync_status}
                   </span>
                 </div>
@@ -294,7 +320,12 @@
         {editingConnection ? "Edit FTP Connection" : "Add FTP Connection"}
       </h3>
 
-      <form onsubmit={(e) => { e.preventDefault(); saveConnection(); }}>
+      <form
+        onsubmit={(e) => {
+          e.preventDefault();
+          saveConnection();
+        }}
+      >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="form-control">
             <label class="label" for="conn-name">
@@ -353,7 +384,11 @@
 
           <div class="form-control md:col-span-2">
             <label class="label" for="conn-password">
-              <span class="label-text">Password {editingConnection ? "(leave empty to keep current)" : ""}</span>
+              <span class="label-text"
+                >Password {editingConnection
+                  ? "(leave empty to keep current)"
+                  : ""}</span
+              >
             </label>
             <input
               type="password"
@@ -395,7 +430,11 @@
             <label class="label" for="conn-direction">
               <span class="label-text">Sync Direction</span>
             </label>
-            <select id="conn-direction" class="select select-bordered" bind:value={formData.sync_direction}>
+            <select
+              id="conn-direction"
+              class="select select-bordered"
+              bind:value={formData.sync_direction}
+            >
               {#each syncDirections as dir}
                 <option value={dir.value}>{dir.label}</option>
               {/each}
@@ -418,21 +457,33 @@
 
           <div class="form-control">
             <label class="label cursor-pointer justify-start gap-3">
-              <input type="checkbox" class="checkbox checkbox-primary" bind:checked={formData.use_ftps} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary"
+                bind:checked={formData.use_ftps}
+              />
               <span class="label-text">Use FTPS (TLS/SSL)</span>
             </label>
           </div>
 
           <div class="form-control">
             <label class="label cursor-pointer justify-start gap-3">
-              <input type="checkbox" class="checkbox checkbox-primary" bind:checked={formData.passive_mode} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary"
+                bind:checked={formData.passive_mode}
+              />
               <span class="label-text">Passive Mode</span>
             </label>
           </div>
 
           <div class="form-control md:col-span-2">
             <label class="label cursor-pointer justify-start gap-3">
-              <input type="checkbox" class="checkbox checkbox-primary" bind:checked={formData.auto_sync} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary"
+                bind:checked={formData.auto_sync}
+              />
               <span class="label-text">Enable Auto Sync</span>
             </label>
           </div>

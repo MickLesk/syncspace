@@ -15,7 +15,7 @@
    */
 
   import Icon from "./Icon.svelte";
-  import Button from "./Button.svelte";
+  import ModernButton from "./ModernButton.svelte";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
@@ -65,9 +65,9 @@
 
   {#if actionText && onAction}
     <div class="empty-action">
-      <Button onClick={onAction} variant="outlined" size="medium">
+      <ModernButton onclick={onAction} variant="outline" size="md">
         {actionText}
-      </Button>
+      </ModernButton>
     </div>
   {/if}
 

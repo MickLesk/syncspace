@@ -8,7 +8,7 @@
   import { t } from "../../i18n.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import Breadcrumbs from "../../components/Breadcrumbs.svelte";
-  import SearchFilters from "../../components/search/SearchFilters.svelte";
+  // import SearchFilters from "../../components/search/SearchFilters.svelte"; // TODO: Restore from backup
   import UploadManager from "../../components/files/UploadManager.svelte";
   import Modal from "../../components/ui/Modal.svelte";
   import EmptyState from "../../components/ui/EmptyState.svelte";

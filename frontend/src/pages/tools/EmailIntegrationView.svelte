@@ -234,18 +234,40 @@
                   <i class="bi bi-envelope text-xl text-secondary"></i>
                 </div>
                 <div>
-                  <h3 class="font-semibold text-base-content">{account.name}</h3>
-                  <p class="text-sm text-base-content/60">{account.email_address}</p>
+                  <h3 class="font-semibold text-base-content">
+                    {account.name}
+                  </h3>
+                  <p class="text-sm text-base-content/60">
+                    {account.email_address}
+                  </p>
                 </div>
               </div>
               <div class="dropdown dropdown-end">
-                <button tabindex="0" class="btn btn-ghost btn-sm btn-square" aria-label="More options">
+                <button
+                  tabindex="0"
+                  class="btn btn-ghost btn-sm btn-square"
+                  aria-label="More options"
+                >
                   <i class="bi bi-three-dots-vertical"></i>
                 </button>
-                <ul tabindex="0" class="dropdown-content z-10 menu p-2 shadow bg-base-100 rounded-box w-40">
-                  <li><button onclick={() => openEditModal(account)}>Edit</button></li>
-                  <li><button onclick={() => viewMessages(account)}>View Messages</button></li>
-                  <li><button onclick={() => deleteAccount(account.id)} class="text-error">Delete</button></li>
+                <ul
+                  tabindex="0"
+                  class="dropdown-content z-10 menu p-2 shadow bg-base-100 rounded-box w-40"
+                >
+                  <li>
+                    <button onclick={() => openEditModal(account)}>Edit</button>
+                  </li>
+                  <li>
+                    <button onclick={() => viewMessages(account)}
+                      >View Messages</button
+                    >
+                  </li>
+                  <li>
+                    <button
+                      onclick={() => deleteAccount(account.id)}
+                      class="text-error">Delete</button
+                    >
+                  </li>
                 </ul>
               </div>
             </div>
@@ -253,20 +275,34 @@
             <div class="space-y-2 text-sm mb-4">
               <div class="flex justify-between">
                 <span class="text-base-content/60">Protocol:</span>
-                <span class="badge badge-sm badge-outline">{getProtocolBadge(account.protocol)}</span>
+                <span class="badge badge-sm badge-outline"
+                  >{getProtocolBadge(account.protocol)}</span
+                >
               </div>
               <div class="flex justify-between">
                 <span class="text-base-content/60">Server:</span>
-                <span class="font-mono text-xs">{account.server}:{account.port}</span>
+                <span class="font-mono text-xs"
+                  >{account.server}:{account.port}</span
+                >
               </div>
               <div class="flex justify-between">
                 <span class="text-base-content/60">TLS:</span>
-                <i class="bi" class:bi-check-circle-fill={account.use_tls} class:text-success={account.use_tls} class:bi-x-circle={!account.use_tls} class:text-base-content/40={!account.use_tls}></i>
+                {#if account.use_tls}
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                {:else}
+                  <i class="bi bi-x-circle text-base-content/40"></i>
+                {/if}
               </div>
               <div class="flex justify-between">
                 <span class="text-base-content/60">Auto Fetch:</span>
-                <span class="badge badge-sm" class:badge-success={account.auto_fetch} class:badge-ghost={!account.auto_fetch}>
-                  {account.auto_fetch ? `Every ${account.fetch_interval_minutes}m` : "Manual"}
+                <span
+                  class="badge badge-sm"
+                  class:badge-success={account.auto_fetch}
+                  class:badge-ghost={!account.auto_fetch}
+                >
+                  {account.auto_fetch
+                    ? `Every ${account.fetch_interval_minutes}m`
+                    : "Manual"}
                 </span>
               </div>
               <div class="flex justify-between">
@@ -276,7 +312,12 @@
               {#if account.last_fetch_status}
                 <div class="flex justify-between">
                   <span class="text-base-content/60">Status:</span>
-                  <span class="badge badge-sm" class:badge-success={account.last_fetch_status === 'success'} class:badge-error={account.last_fetch_status === 'failed'}>
+                  <span
+                    class="badge badge-sm"
+                    class:badge-success={account.last_fetch_status ===
+                      "success"}
+                    class:badge-error={account.last_fetch_status === "failed"}
+                  >
                     {account.last_fetch_status}
                   </span>
                 </div>
@@ -326,7 +367,12 @@
         {editingAccount ? "Edit Email Account" : "Add Email Account"}
       </h3>
 
-      <form onsubmit={(e) => { e.preventDefault(); saveAccount(); }}>
+      <form
+        onsubmit={(e) => {
+          e.preventDefault();
+          saveAccount();
+        }}
+      >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="form-control">
             <label class="label" for="email-name">
@@ -415,7 +461,11 @@
 
           <div class="form-control md:col-span-2">
             <label class="label" for="email-password">
-              <span class="label-text">Password {editingAccount ? "(leave empty to keep current)" : ""}</span>
+              <span class="label-text"
+                >Password {editingAccount
+                  ? "(leave empty to keep current)"
+                  : ""}</span
+              >
             </label>
             <input
               type="password"
@@ -455,21 +505,33 @@
 
           <div class="form-control">
             <label class="label cursor-pointer justify-start gap-3">
-              <input type="checkbox" class="checkbox checkbox-primary" bind:checked={formData.use_tls} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary"
+                bind:checked={formData.use_tls}
+              />
               <span class="label-text">Use TLS/SSL</span>
             </label>
           </div>
 
           <div class="form-control">
             <label class="label cursor-pointer justify-start gap-3">
-              <input type="checkbox" class="checkbox checkbox-primary" bind:checked={formData.store_attachments} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary"
+                bind:checked={formData.store_attachments}
+              />
               <span class="label-text">Store Attachments</span>
             </label>
           </div>
 
           <div class="form-control md:col-span-2">
             <label class="label cursor-pointer justify-start gap-3">
-              <input type="checkbox" class="checkbox checkbox-primary" bind:checked={formData.auto_fetch} />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary"
+                bind:checked={formData.auto_fetch}
+              />
               <span class="label-text">Enable Auto Fetch</span>
             </label>
           </div>
@@ -501,7 +563,11 @@
         <h3 class="font-bold text-lg">
           Messages - {viewingMessages.name}
         </h3>
-        <button class="btn btn-ghost btn-sm btn-circle" onclick={closeMessagesModal} aria-label="Close">
+        <button
+          class="btn btn-ghost btn-sm btn-circle"
+          onclick={closeMessagesModal}
+          aria-label="Close"
+        >
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
@@ -529,7 +595,9 @@
             <tbody>
               {#each messages as msg}
                 <tr>
-                  <td class="max-w-xs truncate">{msg.subject || "(No Subject)"}</td>
+                  <td class="max-w-xs truncate"
+                    >{msg.subject || "(No Subject)"}</td
+                  >
                   <td class="text-sm">{msg.from_address}</td>
                   <td class="text-sm">{formatDate(msg.date)}</td>
                   <td>
