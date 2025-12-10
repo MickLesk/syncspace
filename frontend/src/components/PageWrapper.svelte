@@ -28,7 +28,10 @@
 
 <div
   class="page-wrapper relative min-h-[calc(100vh-4rem)] bg-transparent transition-colors duration-200"
-  class:full-height={fullHeight}
+  class:min-h-screen={fullHeight}
+  class:flex={fullHeight}
+  class:items-center={fullHeight}
+  class:justify-center={fullHeight}
   class:p-0={!padding}
   class:p-4={padding}
   class:md:p-6={padding}
@@ -47,17 +50,3 @@
   </div>
 </div>
 
-<style>
-  .full-height {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  @media (max-width: 768px) {
-    .modern-page-wrapper {
-      padding: 1rem;
-    }
-  }
-</style>

@@ -197,7 +197,7 @@
   }
 </script>
 
-<div class="metadata-tab">
+<div class="max-h-[60vh] overflow-y-auto">
   {#if loading}
     <div class="flex flex-col items-center justify-center py-12">
       <span class="loading loading-spinner loading-lg text-primary mb-4"></span>
@@ -271,7 +271,7 @@
       <div class="grid grid-cols-2 gap-3">
         <div class="stat bg-base-200 rounded-lg p-3">
           <div class="stat-title text-xs">File Size</div>
-          <div class="stat-value text-lg">
+          <div class="text-base text-lg">
             {metadata.file_size
               ? (metadata.file_size / 1024 / 1024).toFixed(2)
               : 0} MB
@@ -279,7 +279,7 @@
         </div>
         <div class="stat bg-base-200 rounded-lg p-3">
           <div class="stat-title text-xs">MIME Type</div>
-          <div class="stat-value text-sm truncate" title={metadata.mime_type}>
+          <div class="text-base text-sm truncate" title={metadata.mime_type}>
             {metadata.mime_type?.split("/").pop() || "unknown"}
           </div>
         </div>
@@ -294,13 +294,3 @@
   {/if}
 </div>
 
-<style>
-  .metadata-tab {
-    max-height: 60vh;
-    overflow-y: auto;
-  }
-
-  .stat-value {
-    font-size: 1rem;
-  }
-</style>

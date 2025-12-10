@@ -329,7 +329,7 @@
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
     bind:this={container}
-    class="model-canvas rounded-xl overflow-hidden shadow-lg cursor-grab {mouseDown
+    class="w-full h-[500px] bg-gradient-to-br from-[#1a1a2e] to-[#16213e] focus:outline-2 focus:outline-primary focus:outline-offset-2 rounded-xl overflow-hidden shadow-lg cursor-grab {mouseDown
       ? 'cursor-grabbing'
       : ''}"
     class:hidden={loading || error}
@@ -368,15 +368,3 @@
   {/if}
 </div>
 
-<style>
-  .model-canvas {
-    width: 100%;
-    height: 500px;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  }
-
-  .model-canvas:focus {
-    outline: 2px solid oklch(var(--p));
-    outline-offset: 2px;
-  }
-</style>

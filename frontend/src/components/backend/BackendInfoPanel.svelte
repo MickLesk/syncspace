@@ -343,15 +343,3 @@
   </div>
 </Modal>
 
-<style>
-  .glass-card {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
-
-  :global(.dark) .glass-card {
-    background: rgba(31, 41, 55, 0.7);
-    border: 1px solid rgba(75, 85, 99, 0.3);
-  }
-</style>
