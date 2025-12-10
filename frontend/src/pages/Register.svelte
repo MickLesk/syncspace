@@ -3,6 +3,7 @@
   import { t } from "../i18n.js";
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import { auth } from "../stores/auth";
+  import { setup, auth as authApi } from "../lib/api.js";
   import ModernCard from "../components/ui/ModernCard.svelte";
   import ModernButton from "../components/ui/ModernButton.svelte";
 
@@ -20,8 +21,7 @@
 
   async function checkRegistrationStatus() {
     try {
-      const response = await fetch("http://localhost:8080/api/setup/status");
-      const data = await response.json();
+      const data = await setup.status();
       // Check if registration is allowed via API response
       registrationEnabled =
         data.setup_required === false &&
@@ -60,24 +60,7 @@
     loading = true;
 
     try {
-      const response = await fetch("http://localhost:8080/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username,
-          password,
-          email: email || undefined,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Registration failed");
-      }
-
-      const data = await response.json();
+      const data = await authApi.register(username, password, email || undefined);
 
       // Auto-login after successful registration
       auth.login(data.token, {

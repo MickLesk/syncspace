@@ -7,7 +7,7 @@
   import { currentPath, currentView } from "../../stores/ui.js";
   import { success, error } from "../../stores/toast";
   import { modals } from "../../stores/modals";
-  import api from "../../lib/api.js";
+  import api, { files as filesApi } from "../../lib/api.js";
   import { getContextMenuItems } from "../../lib/contextMenuActions.js";
   import ContextMenu from "../../components/ui/ContextMenu.svelte";
   import Loading from "../../components/ui/Loading.svelte";
@@ -131,14 +131,7 @@
 
   async function downloadFile(file) {
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/files${file.fullPath}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        }
-      );
+      const response = await filesApi.download(file.fullPath);
 
       if (!response.ok) throw new Error(tr("downloadFailed"));
 

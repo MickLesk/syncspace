@@ -3,6 +3,7 @@
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import QRCode from "qrcode";
+  import { users, auth as authApi } from "../../lib/api.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -29,15 +30,8 @@
   async function loadSecurityStatus() {
     pageLoading = true;
     try {
-      const response = await fetch("http://localhost:8080/api/users/me", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-      if (response.ok) {
-        const user = await response.json();
-        twoFAEnabled = user.totp_enabled === 1 || user.totp_enabled === true;
-      }
+      const user = await users.me();
+      twoFAEnabled = user.totp_enabled === 1 || user.totp_enabled === true;
     } catch (e) {
       console.error("Failed to load security status:", e);
     } finally {
@@ -50,24 +44,13 @@
     error = "";
     success = "";
     try {
-      const response = await fetch("http://localhost:8080/api/auth/2fa/setup", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          "Content-Type": "application/json",
-        },
+      twoFASetup = await authApi.setup2FA();
+      qrCodeDataUrl = await QRCode.toDataURL(twoFASetup.qr_code_url, {
+        width: 200,
+        margin: 2,
+        color: { dark: "#000000", light: "#FFFFFF" },
       });
-      if (response.ok) {
-        twoFASetup = await response.json();
-        qrCodeDataUrl = await QRCode.toDataURL(twoFASetup.qr_code_url, {
-          width: 200,
-          margin: 2,
-          color: { dark: "#000000", light: "#FFFFFF" },
-        });
-        showSetup = true;
-      } else {
-        error = tr("failedToGenerate2FASecret");
-      }
+      showSetup = true;
     } catch (e) {
       console.error("2FA setup error:", e);
       error = tr("connectionErrorBackendRunning");
@@ -84,31 +67,16 @@
     loading = true;
     error = "";
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/auth/2fa/enable",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ totp_code: verificationCode }),
-        }
-      );
-      if (response.ok) {
-        success = tr("twoFAEnabledSuccess2");
-        twoFAEnabled = true;
-        showSetup = false;
-        twoFASetup = null;
-        verificationCode = "";
-        setTimeout(() => (success = ""), 5000);
-      } else {
-        const data = await response.json();
-        error = data.error || tr("invalidVerificationCode2");
-      }
+      await authApi.enable2FA(verificationCode);
+      success = tr("twoFAEnabledSuccess2");
+      twoFAEnabled = true;
+      showSetup = false;
+      twoFASetup = null;
+      verificationCode = "";
+      setTimeout(() => (success = ""), 5000);
     } catch (e) {
       console.error("2FA enable error:", e);
-      error = tr("failedToEnable2FA");
+      error = e.message || tr("invalidVerificationCode2");
     } finally {
       loading = false;
     }
@@ -119,24 +87,12 @@
     loading = true;
     error = "";
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/auth/2fa/disable",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        }
-      );
-      if (response.ok) {
-        success = tr("twoFADisabledSuccess2");
-        twoFAEnabled = false;
-        showSetup = false;
-        twoFASetup = null;
-        setTimeout(() => (success = ""), 5000);
-      } else {
-        error = tr("failedToDisable2FA2");
-      }
+      await authApi.disable2FA();
+      success = tr("twoFADisabledSuccess2");
+      twoFAEnabled = false;
+      showSetup = false;
+      twoFASetup = null;
+      setTimeout(() => (success = ""), 5000);
     } catch (e) {
       console.error("2FA disable error:", e);
       error = tr("failedToDisable2FA2");
@@ -169,33 +125,15 @@
     loading = true;
     error = "";
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/auth/change-password",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            current_password: currentPassword,
-            new_password: newPassword,
-          }),
-        }
-      );
-      if (response.ok) {
-        success = tr("passwordChangedSuccess");
-        showPasswordChange = false;
-        currentPassword = "";
-        newPassword = "";
-        confirmPassword = "";
-        setTimeout(() => (success = ""), 5000);
-      } else {
-        const data = await response.json();
-        error = data.error || tr("failedToChangePassword");
-      }
+      await authApi.changePassword(currentPassword, newPassword);
+      success = tr("passwordChangedSuccess");
+      showPasswordChange = false;
+      currentPassword = "";
+      newPassword = "";
+      confirmPassword = "";
+      setTimeout(() => (success = ""), 5000);
     } catch (e) {
-      error = tr("connectionError");
+      error = e.message || tr("failedToChangePassword");
     } finally {
       loading = false;
     }

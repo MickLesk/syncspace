@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { currentLang } from "../stores/ui";
   import { t } from "../i18n.js";
+  import { API_BASE } from "../lib/api.js";
   import PageWrapper from "../components/PageWrapper.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
@@ -56,14 +57,14 @@
 
       const [statsRes, activityRes, sharesRes, allActivityRes] =
         await Promise.all([
-          fetch("http://localhost:8080/api/dashboard/stats", { headers }),
-          fetch("http://localhost:8080/api/activity?limit=10&action=upload", {
+          fetch(`${API_BASE}/dashboard/stats`, { headers }),
+          fetch(`${API_BASE}/activity?limit=10&action=upload`, {
             headers,
           }),
-          fetch("http://localhost:8080/api/shares", { headers }).catch(() => ({
+          fetch(`${API_BASE}/shares`, { headers }).catch(() => ({
             ok: false,
           })),
-          fetch("http://localhost:8080/api/activity?limit=8", {
+          fetch(`${API_BASE}/activity?limit=8`, {
             headers,
           }).catch(() => ({
             ok: false,

@@ -4,6 +4,7 @@
  */
 
 import { writable, derived } from 'svelte/store';
+import { API_BASE, API_HOST } from '../lib/api.js';
 
 export const uploadQueue = writable([]);
 export const isPaused = writable(false);
@@ -97,7 +98,7 @@ export async function addUploads(files, batchName = null) {
 async function checkDuplicate(fileName, path) {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch(`http://localhost:8080/api/files${path}`, {
+    const response = await fetch(`${API_BASE}/files${path}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
@@ -218,7 +219,7 @@ async function uploadFile(upload) {
     activeRequests.delete(upload.id);
   });
 
-  xhr.open('POST', `http://localhost:8080/api/upload/${encodeURIComponent(uploadPath)}`);
+  xhr.open('POST', `${API_HOST}/api/upload/${encodeURIComponent(uploadPath)}`);
   xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('authToken')}`);
   xhr.send(formData);
 }

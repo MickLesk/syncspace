@@ -194,7 +194,7 @@ export const serverState = derived(
 // API COMMUNICATION LAYER
 // ============================================================================
 
-const API_BASE = 'http://localhost:8080/api';
+import { API_BASE } from '../lib/api.js';
 
 /**
  * Helper: Get JWT token

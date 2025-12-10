@@ -4,6 +4,7 @@
  */
 
 import { writable, derived } from 'svelte/store';
+import { API_BASE } from '../lib/api.js';
 
 // Get auth token
 function getToken() {
@@ -110,7 +111,7 @@ function createActivityStore() {
       if (params.offset) queryParams.set('offset', params.offset.toString());
       if (params.action) queryParams.set('action', params.action);
       
-      const url = `http://localhost:8080/api/activity?${queryParams.toString()}`;
+      const url = `${API_BASE}/activity?${queryParams.toString()}`;
       
       const response = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` }
@@ -209,7 +210,7 @@ function createActivityStore() {
         const token = getToken();
         if (!token) return null;
         
-        const response = await fetch('http://localhost:8080/api/activity/stats', {
+        const response = await fetch(`${API_BASE}/activity/stats`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         

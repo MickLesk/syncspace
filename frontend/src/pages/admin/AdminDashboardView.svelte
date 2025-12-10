@@ -3,7 +3,7 @@
   import { currentLang, currentView } from "../../stores/ui";
   import { t } from "../../i18n.js";
   import PageWrapper from "../../components/PageWrapper.svelte";
-  import api from "../../lib/api.js";
+  import api, { API_BASE } from "../../lib/api.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -37,12 +37,12 @@
 
       const [statsRes, activityRes, favoritesRes, filesRes] = await Promise.all(
         [
-          fetch("http://localhost:8080/api/dashboard/stats", { headers }),
-          fetch("http://localhost:8080/api/activity?limit=8", { headers }),
-          fetch("http://localhost:8080/api/favorites/list", { headers }).catch(
+          fetch(`${API_BASE}/dashboard/stats`, { headers }),
+          fetch(`${API_BASE}/activity?limit=8`, { headers }),
+          fetch(`${API_BASE}/favorites/list`, { headers }).catch(
             () => ({ ok: false })
           ),
-          fetch("http://localhost:8080/api/files", { headers }).catch(() => ({
+          fetch(`${API_BASE}/files`, { headers }).catch(() => ({
             ok: false,
           })),
         ]
@@ -197,7 +197,7 @@
         const formData = new FormData();
         formData.append("file", file);
 
-        const res = await fetch("http://localhost:8080/api/upload", {
+        const res = await fetch(`${API_BASE}/upload`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -522,7 +522,7 @@
             Im Ordner öffnen
           </button>
           <a
-            href="http://localhost:8080/api/download/{encodeURIComponent(
+            href="{API_BASE}/download/{encodeURIComponent(
               selectedFile.path || selectedFile.file_path || ''
             )}"
             class="action-btn primary"

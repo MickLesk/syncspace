@@ -6,6 +6,7 @@
     success as toastSuccess,
     error as toastError,
   } from "../../stores/toast.js";
+  import { cloudStorage, admin } from "../../lib/api.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -49,27 +50,11 @@
   async function loadStorageData() {
     loading = true;
     try {
-      const token = localStorage.getItem("authToken");
-      const statsResponse = await fetch(
-        "http://localhost:8080/api/storage/stats",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (statsResponse.ok) {
-        const stats = await statsResponse.json();
-        usedSpace = (stats.total_storage_bytes || 0) / 1024 ** 3;
-        fileCount = stats.total_files || 0;
-      }
-      const backendsResponse = await fetch(
-        "http://localhost:8080/api/storage/backends",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (backendsResponse.ok) {
-        backends = await backendsResponse.json();
-      }
+      const stats = await admin.getStorageStats();
+      usedSpace = (stats.total_storage_bytes || 0) / 1024 ** 3;
+      fileCount = stats.total_files || 0;
+
+      backends = await cloudStorage.list();
     } catch (err) {
       console.error("Failed to load storage data:", err);
     } finally {
@@ -80,40 +65,24 @@
   async function addBackend() {
     saving = true;
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        "http://localhost:8080/api/storage/backends",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: newBackend.name,
-            backend_type: newBackend.type,
-            config: {
-              endpoint: newBackend.endpoint,
-              bucket: newBackend.bucket,
-              region: newBackend.region,
-              access_key: newBackend.accessKey,
-              secret_key: newBackend.secretKey,
-            },
-            is_active: newBackend.isActive,
-          }),
-        }
-      );
-      if (response.ok) {
-        toastSuccess(tr("settings.storage.backend_added"));
-        showAddBackend = false;
-        resetNewBackend();
-        await loadStorageData();
-      } else {
-        const data = await response.json();
-        toastError(data.error || tr("settings.storage.add_error"));
-      }
+      await cloudStorage.create({
+        name: newBackend.name,
+        backend_type: newBackend.type,
+        config: {
+          endpoint: newBackend.endpoint,
+          bucket: newBackend.bucket,
+          region: newBackend.region,
+          access_key: newBackend.accessKey,
+          secret_key: newBackend.secretKey,
+        },
+        is_active: newBackend.isActive,
+      });
+      toastSuccess(tr("settings.storage.backend_added"));
+      showAddBackend = false;
+      resetNewBackend();
+      await loadStorageData();
     } catch (err) {
-      toastError(err.message);
+      toastError(err.message || tr("settings.storage.add_error"));
     } finally {
       saving = false;
     }
@@ -122,21 +91,10 @@
   async function testBackendConnection(backendId) {
     testing = true;
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        `http://localhost:8080/api/storage/backends/${backendId}/test`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (response.ok) {
-        toastSuccess(tr("settings.storage.connection_ok"));
-      } else {
-        toastError(tr("settings.storage.connection_failed"));
-      }
+      await cloudStorage.test(backendId);
+      toastSuccess(tr("settings.storage.connection_ok"));
     } catch (err) {
-      toastError(err.message);
+      toastError(tr("settings.storage.connection_failed"));
     } finally {
       testing = false;
     }
@@ -144,44 +102,22 @@
 
   async function setDefaultBackend(backendId) {
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        `http://localhost:8080/api/storage/backends/${backendId}/set-default`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (response.ok) {
-        toastSuccess(tr("settings.storage.default_set"));
-        await loadStorageData();
-      } else {
-        toastError(tr("settings.storage.default_error"));
-      }
+      await cloudStorage.setDefault(backendId);
+      toastSuccess(tr("settings.storage.default_set"));
+      await loadStorageData();
     } catch (err) {
-      toastError(err.message);
+      toastError(tr("settings.storage.default_error"));
     }
   }
 
   async function deleteBackend(backendId) {
     if (!confirm(tr("settings.storage.delete_confirm"))) return;
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        `http://localhost:8080/api/storage/backends/${backendId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (response.ok) {
-        toastSuccess(tr("settings.storage.backend_deleted"));
-        await loadStorageData();
-      } else {
-        toastError(tr("settings.storage.delete_error"));
-      }
+      await cloudStorage.delete(backendId);
+      toastSuccess(tr("settings.storage.backend_deleted"));
+      await loadStorageData();
     } catch (err) {
-      toastError(err.message);
+      toastError(tr("settings.storage.delete_error"));
     }
   }
 

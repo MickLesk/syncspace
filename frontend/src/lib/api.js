@@ -3,7 +3,9 @@
  * Handles all HTTP requests to the backend
  */
 
-const API_BASE = "http://localhost:8080/api";
+// Central API configuration - change this for production deployment
+export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+export const API_HOST = import.meta.env.VITE_API_HOST || "http://localhost:8080";
 
 /**
  * Get auth token from localStorage
@@ -86,11 +88,13 @@ export const auth = {
     return handleResponse(response);
   },
 
-  async register(username, password) {
+  async register(username, password, email = null) {
+    const body = { username, password };
+    if (email) body.email = email;
     const response = await fetch(`${API_BASE}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify(body),
     });
     return handleResponse(response);
   },
@@ -856,6 +860,17 @@ export const activity = {
    */
   async getStats() {
     const response = await fetch(`${API_BASE}/activity/stats`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Mark activity as visited
+   */
+  async markVisited() {
+    const response = await fetch(`${API_BASE}/activity/mark-visited`, {
+      method: "PUT",
       headers: getHeaders(),
     });
     return handleResponse(response);
@@ -4876,5 +4891,80 @@ export const rateLimiting = {
   },
 };
 
+// ============================================================================
+// ADMIN API ENDPOINTS
+// ============================================================================
+
+/**
+ * Admin API for security policies, notifications, etc.
+ */
+export const admin = {
+  /**
+   * Get security policy settings
+   */
+  async getSecurityPolicy() {
+    const response = await fetch(`${API_BASE}/admin/security-policy`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update security policy settings
+   */
+  async updateSecurityPolicy(data) {
+    const response = await fetch(`${API_BASE}/admin/security-policy`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get notification settings
+   */
+  async getNotificationSettings() {
+    const response = await fetch(`${API_BASE}/admin/notification-settings`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update notification settings
+   */
+  async updateNotificationSettings(data) {
+    const response = await fetch(`${API_BASE}/admin/notification-settings`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Test notification service
+   */
+  async testNotificationService(service, data = {}) {
+    const response = await fetch(`${API_BASE}/admin/notification-settings/test/${service}`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get storage stats
+   */
+  async getStorageStats() {
+    const response = await fetch(`${API_BASE}/storage/stats`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
 // Add late-defined exports to api object
-Object.assign(api, { encryption, quota, groups, guests, rateLimiting });
+Object.assign(api, { encryption, quota, groups, guests, rateLimiting, admin });

@@ -30,6 +30,7 @@
 
 import { writable, derived, get } from 'svelte/store';
 import * as api from './api';
+import { API_BASE } from './api';
 import { success, warning, error as toastError } from '../stores/toast';
 
 // Upload priorities
@@ -373,7 +374,7 @@ class UploadQueueManager {
 
       // Get auth token
       const token = localStorage.getItem('authToken');
-      xhr.open('POST', `http://localhost:8080/api/upload${upload.path}`);
+      xhr.open('POST', `${API_BASE}/upload${upload.path}`);
       if (token) {
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       }
@@ -448,7 +449,7 @@ class UploadQueueManager {
       });
 
       const token = localStorage.getItem('authToken');
-      xhr.open('POST', `http://localhost:8080/api/upload-chunk${upload.path}`);
+      xhr.open('POST', `${API_BASE}/upload-chunk${upload.path}`);
       if (token) {
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       }

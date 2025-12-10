@@ -6,6 +6,7 @@
     success as toastSuccess,
     error as toastError,
   } from "../../stores/toast.js";
+  import { admin } from "../../lib/api.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -51,48 +52,39 @@
   async function loadSecurityPolicy() {
     loading = true;
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        "http://localhost:8080/api/admin/security-policy",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const data = await admin.getSecurityPolicy();
+      
+      // Password Policy
+      minPasswordLength = data.min_password_length || 8;
+      requireUppercase = data.require_uppercase !== false;
+      requireLowercase = data.require_lowercase !== false;
+      requireNumbers = data.require_numbers !== false;
+      requireSpecialChars = data.require_special_chars || false;
+      passwordExpiryDays = data.password_expiry_days || 0;
+      preventPasswordReuse = data.prevent_password_reuse || 5;
 
-      if (response.ok) {
-        const data = await response.json();
-        // Password Policy
-        minPasswordLength = data.min_password_length || 8;
-        requireUppercase = data.require_uppercase !== false;
-        requireLowercase = data.require_lowercase !== false;
-        requireNumbers = data.require_numbers !== false;
-        requireSpecialChars = data.require_special_chars || false;
-        passwordExpiryDays = data.password_expiry_days || 0;
-        preventPasswordReuse = data.prevent_password_reuse || 5;
+      // 2FA Policy
+      require2FA = data.require_2fa || false;
+      enforce2FAForAdmins = data.enforce_2fa_for_admins !== false;
+      allowed2FAMethods = data.allowed_2fa_methods || ["totp"];
 
-        // 2FA Policy
-        require2FA = data.require_2fa || false;
-        enforce2FAForAdmins = data.enforce_2fa_for_admins !== false;
-        allowed2FAMethods = data.allowed_2fa_methods || ["totp"];
+      // Session Policy
+      sessionTimeoutMinutes = data.session_timeout_minutes || 480;
+      maxConcurrentSessions = data.max_concurrent_sessions || 5;
+      enforceReauthForSensitive = data.enforce_reauth_for_sensitive !== false;
 
-        // Session Policy
-        sessionTimeoutMinutes = data.session_timeout_minutes || 480;
-        maxConcurrentSessions = data.max_concurrent_sessions || 5;
-        enforceReauthForSensitive = data.enforce_reauth_for_sensitive !== false;
+      // Login Security
+      maxLoginAttempts = data.max_login_attempts || 5;
+      lockoutDurationMinutes = data.lockout_duration_minutes || 15;
+      enableCaptcha = data.enable_captcha || false;
+      captchaAfterFailures = data.captcha_after_failures || 3;
 
-        // Login Security
-        maxLoginAttempts = data.max_login_attempts || 5;
-        lockoutDurationMinutes = data.lockout_duration_minutes || 15;
-        enableCaptcha = data.enable_captcha || false;
-        captchaAfterFailures = data.captcha_after_failures || 3;
-
-        // IP Security
-        enableIPWhitelist = data.enable_ip_whitelist || false;
-        ipWhitelist = (data.ip_whitelist || []).join("\n");
-        enableIPBlacklist = data.enable_ip_blacklist || false;
-        ipBlacklist = (data.ip_blacklist || []).join("\n");
-        blockTorExits = data.block_tor_exits || false;
-      }
+      // IP Security
+      enableIPWhitelist = data.enable_ip_whitelist || false;
+      ipWhitelist = (data.ip_whitelist || []).join("\n");
+      enableIPBlacklist = data.enable_ip_blacklist || false;
+      ipBlacklist = (data.ip_blacklist || []).join("\n");
+      blockTorExits = data.block_tor_exits || false;
     } catch (err) {
       console.error("Failed to load security policy:", err);
     } finally {
@@ -103,64 +95,49 @@
   async function savePolicy() {
     saving = true;
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        "http://localhost:8080/api/admin/security-policy",
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            // Password Policy
-            min_password_length: minPasswordLength,
-            require_uppercase: requireUppercase,
-            require_lowercase: requireLowercase,
-            require_numbers: requireNumbers,
-            require_special_chars: requireSpecialChars,
-            password_expiry_days: passwordExpiryDays,
-            prevent_password_reuse: preventPasswordReuse,
+      await admin.updateSecurityPolicy({
+        // Password Policy
+        min_password_length: minPasswordLength,
+        require_uppercase: requireUppercase,
+        require_lowercase: requireLowercase,
+        require_numbers: requireNumbers,
+        require_special_chars: requireSpecialChars,
+        password_expiry_days: passwordExpiryDays,
+        prevent_password_reuse: preventPasswordReuse,
 
-            // 2FA Policy
-            require_2fa: require2FA,
-            enforce_2fa_for_admins: enforce2FAForAdmins,
-            allowed_2fa_methods: allowed2FAMethods,
+        // 2FA Policy
+        require_2fa: require2FA,
+        enforce_2fa_for_admins: enforce2FAForAdmins,
+        allowed_2fa_methods: allowed2FAMethods,
 
-            // Session Policy
-            session_timeout_minutes: sessionTimeoutMinutes,
-            max_concurrent_sessions: maxConcurrentSessions,
-            enforce_reauth_for_sensitive: enforceReauthForSensitive,
+        // Session Policy
+        session_timeout_minutes: sessionTimeoutMinutes,
+        max_concurrent_sessions: maxConcurrentSessions,
+        enforce_reauth_for_sensitive: enforceReauthForSensitive,
 
-            // Login Security
-            max_login_attempts: maxLoginAttempts,
-            lockout_duration_minutes: lockoutDurationMinutes,
-            enable_captcha: enableCaptcha,
-            captcha_after_failures: captchaAfterFailures,
+        // Login Security
+        max_login_attempts: maxLoginAttempts,
+        lockout_duration_minutes: lockoutDurationMinutes,
+        enable_captcha: enableCaptcha,
+        captcha_after_failures: captchaAfterFailures,
 
-            // IP Security
-            enable_ip_whitelist: enableIPWhitelist,
-            ip_whitelist: ipWhitelist
-              .split("\n")
-              .map((ip) => ip.trim())
-              .filter((ip) => ip),
-            enable_ip_blacklist: enableIPBlacklist,
-            ip_blacklist: ipBlacklist
-              .split("\n")
-              .map((ip) => ip.trim())
-              .filter((ip) => ip),
-            block_tor_exits: blockTorExits,
-          }),
-        }
-      );
+        // IP Security
+        enable_ip_whitelist: enableIPWhitelist,
+        ip_whitelist: ipWhitelist
+          .split("\n")
+          .map((ip) => ip.trim())
+          .filter((ip) => ip),
+        enable_ip_blacklist: enableIPBlacklist,
+        ip_blacklist: ipBlacklist
+          .split("\n")
+          .map((ip) => ip.trim())
+          .filter((ip) => ip),
+        block_tor_exits: blockTorExits,
+      });
 
-      if (response.ok) {
-        toastSuccess(tr("settings.security.saved"));
-      } else {
-        toastError(tr("settings.security.save_error"));
-      }
+      toastSuccess(tr("settings.security.saved"));
     } catch (err) {
-      toastError(err.message);
+      toastError(err.message || tr("settings.security.save_error"));
     } finally {
       saving = false;
     }

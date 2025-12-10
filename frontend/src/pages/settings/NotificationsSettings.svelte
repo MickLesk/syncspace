@@ -6,6 +6,7 @@
     success as toastSuccess,
     error as toastError,
   } from "../../stores/toast.js";
+  import { admin } from "../../lib/api.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -53,36 +54,29 @@
   async function loadSettings() {
     loading = true;
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        "http://localhost:8080/api/admin/notification-settings",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        smtpEnabled = data.smtp_enabled || false;
-        smtpHost = data.smtp_host || "";
-        smtpPort = data.smtp_port || 587;
-        smtpSecure = data.smtp_secure || "tls";
-        smtpUsername = data.smtp_username || "";
-        smtpFromEmail = data.smtp_from_email || "";
-        gotifyEnabled = data.gotify_enabled || false;
-        gotifyUrl = data.gotify_url || "";
-        gotifyToken = data.gotify_token || "";
-        gotifyPriority = data.gotify_priority || 5;
-        appriseEnabled = data.apprise_enabled || false;
-        appriseUrl = data.apprise_url || "";
-        ntfyEnabled = data.ntfy_enabled || false;
-        ntfyUrl = data.ntfy_url || "https://ntfy.sh";
-        ntfyTopic = data.ntfy_topic || "";
-        ntfyToken = data.ntfy_token || "";
-        notifyOnShare = data.notify_on_share ?? true;
-        notifyOnComment = data.notify_on_comment ?? true;
-        notifyOnUpload = data.notify_on_upload ?? false;
-        notifyOnBackup = data.notify_on_backup ?? true;
-        notifyOnLogin = data.notify_on_login ?? false;
-        notifyOnError = data.notify_on_error ?? true;
-      }
+      const data = await admin.getNotificationSettings();
+      smtpEnabled = data.smtp_enabled || false;
+      smtpHost = data.smtp_host || "";
+      smtpPort = data.smtp_port || 587;
+      smtpSecure = data.smtp_secure || "tls";
+      smtpUsername = data.smtp_username || "";
+      smtpFromEmail = data.smtp_from_email || "";
+      gotifyEnabled = data.gotify_enabled || false;
+      gotifyUrl = data.gotify_url || "";
+      gotifyToken = data.gotify_token || "";
+      gotifyPriority = data.gotify_priority || 5;
+      appriseEnabled = data.apprise_enabled || false;
+      appriseUrl = data.apprise_url || "";
+      ntfyEnabled = data.ntfy_enabled || false;
+      ntfyUrl = data.ntfy_url || "https://ntfy.sh";
+      ntfyTopic = data.ntfy_topic || "";
+      ntfyToken = data.ntfy_token || "";
+      notifyOnShare = data.notify_on_share ?? true;
+      notifyOnComment = data.notify_on_comment ?? true;
+      notifyOnUpload = data.notify_on_upload ?? false;
+      notifyOnBackup = data.notify_on_backup ?? true;
+      notifyOnLogin = data.notify_on_login ?? false;
+      notifyOnError = data.notify_on_error ?? true;
     } catch (err) {
       console.error("Failed to load notification settings:", err);
     } finally {
@@ -93,49 +87,34 @@
   async function saveSettings() {
     saving = true;
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        "http://localhost:8080/api/admin/notification-settings",
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            smtp_enabled: smtpEnabled,
-            smtp_host: smtpHost,
-            smtp_port: smtpPort,
-            smtp_secure: smtpSecure,
-            smtp_username: smtpUsername,
-            smtp_password: smtpPassword || undefined,
-            smtp_from_email: smtpFromEmail,
-            gotify_enabled: gotifyEnabled,
-            gotify_url: gotifyUrl,
-            gotify_token: gotifyToken || undefined,
-            gotify_priority: gotifyPriority,
-            apprise_enabled: appriseEnabled,
-            apprise_url: appriseUrl,
-            ntfy_enabled: ntfyEnabled,
-            ntfy_url: ntfyUrl,
-            ntfy_topic: ntfyTopic,
-            ntfy_token: ntfyToken || undefined,
-            notify_on_share: notifyOnShare,
-            notify_on_comment: notifyOnComment,
-            notify_on_upload: notifyOnUpload,
-            notify_on_backup: notifyOnBackup,
-            notify_on_login: notifyOnLogin,
-            notify_on_error: notifyOnError,
-          }),
-        }
-      );
-      if (response.ok) {
-        toastSuccess(tr("settings.notifications.saved"));
-      } else {
-        toastError(tr("settings.notifications.save_error"));
-      }
+      await admin.updateNotificationSettings({
+        smtp_enabled: smtpEnabled,
+        smtp_host: smtpHost,
+        smtp_port: smtpPort,
+        smtp_secure: smtpSecure,
+        smtp_username: smtpUsername,
+        smtp_password: smtpPassword || undefined,
+        smtp_from_email: smtpFromEmail,
+        gotify_enabled: gotifyEnabled,
+        gotify_url: gotifyUrl,
+        gotify_token: gotifyToken || undefined,
+        gotify_priority: gotifyPriority,
+        apprise_enabled: appriseEnabled,
+        apprise_url: appriseUrl,
+        ntfy_enabled: ntfyEnabled,
+        ntfy_url: ntfyUrl,
+        ntfy_topic: ntfyTopic,
+        ntfy_token: ntfyToken || undefined,
+        notify_on_share: notifyOnShare,
+        notify_on_comment: notifyOnComment,
+        notify_on_upload: notifyOnUpload,
+        notify_on_backup: notifyOnBackup,
+        notify_on_login: notifyOnLogin,
+        notify_on_error: notifyOnError,
+      });
+      toastSuccess(tr("settings.notifications.saved"));
     } catch (err) {
-      toastError(err.message);
+      toastError(err.message || tr("settings.notifications.save_error"));
     } finally {
       saving = false;
     }
@@ -144,25 +123,10 @@
   async function testService(service) {
     testing = true;
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        `http://localhost:8080/api/admin/notification-settings/test/${service}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: testEmailAddress }),
-        }
-      );
-      if (response.ok) {
-        toastSuccess(tr("settings.notifications.test_success"));
-      } else {
-        toastError(tr("settings.notifications.test_failed"));
-      }
+      await admin.testNotificationService(service, { email: testEmailAddress });
+      toastSuccess(tr("settings.notifications.test_success"));
     } catch (err) {
-      toastError(err.message);
+      toastError(tr("settings.notifications.test_failed"));
     } finally {
       testing = false;
     }

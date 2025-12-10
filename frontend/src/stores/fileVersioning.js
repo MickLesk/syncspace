@@ -59,7 +59,7 @@ export const versionTimeline = derived(versionState, ($state) => {
 // API COMMUNICATION
 // ============================================================================
 
-const API_BASE = 'http://localhost:8080/api';
+import { API_BASE } from '../lib/api.js';
 
 function getAuthToken() {
   if (typeof window !== 'undefined') {

@@ -4,6 +4,7 @@
   import { t } from "../i18n.js";
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import { activity } from "../stores/activity";
+  import { activity as activityApi } from "../lib/api.js";
   import { error as errorToast } from "../stores/toast";
   import PageWrapper from "../components/PageWrapper.svelte";
   import PageHeader from "../components/ui/PageHeader.svelte";
@@ -143,10 +144,7 @@
       const token = localStorage.getItem("authToken");
       if (!token) return;
 
-      await fetch("http://localhost:8080/api/activity/mark-visited", {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await activityApi.markVisited();
     } catch (e) {
       console.error("Failed to mark activity as visited:", e);
     }

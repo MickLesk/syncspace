@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import { t } from '../i18n.js';
+import { API_BASE } from '../lib/api.js';
 
 // Get language from localStorage or default
 const getCurrentLanguage = () => {
@@ -55,7 +56,7 @@ function createAuthStore() {
 
       try {
         console.log('🔄 Refreshing access token...');
-        const response = await fetch('http://localhost:8080/api/auth/refresh', {
+        const response = await fetch(`${API_BASE}/auth/refresh`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -138,7 +139,7 @@ function createAuthStore() {
 
       try {
         // Verify token with backend
-        const response = await fetch('http://localhost:8080/api/users/me', {
+        const response = await fetch(`${API_BASE}/users/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -180,7 +181,7 @@ function createAuthStore() {
     },
     login: async (username, password) => {
       try {
-        const response = await fetch('http://localhost:8080/api/auth/login', {
+        const response = await fetch(`${API_BASE}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
