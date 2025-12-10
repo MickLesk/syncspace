@@ -16,11 +16,13 @@ function getApiHost() {
     "http://localhost:8080";
 }
 
-// Export as getters for dynamic resolution
+// Dynamic getters that always return fresh values
+// Note: API_BASE/API_HOST are evaluated once at module load for backwards compatibility
+// After login, page reloads and they get re-evaluated with the new server URL
 export const API_BASE = getApiBase();
 export const API_HOST = getApiHost();
 
-// Helper to get current API base (always fresh)
+// Helper functions to get current values (always fresh)
 export function getCurrentApiBase() {
   return getApiBase();
 }
