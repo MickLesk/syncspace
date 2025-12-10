@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "diff-match-patch": "^1.0.5",
-    "qrcode": "^1.5.4"
-  }
-}

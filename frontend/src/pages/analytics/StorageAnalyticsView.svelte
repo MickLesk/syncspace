@@ -196,15 +196,15 @@
 </script>
 
 <PageWrapper title={tr("storageAnalytics")} showSidebar={true}>
-  <div class="analytics">
-    <div class="analytics-header">
-      <h1 class="analytics-title">
+  <div class="max-w-6xl mx-auto p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-semibold flex items-center gap-2 text-base-content">
         <i class="bi bi-bar-chart-line-fill"></i>
         {tr("storageAnalytics")}
       </h1>
       <div class="flex gap-2">
         <div class="dropdown dropdown-end">
-          <button tabindex="0" class="btn-secondary" aria-label="Export data">
+          <button tabindex="0" class="btn btn-ghost bg-base-200 hover:bg-base-300" aria-label="Export data">
             <i class="bi bi-download"></i>
             Export
           </button>
@@ -214,29 +214,25 @@
             class="dropdown-content z-10 menu p-2 shadow bg-base-200 rounded-box w-40"
           >
             <li>
-              <button onclick={exportToJson} class="dropdown-item"
-                ><i class="bi bi-filetype-json"></i> JSON</button
-              >
+              <button onclick={exportToJson}><i class="bi bi-filetype-json"></i> JSON</button>
             </li>
             <li>
-              <button onclick={exportToCsv} class="dropdown-item"
-                ><i class="bi bi-filetype-csv"></i> CSV</button
-              >
+              <button onclick={exportToCsv}><i class="bi bi-filetype-csv"></i> CSV</button>
             </li>
           </ul>
         </div>
-        <button onclick={loadAllData} disabled={loading} class="btn-primary">
-          <i class="bi bi-arrow-clockwise {loading ? 'spinning' : ''}"></i>
+        <button onclick={loadAllData} disabled={loading} class="btn btn-primary gap-2">
+          <i class="bi bi-arrow-clockwise {loading ? 'animate-spin' : ''}"></i>
           {tr("refresh")}
         </button>
       </div>
     </div>
 
     {#if error}
-      <div class="error-banner">
+      <div class="alert alert-error mb-6">
         <i class="bi bi-exclamation-triangle"></i>
         <span>{error}</span>
-        <button onclick={loadAllData} class="retry-btn">
+        <button onclick={loadAllData} class="btn btn-ghost btn-sm gap-1">
           <i class="bi bi-arrow-clockwise"></i>
           {tr("retry")}
         </button>
@@ -244,17 +240,16 @@
     {/if}
 
     {#if loading}
-      <div class="loading-container">
-        <div class="spinner"></div>
-        <p>{tr("loadingAnalytics")}</p>
+      <div class="flex flex-col justify-center items-center min-h-[400px] gap-4">
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+        <p class="text-base-content/60">{tr("loadingAnalytics")}</p>
       </div>
     {:else}
-      <div class="tabs-container">
+      <div class="flex flex-wrap gap-2 p-2 bg-base-100 border border-base-300 rounded-xl mb-6">
         {#each tabs as tab}
           <button
             onclick={() => (activeTab = tab.id)}
-            class="tab-btn"
-            class:active={activeTab === tab.id}
+            class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all {activeTab === tab.id ? 'bg-primary text-primary-content' : 'text-base-content/60 hover:bg-base-200'}"
           >
             <i class="bi {tab.icon}"></i>
             <span>{tr(tab.label)}</span>
@@ -263,107 +258,116 @@
       </div>
 
       {#if activeTab === "overview"}
-        <!-- Always show overview with fallback values -->
-        <div class="card storage-card">
-          <div class="card-header">
-            <div class="card-icon storage-icon">
-              <i class="bi bi-hdd-stack"></i>
+        <!-- Storage Usage Card -->
+        <div class="card bg-base-100 border border-base-300 mb-6">
+          <div class="card-body p-5">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-9 h-9 rounded-lg bg-success/20 text-success flex items-center justify-center text-lg">
+                <i class="bi bi-hdd-stack"></i>
+              </div>
+              <h2 class="text-base font-semibold text-base-content flex-1">{tr("storageUsage")}</h2>
+              <span class="text-sm text-base-content/60">{overview?.total_size_formatted || "0 B"}</span>
             </div>
-            <h2>{tr("storageUsage")}</h2>
-            <span class="storage-total"
-              >{overview?.total_size_formatted || "0 B"}</span
-            >
-          </div>
-          <div class="storage-bar-container">
-            <div
-              class="storage-bar"
-              style="width: {Math.min(overview?.usage_percentage || 0, 100)}%"
-            ></div>
-          </div>
-          <div class="storage-info">
-            <span>{overview?.total_size_formatted || "0 B"} {tr("used")}</span>
-            <span>{(overview?.usage_percentage || 0).toFixed(1)}%</span>
+            <div class="h-2 bg-base-300 rounded overflow-hidden mb-3">
+              <div
+                class="h-full bg-gradient-to-r from-success to-green-600 rounded transition-all duration-500"
+                style="width: {Math.min(overview?.usage_percentage || 0, 100)}%"
+              ></div>
+            </div>
+            <div class="flex justify-between text-sm text-base-content/60">
+              <span>{overview?.total_size_formatted || "0 B"} {tr("used")}</span>
+              <span>{(overview?.usage_percentage || 0).toFixed(1)}%</span>
+            </div>
           </div>
         </div>
-        <div class="quick-stats">
-          <div class="stat-card">
-            <div class="stat-icon files-icon">
-              <i class="bi bi-files"></i>
-            </div>
-            <div class="stat-text">
-              <h3>{(overview?.total_files || 0).toLocaleString()}</h3>
-              <p>{tr("totalFiles")}</p>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon users-icon">
-              <i class="bi bi-people"></i>
-            </div>
-            <div class="stat-text">
-              <h3>{(overview?.active_users || 0).toLocaleString()}</h3>
-              <p>{tr("activeUsers")}</p>
+        
+        <!-- Quick Stats Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="card bg-base-100 border border-base-300">
+            <div class="card-body p-5 flex-row items-center gap-4">
+              <div class="w-12 h-12 rounded-lg bg-info/20 text-info flex items-center justify-center text-2xl">
+                <i class="bi bi-files"></i>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-base-content">{(overview?.total_files || 0).toLocaleString()}</h3>
+                <p class="text-sm text-base-content/60">{tr("totalFiles")}</p>
+              </div>
             </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon size-icon">
-              <i class="bi bi-file-earmark-bar-graph"></i>
-            </div>
-            <div class="stat-text">
-              <h3>{formatBytes(overview?.avg_file_size_bytes || 0)}</h3>
-              <p>{tr("avgFileSize")}</p>
+          <div class="card bg-base-100 border border-base-300">
+            <div class="card-body p-5 flex-row items-center gap-4">
+              <div class="w-12 h-12 rounded-lg bg-success/20 text-success flex items-center justify-center text-2xl">
+                <i class="bi bi-people"></i>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-base-content">{(overview?.active_users || 0).toLocaleString()}</h3>
+                <p class="text-sm text-base-content/60">{tr("activeUsers")}</p>
+              </div>
             </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon trophy-icon">
-              <i class="bi bi-trophy"></i>
+          <div class="card bg-base-100 border border-base-300">
+            <div class="card-body p-5 flex-row items-center gap-4">
+              <div class="w-12 h-12 rounded-lg bg-warning/20 text-warning flex items-center justify-center text-2xl">
+                <i class="bi bi-file-earmark-bar-graph"></i>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-base-content">{formatBytes(overview?.avg_file_size_bytes || 0)}</h3>
+                <p class="text-sm text-base-content/60">{tr("avgFileSize")}</p>
+              </div>
             </div>
-            <div class="stat-text">
-              <h3>{formatBytes(overview?.largest_file_bytes || 0)}</h3>
-              <p>{tr("largestFile")}</p>
+          </div>
+          <div class="card bg-base-100 border border-base-300">
+            <div class="card-body p-5 flex-row items-center gap-4">
+              <div class="w-12 h-12 rounded-lg bg-pink-500/20 text-pink-500 flex items-center justify-center text-2xl">
+                <i class="bi bi-trophy"></i>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-base-content">{formatBytes(overview?.largest_file_bytes || 0)}</h3>
+                <p class="text-sm text-base-content/60">{tr("largestFile")}</p>
+              </div>
             </div>
           </div>
         </div>
       {/if}
 
       {#if activeTab === "users"}
-        <div class="card table-card">
-          <div class="card-header-row">
-            <h2><i class="bi bi-people"></i> {tr("storageByUser")}</h2>
+        <div class="card bg-base-100 border border-base-300 overflow-hidden mb-6">
+          <div class="flex justify-between items-center p-4 px-5 border-b border-base-300">
+            <h2 class="text-base font-semibold flex items-center gap-2 text-base-content">
+              <i class="bi bi-people"></i> {tr("storageByUser")}
+            </h2>
           </div>
           {#if userStats.length > 0}
-            <div class="table-container">
-              <table>
-                <thead
-                  ><tr
-                    ><th>{tr("username")}</th><th>{tr("files")}</th><th
-                      >{tr("storage")}</th
-                    ><th>{tr("lastUpload")}</th></tr
-                  ></thead
-                >
+            <div class="overflow-x-auto">
+              <table class="table">
+                <thead class="bg-base-200">
+                  <tr>
+                    <th class="uppercase text-xs tracking-wider">{tr("username")}</th>
+                    <th class="uppercase text-xs tracking-wider">{tr("files")}</th>
+                    <th class="uppercase text-xs tracking-wider">{tr("storage")}</th>
+                    <th class="uppercase text-xs tracking-wider">{tr("lastUpload")}</th>
+                  </tr>
+                </thead>
                 <tbody>
                   {#each userStats as user}
-                    <tr>
-                      <td class="name-cell"
-                        ><div class="user-avatar">
+                    <tr class="hover">
+                      <td class="flex items-center gap-3 font-medium">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-success to-green-600 text-white flex items-center justify-center font-semibold text-sm">
                           {(user.username || "?").charAt(0).toUpperCase()}
                         </div>
-                        {user.username || tr("unknown")}</td
-                      >
-                      <td
-                        ><span class="badge blue"
-                          >{user.total_files?.toLocaleString() || 0}</span
-                        ></td
-                      >
-                      <td class="mono">{user.total_size_formatted || "0 B"}</td>
-                      <td class="muted">{formatDate(user.last_upload)}</td>
+                        {user.username || tr("unknown")}
+                      </td>
+                      <td><span class="badge badge-info">{user.total_files?.toLocaleString() || 0}</span></td>
+                      <td class="font-mono font-semibold">{user.total_size_formatted || "0 B"}</td>
+                      <td class="text-base-content/60">{formatDate(user.last_upload)}</td>
                     </tr>
                   {/each}
                 </tbody>
               </table>
             </div>
           {:else}
-            <div class="empty-state">
-              <i class="bi bi-people"></i>
+            <div class="flex flex-col items-center justify-center p-12 text-base-content/60">
+              <i class="bi bi-people text-5xl mb-4 opacity-50"></i>
               <p>{tr("noUsersFound")}</p>
             </div>
           {/if}
@@ -371,62 +375,50 @@
       {/if}
 
       {#if activeTab === "folders"}
-        <div class="card table-card">
-          <div class="card-header-row">
-            <h2><i class="bi bi-folder"></i> {tr("storageByFolder")}</h2>
+        <div class="card bg-base-100 border border-base-300 overflow-hidden mb-6">
+          <div class="flex justify-between items-center p-4 px-5 border-b border-base-300">
+            <h2 class="text-base font-semibold flex items-center gap-2 text-base-content">
+              <i class="bi bi-folder"></i> {tr("storageByFolder")}
+            </h2>
           </div>
           {#if folderStats.length > 0}
-            <div class="table-container">
-              <table>
-                <thead
-                  ><tr
-                    ><th>{tr("folder")}</th><th>{tr("files")}</th><th
-                      >{tr("storage")}</th
-                    ><th>{tr("percentage")}</th></tr
-                  ></thead
-                >
+            <div class="overflow-x-auto">
+              <table class="table">
+                <thead class="bg-base-200">
+                  <tr>
+                    <th class="uppercase text-xs tracking-wider">{tr("folder")}</th>
+                    <th class="uppercase text-xs tracking-wider">{tr("files")}</th>
+                    <th class="uppercase text-xs tracking-wider">{tr("storage")}</th>
+                    <th class="uppercase text-xs tracking-wider">{tr("percentage")}</th>
+                  </tr>
+                </thead>
                 <tbody>
                   {#each folderStats as folder}
-                    {@const totalSize = folderStats.reduce(
-                      (sum, f) => sum + (f.total_size_bytes || 0),
-                      0
-                    )}
-                    {@const percentage =
-                      totalSize > 0
-                        ? ((folder.total_size_bytes || 0) / totalSize) * 100
-                        : 0}
-                    <tr>
-                      <td class="name-cell"
-                        ><i class="bi bi-folder-fill folder-icon"
-                        ></i>{folder.folder || "/"}</td
-                      >
-                      <td
-                        ><span class="badge amber"
-                          >{folder.file_count?.toLocaleString() || 0}</span
-                        ></td
-                      >
-                      <td class="mono"
-                        >{folder.total_size_formatted || "0 B"}</td
-                      >
-                      <td
-                        ><div class="progress-cell">
-                          <div class="progress-bar">
-                            <div
-                              class="progress-fill amber"
-                              style="width: {percentage}%"
-                            ></div>
+                    {@const totalSize = folderStats.reduce((sum, f) => sum + (f.total_size_bytes || 0), 0)}
+                    {@const percentage = totalSize > 0 ? ((folder.total_size_bytes || 0) / totalSize) * 100 : 0}
+                    <tr class="hover">
+                      <td class="flex items-center gap-3 font-medium">
+                        <i class="bi bi-folder-fill text-xl text-warning"></i>
+                        {folder.folder || "/"}
+                      </td>
+                      <td><span class="badge badge-warning">{folder.file_count?.toLocaleString() || 0}</span></td>
+                      <td class="font-mono font-semibold">{folder.total_size_formatted || "0 B"}</td>
+                      <td>
+                        <div class="flex items-center gap-3">
+                          <div class="flex-1 h-1.5 bg-base-300 rounded overflow-hidden max-w-24">
+                            <div class="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded" style="width: {percentage}%"></div>
                           </div>
-                          <span class="muted">{percentage.toFixed(1)}%</span>
-                        </div></td
-                      >
+                          <span class="text-base-content/60 text-sm">{percentage.toFixed(1)}%</span>
+                        </div>
+                      </td>
                     </tr>
                   {/each}
                 </tbody>
               </table>
             </div>
           {:else}
-            <div class="empty-state">
-              <i class="bi bi-folder"></i>
+            <div class="flex flex-col items-center justify-center p-12 text-base-content/60">
+              <i class="bi bi-folder text-5xl mb-4 opacity-50"></i>
               <p>{tr("noFoldersFound")}</p>
             </div>
           {/if}
@@ -434,64 +426,56 @@
       {/if}
 
       {#if activeTab === "top-files"}
-        <div class="card table-card">
-          <div class="card-header-row">
-            <h2>
+        <div class="card bg-base-100 border border-base-300 overflow-hidden mb-6">
+          <div class="flex justify-between items-center p-4 px-5 border-b border-base-300">
+            <h2 class="text-base font-semibold flex items-center gap-2 text-base-content">
               <i class="bi bi-file-earmark-fill"></i>
               {tr("topLargestFiles")}
             </h2>
           </div>
           {#if topFiles.length > 0}
-            <div class="table-container">
-              <table>
-                <thead
-                  ><tr
-                    ><th>#</th><th>{tr("fileName")}</th><th>{tr("size")}</th><th
-                      >{tr("type")}</th
-                    ><th>{tr("created")}</th></tr
-                  ></thead
-                >
+            <div class="overflow-x-auto">
+              <table class="table">
+                <thead class="bg-base-200">
+                  <tr>
+                    <th class="uppercase text-xs tracking-wider">#</th>
+                    <th class="uppercase text-xs tracking-wider">{tr("fileName")}</th>
+                    <th class="uppercase text-xs tracking-wider">{tr("size")}</th>
+                    <th class="uppercase text-xs tracking-wider">{tr("type")}</th>
+                    <th class="uppercase text-xs tracking-wider">{tr("created")}</th>
+                  </tr>
+                </thead>
                 <tbody>
                   {#each topFiles.slice(0, 50) as file, index}
-                    <tr>
-                      <td
-                        ><span class="rank" class:top={index < 3}
-                          >{index + 1}</span
-                        ></td
-                      >
-                      <td class="name-cell">
-                        <i class="bi {getFileIcon(file.mime_type)} file-icon"
-                        ></i>
-                        <div class="file-info">
-                          <span class="filename" title={file.filename}
-                            >{file.filename}</span
-                          >
-                          <span class="filepath muted" title={file.file_path}
-                            >{file.file_path}</span
-                          >
+                    <tr class="hover">
+                      <td>
+                        <span class="inline-flex items-center justify-center w-7 h-7 rounded font-semibold text-sm {index < 3 ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white' : 'bg-base-200 text-base-content/60'}">
+                          {index + 1}
+                        </span>
+                      </td>
+                      <td class="flex items-center gap-3 font-medium">
+                        <i class="bi {getFileIcon(file.mime_type)} text-xl text-base-content/60"></i>
+                        <div class="flex flex-col min-w-0">
+                          <span class="truncate max-w-48" title={file.filename}>{file.filename}</span>
+                          <span class="text-xs text-base-content/50 truncate max-w-48" title={file.file_path}>{file.file_path}</span>
                         </div>
                       </td>
-                      <td class="mono highlight"
-                        >{file.size_formatted ||
-                          formatBytes(file.size_bytes)}</td
-                      >
-                      <td class="muted">{file.mime_type || "-"}</td>
-                      <td class="muted">{formatDate(file.created_at)}</td>
+                      <td class="font-mono font-semibold text-error">{file.size_formatted || formatBytes(file.size_bytes)}</td>
+                      <td class="text-base-content/60">{file.mime_type || "-"}</td>
+                      <td class="text-base-content/60">{formatDate(file.created_at)}</td>
                     </tr>
                   {/each}
                 </tbody>
               </table>
             </div>
             {#if topFiles.length > 50}
-              <div class="table-footer">
-                {tr("showingTop50of")}
-                {topFiles.length}
-                {tr("files")}
+              <div class="py-3 px-4 text-center text-sm text-base-content/60 border-t border-base-300">
+                {tr("showingTop50of")} {topFiles.length} {tr("files")}
               </div>
             {/if}
           {:else}
-            <div class="empty-state">
-              <i class="bi bi-file-earmark"></i>
+            <div class="flex flex-col items-center justify-center p-12 text-base-content/60">
+              <i class="bi bi-file-earmark text-5xl mb-4 opacity-50"></i>
               <p>{tr("noFilesFound")}</p>
             </div>
           {/if}
