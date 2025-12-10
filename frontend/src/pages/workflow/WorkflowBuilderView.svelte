@@ -269,9 +269,3 @@
     </div>
   </div></PageWrapper
 >
-
-<style>
-  .label {
-    padding: 0.25rem 0;
-  }
-</style>

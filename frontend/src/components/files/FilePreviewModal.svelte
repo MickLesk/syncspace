@@ -402,7 +402,7 @@
     </div>
 
     <!-- Content Area with smooth scrolling -->
-    <div class="flex-1 overflow-y-auto p-6 scroll-smooth">
+    <div class="flex-1 overflow-y-auto p-6 scroll-smooth scrollbar-modern">
       {#if activeTab === "preview"}<PreviewTab
           {file}
           {previewUrl}
@@ -440,35 +440,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  /* Smooth slide-in animation */
-  @keyframes slideInFromRight {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-
-  /* Add custom scrollbar styling */
-  .scroll-smooth::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  .scroll-smooth::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .scroll-smooth::-webkit-scrollbar-thumb {
-    background: oklch(var(--bc) / 0.2);
-    border-radius: 4px;
-  }
-
-  .scroll-smooth::-webkit-scrollbar-thumb:hover {
-    background: oklch(var(--bc) / 0.3);
-  }
-</style>

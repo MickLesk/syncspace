@@ -531,6 +531,14 @@ body {
    Utility Classes
    =========================== */
 
+/* Modal Backdrop - used across many components */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: var(--z-modal-backdrop, 1300);
+}
+
 .scrollbar-modern {
   scrollbar-width: thin;
   scrollbar-color: rgb(var(--border-primary)) transparent;
@@ -552,6 +560,15 @@ body {
 
 .scrollbar-modern::-webkit-scrollbar-thumb:hover {
   background-color: rgb(var(--border-secondary));
+}
+
+/* Hide default details marker */
+details summary {
+  list-style: none;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
 }
 
 /* ===========================

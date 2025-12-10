@@ -76,7 +76,7 @@
 
 <div
   bind:this={menuRef}
-  class="context-menu fixed bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-[9999] min-w-48"
+  class="fixed bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-[9999] min-w-48 max-w-80 animate-fade-in"
   style="top: {adjustedPosition.y}px; left: {adjustedPosition.x}px;"
 >
   <div class="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
@@ -168,7 +168,7 @@
       </button>
     {/if}
 
-    <div class="divider my-1"></div>
+    <div class="h-px bg-current opacity-10 mx-2 my-1"></div>
 
     {#if !file.is_directory && onShare}
       <button
@@ -192,7 +192,7 @@
       </button>
     {/if}
 
-    <div class="divider my-1"></div>
+    <div class="h-px bg-current opacity-10 mx-2 my-1"></div>
 
     {#if onDelete}
       <button
@@ -208,31 +208,8 @@
 </div>
 
 <style>
-  .context-menu {
-    animation: fadeIn 0.15s ease-out;
-    max-width: 320px;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
   .menu-item {
     transition: all 0.1s ease;
     user-select: none;
-  }
-
-  .divider {
-    height: 1px;
-    background: currentColor;
-    opacity: 0.1;
-    margin: 0.25rem 0.5rem;
   }
 </style>

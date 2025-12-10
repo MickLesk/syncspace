@@ -326,7 +326,8 @@
                   <div class="flex items-start justify-between gap-2">
                     <div class="flex-1">
                       <div class="badge badge-glass-{config.color} mb-2">
-                        <i class="bi bi-{config.icon} mr-1" aria-hidden="true"></i>
+                        <i class="bi bi-{config.icon} mr-1" aria-hidden="true"
+                        ></i>
                         {config.label}
                       </div>
                       <h3 class="font-bold text-base">{act.filename}</h3>
@@ -354,7 +355,3 @@
     {/each}
   {/if}
 </PageWrapper>
-
-<style>
-  /* ActivityView - using glassmorphism.css */
-</style>

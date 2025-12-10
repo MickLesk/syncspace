@@ -101,8 +101,9 @@
 <div
   role="region"
   aria-label="File upload drop zone"
-  class="upload-zone relative border-2 border-dashed rounded-lg p-8 transition-all"
+  class="relative border-2 border-dashed rounded-lg p-8 transition-all min-h-[200px] flex items-center justify-center"
   class:border-green-500={isDragging}
+  class:scale-[1.02]={isDragging}
   class:bg-green-50={isDragging}
   class:dark-bg-green-900={isDragging}
   class:border-gray-300={!isDragging}
@@ -154,30 +155,3 @@
     {/if}
   </div>
 </div>
-
-<style>
-  .upload-zone {
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .upload-zone.border-green-500 {
-    transform: scale(1.02);
-  }
-
-  @keyframes bounce {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-
-  .animate-bounce {
-    animation: bounce 1s infinite;
-  }
-</style>

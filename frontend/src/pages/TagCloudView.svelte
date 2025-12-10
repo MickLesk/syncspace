@@ -733,9 +733,3 @@
     </div>
   </Modal>
 {/if}
-
-<style>
-  :global(body.dark) {
-    --tag-cloud-bg: #111827;
-  }
-</style>

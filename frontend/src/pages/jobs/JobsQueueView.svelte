@@ -155,7 +155,7 @@
       </div>
     {:else}
       <!-- Jobs Table -->
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto scrollbar-modern">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-900">
             <tr>
@@ -292,35 +292,3 @@
     {/if}
   </div>
 </div>
-
-<style>
-  /* Custom scrollbar for table */
-  .overflow-x-auto::-webkit-scrollbar {
-    height: 8px;
-  }
-
-  .overflow-x-auto::-webkit-scrollbar-track {
-    background: rgb(243 244 246);
-  }
-
-  .overflow-x-auto::-webkit-scrollbar-thumb {
-    background: rgb(209 213 219);
-    border-radius: 4px;
-  }
-
-  .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-    background: rgb(156 163 175);
-  }
-
-  :global(.dark) .overflow-x-auto::-webkit-scrollbar-track {
-    background: rgb(31 41 55);
-  }
-
-  :global(.dark) .overflow-x-auto::-webkit-scrollbar-thumb {
-    background: rgb(55 65 81);
-  }
-
-  :global(.dark) .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-    background: rgb(75 85 99);
-  }
-</style>
