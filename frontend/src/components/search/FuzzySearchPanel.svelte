@@ -141,7 +141,7 @@
   {:else if displayResults.length > 0}
     <div
       class={viewMode === "grid"
-        ? "grid grid-cols-auto-fill gap-4"
+        ? "grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-4"
         : "space-y-2"}
     >
       {#each displayResults as file (file.id || file.name)}
@@ -159,9 +159,3 @@
   {/if}
 </div>
 
-<style>
-  .grid-cols-auto-fill {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  }
-</style>

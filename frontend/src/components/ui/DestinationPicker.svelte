@@ -170,7 +170,7 @@
       </div>
 
       <!-- Directory List -->
-      <div class="max-h-96 overflow-y-auto">
+      <div class="max-h-96 overflow-y-auto scrollbar-modern">
         {#if isLoading}
           <div class="flex items-center justify-center p-8">
             <div
@@ -254,25 +254,3 @@
   </div>
 {/if}
 
-<style>
-  /* Scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 3px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #999;
-  }
-  :global(.dark) ::-webkit-scrollbar-thumb {
-    background: #555;
-  }
-  :global(.dark) ::-webkit-scrollbar-thumb:hover {
-    background: #777;
-  }
-</style>

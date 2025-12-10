@@ -134,7 +134,7 @@
   <!-- Header -->
   <div class="flex gap-4 p-4 border-b border-slate-200 dark:border-slate-700">
     <button
-      class:active={activeTab === "tags"}
+      class:font-semibold={activeTab === "tags"}
       class="px-4 py-2 rounded text-sm font-medium transition-colors"
       class:bg-green-100={activeTab === "tags"}
       class:dark:bg-green-900={activeTab === "tags"}
@@ -149,7 +149,7 @@
     </button>
 
     <button
-      class:active={activeTab === "comments"}
+      class:font-semibold={activeTab === "comments"}
       class="px-4 py-2 rounded text-sm font-medium transition-colors"
       class:bg-green-100={activeTab === "comments"}
       class:dark:bg-green-900={activeTab === "comments"}
@@ -454,8 +454,3 @@
   </div>
 </div>
 
-<style>
-  :global(.active) {
-    font-weight: 600;
-  }
-</style>

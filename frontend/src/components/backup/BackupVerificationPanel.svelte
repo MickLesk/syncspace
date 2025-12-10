@@ -88,7 +88,7 @@
   }
 </script>
 
-<div class="backup-verification-panel">
+<div class="bg-base-200 rounded-2xl p-6">
   <div class="header mb-4">
     <h3 class="text-lg font-bold mb-2">Backup Verifications</h3>
     <div class="flex gap-2">
@@ -316,10 +316,3 @@
   {/if}
 </div>
 
-<style>
-  .backup-verification-panel {
-    background: var(--color-surface);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-  }
-</style>

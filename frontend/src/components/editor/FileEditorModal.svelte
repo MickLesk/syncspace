@@ -296,12 +296,12 @@
           <span>{tr("autoSave")}: {tr("enabled")}</span>
         </div>
         <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-          <kbd class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded"
+          <kbd class="px-2 py-1 font-mono text-xs bg-gray-200 dark:bg-gray-700 rounded"
             >Ctrl+S</kbd
           >
           <span>{tr("toSave")}</span>
           <span class="mx-2">•</span>
-          <kbd class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded"
+          <kbd class="px-2 py-1 font-mono text-xs bg-gray-200 dark:bg-gray-700 rounded"
             >Ctrl+F</kbd
           >
           <span>{tr("toSearch")}</span>
@@ -311,9 +311,3 @@
   </div>
 {/if}
 
-<style>
-  kbd {
-    font-family: ui-monospace, monospace;
-    font-size: 0.75rem;
-  }
-</style>

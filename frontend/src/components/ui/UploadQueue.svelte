@@ -176,7 +176,7 @@
     </div>
 
     <!-- Upload items -->
-    <div class="max-h-[400px] overflow-y-auto p-3 scrollbar-thin">
+    <div class="max-h-[400px] overflow-y-auto p-3 scrollbar-modern">
       {#each displayQueue as upload (upload.id)}
         <div
           class="flex gap-3 p-3 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] mb-2 transition-all duration-200 {upload.status ===
@@ -308,27 +308,3 @@
   </div>
 {/if}
 
-<style>
-  /* Custom scrollbar styling */
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 3px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
-  }
-
-  :global(.dark) .scrollbar-thin::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  :global(.dark) .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-  }
-</style>

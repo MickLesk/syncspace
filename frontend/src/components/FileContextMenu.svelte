@@ -226,8 +226,3 @@
   />
 {/if}
 
-<style>
-  div {
-    display: contents;
-  }
-</style>

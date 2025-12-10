@@ -176,7 +176,7 @@
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
-  class="video-player-container relative bg-black rounded-xl overflow-hidden shadow-2xl"
+  class="relative bg-black rounded-xl overflow-hidden shadow-2xl focus:outline-2 focus:outline-primary focus:outline-offset-2"
   onmousemove={handleMouseMove}
   onmouseleave={() => {
     if (isPlaying) showControls = false;
@@ -387,11 +387,6 @@
 </div>
 
 <style>
-  .video-player-container:focus {
-    outline: 2px solid oklch(var(--p));
-    outline-offset: 2px;
-  }
-
   input[type="range"] {
     height: 4px;
     border-radius: 2px;

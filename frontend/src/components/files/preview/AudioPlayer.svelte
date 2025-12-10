@@ -178,7 +178,7 @@
   <!-- Waveform -->
   <div
     bind:this={waveformContainer}
-    class="waveform-container bg-base-100 rounded-xl p-4 mb-4 shadow-inner"
+    class="min-h-[128px] bg-base-100 rounded-xl p-4 mb-4 shadow-inner overflow-hidden"
     class:hidden={loading || error}
   ></div>
 
@@ -202,7 +202,7 @@
       <button
         aria-label={isPlaying ? "Pause" : "Play"}
         onclick={togglePlay}
-        class="btn btn-circle btn-primary btn-xl shadow-lg hover:shadow-xl transition-shadow"
+        class="btn btn-circle btn-primary w-16 h-16 min-h-16 shadow-lg hover:shadow-xl transition-shadow"
         title={isPlaying ? "Pause" : "Play"}
         ><i class="bi" aria-hidden="true"></i><span class="sr-only"
           >Toggle play</span
@@ -269,19 +269,3 @@
   {/if}
 </div>
 
-<style>
-  .btn-xl {
-    width: 4rem;
-    height: 4rem;
-    min-height: 4rem;
-  }
-
-  .waveform-container {
-    min-height: 128px;
-  }
-
-  /* Custom styling for the waveform cursor */
-  :global(.waveform-container wave) {
-    overflow: hidden !important;
-  }
-</style>

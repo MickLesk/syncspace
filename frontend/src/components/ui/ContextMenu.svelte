@@ -14,7 +14,7 @@
 
 {#if items.length > 0}
   <div
-    class="fixed z-[1000] min-w-[200px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-2 animate-context-menu"
+    class="fixed z-[1000] min-w-[200px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-2 animate-scale-in"
     style="left: {x}px; top: {y}px;"
     role="menu"
     tabindex="0"
@@ -44,19 +44,3 @@
   </div>
 {/if}
 
-<style>
-  @keyframes context-menu-in {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  .animate-context-menu {
-    animation: context-menu-in 0.15s ease-out;
-  }
-</style>

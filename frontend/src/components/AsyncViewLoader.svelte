@@ -92,18 +92,3 @@
   <ResolvedComp {...restProps} />
 {/if}
 
-<style>
-  :global(body) {
-    --animation-spin-duration: 1s;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
-</style>

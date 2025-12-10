@@ -256,7 +256,7 @@
       </div>
 
       <!-- Content -->
-      <div class="flex-1 overflow-auto p-6">
+      <div class="flex-1 overflow-auto scrollbar-modern p-6">
         {#if loading}
           <div class="flex items-center justify-center h-64">
             <div
@@ -406,27 +406,3 @@
   </div>
 {/if}
 
-<style>
-  /* Custom scrollbar */
-  .overflow-auto::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  .overflow-auto::-webkit-scrollbar-track {
-    background: rgb(243 244 246);
-  }
-
-  .overflow-auto::-webkit-scrollbar-thumb {
-    background: rgb(209 213 219);
-    border-radius: 4px;
-  }
-
-  :global(.dark) .overflow-auto::-webkit-scrollbar-track {
-    background: rgb(31 41 55);
-  }
-
-  :global(.dark) .overflow-auto::-webkit-scrollbar-thumb {
-    background: rgb(55 65 81);
-  }
-</style>

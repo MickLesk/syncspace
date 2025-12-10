@@ -165,7 +165,7 @@
   }
 </script>
 
-<div class="backup-schedule-manager p-6">
+<div class="max-w-[1200px] mx-auto p-6">
   <div class="header flex justify-between items-center mb-6">
     <div>
       <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
@@ -582,9 +582,3 @@
   </div>
 {/if}
 
-<style>
-  .backup-schedule-manager {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-</style>
