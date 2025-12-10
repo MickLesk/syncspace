@@ -1,335 +1,347 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import {
-    locks,
-    presence,
-    activity,
-    conflicts,
-  } from "../../stores/collaboration.js";
+  import api from "../../lib/api.js";
   import { auth } from "../../stores/auth.js";
-  import { currentLang } from "../../stores/ui.js";
-  import { t } from "../../i18n.js";
   import { success, error as errorToast } from "../../stores/toast.js";
 
-  let { filePath = null, compact = false } = $props();
+  /** @type {{filePath?: string | null}} */
+  let { filePath = null } = $props();
 
-  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
+  /** @type {Array} active users viewing/editing */
+  let presenceList = $state([]);
+  /** @type {Object | null} active file lock */
+  let currentLock = $state(null);
+  /** @type {boolean} loading state */
+  let loading = $state(false);
+  /** @type {number | null} presence update interval */
+  let presenceInterval = null;
+  /** @type {number | null} lock heartbeat interval */
+  let lockHeartbeatInterval = null;
 
-  let showActivity = $state(false);
-  let pollingInterval = null;
-
-  $effect(() => {
-    if (filePath) {
-      loadCollaborationData();
-    }
-  });
-
-  const filePresence = $derived(
-    $presence.filter((p) => p.file_path === filePath)
-  );
-  const currentLock = $derived($locks.find((l) => l.file_path === filePath));
-  const isLockedByMe = $derived(
-    currentLock && currentLock.locked_by === $auth.user?.username
-  );
-  const isLockedByOther = $derived(currentLock && !isLockedByMe);
-  const editingUsers = $derived(
-    filePresence.filter((p) => p.activity_type === "editing")
-  );
-
-  onMount(() => {
-    if (filePath) {
-      loadCollaborationData();
-      startPolling();
-    }
-  });
-
-  onDestroy(() => {
-    stopPolling();
-  });
-
-  async function loadCollaborationData() {
+  // Load presence data
+  async function loadPresence() {
     if (!filePath) return;
 
     try {
-      await locks.load(filePath);
-      await presence.load(filePath);
+      const data = await api.collaboration.getPresence(filePath);
+      presenceList = data.filter((p) => p.user_id !== $auth?.userId);
     } catch (err) {
-      console.error("Failed to load collaboration data:", err);
+      console.error("Failed to load presence:", err);
     }
   }
 
-  function startPolling() {
-    stopPolling();
-    pollingInterval = setInterval(() => {
-      if (filePath) {
-        loadCollaborationData();
-      }
-    }, 10000); // Every 10 seconds
-  }
-
-  function stopPolling() {
-    if (pollingInterval) {
-      clearInterval(pollingInterval);
-      pollingInterval = null;
-    }
-  }
-
-  async function acquireLock() {
+  // Check for locks
+  async function checkLocks() {
     if (!filePath) return;
 
     try {
-      await locks.acquire(filePath, "exclusive", 300);
-      success(tr("fileLockedSuccessfully"));
-      await loadCollaborationData();
+      const locks = await api.collaboration.listLocks(filePath);
+      const myLock = locks.find((l) => l.user_id === $auth?.userId);
+      const otherLock = locks.find((l) => l.user_id !== $auth?.userId);
+
+      currentLock = myLock || otherLock || null;
     } catch (err) {
-      errorToast(err.message || tr("failedToLockFile"));
+      console.error("Failed to check locks:", err);
     }
   }
 
-  async function releaseLock() {
-    if (!currentLock) return;
-
-    try {
-      await locks.release(currentLock.id);
-      success(tr("fileUnlockedSuccessfully"));
-      await loadCollaborationData();
-    } catch (err) {
-      errorToast(tr("failedToUnlockFile"));
-    }
-  }
-
-  async function updateMyPresence(activityType) {
+  // Update own presence
+  async function updatePresence(activityType = "viewing") {
     if (!filePath) return;
 
     try {
-      await presence.update(filePath, activityType);
+      await api.collaboration.updatePresence(filePath, activityType);
     } catch (err) {
       console.error("Failed to update presence:", err);
     }
   }
 
-  async function loadActivity() {
+  // Acquire file lock
+  async function acquireLock() {
     if (!filePath) return;
 
     try {
-      await activity.loadForFile(filePath);
-      showActivity = true;
+      loading = true;
+      const lock = await api.collaboration.acquireLock(filePath);
+      currentLock = lock;
+
+      // Start heartbeat
+      startLockHeartbeat(lock.id);
+
+      success("File locked for editing");
     } catch (err) {
-      errorToast(tr("failedToLoadActivity"));
+      errorToast("Failed to acquire lock - file may be locked by another user");
+    } finally {
+      loading = false;
     }
   }
 
-  function formatTime(timestamp) {
-    const date = new Date(timestamp);
-    return date.toLocaleString();
+  // Release file lock
+  async function releaseLock() {
+    if (!currentLock) return;
+
+    try {
+      loading = true;
+      await api.collaboration.releaseLock(currentLock.id);
+
+      // Stop heartbeat
+      stopLockHeartbeat();
+
+      currentLock = null;
+      success("File lock released");
+    } catch (err) {
+      errorToast("Failed to release lock");
+    } finally {
+      loading = false;
+    }
   }
 
-  function getActivityIcon(activityType) {
-    const icons = {
-      lock_acquired: "🔒",
-      lock_released: "🔓",
-      edit_started: "✏️",
-      edit_saved: "💾",
-      conflict_detected: "⚠️",
-      conflict_resolved: "✅",
-    };
-    return icons[activityType] || "📝";
+  // Start lock heartbeat
+  function startLockHeartbeat(lockId) {
+    stopLockHeartbeat();
+
+    lockHeartbeatInterval = setInterval(async () => {
+      try {
+        await api.collaboration.renewLock(lockId);
+      } catch (err) {
+        console.error("Lock heartbeat failed:", err);
+        errorToast("Lost file lock");
+        stopLockHeartbeat();
+        currentLock = null;
+      }
+    }, 30000); // Renew every 30 seconds
+  }
+
+  // Stop lock heartbeat
+  function stopLockHeartbeat() {
+    if (lockHeartbeatInterval) {
+      clearInterval(lockHeartbeatInterval);
+      lockHeartbeatInterval = null;
+    }
+  }
+
+  // Start presence updates
+  function startPresenceUpdates() {
+    loadPresence();
+    checkLocks();
+    updatePresence("viewing");
+
+    presenceInterval = setInterval(() => {
+      loadPresence();
+      checkLocks();
+      updatePresence("viewing");
+    }, 5000); // Update every 5 seconds
+  }
+
+  // Stop presence updates
+  function stopPresenceUpdates() {
+    if (presenceInterval) {
+      clearInterval(presenceInterval);
+      presenceInterval = null;
+    }
+  }
+
+  // Cleanup on destroy
+  onDestroy(() => {
+    stopPresenceUpdates();
+    stopLockHeartbeat();
+
+    // Remove presence
+    if (filePath && $auth?.userId) {
+      api.collaboration.removePresence($auth?.userId).catch(() => {});
+    }
+
+    // Release lock if owned
+    if (currentLock && currentLock.user_id === $auth?.userId) {
+      api.collaboration.releaseLock(currentLock.id).catch(() => {});
+    }
+  });
+
+  // Watch file path changes
+  $effect(() => {
+    if (filePath) {
+      startPresenceUpdates();
+    } else {
+      stopPresenceUpdates();
+    }
+  });
+
+  // Computed
+  const hasOtherUsers = $derived(presenceList.length > 0);
+  const isLockedByOther = $derived(
+    currentLock && currentLock.user_id !== $auth?.userId
+  );
+  const isLockedByMe = $derived(
+    currentLock && currentLock.user_id === $auth?.userId
+  );
+
+  // Format timestamp
+  function formatTime(timestamp) {
+    if (!timestamp) return "";
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString();
+  }
+
+  // Get activity color
+  function getActivityColor(activityType) {
+    switch (activityType) {
+      case "editing":
+        return "badge-error";
+      case "viewing":
+        return "badge-info";
+      case "idle":
+        return "badge-ghost";
+      default:
+        return "badge-ghost";
+    }
   }
 </script>
 
-<div class="collaboration-panel" class:compact>
-  <!-- Lock Status -->
-  {#if currentLock}
-    <div
-      class="rounded-lg shadow-lg mb-3 p-4 border {isLockedByMe
-        ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-        : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'}"
-    >
-      <div class="flex items-center gap-2">
-        <i
-          class="bi bi-lock-fill {isLockedByMe
-            ? 'text-green-600 dark:text-green-400'
-            : 'text-amber-600 dark:text-amber-400'}"
-        ></i>
-        <div class="flex-1">
-          <h3
-            class="font-bold text-sm {isLockedByMe
-              ? 'text-green-900 dark:text-green-100'
-              : 'text-amber-900 dark:text-amber-100'}"
-          >
-            {isLockedByMe
-              ? "You have locked this file"
-              : `Locked by ${currentLock.locked_by}`}
-          </h3>
-          <div
-            class="text-xs {isLockedByMe
-              ? 'text-green-700 dark:text-green-300'
-              : 'text-amber-700 dark:text-amber-300'}"
-          >
-            Expires: {formatTime(currentLock.expires_at)}
-          </div>
-        </div>
+{#if filePath}
+  <div class="card bg-base-200 shadow-sm">
+    <div class="card-body p-4">
+      <h3 class="card-title text-base mb-3 flex items-center gap-2">
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+          />
+        </svg>
+        Collaboration
+      </h3>
+
+      <!-- File Lock Status -->
+      <div class="mb-3">
         {#if isLockedByMe}
+          <div class="alert alert-success py-2">
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+            <span class="text-sm">You have locked this file for editing</span>
+            <button
+              class="btn btn-sm btn-ghost"
+              onclick={releaseLock}
+              disabled={loading}
+            >
+              Release
+            </button>
+          </div>
+        {:else if isLockedByOther}
+          <div class="alert alert-warning py-2">
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+            <span class="text-sm"
+              >File locked by {currentLock.username || "another user"}</span
+            >
+          </div>
+        {:else}
           <button
-            class="px-3 py-1.5 text-sm rounded-lg hover:bg-green-100 dark:hover:bg-green-800 text-green-700 dark:text-green-200 transition-colors flex items-center gap-2"
-            onclick={releaseLock}
+            class="btn btn-sm btn-outline w-full gap-2"
+            onclick={acquireLock}
+            disabled={loading}
           >
-            <i class="bi bi-unlock" aria-hidden="true"></i>
-            Unlock
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+            Lock for Editing
           </button>
         {/if}
       </div>
-    </div>
-  {:else}
-    <div class="mb-3">
-      <button
-        class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
-        onclick={acquireLock}
-      >
-        <i class="bi bi-lock" aria-hidden="true"></i>
-        Lock for Editing
-      </button>
-    </div>
-  {/if}
 
-  <!-- Active Users -->
-  {#if filePresence.length > 0}
-    <div
-      class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm mb-3 border border-gray-200 dark:border-gray-700"
-    >
-      <div class="p-3">
-        <h4
-          class="text-sm font-bold mb-2 flex items-center gap-2 text-gray-900 dark:text-white"
-        >
-          <i class="bi bi-people-fill" aria-hidden="true"></i>
-          Active Users ({filePresence.length})
-        </h4>
-
+      <!-- Active Users -->
+      {#if hasOtherUsers}
         <div class="space-y-2">
-          {#each filePresence as user}
+          <div class="text-sm font-medium text-base-content/70">
+            Active Users ({presenceList.length})
+          </div>
+
+          {#each presenceList as presence (presence.user_id)}
             <div class="flex items-center gap-2 text-sm">
-              <div class="flex items-center justify-center">
-                <div
-                  class="bg-green-600 dark:bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
-                >
-                  <span class="text-xs font-medium"
-                    >{user.username.charAt(0).toUpperCase()}</span
-                  >
+              <div class="avatar placeholder">
+                <div class="bg-primary text-primary-content rounded-full w-8">
+                  <span class="text-xs">{presence.username?.[0] || "U"}</span>
                 </div>
               </div>
 
-              <div class="flex-1">
-                <div class="font-medium text-gray-900 dark:text-white">
-                  {user.username}
+              <div class="flex-1 min-w-0">
+                <div class="font-medium truncate">
+                  {presence.username || "User"}
                 </div>
-                <div
-                  class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1"
-                >
-                  {#if user.activity_type === "editing"}
-                    <span
-                      class="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full"
-                    ></span>
-                    Editing
-                  {:else if user.activity_type === "viewing"}
-                    <span
-                      class="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full"
-                    ></span>
-                    Viewing
-                  {:else}
-                    <span
-                      class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full"
-                    ></span>
-                    Idle
-                  {/if}
+                <div class="text-xs text-base-content/60">
+                  {formatTime(presence.last_seen)}
                 </div>
               </div>
 
-              <div class="text-xs text-gray-400 dark:text-gray-500">
-                {formatTime(user.last_seen)}
-              </div>
+              <span
+                class="badge badge-sm {getActivityColor(
+                  presence.activity_type
+                )}"
+              >
+                {presence.activity_type || "viewing"}
+              </span>
             </div>
           {/each}
         </div>
-      </div>
-    </div>
-  {/if}
-
-  <!-- Activity Toggle -->
-  {#if !compact}
-    <button
-      class="px-3 py-1.5 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors w-full flex items-center justify-center gap-2"
-      onclick={() => (showActivity ? (showActivity = false) : loadActivity())}
-    >
-      <i class="bi bi-clock-history" aria-hidden="true"></i>
-      {showActivity ? "Hide" : "Show"} Activity
-    </button>
-
-    {#if showActivity}
-      <div
-        class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm mt-3 max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700"
-      >
-        <div class="p-3">
-          <h4 class="text-sm font-bold mb-2 text-gray-900 dark:text-white">
-            Recent Activity
-          </h4>
-
-          {#if $activity.length === 0}
-            <div
-              class="text-center text-sm text-gray-400 dark:text-gray-500 py-4"
-            >
-              No activity yet
-            </div>
-          {:else}
-            <div class="space-y-2">
-              {#each $activity as item}
-                <div class="flex items-start gap-2 text-xs">
-                  <span class="text-lg"
-                    >{getActivityIcon(item.activity_type)}</span
-                  >
-                  <div class="flex-1">
-                    <div class="font-medium text-gray-900 dark:text-white">
-                      {item.username}
-                    </div>
-                    <div class="text-gray-500 dark:text-gray-400">
-                      {item.activity_type.replace("_", " ")}
-                    </div>
-                    <div class="text-gray-400 dark:text-gray-500">
-                      {formatTime(item.created_at)}
-                    </div>
-                  </div>
-                </div>
-              {/each}
-            </div>
-          {/if}
+      {:else}
+        <div class="text-sm text-base-content/60 text-center py-2">
+          No other users active
         </div>
-      </div>
-    {/if}
-  {/if}
-
-  <!-- Conflict Warning -->
-  {#if $conflicts.some((c) => c.file_path === filePath && c.status === "pending")}
-    <div
-      class="rounded-lg shadow-lg mt-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
-    >
-      <div class="flex items-center gap-2">
-        <i
-          class="bi bi-exclamation-triangle-fill text-red-600 dark:text-red-400"
-        ></i>
-        <div class="flex-1">
-          <h4 class="font-bold text-sm text-red-900 dark:text-red-100">
-            Edit Conflict Detected
-          </h4>
-          <div class="text-xs text-red-700 dark:text-red-300">
-            This file has unresolved conflicts
-          </div>
-        </div>
-        <button
-          class="px-3 py-1.5 text-sm rounded-lg bg-red-600 dark:bg-red-500 text-white hover:bg-red-700 dark:hover:bg-red-600 transition-colors"
-        >
-          Resolve
-        </button>
-      </div>
+      {/if}
     </div>
-  {/if}
-</div>
-}
+  </div>
+{/if}
+
+<style>
+  .alert {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+</style>

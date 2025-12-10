@@ -78,7 +78,10 @@
   <!-- Home Button -->
   <button
     type="button"
-    class="flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all whitespace-nowrap text-green-500 dark:text-green-400 border-2 border-transparent hover:bg-green-500/10 hover:border-green-500/20 {dropTarget === -1 ? 'bg-green-500/15 border-green-500 border-dashed animate-pulse' : ''}"
+    class="flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all whitespace-nowrap text-green-500 dark:text-green-400 border-2 border-transparent hover:bg-green-500/10 hover:border-green-500/20 {dropTarget ===
+    -1
+      ? 'bg-green-500/15 border-green-500 border-dashed animate-pulse'
+      : ''}"
     onclick={() => handleNavigate(-1)}
     ondragover={(e) => handleDragOver(e, -1)}
     ondragleave={() => handleDragLeave(-1)}
@@ -100,7 +103,12 @@
     <!-- Segment Button -->
     <button
       type="button"
-      class="flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all truncate max-w-[200px] whitespace-nowrap border-2 border-transparent {dropTarget === i ? 'bg-green-500/15 border-green-500 border-dashed animate-pulse' : ''} {i === segments.length - 1 ? 'bg-green-500/10 text-green-600 dark:text-green-300 font-semibold' : 'text-green-500 dark:text-green-400 hover:bg-green-500/10 hover:border-green-500/20'}"
+      class="flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all truncate max-w-[200px] whitespace-nowrap border-2 border-transparent {dropTarget ===
+      i
+        ? 'bg-green-500/15 border-green-500 border-dashed animate-pulse'
+        : ''} {i === segments.length - 1
+        ? 'bg-green-500/10 text-green-600 dark:text-green-300 font-semibold'
+        : 'text-green-500 dark:text-green-400 hover:bg-green-500/10 hover:border-green-500/20'}"
       onclick={() => handleNavigate(i)}
       ondragover={(e) => handleDragOver(e, i)}
       ondragleave={() => handleDragLeave(i)}
@@ -113,4 +121,3 @@
     </button>
   {/each}
 </nav>
-

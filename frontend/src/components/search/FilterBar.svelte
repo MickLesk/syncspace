@@ -73,16 +73,22 @@
 </script>
 
 {#if activeFilters.length > 0}
-  <div class="bg-base-200 rounded-lg px-4 py-3 mb-4 border border-base-content/10">
+  <div
+    class="bg-base-200 rounded-lg px-4 py-3 mb-4 border border-base-content/10"
+  >
     <div class="flex items-center gap-3 flex-wrap">
-      <span class="text-sm font-semibold flex items-center gap-2 text-base-content">
+      <span
+        class="text-sm font-semibold flex items-center gap-2 text-base-content"
+      >
         <i class="bi bi-funnel" aria-hidden="true"></i>
         {tr("activeFilters")}:
       </span>
 
       <div class="flex flex-wrap gap-2 flex-1">
         {#each activeFilters as filter}
-          <div class="inline-flex items-center gap-2 bg-primary text-primary-content pl-3 pr-2 py-1 rounded-full text-sm transition-all hover:opacity-90 hover:-translate-y-px">
+          <div
+            class="inline-flex items-center gap-2 bg-primary text-primary-content pl-3 pr-2 py-1 rounded-full text-sm transition-all hover:opacity-90 hover:-translate-y-px"
+          >
             <span class="whitespace-nowrap">{filter.label}</span>
             <button
               class="flex items-center justify-center w-5 h-5 rounded-full bg-black/20 hover:bg-black/30 transition-colors cursor-pointer"
@@ -106,4 +112,3 @@
     </div>
   </div>
 {/if}
-

@@ -99,8 +99,12 @@
 </script>
 
 {#if visible && operations.length > 0}
-  <div class="fixed bottom-4 right-4 w-[360px] max-w-[calc(100vw-2rem)] bg-base-100 border border-base-300 rounded-2xl shadow-xl dark:shadow-2xl z-[100] overflow-hidden">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-base-300 bg-base-200">
+  <div
+    class="fixed bottom-4 right-4 w-[360px] max-w-[calc(100vw-2rem)] bg-base-100 border border-base-300 rounded-2xl shadow-xl dark:shadow-2xl z-[100] overflow-hidden"
+  >
+    <div
+      class="flex items-center justify-between px-4 py-3 border-b border-base-300 bg-base-200"
+    >
       <div class="flex items-center gap-2">
         <i class="bi bi-layers text-lg text-primary-500" aria-hidden="true"></i>
         <span class="font-semibold">Batch Operations</span>
@@ -119,7 +123,11 @@
       {#each operations as op}
         <div class="p-3 bg-base-200 rounded-lg mb-2 last:mb-0">
           <div class="flex items-center gap-3 mb-2">
-            <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-sm {getStatusColor(op.status)}">
+            <div
+              class="w-7 h-7 rounded-full flex items-center justify-center text-white text-sm {getStatusColor(
+                op.status
+              )}"
+            >
               <i
                 class="bi bi-{getStatusIcon(op.status)} {op.status === 'running'
                   ? 'animate-spin'
@@ -149,7 +157,9 @@
           <!-- Progress Bar -->
           <div class="h-1 bg-base-300 rounded-full overflow-hidden">
             <div
-              class="h-full rounded-full transition-[width] duration-300 {getStatusColor(op.status)}"
+              class="h-full rounded-full transition-[width] duration-300 {getStatusColor(
+                op.status
+              )}"
               style="width: {formatProgress(op)}"
             ></div>
           </div>
@@ -171,4 +181,3 @@
     </div>
   </div>
 {/if}
-

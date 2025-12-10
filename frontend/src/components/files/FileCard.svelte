@@ -162,11 +162,15 @@
 </script>
 
 {#if viewMode === "grid"}
-  <div class="file-card-wrapper relative transition-transform duration-200 hover:-translate-y-1 group">
+  <div
+    class="file-card-wrapper relative transition-transform duration-200 hover:-translate-y-1 group"
+  >
     <!-- Favorite Star Button -->
     <button
       type="button"
-      class="absolute top-2 right-2 p-1.5 rounded-full transition-all z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border border-black/[0.08] dark:border-white/10 shadow-md hover:bg-white dark:hover:bg-gray-800 hover:border-black/[0.15] dark:hover:border-white/20 hover:scale-[1.15] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed {isFavorite ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}"
+      class="absolute top-2 right-2 p-1.5 rounded-full transition-all z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border border-black/[0.08] dark:border-white/10 shadow-md hover:bg-white dark:hover:bg-gray-800 hover:border-black/[0.15] dark:hover:border-white/20 hover:scale-[1.15] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed {isFavorite
+        ? 'opacity-100'
+        : 'opacity-0 group-hover:opacity-100'}"
       onclick={toggleFavorite}
       disabled={favoriteLoading}
       title={isFavorite ? tr("removeFromFavorites") : tr("addToFavorites")}
@@ -330,7 +334,9 @@
     </button>
   </div>
 {:else}
-  <div class="file-card-wrapper relative transition-transform duration-200 hover:-translate-y-1">
+  <div
+    class="file-card-wrapper relative transition-transform duration-200 hover:-translate-y-1"
+  >
     <button
       type="button"
       draggable="true"
