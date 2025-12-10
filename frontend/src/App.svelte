@@ -425,13 +425,13 @@
   {/if}
 {:else}
   <div
-    class="app-container bg-gray-50 dark:bg-gray-900 transition-colors overflow-x-hidden"
+    class="h-screen w-screen max-w-full flex overflow-hidden relative bg-gray-50 dark:bg-gray-900 transition-colors"
   >
     <!-- Mobile Menu Toggle -->
     {#if isMobile}
       <button
         onclick={() => (isMobileMenuOpen = !isMobileMenuOpen)}
-        class="mobile-menu-toggle fixed top-4 left-4 z-50 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 md:hidden touch-target"
+        class="fixed top-4 left-4 z-50 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 md:hidden touch-target"
         aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
       >
         <i
@@ -445,9 +445,13 @@
 
     <!-- Sidebar with mobile support -->
     <div
-      class="sidebar-wrapper"
-      class:mobile-open={isMobileMenuOpen && isMobile}
-      class:mobile-closed={!isMobileMenuOpen && isMobile}
+      class="transition-transform duration-300 ease-in-out md:relative md:transform-none {isMobile
+        ? 'fixed left-0 top-0 h-screen z-40'
+        : ''} {isMobileMenuOpen && isMobile
+        ? 'translate-x-0'
+        : isMobile
+          ? '-translate-x-full'
+          : ''}"
     >
       <Sidebar on:navigate={() => isMobile && (isMobileMenuOpen = false)} />
     </div>
@@ -456,12 +460,12 @@
     {#if isMobile && isMobileMenuOpen}
       <button
         onclick={() => (isMobileMenuOpen = false)}
-        class="mobile-overlay fixed inset-0 bg-black bg-opacity-50 z-30"
+        class="block fixed inset-0 bg-black bg-opacity-50 z-30"
         aria-label="Close menu"
       ></button>
     {/if}
 
-    <div class="main-wrapper overflow-x-hidden">
+    <div class="flex-1 flex flex-col overflow-hidden max-w-full">
       <AppHeader
         on:navigate={handleNavigate}
         on:searchResultSelected={handleSearchResultSelected}
@@ -485,7 +489,8 @@
         <div style="flex: 1; min-width: 0; overflow-x: hidden;">
           <ErrorBoundary>
             <main
-              class="main-content bg-gray-50 dark:bg-gray-900 overflow-x-hidden"
+              class="main-content flex-1 overflow-y-auto overflow-x-hidden max-w-full md:pb-0 pb-[calc(72px+env(safe-area-inset-bottom))]"
+              style="scrollbar-width: none; -ms-overflow-style: none;"
             >
               {#if $currentView === "files"}
                 <FilesView />
@@ -574,7 +579,7 @@
         {#if showActivityFeed}
           <!-- Backdrop with blur -->
           <div
-            class="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-[45] animate-fade-in"
+            class="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-[45] animate-fadeIn"
             role="button"
             tabindex="0"
             onclick={() => (showActivityFeed = false)}
@@ -624,94 +629,12 @@
 <UploadQueue />
 
 <style>
-  /* Bootstrap Icons loaded from CDN in index.html */
-
-  .app-container {
-    height: 100vh;
-    width: 100vw;
-    max-width: 100vw;
-    display: flex;
-    overflow: hidden;
-    overflow-x: hidden;
-    position: relative;
-  }
-
-  .main-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    overflow-x: hidden;
-    max-width: 100%;
-  }
-
-  .main-content {
-    flex: 1;
-    overflow-y: auto; /* Allow scrolling for content - needed for infinite scroll */
-    overflow-x: hidden;
-    max-width: 100%;
-    background: transparent !important;
-    box-shadow: none !important;
-    /* Hide scrollbar but keep functionality */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
-  }
-
+  /* Hide scrollbar for main content */
   .main-content::-webkit-scrollbar {
-    display: none; /* Chrome/Safari/Opera */
+    display: none;
   }
 
-  /* Mobile bottom nav spacing */
-  @media (max-width: 768px) {
-    .main-content {
-      padding-bottom: calc(72px + env(safe-area-inset-bottom));
-    }
-  }
-
-  /* Mobile Sidebar Support */
-  .sidebar-wrapper {
-    transition: transform 0.3s ease-in-out;
-  }
-
-  @media (max-width: 768px) {
-    .sidebar-wrapper {
-      position: fixed;
-      left: 0;
-      top: 0;
-      height: 100vh;
-      z-index: 40;
-      transform: translateX(-100%);
-    }
-
-    .sidebar-wrapper.mobile-open {
-      transform: translateX(0);
-    }
-
-    .mobile-menu-toggle {
-      display: block;
-    }
-
-    .main-wrapper {
-      width: 100%;
-    }
-  }
-
-  @media (min-width: 769px) {
-    .mobile-menu-toggle {
-      display: none;
-    }
-
-    .sidebar-wrapper {
-      position: relative;
-      transform: none !important;
-    }
-  }
-
-  .mobile-overlay {
-    display: block;
-  }
-
-  /* Activity Feed Animations */
+  /* Activity Feed Slide Animation */
   @keyframes slideInRight {
     from {
       transform: translateX(100%);
@@ -721,18 +644,5 @@
       transform: translateX(0);
       opacity: 1;
     }
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
   }
 </style>

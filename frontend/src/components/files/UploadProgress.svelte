@@ -25,40 +25,55 @@
 </script>
 
 {#if uploads.length > 0}
-  <div class="upload-panel">
-    <div class="upload-header">
-      <h3 class="upload-title">
+  <div
+    class="fixed bottom-4 right-4 w-[400px] max-h-[500px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] z-[100] animate-slideUp"
+  >
+    <div
+      class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-t-xl"
+    >
+      <h3
+        class="font-semibold flex items-center gap-2 m-0 text-gray-900 dark:text-gray-50"
+      >
         <i class="bi bi-cloud-upload" aria-hidden="true"></i>
         {tr("uploads")} ({uploads.length})
       </h3>
-      <button class="clear-btn">{tr("clearAll")}</button>
+      <button
+        class="px-3 py-1 text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 cursor-pointer transition-all hover:bg-gray-100 dark:hover:bg-gray-700"
+        >{tr("clearAll")}</button
+      >
     </div>
 
-    <div class="upload-list">
+    <div class="max-h-[400px] overflow-y-auto p-2">
       {#each uploads as upload (upload.id)}
-        <div class="upload-item">
-          <div class="upload-icon">
+        <div
+          class="flex gap-3 p-3 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          <div class="text-2xl flex items-center">
             {#if upload.status === "complete"}<i
-                class="bi bi-check-circle-fill text-success success-checkmark"
+                class="bi bi-check-circle-fill text-green-500 animate-scaleIn"
               ></i>
             {:else if upload.status === "error"}<i
-                class="bi bi-x-circle-fill text-error error-shake"
+                class="bi bi-x-circle-fill text-red-500 animate-shake"
               ></i>
             {:else if upload.status === "cancelled"}<i
-                class="bi bi-dash-circle-fill text-warning"
+                class="bi bi-dash-circle-fill text-amber-500"
               ></i>
             {:else if upload.status === "retrying"}<i
-                class="bi bi-arrow-clockwise text-warning spinning"
+                class="bi bi-arrow-clockwise text-amber-500 animate-spin"
               ></i>
             {:else}<i
-                class="bi bi-file-earmark-arrow-up text-primary"
+                class="bi bi-file-earmark-arrow-up text-green-500"
                 aria-hidden="true"
               ></i>{/if}
           </div>
 
-          <div class="upload-details">
-            <div class="upload-name">{upload.name}</div>
-            <div class="upload-meta">
+          <div class="flex-1 min-w-0">
+            <div
+              class="font-medium overflow-hidden text-ellipsis whitespace-nowrap text-gray-900 dark:text-gray-50"
+            >
+              {upload.name}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {#if upload.status === "uploading"}
                 {formatBytes((upload.progress / 100) * upload.size)} / {formatBytes(
                   upload.size
@@ -87,13 +102,17 @@
             {/if}
           </div>
 
-          <div class="upload-actions">
+          <div class="flex items-center">
             {#if upload.status === "uploading"}
-              <button class="action-btn" aria-label="Cancel upload"
+              <button
+                class="px-2 py-1 text-xs bg-transparent border-none text-gray-500 dark:text-gray-400 cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-50 flex items-center gap-1"
+                aria-label="Cancel upload"
                 ><i class="bi bi-x-lg" aria-hidden="true"></i></button
               >
             {:else if upload.status === "error"}
-              <button class="action-btn" aria-label="Retry upload"
+              <button
+                class="px-2 py-1 text-xs bg-transparent border-none text-gray-500 dark:text-gray-400 cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-50 flex items-center gap-1"
+                aria-label="Retry upload"
                 ><i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Retry</button
               >
             {/if}
@@ -105,164 +124,6 @@
 {/if}
 
 <style>
-  .upload-panel {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    width: 400px;
-    max-height: 500px;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-    z-index: 100;
-    animation: slideUp 0.3s;
-  }
-
-  :global(.dark) .upload-panel {
-    background: #1f2937;
-    border-color: #374151;
-  }
-
-  .upload-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid #e5e7eb;
-    background: #f9fafb;
-    border-radius: 12px 12px 0 0;
-  }
-
-  :global(.dark) .upload-header {
-    background: #111827;
-    border-color: #374151;
-  }
-
-  .upload-title {
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0;
-    color: #111827;
-  }
-
-  :global(.dark) .upload-title {
-    color: #f9fafb;
-  }
-
-  .upload-list {
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 0.5rem;
-  }
-
-  .upload-item {
-    display: flex;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-    transition: background 0.2s;
-  }
-
-  .upload-item:hover {
-    background: #f3f4f6;
-  }
-
-  :global(.dark) .upload-item:hover {
-    background: #374151;
-  }
-
-  .upload-icon {
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-  }
-
-  .upload-details {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .upload-name {
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #111827;
-  }
-
-  :global(.dark) .upload-name {
-    color: #f9fafb;
-  }
-
-  .upload-meta {
-    font-size: 0.75rem;
-    color: #6b7280;
-    margin-top: 0.25rem;
-  }
-
-  :global(.dark) .upload-meta {
-    color: #9ca3af;
-  }
-
-  .upload-actions {
-    display: flex;
-    align-items: center;
-  }
-
-  .clear-btn {
-    padding: 0.25rem 0.75rem;
-    font-size: 0.875rem;
-    background: transparent;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    color: #374151;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .clear-btn:hover {
-    background: #f3f4f6;
-  }
-
-  :global(.dark) .clear-btn {
-    border-color: #4b5563;
-    color: #d1d5db;
-  }
-
-  :global(.dark) .clear-btn:hover {
-    background: #374151;
-  }
-
-  .action-btn {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    background: transparent;
-    border: none;
-    color: #6b7280;
-    cursor: pointer;
-    border-radius: 0.25rem;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
-
-  .action-btn:hover {
-    background: #f3f4f6;
-    color: #111827;
-  }
-
-  :global(.dark) .action-btn {
-    color: #9ca3af;
-  }
-
-  :global(.dark) .action-btn:hover {
-    background: #374151;
-    color: #f9fafb;
-  }
-
   @keyframes slideUp {
     from {
       transform: translateY(100px);
@@ -273,22 +134,8 @@
       opacity: 1;
     }
   }
-
-  .spinning {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .success-checkmark {
-    animation: scaleIn 0.3s ease-out;
+  .animate-slideUp {
+    animation: slideUp 0.3s ease-out;
   }
 
   @keyframes scaleIn {
@@ -299,9 +146,8 @@
       transform: scale(1);
     }
   }
-
-  .error-shake {
-    animation: shake 0.5s;
+  .animate-scaleIn {
+    animation: scaleIn 0.3s ease-out;
   }
 
   @keyframes shake {
@@ -322,5 +168,8 @@
     80% {
       transform: translateX(5px);
     }
+  }
+  .animate-shake {
+    animation: shake 0.5s;
   }
 </style>

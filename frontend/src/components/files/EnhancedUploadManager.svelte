@@ -120,12 +120,21 @@
 </script>
 
 {#if $uploadQueue.length > 0}
-  <div class="upload-manager-enhanced" class:minimized={isMinimized}>
+  <div
+    class="upload-manager-responsive fixed bottom-6 right-6 w-[450px] bg-slate-800 border-2 border-slate-400/30 rounded-xl shadow-2xl z-[1000] flex flex-col animate-slideIn {isMinimized
+      ? 'max-h-[60px]'
+      : 'max-h-[650px]'}"
+  >
     <!-- Header -->
-    <div class="upload-header">
-      <div class="header-left">
-        <i class="bi bi-cloud-upload-fill text-primary" aria-hidden="true"></i>
-        <span class="upload-title">
+    <div
+      class="flex justify-between items-center px-5 py-4 border-b border-slate-400/20 bg-slate-700 rounded-t-xl"
+    >
+      <div class="flex items-center gap-3 font-semibold text-[0.95rem]">
+        <i
+          class="bi bi-cloud-upload-fill text-blue-400 text-xl"
+          aria-hidden="true"
+        ></i>
+        <span class="text-slate-200">
           {#if stats.uploading > 0}
             {$t("uploads.uploading")} {stats.uploading} {$t("files")}...
           {:else if stats.completed === stats.total}
@@ -136,17 +145,21 @@
         </span>
 
         {#if stats.uploading > 0}
-          <span class="progress-badge"
+          <span
+            class="bg-blue-500/15 text-blue-400 px-2 py-0.5 rounded-md text-xs font-semibold"
             >{Math.round(stats.overallProgress)}%</span
           >
-          <span class="speed-badge">{formatSpeed(stats.avgSpeed)}</span>
+          <span
+            class="bg-blue-500/15 text-blue-400 px-2 py-0.5 rounded-md text-xs font-semibold"
+            >{formatSpeed(stats.avgSpeed)}</span
+          >
         {/if}
       </div>
 
-      <div class="header-actions">
+      <div class="flex gap-1">
         <!-- Settings -->
         <button
-          class="btn-icon"
+          class="w-8 h-8 flex items-center justify-center bg-transparent text-slate-400 rounded-md cursor-pointer transition-all hover:bg-slate-400/10 hover:text-slate-200"
           onclick={() => (showSettings = true)}
           title={$t("uploads.settings")}
         >
@@ -156,7 +169,7 @@
         <!-- Pause/Resume All -->
         {#if stats.uploading > 0 || stats.paused > 0}
           <button
-            class="btn-icon"
+            class="w-8 h-8 flex items-center justify-center bg-transparent text-slate-400 rounded-md cursor-pointer transition-all hover:bg-slate-400/10 hover:text-slate-200"
             onclick={togglePauseAll}
             title={paused ? $t("uploads.resumeAll") : $t("uploads.pauseAll")}
           >
@@ -170,19 +183,24 @@
         <!-- Minimize/Expand -->
         <button
           aria-label="Toggle"
-          class="btn-icon"
+          class="w-8 h-8 flex items-center justify-center bg-transparent text-slate-400 rounded-md cursor-pointer transition-all hover:bg-slate-400/10 hover:text-slate-200"
           onclick={() => (isMinimized = !isMinimized)}
-          ><i
+        >
+          <i
             class="bi bi-{isMinimized ? 'chevron-up' : 'chevron-down'}"
             aria-hidden="true"
-          ></i></button
-        >
+          ></i>
+        </button>
 
         <!-- Close (only when no active uploads) -->
         {#if stats.uploading === 0 && stats.queued === 0}
-          <button class="btn-icon" aria-label="Close" onclick={clearAll}
-            ><i class="bi bi-x" aria-hidden="true"></i></button
+          <button
+            class="w-8 h-8 flex items-center justify-center bg-transparent text-slate-400 rounded-md cursor-pointer transition-all hover:bg-slate-400/10 hover:text-slate-200"
+            aria-label="Close"
+            onclick={clearAll}
           >
+            <i class="bi bi-x" aria-hidden="true"></i>
+          </button>
         {/if}
       </div>
     </div>
@@ -190,22 +208,22 @@
     {#if !isMinimized}
       <!-- Overall Progress Bar -->
       {#if stats.uploading > 0 || stats.queued > 0}
-        <div class="overall-progress">
-          <div class="progress-info">
+        <div class="px-5 pt-4 pb-3 bg-slate-800">
+          <div class="flex justify-between mb-2 text-sm text-slate-300">
             <span
               >{formatBytes(stats.uploadedSize)} / {formatBytes(
                 stats.totalSize
               )}</span
             >
-            <span class="text-muted">
+            <span class="text-slate-400">
               {#if stats.avgSpeed > 0}
                 ETA: {estimatedTimeRemaining()}
               {/if}
             </span>
           </div>
-          <div class="progress-bar">
+          <div class="h-2 bg-slate-400/20 rounded-full overflow-hidden">
             <div
-              class="progress-fill"
+              class="h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full transition-all duration-300"
               style="width: {stats.overallProgress}%"
             ></div>
           </div>
@@ -215,38 +233,45 @@
       <!-- Upload Settings Modal -->
       {#if showSettings}
         <div
-          class="modal-overlay"
+          class="fixed inset-0 bg-black/50 flex items-center justify-center z-[10000]"
           onclick={() => (showSettings = false)}
           onkeydown={(e) => e.key === "Escape" && (showSettings = false)}
           role="button"
           tabindex="0"
         >
           <div
-            class="modal-content"
+            class="bg-slate-800 rounded-xl w-[90%] max-w-[500px] shadow-2xl"
             onclick={(e) => e.stopPropagation()}
             onkeydown={(e) => e.stopPropagation()}
-            role="button"
-            tabindex="0"
+            role="dialog"
+            tabindex="-1"
           >
-            <div class="modal-header">
-              <h3>{$t("uploads.settings")}</h3>
+            <div
+              class="flex items-center justify-between p-6 border-b border-slate-700"
+            >
+              <h3 class="m-0 text-xl font-semibold">
+                {$t("uploads.settings")}
+              </h3>
               <button
                 aria-label="Close"
-                class="btn-icon"
+                class="w-8 h-8 flex items-center justify-center bg-transparent text-slate-400 rounded-md cursor-pointer transition-all hover:bg-slate-400/10 hover:text-slate-200"
                 onclick={() => (showSettings = false)}
               >
                 <i class="bi bi-x-lg" aria-hidden="true"></i>
               </button>
             </div>
 
-            <div class="modal-body">
+            <div class="p-6 flex flex-col gap-6">
               <!-- Speed Limit -->
-              <div class="form-group">
-                <label for="speed-limit-input">
+              <div class="flex flex-col gap-2">
+                <label
+                  for="speed-limit-input"
+                  class="font-medium text-slate-200 flex items-center gap-2"
+                >
                   <i class="bi bi-speedometer2" aria-hidden="true"></i>
                   {$t("uploads.speedLimit")}
                 </label>
-                <div class="input-group">
+                <div class="flex items-center gap-2">
                   <input
                     id="speed-limit-input"
                     type="number"
@@ -254,23 +279,28 @@
                     min="0"
                     step="100"
                     placeholder="0 = {$t('uploads.unlimited')}"
+                    class="flex-1 bg-slate-900 border border-slate-700 rounded-md px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400/20"
                   />
-                  <span class="input-suffix">KB/s</span>
+                  <span class="text-slate-400">KB/s</span>
                 </div>
-                <small class="form-hint">
-                  {$t("uploads.speedLimitHint")}
-                </small>
+                <small class="text-slate-400 text-sm"
+                  >{$t("uploads.speedLimitHint")}</small
+                >
               </div>
 
               <!-- Duplicate Handling -->
-              <div class="form-group">
-                <label for="duplicate-handling-select">
+              <div class="flex flex-col gap-2">
+                <label
+                  for="duplicate-handling-select"
+                  class="font-medium text-slate-200 flex items-center gap-2"
+                >
                   <i class="bi bi-files" aria-hidden="true"></i>
                   {$t("uploads.duplicateHandling")}
                 </label>
                 <select
                   id="duplicate-handling-select"
                   bind:value={settingsForm.duplicateAction}
+                  class="bg-slate-900 border border-slate-700 rounded-md px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400/20"
                 >
                   <option value="ask">{$t("uploads.duplicateAsk")}</option>
                   <option value="skip">{$t("uploads.duplicateSkip")}</option>
@@ -281,61 +311,83 @@
                     >{$t("uploads.duplicateKeepBoth")}</option
                   >
                 </select>
-                <small class="form-hint">
-                  {$t("uploads.duplicateHandlingHint")}
-                </small>
+                <small class="text-slate-400 text-sm"
+                  >{$t("uploads.duplicateHandlingHint")}</small
+                >
               </div>
 
               <!-- Skip Duplicates Checkbox -->
-              <div class="form-group">
-                <label class="checkbox-label">
+              <div class="flex flex-col gap-2">
+                <label
+                  class="flex items-center gap-2 cursor-pointer font-medium text-slate-200"
+                >
                   <input
                     type="checkbox"
                     bind:checked={settingsForm.skipDuplicates}
+                    class="w-5 h-5 cursor-pointer"
                   />
                   {$t("uploads.skipDuplicates")}
                 </label>
-                <small class="form-hint">
-                  {$t("uploads.skipDuplicatesHint")}
-                </small>
+                <small class="text-slate-400 text-sm"
+                  >{$t("uploads.skipDuplicatesHint")}</small
+                >
               </div>
             </div>
 
-            <div class="modal-footer">
+            <div class="flex justify-end gap-3 p-6 border-t border-slate-700">
               <button
-                class="btn-secondary"
+                class="bg-transparent text-slate-400 border border-slate-700 px-4 py-2 rounded-md font-medium cursor-pointer transition-all hover:bg-slate-700 hover:text-slate-200"
                 onclick={() => (showSettings = false)}
               >
                 {$t("cancel")}
               </button>
-              <button class="btn-primary" onclick={saveSettings}>
+              <button
+                class="bg-blue-500 text-white border-none px-4 py-2 rounded-md font-medium cursor-pointer transition-colors hover:bg-blue-600"
+                onclick={saveSettings}
+              >
                 {$t("save")}
               </button>
             </div>
           </div>
         </div>
       {/if}
+
       <!-- Upload List -->
-      <div class="upload-list">
+      <div
+        class="flex-1 overflow-y-auto p-2 max-h-[480px] bg-slate-800 scrollbar-modern"
+      >
         {#each $uploadQueue as upload (upload.id)}
           <div
-            class="upload-item"
-            class:completed={upload.status === "complete"}
-            class:error={upload.status === "error"}
+            class="flex gap-3.5 p-3.5 rounded-lg mb-1.5 bg-slate-700 transition-all hover:bg-slate-600 {upload.status ===
+            'complete'
+              ? 'opacity-70'
+              : ''} {upload.status === 'error' ? 'bg-red-500/10' : ''}"
           >
             <!-- Icon -->
-            <div class="upload-icon">
-              <i class="bi {getStatusIcon(upload)} {getStatusClass(upload)}"
+            <div class="text-2xl flex items-start pt-0.5">
+              <i
+                class="bi {getStatusIcon(upload)} {upload.status === 'complete'
+                  ? 'text-green-500'
+                  : upload.status === 'error'
+                    ? 'text-red-500'
+                    : upload.status === 'uploading'
+                      ? 'text-blue-400'
+                      : upload.status === 'paused'
+                        ? 'text-amber-400'
+                        : 'text-slate-400'}"
               ></i>
             </div>
 
             <!-- Details -->
-            <div class="upload-details">
-              <div class="file-name" title={upload.name}>
+            <div class="flex-1 min-w-0">
+              <div
+                class="font-medium text-sm text-slate-200 overflow-hidden text-ellipsis whitespace-nowrap mb-1.5"
+                title={upload.name}
+              >
                 {upload.name}
               </div>
 
-              <div class="upload-meta">
+              <div class="text-xs text-slate-400 mb-2">
                 {#if upload.status === "uploading"}
                   <span>
                     {upload.progress}% • {formatBytes(upload.uploadedBytes)} / {formatBytes(
@@ -346,21 +398,21 @@
                     {/if}
                   </span>
                 {:else if upload.status === "paused"}
-                  <span class="text-warning">
+                  <span class="text-amber-400">
                     {$t("uploads.paused")} • {upload.progress}% ({formatBytes(
                       upload.uploadedBytes
                     )})
                   </span>
                 {:else if upload.status === "queued"}
-                  <span class="text-muted">
+                  <span class="text-slate-400">
                     {$t("uploads.queued")} • {formatBytes(upload.size)}
                   </span>
                 {:else if upload.status === "complete"}
-                  <span class="text-success">
+                  <span class="text-green-500">
                     {$t("uploads.complete")} • {formatBytes(upload.size)}
                   </span>
                 {:else if upload.status === "error"}
-                  <span class="text-error">
+                  <span class="text-red-500">
                     {upload.error || $t("uploads.failed")}
                   </span>
                 {/if}
@@ -368,9 +420,9 @@
 
               <!-- Progress Bar -->
               {#if upload.status === "uploading" || upload.status === "paused"}
-                <div class="file-progress">
+                <div class="h-1 bg-slate-400/20 rounded-full overflow-hidden">
                   <div
-                    class="file-progress-fill"
+                    class="h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full transition-all duration-200"
                     style="width: {upload.progress}%"
                   ></div>
                 </div>
@@ -378,17 +430,17 @@
             </div>
 
             <!-- Actions -->
-            <div class="upload-actions">
+            <div class="flex gap-1 items-start pt-0.5">
               {#if upload.status === "uploading"}
                 <button
-                  class="btn-icon-sm"
+                  class="w-7 h-7 flex items-center justify-center bg-transparent text-slate-400 rounded-md cursor-pointer transition-all text-sm hover:bg-slate-400/10 hover:text-slate-200"
                   onclick={() => pauseUpload(upload.id)}
                   title={$t("uploads.pause")}
                 >
                   <i class="bi bi-pause-fill" aria-hidden="true"></i>
                 </button>
                 <button
-                  class="btn-icon-sm"
+                  class="w-7 h-7 flex items-center justify-center bg-transparent text-slate-400 rounded-md cursor-pointer transition-all text-sm hover:bg-slate-400/10 hover:text-slate-200"
                   onclick={() => cancelUpload(upload.id)}
                   title={$t("cancel")}
                   aria-label="Cancel"
@@ -397,14 +449,14 @@
                 </button>
               {:else if upload.status === "paused"}
                 <button
-                  class="btn-icon-sm"
+                  class="w-7 h-7 flex items-center justify-center bg-transparent text-slate-400 rounded-md cursor-pointer transition-all text-sm hover:bg-slate-400/10 hover:text-slate-200"
                   onclick={() => resumeUpload(upload.id)}
                   title={$t("uploads.resume")}
                 >
                   <i class="bi bi-play-fill" aria-hidden="true"></i>
                 </button>
                 <button
-                  class="btn-icon-sm"
+                  class="w-7 h-7 flex items-center justify-center bg-transparent text-slate-400 rounded-md cursor-pointer transition-all text-sm hover:bg-slate-400/10 hover:text-slate-200"
                   onclick={() => cancelUpload(upload.id)}
                   title={$t("cancel")}
                   aria-label="Cancel"
@@ -413,14 +465,14 @@
                 </button>
               {:else if upload.status === "error"}
                 <button
-                  class="btn-icon-sm"
+                  class="w-7 h-7 flex items-center justify-center bg-transparent text-slate-400 rounded-md cursor-pointer transition-all text-sm hover:bg-slate-400/10 hover:text-slate-200"
                   onclick={() => retryUpload(upload.id)}
                   title={$t("retry")}
                 >
                   <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
                 </button>
                 <button
-                  class="btn-icon-sm"
+                  class="w-7 h-7 flex items-center justify-center bg-transparent text-slate-400 rounded-md cursor-pointer transition-all text-sm hover:bg-slate-400/10 hover:text-slate-200"
                   onclick={() => cancelUpload(upload.id)}
                   title={$t("remove")}
                   aria-label="Cancel"
@@ -435,25 +487,30 @@
 
       <!-- Footer -->
       {#if $uploadQueue.length > 0}
-        <div class="upload-footer">
-          <div class="footer-stats">
-            <span>
-              {stats.completed} / {stats.total}
-              {$t("uploads.filesCompleted")}
-            </span>
+        <div
+          class="flex justify-between items-center px-5 py-3 border-t border-slate-400/20 bg-slate-700 rounded-b-xl"
+        >
+          <div class="text-sm text-slate-400 flex gap-2">
+            <span
+              >{stats.completed} / {stats.total}
+              {$t("uploads.filesCompleted")}</span
+            >
             {#if stats.failed > 0}
-              <span class="text-error">• {stats.failed} {$t("failed")}</span>
+              <span class="text-red-500">• {stats.failed} {$t("failed")}</span>
             {/if}
             {#if stats.paused > 0}
-              <span class="text-warning"
+              <span class="text-amber-400"
                 >• {stats.paused} {$t("uploads.paused")}</span
               >
             {/if}
           </div>
 
-          <div class="footer-actions">
+          <div class="flex gap-2">
             {#if stats.completed > 0 && stats.uploading === 0}
-              <button class="btn-text" onclick={clearCompleted}>
+              <button
+                class="bg-transparent border-none text-blue-400 text-sm font-medium cursor-pointer px-2 py-1 rounded-md transition-all hover:bg-blue-500/10"
+                onclick={clearCompleted}
+              >
                 {$t("uploads.clearCompleted")}
               </button>
             {/if}
@@ -465,440 +522,11 @@
 {/if}
 
 <style>
-  .upload-manager-enhanced {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    width: 450px;
-    max-height: 650px;
-    background-color: rgb(30, 41, 59);
-    border: 2px solid rgba(148, 163, 184, 0.3);
-    border-radius: 0.75rem;
-    box-shadow:
-      0 20px 60px -15px rgba(0, 0, 0, 0.5),
-      0 8px 16px -4px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .upload-manager-enhanced.minimized {
-    max-height: 60px;
-  }
-
-  @keyframes slideUp {
-    from {
-      transform: translateY(20px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-
-  .upload-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-    background-color: rgb(51, 65, 85);
-    border-radius: 0.75rem 0.75rem 0 0;
-  }
-
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-
-  .header-left i {
-    font-size: 1.25rem;
-  }
-
-  .upload-title {
-    color: rgb(226, 232, 240);
-  }
-
-  .progress-badge,
-  .speed-badge {
-    background: rgba(59, 130, 246, 0.15);
-    color: rgb(96, 165, 250);
-    padding: 0.125rem 0.5rem;
-    border-radius: 0.375rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 0.25rem;
-  }
-
-  .btn-icon {
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    background: transparent;
-    color: rgb(148, 163, 184);
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .btn-icon:hover {
-    background: rgba(148, 163, 184, 0.1);
-    color: rgb(226, 232, 240);
-  }
-
-  .overall-progress {
-    padding: 1rem 1.25rem 0.75rem;
-    background-color: rgb(30, 41, 59);
-  }
-
-  .progress-info {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-    font-size: 0.85rem;
-    color: rgb(203, 213, 225);
-  }
-
-  .progress-bar {
-    height: 0.5rem;
-    background: rgba(148, 163, 184, 0.2);
-    border-radius: 1rem;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, rgb(59, 130, 246), rgb(139, 92, 246));
-    border-radius: 1rem;
-    transition: width 0.3s ease;
-  }
-
-  .upload-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0.5rem;
-    max-height: 480px;
-    background-color: rgb(30, 41, 59);
-  }
-
-  .upload-item {
-    display: flex;
-    gap: 0.875rem;
-    padding: 0.875rem;
-    border-radius: 0.5rem;
-    margin-bottom: 0.375rem;
-    background-color: rgb(51, 65, 85);
-    transition: all 0.15s;
-  }
-
-  .upload-item:hover {
-    background-color: rgb(71, 85, 105);
-  }
-
-  .upload-item.completed {
-    opacity: 0.7;
-  }
-
-  .upload-item.error {
-    background: rgba(239, 68, 68, 0.1);
-  }
-
-  .upload-icon {
-    font-size: 1.5rem;
-    display: flex;
-    align-items: flex-start;
-    padding-top: 0.125rem;
-  }
-
-  .upload-details {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .file-name {
-    font-weight: 500;
-    font-size: 0.9rem;
-    color: rgb(226, 232, 240);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-bottom: 0.375rem;
-  }
-
-  .upload-meta {
-    font-size: 0.8rem;
-    color: rgb(148, 163, 184);
-    margin-bottom: 0.5rem;
-  }
-
-  .file-progress {
-    height: 0.25rem;
-    background: rgba(148, 163, 184, 0.2);
-    border-radius: 1rem;
-    overflow: hidden;
-  }
-
-  .file-progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, rgb(59, 130, 246), rgb(139, 92, 246));
-    border-radius: 1rem;
-    transition: width 0.2s ease;
-  }
-
-  .upload-actions {
-    display: flex;
-    gap: 0.25rem;
-    align-items: flex-start;
-    padding-top: 0.125rem;
-  }
-
-  .btn-icon-sm {
-    width: 1.75rem;
-    height: 1.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    background: transparent;
-    color: rgb(148, 163, 184);
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-size: 0.875rem;
-  }
-
-  .btn-icon-sm:hover {
-    background: rgba(148, 163, 184, 0.1);
-    color: rgb(226, 232, 240);
-  }
-
-  .upload-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1.25rem;
-    border-top: 1px solid rgba(148, 163, 184, 0.2);
-    background-color: rgb(51, 65, 85);
-    border-radius: 0 0 0.75rem 0.75rem;
-  }
-
-  .footer-stats {
-    font-size: 0.85rem;
-    color: rgb(148, 163, 184);
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .footer-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .btn-text {
-    background: none;
-    border: none;
-    color: rgb(96, 165, 250);
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.375rem;
-    transition: all 0.15s;
-  }
-
-  .btn-text:hover {
-    background: rgba(59, 130, 246, 0.1);
-  }
-
-  .text-success {
-    color: rgb(34, 197, 94);
-  }
-  .text-error {
-    color: rgb(239, 68, 68);
-  }
-  .text-warning {
-    color: rgb(251, 191, 36);
-  }
-  .text-primary {
-    color: rgb(96, 165, 250);
-  }
-  .text-muted {
-    color: rgb(148, 163, 184);
-  }
-
-  /* Modal Styles */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-  }
-
-  .modal-content {
-    background: rgb(30, 41, 59);
-    border-radius: 0.75rem;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-  }
-
-  .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.5rem;
-    border-bottom: 1px solid rgb(51, 65, 85);
-  }
-
-  .modal-header h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-
-  .modal-body {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    padding: 1.5rem;
-    border-top: 1px solid rgb(51, 65, 85);
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .form-group label {
-    font-weight: 500;
-    color: rgb(226, 232, 240);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .form-group input[type="number"],
-  .form-group select {
-    background: rgb(15, 23, 42);
-    border: 1px solid rgb(51, 65, 85);
-    border-radius: 0.375rem;
-    padding: 0.5rem 0.75rem;
-    color: rgb(226, 232, 240);
-    font-size: 0.95rem;
-  }
-
-  .form-group input:focus,
-  .form-group select:focus {
-    outline: none;
-    border-color: rgb(96, 165, 250);
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
-  }
-
-  .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .input-group input {
-    flex: 1;
-  }
-
-  .input-suffix {
-    color: rgb(148, 163, 184);
-    font-size: 0.95rem;
-  }
-
-  .form-hint {
-    color: rgb(148, 163, 184);
-    font-size: 0.85rem;
-  }
-
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-  }
-
-  .checkbox-label input[type="checkbox"] {
-    width: 1.25rem;
-    height: 1.25rem;
-    cursor: pointer;
-  }
-
-  .btn-primary {
-    background: rgb(59, 130, 246);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .btn-primary:hover {
-    background: rgb(37, 99, 235);
-  }
-
-  .btn-secondary {
-    background: transparent;
-    color: rgb(148, 163, 184);
-    border: 1px solid rgb(51, 65, 85);
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .btn-secondary:hover {
-    background: rgb(51, 65, 85);
-    color: rgb(226, 232, 240);
-  }
-
-  .upload-list::-webkit-scrollbar {
-    width: 0.375rem;
-  }
-
-  .upload-list::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .upload-list::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.3);
-    border-radius: 1rem;
-  }
-
   @media (max-width: 640px) {
-    .upload-manager-enhanced {
-      width: calc(100vw - 2rem);
-      right: 1rem;
-      bottom: 1rem;
+    :global(.upload-manager-responsive) {
+      width: calc(100vw - 2rem) !important;
+      right: 1rem !important;
+      bottom: 1rem !important;
     }
   }
 </style>

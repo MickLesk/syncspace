@@ -231,17 +231,15 @@
 </script>
 
 <aside
-  class="sidebar"
-  class:collapsed={isCollapsed}
-  class:resizing={isResizing}
+  class="relative flex flex-col h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border-r border-green-500/15 dark:border-green-500/20 shadow-[2px_0_16px_rgba(34,197,94,0.06)] dark:shadow-[2px_0_16px_rgba(0,0,0,0.3)] overflow-hidden {isResizing ? '' : 'transition-[width] duration-300 ease-out'} {isResizing ? 'select-none' : ''}"
   style="width: {isCollapsed ? minWidth : sidebarWidth}px"
 >
   <!-- Header -->
-  <div class="sidebar-header">
-    <div class="brand" class:collapsed={isCollapsed}>
-      <div class="logo-container">
+  <div class="flex items-center justify-between p-4 min-h-[64px] border-b border-green-500/10 dark:border-green-500/15">
+    <div class="flex items-center gap-3 flex-1 min-w-0 transition-all duration-300 {isCollapsed ? 'justify-center' : ''}">
+      <div class="flex-shrink-0 flex items-center justify-center">
         <svg
-          class="logo"
+          class="drop-shadow-[0_2px_8px_rgba(34,197,94,0.4)] transition-all duration-300 {isCollapsed ? 'w-9 h-9' : 'w-8 h-8'}"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -265,15 +263,15 @@
         </svg>
       </div>
       {#if showLabels}
-        <div class="brand-text">
-          <h1 class="brand-name">SyncSpace</h1>
-          <p class="brand-tagline">{tr("cloudStorage")}</p>
+        <div class="flex-1 min-w-0 animate-fadeIn">
+          <h1 class="text-lg font-bold bg-gradient-to-br from-green-500 to-green-600 bg-clip-text text-transparent m-0 leading-tight whitespace-nowrap">SyncSpace</h1>
+          <p class="text-[0.6875rem] text-gray-500 dark:text-gray-400 font-medium m-0 leading-tight whitespace-nowrap">{tr("cloudStorage")}</p>
         </div>
       {/if}
     </div>
 
     <button
-      class="collapse-btn"
+      class="w-7 h-7 rounded-md flex items-center justify-center bg-green-500/10 dark:bg-green-500/15 hover:bg-green-500/20 dark:hover:bg-green-500/25 border-none text-green-500 cursor-pointer transition-all duration-200 hover:scale-105 flex-shrink-0"
       onclick={toggleSidebar}
       aria-label="Toggle sidebar"
     >
@@ -285,37 +283,34 @@
   </div>
 
   <!-- Navigation -->
-  <nav class="sidebar-nav">
+  <nav class="sidebar-nav flex-1 overflow-y-auto overflow-x-hidden p-3">
     <!-- Main Section -->
     {#if showLabels}
-      <div class="nav-category">{tr("main")}</div>
+      <div class="text-[0.625rem] font-bold tracking-widest uppercase text-gray-400 dark:text-gray-500 py-2 px-3 mt-1">{tr("main")}</div>
     {/if}
-    <ul class="nav-list">
+    <ul class="list-none p-0 m-0 flex flex-col gap-0.5">
       {#each mainItems as item (item.id)}
         <li>
           <button
-            class="nav-item"
-            class:active={$currentView === item.id}
-            class:collapsed={isCollapsed}
+            class="nav-item relative flex items-center gap-3 w-full py-2.5 px-3 rounded-[10px] bg-transparent border-none text-gray-600 dark:text-gray-300 text-sm font-medium cursor-pointer transition-all duration-200 text-left whitespace-nowrap overflow-hidden hover:bg-green-500/8 dark:hover:bg-green-500/12 hover:text-green-500 dark:hover:text-green-400 {$currentView === item.id ? 'active-nav bg-gradient-to-br from-green-500 to-green-600 !text-white shadow-[0_4px_12px_rgba(34,197,94,0.35)]' : ''} {isCollapsed ? 'justify-center !p-3' : ''}"
             onclick={() => selectView(item.id)}
             title={isCollapsed ? item.label : ""}
           >
-            <span class="nav-icon">
+            <span class="flex items-center justify-center flex-shrink-0 transition-all duration-200 {isCollapsed ? 'w-7 h-7 text-xl' : 'w-6 h-6 text-lg'} {$currentView === item.id ? 'text-white' : 'text-gray-500 dark:text-gray-400'}">
               <i class="bi bi-{item.icon}" aria-hidden="true"></i>
             </span>
             {#if showLabels}
-              <span class="nav-label">{item.label}</span>
+              <span class="flex-1 transition-opacity duration-200 overflow-hidden text-ellipsis">{item.label}</span>
             {/if}
             {#if item.badge && item.badge > 0}
               <span
-                class="nav-badge {item.badgeColor}"
-                class:mini={isCollapsed}
+                class="nav-badge py-0.5 px-2 text-[0.6875rem] font-semibold rounded-full ml-auto transition-all duration-200 {isCollapsed ? 'absolute top-1 right-1 !p-0 w-4 h-4 text-[0.5625rem] flex items-center justify-center !ml-0' : ''} {$currentView === item.id ? 'bg-white/25 text-white' : item.badgeColor === 'blue' ? 'bg-blue-100 text-blue-600 dark:bg-blue-600/20 dark:text-blue-400' : item.badgeColor === 'amber' ? 'bg-amber-100 text-amber-600 dark:bg-amber-600/20 dark:text-amber-400' : 'bg-purple-100 text-purple-600 dark:bg-purple-600/20 dark:text-purple-400'}"
               >
                 {item.badge}
               </span>
             {/if}
             {#if isCollapsed}
-              <span class="tooltip">{item.label}</span>
+              <span class="tooltip absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 py-1.5 px-3 bg-gray-800 dark:bg-gray-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 invisible transition-all duration-200 z-[100] pointer-events-none shadow-lg">{item.label}</span>
             {/if}
           </button>
         </li>
@@ -323,36 +318,33 @@
     </ul>
 
     <!-- Tools Section -->
-    <div class="nav-divider"></div>
+    <div class="h-px bg-gradient-to-r from-transparent via-green-500/20 to-transparent my-2"></div>
     {#if showLabels}
-      <div class="nav-category">{tr("tools")}</div>
+      <div class="text-[0.625rem] font-bold tracking-widest uppercase text-gray-400 dark:text-gray-500 py-2 px-3">{tr("tools")}</div>
     {/if}
-    <ul class="nav-list">
+    <ul class="list-none p-0 m-0 flex flex-col gap-0.5">
       {#each toolsItems as item (item.id)}
         <li>
           <button
-            class="nav-item"
-            class:active={$currentView === item.id}
-            class:collapsed={isCollapsed}
+            class="nav-item relative flex items-center gap-3 w-full py-2.5 px-3 rounded-[10px] bg-transparent border-none text-gray-600 dark:text-gray-300 text-sm font-medium cursor-pointer transition-all duration-200 text-left whitespace-nowrap overflow-hidden hover:bg-green-500/8 dark:hover:bg-green-500/12 hover:text-green-500 dark:hover:text-green-400 {$currentView === item.id ? 'active-nav bg-gradient-to-br from-green-500 to-green-600 !text-white shadow-[0_4px_12px_rgba(34,197,94,0.35)]' : ''} {isCollapsed ? 'justify-center !p-3' : ''}"
             onclick={() => selectView(item.id)}
             title={isCollapsed ? item.label : ""}
           >
-            <span class="nav-icon">
+            <span class="flex items-center justify-center flex-shrink-0 transition-all duration-200 {isCollapsed ? 'w-7 h-7 text-xl' : 'w-6 h-6 text-lg'} {$currentView === item.id ? 'text-white' : 'text-gray-500 dark:text-gray-400'}">
               <i class="bi bi-{item.icon}" aria-hidden="true"></i>
             </span>
             {#if showLabels}
-              <span class="nav-label">{item.label}</span>
+              <span class="flex-1 transition-opacity duration-200 overflow-hidden text-ellipsis">{item.label}</span>
             {/if}
             {#if item.badge && item.badge > 0}
               <span
-                class="nav-badge {item.badgeColor}"
-                class:mini={isCollapsed}
+                class="nav-badge py-0.5 px-2 text-[0.6875rem] font-semibold rounded-full ml-auto transition-all duration-200 {isCollapsed ? 'absolute top-1 right-1 !p-0 w-4 h-4 text-[0.5625rem] flex items-center justify-center !ml-0' : ''} {$currentView === item.id ? 'bg-white/25 text-white' : item.badgeColor === 'blue' ? 'bg-blue-100 text-blue-600 dark:bg-blue-600/20 dark:text-blue-400' : item.badgeColor === 'amber' ? 'bg-amber-100 text-amber-600 dark:bg-amber-600/20 dark:text-amber-400' : 'bg-purple-100 text-purple-600 dark:bg-purple-600/20 dark:text-purple-400'}"
               >
                 {item.badge}
               </span>
             {/if}
             {#if isCollapsed}
-              <span class="tooltip">{item.label}</span>
+              <span class="tooltip absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 py-1.5 px-3 bg-gray-800 dark:bg-gray-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 invisible transition-all duration-200 z-[100] pointer-events-none shadow-lg">{item.label}</span>
             {/if}
           </button>
         </li>
@@ -360,25 +352,23 @@
     </ul>
 
     <!-- System Section (Settings) -->
-    <div class="nav-divider"></div>
-    <ul class="nav-list">
+    <div class="h-px bg-gradient-to-r from-transparent via-green-500/20 to-transparent my-2"></div>
+    <ul class="list-none p-0 m-0 flex flex-col gap-0.5">
       {#each systemItems as item (item.id)}
         <li>
           <button
-            class="nav-item"
-            class:active={$currentView === item.id}
-            class:collapsed={isCollapsed}
+            class="nav-item relative flex items-center gap-3 w-full py-2.5 px-3 rounded-[10px] bg-transparent border-none text-gray-600 dark:text-gray-300 text-sm font-medium cursor-pointer transition-all duration-200 text-left whitespace-nowrap overflow-hidden hover:bg-green-500/8 dark:hover:bg-green-500/12 hover:text-green-500 dark:hover:text-green-400 {$currentView === item.id ? 'active-nav bg-gradient-to-br from-green-500 to-green-600 !text-white shadow-[0_4px_12px_rgba(34,197,94,0.35)]' : ''} {isCollapsed ? 'justify-center !p-3' : ''}"
             onclick={() => selectView(item.id)}
             title={isCollapsed ? item.label : ""}
           >
-            <span class="nav-icon">
+            <span class="flex items-center justify-center flex-shrink-0 transition-all duration-200 {isCollapsed ? 'w-7 h-7 text-xl' : 'w-6 h-6 text-lg'} {$currentView === item.id ? 'text-white' : 'text-gray-500 dark:text-gray-400'}">
               <i class="bi bi-{item.icon}" aria-hidden="true"></i>
             </span>
             {#if showLabels}
-              <span class="nav-label">{item.label}</span>
+              <span class="flex-1 transition-opacity duration-200 overflow-hidden text-ellipsis">{item.label}</span>
             {/if}
             {#if isCollapsed}
-              <span class="tooltip">{item.label}</span>
+              <span class="tooltip absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 py-1.5 px-3 bg-gray-800 dark:bg-gray-700 text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 invisible transition-all duration-200 z-[100] pointer-events-none shadow-lg">{item.label}</span>
             {/if}
           </button>
         </li>
@@ -387,17 +377,17 @@
   </nav>
 
   <!-- Version Footer -->
-  <div class="sidebar-footer">
+  <div class="p-3 border-t border-green-500/10 dark:border-green-500/15 text-center">
     {#if showLabels}
-      <span class="version">v1.0-beta</span>
+      <span class="text-[0.6875rem] text-gray-400 font-medium">v1.0-beta</span>
     {:else}
-      <span class="version-mini">v1</span>
+      <span class="text-[0.625rem] text-gray-400 font-semibold">v1</span>
     {/if}
   </div>
 
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
-    class="resize-handle"
+    class="resize-handle absolute top-0 -right-1 w-2 h-full cursor-ew-resize z-10 transition-colors duration-200 hover:bg-green-500/15 {isResizing ? 'bg-green-500/15' : ''}"
     onmousedown={startResize}
     ondblclick={resetWidth}
     role="separator"
@@ -406,426 +396,31 @@
 </aside>
 
 <style>
-  /* ========================================
-     SIDEBAR CONTAINER
-     ======================================== */
-  .sidebar {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background: linear-gradient(180deg, #ffffff 0%, #f8faf9 100%);
-    border-right: 1px solid rgba(34, 197, 94, 0.15);
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-    box-shadow: 2px 0 16px rgba(34, 197, 94, 0.06);
-  }
-
-  :global(.dark) .sidebar {
-    background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
-    border-right: 1px solid rgba(34, 197, 94, 0.2);
-    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.3);
-  }
-
-  .sidebar.resizing {
-    transition: none;
-    user-select: none;
-  }
-
-  .sidebar.collapsed {
-    width: 72px !important;
-  }
-
-  /* ========================================
-     HEADER
-     ======================================== */
-  .sidebar-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    min-height: 64px;
-    border-bottom: 1px solid rgba(34, 197, 94, 0.1);
-  }
-
-  :global(.dark) .sidebar-header {
-    border-bottom-color: rgba(34, 197, 94, 0.15);
-  }
-
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex: 1;
-    min-width: 0;
-    transition: all 0.3s ease;
-  }
-
-  .brand.collapsed {
-    justify-content: center;
-  }
-
-  .logo-container {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .logo {
-    width: 32px;
-    height: 32px;
-    filter: drop-shadow(0 2px 8px rgba(34, 197, 94, 0.4));
-    transition: all 0.3s ease;
-  }
-
-  .collapsed .logo {
-    width: 36px;
-    height: 36px;
-  }
-
-  .brand-text {
-    flex: 1;
-    min-width: 0;
-    animation: fadeIn 0.3s ease;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateX(-8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  .brand-name {
-    font-size: 1.125rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0;
-    line-height: 1.2;
-    white-space: nowrap;
-  }
-
-  .brand-tagline {
-    font-size: 0.6875rem;
-    color: #6b7280;
-    font-weight: 500;
-    margin: 0;
-    line-height: 1.2;
-    white-space: nowrap;
-  }
-
-  :global(.dark) .brand-tagline {
-    color: #9ca3af;
-  }
-
-  .collapse-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(34, 197, 94, 0.1);
-    border: none;
-    color: #22c55e;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-  }
-
-  .collapse-btn:hover {
-    background: rgba(34, 197, 94, 0.2);
-    transform: scale(1.05);
-  }
-
-  :global(.dark) .collapse-btn {
-    background: rgba(34, 197, 94, 0.15);
-  }
-
-  :global(.dark) .collapse-btn:hover {
-    background: rgba(34, 197, 94, 0.25);
-  }
-
-  /* ========================================
-     NAVIGATION
-     ======================================== */
-  .sidebar-nav {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 0.75rem;
-  }
-
-  .nav-category {
-    font-size: 0.625rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #9ca3af;
-    padding: 0.5rem 0.75rem;
-    margin-top: 0.25rem;
-  }
-
-  :global(.dark) .nav-category {
-    color: #6b7280;
-  }
-
-  .nav-divider {
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(34, 197, 94, 0.2),
-      transparent
-    );
-    margin: 0.5rem 0;
-  }
-
-  .nav-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .nav-item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    padding: 0.625rem 0.75rem;
-    border-radius: 10px;
-    background: transparent;
-    border: none;
-    color: #4b5563;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: left;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-  :global(.dark) .nav-item {
-    color: #d1d5db;
-  }
-
-  .nav-item.collapsed {
-    justify-content: center;
-    padding: 0.75rem;
-  }
-
-  .nav-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    font-size: 1.125rem;
-    color: #6b7280;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-  }
-
-  :global(.dark) .nav-icon {
-    color: #9ca3af;
-  }
-
-  .collapsed .nav-icon {
-    width: 28px;
-    height: 28px;
-    font-size: 1.25rem;
-  }
-
-  .nav-label {
-    flex: 1;
-    transition: opacity 0.2s ease;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* Hover State */
-  .nav-item:hover {
-    background: rgba(34, 197, 94, 0.08);
-    color: #22c55e;
-  }
-
-  :global(.dark) .nav-item:hover {
-    background: rgba(34, 197, 94, 0.12);
-    color: #4ade80;
-  }
-
-  .nav-item:hover .nav-icon {
-    color: #22c55e;
-    transform: scale(1.1);
-  }
-
-  :global(.dark) .nav-item:hover .nav-icon {
-    color: #4ade80;
-  }
-
-  /* Active State */
-  .nav-item.active {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
-  }
-
-  .nav-item.active .nav-icon {
-    color: white;
-  }
-
-  .nav-item.active:hover {
-    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-    color: white;
-  }
-
-  /* ========================================
-     BADGES
-     ======================================== */
-  .nav-badge {
-    padding: 0.125rem 0.5rem;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    border-radius: 100px;
-    margin-left: auto;
-    transition: all 0.2s ease;
-  }
-
-  .nav-badge.mini {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    padding: 0;
-    width: 16px;
-    height: 16px;
-    font-size: 0.5625rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 0;
-  }
-
-  .nav-badge.purple {
-    background: #f3e8ff;
-    color: #9333ea;
-  }
-  :global(.dark) .nav-badge.purple {
-    background: rgba(147, 51, 234, 0.2);
-    color: #c084fc;
-  }
-
-  .nav-badge.blue {
-    background: #dbeafe;
-    color: #2563eb;
-  }
-  :global(.dark) .nav-badge.blue {
-    background: rgba(37, 99, 235, 0.2);
-    color: #60a5fa;
-  }
-
-  .nav-badge.amber {
-    background: #fef3c7;
-    color: #d97706;
-  }
-  :global(.dark) .nav-badge.amber {
-    background: rgba(217, 119, 6, 0.2);
-    color: #fbbf24;
-  }
-
-  .nav-item.active .nav-badge {
-    background: rgba(255, 255, 255, 0.25);
-    color: white;
-  }
-
-  /* ========================================
-     TOOLTIP
-     ======================================== */
-  .tooltip {
-    position: absolute;
-    left: calc(100% + 8px);
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 0.375rem 0.75rem;
-    background: #1f2937;
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 6px;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s ease;
-    z-index: 100;
-    pointer-events: none;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-
-  :global(.dark) .tooltip {
-    background: #374151;
-  }
-
-  .nav-item.collapsed:hover .tooltip {
+  /* Tooltip hover visibility */
+  .nav-item:hover .tooltip {
     opacity: 1;
     visibility: visible;
   }
 
-  /* ========================================
-     FOOTER
-     ======================================== */
-  .sidebar-footer {
-    padding: 0.75rem;
-    border-top: 1px solid rgba(34, 197, 94, 0.1);
-    text-align: center;
+  /* Scrollbar styling */
+  .sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+  }
+  .sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(34, 197, 94, 0.2);
+    border-radius: 2px;
+  }
+  .sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(34, 197, 94, 0.4);
+  }
+  :global(.dark) .sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(34, 197, 94, 0.3);
   }
 
-  :global(.dark) .sidebar-footer {
-    border-top-color: rgba(34, 197, 94, 0.15);
-  }
-
-  .version {
-    font-size: 0.6875rem;
-    color: #9ca3af;
-    font-weight: 500;
-  }
-
-  .version-mini {
-    font-size: 0.625rem;
-    color: #9ca3af;
-    font-weight: 600;
-  }
-
-  /* ========================================
-     RESIZE HANDLE
-     ======================================== */
-  .resize-handle {
-    position: absolute;
-    top: 0;
-    right: -4px;
-    width: 8px;
-    height: 100%;
-    cursor: ew-resize;
-    z-index: 10;
-    transition: background 0.2s ease;
-  }
-
-  .resize-handle:hover,
-  .resizing .resize-handle {
-    background: rgba(34, 197, 94, 0.15);
-  }
-
+  /* Resize handle indicator */
   .resize-handle::after {
     content: "";
     position: absolute;
@@ -838,37 +433,7 @@
     border-radius: 3px;
     transition: all 0.2s ease;
   }
-
-  .resize-handle:hover::after,
-  .resizing .resize-handle::after {
-    background: rgba(34, 197, 94, 0.5);
-  }
-
-  /* ========================================
-     SCROLLBAR
-     ======================================== */
-  .sidebar-nav::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .sidebar-nav::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .sidebar-nav::-webkit-scrollbar-thumb {
-    background: rgba(34, 197, 94, 0.2);
-    border-radius: 2px;
-  }
-
-  .sidebar-nav::-webkit-scrollbar-thumb:hover {
-    background: rgba(34, 197, 94, 0.4);
-  }
-
-  :global(.dark) .sidebar-nav::-webkit-scrollbar-thumb {
-    background: rgba(34, 197, 94, 0.3);
-  }
-
-  :global(.dark) .sidebar-nav::-webkit-scrollbar-thumb:hover {
+  .resize-handle:hover::after {
     background: rgba(34, 197, 94, 0.5);
   }
 </style>
