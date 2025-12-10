@@ -495,3 +495,103 @@ impl std::fmt::Display for PreviewError {
 }
 
 impl std::error::Error for PreviewError {}
+
+// ==================== GENERIC PREVIEW GENERATION ====================
+
+/// Preview result structure
+#[derive(Debug, Clone, Serialize)]
+pub struct PreviewResult {
+    pub path: String,
+    pub format: String,
+    pub metadata: serde_json::Value,
+}
+
+/// Generate a preview for any supported file type
+pub async fn generate_preview(
+    file_path: &Path,
+    preview_type: PreviewType,
+) -> Result<PreviewResult, PreviewError> {
+    if !file_path.exists() {
+        return Err(PreviewError::FileNotFound);
+    }
+
+    let file_id = format!("{:x}", md5::compute(file_path.to_string_lossy().as_bytes()));
+    let extension = file_path
+        .extension()
+        .and_then(|e| e.to_str())
+        .unwrap_or("")
+        .to_lowercase();
+
+    match extension.as_str() {
+        // PDFs
+        "pdf" => {
+            let preview_path = generate_pdf_preview(file_path, &file_id, 1).await?;
+            Ok(PreviewResult {
+                path: preview_path.to_string_lossy().to_string(),
+                format: "webp".to_string(),
+                metadata: serde_json::json!({"type": "pdf"}),
+            })
+        }
+        // Videos
+        "mp4" | "webm" | "mov" | "avi" | "mkv" => {
+            let preview_path = generate_video_preview(file_path, &file_id, 5.0).await?;
+            Ok(PreviewResult {
+                path: preview_path.to_string_lossy().to_string(),
+                format: "webp".to_string(),
+                metadata: serde_json::json!({"type": "video"}),
+            })
+        }
+        // Images - just copy/convert
+        "jpg" | "jpeg" | "png" | "gif" | "webp" | "bmp" => {
+            let output_path = get_preview_path(&file_id, PreviewType::Thumbnail);
+            init_preview_dir().await.map_err(|e| PreviewError::IoError(e.to_string()))?;
+            
+            if extension == "webp" {
+                tokio::fs::copy(file_path, &output_path).await
+                    .map_err(|e| PreviewError::IoError(e.to_string()))?;
+            } else {
+                convert_to_webp(file_path, &output_path)?;
+            }
+            
+            Ok(PreviewResult {
+                path: output_path.to_string_lossy().to_string(),
+                format: "webp".to_string(),
+                metadata: serde_json::json!({"type": "image"}),
+            })
+        }
+        // Documents
+        "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx" | "odt" | "ods" | "odp" => {
+            let preview_path = generate_document_preview(file_path, &file_id).await?;
+            Ok(PreviewResult {
+                path: preview_path.to_string_lossy().to_string(),
+                format: "pdf".to_string(),
+                metadata: serde_json::json!({"type": "document"}),
+            })
+        }
+        _ => Err(PreviewError::UnsupportedFormat),
+    }
+}
+
+impl Default for VideoMetadata {
+    fn default() -> Self {
+        VideoMetadata {
+            duration_seconds: 0.0,
+            width: 0,
+            height: 0,
+            codec: "unknown".to_string(),
+            bitrate: None,
+            fps: None,
+        }
+    }
+}
+
+impl Default for PdfMetadata {
+    fn default() -> Self {
+        PdfMetadata {
+            page_count: 0,
+            title: None,
+            author: None,
+            created_at: None,
+        }
+    }
+}

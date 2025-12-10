@@ -62,7 +62,7 @@ async fn scan_file(
 
     let start = std::time::Instant::now();
     
-    let scan_result = virus_scan::scan_file(&full_path)
+    let scan_result = virus_scan::scan_file_simple(&full_path)
         .await
         .map_err(|e| {
             tracing::error!("Scan failed: {}", e);
@@ -73,7 +73,7 @@ async fn scan_file(
 
     // If threat found and auto-quarantine enabled, quarantine the file
     let action_taken = if scan_result.is_infected {
-        if let Ok(_) = virus_scan::quarantine_file(&full_path).await {
+        if let Ok(_) = virus_scan::quarantine_file_simple(&full_path).await {
             Some("quarantined".to_string())
         } else {
             Some("flagged".to_string())
@@ -113,7 +113,7 @@ async fn scan_directory(
         if entry_path.is_file() {
             let start = std::time::Instant::now();
             
-            if let Ok(scan_result) = virus_scan::scan_file(&entry_path).await {
+            if let Ok(scan_result) = virus_scan::scan_file_simple(&entry_path).await {
                 let duration = start.elapsed().as_millis() as u64;
                 let relative_path = entry_path
                     .strip_prefix("./data")
@@ -193,7 +193,7 @@ async fn restore_from_quarantine(
         return Err(StatusCode::NOT_FOUND);
     }
 
-    virus_scan::restore_from_quarantine(&quarantine_path)
+    virus_scan::restore_quarantine_simple(&quarantine_path)
         .await
         .map_err(|e| {
             tracing::error!("Failed to restore from quarantine: {}", e);
@@ -238,7 +238,7 @@ async fn get_scan_stats(
     State(_state): State<AppState>,
     _user: UserInfo,
 ) -> Result<Json<ScanStats>, StatusCode> {
-    let stats = virus_scan::get_scan_stats()
+    let stats = virus_scan::get_scan_stats_simple()
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 

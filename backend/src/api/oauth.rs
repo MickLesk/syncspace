@@ -24,10 +24,9 @@ use crate::{
     AppState,
 };
 
-/// Build OAuth router
-pub fn router() -> Router<AppState> {
+/// Build public OAuth router (no auth required)
+pub fn public_router() -> Router<AppState> {
     Router::new()
-        // Public routes (no auth required)
         .route("/oauth/providers", get(list_providers))
         .route("/oauth/{provider}/authorize", get(authorize))
         .route("/oauth/{provider}/callback", get(callback))
@@ -241,7 +240,7 @@ async fn callback(
         "SELECT * FROM users WHERE email = ?"
     )
     .bind(&user_info.email)
-    .fetch_optional(&state.pool)
+    .fetch_optional(&state.db_pool)
     .await
     .unwrap_or(None);
     
@@ -370,7 +369,7 @@ async fn configure_provider(
     Json(req): Json<UpsertOAuthProviderRequest>,
 ) -> impl IntoResponse {
     // Check admin role
-    if user.role != "admin" {
+    if user.role.as_deref() != Some("admin") && !user.is_admin {
         return (StatusCode::FORBIDDEN, Json(serde_json::json!({
             "error": "Admin access required"
         })));
@@ -397,7 +396,7 @@ async fn delete_provider(
     Path(provider): Path<String>,
     user: UserInfo,
 ) -> impl IntoResponse {
-    if user.role != "admin" {
+    if user.role.as_deref() != Some("admin") && !user.is_admin {
         return (StatusCode::FORBIDDEN, Json(serde_json::json!({
             "error": "Admin access required"
         })));
@@ -423,8 +422,8 @@ async fn delete_provider(
 // ==================== HELPERS ====================
 
 async fn create_jwt_for_user(pool: &sqlx::SqlitePool, user_id: &str) -> Result<String, String> {
-    // Get user from database
-    let user = sqlx::query_as::<_, crate::auth::User>(
+    // Get user from database using database::User (has FromRow)
+    let user = sqlx::query_as::<_, crate::database::User>(
         "SELECT * FROM users WHERE id = ?"
     )
     .bind(user_id)

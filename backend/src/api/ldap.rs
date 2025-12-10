@@ -23,6 +23,11 @@ use crate::{
     AppState,
 };
 
+/// Helper to check admin access
+fn is_admin(user: &UserInfo) -> bool {
+    user.is_admin || user.role.as_deref() == Some("admin")
+}
+
 /// Build LDAP router (all routes require admin)
 pub fn router() -> Router<AppState> {
     Router::new()
@@ -79,7 +84,7 @@ async fn list_configs(
     user: UserInfo,
 ) -> impl IntoResponse {
     // Check admin role
-    if user.role != "admin" {
+    if !is_admin(&user) {
         return (StatusCode::FORBIDDEN, Json(serde_json::json!({
             "error": "Admin access required"
         }))).into_response();
@@ -107,7 +112,7 @@ async fn get_config(
     Path(config_id): Path<String>,
     user: UserInfo,
 ) -> impl IntoResponse {
-    if user.role != "admin" {
+    if !is_admin(&user) {
         return (StatusCode::FORBIDDEN, Json(serde_json::json!({
             "error": "Admin access required"
         }))).into_response();
@@ -137,7 +142,7 @@ async fn create_config(
     user: UserInfo,
     Json(req): Json<UpsertLdapConfigRequest>,
 ) -> impl IntoResponse {
-    if user.role != "admin" {
+    if !is_admin(&user) {
         return (StatusCode::FORBIDDEN, Json(serde_json::json!({
             "error": "Admin access required"
         }))).into_response();
@@ -171,7 +176,7 @@ async fn update_config(
     user: UserInfo,
     Json(req): Json<UpsertLdapConfigRequest>,
 ) -> impl IntoResponse {
-    if user.role != "admin" {
+    if !is_admin(&user) {
         return (StatusCode::FORBIDDEN, Json(serde_json::json!({
             "error": "Admin access required"
         }))).into_response();
@@ -204,7 +209,7 @@ async fn delete_config(
     Path(config_id): Path<String>,
     user: UserInfo,
 ) -> impl IntoResponse {
-    if user.role != "admin" {
+    if !is_admin(&user) {
         return (StatusCode::FORBIDDEN, Json(serde_json::json!({
             "error": "Admin access required"
         }))).into_response();
@@ -216,18 +221,18 @@ async fn delete_config(
             (StatusCode::OK, Json(serde_json::json!({
                 "success": true,
                 "message": "Configuration deleted"
-            })))
+            }))).into_response()
         }
         Ok(false) => {
             (StatusCode::NOT_FOUND, Json(serde_json::json!({
                 "error": "Configuration not found"
-            })))
+            }))).into_response()
         }
         Err(e) => {
             tracing::error!("Failed to delete LDAP config: {}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({
                 "error": "Failed to delete configuration"
-            })))
+            }))).into_response()
         }
     }
 }
@@ -238,7 +243,7 @@ async fn test_connection(
     Path(config_id): Path<String>,
     user: UserInfo,
 ) -> impl IntoResponse {
-    if user.role != "admin" {
+    if !is_admin(&user) {
         return (StatusCode::FORBIDDEN, Json(serde_json::json!({
             "error": "Admin access required"
         }))).into_response();
@@ -272,7 +277,7 @@ async fn sync_users(
     State(state): State<AppState>,
     user: UserInfo,
 ) -> impl IntoResponse {
-    if user.role != "admin" {
+    if !is_admin(&user) {
         return (StatusCode::FORBIDDEN, Json(serde_json::json!({
             "error": "Admin access required"
         }))).into_response();
@@ -334,7 +339,7 @@ async fn sync_users_for_config(
     Path(config_id): Path<String>,
     user: UserInfo,
 ) -> impl IntoResponse {
-    if user.role != "admin" {
+    if !is_admin(&user) {
         return (StatusCode::FORBIDDEN, Json(serde_json::json!({
             "error": "Admin access required"
         }))).into_response();

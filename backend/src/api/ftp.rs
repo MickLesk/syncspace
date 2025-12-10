@@ -23,7 +23,7 @@ async fn list_connections(
     State(state): State<AppState>,
     user: UserInfo,
 ) -> Result<Json<Vec<FtpConnection>>, StatusCode> {
-    ftp_sync::list_ftp_connections(&state.pool, &user.user_id)
+    ftp_sync::list_ftp_connections(&state.db_pool, &user.id)
         .await
         .map(Json)
         .map_err(|e| {
@@ -38,7 +38,7 @@ async fn get_connection(
     Path(id): Path<String>,
     user: UserInfo,
 ) -> Result<Json<FtpConnection>, StatusCode> {
-    ftp_sync::get_ftp_connection(&state.pool, &id, &user.user_id)
+    ftp_sync::get_ftp_connection(&state.db_pool, &id, &user.id)
         .await
         .map(Json)
         .map_err(|e| {
@@ -53,7 +53,7 @@ async fn create_connection(
     user: UserInfo,
     Json(req): Json<CreateFtpConnectionRequest>,
 ) -> Result<(StatusCode, Json<FtpConnection>), StatusCode> {
-    ftp_sync::create_ftp_connection(&state.pool, &user.user_id, req)
+    ftp_sync::create_ftp_connection(&state.db_pool, &user.id, req)
         .await
         .map(|conn| (StatusCode::CREATED, Json(conn)))
         .map_err(|e| {
@@ -69,7 +69,7 @@ async fn update_connection(
     user: UserInfo,
     Json(req): Json<UpdateFtpConnectionRequest>,
 ) -> Result<Json<FtpConnection>, StatusCode> {
-    ftp_sync::update_ftp_connection(&state.pool, &id, &user.user_id, req)
+    ftp_sync::update_ftp_connection(&state.db_pool, &id, &user.id, req)
         .await
         .map(Json)
         .map_err(|e| {
@@ -84,7 +84,7 @@ async fn delete_connection(
     Path(id): Path<String>,
     user: UserInfo,
 ) -> Result<StatusCode, StatusCode> {
-    ftp_sync::delete_ftp_connection(&state.pool, &id, &user.user_id)
+    ftp_sync::delete_ftp_connection(&state.db_pool, &id, &user.id)
         .await
         .map(|_| StatusCode::NO_CONTENT)
         .map_err(|e| {
@@ -99,7 +99,7 @@ async fn test_connection(
     Path(id): Path<String>,
     user: UserInfo,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    let connection = ftp_sync::get_ftp_connection(&state.pool, &id, &user.user_id)
+    let connection = ftp_sync::get_ftp_connection(&state.db_pool, &id, &user.id)
         .await
         .map_err(|_| StatusCode::NOT_FOUND)?;
 
@@ -125,7 +125,7 @@ async fn list_remote_files(
     Path(id): Path<String>,
     user: UserInfo,
 ) -> Result<Json<Vec<FtpFileEntry>>, StatusCode> {
-    let connection = ftp_sync::get_ftp_connection(&state.pool, &id, &user.user_id)
+    let connection = ftp_sync::get_ftp_connection(&state.db_pool, &id, &user.id)
         .await
         .map_err(|_| StatusCode::NOT_FOUND)?;
 
@@ -144,11 +144,11 @@ async fn trigger_sync(
     Path(id): Path<String>,
     user: UserInfo,
 ) -> Result<Json<SyncResult>, StatusCode> {
-    let connection = ftp_sync::get_ftp_connection(&state.pool, &id, &user.user_id)
+    let connection = ftp_sync::get_ftp_connection(&state.db_pool, &id, &user.id)
         .await
         .map_err(|_| StatusCode::NOT_FOUND)?;
 
-    ftp_sync::sync_ftp(&state.pool, &connection)
+    ftp_sync::sync_ftp(&state.db_pool, &connection)
         .await
         .map(Json)
         .map_err(|e| {

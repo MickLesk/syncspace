@@ -503,3 +503,136 @@ impl std::fmt::Display for ScanError {
 }
 
 impl std::error::Error for ScanError {}
+
+// ==================== API COMPATIBILITY FUNCTIONS ====================
+
+/// Simpler scan result for API responses
+#[derive(Debug, Clone, Serialize)]
+pub struct SimpleScanResult {
+    pub is_infected: bool,
+    pub threat_name: Option<String>,
+}
+
+/// Scan a file and return simple result (for API)
+/// This is an alias that wraps scan_file for simpler API usage
+pub async fn scan_file_simple(file_path: &Path) -> Result<SimpleScanResult, ScanError> {
+    let (status, threat) = scan_file(file_path).await?;
+    Ok(SimpleScanResult {
+        is_infected: status == ScanStatus::Infected,
+        threat_name: threat,
+    })
+}
+
+/// Quarantine an infected file (simple version for API)
+pub async fn quarantine_file_simple(file_path: &Path) -> Result<PathBuf, ScanError> {
+    if !file_path.exists() {
+        return Err(ScanError::FileNotFound);
+    }
+
+    // Create quarantine directory
+    fs::create_dir_all(QUARANTINE_DIR).await
+        .map_err(|e| ScanError::IoError(e.to_string()))?;
+
+    let quarantine_id = Uuid::new_v4().to_string();
+    let quarantine_path = PathBuf::from(QUARANTINE_DIR).join(&quarantine_id);
+    let meta_path = quarantine_path.with_extension("meta.json");
+
+    // Move file to quarantine
+    fs::rename(file_path, &quarantine_path).await
+        .map_err(|e| ScanError::IoError(e.to_string()))?;
+
+    // Save metadata
+    let metadata = serde_json::json!({
+        "original_path": file_path.to_string_lossy(),
+        "quarantined_at": chrono::Utc::now().to_rfc3339(),
+        "threat_name": "Unknown",
+        "file_size": fs::metadata(&quarantine_path).await.map(|m| m.len()).unwrap_or(0)
+    });
+
+    fs::write(&meta_path, serde_json::to_string_pretty(&metadata).unwrap()).await
+        .map_err(|e| ScanError::IoError(e.to_string()))?;
+
+    Ok(quarantine_path)
+}
+
+/// Restore a file from quarantine (simple version)
+pub async fn restore_quarantine_simple(quarantine_path: &Path) -> Result<PathBuf, ScanError> {
+    if !quarantine_path.exists() {
+        return Err(ScanError::NotQuarantined);
+    }
+
+    let meta_path = quarantine_path.with_extension("meta.json");
+    let meta_content = fs::read_to_string(&meta_path).await
+        .map_err(|e| ScanError::IoError(e.to_string()))?;
+
+    let metadata: serde_json::Value = serde_json::from_str(&meta_content)
+        .map_err(|e| ScanError::IoError(e.to_string()))?;
+
+    let original_path = metadata["original_path"]
+        .as_str()
+        .ok_or(ScanError::IoError("Missing original path in metadata".to_string()))?;
+
+    let original = PathBuf::from(original_path);
+
+    // Create parent directories if needed
+    if let Some(parent) = original.parent() {
+        fs::create_dir_all(parent).await.ok();
+    }
+
+    // Move back to original location
+    fs::rename(quarantine_path, &original).await
+        .map_err(|e| ScanError::IoError(e.to_string()))?;
+
+    // Remove metadata file
+    fs::remove_file(&meta_path).await.ok();
+
+    Ok(original)
+}
+
+/// Get scan statistics for API
+#[derive(Debug, Clone, Serialize)]
+pub struct ApiScanStats {
+    pub total_scanned: u64,
+    pub threats_found: u64,
+    pub files_quarantined: u64,
+    pub last_scan_at: Option<String>,
+    pub scanner_version: String,
+    pub definitions_date: Option<String>,
+}
+
+/// Get scan statistics (for API - simple version without database)
+pub async fn get_scan_stats_simple() -> Result<ApiScanStats, ScanError> {
+    Ok(ApiScanStats {
+        total_scanned: 0,
+        threats_found: 0,
+        files_quarantined: count_quarantined_files().await.unwrap_or(0),
+        last_scan_at: None,
+        scanner_version: get_scanner_version().unwrap_or_else(|| "ClamAV (not installed)".to_string()),
+        definitions_date: None,
+    })
+}
+
+/// Count quarantined files
+async fn count_quarantined_files() -> Result<u64, ScanError> {
+    let quarantine_dir = PathBuf::from(QUARANTINE_DIR);
+    if !quarantine_dir.exists() {
+        return Ok(0);
+    }
+
+    let mut count = 0u64;
+    let mut entries = fs::read_dir(&quarantine_dir).await
+        .map_err(|e| ScanError::IoError(e.to_string()))?;
+
+    while let Ok(Some(entry)) = entries.next_entry().await {
+        if entry.path().extension().and_then(|e| e.to_str()) != Some("json") {
+            count += 1;
+        }
+    }
+
+    Ok(count)
+}
+
+/// Check if scanner is available (for API)
+pub async fn check_scanner_available() -> bool {
+    is_clamav_available()
+}

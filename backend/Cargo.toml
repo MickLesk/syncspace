@@ -93,3 +93,5 @@ num_cpus = "1.16"  # CPU core count
 kamadak-exif = "0.6"  # EXIF metadata from images
 id3 = "1.14"  # ID3 tags from MP3 files
 mp4parse = "0.17"  # MP4/M4A metadata
+md5 = "0.8.0"
+httpdate = "1.0.3"
