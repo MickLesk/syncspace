@@ -1,4 +1,4 @@
--- OAuth providers configuration
+-- OAuth providers configuration (may already exist from 012)
 CREATE TABLE IF NOT EXISTS oauth_providers (
     id TEXT PRIMARY KEY,
     provider TEXT NOT NULL UNIQUE, -- 'google', 'github', 'microsoft'
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS oauth_providers (
     updated_at TEXT
 );
 
--- OAuth tokens for linked accounts
+-- OAuth tokens for linked accounts (may already exist from 012)
 CREATE TABLE IF NOT EXISTS oauth_tokens (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -26,6 +26,10 @@ CREATE TABLE IF NOT EXISTS oauth_tokens (
     updated_at TEXT DEFAULT (datetime('now'))
 );
 
+-- Add missing columns to oauth_tokens if they don't exist (from 012 migration)
+ALTER TABLE oauth_tokens ADD COLUMN provider_user_id TEXT;
+ALTER TABLE oauth_tokens ADD COLUMN provider_email TEXT;
+
 -- OAuth state for CSRF protection
 CREATE TABLE IF NOT EXISTS oauth_states (
     id TEXT PRIMARY KEY,
@@ -37,7 +41,7 @@ CREATE TABLE IF NOT EXISTS oauth_states (
     created_at TEXT DEFAULT (datetime('now'))
 );
 
--- LDAP configurations
+-- LDAP configurations (may already exist from 011)
 CREATE TABLE IF NOT EXISTS ldap_configs (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -57,6 +61,17 @@ CREATE TABLE IF NOT EXISTS ldap_configs (
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT
 );
+
+-- Add missing columns to ldap_configs if they don't exist (from 011 migration)
+ALTER TABLE ldap_configs ADD COLUMN name TEXT;
+ALTER TABLE ldap_configs ADD COLUMN user_filter TEXT DEFAULT '(uid={username})';
+ALTER TABLE ldap_configs ADD COLUMN group_filter TEXT DEFAULT '(member={user_dn})';
+ALTER TABLE ldap_configs ADD COLUMN username_attribute TEXT DEFAULT 'uid';
+ALTER TABLE ldap_configs ADD COLUMN email_attribute TEXT DEFAULT 'mail';
+ALTER TABLE ldap_configs ADD COLUMN display_name_attribute TEXT DEFAULT 'cn';
+ALTER TABLE ldap_configs ADD COLUMN auto_create_users INTEGER DEFAULT 1;
+ALTER TABLE ldap_configs ADD COLUMN default_role TEXT DEFAULT 'user';
+ALTER TABLE ldap_configs ADD COLUMN group_role_mapping TEXT DEFAULT '{}';
 
 -- LDAP user mappings
 CREATE TABLE IF NOT EXISTS ldap_user_mappings (
