@@ -90,6 +90,20 @@
       group: "admin-users",
       adminOnly: true,
     },
+    {
+      id: "oauth",
+      icon: "shield-check",
+      label: "oauth.title",
+      group: "admin-users",
+      adminOnly: true,
+    },
+    {
+      id: "ldap",
+      icon: "diagram-3",
+      label: "ldap.title",
+      group: "admin-users",
+      adminOnly: true,
+    },
 
     // System & Storage (admin only)
     {
@@ -432,6 +446,14 @@
         {/await}
       {:else if activeTab === "groups"}
         {#await import("../admin/UserGroupsView.svelte") then module}
+          <module.default />
+        {/await}
+      {:else if activeTab === "oauth"}
+        {#await import("./OAuthSettings.svelte") then module}
+          <module.default />
+        {/await}
+      {:else if activeTab === "ldap"}
+        {#await import("./LdapSettings.svelte") then module}
           <module.default />
         {/await}
 

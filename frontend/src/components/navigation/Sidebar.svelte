@@ -140,6 +140,18 @@
       label: "Email Integration",
       category: "tools",
     },
+    {
+      id: "archives",
+      icon: "file-earmark-zip-fill",
+      label: "Archives",
+      category: "tools",
+    },
+    {
+      id: "compression",
+      icon: "box-arrow-in-down",
+      label: "Compression",
+      category: "tools",
+    },
     // Settings - consolidated entry point for all settings + admin
     {
       id: "settings",

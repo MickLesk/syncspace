@@ -43,6 +43,8 @@
   import DuplicatesView from "./pages/tools/DuplicatesView.svelte";
   import FtpSyncView from "./pages/tools/FtpSyncView.svelte";
   import EmailIntegrationView from "./pages/tools/EmailIntegrationView.svelte";
+  import ArchivesView from "./pages/tools/ArchivesView.svelte";
+  import CompressionView from "./pages/tools/CompressionView.svelte";
   import TagCloudView from "./pages/TagCloudView.svelte";
 
   // Admin View - Consolidated admin page with tabs
@@ -180,6 +182,8 @@
         duplicates: "duplicates",
         "ftp-sync": "ftp-sync",
         "email-integration": "email-integration",
+        archives: "archives",
+        compression: "compression",
         tags: "tags",
         "tag-cloud": "tags",
         jobs: "jobs",
@@ -514,6 +518,10 @@
                 <FtpSyncView />
               {:else if $currentView === "email-integration"}
                 <EmailIntegrationView />
+              {:else if $currentView === "archives"}
+                <ArchivesView />
+              {:else if $currentView === "compression"}
+                <CompressionView />
               {:else if $currentView === "tag-cloud"}
                 <TagCloudView />
               {:else if $currentView === "backup"}

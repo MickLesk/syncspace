@@ -5308,5 +5308,153 @@ const ldap = {
   },
 };
 
+// ==================== ARCHIVES ====================
+const archives = {
+  /**
+   * List archives in a directory
+   */
+  async list(path = "") {
+    const params = path ? `?path=${encodeURIComponent(path)}` : "";
+    const response = await fetch(`${API_BASE}/archives${params}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a new archive
+   */
+  async create(files, archiveName, format = "zip", options = {}) {
+    const response = await fetch(`${API_BASE}/archives/create`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({
+        files,
+        archive_name: archiveName,
+        format,
+        compression_level: options.compressionLevel,
+        password: options.password,
+        destination: options.destination,
+      }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Extract an archive
+   */
+  async extract(archivePath, options = {}) {
+    const response = await fetch(`${API_BASE}/archives/extract`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({
+        archive_path: archivePath,
+        destination: options.destination,
+        password: options.password,
+        flatten: options.flatten || false,
+      }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get archive contents/info
+   */
+  async getInfo(path) {
+    const response = await fetch(`${API_BASE}/archives/${encodeURIComponent(path)}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get supported archive formats
+   */
+  async getFormats() {
+    const response = await fetch(`${API_BASE}/archives/formats`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete an archive
+   */
+  async delete(path) {
+    const response = await fetch(`${API_BASE}/archives/${encodeURIComponent(path)}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ==================== COMPRESSION ====================
+const compression = {
+  /**
+   * Compress files
+   */
+  async compress(files, algorithm = "gzip", options = {}) {
+    const response = await fetch(`${API_BASE}/compression/compress`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({
+        files,
+        algorithm,
+        level: options.level || 6,
+        destination: options.destination,
+        delete_originals: options.deleteOriginals || false,
+      }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Decompress files
+   */
+  async decompress(files, options = {}) {
+    const response = await fetch(`${API_BASE}/compression/decompress`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({
+        files,
+        destination: options.destination,
+        delete_originals: options.deleteOriginals || false,
+      }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Analyze file compression potential
+   */
+  async analyze(path) {
+    const response = await fetch(`${API_BASE}/compression/analyze?path=${encodeURIComponent(path)}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get available compression algorithms
+   */
+  async getAlgorithms() {
+    const response = await fetch(`${API_BASE}/compression/algorithms`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get compression statistics
+   */
+  async getStats() {
+    const response = await fetch(`${API_BASE}/compression/stats`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
 // Add late-defined exports to api object
-Object.assign(api, { encryption, quota, groups, guests, rateLimiting, admin, ftp, email, oauth, ldap });
+Object.assign(api, { encryption, quota, groups, guests, rateLimiting, admin, ftp, email, oauth, ldap, archives, compression });

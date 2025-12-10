@@ -61,6 +61,11 @@ pub mod ldap;
 // Re-enabled API modules
 pub mod ftp;
 pub mod email;
+// New compression and archive modules
+pub mod archives;
+pub mod compression;
+// Metrics and monitoring
+pub mod metrics;
 // Disabled - need preview/scan modules first
 // pub mod thumbnails;
 // pub mod preview;
@@ -153,6 +158,9 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(ldap::router()) // LDAP configuration (admin)
                 .merge(ftp::router()) // FTP sync connections
                 .merge(email::router()) // Email integration
+                .merge(archives::router()) // Archive management (zip, tar.gz)
+                .merge(compression::router()) // File compression/decompression
+                .merge(metrics::router()) // Metrics and monitoring dashboard
                 // .merge(webdav::router()) // WebDAV - needs module
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
