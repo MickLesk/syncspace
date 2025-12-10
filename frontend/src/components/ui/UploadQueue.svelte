@@ -118,19 +118,30 @@
 
 {#if displayQueue.length > 0}
   <div
-    class="upload-queue-container"
-    class:compact
+    class="fixed bottom-5 right-5 w-[420px] max-h-[500px] bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden z-[1000] border-2 border-black/5 dark:border-white/10 {compact
+      ? 'w-[340px] max-h-[400px]'
+      : ''} max-sm:w-[calc(100vw-40px)] max-sm:max-h-[300px] max-sm:bottom-2.5 max-sm:right-2.5"
     transition:fly={{ y: 20, duration: 300 }}
   >
     <!-- Header -->
-    <div class="upload-queue-header">
+    <div
+      class="px-5 py-4 border-b-2 border-black/5 dark:border-white/10 flex justify-between items-center bg-gradient-to-br from-indigo-500/5 to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10"
+    >
       <div class="flex items-center gap-3">
-        <div class="header-icon">
+        <div
+          class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-lg"
+        >
           <i class="bi bi-cloud-upload" aria-hidden="true"></i>
         </div>
         <div>
-          <h4 class="header-title">Upload Queue</h4>
-          <p class="header-subtitle">
+          <h4
+            class="text-sm font-bold text-gray-900 dark:text-gray-100 m-0 max-sm:text-xs"
+          >
+            Upload Queue
+          </h4>
+          <p
+            class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 max-sm:text-[10px]"
+          >
             {$uploadStats.completedFiles}/{$uploadStats.totalFiles} completed • {formatBytes(
               $uploadStats.uploadedBytes
             )}/{formatBytes($uploadStats.totalBytes)}
@@ -138,24 +149,26 @@
         </div>
       </div>
 
-      <div class="header-actions">
+      <div class="flex gap-2">
         <button
-          class="action-btn"
+          class="w-8 h-8 rounded-lg border-none bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 cursor-pointer flex items-center justify-center transition-all duration-200 hover:enabled:bg-black/10 dark:hover:enabled:bg-white/10 hover:enabled:text-gray-900 dark:hover:enabled:text-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
           onclick={handleClearCompleted}
           disabled={$uploadQueue.filter(
             (u) => u.status === UPLOAD_STATUS.COMPLETED
           ).length === 0}
           title="Clear completed"
+          aria-label="Clear completed uploads"
         >
           <i class="bi bi-check-circle" aria-hidden="true"></i>
         </button>
         <button
-          class="action-btn"
+          class="w-8 h-8 rounded-lg border-none bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 cursor-pointer flex items-center justify-center transition-all duration-200 hover:enabled:bg-black/10 dark:hover:enabled:bg-white/10 hover:enabled:text-gray-900 dark:hover:enabled:text-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
           onclick={handleClearFailed}
           disabled={$uploadQueue.filter(
             (u) => u.status === UPLOAD_STATUS.FAILED
           ).length === 0}
           title="Clear failed"
+          aria-label="Clear failed uploads"
         >
           <i class="bi bi-x-circle" aria-hidden="true"></i>
         </button>
@@ -163,42 +176,63 @@
     </div>
 
     <!-- Upload items -->
-    <div class="upload-queue-list">
+    <div class="max-h-[400px] overflow-y-auto p-3 scrollbar-thin">
       {#each displayQueue as upload (upload.id)}
         <div
-          class="upload-item"
-          class:uploading={upload.status === UPLOAD_STATUS.UPLOADING}
-          class:completed={upload.status === UPLOAD_STATUS.COMPLETED}
-          class:failed={upload.status === UPLOAD_STATUS.FAILED}
+          class="flex gap-3 p-3 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] mb-2 transition-all duration-200 {upload.status ===
+          UPLOAD_STATUS.UPLOADING
+            ? 'bg-blue-500/5 border border-blue-500/15'
+            : upload.status === UPLOAD_STATUS.COMPLETED
+              ? 'bg-green-500/5 border border-green-500/15'
+              : upload.status === UPLOAD_STATUS.FAILED
+                ? 'bg-red-500/5 border border-red-500/15'
+                : ''}"
           transition:slide={{ duration: 200 }}
         >
           <!-- Icon -->
-          <div class="upload-icon {getStatusColor(upload.status)}">
+          <div
+            class="text-2xl flex items-center justify-center {getStatusColor(
+              upload.status
+            )}"
+          >
             <i class="bi {getStatusIcon(upload.status)}"></i>
           </div>
 
           <!-- Details -->
-          <div class="upload-details">
-            <div class="upload-name">{upload.fileName}</div>
-            <div class="upload-info">
-              <span class="info-item">
+          <div class="flex-1 min-w-0">
+            <div
+              class="text-[13px] font-semibold text-gray-900 dark:text-gray-100 mb-1 overflow-hidden text-ellipsis whitespace-nowrap"
+            >
+              {upload.fileName}
+            </div>
+            <div class="flex flex-wrap gap-2 mb-1.5">
+              <span
+                class="text-[10px] text-gray-500 dark:text-gray-400 flex items-center gap-1"
+              >
                 <i class="bi bi-hdd" aria-hidden="true"></i>
                 {formatBytes(upload.size)}
               </span>
               {#if upload.isChunked}
-                <span class="info-item">
+                <span
+                  class="text-[10px] text-gray-500 dark:text-gray-400 flex items-center gap-1"
+                >
                   <i class="bi bi-puzzle" aria-hidden="true"></i>
                   {upload.currentChunk}/{upload.totalChunks} chunks
                 </span>
               {/if}
               {#if upload.retries > 0}
-                <span class="info-item text-orange-500">
+                <span
+                  class="text-[10px] text-orange-500 flex items-center gap-1"
+                >
                   <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
                   Retry {upload.retries}
                 </span>
               {/if}
               {#if upload.error}
-                <span class="info-item text-red-500" title={upload.error}>
+                <span
+                  class="text-[10px] text-red-500 flex items-center gap-1"
+                  title={upload.error}
+                >
                   <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
                   {upload.error}
                 </span>
@@ -207,27 +241,36 @@
 
             <!-- Progress bar -->
             {#if upload.status === UPLOAD_STATUS.UPLOADING || upload.status === UPLOAD_STATUS.PAUSED}
-              <div class="progress-bar-container">
+              <div
+                class="relative h-1.5 bg-black/5 dark:bg-white/10 rounded-sm overflow-hidden"
+              >
                 <div
-                  class="progress-bar {upload.status === UPLOAD_STATUS.PAUSED
-                    ? 'paused'
-                    : ''}"
+                  class="h-full rounded-sm transition-[width] duration-300 ease-out {upload.status ===
+                  UPLOAD_STATUS.PAUSED
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500'
+                    : 'bg-gradient-to-r from-indigo-500 to-purple-500'}"
                   style="width: {upload.progress}%"
                 ></div>
-                <span class="progress-text">{upload.progress}%</span>
+                <span
+                  class="absolute right-1 -top-[18px] text-[9px] font-semibold text-gray-500"
+                  >{upload.progress}%</span
+                >
               </div>
             {/if}
           </div>
 
           <!-- Actions -->
-          <div class="upload-actions">
+          <div class="flex gap-1.5 items-center">
             {#if upload.status === UPLOAD_STATUS.UPLOADING || upload.status === UPLOAD_STATUS.PAUSED}
               <button
-                class="icon-btn"
+                class="w-7 h-7 rounded-lg border-none bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 cursor-pointer flex items-center justify-center transition-all duration-200 text-[13px] hover:bg-black/10 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-gray-100"
                 onclick={() => handlePauseResume(upload)}
                 title={upload.status === UPLOAD_STATUS.UPLOADING
                   ? "Pause"
                   : "Resume"}
+                aria-label={upload.status === UPLOAD_STATUS.UPLOADING
+                  ? "Pause upload"
+                  : "Resume upload"}
               >
                 <i
                   class="bi {upload.status === UPLOAD_STATUS.UPLOADING
@@ -239,9 +282,10 @@
 
             {#if upload.status === UPLOAD_STATUS.FAILED}
               <button
-                class="icon-btn"
+                class="w-7 h-7 rounded-lg border-none bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 cursor-pointer flex items-center justify-center transition-all duration-200 text-[13px] hover:bg-black/10 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-gray-100"
                 onclick={() => handleRetry(upload.id)}
                 title="Retry"
+                aria-label="Retry upload"
               >
                 <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
               </button>
@@ -249,10 +293,10 @@
 
             {#if upload.status !== UPLOAD_STATUS.COMPLETED}
               <button
-                class="icon-btn delete"
+                class="w-7 h-7 rounded-lg border-none bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 cursor-pointer flex items-center justify-center transition-all duration-200 text-[13px] hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/15"
                 onclick={() => handleCancel(upload.id)}
                 title="Cancel"
-                aria-label="Cancel"
+                aria-label="Cancel upload"
               >
                 <i class="bi bi-x" aria-hidden="true"></i>
               </button>
@@ -265,320 +309,26 @@
 {/if}
 
 <style>
-  .upload-queue-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 420px;
-    max-height: 500px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-    z-index: 1000;
-    border: 2px solid rgba(0, 0, 0, 0.05);
-  }
-
-  :global(.dark) .upload-queue-container {
-    background: rgb(31 41 55);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .upload-queue-container.compact {
-    width: 340px;
-    max-height: 400px;
-  }
-
-  .upload-queue-header {
-    padding: 16px 20px;
-    border-bottom: 2px solid rgba(0, 0, 0, 0.08);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(
-      135deg,
-      rgba(99, 102, 241, 0.05),
-      rgba(139, 92, 246, 0.05)
-    );
-  }
-
-  :global(.dark) .upload-queue-header {
-    border-bottom-color: rgba(255, 255, 255, 0.08);
-    background: linear-gradient(
-      135deg,
-      rgba(99, 102, 241, 0.1),
-      rgba(139, 92, 246, 0.1)
-    );
-  }
-
-  .header-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 18px;
-  }
-
-  .header-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: rgb(17 24 39);
-    margin: 0;
-  }
-
-  :global(.dark) .header-title {
-    color: rgb(243 244 246);
-  }
-
-  .header-subtitle {
-    font-size: 11px;
-    color: rgb(107 114 128);
-    margin: 2px 0 0 0;
-  }
-
-  :global(.dark) .header-subtitle {
-    color: rgb(156 163 175);
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .action-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    border: none;
-    background: rgba(0, 0, 0, 0.05);
-    color: rgb(107 114 128);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  }
-
-  .action-btn:hover:not(:disabled) {
-    background: rgba(0, 0, 0, 0.1);
-    color: rgb(17 24 39);
-  }
-
-  .action-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  :global(.dark) .action-btn {
-    background: rgba(255, 255, 255, 0.05);
-    color: rgb(156 163 175);
-  }
-
-  :global(.dark) .action-btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgb(243 244 246);
-  }
-
-  .upload-queue-list {
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 12px;
-  }
-
-  .upload-queue-list::-webkit-scrollbar {
+  /* Custom scrollbar styling */
+  .scrollbar-thin::-webkit-scrollbar {
     width: 6px;
   }
 
-  .upload-queue-list::-webkit-scrollbar-track {
+  .scrollbar-thin::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.05);
     border-radius: 3px;
   }
 
-  .upload-queue-list::-webkit-scrollbar-thumb {
+  .scrollbar-thin::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 3px;
   }
 
-  :global(.dark) .upload-queue-list::-webkit-scrollbar-track {
+  :global(.dark) .scrollbar-thin::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05);
   }
 
-  :global(.dark) .upload-queue-list::-webkit-scrollbar-thumb {
+  :global(.dark) .scrollbar-thin::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.2);
-  }
-
-  .upload-item {
-    display: flex;
-    gap: 12px;
-    padding: 12px;
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.02);
-    margin-bottom: 8px;
-    transition: all 0.2s;
-  }
-
-  :global(.dark) .upload-item {
-    background: rgba(255, 255, 255, 0.03);
-  }
-
-  .upload-item.uploading {
-    background: rgba(59, 130, 246, 0.05);
-    border: 1px solid rgba(59, 130, 246, 0.15);
-  }
-
-  .upload-item.completed {
-    background: rgba(34, 197, 94, 0.05);
-    border: 1px solid rgba(34, 197, 94, 0.15);
-  }
-
-  .upload-item.failed {
-    background: rgba(239, 68, 68, 0.05);
-    border: 1px solid rgba(239, 68, 68, 0.15);
-  }
-
-  .upload-icon {
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .upload-details {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .upload-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: rgb(17 24 39);
-    margin-bottom: 4px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  :global(.dark) .upload-name {
-    color: rgb(243 244 246);
-  }
-
-  .upload-info {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-
-  .info-item {
-    font-size: 10px;
-    color: rgb(107 114 128);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  :global(.dark) .info-item {
-    color: rgb(156 163 175);
-  }
-
-  .progress-bar-container {
-    position: relative;
-    height: 6px;
-    background: rgba(0, 0, 0, 0.08);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  :global(.dark) .progress-bar-container {
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  .progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #6366f1, #8b5cf6);
-    border-radius: 3px;
-    transition: width 0.3s ease;
-    position: relative;
-  }
-
-  .progress-bar.paused {
-    background: linear-gradient(90deg, #f59e0b, #f97316);
-  }
-
-  .progress-text {
-    position: absolute;
-    right: 4px;
-    top: -18px;
-    font-size: 9px;
-    font-weight: 600;
-    color: rgb(107 114 128);
-  }
-
-  .upload-actions {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-  }
-
-  .icon-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 7px;
-    border: none;
-    background: rgba(0, 0, 0, 0.06);
-    color: rgb(107 114 128);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    font-size: 13px;
-  }
-
-  .icon-btn:hover {
-    background: rgba(0, 0, 0, 0.12);
-    color: rgb(17 24 39);
-  }
-
-  .icon-btn.delete:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: rgb(239, 68, 68);
-  }
-
-  :global(.dark) .icon-btn {
-    background: rgba(255, 255, 255, 0.06);
-    color: rgb(156 163 175);
-  }
-
-  :global(.dark) .icon-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgb(243 244 246);
-  }
-
-  :global(.dark) .icon-btn.delete:hover {
-    background: rgba(239, 68, 68, 0.15);
-    color: rgb(239, 68, 68);
-  }
-
-  /* Mobile responsive */
-  @media (max-width: 768px) {
-    .upload-queue-container {
-      width: calc(100vw - 40px);
-      max-height: 300px;
-      bottom: 10px;
-      right: 10px;
-    }
-
-    .header-title {
-      font-size: 13px;
-    }
-
-    .header-subtitle {
-      font-size: 10px;
-    }
   }
 </style>

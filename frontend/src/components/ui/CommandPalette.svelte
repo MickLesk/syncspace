@@ -273,7 +273,9 @@
   <div
     class="fixed inset-0 bg-black/50 z-40"
     onclick={() => (isOpen = false)}
-   role="button" tabindex="0"></div>
+    role="button"
+    tabindex="0"
+  ></div>
 {/if}
 
 <!-- Command Palette Modal -->
@@ -384,9 +386,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  :global(.command-palette-portal) {
-    z-index: 50;
-  }
-</style>

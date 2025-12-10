@@ -255,28 +255,23 @@
 {/if}
 
 <style>
-  /* Smooth scroll behavior */
+  /* Scrollbar styling */
   ::-webkit-scrollbar {
     width: 6px;
   }
-
   ::-webkit-scrollbar-track {
     background: transparent;
   }
-
   ::-webkit-scrollbar-thumb {
     background: #ccc;
     border-radius: 3px;
   }
-
   ::-webkit-scrollbar-thumb:hover {
     background: #999;
   }
-
   :global(.dark) ::-webkit-scrollbar-thumb {
     background: #555;
   }
-
   :global(.dark) ::-webkit-scrollbar-thumb:hover {
     background: #777;
   }

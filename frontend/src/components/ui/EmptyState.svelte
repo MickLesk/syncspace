@@ -1,12 +1,12 @@
 <script>
   /**
-   * EmptyState Component
+   * EmptyState Component - Pure Tailwind v4
    * Wiederverwendbarer Component für leere Views
    *
    * @component
    * @example
    * <EmptyState
-   *   icon="star-fill"
+   *   icon="bi-star-fill"
    *   title="No Favorites"
    *   description="Mark files as favorite to see them here"
    *   actionText="Browse Files"
@@ -23,7 +23,7 @@
 
   let {
     icon = "",
-    isBootstrapIcon = false,
+    isBootstrapIcon = true,
     title = "",
     description = "",
     actionText = "",
@@ -35,36 +35,65 @@
 
   // Derived default title
   const displayTitle = $derived(title || tr("noItemsFound"));
+
+  // Size-based classes
+  const sizeClasses = $derived(
+    {
+      small: {
+        container: "py-10 px-6 gap-3",
+        icon: "text-5xl",
+        title: "text-lg",
+        description: "text-sm max-w-sm",
+      },
+      medium: {
+        container: "py-20 px-8 gap-4",
+        icon: "text-7xl",
+        title: "text-2xl",
+        description: "text-base max-w-md",
+      },
+      large: {
+        container: "py-28 px-10 gap-6",
+        icon: "text-8xl",
+        title: "text-3xl",
+        description: "text-lg max-w-lg",
+      },
+    }[size]
+  );
 </script>
 
 <div
-  class="empty-state"
-  class:size-small={size === "small"}
-  class:size-large={size === "large"}
+  class="text-center flex flex-col items-center text-gray-500 dark:text-gray-400 {sizeClasses.container}"
 >
   {#if icon}
-    <div class="empty-icon">
+    <div
+      class="mb-2 opacity-50 hover:opacity-70 transition-all duration-300 hover:scale-105 {sizeClasses.icon}"
+    >
       {#if isBootstrapIcon}
-        <Icon
-          name={icon}
-          size={size === "small" ? 48 : size === "large" ? 96 : 72}
-        />
+        <i class="bi {icon}" aria-hidden="true"></i>
       {:else}
-        <span class="emoji-icon">{icon}</span>
+        <span>{icon}</span>
       {/if}
     </div>
   {/if}
 
-  <h3 class="empty-title">{displayTitle}</h3>
+  <h3
+    class="font-semibold text-gray-900 dark:text-gray-100 m-0 {sizeClasses.title}"
+  >
+    {displayTitle}
+  </h3>
 
   {#if description}
-    <p class="empty-description">{description}</p>
+    <p
+      class="text-gray-600 dark:text-gray-400 m-0 leading-relaxed {sizeClasses.description}"
+    >
+      {description}
+    </p>
   {/if}
 
   {@render content?.()}
 
   {#if actionText && onAction}
-    <div class="empty-action">
+    <div class="mt-2">
       <ModernButton onclick={onAction} variant="outline" size="md">
         {actionText}
       </ModernButton>
@@ -73,120 +102,3 @@
 
   {@render actions?.()}
 </div>
-
-<style>
-  .empty-state {
-    text-align: center;
-    padding: 80px 32px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    color: var(--md-sys-color-on-surface-variant);
-  }
-
-  .empty-state.size-small {
-    padding: 40px 24px;
-    gap: 12px;
-  }
-
-  .empty-state.size-large {
-    padding: 120px 40px;
-    gap: 24px;
-  }
-
-  .empty-icon {
-    margin-bottom: 8px;
-    opacity: 0.5;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .empty-state:hover .empty-icon {
-    opacity: 0.7;
-    transform: scale(1.05);
-  }
-
-  .emoji-icon {
-    font-size: 72px;
-    display: inline-block;
-  }
-
-  .size-small .emoji-icon {
-    font-size: 48px;
-  }
-
-  .size-large .emoji-icon {
-    font-size: 96px;
-  }
-
-  .empty-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--md-sys-color-on-surface);
-    margin: 0;
-    font-family:
-      "Inter",
-      -apple-system,
-      BlinkMacSystemFont,
-      "Segoe UI",
-      sans-serif;
-  }
-
-  .size-small .empty-title {
-    font-size: 20px;
-  }
-
-  .size-large .empty-title {
-    font-size: 28px;
-  }
-
-  .empty-description {
-    font-size: 16px;
-    color: var(--md-sys-color-on-surface-variant);
-    margin: 0;
-    max-width: 500px;
-    line-height: 1.5;
-  }
-
-  .size-small .empty-description {
-    font-size: 14px;
-    max-width: 400px;
-  }
-
-  .size-large .empty-description {
-    font-size: 18px;
-    max-width: 600px;
-  }
-
-  .empty-action {
-    margin-top: 8px;
-  }
-
-  /* Dark Mode */
-  :global([data-theme="dark"]) .empty-icon {
-    opacity: 0.4;
-  }
-
-  :global([data-theme="dark"]) .empty-state:hover .empty-icon {
-    opacity: 0.6;
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .empty-state {
-      padding: 60px 20px;
-    }
-
-    .empty-title {
-      font-size: 20px;
-    }
-
-    .empty-description {
-      font-size: 14px;
-    }
-
-    .emoji-icon {
-      font-size: 56px;
-    }
-  }
-</style>

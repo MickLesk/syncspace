@@ -73,233 +73,93 @@
 </script>
 
 <!-- Notification Bell -->
-<div class="notification-bell">
+<div class="relative">
   <button
-    class="bell-button"
+    class="relative bg-transparent border-none cursor-pointer p-2 rounded-lg transition-colors duration-200 hover:bg-black/5 dark:hover:bg-white/10"
     onclick={toggleDropdown}
     aria-label="Notifications"
   >
-    <span class="bell-icon">🔔</span>
+    <span class="text-xl block">🔔</span>
     {#if $unreadCount > 0}
-      <span class="badge">{$unreadCount}</span>
+      <span
+        class="absolute top-1 right-1 bg-red-500 text-white rounded-full px-1.5 py-0.5 text-[11px] font-semibold min-w-[18px] text-center"
+        >{$unreadCount}</span
+      >
     {/if}
   </button>
 
   {#if showDropdown}
-    <div class="dropdown">
-      <div class="dropdown-header">
-        <h3>Notifications</h3>
+    <div
+      class="absolute top-[calc(100%+8px)] right-0 bg-white dark:bg-gray-800 rounded-xl shadow-lg w-[360px] max-h-[500px] flex flex-col z-[1000] border border-gray-200 dark:border-gray-700"
+    >
+      <div
+        class="flex justify-between items-center px-4 py-4 border-b border-gray-200 dark:border-gray-700"
+      >
+        <h3 class="m-0 text-base font-semibold text-gray-900 dark:text-white">
+          Notifications
+        </h3>
         {#if $unreadCount > 0}
-          <button class="mark-all" onclick={markAllAsRead}>
+          <button
+            class="bg-transparent border-none text-blue-500 cursor-pointer text-[13px] px-2 py-1 hover:underline"
+            onclick={markAllAsRead}
+          >
             Mark all as read
           </button>
         {/if}
       </div>
 
-      <div class="notification-list">
+      <div class="overflow-y-auto max-h-[400px]">
         {#if recentNotifications.length === 0}
-          <div class="empty-state">
-            <span>📭</span>
+          <div class="py-12 px-6 text-center text-gray-400">
+            <span class="text-5xl block mb-2">📭</span>
             <p>No notifications</p>
           </div>
         {:else}
           {#each recentNotifications as notif}
             <button
-              class="notification-item"
-              class:unread={!notif.is_read}
+              class="w-full text-left flex gap-3 px-4 py-3 cursor-pointer transition-colors duration-200 relative border-none {notif.is_read
+                ? 'bg-transparent hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                : 'bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30'}"
               onclick={() => markAsRead(notif.id)}
               type="button"
             >
-              <div class="notif-icon">
+              <div class="text-2xl shrink-0">
                 {getNotificationIcon(notif.notification_type)}
               </div>
-              <div class="notif-content">
-                <div class="notif-title">{notif.title}</div>
-                <div class="notif-message">{notif.message}</div>
-                <div class="notif-time">{formatTime(notif.created_at)}</div>
+              <div class="flex-1 min-w-0">
+                <div
+                  class="font-semibold text-sm mb-0.5 text-gray-900 dark:text-white"
+                >
+                  {notif.title}
+                </div>
+                <div
+                  class="text-[13px] text-gray-500 dark:text-gray-400 overflow-hidden text-ellipsis whitespace-nowrap"
+                >
+                  {notif.message}
+                </div>
+                <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  {formatTime(notif.created_at)}
+                </div>
               </div>
               {#if !notif.is_read}
-                <div class="unread-dot"></div>
+                <div
+                  class="w-2 h-2 bg-blue-500 rounded-full shrink-0 mt-1.5"
+                ></div>
               {/if}
             </button>
           {/each}
         {/if}
       </div>
 
-      <div class="dropdown-footer">
-        <a href="#/notifications">View all notifications</a>
+      <div
+        class="border-t border-gray-200 dark:border-gray-700 px-4 py-3 text-center"
+      >
+        <a
+          href="#/notifications"
+          class="text-blue-500 no-underline text-sm font-medium hover:underline"
+          >View all notifications</a
+        >
       </div>
     </div>
   {/if}
 </div>
-
-<style>
-  .notification-bell {
-    position: relative;
-  }
-
-  .bell-button {
-    position: relative;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 8px;
-    transition: background 0.2s;
-  }
-
-  .bell-button:hover {
-    background: rgba(0, 0, 0, 0.05);
-  }
-
-  .bell-icon {
-    font-size: 20px;
-    display: block;
-  }
-
-  .badge {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    background: #ef4444;
-    color: white;
-    border-radius: 10px;
-    padding: 2px 6px;
-    font-size: 11px;
-    font-weight: 600;
-    min-width: 18px;
-    text-align: center;
-  }
-
-  .dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    width: 360px;
-    max-height: 500px;
-    display: flex;
-    flex-direction: column;
-    z-index: 1000;
-  }
-
-  .dropdown-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  .dropdown-header h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .mark-all {
-    background: none;
-    border: none;
-    color: #3b82f6;
-    cursor: pointer;
-    font-size: 13px;
-    padding: 4px 8px;
-  }
-
-  .mark-all:hover {
-    text-decoration: underline;
-  }
-
-  .notification-list {
-    overflow-y: auto;
-    max-height: 400px;
-  }
-
-  .empty-state {
-    padding: 48px 24px;
-    text-align: center;
-    color: #9ca3af;
-  }
-
-  .empty-state span {
-    font-size: 48px;
-    display: block;
-    margin-bottom: 8px;
-  }
-
-  .notification-item {
-    display: flex;
-    gap: 12px;
-    padding: 12px 16px;
-    cursor: pointer;
-    transition: background 0.2s;
-    position: relative;
-  }
-
-  .notification-item:hover {
-    background: #f9fafb;
-  }
-
-  .notification-item.unread {
-    background: #eff6ff;
-  }
-
-  .notif-icon {
-    font-size: 24px;
-    flex-shrink: 0;
-  }
-
-  .notif-content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .notif-title {
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 2px;
-    color: #111827;
-  }
-
-  .notif-message {
-    font-size: 13px;
-    color: #6b7280;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .notif-time {
-    font-size: 12px;
-    color: #9ca3af;
-    margin-top: 4px;
-  }
-
-  .unread-dot {
-    width: 8px;
-    height: 8px;
-    background: #3b82f6;
-    border-radius: 50%;
-    flex-shrink: 0;
-    margin-top: 6px;
-  }
-
-  .dropdown-footer {
-    border-top: 1px solid #e5e7eb;
-    padding: 12px 16px;
-    text-align: center;
-  }
-
-  .dropdown-footer a {
-    color: #3b82f6;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-  .dropdown-footer a:hover {
-    text-decoration: underline;
-  }
-</style>

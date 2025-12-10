@@ -102,30 +102,29 @@
 </script>
 
 <button
-  class="w-11 h-11 flex items-center justify-center transition-all duration-300 hover:scale-110"
+  class="theme-switcher w-11 h-11 flex items-center justify-center transition-all duration-300 hover:scale-110"
   onclick={toggleTheme}
   title="Toggle theme"
+  aria-label={currentTheme === "syncspace"
+    ? "Switch to dark mode"
+    : "Switch to light mode"}
 >
   <i
     class="{currentTheme === 'syncspace'
       ? 'bi-moon-fill'
-      : 'bi-sun-fill'} text-2xl {currentTheme === 'syncspace'
+      : 'bi-sun-fill'} text-2xl transition-transform duration-300 {currentTheme ===
+    'syncspace'
       ? 'text-indigo-500 hover:text-indigo-600'
       : 'text-amber-500 hover:text-amber-600'}"
   ></i>
 </button>
 
 <style>
-  button {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  button:hover {
+  .theme-switcher:hover {
     transform: rotate(15deg) scale(1.1);
   }
-  button i {
-    transition: transform 0.3s ease;
-  }
-  button:hover i {
+
+  .theme-switcher:hover i {
     transform: rotate(180deg);
   }
 </style>

@@ -88,19 +88,17 @@
   }
 </script>
 
-<div class="register-page">
-  <div class="register-container">
-    <div class="register-header">
-      <div class="logo">
-        <i
-          class="bi bi-person-plus-fill text-5xl text-primary-600"
-          aria-hidden="true"
+<div
+  class="min-h-screen flex items-center justify-center p-8 bg-gradient-to-br from-indigo-500 to-purple-600"
+>
+  <div class="w-full max-w-md">
+    <div class="text-center mb-8">
+      <div class="mb-4">
+        <i class="bi bi-person-plus-fill text-5xl text-white" aria-hidden="true"
         ></i>
       </div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-        Create Account
-      </h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-2">
+      <h1 class="text-3xl font-bold text-white">Create Account</h1>
+      <p class="text-white/80 mt-2">
         Join SyncSpace and start syncing your files
       </p>
     </div>
@@ -108,7 +106,9 @@
     {#if registrationEnabled === false}
       <ModernCard>
         <div class="text-center py-8">
-          <i class="bi bi-x-circle text-5xl text-error mb-4" aria-hidden="true"
+          <i
+            class="bi bi-x-circle text-5xl text-red-500 mb-4"
+            aria-hidden="true"
           ></i>
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
             Registration Disabled
@@ -135,78 +135,91 @@
         >
           <div class="space-y-4">
             {#if error}
-              <div class="alert alert-error">
+              <div
+                class="flex items-center gap-2 p-4 rounded-lg bg-red-500/10 text-red-600 border border-red-500/30"
+              >
                 <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
                 <span>{error}</span>
               </div>
             {/if}
 
             <!-- Username -->
-            <div class="form-control">
-              <label class="label" for="username">
-                <span class="label-text">Username *</span>
+            <div class="mb-4">
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                for="username"
+              >
+                Username *
               </label>
               <input
                 id="username"
                 type="text"
                 bind:value={username}
-                class="input input-bordered w-full"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                 placeholder="Enter username"
                 required
                 minlength="3"
                 disabled={loading}
               />
-              <div class="label">
-                <span class="label-text-alt">Minimum 3 characters</span>
-              </div>
+              <span class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+                >Minimum 3 characters</span
+              >
             </div>
 
             <!-- Email (optional) -->
-            <div class="form-control">
-              <label class="label" for="email">
-                <span class="label-text">Email (optional)</span>
+            <div class="mb-4">
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                for="email"
+              >
+                Email (optional)
               </label>
               <input
                 id="email"
                 type="email"
                 bind:value={email}
-                class="input input-bordered w-full"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                 placeholder="your@email.com"
                 disabled={loading}
               />
             </div>
 
             <!-- Password -->
-            <div class="form-control">
-              <label class="label" for="password">
-                <span class="label-text">{tr("password")} *</span>
+            <div class="mb-4">
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                for="password"
+              >
+                {tr("password")} *
               </label>
               <input
                 id="password"
                 type="password"
                 bind:value={password}
-                class="input input-bordered w-full"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                 placeholder="••••••••"
                 required
                 minlength="8"
                 disabled={loading}
               />
-              <div class="label">
-                <span class="label-text-alt">{tr("passwordMinimum8Chars")}</span
-                >
-              </div>
+              <span class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+                >{tr("passwordMinimum8Chars")}</span
+              >
             </div>
 
             <!-- Password Confirmation -->
-            <div class="form-control">
-              <label class="label" for="password-confirm">
-                <span class="label-text">{tr("confirmPassword")} *</span>
+            <div class="mb-4">
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                for="password-confirm"
+              >
+                {tr("confirmPassword")} *
               </label>
               <input
                 id="password-confirm"
                 type="password"
                 bind:value={passwordConfirm}
-                class="input input-bordered w-full"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                 placeholder="••••••••"
                 required
                 minlength="8"
@@ -243,7 +256,9 @@
     {:else}
       <ModernCard>
         <div class="text-center py-8">
-          <span class="loading loading-spinner loading-lg text-primary"></span>
+          <div
+            class="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto"
+          ></div>
           <p class="text-gray-600 dark:text-gray-400 mt-4">
             Checking registration status...
           </p>
@@ -252,46 +267,3 @@
     {/if}
   </div>
 </div>
-
-<style>
-  .register-page {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  }
-
-  .register-container {
-    width: 100%;
-    max-width: 450px;
-  }
-
-  .register-header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-
-  .logo {
-    margin-bottom: 1rem;
-  }
-
-  .form-control {
-    margin-bottom: 1rem;
-  }
-
-  .alert {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    border-radius: 0.5rem;
-  }
-
-  .alert-error {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-  }
-</style>

@@ -29,7 +29,11 @@
                 class="bi bi-file-earmark-x-fill text-6xl text-primary-600 dark:text-primary-400"
               ></i>
             </div>
-            <div class="text-8xl font-bold gradient-text-primary">404</div>
+            <div
+              class="text-8xl font-bold bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-400 bg-clip-text text-transparent"
+            >
+              404
+            </div>
           </div>
 
           <!-- Error Message -->
@@ -60,7 +64,7 @@
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <a
                 href="#/files"
-                class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group"
+                class="p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group backdrop-blur-sm bg-white/70 dark:bg-gray-800/70 border border-white/30 dark:border-white/10"
               >
                 <i
                   class="bi bi-folder-fill text-2xl text-green-500 group-hover:scale-110 transition-transform"
@@ -72,7 +76,7 @@
               </a>
               <a
                 href="#/favorites"
-                class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group"
+                class="p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group backdrop-blur-sm bg-white/70 dark:bg-gray-800/70 border border-white/30 dark:border-white/10"
               >
                 <i
                   class="bi bi-star-fill text-2xl text-yellow-500 group-hover:scale-110 transition-transform"
@@ -84,7 +88,7 @@
               </a>
               <a
                 href="#/recent"
-                class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group"
+                class="p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group backdrop-blur-sm bg-white/70 dark:bg-gray-800/70 border border-white/30 dark:border-white/10"
               >
                 <i
                   class="bi bi-clock-fill text-2xl text-green-500 group-hover:scale-110 transition-transform"
@@ -96,7 +100,7 @@
               </a>
               <a
                 href="#/settings"
-                class="glass-card p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group"
+                class="p-4 rounded-xl hover:scale-105 transition-transform flex flex-col items-center gap-2 group backdrop-blur-sm bg-white/70 dark:bg-gray-800/70 border border-white/30 dark:border-white/10"
               >
                 <i
                   class="bi bi-gear-fill text-2xl text-purple-500 group-hover:scale-110 transition-transform"
@@ -113,52 +117,3 @@
     </div>
   </div>
 </PageWrapper>
-
-<style>
-  /* Animation definitions */
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(40px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: scale(1.05);
-      opacity: 0.9;
-    }
-  }
-
-  /* Global utility classes used in template */
-  :global(.animate-slide-up) {
-    animation: slideUp 0.6s ease-out;
-  }
-
-  :global(.gradient-text-primary) {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  :global(.glass-card) {
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
-
-  :global(.dark) :global(.glass-card) {
-    background: rgba(45, 45, 60, 0.7);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-</style>

@@ -2,6 +2,7 @@
   /**
    * ConfirmDialog Component
    * Styled confirmation dialog als Ersatz für native confirm()
+   * Pure Tailwind CSS - no custom styles
    *
    * @component
    * @example
@@ -12,20 +13,17 @@
    *   confirmText="Delete"
    *   cancelText="Cancel"
    *   variant="danger"
-   *   on:confirm={handleDelete}
-   *   on:cancel={handleCancel}
+   *   onconfirm={handleDelete}
+   *   oncancel={handleCancel}
    * />
    */
 
-  import { createEventDispatcher } from "svelte";
   import Icon from "./Icon.svelte";
-  import Button from "./Button.svelte";
+  import ModernButton from "./ModernButton.svelte";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
-
-  const dispatch = createEventDispatcher();
 
   /** @type {boolean} - Ob Dialog geöffnet ist */
   let {
@@ -38,6 +36,8 @@
     icon = "",
     loading = false,
     content,
+    onconfirm = () => {},
+    oncancel = () => {},
   } = $props();
 
   // Derived default texts
@@ -61,13 +61,13 @@
 
   function handleConfirm() {
     if (loading) return;
-    dispatch("confirm");
+    onconfirm();
   }
 
   function handleCancel() {
     if (loading) return;
     open = false;
-    dispatch("cancel");
+    oncancel();
   }
 
   function handleBackdropClick(event) {
@@ -89,16 +89,13 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="confirm-dialog-backdrop"
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-5 animate-fade-in"
     onclick={handleBackdropClick}
     onkeydown={handleKeydown}
     role="presentation"
   >
     <div
-      class="confirm-dialog"
-      class:variant-danger={variant === "danger"}
-      class:variant-warning={variant === "warning"}
-      class:variant-success={variant === "success"}
+      class="bg-white dark:bg-gray-900 rounded-3xl p-8 max-w-lg w-full shadow-2xl flex flex-col items-center gap-6 animate-slide-up"
       onclick={(e) => e.stopPropagation()}
       onkeydown={handleKeydown}
       role="alertdialog"
@@ -108,14 +105,31 @@
       tabindex="-1"
     >
       <!-- Icon Circle -->
-      <div class="dialog-icon-circle">
+      <div
+        class="w-20 h-20 rounded-full flex items-center justify-center shrink-0 {variant ===
+        'danger'
+          ? 'bg-red-500/10 text-red-500'
+          : variant === 'warning'
+            ? 'bg-amber-500/10 text-amber-500'
+            : variant === 'success'
+              ? 'bg-green-500/10 text-green-500'
+              : 'bg-primary-500/10 text-primary-500'}"
+      >
         <Icon name={displayIcon} size={32} />
       </div>
 
       <!-- Content -->
-      <div class="dialog-content">
-        <h2 id="confirm-dialog-title" class="dialog-title">{defaultTitle}</h2>
-        <p id="confirm-dialog-message" class="dialog-message">
+      <div class="text-center w-full">
+        <h2
+          id="confirm-dialog-title"
+          class="text-2xl font-semibold text-gray-900 dark:text-white mb-3"
+        >
+          {defaultTitle}
+        </h2>
+        <p
+          id="confirm-dialog-message"
+          class="text-base leading-relaxed text-gray-600 dark:text-gray-400"
+        >
           {defaultMessage}
         </p>
 
@@ -123,50 +137,39 @@
       </div>
 
       <!-- Actions -->
-      <div class="dialog-actions">
-        <Button
-          onClick={handleCancel}
-          variant="outlined"
-          size="medium"
+      <div
+        class="flex gap-3 w-full justify-end max-sm:flex-col-reverse max-sm:gap-2"
+      >
+        <ModernButton
+          onclick={handleCancel}
+          variant="secondary"
+          size="md"
           disabled={loading}
+          class="flex-1 max-w-[150px] max-sm:max-w-none"
         >
           {defaultCancelText}
-        </Button>
-        <Button
-          onClick={handleConfirm}
+        </ModernButton>
+        <ModernButton
+          onclick={handleConfirm}
           variant={variant === "danger"
             ? "danger"
             : variant === "success"
               ? "success"
-              : "filled"}
-          size="medium"
+              : "primary"}
+          size="md"
           disabled={loading}
+          {loading}
+          class="flex-1 max-w-[150px] max-sm:max-w-none"
         >
-          {#if loading}
-            <div class="spinner"></div>
-          {/if}
           {defaultConfirmText}
-        </Button>
+        </ModernButton>
       </div>
     </div>
   </div>
 {/if}
 
 <style>
-  .confirm-dialog-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    padding: 20px;
-    animation: fadeIn 0.2s ease-out;
-  }
-
-  @keyframes fadeIn {
+  @keyframes fade-in {
     from {
       opacity: 0;
     }
@@ -175,21 +178,7 @@
     }
   }
 
-  .confirm-dialog {
-    background: var(--md-sys-color-surface);
-    border-radius: 24px;
-    padding: 32px;
-    max-width: 480px;
-    width: 100%;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  @keyframes slideUp {
+  @keyframes slide-up {
     from {
       opacity: 0;
       transform: translateY(30px) scale(0.95);
@@ -200,126 +189,11 @@
     }
   }
 
-  /* Icon Circle */
-  .dialog-icon-circle {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(99, 102, 241, 0.12);
-    color: var(--md-sys-color-primary);
-    flex-shrink: 0;
+  .animate-fade-in {
+    animation: fade-in 0.2s ease-out;
   }
 
-  .variant-danger .dialog-icon-circle {
-    background: rgba(239, 68, 68, 0.12);
-    color: var(--md-sys-color-error);
-  }
-
-  .variant-warning .dialog-icon-circle {
-    background: rgba(245, 158, 11, 0.12);
-    color: #f59e0b;
-  }
-
-  .variant-success .dialog-icon-circle {
-    background: rgba(16, 185, 129, 0.12);
-    color: var(--md-sys-color-success, #10b981);
-  }
-
-  /* Content */
-  .dialog-content {
-    text-align: center;
-    width: 100%;
-  }
-
-  .dialog-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--md-sys-color-on-surface);
-    margin: 0 0 12px 0;
-    font-family:
-      "Inter",
-      -apple-system,
-      BlinkMacSystemFont,
-      "Segoe UI",
-      sans-serif;
-  }
-
-  .dialog-message {
-    font-size: 16px;
-    line-height: 1.5;
-    color: var(--md-sys-color-on-surface-variant);
-    margin: 0;
-  }
-
-  /* Actions */
-  .dialog-actions {
-    display: flex;
-    gap: 12px;
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .dialog-actions :global(button) {
-    flex: 1;
-    max-width: 150px;
-  }
-
-  /* Loading Spinner */
-  .spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-right: 8px;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Dark Mode */
-  :global([data-theme="dark"]) .confirm-dialog {
-    background: rgba(30, 30, 38, 0.98);
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .confirm-dialog-backdrop {
-      padding: 16px;
-    }
-
-    .confirm-dialog {
-      padding: 24px;
-      gap: 20px;
-    }
-
-    .dialog-icon-circle {
-      width: 64px;
-      height: 64px;
-    }
-
-    .dialog-title {
-      font-size: 20px;
-    }
-
-    .dialog-message {
-      font-size: 14px;
-    }
-
-    .dialog-actions {
-      flex-direction: column-reverse;
-      gap: 8px;
-    }
-
-    .dialog-actions :global(button) {
-      max-width: none;
-    }
+  .animate-slide-up {
+    animation: slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 </style>

@@ -160,24 +160,20 @@
 </script>
 
 <div
-  class="virtual-list-container"
+  class="virtual-list-container relative overflow-y-auto overflow-x-hidden h-full"
   onscroll={handleScroll}
   use:handleResize
   {...restProps}
-  style="overflow-y: auto; height: 100%; overflow-x: hidden; contain: layout style paint;"
 >
-  <div
-    class="virtual-list-spacer"
-    style="height: {totalHeight}px; position: relative; will-change: contents;"
-  >
+  <div class="relative" style="height: {totalHeight}px; will-change: contents;">
     <div
-      class="virtual-list-content"
-      style="position: absolute; top: {offsetY}px; left: 0; right: 0; will-change: transform;"
+      class="absolute left-0 right-0"
+      style="top: {offsetY}px; will-change: transform;"
     >
       {#if isGrid}
         <!-- Grid layout with responsive columns -->
         <div
-          class="virtual-grid"
+          class="w-full"
           style="display: grid; grid-template-columns: repeat({effectiveColumns}, 1fr); gap: 1rem; contain: layout style;"
         >
           {#each visibleItems as item, index (item.id || item.file_path || item.name || startIndex + index)}
@@ -186,7 +182,7 @@
         </div>
       {:else}
         <!-- List layout -->
-        <div class="virtual-list-items" style="contain: layout style;">
+        <div class="w-full" style="contain: layout style;">
           {#each visibleItems as item, index (item.id || item.file_path || item.name || startIndex + index)}
             {@render children(item, startIndex + index)}
           {/each}
@@ -197,31 +193,15 @@
 </div>
 
 <style>
+  /* Performance-critical CSS that can't be done with Tailwind utilities */
   .virtual-list-container {
-    position: relative;
     will-change: scroll-position;
-    /* Enable GPU acceleration */
     transform: translateZ(0);
-    /* Improve scroll performance */
     -webkit-overflow-scrolling: touch;
-    /* Contain layout for better performance */
     contain: strict;
   }
 
-  .virtual-list-content {
-    will-change: transform;
-    /* GPU acceleration for smoother scrolling */
-    transform: translateZ(0);
-  }
-
-  .virtual-grid,
-  .virtual-list-items {
-    width: 100%;
-    /* Prevent layout shifts */
-    contain: layout style;
-  }
-
-  /* Smooth scrollbar styling */
+  /* Custom scrollbar styling */
   .virtual-list-container::-webkit-scrollbar {
     width: 12px;
   }
@@ -242,7 +222,6 @@
     background-clip: padding-box;
   }
 
-  /* Dark mode scrollbar */
   :global(.dark) .virtual-list-container::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.2);
     background-clip: padding-box;

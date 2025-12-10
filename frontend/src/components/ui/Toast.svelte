@@ -23,21 +23,6 @@
     }
   }
 
-  function getAlertClass(type) {
-    switch (type) {
-      case "success":
-        return "alert-success";
-      case "error":
-        return "alert-error";
-      case "warning":
-        return "alert-warning";
-      case "info":
-        return "alert-info";
-      default:
-        return "alert-info";
-    }
-  }
-
   // Start progress bar animation
   function startProgress(toastId, duration) {
     const interval = setInterval(() => {
@@ -84,43 +69,68 @@
 >
   {#each $toasts as toast (toast.id)}
     <div
-      class="toast-item {getAlertClass(
-        toast.type
-      )} pointer-events-auto toast-slide-in"
+      class="min-w-[360px] max-w-[500px] max-sm:min-w-0 max-sm:max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-800 border border-gray-900/10 dark:border-white/10 rounded-xl shadow-xl overflow-hidden animate-slide-in pointer-events-auto backdrop-blur-sm"
       role="alert"
     >
-      <div class="toast-content">
-        <div class="toast-icon-wrapper">
+      <div class="flex items-start gap-3.5 px-5 py-4">
+        <!-- Icon -->
+        <div
+          class="shrink-0 flex items-center justify-center w-10 h-10 rounded-[10px] {toast.type ===
+          'success'
+            ? 'bg-green-500/15 text-green-500'
+            : toast.type === 'error'
+              ? 'bg-red-500/15 text-red-500'
+              : toast.type === 'warning'
+                ? 'bg-amber-500/15 text-amber-500'
+                : 'bg-blue-500/15 text-blue-500'}"
+        >
           <i
-            class="bi bi-{getIcon(toast.type)} toast-icon {toast.type ===
-            'success'
-              ? 'success-checkmark'
+            class="bi bi-{getIcon(toast.type)} text-xl {toast.type === 'success'
+              ? 'animate-success-check'
               : toast.type === 'error'
-                ? 'error-shake'
+                ? 'animate-error-shake'
                 : ''}"
           ></i>
         </div>
 
-        <div class="toast-text-wrapper">
+        <!-- Text -->
+        <div class="flex-1 min-w-0 pt-1">
           {#if toast.title}
-            <p class="toast-title">{toast.title}</p>
+            <p
+              class="text-[15px] font-bold text-gray-900 dark:text-gray-50 m-0 mb-1"
+            >
+              {toast.title}
+            </p>
           {/if}
-          <p class="toast-message">{toast.message}</p>
+          <p
+            class="text-sm text-gray-900/80 dark:text-gray-50/80 m-0 leading-snug"
+          >
+            {toast.message}
+          </p>
         </div>
 
+        <!-- Close button -->
         <button
-          class="toast-close-btn"
+          class="shrink-0 flex items-center justify-center w-8 h-8 border-none bg-gray-900/5 dark:bg-gray-50/5 text-gray-900/60 dark:text-gray-50/60 rounded-md cursor-pointer transition-all duration-200 hover:bg-gray-900/10 dark:hover:bg-gray-50/10 hover:text-gray-900 dark:hover:text-gray-50"
           onclick={() => removeToast(toast.id)}
-          aria-label="Close">
+          aria-label="Close"
+        >
           <i class="bi bi-x-lg" aria-hidden="true"></i>
         </button>
       </div>
 
       <!-- Progress bar -->
-      <div class="toast-progress-bg">
+      <div class="h-[3px] bg-gray-900/5 dark:bg-gray-50/5 overflow-hidden">
         <div
           id="toast-progress-{toast.id}"
-          class="toast-progress-bar {toast.type}"
+          class="h-full transition-[width] duration-[50ms] ease-linear {toast.type ===
+          'success'
+            ? 'bg-green-500'
+            : toast.type === 'error'
+              ? 'bg-red-500'
+              : toast.type === 'warning'
+                ? 'bg-amber-500'
+                : 'bg-blue-500'}"
           style="width: 100%"
         ></div>
       </div>
@@ -129,155 +139,7 @@
 </div>
 
 <style>
-  .toast-item {
-    min-width: 360px;
-    max-width: 500px;
-    background: white;
-    border: 1px solid rgba(17, 24, 39, 0.1);
-    border-radius: 12px;
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(8px);
-  }
-
-  :global(.dark) .toast-item {
-    background: #1f2937;
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .toast-content {
-    display: flex;
-    align-items: start;
-    gap: 0.875rem;
-    padding: 1rem 1.25rem;
-  }
-
-  .toast-icon-wrapper {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-  }
-
-  .toast-icon {
-    font-size: 1.25rem;
-  }
-
-  .alert-success .toast-icon-wrapper {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
-  }
-
-  .alert-error .toast-icon-wrapper {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-  }
-
-  .alert-warning .toast-icon-wrapper {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
-  }
-
-  .alert-info .toast-icon-wrapper {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-  }
-
-  .toast-text-wrapper {
-    flex: 1;
-    min-width: 0;
-    padding-top: 0.25rem;
-  }
-
-  .toast-title {
-    font-size: 0.9375rem;
-    font-weight: 700;
-    color: #111827;
-    margin: 0 0 0.25rem 0;
-  }
-
-  :global(.dark) .toast-title {
-    color: #f9fafb;
-  }
-
-  .toast-message {
-    font-size: 0.875rem;
-    color: rgba(17, 24, 39, 0.8);
-    margin: 0;
-    line-height: 1.4;
-  }
-
-  :global(.dark) .toast-message {
-    color: rgba(249, 250, 251, 0.8);
-  }
-
-  .toast-close-btn {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: none;
-    background: rgba(17, 24, 39, 0.05);
-    color: rgba(17, 24, 39, 0.6);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  :global(.dark) .toast-close-btn {
-    background: rgba(249, 250, 251, 0.05);
-    color: rgba(249, 250, 251, 0.6);
-  }
-
-  .toast-close-btn:hover {
-    background: rgba(17, 24, 39, 0.1);
-    color: #111827;
-  }
-
-  :global(.dark) .toast-close-btn:hover {
-    background: rgba(249, 250, 251, 0.1);
-    color: #f9fafb;
-  }
-
-  /* Progress Bar */
-  .toast-progress-bg {
-    height: 3px;
-    background: rgba(17, 24, 39, 0.05);
-    overflow: hidden;
-  }
-
-  :global(.dark) .toast-progress-bg {
-    background: rgba(249, 250, 251, 0.05);
-  }
-
-  .toast-progress-bar {
-    height: 100%;
-    transition: width 50ms linear;
-  }
-
-  .toast-progress-bar.success {
-    background: #10b981;
-  }
-
-  .toast-progress-bar.error {
-    background: #ef4444;
-  }
-
-  .toast-progress-bar.warning {
-    background: #f59e0b;
-  }
-
-  .toast-progress-bar.info {
-    background: #3b82f6;
-  }
-
-  @keyframes slideIn {
+  @keyframes slide-in {
     from {
       transform: translateX(100%);
       opacity: 0;
@@ -288,10 +150,40 @@
     }
   }
 
-  @media (max-width: 640px) {
-    .toast-item {
-      min-width: unset;
-      max-width: calc(100vw - 2rem);
+  .animate-slide-in {
+    animation: slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes success-check {
+    0%,
+    100% {
+      transform: scale(1);
     }
+    50% {
+      transform: scale(1.2);
+    }
+  }
+
+  .animate-success-check {
+    animation: success-check 0.5s ease-out;
+  }
+
+  @keyframes error-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20%,
+    60% {
+      transform: translateX(-3px);
+    }
+    40%,
+    80% {
+      transform: translateX(3px);
+    }
+  }
+
+  .animate-error-shake {
+    animation: error-shake 0.5s ease-out;
   }
 </style>

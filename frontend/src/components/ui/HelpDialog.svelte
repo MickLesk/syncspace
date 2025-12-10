@@ -185,6 +185,7 @@
 {/if}
 
 <style>
+  /* Hide default details marker */
   details summary {
     list-style: none;
   }
@@ -193,6 +194,7 @@
     display: none;
   }
 
+  /* Animations */
   @keyframes fade-in {
     from {
       opacity: 0;
@@ -216,7 +218,6 @@
   .animate-fade-in {
     animation: fade-in 0.2s ease-out;
   }
-
   .animate-scale-in {
     animation: scale-in 0.3s ease-out;
   }

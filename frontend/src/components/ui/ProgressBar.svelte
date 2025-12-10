@@ -13,69 +13,73 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   const percentage = $derived(Math.min((value / max) * 100, 100));
+
+  const trackHeight = $derived(
+    size === "small" ? "h-1.5" : size === "large" ? "h-3" : "h-2"
+  );
+
+  const labelSize = $derived(
+    size === "small" ? "text-xs" : size === "large" ? "text-sm" : "text-[13px]"
+  );
+
+  const percentageSize = $derived(
+    size === "small"
+      ? "text-[11px]"
+      : size === "large"
+        ? "text-[13px]"
+        : "text-xs"
+  );
+
+  const variantClasses = $derived(
+    variant === "success"
+      ? "bg-gradient-to-r from-green-500 to-teal-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+      : variant === "warning"
+        ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_0_12px_rgba(245,158,11,0.4)]"
+        : variant === "error"
+          ? "bg-gradient-to-r from-red-500 to-red-600 shadow-[0_0_12px_rgba(239,68,68,0.4)]"
+          : variant === "glass"
+            ? "bg-indigo-500/50 backdrop-blur-sm shadow-[0_0_12px_rgba(99,102,241,0.3)]"
+            : "bg-gradient-to-r from-indigo-500 to-purple-500 shadow-[0_0_12px_rgba(99,102,241,0.4)]"
+  );
 </script>
 
-<div class="progress-wrapper {size}">
+<div class="w-full">
   {#if showLabel}
-    <div class="progress-labels">
-      <span class="label">{value} / {max}</span>
-      <span class="percentage">{Math.round(percentage)}%</span>
+    <div class="flex justify-between items-center mb-2">
+      <span
+        class="{labelSize} font-semibold text-gray-900 dark:text-white tracking-tight"
+      >
+        {value} / {max}
+      </span>
+      <span class="{percentageSize} font-bold text-gray-500 dark:text-gray-400">
+        {Math.round(percentage)}%
+      </span>
     </div>
   {/if}
 
-  <div class="progress-track">
+  <div
+    class="w-full {trackHeight} bg-gray-900/5 dark:bg-white/10 rounded-lg overflow-hidden shadow-inner"
+  >
     <div
-      class="progress-fill {variant}"
-      class:animated
+      class="h-full rounded-lg transition-[width] duration-500 ease-out relative overflow-hidden {variantClasses} {animated
+        ? 'shimmer'
+        : ''}"
       style="width: {percentage}%"
     ></div>
   </div>
 </div>
 
 <style>
-  .progress-wrapper {
-    width: 100%;
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
   }
 
-  .progress-labels {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-
-  .label {
-    font-family: "Inter", sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--md-sys-color-on-surface);
-    letter-spacing: -0.2px;
-  }
-
-  .percentage {
-    font-family: "Inter", sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--md-sys-color-on-surface-variant);
-  }
-
-  .progress-track {
-    width: 100%;
-    background: rgba(15, 23, 42, 0.08);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
-  }
-
-  .progress-fill {
-    height: 100%;
-    border-radius: 8px;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .progress-fill.animated::after {
+  .shimmer::after {
     content: "";
     position: absolute;
     top: 0;
@@ -89,75 +93,5 @@
       transparent
     );
     animation: shimmer 2s infinite;
-  }
-
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(100%);
-    }
-  }
-
-  /* Sizes */
-  .small .progress-track {
-    height: 6px;
-  }
-
-  .small .label {
-    font-size: 12px;
-  }
-
-  .small .percentage {
-    font-size: 11px;
-  }
-
-  .medium .progress-track {
-    height: 8px;
-  }
-
-  .large .progress-track {
-    height: 12px;
-  }
-
-  .large .label {
-    font-size: 14px;
-  }
-
-  .large .percentage {
-    font-size: 13px;
-  }
-
-  /* Variants */
-  .primary {
-    background: linear-gradient(90deg, #6366f1, #8b5cf6);
-    box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
-  }
-
-  .success {
-    background: linear-gradient(90deg, #10b981, #14b8a6);
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
-  }
-
-  .warning {
-    background: linear-gradient(90deg, #f59e0b, #f97316);
-    box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
-  }
-
-  .error {
-    background: linear-gradient(90deg, #ef4444, #dc2626);
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
-  }
-
-  .glass {
-    background: rgba(99, 102, 241, 0.5);
-    backdrop-filter: blur(8px);
-    box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
-  }
-
-  /* Dark Mode */
-  :global(.dark) .progress-track {
-    background: rgba(255, 255, 255, 0.08);
   }
 </style>

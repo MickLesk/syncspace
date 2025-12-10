@@ -8,7 +8,7 @@
 
 ## ✅ Abgeschlossene Aufgaben
 
-### 1. Ungenutzte Komponenten verschoben (36 Dateien)
+### 1. Ungenutzte Komponenten verschoben (29 Dateien)
 **Ziel:** `_backup/unused_components/`
 
 - AccessibleModal.svelte
@@ -21,23 +21,17 @@
 - Chip.svelte
 - CollaborationPanel.svelte
 - ConnectionStatusBadge.svelte
-- ContextMenu.svelte
 - DeleteDialog.svelte
-- DestinationPicker.svelte
 - DragDropList.svelte
 - FilterPanel.svelte
-- HelpDialog.svelte
-- Icon.svelte
 - InfoCard.svelte
 - InputDialog.svelte
 - KeyboardShortcutsPanel.svelte
 - LazyImage.svelte
 - MobileContextMenu.svelte
 - MobileNav.svelte
-- NotificationBell.svelte
 - NotificationCenter.svelte
 - OptimizedVirtualList.svelte
-- PageHeader.svelte
 - PreviewModal.svelte
 - ResponsiveImage.svelte
 - SearchBar.svelte
@@ -46,12 +40,47 @@
 - StatCard.svelte
 - TabBar.svelte
 - TanStackVirtualList.svelte
-- ThemeSwitcher.svelte
+
+**Wiederhergestellt (werden noch verwendet):**
+- ThemeSwitcher.svelte (von AppHeader)
+- NotificationBell.svelte (von AppHeader)
+- HelpDialog.svelte (von AppHeader)
+- DestinationPicker.svelte (von BatchMoveDialog)
+- PageHeader.svelte (von FtpSyncView, UsersView, DuplicatesView, NotificationsView, EmailIntegrationView, SharedView)
+- ContextMenu.svelte (von FavoritesView)
+- Icon.svelte (von EmptyState)
 
 ### 2. HelpView integriert
 - `pages/user/HelpView.svelte` aus _backup kopiert
 - Route in App.svelte hinzugefügt (`#help`)
 - Nutzt reines Tailwind/DaisyUI (kein custom CSS!)
+
+### 3. UI-Komponenten zu reinem Tailwind migriert
+
+- ✅ `EmptyState.svelte` - Komplett zu Tailwind migriert (129 Zeilen CSS entfernt)
+- ✅ `LoadingState.svelte` - Komplett zu Tailwind/DaisyUI migriert (35 Zeilen CSS entfernt)
+- ✅ `Modal.svelte` - CSS Cleanup (~200 Zeilen entfernt, nur Animationen behalten)
+- ✅ `ModernButton.svelte` - War bereits reines Tailwind (kein CSS!)
+- ✅ `ConfirmDialog.svelte` - Komplett zu Tailwind migriert (171→20 Zeilen CSS, nur Animationen)
+  - Button.svelte Import → ModernButton.svelte
+  - Event dispatcher → callback props (onconfirm, oncancel)
+- ✅ `UploadQueue.svelte` - Komplett zu Tailwind migriert (318→18 Zeilen CSS, nur scrollbar)
+- ⚠️ `AppHeader.svelte` - 1399 Zeilen CSS (zu komplex für schnelle Migration)
+- ⚠️ `Loading.svelte` - 248 Zeilen CSS (Splash screen, dekorativ - kann bleiben)
+
+**CSS Reduktion Gesamt:** ~883 Zeilen entfernt
+
+**Verbleibende UI-Komponenten mit CSS:**
+| Komponente | CSS Zeilen | Status |
+|------------|-----------|--------|
+| AppHeader | 1399 | 🔴 Später (zu komplex) |
+| Loading | 248 | ✅ Dekorativ, okay |
+| Chart | 207 | ✅ Chart.js spezifisch |
+| NotificationBell | 170 | 🟡 Später |
+| Toast | 167 | ✅ Animationen |
+| Modal | ~30 | ✅ Nur Animationen |
+| ConfirmDialog | ~20 | ✅ Nur Animationen |
+| UploadQueue | ~18 | ✅ Nur Scrollbar |
 
 ---
 
