@@ -70,26 +70,18 @@ CREATE TABLE IF NOT EXISTS pdf_metadata (
 
 CREATE INDEX IF NOT EXISTS idx_pdf_metadata_file_path ON pdf_metadata(file_path);
 
--- Virus scan results
-CREATE TABLE IF NOT EXISTS scan_results (
-    id TEXT PRIMARY KEY,
-    file_path TEXT NOT NULL,
-    file_hash TEXT NOT NULL,
-    scan_status TEXT NOT NULL, -- 'clean', 'infected', 'error', 'skipped'
-    threat_name TEXT,
-    scanner_used TEXT NOT NULL DEFAULT 'clamav',
-    scanner_version TEXT,
-    definitions_date TEXT,
-    scan_duration_ms INTEGER,
-    file_size INTEGER,
-    scanned_at TEXT NOT NULL DEFAULT (datetime('now')),
-    scanned_by TEXT -- user_id who initiated scan
-);
-
-CREATE INDEX IF NOT EXISTS idx_scan_results_file_path ON scan_results(file_path);
-CREATE INDEX IF NOT EXISTS idx_scan_results_file_hash ON scan_results(file_hash);
-CREATE INDEX IF NOT EXISTS idx_scan_results_scan_status ON scan_results(scan_status);
-CREATE INDEX IF NOT EXISTS idx_scan_results_scanned_at ON scan_results(scanned_at);
+-- Virus scan results - extend existing table from migration 010
+-- Original has: id, file_id, scan_status, virus_name, scanned_at, quarantined
+-- Adding new columns for enhanced scan functionality
+ALTER TABLE scan_results ADD COLUMN file_path TEXT;
+ALTER TABLE scan_results ADD COLUMN file_hash TEXT;
+ALTER TABLE scan_results ADD COLUMN threat_name TEXT;
+ALTER TABLE scan_results ADD COLUMN scanner_used TEXT DEFAULT 'clamav';
+ALTER TABLE scan_results ADD COLUMN scanner_version TEXT;
+ALTER TABLE scan_results ADD COLUMN definitions_date TEXT;
+ALTER TABLE scan_results ADD COLUMN scan_duration_ms INTEGER;
+ALTER TABLE scan_results ADD COLUMN file_size INTEGER;
+ALTER TABLE scan_results ADD COLUMN scanned_by TEXT;
 
 -- Quarantine entries
 CREATE TABLE IF NOT EXISTS quarantine_entries (
@@ -151,63 +143,17 @@ CREATE TABLE IF NOT EXISTS ftp_connections (
 
 CREATE INDEX IF NOT EXISTS idx_ftp_connections_user_id ON ftp_connections(user_id);
 
--- Email accounts for attachment sync
-CREATE TABLE IF NOT EXISTS email_accounts (
-    id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    name TEXT NOT NULL,
-    email_address TEXT NOT NULL,
-    protocol TEXT NOT NULL DEFAULT 'imap', -- 'imap', 'pop3'
-    server TEXT NOT NULL,
-    port INTEGER NOT NULL,
-    username TEXT NOT NULL,
-    password_encrypted TEXT NOT NULL,
-    use_tls INTEGER NOT NULL DEFAULT 1,
-    auto_fetch INTEGER NOT NULL DEFAULT 0,
-    fetch_interval_minutes INTEGER NOT NULL DEFAULT 30,
-    store_attachments INTEGER NOT NULL DEFAULT 1,
-    attachment_folder TEXT DEFAULT '/email_attachments',
-    last_fetch_at TEXT,
-    last_fetch_status TEXT,
-    last_fetch_error TEXT,
-    created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+-- Email accounts, messages, and attachments are already defined in 011_add_integration_features.sql
+-- We only add extra columns if needed via ALTER TABLE
+ALTER TABLE email_accounts ADD COLUMN auto_fetch INTEGER DEFAULT 0;
+ALTER TABLE email_accounts ADD COLUMN fetch_interval_minutes INTEGER DEFAULT 30;
+ALTER TABLE email_accounts ADD COLUMN store_attachments INTEGER DEFAULT 1;
+ALTER TABLE email_accounts ADD COLUMN attachment_folder TEXT DEFAULT '/email_attachments';
+ALTER TABLE email_accounts ADD COLUMN last_fetch_status TEXT;
+ALTER TABLE email_accounts ADD COLUMN last_fetch_error TEXT;
 
-CREATE INDEX IF NOT EXISTS idx_email_accounts_user_id ON email_accounts(user_id);
+ALTER TABLE email_messages ADD COLUMN body_text TEXT;
+ALTER TABLE email_messages ADD COLUMN body_html TEXT;
+ALTER TABLE email_messages ADD COLUMN is_read INTEGER DEFAULT 0;
 
--- Email messages (cached)
-CREATE TABLE IF NOT EXISTS email_messages (
-    id TEXT PRIMARY KEY,
-    account_id TEXT NOT NULL,
-    message_id TEXT NOT NULL,
-    subject TEXT,
-    from_address TEXT,
-    to_address TEXT,
-    date TEXT,
-    body_text TEXT,
-    body_html TEXT,
-    has_attachments INTEGER NOT NULL DEFAULT 0,
-    is_read INTEGER NOT NULL DEFAULT 0,
-    fetched_at TEXT NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (account_id) REFERENCES email_accounts(id) ON DELETE CASCADE,
-    UNIQUE(account_id, message_id)
-);
-
-CREATE INDEX IF NOT EXISTS idx_email_messages_account_id ON email_messages(account_id);
-
--- Email attachments
-CREATE TABLE IF NOT EXISTS email_attachments (
-    id TEXT PRIMARY KEY,
-    email_id TEXT NOT NULL,
-    file_id TEXT NOT NULL,
-    filename TEXT NOT NULL,
-    content_type TEXT,
-    size_bytes INTEGER,
-    created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (email_id) REFERENCES email_messages(id) ON DELETE CASCADE,
-    FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE SET NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_email_attachments_email_id ON email_attachments(email_id);
+ALTER TABLE email_attachments ADD COLUMN size_bytes INTEGER;

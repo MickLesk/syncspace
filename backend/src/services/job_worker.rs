@@ -79,7 +79,7 @@ async fn process_pending_jobs(db_pool: &SqlitePool) -> Result<(), Box<dyn std::e
         // Update job with result
         let now = Utc::now().to_rfc3339();
         let job_completed_or_failed = match &result {
-            Ok(ref result_data) => {
+            Ok(result_data) => {
                 sqlx::query(
                     r#"
                     UPDATE background_jobs
@@ -100,7 +100,7 @@ async fn process_pending_jobs(db_pool: &SqlitePool) -> Result<(), Box<dyn std::e
                 println!("✅ Job {} completed", job.id);
                 true
             }
-            Err(ref error) => {
+            Err(error) => {
                 let should_retry = job.attempts < job.max_attempts;
                 let status = if should_retry { "pending" } else { "failed" };
 
