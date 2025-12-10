@@ -344,5 +344,5 @@ pub fn router() -> Router<AppState> {
         .route("/decompress", post(decompress_files))
         .route("/analyze", get(analyze_compression))
         .route("/algorithms", get(get_algorithms))
-        .route("/stats", get(get_compression_stats))
+        .route("/compression-stats", get(get_compression_stats))
 }
