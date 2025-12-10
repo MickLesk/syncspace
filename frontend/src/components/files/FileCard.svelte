@@ -162,17 +162,15 @@
 </script>
 
 {#if viewMode === "grid"}
-  <div class="file-card-wrapper relative hover-lift">
+  <div class="file-card-wrapper relative transition-transform duration-200 hover:-translate-y-1 group">
     <!-- Favorite Star Button -->
     <button
       type="button"
-      class="favorite-btn absolute top-2 right-2 p-1.5 rounded-full transition-all z-10"
-      class:opacity-0={!isFavorite}
-      class:opacity-100={isFavorite}
-      class:hover:opacity-100={true}
+      class="absolute top-2 right-2 p-1.5 rounded-full transition-all z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border border-black/[0.08] dark:border-white/10 shadow-md hover:bg-white dark:hover:bg-gray-800 hover:border-black/[0.15] dark:hover:border-white/20 hover:scale-[1.15] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed {isFavorite ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}"
       onclick={toggleFavorite}
       disabled={favoriteLoading}
       title={isFavorite ? tr("removeFromFavorites") : tr("addToFavorites")}
+      aria-label={isFavorite ? tr("removeFromFavorites") : tr("addToFavorites")}
     >
       <i
         class="bi text-xl transition-colors"
@@ -181,6 +179,7 @@
         class:text-amber-400={isFavorite}
         class:text-gray-400={!isFavorite}
         class:hover:text-amber-400={!isFavorite}
+        aria-hidden="true"
       ></i>
     </button>
 
@@ -188,7 +187,7 @@
       type="button"
       draggable="true"
       data-file-name={file.name}
-      class="file-card-grid p-5 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl dark:shadow-gray-900/50 text-left w-full transition-all border-2 {selected
+      class="cursor-pointer select-none relative transition-all duration-200 p-5 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl dark:shadow-gray-900/50 text-left w-full border-2 {selected
         ? 'border-green-500 dark:border-green-500 bg-green-50 dark:bg-green-900/20'
         : isDropTarget
           ? 'border-green-400 bg-green-50'
@@ -331,11 +330,11 @@
     </button>
   </div>
 {:else}
-  <div class="file-card-wrapper relative hover-lift">
+  <div class="file-card-wrapper relative transition-transform duration-200 hover:-translate-y-1">
     <button
       type="button"
       draggable="true"
-      class="file-card-list p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg text-left w-full transition-all border-2 flex items-center gap-4 {selected
+      class="cursor-pointer select-none relative transition-all duration-200 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg text-left w-full border-2 flex items-center gap-4 {selected
         ? 'border-green-500 dark:border-green-500 bg-green-50 dark:bg-green-900/20'
         : isDropTarget
           ? 'border-green-400 bg-green-50'
@@ -471,10 +470,11 @@
     <!-- Favorite Star Button -->
     <button
       type="button"
-      class="favorite-btn-list absolute right-12 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all z-10"
+      class="absolute right-12 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border border-black/[0.08] dark:border-white/10 shadow-md hover:bg-white dark:hover:bg-gray-800 hover:border-black/[0.15] dark:hover:border-white/20 hover:scale-[1.15] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
       onclick={toggleFavorite}
       disabled={favoriteLoading}
       title={isFavorite ? tr("removeFromFavorites") : tr("addToFavorites")}
+      aria-label={isFavorite ? tr("removeFromFavorites") : tr("addToFavorites")}
     >
       <i
         class="bi text-xl transition-colors"
@@ -483,69 +483,8 @@
         class:text-yellow-500={isFavorite}
         class:text-gray-400={!isFavorite}
         class:hover:text-yellow-500={!isFavorite}
+        aria-hidden="true"
       ></i>
     </button>
   </div>
 {/if}
-
-<style>
-  .hover-lift {
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-4px);
-  }
-
-  .file-card-grid,
-  .file-card-list {
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-    transition: all 0.2s ease;
-  }
-
-  .favorite-btn,
-  .favorite-btn-list {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    z-index: 10;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .favorite-btn:hover,
-  .favorite-btn-list:hover {
-    background: rgba(255, 255, 255, 1);
-    border-color: rgba(0, 0, 0, 0.15);
-    transform: scale(1.15);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-
-  .favorite-btn:disabled,
-  .favorite-btn-list:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* Show favorite button on hover for grid view */
-  .file-card-grid:hover .favorite-btn:not(.opacity-100) {
-    opacity: 1 !important;
-  }
-
-  :global(.dark) .favorite-btn,
-  :global(.dark) .favorite-btn-list {
-    background: rgba(31, 41, 55, 0.95);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  :global(.dark) .favorite-btn:hover,
-  :global(.dark) .favorite-btn-list:hover {
-    background: rgba(31, 41, 55, 1);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  }
-</style>

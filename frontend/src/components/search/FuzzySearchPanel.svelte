@@ -158,4 +158,3 @@
     <LoadingState message={tr("searching")} />
   {/if}
 </div>
-

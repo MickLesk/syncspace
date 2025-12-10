@@ -69,7 +69,7 @@
 >
   {#each $toasts as toast (toast.id)}
     <div
-      class="min-w-[360px] max-w-[500px] max-sm:min-w-0 max-sm:max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-800 border border-gray-900/10 dark:border-white/10 rounded-xl shadow-xl overflow-hidden animate-slide-in pointer-events-auto backdrop-blur-sm"
+      class="min-w-[360px] max-w-[500px] max-sm:min-w-0 max-sm:max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-800 border border-gray-900/10 dark:border-white/10 rounded-xl shadow-xl overflow-hidden animate-toast-slide-in pointer-events-auto backdrop-blur-sm"
       role="alert"
     >
       <div class="flex items-start gap-3.5 px-5 py-4">
@@ -137,53 +137,3 @@
     </div>
   {/each}
 </div>
-
-<style>
-  @keyframes slide-in {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-
-  .animate-slide-in {
-    animation: slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  @keyframes success-check {
-    0%,
-    100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.2);
-    }
-  }
-
-  .animate-success-check {
-    animation: success-check 0.5s ease-out;
-  }
-
-  @keyframes error-shake {
-    0%,
-    100% {
-      transform: translateX(0);
-    }
-    20%,
-    60% {
-      transform: translateX(-3px);
-    }
-    40%,
-    80% {
-      transform: translateX(3px);
-    }
-  }
-
-  .animate-error-shake {
-    animation: error-shake 0.5s ease-out;
-  }
-</style>

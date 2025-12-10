@@ -255,7 +255,10 @@
       </div>
     {:else}
       <div class="text-center py-12">
-        <i class="bi bi-file-earmark-x text-6xl text-base-content/20 mb-4" aria-hidden="true"></i>
+        <i
+          class="bi bi-file-earmark-x text-6xl text-base-content/20 mb-4"
+          aria-hidden="true"
+        ></i>
         <h4 class="text-lg font-semibold mb-2">No Metadata Found</h4>
         <p class="text-base-content/60">
           This file type doesn't contain extractable metadata.
@@ -287,10 +290,12 @@
     </div>
   {:else}
     <div class="text-center py-12">
-      <i class="bi bi-question-circle text-6xl text-base-content/20 mb-4" aria-hidden="true"></i>
+      <i
+        class="bi bi-question-circle text-6xl text-base-content/20 mb-4"
+        aria-hidden="true"
+      ></i>
       <h4 class="text-lg font-semibold mb-2">No file selected</h4>
       <p class="text-base-content/60">Select a file to view its metadata.</p>
     </div>
   {/if}
 </div>
-

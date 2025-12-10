@@ -181,34 +181,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  /* Modal Animations */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px) scale(0.98);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  :global(.animate-fadeIn) {
-    animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  :global(.animate-slideIn) {
-    animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-</style>

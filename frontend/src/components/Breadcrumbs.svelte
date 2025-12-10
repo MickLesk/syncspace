@@ -72,14 +72,13 @@
 </script>
 
 <nav
-  class="flex items-center gap-1 text-sm overflow-x-auto py-2 px-1"
+  class="flex items-center gap-1 text-sm overflow-x-auto py-2 px-1 select-none scrollbar-modern"
   aria-label="Breadcrumb"
 >
   <!-- Home Button -->
   <button
     type="button"
-    class="breadcrumb-item flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all"
-    class:drop-target={dropTarget === -1}
+    class="flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all whitespace-nowrap text-green-500 dark:text-green-400 border-2 border-transparent hover:bg-green-500/10 hover:border-green-500/20 {dropTarget === -1 ? 'bg-green-500/15 border-green-500 border-dashed animate-pulse' : ''}"
     onclick={() => handleNavigate(-1)}
     ondragover={(e) => handleDragOver(e, -1)}
     ondragleave={() => handleDragLeave(-1)}
@@ -101,9 +100,7 @@
     <!-- Segment Button -->
     <button
       type="button"
-      class="breadcrumb-item flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all truncate max-w-[200px]"
-      class:drop-target={dropTarget === i}
-      class:last-segment={i === segments.length - 1}
+      class="flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all truncate max-w-[200px] whitespace-nowrap border-2 border-transparent {dropTarget === i ? 'bg-green-500/15 border-green-500 border-dashed animate-pulse' : ''} {i === segments.length - 1 ? 'bg-green-500/10 text-green-600 dark:text-green-300 font-semibold' : 'text-green-500 dark:text-green-400 hover:bg-green-500/10 hover:border-green-500/20'}"
       onclick={() => handleNavigate(i)}
       ondragover={(e) => handleDragOver(e, i)}
       ondragleave={() => handleDragLeave(i)}
@@ -117,79 +114,3 @@
   {/each}
 </nav>
 
-<style>
-  nav {
-    user-select: none;
-    scrollbar-width: thin;
-  }
-
-  nav::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  nav::-webkit-scrollbar-thumb {
-    background: rgba(34, 197, 94, 0.3);
-    border-radius: 2px;
-  }
-
-  nav::-webkit-scrollbar-thumb:hover {
-    background: rgba(34, 197, 94, 0.5);
-  }
-
-  .breadcrumb-item {
-    background: transparent;
-    color: #22c55e;
-    border: 2px solid transparent;
-    white-space: nowrap;
-  }
-
-  .breadcrumb-item:hover {
-    background: rgba(34, 197, 94, 0.08);
-    border-color: rgba(34, 197, 94, 0.2);
-  }
-
-  .breadcrumb-item.last-segment {
-    background: rgba(34, 197, 94, 0.1);
-    color: #16a34a;
-    font-weight: 600;
-  }
-
-  .breadcrumb-item.drop-target {
-    background: rgba(34, 197, 94, 0.15);
-    border-color: #22c55e;
-    border-style: dashed;
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      border-color: #22c55e;
-      background: rgba(34, 197, 94, 0.15);
-    }
-    50% {
-      border-color: #16a34a;
-      background: rgba(34, 197, 94, 0.25);
-    }
-  }
-
-  /* Dark Mode */
-  :global(.dark) .breadcrumb-item {
-    color: #4ade80;
-  }
-
-  :global(.dark) .breadcrumb-item:hover {
-    background: rgba(34, 197, 94, 0.12);
-    border-color: rgba(34, 197, 94, 0.25);
-  }
-
-  :global(.dark) .breadcrumb-item.last-segment {
-    background: rgba(34, 197, 94, 0.15);
-    color: #86efac;
-  }
-
-  :global(.dark) .breadcrumb-item.drop-target {
-    background: rgba(34, 197, 94, 0.2);
-    border-color: #4ade80;
-  }
-</style>

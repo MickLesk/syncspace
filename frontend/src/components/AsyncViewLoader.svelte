@@ -91,4 +91,3 @@
   {@const ResolvedComp = resolvedComponent}
   <ResolvedComp {...restProps} />
 {/if}
-

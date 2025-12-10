@@ -99,8 +99,8 @@
 </script>
 
 {#if visible && operations.length > 0}
-  <div class="batch-panel">
-    <div class="batch-header">
+  <div class="fixed bottom-4 right-4 w-[360px] max-w-[calc(100vw-2rem)] bg-base-100 border border-base-300 rounded-2xl shadow-xl dark:shadow-2xl z-[100] overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-base-300 bg-base-200">
       <div class="flex items-center gap-2">
         <i class="bi bi-layers text-lg text-primary-500" aria-hidden="true"></i>
         <span class="font-semibold">Batch Operations</span>
@@ -115,11 +115,11 @@
       </button>
     </div>
 
-    <div class="batch-list">
+    <div class="max-h-[300px] overflow-y-auto p-2 scrollbar-modern">
       {#each operations as op}
-        <div class="batch-item">
+        <div class="p-3 bg-base-200 rounded-lg mb-2 last:mb-0">
           <div class="flex items-center gap-3 mb-2">
-            <div class="status-icon {getStatusColor(op.status)}">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-sm {getStatusColor(op.status)}">
               <i
                 class="bi bi-{getStatusIcon(op.status)} {op.status === 'running'
                   ? 'animate-spin'
@@ -147,9 +147,9 @@
           </div>
 
           <!-- Progress Bar -->
-          <div class="progress-bar-bg">
+          <div class="h-1 bg-base-300 rounded-full overflow-hidden">
             <div
-              class="progress-bar-fill {getStatusColor(op.status)}"
+              class="h-full rounded-full transition-[width] duration-300 {getStatusColor(op.status)}"
               style="width: {formatProgress(op)}"
             ></div>
           </div>
@@ -172,82 +172,3 @@
   </div>
 {/if}
 
-<style>
-  .batch-panel {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    width: 360px;
-    max-width: calc(100vw - 2rem);
-    background: var(--md-sys-color-surface);
-    border: 1px solid var(--md-sys-color-outline-variant);
-    border-radius: 1rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-    z-index: 100;
-    overflow: hidden;
-  }
-
-  :global(.dark) .batch-panel {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  }
-
-  .batch-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--md-sys-color-outline-variant);
-    background: var(--md-sys-color-surface-container-low);
-  }
-
-  .batch-list {
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 0.5rem;
-  }
-
-  .batch-item {
-    padding: 0.75rem;
-    background: var(--md-sys-color-surface-container);
-    border-radius: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .batch-item:last-child {
-    margin-bottom: 0;
-  }
-
-  .status-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 0.875rem;
-  }
-
-  .progress-bar-bg {
-    height: 4px;
-    background: var(--md-sys-color-surface-container-highest);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .progress-bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 0.3s ease;
-  }
-
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-</style>

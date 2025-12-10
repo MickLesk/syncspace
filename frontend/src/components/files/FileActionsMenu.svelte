@@ -92,7 +92,7 @@
     {#if !file.is_directory && onPreview}
       <button
         type="button"
-        class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
+        class="transition-all duration-100 ease-linear select-none w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onPreview)}
       >
         <i class="bi bi-eye text-green-500" aria-hidden="true"></i>
@@ -103,7 +103,7 @@
     {#if !file.is_directory && onDownload}
       <button
         type="button"
-        class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
+        class="transition-all duration-100 ease-linear select-none w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onDownload)}
       >
         <i class="bi bi-download text-green-600" aria-hidden="true"></i>
@@ -114,7 +114,7 @@
     {#if !file.is_directory && onEdit}
       <button
         type="button"
-        class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
+        class="transition-all duration-100 ease-linear select-none w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onEdit)}
       >
         <i class="bi bi-file-earmark-code text-green-500" aria-hidden="true"
@@ -126,7 +126,7 @@
     {#if onRename}
       <button
         type="button"
-        class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
+        class="transition-all duration-100 ease-linear select-none w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onRename)}
       >
         <i class="bi bi-pencil text-yellow-500" aria-hidden="true"></i>
@@ -137,7 +137,7 @@
     {#if onMove}
       <button
         type="button"
-        class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
+        class="transition-all duration-100 ease-linear select-none w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onMove)}
       >
         <i class="bi bi-arrow-right-square text-purple-500" aria-hidden="true"
@@ -149,7 +149,7 @@
     {#if onCopy}
       <button
         type="button"
-        class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
+        class="transition-all duration-100 ease-linear select-none w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onCopy)}
       >
         <i class="bi bi-files text-cyan-500" aria-hidden="true"></i>
@@ -160,7 +160,7 @@
     {#if file.is_directory && onChangeFolderColor}
       <button
         type="button"
-        class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
+        class="transition-all duration-100 ease-linear select-none w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onChangeFolderColor)}
       >
         <i class="bi bi-palette text-pink-500" aria-hidden="true"></i>
@@ -173,7 +173,7 @@
     {#if !file.is_directory && onShare}
       <button
         type="button"
-        class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
+        class="transition-all duration-100 ease-linear select-none w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onShare)}
       >
         <i class="bi bi-share text-indigo-500" aria-hidden="true"></i>
@@ -184,7 +184,7 @@
     {#if !file.is_directory && onVersionHistory}
       <button
         type="button"
-        class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
+        class="transition-all duration-100 ease-linear select-none w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3"
         onclick={() => handleAction(onVersionHistory)}
       >
         <i class="bi bi-clock-history text-teal-500" aria-hidden="true"></i>
@@ -197,7 +197,7 @@
     {#if onDelete}
       <button
         type="button"
-        class="menu-item w-full px-4 py-2 text-left text-sm hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 text-red-600 dark:text-red-400"
+        class="transition-all duration-100 ease-linear select-none w-full px-4 py-2 text-left text-sm hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 text-red-600 dark:text-red-400"
         onclick={() => handleAction(onDelete)}
       >
         <i class="bi bi-trash" aria-hidden="true"></i>
@@ -206,10 +206,3 @@
     {/if}
   </div>
 </div>
-
-<style>
-  .menu-item {
-    transition: all 0.1s ease;
-    user-select: none;
-  }
-</style>

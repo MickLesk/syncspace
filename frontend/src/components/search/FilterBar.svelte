@@ -73,23 +73,24 @@
 </script>
 
 {#if activeFilters.length > 0}
-  <div class="filter-bar">
-    <div class="filter-bar-content">
-      <span class="filter-bar-title">
+  <div class="bg-base-200 rounded-lg px-4 py-3 mb-4 border border-base-content/10">
+    <div class="flex items-center gap-3 flex-wrap">
+      <span class="text-sm font-semibold flex items-center gap-2 text-base-content">
         <i class="bi bi-funnel" aria-hidden="true"></i>
         {tr("activeFilters")}:
       </span>
 
-      <div class="filter-chips">
+      <div class="flex flex-wrap gap-2 flex-1">
         {#each activeFilters as filter}
-          <div class="chip">
-            <span class="chip-label">{filter.label}</span>
+          <div class="inline-flex items-center gap-2 bg-primary text-primary-content pl-3 pr-2 py-1 rounded-full text-sm transition-all hover:opacity-90 hover:-translate-y-px">
+            <span class="whitespace-nowrap">{filter.label}</span>
             <button
-              class="chip-remove"
+              class="flex items-center justify-center w-5 h-5 rounded-full bg-black/20 hover:bg-black/30 transition-colors cursor-pointer"
               onclick={() => handleRemove(filter.key)}
               title={tr("removeFilter")}
+              aria-label={tr("removeFilter")}
             >
-              <i class="bi bi-x" aria-hidden="true"></i>
+              <i class="bi bi-x text-xs" aria-hidden="true"></i>
             </button>
           </div>
         {/each}
@@ -106,77 +107,3 @@
   </div>
 {/if}
 
-<style>
-  .filter-bar {
-    background: var(--fallback-b2, oklch(var(--b2)));
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    border: 1px solid var(--fallback-bc, oklch(var(--bc) / 0.1));
-  }
-
-  .filter-bar-content {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  .filter-bar-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--fallback-bc, oklch(var(--bc)));
-  }
-
-  .filter-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    flex: 1;
-  }
-
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--fallback-p, oklch(var(--p)));
-    color: var(--fallback-pc, oklch(var(--pc)));
-    padding: 0.25rem 0.5rem 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
-  }
-
-  .chip:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-  }
-
-  .chip-label {
-    white-space: nowrap;
-  }
-
-  .chip-remove {
-    all: unset;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.25rem;
-    height: 1.25rem;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.2);
-    transition: background 0.2s ease;
-  }
-
-  .chip-remove:hover {
-    background: rgba(0, 0, 0, 0.3);
-  }
-
-  .chip-remove i {
-    font-size: 0.75rem;
-  }
-</style>
