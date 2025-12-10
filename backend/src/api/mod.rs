@@ -58,12 +58,13 @@ pub mod workflow;
 // New API modules from POST_ALPHA_ROADMAP
 pub mod oauth;
 pub mod ldap;
-// Temporarily disabled - need API fixes
+// Re-enabled API modules
+pub mod ftp;
+pub mod email;
+// Disabled - need preview/scan modules first
 // pub mod thumbnails;
 // pub mod preview;
 // pub mod virus_scan;
-// pub mod ftp;
-// pub mod email;
 // pub mod webdav;
 
 use axum::{middleware, Router};
@@ -145,14 +146,14 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(guest::router()) // Guest/external user access
                 .merge(rate_limiting::router()) // Rate limiting & quotas management
                 // New routes from POST_ALPHA_ROADMAP
-                // .merge(thumbnails::router()) // Thumbnail generation - disabled
-                // .merge(preview::router()) // File preview generation - disabled
-                // .merge(virus_scan::router()) // Virus scanning & quarantine - disabled
+                // .merge(thumbnails::router()) // Thumbnail generation - needs module
+                // .merge(preview::router()) // File preview generation - needs module
+                // .merge(virus_scan::router()) // Virus scanning - needs module
                 .merge(oauth::protected_router()) // OAuth account linking
                 .merge(ldap::router()) // LDAP configuration (admin)
-                // .merge(ftp::router()) // FTP sync connections - disabled
-                // .merge(email::router()) // Email integration - disabled
-                // .merge(webdav::router()) // WebDAV protocol support - disabled
+                .merge(ftp::router()) // FTP sync connections
+                .merge(email::router()) // Email integration
+                // .merge(webdav::router()) // WebDAV - needs module
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

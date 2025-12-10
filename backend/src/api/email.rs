@@ -35,7 +35,7 @@ async fn list_accounts(
     State(state): State<AppState>,
     user: UserInfo,
 ) -> Result<Json<Vec<EmailAccount>>, StatusCode> {
-    email_integration::list_email_accounts(&state.pool, &user.user_id)
+    email_integration::list_email_accounts(&state.db_pool, &user.id)
         .await
         .map(Json)
         .map_err(|e| {
@@ -50,7 +50,7 @@ async fn get_account(
     Path(id): Path<String>,
     user: UserInfo,
 ) -> Result<Json<EmailAccount>, StatusCode> {
-    email_integration::get_email_account(&state.pool, &id, &user.user_id)
+    email_integration::get_email_account(&state.db_pool, &id, &user.id)
         .await
         .map(Json)
         .map_err(|e| {
@@ -65,7 +65,7 @@ async fn create_account(
     user: UserInfo,
     Json(req): Json<CreateEmailAccountRequest>,
 ) -> Result<(StatusCode, Json<EmailAccount>), StatusCode> {
-    email_integration::create_email_account(&state.pool, &user.user_id, req)
+    email_integration::create_email_account(&state.db_pool, &user.id, req)
         .await
         .map(|account| (StatusCode::CREATED, Json(account)))
         .map_err(|e| {
@@ -81,7 +81,7 @@ async fn update_account(
     user: UserInfo,
     Json(req): Json<UpdateEmailAccountRequest>,
 ) -> Result<Json<EmailAccount>, StatusCode> {
-    email_integration::update_email_account(&state.pool, &id, &user.user_id, req)
+    email_integration::update_email_account(&state.db_pool, &id, &user.id, req)
         .await
         .map(Json)
         .map_err(|e| {
@@ -96,7 +96,7 @@ async fn delete_account(
     Path(id): Path<String>,
     user: UserInfo,
 ) -> Result<StatusCode, StatusCode> {
-    email_integration::delete_email_account(&state.pool, &id, &user.user_id)
+    email_integration::delete_email_account(&state.db_pool, &id, &user.id)
         .await
         .map(|_| StatusCode::NO_CONTENT)
         .map_err(|e| {
@@ -111,7 +111,7 @@ async fn test_connection(
     Path(id): Path<String>,
     user: UserInfo,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    let account = email_integration::get_email_account(&state.pool, &id, &user.user_id)
+    let account = email_integration::get_email_account(&state.db_pool, &id, &user.id)
         .await
         .map_err(|_| StatusCode::NOT_FOUND)?;
 
@@ -137,11 +137,11 @@ async fn fetch_emails(
     Path(id): Path<String>,
     user: UserInfo,
 ) -> Result<Json<FetchResult>, StatusCode> {
-    let account = email_integration::get_email_account(&state.pool, &id, &user.user_id)
+    let account = email_integration::get_email_account(&state.db_pool, &id, &user.id)
         .await
         .map_err(|_| StatusCode::NOT_FOUND)?;
 
-    email_integration::fetch_emails(&state.pool, &account)
+    email_integration::fetch_emails(&state.db_pool, &account)
         .await
         .map(Json)
         .map_err(|e| {
@@ -158,11 +158,11 @@ async fn get_messages(
     user: UserInfo,
 ) -> Result<Json<Vec<EmailMessage>>, StatusCode> {
     // Verify account belongs to user
-    let _ = email_integration::get_email_account(&state.pool, &id, &user.user_id)
+    let _ = email_integration::get_email_account(&state.db_pool, &id, &user.id)
         .await
         .map_err(|_| StatusCode::NOT_FOUND)?;
 
-    email_integration::get_messages(&state.pool, &id, pagination.limit, pagination.offset)
+    email_integration::get_messages(&state.db_pool, &id, pagination.limit, pagination.offset)
         .await
         .map(Json)
         .map_err(|e| {
@@ -177,7 +177,7 @@ async fn mark_read(
     Path(message_id): Path<String>,
     _user: UserInfo,
 ) -> Result<StatusCode, StatusCode> {
-    email_integration::mark_as_read(&state.pool, &message_id)
+    email_integration::mark_as_read(&state.db_pool, &message_id)
         .await
         .map(|_| StatusCode::NO_CONTENT)
         .map_err(|e| {
@@ -192,7 +192,7 @@ async fn delete_message(
     Path(message_id): Path<String>,
     _user: UserInfo,
 ) -> Result<StatusCode, StatusCode> {
-    email_integration::delete_message(&state.pool, &message_id)
+    email_integration::delete_message(&state.db_pool, &message_id)
         .await
         .map(|_| StatusCode::NO_CONTENT)
         .map_err(|e| {

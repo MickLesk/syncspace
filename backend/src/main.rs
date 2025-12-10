@@ -28,18 +28,13 @@ mod workers;
 
 // New modules from POST_ALPHA_ROADMAP
 // NOTE: These are feature modules that need AppState/API integration
-// Uncomment when integrating each feature
-// mod redis_cache;
-// mod prometheus_metrics;
+// mod redis_cache; // Requires Redis server
+// mod prometheus_metrics; // Requires integration with PerformanceMonitor
 mod oauth;
 mod ldap_integration;
-// Features disabled temporarily - need API integration fixes
-// mod thumbnails;
-// mod file_preview;
-// mod virus_scan;
-// mod webdav;
-// mod ftp_sync;
-// mod email_integration;
+// Re-enabled feature modules
+mod ftp_sync;
+mod email_integration;
 
 use std::net::SocketAddr;
 use std::sync::atomic::AtomicUsize;

@@ -41,6 +41,8 @@
 
   // Tools Views
   import DuplicatesView from "./pages/tools/DuplicatesView.svelte";
+  import FtpSyncView from "./pages/tools/FtpSyncView.svelte";
+  import EmailIntegrationView from "./pages/tools/EmailIntegrationView.svelte";
   import TagCloudView from "./pages/TagCloudView.svelte";
 
   // Admin View - Consolidated admin page with tabs
@@ -176,6 +178,8 @@
         storage: "storage",
         users: "users",
         duplicates: "duplicates",
+        "ftp-sync": "ftp-sync",
+        "email-integration": "email-integration",
         tags: "tags",
         "tag-cloud": "tags",
         jobs: "jobs",
@@ -506,6 +510,10 @@
                 <ActivityView />
               {:else if $currentView === "duplicates"}
                 <DuplicatesView />
+              {:else if $currentView === "ftp-sync"}
+                <FtpSyncView />
+              {:else if $currentView === "email-integration"}
+                <EmailIntegrationView />
               {:else if $currentView === "tag-cloud"}
                 <TagCloudView />
               {:else if $currentView === "backup"}

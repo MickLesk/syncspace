@@ -4969,5 +4969,344 @@ export const admin = {
   },
 };
 
+// ==================== FTP SYNC ====================
+const ftp = {
+  /**
+   * List all FTP connections
+   */
+  async list() {
+    const response = await fetch(`${API_BASE}/ftp/connections`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get single FTP connection
+   */
+  async get(id) {
+    const response = await fetch(`${API_BASE}/ftp/connections/${id}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create FTP connection
+   */
+  async create(data) {
+    const response = await fetch(`${API_BASE}/ftp/connections`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update FTP connection
+   */
+  async update(id, data) {
+    const response = await fetch(`${API_BASE}/ftp/connections/${id}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete FTP connection
+   */
+  async delete(id) {
+    const response = await fetch(`${API_BASE}/ftp/connections/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Test FTP connection
+   */
+  async test(id) {
+    const response = await fetch(`${API_BASE}/ftp/connections/${id}/test`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List remote files
+   */
+  async listRemoteFiles(id) {
+    const response = await fetch(`${API_BASE}/ftp/connections/${id}/files`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Trigger sync
+   */
+  async sync(id) {
+    const response = await fetch(`${API_BASE}/ftp/connections/${id}/sync`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ==================== EMAIL INTEGRATION ====================
+const email = {
+  /**
+   * List all email accounts
+   */
+  async list() {
+    const response = await fetch(`${API_BASE}/email/accounts`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get single email account
+   */
+  async get(id) {
+    const response = await fetch(`${API_BASE}/email/accounts/${id}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create email account
+   */
+  async create(data) {
+    const response = await fetch(`${API_BASE}/email/accounts`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update email account
+   */
+  async update(id, data) {
+    const response = await fetch(`${API_BASE}/email/accounts/${id}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete email account
+   */
+  async delete(id) {
+    const response = await fetch(`${API_BASE}/email/accounts/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Test email connection
+   */
+  async test(id) {
+    const response = await fetch(`${API_BASE}/email/accounts/${id}/test`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Fetch emails
+   */
+  async fetch(id) {
+    const response = await fetch(`${API_BASE}/email/accounts/${id}/fetch`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get messages for account
+   */
+  async getMessages(id, limit = 50, offset = 0) {
+    const response = await fetch(`${API_BASE}/email/accounts/${id}/messages?limit=${limit}&offset=${offset}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ==================== OAUTH ====================
+const oauth = {
+  /**
+   * List available OAuth providers
+   */
+  async listProviders() {
+    const response = await fetch(`${API_BASE}/oauth/providers`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get linked OAuth accounts
+   */
+  async getLinkedAccounts() {
+    const response = await fetch(`${API_BASE}/oauth/linked`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Unlink OAuth account
+   */
+  async unlink(provider) {
+    const response = await fetch(`${API_BASE}/oauth/${provider}/unlink`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Configure OAuth provider (admin)
+   */
+  async configureProvider(data) {
+    const response = await fetch(`${API_BASE}/oauth/providers/config`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete OAuth provider (admin)
+   */
+  async deleteProvider(provider) {
+    const response = await fetch(`${API_BASE}/oauth/providers/config/${provider}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get authorization URL
+   */
+  getAuthUrl(provider, redirectUrl = null) {
+    let url = `${API_BASE}/oauth/${provider}/authorize`;
+    if (redirectUrl) {
+      url += `?redirect_url=${encodeURIComponent(redirectUrl)}`;
+    }
+    return url;
+  },
+};
+
+// ==================== LDAP ====================
+const ldap = {
+  /**
+   * List LDAP configurations
+   */
+  async listConfigs() {
+    const response = await fetch(`${API_BASE}/ldap/configs`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get single LDAP config
+   */
+  async getConfig(id) {
+    const response = await fetch(`${API_BASE}/ldap/configs/${id}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create LDAP config
+   */
+  async createConfig(data) {
+    const response = await fetch(`${API_BASE}/ldap/configs`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update LDAP config
+   */
+  async updateConfig(id, data) {
+    const response = await fetch(`${API_BASE}/ldap/configs/${id}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete LDAP config
+   */
+  async deleteConfig(id) {
+    const response = await fetch(`${API_BASE}/ldap/configs/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Test LDAP connection
+   */
+  async testConnection(id) {
+    const response = await fetch(`${API_BASE}/ldap/configs/${id}/test`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Sync all LDAP users
+   */
+  async syncAll() {
+    const response = await fetch(`${API_BASE}/ldap/sync`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Sync single LDAP config
+   */
+  async sync(id) {
+    const response = await fetch(`${API_BASE}/ldap/sync/${id}`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
 // Add late-defined exports to api object
-Object.assign(api, { encryption, quota, groups, guests, rateLimiting, admin });
+Object.assign(api, { encryption, quota, groups, guests, rateLimiting, admin, ftp, email, oauth, ldap });
