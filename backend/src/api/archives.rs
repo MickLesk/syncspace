@@ -529,6 +529,6 @@ pub fn router() -> Router<AppState> {
         .route("/create", post(create_archive))
         .route("/extract", post(extract_archive))
         .route("/formats", get(get_supported_formats))
-        .route("/contents/*path", get(list_archive_contents))
-        .route("/delete/*path", delete(delete_archive))
+        .route("/contents/{*path}", get(list_archive_contents))
+        .route("/delete/{*path}", delete(delete_archive))
 }
