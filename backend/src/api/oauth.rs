@@ -237,7 +237,15 @@ async fn callback(
     }
     
     // Check if user with this email already exists
-    if let Ok(Some(user)) = crate::auth::get_user_by_email(&state.db_pool, &user_info.email).await {
+    let existing_user: Option<crate::database::User> = sqlx::query_as(
+        "SELECT * FROM users WHERE email = ?"
+    )
+    .bind(&user_info.email)
+    .fetch_optional(&state.pool)
+    .await
+    .unwrap_or(None);
+    
+    if let Some(user) = existing_user {
         // Link account and login
         let _ = oauth::store_token(&state.db_pool, &user.id, &provider, &token_response, &user_info).await;
         
@@ -424,7 +432,7 @@ async fn create_jwt_for_user(pool: &sqlx::SqlitePool, user_id: &str) -> Result<S
     .await
     .map_err(|e| e.to_string())?;
     
-    crate::auth::create_token(&user)
+    crate::auth::generate_token(&user)
         .map_err(|e| e.to_string())
 }
 

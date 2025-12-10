@@ -55,6 +55,16 @@ pub mod versions;
 pub mod webhooks;
 pub mod workflow;
 
+// New API modules from POST_ALPHA_ROADMAP
+pub mod oauth;
+pub mod ldap;
+pub mod thumbnails;
+pub mod preview;
+pub mod virus_scan;
+pub mod ftp;
+pub mod email;
+pub mod webdav;
+
 use axum::{middleware, Router};
 
 use crate::AppState;
@@ -64,6 +74,8 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
     Router::new()
         // Public auth routes (login, register)
         .merge(auth::public_router())
+        // Public OAuth routes (login via OAuth providers)
+        .merge(oauth::public_router())
         // Setup routes (public - no auth required)
         .merge(setup::router())
         // Public sharing routes (NO AUTH - must come before protected routes)
@@ -131,6 +143,15 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(encryption::router()) // File encryption at rest
                 .merge(guest::router()) // Guest/external user access
                 .merge(rate_limiting::router()) // Rate limiting & quotas management
+                // New routes from POST_ALPHA_ROADMAP
+                .merge(thumbnails::router()) // Thumbnail generation
+                .merge(preview::router()) // File preview generation
+                .merge(virus_scan::router()) // Virus scanning & quarantine
+                .merge(oauth::protected_router()) // OAuth account linking
+                .merge(ldap::router()) // LDAP configuration (admin)
+                .merge(ftp::router()) // FTP sync connections
+                .merge(email::router()) // Email integration
+                .merge(webdav::router()) // WebDAV protocol support
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

@@ -34,6 +34,20 @@ const ACCESS_TOKEN_EXPIRATION_MINUTES: i64 = 15; // Short-lived access token
 const REFRESH_TOKEN_EXPIRATION_DAYS: i64 = 7; // Long-lived refresh token
 
 // ============================================================================
+// Password Hashing
+// ============================================================================
+
+/// Hash a password using Argon2
+pub fn hash_password(password: &str) -> Result<String, String> {
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+    argon2
+        .hash_password(password.as_bytes(), &salt)
+        .map(|h| h.to_string())
+        .map_err(|e| format!("Password hashing failed: {}", e))
+}
+
+// ============================================================================
 // SQLite-based Auth Functions (NO JSON files)
 // ============================================================================
 
