@@ -15,6 +15,7 @@ pub mod cloud_storage;
 pub mod collaboration;
 pub mod comments;
 pub mod config;
+pub mod conversion;
 pub mod cron;
 pub mod dashboard;
 pub mod database_health;
@@ -122,6 +123,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(batch::router())
                 .merge(bulk_operations::router())
                 .merge(config::router())
+                .merge(conversion::router()) // File format conversion
                 .merge(peers::router())
                 .merge(recent::router())
                 .merge(duplicates::router())
