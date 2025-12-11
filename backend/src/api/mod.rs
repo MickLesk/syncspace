@@ -64,10 +64,11 @@ pub mod email;
 // New compression and archive modules
 pub mod archives;
 pub mod compression;
-// Disabled - need preview/scan modules first
-// pub mod thumbnails;
-// pub mod preview;
-// pub mod virus_scan;
+// Preview and scanning API modules
+pub mod thumbnails;
+pub mod preview;
+pub mod virus_scan;
+// WebDAV (optional - needs configuration)
 // pub mod webdav;
 
 use axum::{middleware, Router};
@@ -149,16 +150,16 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(guest::router()) // Guest/external user access
                 .merge(rate_limiting::router()) // Rate limiting & quotas management
                 // New routes from POST_ALPHA_ROADMAP
-                // .merge(thumbnails::router()) // Thumbnail generation - needs module
-                // .merge(preview::router()) // File preview generation - needs module
-                // .merge(virus_scan::router()) // Virus scanning - needs module
+                .merge(thumbnails::router()) // Thumbnail generation
+                .merge(preview::router()) // File preview generation
+                .merge(virus_scan::router()) // Virus scanning (ClamAV)
                 .merge(oauth::protected_router()) // OAuth account linking
                 .merge(ldap::router()) // LDAP configuration (admin)
                 .merge(ftp::router()) // FTP sync connections
                 .merge(email::router()) // Email integration
                 .merge(archives::router()) // Archive management (zip, tar.gz)
                 .merge(compression::router()) // File compression/decompression
-                // .merge(webdav::router()) // WebDAV - needs module
+                // .merge(webdav::router()) // WebDAV - needs configuration
                 .layer(middleware::from_fn_with_state(
                     state.clone(),
                     crate::middleware::auth::auth_middleware,

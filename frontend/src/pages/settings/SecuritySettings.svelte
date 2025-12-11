@@ -141,71 +141,54 @@
 </script>
 
 {#if pageLoading}
-  <div class="loading-container"><div class="spinner"></div></div>
+  <div class="flex justify-center p-16"><div class="w-9 h-9 border-3 border-gray-200 border-t-green-500 rounded-full animate-spin"></div></div>
 {:else}
   {#if error}
-    <div class="toast error">
+    <div class="flex items-center gap-2 px-4 py-3 rounded-lg mb-6 text-sm font-medium bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300">
       <i class="bi bi-exclamation-circle-fill"></i>
       {error}
     </div>
   {/if}
   {#if success}
-    <div class="toast success">
+    <div class="flex items-center gap-2 px-4 py-3 rounded-lg mb-6 text-sm font-medium bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300">
       <i class="bi bi-check-circle-fill"></i>
       {success}
     </div>
   {/if}
 
-  <div class="security-grid">
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(340px,1fr))] gap-6 max-sm:grid-cols-1">
     <!-- 2FA Status Card -->
-    <div class="card featured">
-      <div class="card-header">
-        <div class="card-icon green">
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 col-span-full">
+      <div class="flex items-start gap-3.5 mb-5 flex-wrap">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0 bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-500">
           <i class="bi bi-shield-lock-fill"></i>
         </div>
-        <div class="card-title">
-          <h3>{tr("twoFactorAuthentication")}</h3>
-          <p>{tr("addExtraLayerOfSecurity")}</p>
+        <div class="flex-1 min-w-[200px]">
+          <h3 class="text-base font-semibold text-gray-900 dark:text-gray-50 m-0 mb-1">{tr("twoFactorAuthentication")}</h3>
+          <p class="text-[0.8125rem] text-gray-500 dark:text-gray-400 m-0">{tr("addExtraLayerOfSecurity")}</p>
         </div>
-        <span class="status-badge" class:enabled={twoFAEnabled}>
+        <span class="px-3 py-1 rounded-full text-xs font-semibold {twoFAEnabled ? 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300'}">
           {twoFAEnabled ? tr("enabled") : tr("disabled")}
         </span>
       </div>
 
       {#if !showSetup}
-        <div class="card-content">
-          <div class="security-info">
-            <i
-              class="bi {twoFAEnabled
-                ? 'bi-shield-fill-check'
-                : 'bi-shield-fill-x'} security-icon"
-              class:enabled={twoFAEnabled}
-            ></i>
-            <div class="security-text">
-              <strong
-                >{twoFAEnabled
-                  ? tr("twoFAIsActive")
-                  : tr("twoFAIsNotActive")}</strong
-              >
-              <span
-                >{twoFAEnabled
-                  ? tr("yourAccountIsProtected")
-                  : tr("enableTwoFAForBetterSecurity")}</span
-              >
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <i class="bi {twoFAEnabled ? 'bi-shield-fill-check' : 'bi-shield-fill-x'} text-3xl {twoFAEnabled ? 'text-green-500' : 'text-red-600'}"></i>
+            <div class="flex flex-col gap-0.5">
+              <strong class="text-sm text-gray-900 dark:text-gray-50">{twoFAEnabled ? tr("twoFAIsActive") : tr("twoFAIsNotActive")}</strong>
+              <span class="text-[0.8125rem] text-gray-500 dark:text-gray-400">{twoFAEnabled ? tr("yourAccountIsProtected") : tr("enableTwoFAForBetterSecurity")}</span>
             </div>
           </div>
-          <div class="card-actions">
+          <div class="flex gap-2">
             {#if twoFAEnabled}
-              <button
-                class="btn-danger"
-                onclick={disable2FA}
-                disabled={loading}
-              >
+              <button class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white border-none rounded-lg font-medium text-sm cursor-pointer transition-colors" onclick={disable2FA} disabled={loading}>
                 <i class="bi bi-shield-x"></i>
                 {tr("disable2FA")}
               </button>
             {:else}
-              <button class="btn-primary" onclick={setup2FA} disabled={loading}>
+              <button class="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white border-none rounded-lg font-medium text-sm cursor-pointer transition-colors" onclick={setup2FA} disabled={loading}>
                 <i class="bi bi-shield-plus"></i>
                 {tr("enable2FA")}
               </button>
@@ -214,39 +197,31 @@
         </div>
       {:else}
         <!-- 2FA Setup -->
-        <div class="setup-container">
-          <div class="qr-section">
+        <div class="grid grid-cols-[auto_1fr] gap-8 items-start max-sm:grid-cols-1">
+          <div class="flex flex-col items-center gap-4 max-sm:order-1">
             {#if qrCodeDataUrl}
-              <div class="qr-wrapper">
-                <img src={qrCodeDataUrl} alt="2FA QR Code" class="qr-code" />
+              <div class="p-4 bg-white rounded-lg border border-gray-200">
+                <img src={qrCodeDataUrl} alt="2FA QR Code" class="block w-[180px] h-[180px]" />
               </div>
             {/if}
-            <div class="secret-key">
-              <span class="label">{tr("manualEntryKey")}:</span>
-              <code>{twoFASetup?.secret || ""}</code>
+            <div class="text-center">
+              <span class="block text-xs text-gray-500 mb-1">{tr("manualEntryKey")}:</span>
+              <code class="text-[0.8125rem] bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded font-mono">{twoFASetup?.secret || ""}</code>
             </div>
           </div>
-          <div class="verify-section">
-            <label for="verification-code">{tr("enterVerificationCode")}</label>
+          <div class="flex flex-col gap-4 max-sm:order-2">
+            <label for="verification-code" class="text-sm font-medium text-gray-700 dark:text-gray-300">{tr("enterVerificationCode")}</label>
             <input
               id="verification-code"
               type="text"
-              class="code-input"
+              class="px-4 py-3 text-2xl text-center tracking-[0.5rem] border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 dark:text-gray-50 focus:outline-none focus:border-green-500"
               placeholder="000000"
               maxlength="6"
               bind:value={verificationCode}
             />
-            <div class="setup-actions">
-              <button
-                class="btn-secondary"
-                onclick={cancelSetup}
-                disabled={loading}>{tr("cancel")}</button
-              >
-              <button
-                class="btn-primary"
-                onclick={enable2FA}
-                disabled={loading || verificationCode.length !== 6}
-              >
+            <div class="flex gap-2 justify-end">
+              <button class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg font-medium text-sm cursor-pointer transition-colors" onclick={cancelSetup} disabled={loading}>{tr("cancel")}</button>
+              <button class="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white border-none rounded-lg font-medium text-sm cursor-pointer transition-colors" onclick={enable2FA} disabled={loading || verificationCode.length !== 6}>
                 {loading ? tr("verifying") : tr("verify")}
               </button>
             </div>
@@ -256,70 +231,42 @@
     </div>
 
     <!-- Password Card -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon amber"><i class="bi bi-key-fill"></i></div>
-        <div class="card-title">
-          <h3>{tr("password")}</h3>
-          <p>{tr("changeYourPassword")}</p>
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+      <div class="flex items-start gap-3.5 mb-5 flex-wrap">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0 bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400"><i class="bi bi-key-fill"></i></div>
+        <div class="flex-1 min-w-[200px]">
+          <h3 class="text-base font-semibold text-gray-900 dark:text-gray-50 m-0 mb-1">{tr("password")}</h3>
+          <p class="text-[0.8125rem] text-gray-500 dark:text-gray-400 m-0">{tr("changeYourPassword")}</p>
         </div>
       </div>
       {#if !showPasswordChange}
-        <div class="card-content">
-          <div class="password-info">
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
             <i class="bi bi-asterisk"></i>
             <span>{tr("lastPasswordChange")}: {tr("unknown")}</span>
           </div>
-          <button
-            class="btn-secondary"
-            onclick={() => (showPasswordChange = true)}
-          >
+          <button class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg font-medium text-sm cursor-pointer transition-colors" onclick={() => (showPasswordChange = true)}>
             <i class="bi bi-pencil"></i>
             {tr("changePassword")}
           </button>
         </div>
       {:else}
-        <div class="password-form">
-          <div class="form-group">
-            <label for="current-pw">{tr("currentPassword")}</label>
-            <input
-              id="current-pw"
-              type="password"
-              class="form-input"
-              bind:value={currentPassword}
-            />
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label for="current-pw" class="text-[0.8125rem] font-medium text-gray-700 dark:text-gray-300">{tr("currentPassword")}</label>
+            <input id="current-pw" type="password" class="px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 dark:text-gray-50 text-sm focus:outline-none focus:border-green-500" bind:value={currentPassword} />
           </div>
-          <div class="form-group">
-            <label for="new-pw">{tr("newPassword")}</label>
-            <input
-              id="new-pw"
-              type="password"
-              class="form-input"
-              bind:value={newPassword}
-            />
+          <div class="flex flex-col gap-1.5">
+            <label for="new-pw" class="text-[0.8125rem] font-medium text-gray-700 dark:text-gray-300">{tr("newPassword")}</label>
+            <input id="new-pw" type="password" class="px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 dark:text-gray-50 text-sm focus:outline-none focus:border-green-500" bind:value={newPassword} />
           </div>
-          <div class="form-group">
-            <label for="confirm-pw">{tr("confirmPassword")}</label>
-            <input
-              id="confirm-pw"
-              type="password"
-              class="form-input"
-              bind:value={confirmPassword}
-            />
+          <div class="flex flex-col gap-1.5">
+            <label for="confirm-pw" class="text-[0.8125rem] font-medium text-gray-700 dark:text-gray-300">{tr("confirmPassword")}</label>
+            <input id="confirm-pw" type="password" class="px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 dark:text-gray-50 text-sm focus:outline-none focus:border-green-500" bind:value={confirmPassword} />
           </div>
-          <div class="form-actions">
-            <button
-              class="btn-secondary"
-              onclick={() => {
-                showPasswordChange = false;
-                error = "";
-              }}>{tr("cancel")}</button
-            >
-            <button
-              class="btn-primary"
-              onclick={changePassword}
-              disabled={loading}
-            >
+          <div class="flex gap-2 justify-end mt-2">
+            <button class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg font-medium text-sm cursor-pointer transition-colors" onclick={() => { showPasswordChange = false; error = ""; }}>{tr("cancel")}</button>
+            <button class="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white border-none rounded-lg font-medium text-sm cursor-pointer transition-colors" onclick={changePassword} disabled={loading}>
               {loading ? tr("saving") : tr("savePassword")}
             </button>
           </div>
@@ -328,26 +275,26 @@
     </div>
 
     <!-- Sessions Card -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon blue"><i class="bi bi-laptop"></i></div>
-        <div class="card-title">
-          <h3>{tr("activeSessions")}</h3>
-          <p>{tr("manageActiveSessions")}</p>
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+      <div class="flex items-start gap-3.5 mb-5 flex-wrap">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0 bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"><i class="bi bi-laptop"></i></div>
+        <div class="flex-1 min-w-[200px]">
+          <h3 class="text-base font-semibold text-gray-900 dark:text-gray-50 m-0 mb-1">{tr("activeSessions")}</h3>
+          <p class="text-[0.8125rem] text-gray-500 dark:text-gray-400 m-0">{tr("manageActiveSessions")}</p>
         </div>
       </div>
-      <div class="card-content">
-        <div class="session-item current">
-          <div class="session-icon"><i class="bi bi-display"></i></div>
-          <div class="session-info">
-            <span class="session-device">{tr("currentSession")}</span>
-            <span class="session-location"
-              >Windows · Chrome · {tr("justNow")}</span
-            >
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div class="w-9 h-9 bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center">
+            <i class="bi bi-display"></i>
           </div>
-          <span class="current-badge">{tr("current")}</span>
+          <div class="flex-1 flex flex-col gap-0.5">
+            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{tr("currentSession")}</span>
+            <span class="text-xs text-gray-500 dark:text-gray-400">Windows · Chrome · {tr("justNow")}</span>
+          </div>
+          <span class="px-2 py-0.5 bg-green-100 dark:bg-green-500/20 text-green-800 dark:text-green-300 rounded-full text-[0.6875rem] font-semibold">{tr("current")}</span>
         </div>
-        <button class="btn-outline full-width">
+        <button class="inline-flex items-center justify-center gap-2 w-full px-4 py-2 bg-transparent text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium text-sm cursor-pointer transition-colors">
           <i class="bi bi-box-arrow-right"></i>
           {tr("logoutAllOtherSessions")}
         </button>
@@ -357,516 +304,7 @@
 {/if}
 
 <style>
-  .loading-container {
-    display: flex;
-    justify-content: center;
-    padding: 4rem;
-  }
-  .spinner {
-    width: 36px;
-    height: 36px;
-    border: 3px solid #e5e7eb;
-    border-top-color: #22c55e;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
   @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Toast */
-  .toast {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-  .toast.success {
-    background: #dcfce7;
-    color: #166534;
-  }
-  .toast.error {
-    background: #fee2e2;
-    color: #991b1b;
-  }
-  :global(.dark) .toast.success {
-    background: rgba(34, 197, 94, 0.2);
-    color: #86efac;
-  }
-  :global(.dark) .toast.error {
-    background: rgba(220, 38, 38, 0.2);
-    color: #fca5a5;
-  }
-
-  /* Grid */
-  .security-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-    gap: 1.5rem;
-  }
-
-  /* Card */
-  .card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    padding: 1.25rem;
-  }
-  .card.featured {
-    grid-column: 1 / -1;
-  }
-  :global(.dark) .card {
-    background: #1f2937;
-    border-color: #374151;
-  }
-
-  .card-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.875rem;
-    margin-bottom: 1.25rem;
-    flex-wrap: wrap;
-  }
-  .card-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.125rem;
-    flex-shrink: 0;
-  }
-  .card-icon.green {
-    background: #dcfce7;
-    color: #16a34a;
-  }
-  .card-icon.amber {
-    background: #fef3c7;
-    color: #d97706;
-  }
-  .card-icon.blue {
-    background: #dbeafe;
-    color: #2563eb;
-  }
-  :global(.dark) .card-icon.green {
-    background: rgba(34, 197, 94, 0.2);
-    color: #22c55e;
-  }
-  :global(.dark) .card-icon.amber {
-    background: rgba(245, 158, 11, 0.2);
-    color: #fbbf24;
-  }
-  :global(.dark) .card-icon.blue {
-    background: rgba(59, 130, 246, 0.2);
-    color: #60a5fa;
-  }
-
-  .card-title {
-    flex: 1;
-    min-width: 200px;
-  }
-  .card-title h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 0.25rem 0;
-  }
-  .card-title p {
-    font-size: 0.8125rem;
-    color: #6b7280;
-    margin: 0;
-  }
-  :global(.dark) .card-title h3 {
-    color: #f9fafb;
-  }
-  :global(.dark) .card-title p {
-    color: #9ca3af;
-  }
-
-  .status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: #fee2e2;
-    color: #991b1b;
-  }
-  .status-badge.enabled {
-    background: #dcfce7;
-    color: #166534;
-  }
-  :global(.dark) .status-badge {
-    background: rgba(220, 38, 38, 0.2);
-    color: #fca5a5;
-  }
-  :global(.dark) .status-badge.enabled {
-    background: rgba(34, 197, 94, 0.2);
-    color: #86efac;
-  }
-
-  .card-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .card-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  /* Security Info */
-  .security-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: #f9fafb;
-    border-radius: 0.5rem;
-  }
-  :global(.dark) .security-info {
-    background: #374151;
-  }
-  .security-icon {
-    font-size: 2rem;
-    color: #dc2626;
-  }
-  .security-icon.enabled {
-    color: #22c55e;
-  }
-  .security-text {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-  }
-  .security-text strong {
-    font-size: 0.875rem;
-    color: #111827;
-  }
-  .security-text span {
-    font-size: 0.8125rem;
-    color: #6b7280;
-  }
-  :global(.dark) .security-text strong {
-    color: #f9fafb;
-  }
-  :global(.dark) .security-text span {
-    color: #9ca3af;
-  }
-
-  /* 2FA Setup */
-  .setup-container {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 2rem;
-    align-items: start;
-  }
-  .qr-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-  .qr-wrapper {
-    padding: 1rem;
-    background: white;
-    border-radius: 0.5rem;
-    border: 1px solid #e5e7eb;
-  }
-  .qr-code {
-    display: block;
-    width: 180px;
-    height: 180px;
-  }
-  .secret-key {
-    text-align: center;
-  }
-  .secret-key .label {
-    display: block;
-    font-size: 0.75rem;
-    color: #6b7280;
-    margin-bottom: 0.25rem;
-  }
-  .secret-key code {
-    font-size: 0.8125rem;
-    background: #f3f4f6;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-family: monospace;
-  }
-  :global(.dark) .secret-key code {
-    background: #374151;
-  }
-
-  .verify-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .verify-section label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #374151;
-  }
-  :global(.dark) .verify-section label {
-    color: #d1d5db;
-  }
-  .code-input {
-    padding: 0.75rem 1rem;
-    font-size: 1.5rem;
-    text-align: center;
-    letter-spacing: 0.5rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    background: #f9fafb;
-  }
-  .code-input:focus {
-    outline: none;
-    border-color: #22c55e;
-  }
-  :global(.dark) .code-input {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-  .setup-actions {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-  }
-
-  /* Password */
-  .password-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #6b7280;
-    font-size: 0.875rem;
-  }
-  :global(.dark) .password-info {
-    color: #9ca3af;
-  }
-
-  .password-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-  }
-  .form-group label {
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: #374151;
-  }
-  :global(.dark) .form-group label {
-    color: #d1d5db;
-  }
-  .form-input {
-    padding: 0.625rem 0.75rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    background: #f9fafb;
-    font-size: 0.875rem;
-  }
-  .form-input:focus {
-    outline: none;
-    border-color: #22c55e;
-  }
-  :global(.dark) .form-input {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-  .form-actions {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-    margin-top: 0.5rem;
-  }
-
-  /* Session */
-  .session-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    background: #f9fafb;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  :global(.dark) .session-item {
-    background: #374151;
-  }
-  .session-icon {
-    width: 36px;
-    height: 36px;
-    background: #dbeafe;
-    color: #2563eb;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  :global(.dark) .session-icon {
-    background: rgba(59, 130, 246, 0.2);
-    color: #60a5fa;
-  }
-  .session-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-  }
-  .session-device {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #111827;
-  }
-  .session-location {
-    font-size: 0.75rem;
-    color: #6b7280;
-  }
-  :global(.dark) .session-device {
-    color: #f9fafb;
-  }
-  :global(.dark) .session-location {
-    color: #9ca3af;
-  }
-  .current-badge {
-    padding: 0.125rem 0.5rem;
-    background: #dcfce7;
-    color: #166534;
-    border-radius: 9999px;
-    font-size: 0.6875rem;
-    font-weight: 600;
-  }
-  :global(.dark) .current-badge {
-    background: rgba(34, 197, 94, 0.2);
-    color: #86efac;
-  }
-
-  /* Buttons */
-  .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: #22c55e;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-primary:hover:not(:disabled) {
-    background: #16a34a;
-  }
-  .btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-secondary:hover {
-    background: #e5e7eb;
-  }
-  :global(.dark) .btn-secondary {
-    background: #374151;
-    color: #e5e7eb;
-    border-color: #4b5563;
-  }
-  :global(.dark) .btn-secondary:hover {
-    background: #4b5563;
-  }
-
-  .btn-danger {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: #dc2626;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-danger:hover:not(:disabled) {
-    background: #b91c1c;
-  }
-  .btn-danger:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .btn-outline {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: transparent;
-    color: #374151;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-outline:hover {
-    background: #f3f4f6;
-  }
-  .btn-outline.full-width {
-    width: 100%;
-  }
-  :global(.dark) .btn-outline {
-    color: #e5e7eb;
-    border-color: #4b5563;
-  }
-  :global(.dark) .btn-outline:hover {
-    background: #374151;
-  }
-
-  @media (max-width: 640px) {
-    .security-grid {
-      grid-template-columns: 1fr;
-    }
-    .setup-container {
-      grid-template-columns: 1fr;
-    }
-    .qr-section {
-      order: 1;
-    }
-    .verify-section {
-      order: 2;
-    }
+    to { transform: rotate(360deg); }
   }
 </style>

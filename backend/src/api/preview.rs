@@ -80,8 +80,11 @@ async fn get_preview(
 
     // Detect file type and generate preview
     let preview_type = match query.preview_type.as_str() {
-        "full" => PreviewType::Full,
-        "metadata" => PreviewType::Metadata,
+        "pdf_page" => PreviewType::PdfPage,
+        "video_frame" => PreviewType::VideoFrame,
+        "document_pdf" => PreviewType::DocumentPdf,
+        "code" => PreviewType::CodeHtml,
+        "text" => PreviewType::TextPlain,
         _ => PreviewType::Thumbnail,
     };
 
@@ -91,11 +94,6 @@ async fn get_preview(
             tracing::error!("Preview generation failed: {}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
-
-    // If metadata requested, return JSON
-    if matches!(preview_type, PreviewType::Metadata) {
-        return Ok(Json(preview_result.metadata).into_response());
-    }
 
     // Read preview file
     let preview_path = preview_result.path;
@@ -206,11 +204,11 @@ async fn get_video_preview(
 
     Ok(Json(VideoPreviewInfo {
         duration_seconds: video_meta.duration_seconds,
-        width: video_meta.width,
-        height: video_meta.height,
+        width: video_meta.width.max(0) as u32,
+        height: video_meta.height.max(0) as u32,
         codec: video_meta.codec,
-        bitrate: video_meta.bitrate,
-        fps: video_meta.fps,
+        bitrate: video_meta.bitrate.unwrap_or(0).max(0) as u64,
+        fps: video_meta.fps.unwrap_or(0.0) as f32,
         thumbnail_url: format!("/api/thumbnails/{}", file_path),
     }))
 }
@@ -238,7 +236,7 @@ async fn get_pdf_preview(
         .collect();
 
     Ok(Json(PdfPreviewInfo {
-        page_count: pdf_meta.page_count,
+        page_count: pdf_meta.page_count.max(0) as u32,
         title: pdf_meta.title,
         author: pdf_meta.author,
         page_previews,

@@ -253,54 +253,53 @@
 </script>
 
 <PageWrapper title="Dashboard" showSidebar={true}>
-  <div class="dashboard">
+  <div class="w-full p-6 min-h-[calc(100vh-80px)]">
     {#if loading}
-      <div class="loading">
-        <div class="spinner"></div>
+      <div class="flex justify-center items-center min-h-[400px]">
+        <span class="loading loading-spinner loading-lg text-success"></span>
       </div>
     {:else}
       <!-- Top Row: Quick Stats Only -->
-      <div class="top-row">
+      <div class="flex gap-6 mb-6 flex-col lg:flex-row">
         <!-- Quick Stats -->
-        <div class="stats-row">
-          <div class="stat-item">
-            <div class="stat-icon files">
+        <div class="flex gap-4 flex-wrap">
+          <div class="flex items-center gap-3 bg-base-100 border border-base-300 rounded-xl px-5 py-4">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-blue-100 text-blue-500 dark:bg-blue-500/20">
               <i class="bi bi-file-earmark"></i>
             </div>
-            <div class="stat-info">
-              <span class="stat-value">{fileCount}</span>
-              <span class="stat-label">Dateien</span>
+            <div class="flex flex-col">
+              <span class="text-xl font-bold text-base-content">{fileCount}</span>
+              <span class="text-xs text-base-content/60">Dateien</span>
             </div>
           </div>
-          <div class="stat-item">
-            <div class="stat-icon folders">
+          <div class="flex items-center gap-3 bg-base-100 border border-base-300 rounded-xl px-5 py-4">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-amber-100 text-amber-500 dark:bg-amber-500/20">
               <i class="bi bi-folder"></i>
             </div>
-            <div class="stat-info">
-              <span class="stat-value">{folderCount}</span>
-              <span class="stat-label">Ordner</span>
+            <div class="flex flex-col">
+              <span class="text-xl font-bold text-base-content">{folderCount}</span>
+              <span class="text-xs text-base-content/60">Ordner</span>
             </div>
           </div>
-          <div class="stat-item">
-            <div class="stat-icon storage">
+          <div class="flex items-center gap-3 bg-base-100 border border-base-300 rounded-xl px-5 py-4">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-emerald-100 text-emerald-500 dark:bg-emerald-500/20">
               <i class="bi bi-hdd"></i>
             </div>
-            <div class="stat-info">
-              <span class="stat-value">{storageUsed.toFixed(1)} GB</span>
-              <span class="stat-label">Speicher</span>
+            <div class="flex flex-col">
+              <span class="text-xl font-bold text-base-content">{storageUsed.toFixed(1)} GB</span>
+              <span class="text-xs text-base-content/60">Speicher</span>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Main Grid -->
-      <div class="main-grid">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Left Column -->
-        <div class="left-column">
+        <div class="flex flex-col gap-6">
           <!-- Upload Zone -->
           <div
-            class="card upload-card"
-            class:dragging={isDragging}
+            class="card bg-base-100 border-2 border-dashed border-base-300 rounded-xl p-5 text-center transition-all {isDragging ? 'border-success bg-success/5' : ''}"
             role="button"
             tabindex="0"
             aria-label="Upload-Bereich"
@@ -313,34 +312,27 @@
               id="dashboard-file-input"
               multiple
               onchange={handleFileSelect}
-              style="display: none;"
+              class="hidden"
             />
-            <div class="upload-content">
-              <div class="upload-icon">
+            <div class="py-6">
+              <div class="text-5xl text-success mb-3">
                 <i class="bi bi-cloud-arrow-up"></i>
               </div>
-              <h3>Dateien hochladen</h3>
-              <p>Ziehe Dateien hierher oder</p>
-              <button class="upload-btn" onclick={triggerUpload}>
+              <h3 class="text-lg font-semibold text-base-content mb-1">Dateien hochladen</h3>
+              <p class="text-base-content/60 mb-4">Ziehe Dateien hierher oder</p>
+              <button 
+                class="btn btn-success gap-2"
+                onclick={triggerUpload}
+              >
                 <i class="bi bi-folder2-open"></i>
                 Dateien auswählen
               </button>
 
               {#if uploadProgress.length > 0}
-                <div class="upload-progress-list">
+                <div class="mt-4 pt-4 border-t border-dashed border-base-300">
                   {#each uploadProgress as up}
-                    <div
-                      class="upload-progress-item"
-                      class:complete={up.status === "complete"}
-                      class:error={up.status === "error"}
-                    >
-                      <i
-                        class="bi {up.status === 'complete'
-                          ? 'bi-check-circle-fill'
-                          : up.status === 'error'
-                            ? 'bi-x-circle-fill'
-                            : 'bi-hourglass-split'}"
-                      ></i>
+                    <div class="flex items-center gap-2 text-sm py-1 {up.status === 'complete' ? 'text-success' : up.status === 'error' ? 'text-error' : 'text-base-content/60'}">
+                      <i class="bi {up.status === 'complete' ? 'bi-check-circle-fill' : up.status === 'error' ? 'bi-x-circle-fill' : 'bi-hourglass-split'}"></i>
                       <span>{up.name}</span>
                     </div>
                   {/each}
@@ -350,44 +342,41 @@
           </div>
 
           <!-- Quick Actions -->
-          <div class="card">
-            <h3 class="card-title">
+          <div class="card bg-base-100 border border-base-300 rounded-xl p-5">
+            <h3 class="text-base font-semibold text-base-content flex items-center gap-2 mb-4">
               <i class="bi bi-lightning"></i>
               Schnellzugriff
             </h3>
-            <div class="quick-actions">
-              <button class="quick-action" onclick={() => navigateTo("files")}>
-                <i class="bi bi-folder2-open"></i>
-                <span>Dateien</span>
+            <div class="grid grid-cols-4 gap-3">
+              <button class="flex flex-col items-center gap-2 p-4 bg-base-200 border border-base-300 rounded-lg hover:border-success hover:-translate-y-0.5 transition-all" onclick={() => navigateTo("files")}>
+                <i class="bi bi-folder2-open text-2xl text-success"></i>
+                <span class="text-xs text-base-content/60">Dateien</span>
               </button>
-              <button class="quick-action" onclick={() => navigateTo("shared")}>
-                <i class="bi bi-share"></i>
-                <span>Freigaben</span>
+              <button class="flex flex-col items-center gap-2 p-4 bg-base-200 border border-base-300 rounded-lg hover:border-success hover:-translate-y-0.5 transition-all" onclick={() => navigateTo("shared")}>
+                <i class="bi bi-share text-2xl text-success"></i>
+                <span class="text-xs text-base-content/60">Freigaben</span>
               </button>
-              <button
-                class="quick-action"
-                onclick={() => navigateTo("favorites")}
-              >
-                <i class="bi bi-star"></i>
-                <span>Favoriten</span>
+              <button class="flex flex-col items-center gap-2 p-4 bg-base-200 border border-base-300 rounded-lg hover:border-success hover:-translate-y-0.5 transition-all" onclick={() => navigateTo("favorites")}>
+                <i class="bi bi-star text-2xl text-success"></i>
+                <span class="text-xs text-base-content/60">Favoriten</span>
               </button>
-              <button class="quick-action" onclick={() => navigateTo("trash")}>
-                <i class="bi bi-trash"></i>
-                <span>Papierkorb</span>
+              <button class="flex flex-col items-center gap-2 p-4 bg-base-200 border border-base-300 rounded-lg hover:border-success hover:-translate-y-0.5 transition-all" onclick={() => navigateTo("trash")}>
+                <i class="bi bi-trash text-2xl text-success"></i>
+                <span class="text-xs text-base-content/60">Papierkorb</span>
               </button>
             </div>
           </div>
 
           <!-- Storage -->
-          <div class="card">
-            <h3 class="card-title">
+          <div class="card bg-base-100 border border-base-300 rounded-xl p-5">
+            <h3 class="text-base font-semibold text-base-content flex items-center gap-2 mb-4">
               <i class="bi bi-hdd-stack"></i>
               Speicherplatz
             </h3>
-            <div class="storage-bar-container">
-              <div class="storage-bar" style="width: {storagePercent}%"></div>
+            <div class="h-2 bg-base-300 rounded overflow-hidden mb-3">
+              <div class="h-full bg-gradient-to-r from-success to-green-600 rounded transition-all duration-500" style="width: {storagePercent}%"></div>
             </div>
-            <div class="storage-info">
+            <div class="flex justify-between text-sm text-base-content/60">
               <span>{storageUsed.toFixed(2)} GB belegt</span>
               <span>{(storageTotal - storageUsed).toFixed(2)} GB frei</span>
             </div>
@@ -395,39 +384,32 @@
         </div>
 
         <!-- Right Column -->
-        <div class="right-column">
+        <div class="flex flex-col gap-6">
           <!-- Favorites -->
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">
-                <i class="bi bi-star-fill" style="color: #eab308;"></i>
+          <div class="card bg-base-100 border border-base-300 rounded-xl p-5">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-base font-semibold text-base-content flex items-center gap-2">
+                <i class="bi bi-star-fill text-yellow-500"></i>
                 Favoriten
               </h3>
-              <button class="link-btn" onclick={() => navigateTo("favorites")}>
+              <button class="btn btn-ghost btn-sm text-success" onclick={() => navigateTo("favorites")}>
                 Alle anzeigen →
               </button>
             </div>
             {#if favorites.length === 0}
-              <div class="empty-state small">
-                <i class="bi bi-star"></i>
-                <p>Keine Favoriten</p>
+              <div class="flex flex-col items-center justify-center py-6 text-base-content/40">
+                <i class="bi bi-star text-3xl mb-2 opacity-50"></i>
+                <p class="text-sm">Keine Favoriten</p>
               </div>
             {:else}
-              <div class="favorites-list">
+              <div class="flex flex-col gap-2">
                 {#each favorites as fav (fav.id)}
                   <button
-                    class="favorite-item"
+                    class="flex items-center gap-3 px-3 py-2.5 bg-base-200 border border-transparent rounded-lg text-left hover:border-success transition-all"
                     onclick={() => openFavorite(fav)}
                   >
-                    <i
-                      class="bi {fav.type === 'folder'
-                        ? 'bi-folder-fill'
-                        : 'bi-file-earmark'}"
-                      style="color: {fav.type === 'folder'
-                        ? '#3b82f6'
-                        : '#6b7280'}"
-                    ></i>
-                    <span class="fav-name">{fav.name}</span>
+                    <i class="bi {fav.type === 'folder' ? 'bi-folder-fill text-blue-500' : 'bi-file-earmark text-base-content/60'} text-lg"></i>
+                    <span class="text-sm text-base-content truncate">{fav.name}</span>
                   </button>
                 {/each}
               </div>
@@ -435,34 +417,45 @@
           </div>
 
           <!-- Recent Activity -->
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">
+          <div class="card bg-base-100 border border-base-300 rounded-xl p-5">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-base font-semibold text-base-content flex items-center gap-2">
                 <i class="bi bi-clock-history"></i>
                 Letzte Aktivitäten
               </h3>
-              <button class="link-btn" onclick={() => navigateTo("activity")}>
+              <button class="btn btn-ghost btn-sm text-success" onclick={() => navigateTo("activity")}>
                 Alle anzeigen →
               </button>
             </div>
             {#if recentActivity.length === 0}
-              <div class="empty-state small">
-                <i class="bi bi-clock"></i>
-                <p>Keine Aktivitäten</p>
+              <div class="flex flex-col items-center justify-center py-6 text-base-content/40">
+                <i class="bi bi-clock text-3xl mb-2 opacity-50"></i>
+                <p class="text-sm">Keine Aktivitäten</p>
               </div>
             {:else}
-              <div class="activity-list">
+              <div class="flex flex-col gap-2">
                 {#each recentActivity as activity (activity.id)}
                   <button
-                    class="activity-item"
+                    class="flex items-center gap-3 py-2 w-full bg-transparent border-none cursor-pointer rounded-md hover:bg-base-200 transition-colors"
                     onclick={() => openActivityItem(activity)}
                   >
-                    <div class="activity-icon {activity.color}">
+                    <div class="w-8 h-8 rounded-md flex items-center justify-center text-sm
+                      {activity.color === 'emerald' ? 'bg-emerald-500/15 text-emerald-500' : ''}
+                      {activity.color === 'blue' ? 'bg-blue-500/15 text-blue-500' : ''}
+                      {activity.color === 'red' ? 'bg-red-500/15 text-red-500' : ''}
+                      {activity.color === 'amber' ? 'bg-amber-500/15 text-amber-500' : ''}
+                      {activity.color === 'purple' ? 'bg-purple-500/15 text-purple-500' : ''}
+                      {activity.color === 'indigo' ? 'bg-indigo-500/15 text-indigo-500' : ''}
+                      {activity.color === 'violet' ? 'bg-violet-500/15 text-violet-500' : ''}
+                      {activity.color === 'yellow' ? 'bg-yellow-500/15 text-yellow-500' : ''}
+                      {activity.color === 'pink' ? 'bg-pink-500/15 text-pink-500' : ''}
+                      {activity.color === 'gray' ? 'bg-gray-500/15 text-gray-500' : ''}
+                    ">
                       <i class="bi {activity.icon}"></i>
                     </div>
-                    <div class="activity-info">
-                      <span class="activity-name">{activity.fileName}</span>
-                      <span class="activity-time">{activity.time}</span>
+                    <div class="flex-1 flex justify-between items-center min-w-0">
+                      <span class="text-sm text-base-content truncate">{activity.fileName}</span>
+                      <span class="text-xs text-base-content/40 shrink-0 ml-2">{activity.time}</span>
                     </div>
                   </button>
                 {/each}
@@ -473,7 +466,7 @@
       </div>
 
       <!-- Footer -->
-      <div class="dashboard-footer">
+      <div class="text-center py-8 text-xs text-base-content/40">
         <span>SyncSpace v1.0</span>
       </div>
     {/if}
@@ -481,9 +474,8 @@
 
   <!-- File Preview Modal -->
   {#if showPreview && selectedFile}
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div
-      class="preview-overlay"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]"
       role="dialog"
       aria-modal="true"
       tabindex="-1"
@@ -492,27 +484,27 @@
     >
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <div
-        class="preview-modal"
+        class="bg-base-100 rounded-xl w-[90%] max-w-[400px] p-6 shadow-2xl"
         role="document"
         onclick={(e) => e.stopPropagation()}
         onkeydown={() => {}}
       >
-        <div class="preview-header">
-          <h3>
+        <div class="flex justify-between items-start mb-6">
+          <h3 class="text-lg font-semibold text-base-content break-words">
             {selectedFile.name ||
               extractFileName(selectedFile.path || selectedFile.file_path)}
           </h3>
           <button
-            class="close-btn"
+            class="btn btn-ghost btn-sm btn-square -mt-1 -mr-1"
             onclick={closePreview}
             aria-label="Schließen"
           >
             <i class="bi bi-x-lg"></i>
           </button>
         </div>
-        <div class="preview-actions">
+        <div class="flex flex-col gap-3">
           <button
-            class="action-btn"
+            class="btn btn-ghost justify-center gap-2"
             onclick={() => {
               navigateTo("files");
               closePreview();
@@ -525,7 +517,7 @@
             href="{API_BASE}/download/{encodeURIComponent(
               selectedFile.path || selectedFile.file_path || ''
             )}"
-            class="action-btn primary"
+            class="btn btn-success justify-center gap-2"
             download
           >
             <i class="bi bi-download"></i>
@@ -538,645 +530,5 @@
 </PageWrapper>
 
 <style>
-  .dashboard {
-    width: 100%;
-    padding: 1.5rem;
-    min-height: calc(100vh - 80px);
-  }
-
-  .loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 400px;
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #e5e7eb;
-    border-top-color: #22c55e;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Top Row */
-  .top-row {
-    display: flex;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .stats-row {
-    display: flex;
-    gap: 1rem;
-  }
-
-  .stat-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    padding: 1rem 1.25rem;
-  }
-
-  :global(.dark) .stat-item {
-    background: #1f2937;
-    border-color: #374151;
-  }
-
-  .stat-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-  }
-
-  .stat-icon.files {
-    background: #dbeafe;
-    color: #3b82f6;
-  }
-
-  .stat-icon.folders {
-    background: #fef3c7;
-    color: #f59e0b;
-  }
-
-  .stat-icon.storage {
-    background: #dcfce7;
-    color: #22c55e;
-  }
-
-  :global(.dark) .stat-icon.files {
-    background: rgba(59, 130, 246, 0.2);
-  }
-  :global(.dark) .stat-icon.folders {
-    background: rgba(245, 158, 11, 0.2);
-  }
-  :global(.dark) .stat-icon.storage {
-    background: rgba(34, 197, 94, 0.2);
-  }
-
-  .stat-info {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .stat-value {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #111827;
-  }
-
-  :global(.dark) .stat-value {
-    color: #f9fafb;
-  }
-
-  .stat-label {
-    font-size: 0.75rem;
-    color: #6b7280;
-  }
-
-  /* Main Grid */
-  .main-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-  }
-
-  @media (max-width: 1024px) {
-    .main-grid {
-      grid-template-columns: 1fr;
-    }
-    .top-row {
-      flex-direction: column;
-    }
-    .stats-row {
-      flex-wrap: wrap;
-    }
-  }
-
-  .left-column,
-  .right-column {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  /* Cards */
-  .card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    padding: 1.25rem;
-  }
-
-  :global(.dark) .card {
-    background: #1f2937;
-    border-color: #374151;
-  }
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-
-  .card-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #111827;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0 0 1rem 0;
-  }
-
-  .card-header .card-title {
-    margin: 0;
-  }
-
-  :global(.dark) .card-title {
-    color: #f9fafb;
-  }
-
-  .link-btn {
-    background: none;
-    border: none;
-    color: #22c55e;
-    font-size: 0.875rem;
-    cursor: pointer;
-  }
-
-  .link-btn:hover {
-    text-decoration: underline;
-  }
-
-  /* Upload Card */
-  .upload-card {
-    border: 2px dashed #d1d5db;
-    text-align: center;
-    transition: all 0.2s;
-  }
-
-  .upload-card.dragging {
-    border-color: #22c55e;
-    background: rgba(34, 197, 94, 0.05);
-  }
-
-  :global(.dark) .upload-card {
-    border-color: #4b5563;
-  }
-
-  :global(.dark) .upload-card.dragging {
-    background: rgba(34, 197, 94, 0.1);
-  }
-
-  .upload-content {
-    padding: 1.5rem 0;
-  }
-
-  .upload-icon {
-    font-size: 3rem;
-    color: #22c55e;
-    margin-bottom: 0.75rem;
-  }
-
-  .upload-content h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 0.25rem 0;
-  }
-
-  :global(.dark) .upload-content h3 {
-    color: #f9fafb;
-  }
-
-  .upload-content p {
-    color: #6b7280;
-    margin: 0 0 1rem 0;
-  }
-
-  .upload-btn {
-    background: #22c55e;
-    color: white;
-    border: none;
-    padding: 0.625rem 1.25rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: background 0.2s;
-  }
-
-  .upload-btn:hover {
-    background: #16a34a;
-  }
-
-  /* Quick Actions */
-  .quick-actions {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.75rem;
-  }
-
-  .quick-action {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  :global(.dark) .quick-action {
-    background: #111827;
-    border-color: #374151;
-  }
-
-  .quick-action:hover {
-    border-color: #22c55e;
-    transform: translateY(-2px);
-  }
-
-  .quick-action i {
-    font-size: 1.5rem;
-    color: #22c55e;
-  }
-
-  .quick-action span {
-    font-size: 0.75rem;
-    color: #6b7280;
-  }
-
-  /* Storage */
-  .storage-bar-container {
-    height: 8px;
-    background: #e5e7eb;
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 0.75rem;
-  }
-
-  :global(.dark) .storage-bar-container {
-    background: #374151;
-  }
-
-  .storage-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #22c55e, #16a34a);
-    border-radius: 4px;
-    transition: width 0.5s ease;
-  }
-
-  .storage-info {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.875rem;
-    color: #6b7280;
-  }
-
-  /* Favorites */
-  .favorites-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .favorite-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.625rem 0.75rem;
-    background: #f9fafb;
-    border: 1px solid transparent;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-align: left;
-  }
-
-  :global(.dark) .favorite-item {
-    background: #111827;
-  }
-
-  .favorite-item:hover {
-    border-color: #22c55e;
-  }
-
-  .favorite-item i {
-    font-size: 1.125rem;
-  }
-
-  .fav-name {
-    font-size: 0.875rem;
-    color: #374151;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  :global(.dark) .fav-name {
-    color: #d1d5db;
-  }
-
-  /* Activity */
-  .activity-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .activity-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0;
-  }
-
-  .activity-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 0.375rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.875rem;
-  }
-
-  .activity-icon.emerald {
-    background: rgba(34, 197, 94, 0.15);
-    color: #22c55e;
-  }
-  .activity-icon.blue {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-  }
-  .activity-icon.red {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-  }
-  .activity-icon.amber {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
-  }
-  .activity-icon.purple {
-    background: rgba(168, 85, 247, 0.15);
-    color: #a855f7;
-  }
-  .activity-icon.indigo {
-    background: rgba(99, 102, 241, 0.15);
-    color: #6366f1;
-  }
-  .activity-icon.violet {
-    background: rgba(139, 92, 246, 0.15);
-    color: #8b5cf6;
-  }
-  .activity-icon.yellow {
-    background: rgba(234, 179, 8, 0.15);
-    color: #eab308;
-  }
-  .activity-icon.pink {
-    background: rgba(236, 72, 153, 0.15);
-    color: #ec4899;
-  }
-  .activity-icon.gray {
-    background: rgba(107, 114, 128, 0.15);
-    color: #6b7280;
-  }
-
-  .activity-info {
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    min-width: 0;
-  }
-
-  .activity-name {
-    font-size: 0.875rem;
-    color: #374151;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  :global(.dark) .activity-name {
-    color: #d1d5db;
-  }
-
-  .activity-time {
-    font-size: 0.75rem;
-    color: #9ca3af;
-    flex-shrink: 0;
-    margin-left: 0.5rem;
-  }
-
-  /* Empty State */
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    color: #9ca3af;
-  }
-
-  .empty-state.small {
-    padding: 1.5rem;
-  }
-
-  .empty-state i {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    opacity: 0.5;
-  }
-
-  .empty-state.small i {
-    font-size: 1.5rem;
-  }
-
-  .empty-state p {
-    font-size: 0.875rem;
-    margin: 0;
-  }
-
-  /* Footer */
-  .dashboard-footer {
-    text-align: center;
-    padding: 2rem 0 1rem;
-    font-size: 0.75rem;
-    color: #9ca3af;
-  }
-
-  /* Upload Progress */
-  .upload-progress-list {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px dashed #d1d5db;
-  }
-
-  :global(.dark) .upload-progress-list {
-    border-color: #4b5563;
-  }
-
-  .upload-progress-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    padding: 0.25rem 0;
-    color: #6b7280;
-  }
-
-  .upload-progress-item.complete {
-    color: #22c55e;
-  }
-
-  .upload-progress-item.error {
-    color: #ef4444;
-  }
-
-  /* Activity button style */
-  button.activity-item {
-    width: 100%;
-    background: none;
-    border: none;
-    cursor: pointer;
-    border-radius: 0.375rem;
-    transition: background 0.15s;
-  }
-
-  button.activity-item:hover {
-    background: #f3f4f6;
-  }
-
-  :global(.dark) button.activity-item:hover {
-    background: #374151;
-  }
-
-  /* Preview Modal */
-  .preview-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-
-  .preview-modal {
-    background: white;
-    border-radius: 0.75rem;
-    width: 90%;
-    max-width: 400px;
-    padding: 1.5rem;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  }
-
-  :global(.dark) .preview-modal {
-    background: #1f2937;
-  }
-
-  .preview-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
-  }
-
-  .preview-header h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0;
-    word-break: break-word;
-  }
-
-  :global(.dark) .preview-header h3 {
-    color: #f9fafb;
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    color: #6b7280;
-    cursor: pointer;
-    padding: 0.25rem;
-    margin: -0.25rem -0.25rem 0 0;
-  }
-
-  .close-btn:hover {
-    color: #111827;
-  }
-
-  :global(.dark) .close-btn:hover {
-    color: #f9fafb;
-  }
-
-  .preview-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .action-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.15s;
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
-    color: #374151;
-  }
-
-  :global(.dark) .action-btn {
-    background: #374151;
-    border-color: #4b5563;
-    color: #d1d5db;
-  }
-
-  .action-btn:hover {
-    background: #e5e7eb;
-  }
-
-  :global(.dark) .action-btn:hover {
-    background: #4b5563;
-  }
-
-  .action-btn.primary {
-    background: #22c55e;
-    border-color: #22c55e;
-    color: white;
-  }
-
-  .action-btn.primary:hover {
-    background: #16a34a;
-  }
+  /* Minimal custom styles - only for complex animations not available in Tailwind */
 </style>

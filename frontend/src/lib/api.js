@@ -5480,5 +5480,187 @@ const compression = {
   },
 };
 
+// ==================== THUMBNAILS ====================
+const thumbnails = {
+  /**
+   * Get thumbnail URL for a file
+   * @param {string} filePath - Path to the file
+   * @param {object} options - Options: width, height, quality
+   */
+  getUrl(filePath, options = {}) {
+    const params = new URLSearchParams();
+    if (options.width) params.set('width', options.width);
+    if (options.height) params.set('height', options.height);
+    if (options.quality) params.set('quality', options.quality);
+    const query = params.toString();
+    return `${API_BASE}/thumbnails/${encodeURIComponent(filePath)}${query ? '?' + query : ''}`;
+  },
+
+  /**
+   * Get thumbnail as blob
+   */
+  async get(filePath, options = {}) {
+    const url = this.getUrl(filePath, options);
+    const response = await fetch(url, {
+      headers: getHeaders(false),
+    });
+    if (!response.ok) {
+      throw new Error(`Thumbnail not available: ${response.status}`);
+    }
+    return response.blob();
+  },
+
+  /**
+   * Regenerate thumbnail for a file (Admin only)
+   */
+  async regenerate(filePath) {
+    const response = await fetch(`${API_BASE}/thumbnails/${encodeURIComponent(filePath)}/regenerate`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete thumbnail for a file (Admin only)
+   */
+  async delete(filePath) {
+    const response = await fetch(`${API_BASE}/thumbnails/${encodeURIComponent(filePath)}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ==================== PREVIEW ====================
+const preview = {
+  /**
+   * Get preview URL for a file
+   * @param {string} filePath - Path to the file
+   * @param {object} options - Options: type, quality, page, time
+   */
+  getUrl(filePath, options = {}) {
+    const params = new URLSearchParams();
+    if (options.type) params.set('type', options.type);
+    if (options.quality) params.set('quality', options.quality);
+    if (options.page) params.set('page', options.page);
+    if (options.time) params.set('time', options.time);
+    const query = params.toString();
+    return `${API_BASE}/preview/${encodeURIComponent(filePath)}${query ? '?' + query : ''}`;
+  },
+
+  /**
+   * Get image preview URL
+   */
+  getImagePreviewUrl(filePath, quality = 80) {
+    return this.getUrl(filePath, { type: 'thumbnail', quality });
+  },
+
+  /**
+   * Get PDF page preview URL
+   */
+  getPdfPageUrl(filePath, page = 1, quality = 80) {
+    return this.getUrl(filePath, { type: 'pdf_page', page, quality });
+  },
+
+  /**
+   * Get video frame preview URL
+   */
+  getVideoFrameUrl(filePath, time = 0) {
+    return this.getUrl(filePath, { type: 'video_frame', time });
+  },
+
+  /**
+   * Get preview metadata
+   */
+  async getMetadata(filePath) {
+    const response = await fetch(`${API_BASE}/preview/${encodeURIComponent(filePath)}/metadata`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get video preview info
+   */
+  async getVideoInfo(filePath) {
+    const response = await fetch(`${API_BASE}/preview/${encodeURIComponent(filePath)}/video`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get PDF preview info with page thumbnails
+   */
+  async getPdfInfo(filePath) {
+    const response = await fetch(`${API_BASE}/preview/${encodeURIComponent(filePath)}/pdf`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
+// ==================== VIRUS SCAN ====================
+const virusScan = {
+  /**
+   * Scan a file for viruses
+   */
+  async scanFile(filePath) {
+    const response = await fetch(`${API_BASE}/virus-scan/scan/${encodeURIComponent(filePath)}`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Scan a directory for viruses
+   */
+  async scanDirectory(dirPath) {
+    const response = await fetch(`${API_BASE}/virus-scan/scan-directory/${encodeURIComponent(dirPath)}`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get quarantined files (Admin only)
+   */
+  async getQuarantine() {
+    const response = await fetch(`${API_BASE}/virus-scan/quarantine`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Restore file from quarantine (Admin only)
+   */
+  async restoreFromQuarantine(quarantineId) {
+    const response = await fetch(`${API_BASE}/virus-scan/quarantine/${encodeURIComponent(quarantineId)}/restore`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete file from quarantine permanently (Admin only)
+   */
+  async deleteFromQuarantine(quarantineId) {
+    const response = await fetch(`${API_BASE}/virus-scan/quarantine/${encodeURIComponent(quarantineId)}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
 // Add late-defined exports to api object
-Object.assign(api, { encryption, quota, groups, guests, rateLimiting, admin, ftp, email, oauth, ldap, archives, compression });
+Object.assign(api, { encryption, quota, groups, guests, rateLimiting, admin, ftp, email, oauth, ldap, archives, compression, thumbnails, preview, virusScan });
+
+// Export individual modules for direct import
+export { thumbnails, preview, virusScan };

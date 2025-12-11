@@ -269,20 +269,19 @@
   title={tr("smartFolders.title") || "Smart Folders"}
   showSidebar={true}
 >
-  <div class="smart-folders-view">
+  <div class="max-w-6xl mx-auto p-6">
     <!-- Header -->
-    <div class="view-header">
-      <div class="header-left">
-        <h1 class="view-title">
+    <div class="flex justify-between items-start mb-8">
+      <div class="flex flex-col gap-1">
+        <h1 class="text-2xl font-semibold flex items-center gap-2 text-base-content">
           <i class="bi bi-lightning-fill text-amber-500"></i>
           {tr("smartFolders.title") || "Smart Folders"}
         </h1>
-        <p class="view-subtitle">
-          {tr("smartFolders.subtitle") ||
-            "Create dynamic folders based on rules"}
+        <p class="text-base-content/60 text-sm">
+          {tr("smartFolders.subtitle") || "Create dynamic folders based on rules"}
         </p>
       </div>
-      <button class="btn-primary" onclick={openCreateModal}>
+      <button class="btn btn-success gap-2" onclick={openCreateModal}>
         <i class="bi bi-plus-lg"></i>
         {tr("smartFolders.create") || "Create Smart Folder"}
       </button>
@@ -297,81 +296,74 @@
       </div>
     {:else if smartFolders.length === 0}
       <!-- Empty State -->
-      <div class="empty-state">
-        <div class="empty-icon">
+      <div class="text-center py-16 px-8 bg-base-100 rounded-2xl border-2 border-dashed border-base-300">
+        <div class="w-20 h-20 mx-auto mb-6 bg-amber-100 dark:bg-amber-500/20 rounded-full flex items-center justify-center text-4xl text-amber-500">
           <i class="bi bi-lightning"></i>
         </div>
-        <h3>{tr("smartFolders.empty") || "No Smart Folders Yet"}</h3>
-        <p>
-          {tr("smartFolders.emptyHint") ||
-            "Create your first smart folder to automatically organize files based on rules."}
+        <h3 class="text-xl font-semibold text-base-content mb-2">{tr("smartFolders.empty") || "No Smart Folders Yet"}</h3>
+        <p class="text-base-content/60 max-w-md mx-auto">
+          {tr("smartFolders.emptyHint") || "Create your first smart folder to automatically organize files based on rules."}
         </p>
-        <button class="btn-primary mt-4" onclick={openCreateModal}>
+        <button class="btn btn-success gap-2 mt-4" onclick={openCreateModal}>
           <i class="bi bi-plus-lg"></i>
           {tr("smartFolders.create") || "Create Smart Folder"}
         </button>
       </div>
     {:else}
       <!-- Smart Folders Grid -->
-      <div class="folders-grid">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {#each smartFolders as folder (folder.id)}
           <div
-            class="folder-card"
-            style="--folder-color: {folder.color || '#22c55e'}"
+            class="bg-base-100 border border-base-300 rounded-2xl p-6 transition-all hover:shadow-lg border-l-4"
+            style="border-left-color: {folder.color || '#22c55e'}"
           >
-            <div class="folder-header">
+            <div class="flex gap-4 mb-4">
               <div
-                class="folder-icon"
-                style="background-color: {folder.color ||
-                  '#22c55e'}20; color: {folder.color || '#22c55e'}"
+                class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"
+                style="background-color: {folder.color || '#22c55e'}20; color: {folder.color || '#22c55e'}"
               >
                 <i class="bi {folder.icon || 'bi-folder-fill'}"></i>
               </div>
-              <div class="folder-info">
-                <h3>{folder.name}</h3>
+              <div>
+                <h3 class="font-semibold text-base-content">{folder.name}</h3>
                 {#if folder.description}
-                  <p class="folder-desc">{folder.description}</p>
+                  <p class="text-sm text-base-content/60">{folder.description}</p>
                 {/if}
               </div>
             </div>
 
-            <div class="folder-meta">
-              <span class="meta-item">
+            <div class="flex flex-wrap gap-3 mb-4 pt-4 border-t border-base-300">
+              <span class="flex items-center gap-1.5 text-xs text-base-content/60 bg-base-200 px-2.5 py-1 rounded-full">
                 <i class="bi bi-funnel"></i>
-                {folder.conditions_count}
-                {folder.conditions_count === 1 ? tr("rule") : tr("rules")}
+                {folder.conditions_count} {folder.conditions_count === 1 ? tr("rule") : tr("rules")}
               </span>
-              <span class="meta-item">
-                <i
-                  class="bi bi-{folder.logic === 'AND' ? 'intersect' : 'union'}"
-                ></i>
+              <span class="flex items-center gap-1.5 text-xs text-base-content/60 bg-base-200 px-2.5 py-1 rounded-full">
+                <i class="bi bi-{folder.logic === 'AND' ? 'intersect' : 'union'}"></i>
                 {folder.logic}
               </span>
-              <span class="meta-item" class:inactive={!folder.is_active}>
-                <i
-                  class="bi bi-{folder.is_active ? 'check-circle' : 'x-circle'}"
-                ></i>
+              <span class="flex items-center gap-1.5 text-xs bg-base-200 px-2.5 py-1 rounded-full {folder.is_active ? 'text-base-content/60' : 'text-error'}">
+                <i class="bi bi-{folder.is_active ? 'check-circle' : 'x-circle'}"></i>
                 {folder.is_active ? tr("active") : tr("inactive")}
               </span>
             </div>
 
-            <div class="folder-actions">
+            <div class="flex gap-2 justify-end">
               <button
-                class="action-btn"
+                class="btn btn-ghost btn-sm btn-square"
                 onclick={() => previewSmartFolder(folder)}
                 title="Preview"
               >
                 <i class="bi bi-eye"></i>
               </button>
               <button
-                class="action-btn"
+                class="btn btn-ghost btn-sm btn-square"
                 onclick={() => openEditModal(folder)}
                 title="Edit"
               >
                 <i class="bi bi-pencil"></i>
               </button>
               <button
-                class="action-btn danger"
+                class="btn btn-ghost btn-sm btn-square hover:bg-error/10 hover:text-error"
                 onclick={() => deleteSmartFolder(folder)}
                 title="Delete"
               >
@@ -386,9 +378,8 @@
 
   <!-- Create/Edit Modal -->
   {#if showCreateModal}
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div
-      class="modal-backdrop"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
@@ -398,16 +389,16 @@
     >
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <!-- svelte-ignore a11y_click_events_have_key_events -->
-      <div class="modal-content" onclick={(e) => e.stopPropagation()}>
-        <div class="modal-header">
-          <h2 id="modal-title">
+      <div class="bg-base-100 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" onclick={(e) => e.stopPropagation()}>
+        <div class="flex justify-between items-center p-6 border-b border-base-300">
+          <h2 id="modal-title" class="text-xl font-semibold flex items-center gap-2 text-base-content">
             <i class="bi bi-lightning-fill text-amber-500"></i>
             {editingFolder
               ? tr("smartFolders.edit") || "Edit Smart Folder"
               : tr("smartFolders.create") || "Create Smart Folder"}
           </h2>
           <button
-            class="close-btn"
+            class="btn btn-ghost btn-sm btn-square"
             onclick={closeModal}
             aria-label="Close modal"
           >
@@ -415,50 +406,45 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="p-6 overflow-y-auto flex-1">
           <!-- Basic Info -->
-          <div class="form-section">
-            <h3>{tr("smartFolders.basicInfo") || "Basic Information"}</h3>
+          <div class="mb-6">
+            <h3 class="text-sm font-semibold text-base-content/60 mb-4 uppercase tracking-wide">{tr("smartFolders.basicInfo") || "Basic Information"}</h3>
 
-            <div class="form-group">
-              <label for="name">{tr("smartFolders.name") || "Name"} *</label>
+            <div class="form-control mb-4">
+              <label class="label" for="name">
+                <span class="label-text">{tr("smartFolders.name") || "Name"} *</span>
+              </label>
               <input
                 type="text"
                 id="name"
+                class="input input-bordered w-full"
                 bind:value={formName}
-                placeholder={tr("smartFolders.namePlaceholder") ||
-                  "e.g., Large Images"}
+                placeholder={tr("smartFolders.namePlaceholder") || "e.g., Large Images"}
               />
             </div>
 
-            <div class="form-group">
-              <label for="description"
-                >{tr("smartFolders.description") || "Description"}</label
-              >
+            <div class="form-control mb-4">
+              <label class="label" for="description">
+                <span class="label-text">{tr("smartFolders.description") || "Description"}</span>
+              </label>
               <input
                 type="text"
                 id="description"
+                class="input input-bordered w-full"
                 bind:value={formDescription}
-                placeholder={tr("smartFolders.descriptionPlaceholder") ||
-                  "Optional description"}
+                placeholder={tr("smartFolders.descriptionPlaceholder") || "Optional description"}
               />
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <span class="label-text"
-                  >{tr("smartFolders.icon") || "Icon"}</span
-                >
-                <div
-                  class="icon-picker"
-                  role="radiogroup"
-                  aria-label="Select icon"
-                >
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-control">
+                <span class="label-text mb-2 block">{tr("smartFolders.icon") || "Icon"}</span>
+                <div class="flex flex-wrap gap-2" role="radiogroup" aria-label="Select icon">
                   {#each iconOptions as icon}
                     <button
                       type="button"
-                      class="icon-option"
-                      class:selected={formIcon === icon}
+                      class="w-10 h-10 border-2 rounded-lg flex items-center justify-center text-xl transition-all {formIcon === icon ? 'border-success bg-success/10 text-success' : 'border-base-300 bg-base-100 text-base-content/60 hover:border-success hover:text-success'}"
                       onclick={() => (formIcon = icon)}
                       aria-label="Select {icon} icon"
                       aria-pressed={formIcon === icon}
@@ -469,28 +455,20 @@
                 </div>
               </div>
 
-              <div class="form-group">
-                <span class="label-text"
-                  >{tr("smartFolders.color") || "Color"}</span
-                >
-                <div
-                  class="color-picker"
-                  role="radiogroup"
-                  aria-label="Select color"
-                >
+              <div class="form-control">
+                <span class="label-text mb-2 block">{tr("smartFolders.color") || "Color"}</span>
+                <div class="flex flex-wrap gap-2" role="radiogroup" aria-label="Select color">
                   {#each colorOptions as color}
                     <button
                       type="button"
-                      class="color-option"
-                      class:selected={formColor === color}
+                      class="w-8 h-8 rounded-full border-3 transition-all flex items-center justify-center hover:scale-110 {formColor === color ? 'border-base-content' : 'border-transparent'}"
                       style="background-color: {color}"
                       onclick={() => (formColor = color)}
                       aria-label="Select color {color}"
                       aria-pressed={formColor === color}
                     >
                       {#if formColor === color}
-                        <i class="bi bi-check text-white" aria-hidden="true"
-                        ></i>
+                        <i class="bi bi-check text-white" aria-hidden="true"></i>
                       {/if}
                     </button>
                   {/each}
@@ -500,20 +478,20 @@
           </div>
 
           <!-- Conditions -->
-          <div class="form-section">
-            <div class="section-header">
-              <h3>{tr("smartFolders.conditions") || "Conditions"}</h3>
-              <div class="logic-toggle">
+          <div class="mb-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-sm font-semibold text-base-content/60 uppercase tracking-wide">{tr("smartFolders.conditions") || "Conditions"}</h3>
+              <div class="flex border border-base-300 rounded-lg overflow-hidden">
                 <button
                   type="button"
-                  class:active={formLogic === "AND"}
+                  class="px-3 py-1.5 text-xs font-semibold transition-all {formLogic === 'AND' ? 'bg-success text-white' : 'bg-base-100 text-base-content/60'}"
                   onclick={() => (formLogic = "AND")}
                 >
                   AND
                 </button>
                 <button
                   type="button"
-                  class:active={formLogic === "OR"}
+                  class="px-3 py-1.5 text-xs font-semibold transition-all {formLogic === 'OR' ? 'bg-success text-white' : 'bg-base-100 text-base-content/60'}"
                   onclick={() => (formLogic = "OR")}
                 >
                   OR
@@ -521,41 +499,35 @@
               </div>
             </div>
 
-            <div class="conditions-list">
+            <div class="flex flex-col gap-3">
               {#each formConditions as condition, index}
-                <div class="condition-row">
+                <div class="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
                   <select
+                    class="select select-bordered select-sm"
                     value={condition.field}
-                    onchange={(e) =>
-                      updateConditionField(index, e.target.value)}
+                    onchange={(e) => updateConditionField(index, e.target.value)}
                   >
                     {#each conditionFields as field}
                       <option value={field.value}>{field.label}</option>
                     {/each}
                   </select>
 
-                  <select bind:value={condition.operator}>
+                  <select class="select select-bordered select-sm" bind:value={condition.operator}>
                     {#each operatorsByField[condition.field] || [] as op}
                       <option value={op.value}>{op.label}</option>
                     {/each}
                   </select>
 
                   {#if condition.field === "file_type"}
-                    <select bind:value={condition.value}>
-                      <option value=""
-                        >{tr("smartFolders.selectType") ||
-                          "Select type..."}</option
-                      >
+                    <select class="select select-bordered select-sm" bind:value={condition.value}>
+                      <option value="">{tr("smartFolders.selectType") || "Select type..."}</option>
                       {#each fileTypePresets as preset}
                         <option value={preset.value}>{preset.label}</option>
                       {/each}
                     </select>
                   {:else if condition.field === "size"}
-                    <select bind:value={condition.value}>
-                      <option value=""
-                        >{tr("smartFolders.selectSize") ||
-                          "Select size..."}</option
-                      >
+                    <select class="select select-bordered select-sm" bind:value={condition.value}>
+                      <option value="">{tr("smartFolders.selectSize") || "Select size..."}</option>
                       {#each sizePresets as preset}
                         <option value={preset.value}>{preset.label}</option>
                       {/each}
@@ -563,25 +535,25 @@
                   {:else if condition.field === "date" && condition.operator === "last_n_days"}
                     <input
                       type="number"
+                      class="input input-bordered input-sm"
                       bind:value={condition.value}
-                      placeholder={tr("smartFolders.numberOfDays") ||
-                        "Number of days"}
+                      placeholder={tr("smartFolders.numberOfDays") || "Number of days"}
                       min="1"
                     />
                   {:else if condition.field === "date"}
-                    <input type="date" bind:value={condition.value} />
+                    <input type="date" class="input input-bordered input-sm" bind:value={condition.value} />
                   {:else}
                     <input
                       type="text"
+                      class="input input-bordered input-sm"
                       bind:value={condition.value}
-                      placeholder={tr("smartFolders.enterValue") ||
-                        "Enter value..."}
+                      placeholder={tr("smartFolders.enterValue") || "Enter value..."}
                     />
                   {/if}
 
                   <button
                     type="button"
-                    class="remove-btn"
+                    class="btn btn-ghost btn-sm btn-square text-error"
                     onclick={() => removeCondition(index)}
                     disabled={formConditions.length <= 1}
                     aria-label="Remove condition"
@@ -593,7 +565,7 @@
 
               <button
                 type="button"
-                class="add-condition-btn"
+                class="flex items-center justify-center gap-2 py-3 border-2 border-dashed border-base-300 rounded-lg text-base-content/60 text-sm hover:border-success hover:text-success hover:bg-success/5 transition-all"
                 onclick={addCondition}
               >
                 <i class="bi bi-plus"></i>
@@ -603,51 +575,38 @@
           </div>
 
           <!-- Sorting -->
-          <div class="form-section">
-            <h3>{tr("smartFolders.sorting") || "Sorting"}</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="sortBy"
-                  >{tr("smartFolders.sortBy") || "Sort by"}</label
-                >
-                <select id="sortBy" bind:value={formSortBy}>
-                  <option value="name"
-                    >{tr("smartFolders.name") || "Name"}</option
-                  >
-                  <option value="modified"
-                    >{tr("smartFolders.modifiedDate") ||
-                      "Modified Date"}</option
-                  >
-                  <option value="size"
-                    >{tr("smartFolders.fields.size") || "Size"}</option
-                  >
-                  <option value="type"
-                    >{tr("smartFolders.type") || "Type"}</option
-                  >
+          <div class="mb-6">
+            <h3 class="text-sm font-semibold text-base-content/60 mb-4 uppercase tracking-wide">{tr("smartFolders.sorting") || "Sorting"}</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-control">
+                <label class="label" for="sortBy">
+                  <span class="label-text">{tr("smartFolders.sortBy") || "Sort by"}</span>
+                </label>
+                <select id="sortBy" class="select select-bordered" bind:value={formSortBy}>
+                  <option value="name">{tr("smartFolders.name") || "Name"}</option>
+                  <option value="modified">{tr("smartFolders.modifiedDate") || "Modified Date"}</option>
+                  <option value="size">{tr("smartFolders.fields.size") || "Size"}</option>
+                  <option value="type">{tr("smartFolders.type") || "Type"}</option>
                 </select>
               </div>
-              <div class="form-group">
-                <label for="sortOrder"
-                  >{tr("smartFolders.sortOrder") || "Order"}</label
-                >
-                <select id="sortOrder" bind:value={formSortOrder}>
-                  <option value="asc"
-                    >{tr("smartFolders.ascending") || "Ascending"}</option
-                  >
-                  <option value="desc"
-                    >{tr("smartFolders.descending") || "Descending"}</option
-                  >
+              <div class="form-control">
+                <label class="label" for="sortOrder">
+                  <span class="label-text">{tr("smartFolders.sortOrder") || "Order"}</span>
+                </label>
+                <select id="sortOrder" class="select select-bordered" bind:value={formSortOrder}>
+                  <option value="asc">{tr("smartFolders.ascending") || "Ascending"}</option>
+                  <option value="desc">{tr("smartFolders.descending") || "Descending"}</option>
                 </select>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="modal-footer">
-          <button class="btn-secondary" onclick={closeModal}>
+        <div class="flex justify-end gap-3 p-6 border-t border-base-300">
+          <button class="btn btn-ghost" onclick={closeModal}>
             {tr("cancel") || "Cancel"}
           </button>
-          <button class="btn-primary" onclick={saveSmartFolder}>
+          <button class="btn btn-success gap-2" onclick={saveSmartFolder}>
             <i class="bi bi-check-lg"></i>
             {editingFolder ? tr("save") || "Save" : tr("create") || "Create"}
           </button>
@@ -658,631 +617,8 @@
 </PageWrapper>
 
 <style>
-  .smart-folders-view {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1.5rem;
-  }
-
-  .view-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 2rem;
-  }
-
-  .header-left {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .view-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #111827;
-  }
-
-  :global(.dark) .view-title {
-    color: #f9fafb;
-  }
-
-  .view-subtitle {
-    color: #6b7280;
-    font-size: 0.875rem;
-  }
-
-  :global(.dark) .view-subtitle {
-    color: #9ca3af;
-  }
-
-  .btn-primary {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    background: #22c55e;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .btn-primary:hover {
-    background: #16a34a;
-  }
-
-  .btn-secondary {
-    padding: 0.75rem 1.25rem;
-    background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  :global(.dark) .btn-secondary {
-    background: #374151;
-    color: #f9fafb;
-    border-color: #4b5563;
-  }
-
-  .btn-secondary:hover {
-    background: #e5e7eb;
-  }
-
-  :global(.dark) .btn-secondary:hover {
-    background: #4b5563;
-  }
-
-  /* Empty State */
-  .empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    background: white;
-    border-radius: 1rem;
-    border: 2px dashed #e5e7eb;
-  }
-
-  :global(.dark) .empty-state {
-    background: #1f2937;
-    border-color: #374151;
-  }
-
-  .empty-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 1.5rem;
-    background: #fef3c7;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    color: #f59e0b;
-  }
-
-  .empty-state h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 0.5rem;
-  }
-
-  :global(.dark) .empty-state h3 {
-    color: #f9fafb;
-  }
-
-  .empty-state p {
-    color: #6b7280;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-
-  :global(.dark) .empty-state p {
-    color: #9ca3af;
-  }
-
-  /* Folders Grid */
-  .folders-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .folder-card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 1rem;
-    padding: 1.5rem;
-    transition: all 0.2s;
-    border-left: 4px solid var(--folder-color);
-  }
-
-  :global(.dark) .folder-card {
-    background: #1f2937;
-    border-color: #374151;
-  }
-
-  .folder-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .folder-header {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .folder-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 0.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    flex-shrink: 0;
-  }
-
-  .folder-info h3 {
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 0.25rem;
-  }
-
-  :global(.dark) .folder-info h3 {
-    color: #f9fafb;
-  }
-
-  .folder-desc {
-    font-size: 0.875rem;
-    color: #6b7280;
-  }
-
-  :global(.dark) .folder-desc {
-    color: #9ca3af;
-  }
-
-  .folder-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-  }
-
-  :global(.dark) .folder-meta {
-    border-color: #374151;
-  }
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.75rem;
-    color: #6b7280;
-    background: #f3f4f6;
-    padding: 0.25rem 0.625rem;
-    border-radius: 9999px;
-  }
-
-  :global(.dark) .meta-item {
-    background: #374151;
-    color: #9ca3af;
-  }
-
-  .meta-item.inactive {
-    color: #ef4444;
-  }
-
-  .folder-actions {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-  }
-
-  .action-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 0.5rem;
-    border: 1px solid #e5e7eb;
-    background: white;
-    color: #6b7280;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  :global(.dark) .action-btn {
-    background: #374151;
-    border-color: #4b5563;
-    color: #9ca3af;
-  }
-
-  .action-btn:hover {
-    background: #f3f4f6;
-    color: #111827;
-  }
-
-  :global(.dark) .action-btn:hover {
-    background: #4b5563;
-    color: #f9fafb;
-  }
-
-  .action-btn.danger:hover {
-    background: #fef2f2;
-    color: #ef4444;
-    border-color: #fecaca;
-  }
-
-  :global(.dark) .action-btn.danger:hover {
-    background: rgba(239, 68, 68, 0.2);
-    border-color: #ef4444;
-  }
-
-  /* Modal */
-  .modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 50;
-    padding: 1rem;
-  }
-
-  .modal-content {
-    background: white;
-    border-radius: 1rem;
-    width: 100%;
-    max-width: 640px;
-    max-height: 90vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  :global(.dark) .modal-content {
-    background: #1f2937;
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global(.dark) .modal-header {
-    border-color: #374151;
-  }
-
-  .modal-header h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #111827;
-  }
-
-  :global(.dark) .modal-header h2 {
-    color: #f9fafb;
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    color: #6b7280;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 0.375rem;
-    transition: all 0.2s;
-  }
-
-  .close-btn:hover {
-    background: #f3f4f6;
-    color: #111827;
-  }
-
-  :global(.dark) .close-btn:hover {
-    background: #374151;
-    color: #f9fafb;
-  }
-
-  .modal-body {
-    padding: 1.5rem;
-    overflow-y: auto;
-    flex: 1;
-  }
-
-  .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    padding: 1.5rem;
-    border-top: 1px solid #e5e7eb;
-  }
-
-  :global(.dark) .modal-footer {
-    border-color: #374151;
-  }
-
-  /* Form */
-  .form-section {
-    margin-bottom: 1.5rem;
-  }
-
-  .form-section h3 {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  :global(.dark) .form-section h3 {
-    color: #9ca3af;
-  }
-
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-
-  .section-header h3 {
-    margin-bottom: 0;
-  }
-
-  .form-group {
-    margin-bottom: 1rem;
-  }
-
-  .form-group label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #374151;
-    margin-bottom: 0.5rem;
-  }
-
-  :global(.dark) .form-group label {
-    color: #d1d5db;
-  }
-
-  .form-group input,
-  .form-group select {
-    width: 100%;
-    padding: 0.625rem 0.875rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    background: white;
-    color: #111827;
-  }
-
-  :global(.dark) .form-group input,
-  :global(.dark) .form-group select {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-
-  .form-group input:focus,
-  .form-group select:focus {
-    outline: none;
-    border-color: #22c55e;
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-
-  /* Icon & Color Picker */
-  .icon-picker,
-  .color-picker {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .icon-option {
-    width: 40px;
-    height: 40px;
-    border: 2px solid #e5e7eb;
-    border-radius: 0.5rem;
-    background: white;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    color: #6b7280;
-  }
-
-  :global(.dark) .icon-option {
-    background: #374151;
-    border-color: #4b5563;
-  }
-
-  .icon-option:hover {
-    border-color: #22c55e;
-    color: #22c55e;
-  }
-
-  .icon-option.selected {
-    border-color: #22c55e;
-    background: #dcfce7;
-    color: #22c55e;
-  }
-
-  :global(.dark) .icon-option.selected {
-    background: rgba(34, 197, 94, 0.2);
-  }
-
-  .color-option {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 3px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .color-option:hover {
-    transform: scale(1.1);
-  }
-
-  .color-option.selected {
-    border-color: #111827;
-  }
-
-  :global(.dark) .color-option.selected {
-    border-color: #f9fafb;
-  }
-
-  /* Logic Toggle */
-  .logic-toggle {
-    display: flex;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    overflow: hidden;
-  }
-
-  :global(.dark) .logic-toggle {
-    border-color: #4b5563;
-  }
-
-  .logic-toggle button {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border: none;
-    background: white;
-    color: #6b7280;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  :global(.dark) .logic-toggle button {
-    background: #374151;
-    color: #9ca3af;
-  }
-
-  .logic-toggle button.active {
-    background: #22c55e;
-    color: white;
-  }
-
-  /* Conditions */
-  .conditions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .condition-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  .condition-row select,
-  .condition-row input {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    font-size: 0.875rem;
-    background: white;
-    color: #111827;
-  }
-
-  :global(.dark) .condition-row select,
-  :global(.dark) .condition-row input {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-
-  .remove-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 0.375rem;
-    border: 1px solid #e5e7eb;
-    background: white;
-    color: #ef4444;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  :global(.dark) .remove-btn {
-    background: #374151;
-    border-color: #4b5563;
-  }
-
-  .remove-btn:hover:not(:disabled) {
-    background: #fef2f2;
-  }
-
-  .remove-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  .add-condition-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    border: 2px dashed #d1d5db;
-    border-radius: 0.5rem;
-    background: transparent;
-    color: #6b7280;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.875rem;
-  }
-
-  :global(.dark) .add-condition-btn {
-    border-color: #4b5563;
-    color: #9ca3af;
-  }
-
-  .add-condition-btn:hover {
-    border-color: #22c55e;
-    color: #22c55e;
-    background: #f0fdf4;
-  }
-
-  :global(.dark) .add-condition-btn:hover {
-    background: rgba(34, 197, 94, 0.1);
+  /* Minimal styles for border-3 which isn't in Tailwind by default */
+  .border-3 {
+    border-width: 3px;
   }
 </style>

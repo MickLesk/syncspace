@@ -211,17 +211,17 @@
 </script>
 
 <PageWrapper showSidebar={true}>
-  <div class="trash-view">
+  <div class="p-6 max-md:p-4">
     <!-- Header -->
-    <div class="view-header">
-      <h1 class="view-title">
+    <div class="flex justify-between items-center mb-6 flex-wrap gap-4 max-md:flex-col max-md:items-start">
+      <h1 class="text-2xl font-bold text-base-content flex items-center gap-2 m-0">
         <i class="bi bi-trash3-fill"></i>
         {tr("trash")}
-        <span class="item-count">{trashItems.length}</span>
+        <span class="text-sm font-semibold bg-gradient-to-br from-success to-green-600 text-white px-3 py-1 rounded-full ml-2">{trashItems.length}</span>
       </h1>
-      <div class="header-actions">
+      <div class="flex gap-2">
         <button
-          class="btn-secondary"
+          class="btn btn-ghost gap-2"
           onclick={cleanupOldItems}
           disabled={loading || trashItems.length === 0}
         >
@@ -229,7 +229,7 @@
           {tr("trashCleanupOld")}
         </button>
         <button
-          class="btn-primary"
+          class="btn btn-success gap-2"
           onclick={emptyTrash}
           disabled={loading || trashItems.length === 0}
         >
@@ -240,95 +240,95 @@
     </div>
 
     {#if error}
-      <div class="error-banner">
-        <i class="bi bi-exclamation-triangle"></i> <span>{error}</span>
+      <div class="alert alert-error mb-6">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span>{error}</span>
       </div>
     {/if}
 
     {#if loading}
-      <div class="loading-container"><div class="spinner"></div></div>
+      <div class="flex justify-center py-16">
+        <span class="loading loading-spinner loading-lg text-success"></span>
+      </div>
     {:else}
       <!-- Quick Stats -->
-      <div class="quick-stats">
-        <div class="stat-card">
-          <div class="stat-icon files-icon"><i class="bi bi-files"></i></div>
-          <div class="stat-text">
-            <h3>{trashItems.length}</h3>
-            <p>{tr("files")}</p>
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4 mb-6">
+        <div class="flex items-center gap-4 p-4 bg-base-100 border border-base-300 rounded-xl">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-success/10 text-success">
+            <i class="bi bi-files"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-base-content m-0">{trashItems.length}</h3>
+            <p class="text-xs text-base-content/60 uppercase tracking-wide mt-0.5">{tr("files")}</p>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon size-icon"><i class="bi bi-hdd"></i></div>
-          <div class="stat-text">
-            <h3>{formatFileSize(totalSize)}</h3>
-            <p>{tr("totalSize")}</p>
+        <div class="flex items-center gap-4 p-4 bg-base-100 border border-base-300 rounded-xl">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-blue-500/10 text-blue-500">
+            <i class="bi bi-hdd"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-base-content m-0">{formatFileSize(totalSize)}</h3>
+            <p class="text-xs text-base-content/60 uppercase tracking-wide mt-0.5">{tr("totalSize")}</p>
           </div>
         </div>
       </div>
 
       <!-- Table Card -->
-      <div class="card table-card">
-        <div class="card-header">
-          <div class="card-icon"><i class="bi bi-trash3"></i></div>
-          <h2>{tr("deletedFiles")}</h2>
-          <span class="badge">{filteredItems.length}</span>
+      <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+        <div class="flex items-center gap-3 p-4 border-b border-base-300">
+          <div class="w-9 h-9 bg-success/10 rounded-lg flex items-center justify-center text-base text-success">
+            <i class="bi bi-trash3"></i>
+          </div>
+          <h2 class="flex-1 text-base font-semibold text-base-content m-0">{tr("deletedFiles")}</h2>
+          <span class="badge badge-ghost">{filteredItems.length}</span>
         </div>
 
         <!-- Toolbar -->
         {#if trashItems.length > 0}
-          <div class="toolbar">
-            <div class="toolbar-left">
-              <label class="checkbox-wrapper">
+          <div class="flex justify-between items-center p-4 border-b border-base-300 flex-wrap gap-3 max-md:flex-col max-md:items-stretch">
+            <div class="flex items-center gap-3 flex-wrap max-md:w-full max-md:justify-between">
+              <label class="flex items-center gap-2 text-sm text-base-content cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={selectedItems.size === filteredItems.length &&
-                    filteredItems.length > 0}
+                  class="checkbox checkbox-sm checkbox-success"
+                  checked={selectedItems.size === filteredItems.length && filteredItems.length > 0}
                   onchange={toggleSelectAll}
                 />
                 <span>{tr("selectAll")}</span>
               </label>
               {#if selectedItems.size > 0}
-                <span class="selected-count"
-                  >{selectedItems.size} {tr("selected")}</span
-                >
-                <button class="btn-sm success" onclick={restoreSelected}
-                  ><i class="bi bi-arrow-counterclockwise"></i>
-                  {tr("restoreFile")}</button
-                >
-                <button
-                  class="btn-sm danger"
-                  onclick={deleteSelectedPermanently}
-                  ><i class="bi bi-x-lg"></i> {tr("deleteForever")}</button
-                >
+                <span class="text-sm font-medium text-success">{selectedItems.size} {tr("selected")}</span>
+                <button class="btn btn-xs btn-success btn-ghost" onclick={restoreSelected}>
+                  <i class="bi bi-arrow-counterclockwise"></i>
+                  {tr("restoreFile")}
+                </button>
+                <button class="btn btn-xs btn-error btn-ghost" onclick={deleteSelectedPermanently}>
+                  <i class="bi bi-x-lg"></i>
+                  {tr("deleteForever")}
+                </button>
               {/if}
             </div>
-            <div class="toolbar-right">
-              <div class="search-box">
-                <i class="bi bi-search"></i>
+            <div class="flex items-center gap-3 flex-wrap max-md:w-full max-md:justify-between">
+              <div class="flex items-center gap-2 px-2.5 py-1.5 bg-base-200 border border-base-300 rounded-lg">
+                <i class="bi bi-search text-sm text-base-content/40"></i>
                 <input
                   type="text"
+                  class="border-none bg-transparent outline-none text-base-content w-36 text-sm"
                   placeholder={tr("trashSearchPlaceholder")}
                   bind:value={searchQuery}
                 />
               </div>
-              <select class="sort-select" bind:value={sortBy}>
+              <select class="select select-bordered select-sm" bind:value={sortBy}>
                 <option value="deleted_at">{tr("dateDeleted")}</option>
                 <option value="file_name">{tr("name")}</option>
                 <option value="file_size">{tr("size")}</option>
               </select>
               <button
-                class="btn-icon"
-                title={tr(
-                  sortOrder === "asc" ? "sortDescending" : "sortAscending"
-                )}
-                onclick={() =>
-                  (sortOrder = sortOrder === "asc" ? "desc" : "asc")}
+                class="btn btn-ghost btn-sm btn-square"
+                title={tr(sortOrder === "asc" ? "sortDescending" : "sortAscending")}
+                onclick={() => (sortOrder = sortOrder === "asc" ? "desc" : "asc")}
               >
-                <i
-                  class="bi {sortOrder === 'asc'
-                    ? 'bi-sort-up'
-                    : 'bi-sort-down'}"
-                ></i>
+                <i class="bi {sortOrder === 'asc' ? 'bi-sort-up' : 'bi-sort-down'}"></i>
               </button>
             </div>
           </div>
@@ -336,21 +336,17 @@
 
         <!-- Table or Empty State -->
         {#if filteredItems.length === 0}
-          <div class="empty-state">
-            <i class="bi bi-trash3"></i>
-            <h3>{searchQuery ? tr("noItemsFound") : tr("trashIsEmpty")}</h3>
-            <p>
-              {searchQuery
-                ? tr("tryDifferentSearch")
-                : tr("deletedFilesAppearHere")}
-            </p>
+          <div class="flex flex-col items-center justify-center py-16 px-8 text-center">
+            <i class="bi bi-trash3 text-5xl text-base-content/20 mb-4"></i>
+            <h3 class="text-base font-semibold text-base-content mb-1">{searchQuery ? tr("noItemsFound") : tr("trashIsEmpty")}</h3>
+            <p class="text-sm text-base-content/60">{searchQuery ? tr("tryDifferentSearch") : tr("deletedFilesAppearHere")}</p>
           </div>
         {:else}
-          <div class="table-container">
-            <table>
+          <div class="overflow-x-auto">
+            <table class="table table-zebra">
               <thead>
                 <tr>
-                  <th class="col-checkbox"></th>
+                  <th class="w-10"></th>
                   <th>{tr("name")}</th>
                   <th>{tr("size")}</th>
                   <th>{tr("dateDeleted")}</th>
@@ -359,38 +355,43 @@
               </thead>
               <tbody>
                 {#each filteredItems as item (item.id)}
-                  <tr class:selected={selectedItems.has(item.id)}>
-                    <td class="col-checkbox">
+                  <tr class:bg-success/10={selectedItems.has(item.id)}>
+                    <td>
                       <input
                         type="checkbox"
+                        class="checkbox checkbox-sm checkbox-success"
                         checked={selectedItems.has(item.id)}
                         onchange={() => toggleSelect(item.id)}
                       />
                     </td>
-                    <td class="name-cell">
-                      <i class="bi {getFileIcon(item.file_name)} file-icon"></i>
-                      <div class="file-info">
-                        <span class="filename">{item.file_name}</span>
-                        <span class="filepath">{item.original_path}</span>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <i class="bi {getFileIcon(item.file_name)} text-lg text-base-content/60"></i>
+                        <div class="flex flex-col min-w-0">
+                          <span class="font-medium text-base-content truncate max-w-[300px]">{item.file_name}</span>
+                          <span class="text-xs text-base-content/40 truncate max-w-[300px]">{item.original_path}</span>
+                        </div>
                       </div>
                     </td>
-                    <td class="mono">{formatFileSize(item.file_size)}</td>
-                    <td class="muted">{getRelativeTime(item.deleted_at)}</td>
-                    <td class="actions-cell">
-                      <button
-                        class="action-btn restore"
-                        title={tr("restoreFile")}
-                        onclick={() => restoreItem(item)}
-                      >
-                        <i class="bi bi-arrow-counterclockwise"></i>
-                      </button>
-                      <button
-                        class="action-btn delete"
-                        title={tr("deleteForever")}
-                        onclick={() => deleteItemPermanently(item)}
-                      >
-                        <i class="bi bi-x-lg"></i>
-                      </button>
+                    <td class="font-mono text-sm">{formatFileSize(item.file_size)}</td>
+                    <td class="text-base-content/60">{getRelativeTime(item.deleted_at)}</td>
+                    <td>
+                      <div class="flex gap-1.5">
+                        <button
+                          class="btn btn-xs btn-success btn-ghost btn-square"
+                          title={tr("restoreFile")}
+                          onclick={() => restoreItem(item)}
+                        >
+                          <i class="bi bi-arrow-counterclockwise"></i>
+                        </button>
+                        <button
+                          class="btn btn-xs btn-error btn-ghost btn-square"
+                          title={tr("deleteForever")}
+                          onclick={() => deleteItemPermanently(item)}
+                        >
+                          <i class="bi bi-x-lg"></i>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 {/each}
@@ -404,589 +405,5 @@
 </PageWrapper>
 
 <style>
-  .trash-view {
-    padding: 1.5rem;
-  }
-
-  /* Header */
-  .view-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  .view-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #111827;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0;
-  }
-  :global(.dark) .view-title {
-    color: #f9fafb;
-  }
-
-  .item-count {
-    font-size: 0.875rem;
-    font-weight: 600;
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    margin-left: 0.5rem;
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  /* Buttons */
-  .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: #22c55e;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-primary:hover:not(:disabled) {
-    background: #16a34a;
-  }
-  .btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: white;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-secondary:hover:not(:disabled) {
-    background: #f3f4f6;
-  }
-  .btn-secondary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  :global(.dark) .btn-secondary {
-    background: #374151;
-    color: #e5e7eb;
-    border-color: #4b5563;
-  }
-  :global(.dark) .btn-secondary:hover:not(:disabled) {
-    background: #4b5563;
-  }
-
-  .btn-sm {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.625rem;
-    border: none;
-    border-radius: 0.375rem;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-sm.success {
-    background: #dcfce7;
-    color: #16a34a;
-  }
-  .btn-sm.success:hover {
-    background: #22c55e;
-    color: white;
-  }
-  .btn-sm.danger {
-    background: #fee2e2;
-    color: #dc2626;
-  }
-  .btn-sm.danger:hover {
-    background: #dc2626;
-    color: white;
-  }
-  :global(.dark) .btn-sm.success {
-    background: rgba(34, 197, 94, 0.2);
-  }
-  :global(.dark) .btn-sm.danger {
-    background: rgba(220, 38, 38, 0.2);
-  }
-
-  .btn-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    color: #6b7280;
-    cursor: pointer;
-  }
-  .btn-icon:hover {
-    background: #f3f4f6;
-    color: #111827;
-  }
-  :global(.dark) .btn-icon {
-    background: #374151;
-    border-color: #4b5563;
-    color: #9ca3af;
-  }
-  :global(.dark) .btn-icon:hover {
-    background: #4b5563;
-    color: #f9fafb;
-  }
-
-  /* Error & Loading */
-  .error-banner {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    border-radius: 0.5rem;
-    color: #dc2626;
-    margin-bottom: 1.5rem;
-  }
-  :global(.dark) .error-banner {
-    background: rgba(220, 38, 38, 0.1);
-    border-color: rgba(220, 38, 38, 0.3);
-  }
-
-  .loading-container {
-    display: flex;
-    justify-content: center;
-    padding: 4rem;
-  }
-  .spinner {
-    width: 36px;
-    height: 36px;
-    border: 3px solid #e5e7eb;
-    border-top-color: #22c55e;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Quick Stats - same as StorageAnalytics */
-  .quick-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-  .stat-card {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-  }
-  :global(.dark) .stat-card {
-    background: #1f2937;
-    border-color: #374151;
-  }
-  .stat-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.125rem;
-  }
-  .files-icon {
-    background: #dcfce7;
-    color: #16a34a;
-  }
-  .size-icon {
-    background: #dbeafe;
-    color: #2563eb;
-  }
-  :global(.dark) .files-icon {
-    background: rgba(34, 197, 94, 0.2);
-    color: #22c55e;
-  }
-  :global(.dark) .size-icon {
-    background: rgba(59, 130, 246, 0.2);
-    color: #60a5fa;
-  }
-  .stat-text h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #111827;
-    margin: 0;
-  }
-  :global(.dark) .stat-text h3 {
-    color: #f9fafb;
-  }
-  .stat-text p {
-    font-size: 0.75rem;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin: 0.125rem 0 0 0;
-  }
-  :global(.dark) .stat-text p {
-    color: #9ca3af;
-  }
-
-  /* Card */
-  .card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    overflow: hidden;
-  }
-  :global(.dark) .card {
-    background: #1f2937;
-    border-color: #374151;
-  }
-
-  .table-card .card-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  :global(.dark) .table-card .card-header {
-    border-color: #374151;
-  }
-  .card-icon {
-    width: 36px;
-    height: 36px;
-    background: #dcfce7;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    color: #16a34a;
-  }
-  :global(.dark) .card-icon {
-    background: rgba(34, 197, 94, 0.2);
-    color: #22c55e;
-  }
-  .card-header h2 {
-    flex: 1;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0;
-  }
-  :global(.dark) .card-header h2 {
-    color: #f9fafb;
-  }
-  .badge {
-    padding: 0.125rem 0.5rem;
-    background: #f3f4f6;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: #6b7280;
-  }
-  :global(.dark) .badge {
-    background: #374151;
-    color: #9ca3af;
-  }
-
-  /* Toolbar */
-  .toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1.25rem;
-    border-bottom: 1px solid #e5e7eb;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-  :global(.dark) .toolbar {
-    border-color: #374151;
-  }
-  .toolbar-left,
-  .toolbar-right {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  .checkbox-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: #374151;
-    cursor: pointer;
-  }
-  :global(.dark) .checkbox-wrapper {
-    color: #d1d5db;
-  }
-  .selected-count {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #22c55e;
-  }
-
-  .search-box {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.375rem 0.625rem;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-  }
-  :global(.dark) .search-box {
-    background: #111827;
-    border-color: #374151;
-  }
-  .search-box i {
-    color: #9ca3af;
-    font-size: 0.875rem;
-  }
-  .search-box input {
-    border: none;
-    background: transparent;
-    outline: none;
-    color: #111827;
-    width: 140px;
-    font-size: 0.875rem;
-  }
-  :global(.dark) .search-box input {
-    color: #f9fafb;
-  }
-
-  .sort-select {
-    padding: 0.375rem 0.625rem;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    color: #374151;
-    font-size: 0.875rem;
-    cursor: pointer;
-  }
-  :global(.dark) .sort-select {
-    background: #374151;
-    border-color: #4b5563;
-    color: #e5e7eb;
-  }
-
-  /* Table */
-  .table-container {
-    overflow-x: auto;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  thead {
-    background: #f9fafb;
-  }
-  :global(.dark) thead {
-    background: #111827;
-  }
-  th {
-    padding: 0.625rem 1rem;
-    text-align: left;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  :global(.dark) th {
-    color: #9ca3af;
-  }
-  td {
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
-    color: #374151;
-    border-top: 1px solid #e5e7eb;
-  }
-  :global(.dark) td {
-    color: #d1d5db;
-    border-color: #374151;
-  }
-  tr:hover td {
-    background: #f9fafb;
-  }
-  :global(.dark) tr:hover td {
-    background: rgba(255, 255, 255, 0.02);
-  }
-  tr.selected td {
-    background: #dcfce7;
-  }
-  :global(.dark) tr.selected td {
-    background: rgba(34, 197, 94, 0.1);
-  }
-
-  .col-checkbox {
-    width: 40px;
-  }
-  .name-cell {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  .file-icon {
-    font-size: 1.125rem;
-    color: #6b7280;
-  }
-  :global(.dark) .file-icon {
-    color: #9ca3af;
-  }
-  .file-info {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-  .filename {
-    font-weight: 500;
-    color: #111827;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 300px;
-  }
-  :global(.dark) .filename {
-    color: #f9fafb;
-  }
-  .filepath {
-    font-size: 0.75rem;
-    color: #9ca3af;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 300px;
-  }
-  .mono {
-    font-family: ui-monospace, monospace;
-  }
-  .muted {
-    color: #6b7280;
-  }
-  :global(.dark) .muted {
-    color: #9ca3af;
-  }
-
-  .actions-cell {
-    display: flex;
-    gap: 0.375rem;
-  }
-  .action-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border: none;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .action-btn.restore {
-    background: #dcfce7;
-    color: #16a34a;
-  }
-  .action-btn.restore:hover {
-    background: #22c55e;
-    color: white;
-  }
-  .action-btn.delete {
-    background: #fee2e2;
-    color: #dc2626;
-  }
-  .action-btn.delete:hover {
-    background: #dc2626;
-    color: white;
-  }
-  :global(.dark) .action-btn.restore {
-    background: rgba(34, 197, 94, 0.2);
-  }
-  :global(.dark) .action-btn.delete {
-    background: rgba(220, 38, 38, 0.2);
-  }
-
-  /* Empty State */
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-    text-align: center;
-  }
-  .empty-state i {
-    font-size: 3rem;
-    color: #d1d5db;
-    margin-bottom: 1rem;
-  }
-  :global(.dark) .empty-state i {
-    color: #4b5563;
-  }
-  .empty-state h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #374151;
-    margin: 0 0 0.25rem 0;
-  }
-  :global(.dark) .empty-state h3 {
-    color: #e5e7eb;
-  }
-  .empty-state p {
-    font-size: 0.875rem;
-    color: #6b7280;
-    margin: 0;
-  }
-  :global(.dark) .empty-state p {
-    color: #9ca3af;
-  }
-
-  @media (max-width: 768px) {
-    .trash-view {
-      padding: 1rem;
-    }
-    .view-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .toolbar {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .toolbar-left,
-    .toolbar-right {
-      width: 100%;
-      justify-content: space-between;
-    }
-  }
+  /* Minimal custom styles - keep only what Tailwind can't handle */
 </style>

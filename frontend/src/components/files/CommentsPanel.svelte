@@ -182,71 +182,68 @@
 {#if visible && file}
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="comments-panel-overlay" onclick={handleClose} role="presentation">
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[1000] animate-fadeIn" onclick={handleClose} role="presentation">
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="comments-panel"
+      class="bg-white dark:bg-gray-800 rounded-3xl w-[90%] max-w-[600px] max-h-[80vh] flex flex-col shadow-2xl animate-slideUp"
       onclick={(e) => e.stopPropagation()}
-      role="dialog" tabindex="0"
+      role="dialog"
       aria-modal="true"
       tabindex="-1"
     >
-      <div class="panel-header">
-        <div class="panel-title">
+      <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center gap-3">
           <Icon name="💬" size="20px" />
-          <h3>{file.name}</h3>
+          <h3 class="m-0 text-xl font-medium text-gray-900 dark:text-gray-100 truncate max-w-[400px]">{file.name}</h3>
         </div>
-        <button class="btn-close" onclick={handleClose}>
+        <button class="bg-transparent border-none w-8 h-8 rounded-full flex items-center justify-center cursor-pointer text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-all" onclick={handleClose} aria-label="Close">
           <Icon name="✕" size="18px" />
         </button>
       </div>
 
-      <div class="panel-content">
+      <div class="p-6 overflow-y-auto flex-1 relative">
         {#if errorMessage}
-          <div class="error-banner">
+          <div class="flex items-center gap-3 px-4 py-3 bg-red-100 dark:bg-red-500/20 text-red-800 dark:text-red-300 rounded-xl mb-4 text-sm">
             <Icon name="⚠️" size="16px" />
-            <span>{errorMessage}</span>
-            <button class="btn-dismiss" onclick={() => (errorMessage = "")}>
+            <span class="flex-1">{errorMessage}</span>
+            <button class="bg-transparent border-none p-1 rounded-full cursor-pointer text-red-800 dark:text-red-300 opacity-70 hover:opacity-100 transition-opacity" onclick={() => (errorMessage = "")} aria-label="Dismiss">
               <Icon name="✕" size="14px" />
             </button>
           </div>
         {/if}
 
         {#if loading}
-          <div class="loading-overlay">
-            <div class="spinner"></div>
+          <div class="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center rounded-3xl z-10">
+            <div class="w-10 h-10 border-4 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full animate-spin"></div>
           </div>
         {/if}
 
         <!-- Tags Section -->
-        <div class="section">
-          <h4 class="section-title">
+        <div class="mb-8">
+          <h4 class="flex items-center gap-2 text-base font-medium text-gray-900 dark:text-gray-100 m-0 mb-4">
             <Icon name="🏷️" size="16px" />
             Tags
           </h4>
 
-          <div class="tags-list">
+          <div class="flex flex-wrap gap-2 mb-4 min-h-[32px]">
             {#each fileTags as tag}
               <span
-                class="tag"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-all"
                 style="background-color: {tag.color}20; color: {tag.color}; border-color: {tag.color}"
               >
                 {tag.name}
-                <button
-                  class="tag-remove"
-                  onclick={() => handleRemoveTag(tag.name)}
-                >
+                <button class="bg-transparent border-none p-0 w-4 h-4 rounded-full flex items-center justify-center cursor-pointer opacity-70 hover:opacity-100 transition-opacity" onclick={() => handleRemoveTag(tag.name)} aria-label="Remove tag">
                   <Icon name="✕" size="12px" />
                 </button>
               </span>
             {/each}
           </div>
 
-          <div class="tag-input-group">
+          <div class="flex gap-2">
             <input
               type="text"
-              class="input-tag"
+              class="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-gray-600 transition-all"
               placeholder="Add a tag..."
               bind:value={newTag}
               onkeydown={(e) => e.key === "Enter" && handleAddTag()}
@@ -258,9 +255,10 @@
               {/each}
             </datalist>
             <button
-              class="btn-add-tag"
+              class="px-4 py-2.5 border-none rounded-xl bg-blue-500 text-white text-sm font-medium cursor-pointer flex items-center gap-1 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               onclick={handleAddTag}
               disabled={!newTag.trim()}
+              aria-label="Add tag"
             >
               <Icon name="➕" size="14px" />
             </button>
@@ -268,62 +266,47 @@
         </div>
 
         <!-- Comments Section -->
-        <div class="section">
-          <h4 class="section-title">
+        <div>
+          <h4 class="flex items-center gap-2 text-base font-medium text-gray-900 dark:text-gray-100 m-0 mb-4">
             <Icon name="💬" size="16px" />
             Comments ({fileComments.length})
           </h4>
 
-          <div class="comments-list">
+          <div class="mb-4 max-h-[400px] overflow-y-auto">
             {#each fileComments as comment (comment.id)}
-              <div class="comment-item">
-                <div class="comment-header">
-                  <span class="comment-user">{comment.user}</span>
-                  <span class="comment-time"
-                    >{formatTimestamp(comment.timestamp)}</span
-                  >
+              <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-700 mb-3 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-sm font-semibold text-blue-600 dark:text-blue-400">{comment.user}</span>
+                  <span class="text-xs text-gray-500 dark:text-gray-400">{formatTimestamp(comment.timestamp)}</span>
                   {#if comment.edited}
-                    <span class="comment-edited">(edited)</span>
+                    <span class="text-[11px] text-gray-500 dark:text-gray-400 italic">(edited)</span>
                   {/if}
                 </div>
 
                 {#if editingCommentId === comment.id}
-                  <div class="comment-edit">
+                  <div class="mt-2">
                     <!-- svelte-ignore a11y_autofocus -->
                     <textarea
-                      class="textarea-edit"
+                      class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-inherit bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 resize-y focus:outline-none focus:border-blue-500 transition-all"
                       bind:value={editText}
                       onkeydown={handleKeydown}
                       rows="3"
                       autofocus
                     ></textarea>
-                    <div class="edit-actions">
-                      <button
-                        class="btn-save"
-                        onclick={() => handleSaveEdit(comment.id)}
-                      >
-                        Save
-                      </button>
-                      <button class="btn-cancel" onclick={handleCancelEdit}>
-                        Cancel
-                      </button>
+                    <div class="flex gap-2 mt-2">
+                      <button class="px-4 py-2 border-none rounded-lg text-sm font-medium cursor-pointer bg-blue-500 text-white hover:bg-blue-600 transition-all" onclick={() => handleSaveEdit(comment.id)}>Save</button>
+                      <button class="px-4 py-2 border-none rounded-lg text-sm font-medium cursor-pointer bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-500 transition-all" onclick={handleCancelEdit}>Cancel</button>
                     </div>
                   </div>
                 {:else}
-                  <div class="comment-text">{comment.text}</div>
+                  <div class="text-sm text-gray-900 dark:text-gray-100 leading-relaxed whitespace-pre-wrap break-words mb-2">{comment.text}</div>
                   {#if comment.user === currentUser}
-                    <div class="comment-actions">
-                      <button
-                        class="btn-action"
-                        onclick={() => handleEditComment(comment.id)}
-                      >
+                    <div class="flex gap-3">
+                      <button class="bg-transparent border-none px-2 py-1 rounded-lg flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-all" onclick={() => handleEditComment(comment.id)}>
                         <Icon name="✏️" size="12px" />
                         Edit
                       </button>
-                      <button
-                        class="btn-action"
-                        onclick={() => handleDeleteComment(comment.id)}
-                      >
+                      <button class="bg-transparent border-none px-2 py-1 rounded-lg flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-all" onclick={() => handleDeleteComment(comment.id)}>
                         <Icon name="🗑️" size="12px" />
                         Delete
                       </button>
@@ -334,24 +317,24 @@
             {/each}
 
             {#if fileComments.length === 0}
-              <div class="empty-state">
+              <div class="text-center py-10 text-gray-500 dark:text-gray-400">
                 <Icon name="💭" size="48px" />
-                <p>No comments yet</p>
-                <p class="empty-hint">Be the first to comment!</p>
+                <p class="my-2 text-sm">No comments yet</p>
+                <p class="text-xs opacity-70">Be the first to comment!</p>
               </div>
             {/if}
           </div>
 
-          <div class="comment-input-group">
+          <div class="flex flex-col gap-3">
             <textarea
-              class="textarea-comment"
+              class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-inherit bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 resize-y focus:outline-none focus:border-blue-500 transition-all"
               placeholder="Add a comment..."
               bind:value={newComment}
               onkeydown={handleKeydown}
               rows="3"
             ></textarea>
             <button
-              class="btn-add-comment"
+              class="self-end px-5 py-2.5 border-none rounded-xl bg-blue-500 text-white text-sm font-medium cursor-pointer flex items-center gap-2 hover:bg-blue-600 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none transition-all"
               onclick={handleAddComment}
               disabled={!newComment.trim()}
             >
@@ -366,470 +349,7 @@
 {/if}
 
 <style>
-  .comments-panel-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    animation: fadeIn 0.2s ease-out;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  .comments-panel {
-    background: var(--md-sys-color-surface);
-    border-radius: 24px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    animation: slideUp 0.3s ease-out;
-  }
-
-  @keyframes slideUp {
-    from {
-      transform: translateY(20px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-
-  .panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--md-sys-color-outline-variant);
-  }
-
-  .panel-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .panel-title h3 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 500;
-    color: var(--md-sys-color-on-surface);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 400px;
-  }
-
-  .btn-close {
-    background: none;
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--md-sys-color-on-surface-variant);
-    transition: all 0.2s ease;
-  }
-
-  .btn-close:hover {
-    background: var(--md-sys-color-surface-container-high);
-    color: var(--md-sys-color-on-surface);
-  }
-
-  .panel-content {
-    padding: 24px;
-    overflow-y: auto;
-    flex: 1;
-  }
-
-  .section {
-    margin-bottom: 32px;
-  }
-
-  .section:last-child {
-    margin-bottom: 0;
-  }
-
-  .section-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--md-sys-color-on-surface);
-    margin: 0 0 16px 0;
-  }
-
-  /* Tags Styles */
-  .tags-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 16px;
-    min-height: 32px;
-  }
-
-  .tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 16px;
-    border: 1px solid;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-
-  .tag-remove {
-    background: none;
-    border: none;
-    padding: 0;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
-  }
-
-  .tag-remove:hover {
-    opacity: 1;
-  }
-
-  .tag-input-group {
-    display: flex;
-    gap: 8px;
-  }
-
-  .input-tag {
-    flex: 1;
-    padding: 10px 16px;
-    border: 1px solid var(--md-sys-color-outline-variant);
-    border-radius: 12px;
-    font-size: 14px;
-    background: var(--md-sys-color-surface-container-lowest);
-    color: var(--md-sys-color-on-surface);
-    transition: all 0.2s ease;
-  }
-
-  .input-tag:focus {
-    outline: none;
-    border-color: var(--md-sys-color-primary);
-    background: var(--md-sys-color-surface-container);
-  }
-
-  .btn-add-tag {
-    padding: 10px 16px;
-    border: none;
-    border-radius: 12px;
-    background: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .btn-add-tag:hover:not(:disabled) {
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-  }
-
-  .btn-add-tag:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* Comments Styles */
-  .comments-list {
-    margin-bottom: 16px;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  .comment-item {
-    padding: 16px;
-    border-radius: 12px;
-    background: var(--md-sys-color-surface-container-lowest);
-    margin-bottom: 12px;
-    transition: all 0.2s ease;
-  }
-
-  .comment-item:hover {
-    background: var(--md-sys-color-surface-container);
-  }
-
-  .comment-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .comment-user {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--md-sys-color-primary);
-  }
-
-  .comment-time {
-    font-size: 12px;
-    color: var(--md-sys-color-on-surface-variant);
-  }
-
-  .comment-edited {
-    font-size: 11px;
-    color: var(--md-sys-color-on-surface-variant);
-    font-style: italic;
-  }
-
-  .comment-text {
-    font-size: 14px;
-    color: var(--md-sys-color-on-surface);
-    line-height: 1.5;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    margin-bottom: 8px;
-  }
-
-  .comment-actions {
-    display: flex;
-    gap: 12px;
-  }
-
-  .btn-action {
-    background: none;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
-    color: var(--md-sys-color-on-surface-variant);
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .btn-action:hover {
-    background: var(--md-sys-color-surface-container-high);
-    color: var(--md-sys-color-on-surface);
-  }
-
-  .comment-edit {
-    margin-top: 8px;
-  }
-
-  .textarea-edit,
-  .textarea-comment {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid var(--md-sys-color-outline-variant);
-    border-radius: 12px;
-    font-size: 14px;
-    font-family: inherit;
-    background: var(--md-sys-color-surface-container-lowest);
-    color: var(--md-sys-color-on-surface);
-    resize: vertical;
-    transition: all 0.2s ease;
-  }
-
-  .textarea-edit:focus,
-  .textarea-comment:focus {
-    outline: none;
-    border-color: var(--md-sys-color-primary);
-    background: var(--md-sys-color-surface-container);
-  }
-
-  .edit-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-  }
-
-  .btn-save,
-  .btn-cancel {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .btn-save {
-    background: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
-  }
-
-  .btn-save:hover {
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-  }
-
-  .btn-cancel {
-    background: var(--md-sys-color-surface-container-high);
-    color: var(--md-sys-color-on-surface);
-  }
-
-  .btn-cancel:hover {
-    background: var(--md-sys-color-surface-container-highest);
-  }
-
-  .comment-input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .btn-add-comment {
-    align-self: flex-end;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 12px;
-    background: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .btn-add-comment:hover:not(:disabled) {
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .btn-add-comment:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--md-sys-color-on-surface-variant);
-  }
-
-  .empty-state p {
-    margin: 8px 0;
-    font-size: 14px;
-  }
-
-  .empty-hint {
-    font-size: 12px;
-    opacity: 0.7;
-  }
-
-  /* Error Banner */
-  .error-banner {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: var(--md-sys-color-error-container);
-    color: var(--md-sys-color-on-error-container);
-    border-radius: 12px;
-    margin-bottom: 16px;
-    font-size: 13px;
-  }
-
-  .error-banner span {
-    flex: 1;
-  }
-
-  .btn-dismiss {
-    background: none;
-    border: none;
-    padding: 4px;
-    border-radius: 50%;
-    cursor: pointer;
-    color: var(--md-sys-color-on-error-container);
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
-  }
-
-  .btn-dismiss:hover {
-    opacity: 1;
-  }
-
-  /* Loading Overlay */
-  .loading-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(2px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 24px;
-    z-index: 10;
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid var(--md-sys-color-surface-container-high);
-    border-top-color: var(--md-sys-color-primary);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
   @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Mobile Responsive */
-  @media (max-width: 768px) {
-    .comments-panel {
-      width: 95%;
-      max-height: 90vh;
-    }
-
-    .panel-header {
-      padding: 16px;
-    }
-
-    .panel-title h3 {
-      font-size: 18px;
-      max-width: 250px;
-    }
-
-    .panel-content {
-      padding: 16px;
-    }
+    to { transform: rotate(360deg); }
   }
 </style>

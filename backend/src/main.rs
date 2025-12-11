@@ -35,6 +35,10 @@ mod ldap_integration;
 // Re-enabled feature modules
 mod ftp_sync;
 mod email_integration;
+// Preview and scanning modules
+mod file_preview;
+mod thumbnails;
+mod virus_scan;
 
 use std::net::SocketAddr;
 use std::sync::atomic::AtomicUsize;

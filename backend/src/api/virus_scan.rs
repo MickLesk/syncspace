@@ -141,7 +141,7 @@ async fn get_quarantine(
     user: UserInfo,
 ) -> Result<Json<Vec<QuarantineEntry>>, StatusCode> {
     // Admin only
-    if user.role != "admin" {
+    if user.role.as_deref() != Some("admin") {
         return Err(StatusCode::FORBIDDEN);
     }
 
@@ -182,7 +182,7 @@ async fn restore_from_quarantine(
     user: UserInfo,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     // Admin only
-    if user.role != "admin" {
+    if user.role.as_deref() != Some("admin") {
         return Err(StatusCode::FORBIDDEN);
     }
 
@@ -213,7 +213,7 @@ async fn delete_from_quarantine(
     user: UserInfo,
 ) -> Result<StatusCode, StatusCode> {
     // Admin only
-    if user.role != "admin" {
+    if user.role.as_deref() != Some("admin") {
         return Err(StatusCode::FORBIDDEN);
     }
 
