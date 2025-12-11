@@ -343,10 +343,10 @@
 </script>
 
 <!-- Background with animated gradient -->
-<div class="login-container" class:dark-mode={isDark}>
+<div class="relative min-h-screen flex items-center justify-center overflow-hidden p-4 transition-colors duration-300 {isDark ? 'bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800' : 'bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700'}">
   <!-- Theme Toggle -->
   <button
-    class="theme-toggle"
+    class="absolute top-6 left-6 z-20 flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2 rounded-full border border-white/25 shadow-lg text-white text-sm font-medium cursor-pointer transition-all hover:bg-white/25 hover:border-white/35 hover:-translate-y-0.5 max-sm:top-4 max-sm:left-4 max-sm:px-3 max-sm:py-1.5"
     onclick={cycleTheme}
     aria-label={tr("toggleTheme")}
     title={currentTheme === "system"
@@ -356,13 +356,13 @@
         : tr("themeDark")}
   >
     {#if currentTheme === "system"}
-      <i class="bi bi-circle-half" aria-hidden="true"></i>
+      <i class="bi bi-circle-half text-base" aria-hidden="true"></i>
     {:else if currentTheme === "light"}
-      <i class="bi bi-sun-fill" aria-hidden="true"></i>
+      <i class="bi bi-sun-fill text-base" aria-hidden="true"></i>
     {:else}
-      <i class="bi bi-moon-fill" aria-hidden="true"></i>
+      <i class="bi bi-moon-fill text-base" aria-hidden="true"></i>
     {/if}
-    <span class="theme-label">
+    <span class="text-xs uppercase tracking-wide max-sm:hidden">
       {currentTheme === "system"
         ? "Auto"
         : currentTheme === "light"
@@ -373,7 +373,7 @@
 
   <!-- Backend Status Indicator (clickable to open server dialog) -->
   <button
-    class="backend-status-indicator"
+    class="absolute top-6 right-6 z-20 flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 shadow-lg text-white cursor-pointer transition-all hover:bg-white/20 hover:border-white/30 hover:-translate-y-0.5 max-sm:top-4 max-sm:right-4 max-sm:px-3 max-sm:py-1.5"
     onclick={openServerDialog}
     aria-label={tr("manageServers")}
     title={tr("clickToManageServers")}
@@ -382,7 +382,7 @@
       <span class="status-pulse"></span>
       <span class="status-dot"></span>
     </div>
-    <div class="status-text">
+    <div class="flex items-center">
       {#if checkingBackend}
         <span class="text-white/90 text-xs font-medium"
           >{tr("checkingBackend")}</span
@@ -406,7 +406,7 @@
   <div class="blob blob-3"></div>
 
   <!-- Login Card with Glassmorphism -->
-  <div class="login-card modal-content">
+  <div class="relative z-10 w-full max-w-[460px] p-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-[0_8px_32px_0_rgba(16,185,129,0.15)] animate-slide-up max-sm:p-6">
     <!-- Logo Section -->
     <div class="text-center mb-8">
       <div class="logo-circle">
@@ -783,36 +783,7 @@
 </div>
 
 <style>
-  /* Main Container with Gradient Background */
-  .login-container {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(
-      135deg,
-      #10b981 0%,
-      #059669 35%,
-      #047857 70%,
-      #065f46 100%
-    );
-    overflow: hidden;
-    padding: 1rem;
-    transition: background 0.3s ease;
-  }
-
-  .login-container.dark-mode {
-    background: linear-gradient(
-      135deg,
-      #064e3b 0%,
-      #065f46 35%,
-      #047857 70%,
-      #059669 100%
-    );
-  }
-
-  /* Animated Background Blobs */
+  /* Animated Background Blobs - requires custom CSS */
   .blob {
     position: absolute;
     border-radius: 50%;
@@ -827,7 +798,6 @@
     background: linear-gradient(135deg, #34d399, #10b981);
     top: -10%;
     left: -10%;
-    animation-delay: 0s;
   }
 
   .blob-2 {
@@ -846,30 +816,6 @@
     bottom: -10%;
     left: 30%;
     animation-delay: 10s;
-  }
-
-  /* Glassmorphism Card */
-  .login-card {
-    position: relative;
-    z-index: 10;
-    width: 100%;
-    max-width: 460px;
-    padding: 2.5rem;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px) saturate(180%);
-    border-radius: 0.75rem;
-    box-shadow:
-      0 8px 32px 0 rgba(16, 185, 129, 0.15),
-      0 0 0 1px rgba(255, 255, 255, 0.18) inset;
-    animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  /* Dark mode card */
-  :global(.dark) .login-card {
-    background: rgba(17, 24, 39, 0.95);
-    box-shadow:
-      0 8px 32px 0 rgba(0, 0, 0, 0.3),
-      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
   }
 
   /* Logo Circle with Pulse */
@@ -892,21 +838,49 @@
     color: white !important;
   }
 
-  /* Animations */
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(60px) scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+  /* Status indicator pulse */
+  .status-circle {
+    position: relative;
+    width: 14px;
+    height: 14px;
   }
 
+  .status-dot {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    z-index: 2;
+  }
+
+  .status-pulse {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    z-index: 1;
+    animation: statusPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .status-circle.online .status-dot {
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  }
+
+  .status-circle.online .status-pulse {
+    background: #10b981;
+  }
+
+  .status-circle.offline .status-dot {
+    background: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+  }
+
+  .status-circle.offline .status-pulse {
+    background: #ef4444;
+  }
+
+  /* Animations */
   @keyframes float {
-    0%,
-    100% {
+    0%, 100% {
       transform: translate(0, 0) rotate(0deg);
     }
     33% {
@@ -918,8 +892,7 @@
   }
 
   @keyframes pulse {
-    0%,
-    100% {
+    0%, 100% {
       transform: scale(1);
       box-shadow:
         0 10px 40px rgba(16, 185, 129, 0.4),
@@ -931,144 +904,6 @@
         0 15px 60px rgba(16, 185, 129, 0.6),
         0 0 0 12px rgba(16, 185, 129, 0.15);
     }
-  }
-
-  @keyframes shake {
-    0%,
-    100% {
-      transform: translateX(0);
-    }
-    25% {
-      transform: translateX(-10px);
-    }
-    75% {
-      transform: translateX(10px);
-    }
-  }
-
-  .animate-shake {
-    animation: shake 0.4s ease-in-out;
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.4s ease-in;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Dialog scale-in animation */
-  .animate-scale-in {
-    animation: scaleIn 0.2s ease-out;
-  }
-
-  @keyframes scaleIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  /* Responsive */
-  @media (max-width: 640px) {
-    .login-card {
-      padding: 1.5rem;
-    }
-
-    .logo-circle {
-      width: 80px;
-      height: 80px;
-    }
-
-    .logo-circle i {
-      font-size: 2.5rem !important;
-    }
-  }
-
-  /* Backend Status Indicator - Now a clickable button */
-  .backend-status-indicator {
-    position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-    z-index: 20;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: white;
-    font-size: inherit;
-  }
-
-  .backend-status-indicator:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-1px);
-  }
-
-  .status-circle {
-    position: relative;
-    width: 14px;
-    height: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .status-dot {
-    position: relative;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    z-index: 2;
-  }
-
-  .status-pulse {
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    z-index: 1;
-  }
-
-  /* Online State - Green */
-  .status-circle.online .status-dot {
-    background: #10b981;
-    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
-  }
-
-  .status-circle.online .status-pulse {
-    background: #10b981;
-    animation: statusPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  /* Offline State - Red */
-  .status-circle.offline .status-dot {
-    background: #ef4444;
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
-  }
-
-  .status-circle.offline .status-pulse {
-    background: #ef4444;
-    animation: statusPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
   @keyframes statusPulse {
@@ -1086,75 +921,51 @@
     }
   }
 
-  .status-text {
-    display: flex;
-    align-items: center;
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
   }
 
+  .animate-shake {
+    animation: shake 0.4s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-in;
+  }
+
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(60px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Responsive adjustments for logo */
   @media (max-width: 640px) {
-    .backend-status-indicator {
-      top: 1rem;
-      right: 1rem;
-      padding: 0.375rem 0.75rem;
+    .logo-circle {
+      width: 80px;
+      height: 80px;
     }
-
-    .status-text span {
-      font-size: 0.625rem;
+    .logo-circle i {
+      font-size: 2.5rem !important;
     }
-
-    .status-circle,
-    .status-dot,
-    .status-pulse {
-      width: 10px;
-      height: 10px;
-    }
-
-    .theme-toggle {
-      top: 1rem;
-      left: 1rem;
-      padding: 0.375rem 0.75rem;
-    }
-
-    .theme-label {
-      display: none;
-    }
-  }
-
-  /* Theme Toggle Button */
-  .theme-toggle {
-    position: absolute;
-    top: 1.5rem;
-    left: 1.5rem;
-    z-index: 20;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    color: white;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .theme-toggle:hover {
-    background: rgba(255, 255, 255, 0.25);
-    border-color: rgba(255, 255, 255, 0.35);
-    transform: translateY(-1px);
-  }
-
-  .theme-toggle i {
-    font-size: 1rem;
-  }
-
-  .theme-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
   }
 </style>
