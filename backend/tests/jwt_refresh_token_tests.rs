@@ -326,7 +326,7 @@ async fn test_access_token_short_expiration() {
 
     // Allow some margin (14-16 minutes)
     assert!(
-        exp_diff >= 840 && exp_diff <= 960,
+        (840..=960).contains(&exp_diff),
         "Expected ~900s expiration, got {}",
         exp_diff
     );
@@ -348,7 +348,7 @@ async fn test_refresh_token_long_expiration() {
 
     // Allow some margin (6.9-7.1 days)
     assert!(
-        exp_diff >= 595000 && exp_diff <= 614000,
+        (595000..=614000).contains(&exp_diff),
         "Expected ~604800s expiration, got {}",
         exp_diff
     );

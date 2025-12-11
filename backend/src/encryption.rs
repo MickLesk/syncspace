@@ -118,7 +118,7 @@ fn derive_key_from_password(password: &str, salt: &str) -> Result<Key<Aes256Gcm>
     argon2.hash_password_into(password.as_bytes(), salt_bytes, &mut key)
         .map_err(|e| format!("Key derivation failed: {}", e))?;
     
-    Ok(Key::<Aes256Gcm>::from_slice(&key).clone())
+    Ok(*Key::<Aes256Gcm>::from_slice(&key))
 }
 
 /// Encrypt file data

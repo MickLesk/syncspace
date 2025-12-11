@@ -69,11 +69,10 @@ pub async fn handle_socket(socket: WebSocket, tx: Sender<FileChangeEvent>) {
     // Spawn task to send events to client
     let mut send_task = tokio::spawn(async move {
         while let Ok(event) = rx.recv().await {
-            if let Ok(json) = serde_json::to_string(&event) {
-                if sender.send(Message::Text(json.into())).await.is_err() {
+            if let Ok(json) = serde_json::to_string(&event)
+                && sender.send(Message::Text(json.into())).await.is_err() {
                     break;
                 }
-            }
         }
     });
 
@@ -86,8 +85,8 @@ pub async fn handle_socket(socket: WebSocket, tx: Sender<FileChangeEvent>) {
                 }
                 Message::Text(text) => {
                     // Parse message for ping/pong handling
-                    if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&text) {
-                        if let Some(msg_type) = parsed.get("type").and_then(|v| v.as_str()) {
+                    if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&text)
+                        && let Some(msg_type) = parsed.get("type").and_then(|v| v.as_str()) {
                             match msg_type {
                                 "ping" => {
                                     tracing::debug!("Received ping, responding with pong");
@@ -117,7 +116,6 @@ pub async fn handle_socket(socket: WebSocket, tx: Sender<FileChangeEvent>) {
                                 }
                             }
                         }
-                    }
                 }
                 Message::Ping(_data) => {
                     // Axum handles Ping frames automatically with Pong

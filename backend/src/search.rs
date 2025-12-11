@@ -465,32 +465,26 @@ impl SearchIndex {
                 .unwrap_or_default();
 
             // Apply post-search filters (size, date)
-            if let Some(min_size) = options.min_size {
-                if size < min_size {
+            if let Some(min_size) = options.min_size
+                && size < min_size {
                     continue;
                 }
-            }
-            if let Some(max_size) = options.max_size {
-                if size > max_size {
+            if let Some(max_size) = options.max_size
+                && size > max_size {
                     continue;
                 }
-            }
 
-            if let Some(date_from) = options.date_from {
-                if let Ok(file_date) = chrono::DateTime::parse_from_rfc3339(&modified) {
-                    if file_date.with_timezone(&chrono::Utc) < date_from {
+            if let Some(date_from) = options.date_from
+                && let Ok(file_date) = chrono::DateTime::parse_from_rfc3339(&modified)
+                    && file_date.with_timezone(&chrono::Utc) < date_from {
                         continue;
                     }
-                }
-            }
 
-            if let Some(date_to) = options.date_to {
-                if let Ok(file_date) = chrono::DateTime::parse_from_rfc3339(&modified) {
-                    if file_date.with_timezone(&chrono::Utc) > date_to {
+            if let Some(date_to) = options.date_to
+                && let Ok(file_date) = chrono::DateTime::parse_from_rfc3339(&modified)
+                    && file_date.with_timezone(&chrono::Utc) > date_to {
                         continue;
                     }
-                }
-            }
 
             // Generate highlights for filename and path
             let highlights = Self::generate_highlights(query_str, &filename, &path);
@@ -1028,11 +1022,10 @@ async fn extract_pdf_content(file_path: &Path) -> Option<String> {
     
     tokio::task::spawn_blocking(move || {
         // First try pdf-extract (modern, pure Rust)
-        if let Ok(text) = pdf_extract::extract_text(&path) {
-            if !text.trim().is_empty() {
+        if let Ok(text) = pdf_extract::extract_text(&path)
+            && !text.trim().is_empty() {
                 return Some(text);
             }
-        }
         
         // Fallback to lopdf for older/complex PDFs
         use lopdf::Document;
@@ -1070,8 +1063,8 @@ async fn extract_docx_content(file_path: &Path) -> Option<String> {
     let path = file_path.to_path_buf();
     tokio::task::spawn_blocking(move || {
         // Try docx-rust first
-        if let Ok(docx) = DocxFile::from_file(&path) {
-            if let Ok(doc) = docx.parse() {
+        if let Ok(docx) = DocxFile::from_file(&path)
+            && let Ok(doc) = docx.parse() {
                 let mut text = String::new();
                 
                 // Extract text from document body - iterate over content directly
@@ -1094,7 +1087,6 @@ async fn extract_docx_content(file_path: &Path) -> Option<String> {
                     return Some(text);
                 }
             }
-        }
         
         // Fallback: manual ZIP-based extraction
         let file = std::fs::File::open(&path).ok()?;

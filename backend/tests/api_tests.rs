@@ -266,7 +266,7 @@ fn test_pagination_parameters() {
         if page < 1 {
             return Err("Page must be >= 1".to_string());
         }
-        if limit < 1 || limit > 100 {
+        if !(1..=100).contains(&limit) {
             return Err("Limit must be between 1 and 100".to_string());
         }
         Ok((page, limit))

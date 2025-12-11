@@ -148,7 +148,11 @@ pub async fn scan_file(file_path: &Path) -> Result<(ScanStatus, Option<String>),
             
             Ok((ScanStatus::Infected, virus_name))
         }
-        Some(2) | _ => {
+        Some(2) => {
+            let error_msg = if stderr.is_empty() { stdout.to_string() } else { stderr.to_string() };
+            Err(ScanError::ScanFailed(error_msg))
+        }
+        _ => {
             let error_msg = if stderr.is_empty() { stdout.to_string() } else { stderr.to_string() };
             Err(ScanError::ScanFailed(error_msg))
         }
@@ -206,12 +210,11 @@ pub async fn scan_and_store(
     ).await?;
     
     // Quarantine if infected
-    if status == ScanStatus::Infected && config.quarantine_infected {
-        if let Ok(quarantine_path) = quarantine_file(pool, file_id, file_path).await {
+    if status == ScanStatus::Infected && config.quarantine_infected
+        && let Ok(quarantine_path) = quarantine_file(pool, file_id, file_path).await {
             result.quarantined = true;
             result.quarantine_path = Some(quarantine_path.to_string_lossy().to_string());
         }
-    }
     
     Ok(result)
 }
@@ -219,11 +222,10 @@ pub async fn scan_and_store(
 /// Check if file should be skipped based on config
 fn should_skip_file(file_path: &Path, config: &ScannerConfig) -> bool {
     // Check extension
-    if let Some(ext) = file_path.extension().and_then(|e| e.to_str()) {
-        if config.excluded_extensions.iter().any(|e| e.eq_ignore_ascii_case(ext)) {
+    if let Some(ext) = file_path.extension().and_then(|e| e.to_str())
+        && config.excluded_extensions.iter().any(|e| e.eq_ignore_ascii_case(ext)) {
             return true;
         }
-    }
     
     // Check path
     let path_str = file_path.to_string_lossy();
@@ -265,7 +267,7 @@ pub async fn quarantine_file(
          SET quarantined = 1, quarantine_path = ? 
          WHERE file_id = ? AND quarantined = 0"
     )
-    .bind(&quarantine_path.to_string_lossy().to_string())
+    .bind(quarantine_path.to_string_lossy().to_string())
     .bind(file_id)
     .execute(pool)
     .await
@@ -397,7 +399,7 @@ async fn store_scan_result(
     )
     .bind(&id)
     .bind(file_id)
-    .bind(&file_path.to_string_lossy().to_string())
+    .bind(file_path.to_string_lossy().to_string())
     .bind(status.as_str())
     .bind(&virus_name)
     .bind(&scanner_version)

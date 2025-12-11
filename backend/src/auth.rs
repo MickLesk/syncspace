@@ -266,11 +266,10 @@ pub fn verify_totp_code(secret: &str, code: &str) -> bool {
     // Check current time step and ±1 step (30s tolerance)
     for offset in [-1i64, 0, 1] {
         let check_time = (time_step as i64 + offset * 30) as u64;
-        if let Ok(expected) = generate_totp_code(secret, check_time) {
-            if expected == code {
+        if let Ok(expected) = generate_totp_code(secret, check_time)
+            && expected == code {
                 return true;
             }
-        }
     }
     false
 }
@@ -580,6 +579,12 @@ pub struct RateLimiter {
     attempts: Arc<Mutex<HashMap<String, Vec<DateTime<Utc>>>>>,
 }
 
+impl Default for RateLimiter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RateLimiter {
     pub fn new() -> Self {
         RateLimiter {
@@ -592,7 +597,7 @@ impl RateLimiter {
         let now = Utc::now();
         let cutoff = now - Duration::seconds(window_secs);
 
-        let entry = attempts.entry(key.to_string()).or_insert_with(Vec::new);
+        let entry = attempts.entry(key.to_string()).or_default();
         entry.retain(|&ts| ts > cutoff);
 
         if entry.len() >= max_attempts {

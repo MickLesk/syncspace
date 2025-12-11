@@ -315,14 +315,10 @@ impl JobProcessor {
         let now = chrono::Utc::now();
 
         // Find the first job that's ready to run
-        if let Some(pos) = queue_guard
+        queue_guard
             .iter()
-            .position(|job| job.scheduled_for.map_or(true, |scheduled| scheduled <= now))
-        {
-            Some(queue_guard.remove(pos))
-        } else {
-            None
-        }
+            .position(|job| job.scheduled_for.is_none_or(|scheduled| scheduled <= now))
+            .map(|pos| queue_guard.remove(pos))
     }
 
     async fn process_job(job: BackgroundJob, cache_manager: &CacheManager) {

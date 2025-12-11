@@ -213,11 +213,18 @@
 <PageWrapper showSidebar={true}>
   <div class="p-6 max-md:p-4">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-6 flex-wrap gap-4 max-md:flex-col max-md:items-start">
-      <h1 class="text-2xl font-bold text-base-content flex items-center gap-2 m-0">
+    <div
+      class="flex justify-between items-center mb-6 flex-wrap gap-4 max-md:flex-col max-md:items-start"
+    >
+      <h1
+        class="text-2xl font-bold text-base-content flex items-center gap-2 m-0"
+      >
         <i class="bi bi-trash3-fill"></i>
         {tr("trash")}
-        <span class="text-sm font-semibold bg-gradient-to-br from-success to-green-600 text-white px-3 py-1 rounded-full ml-2">{trashItems.length}</span>
+        <span
+          class="text-sm font-semibold bg-gradient-to-br from-success to-green-600 text-white px-3 py-1 rounded-full ml-2"
+          >{trashItems.length}</span
+        >
       </h1>
       <div class="flex gap-2">
         <button
@@ -252,64 +259,111 @@
       </div>
     {:else}
       <!-- Quick Stats -->
-      <div class="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4 mb-6">
-        <div class="flex items-center gap-4 p-4 bg-base-100 border border-base-300 rounded-xl">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-success/10 text-success">
+      <div
+        class="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4 mb-6"
+      >
+        <div
+          class="flex items-center gap-4 p-4 bg-base-100 border border-base-300 rounded-xl"
+        >
+          <div
+            class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-success/10 text-success"
+          >
             <i class="bi bi-files"></i>
           </div>
           <div>
-            <h3 class="text-xl font-bold text-base-content m-0">{trashItems.length}</h3>
-            <p class="text-xs text-base-content/60 uppercase tracking-wide mt-0.5">{tr("files")}</p>
+            <h3 class="text-xl font-bold text-base-content m-0">
+              {trashItems.length}
+            </h3>
+            <p
+              class="text-xs text-base-content/60 uppercase tracking-wide mt-0.5"
+            >
+              {tr("files")}
+            </p>
           </div>
         </div>
-        <div class="flex items-center gap-4 p-4 bg-base-100 border border-base-300 rounded-xl">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-blue-500/10 text-blue-500">
+        <div
+          class="flex items-center gap-4 p-4 bg-base-100 border border-base-300 rounded-xl"
+        >
+          <div
+            class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-blue-500/10 text-blue-500"
+          >
             <i class="bi bi-hdd"></i>
           </div>
           <div>
-            <h3 class="text-xl font-bold text-base-content m-0">{formatFileSize(totalSize)}</h3>
-            <p class="text-xs text-base-content/60 uppercase tracking-wide mt-0.5">{tr("totalSize")}</p>
+            <h3 class="text-xl font-bold text-base-content m-0">
+              {formatFileSize(totalSize)}
+            </h3>
+            <p
+              class="text-xs text-base-content/60 uppercase tracking-wide mt-0.5"
+            >
+              {tr("totalSize")}
+            </p>
           </div>
         </div>
       </div>
 
       <!-- Table Card -->
-      <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+      <div
+        class="bg-base-100 border border-base-300 rounded-xl overflow-hidden"
+      >
         <div class="flex items-center gap-3 p-4 border-b border-base-300">
-          <div class="w-9 h-9 bg-success/10 rounded-lg flex items-center justify-center text-base text-success">
+          <div
+            class="w-9 h-9 bg-success/10 rounded-lg flex items-center justify-center text-base text-success"
+          >
             <i class="bi bi-trash3"></i>
           </div>
-          <h2 class="flex-1 text-base font-semibold text-base-content m-0">{tr("deletedFiles")}</h2>
+          <h2 class="flex-1 text-base font-semibold text-base-content m-0">
+            {tr("deletedFiles")}
+          </h2>
           <span class="badge badge-ghost">{filteredItems.length}</span>
         </div>
 
         <!-- Toolbar -->
         {#if trashItems.length > 0}
-          <div class="flex justify-between items-center p-4 border-b border-base-300 flex-wrap gap-3 max-md:flex-col max-md:items-stretch">
-            <div class="flex items-center gap-3 flex-wrap max-md:w-full max-md:justify-between">
-              <label class="flex items-center gap-2 text-sm text-base-content cursor-pointer">
+          <div
+            class="flex justify-between items-center p-4 border-b border-base-300 flex-wrap gap-3 max-md:flex-col max-md:items-stretch"
+          >
+            <div
+              class="flex items-center gap-3 flex-wrap max-md:w-full max-md:justify-between"
+            >
+              <label
+                class="flex items-center gap-2 text-sm text-base-content cursor-pointer"
+              >
                 <input
                   type="checkbox"
                   class="checkbox checkbox-sm checkbox-success"
-                  checked={selectedItems.size === filteredItems.length && filteredItems.length > 0}
+                  checked={selectedItems.size === filteredItems.length &&
+                    filteredItems.length > 0}
                   onchange={toggleSelectAll}
                 />
                 <span>{tr("selectAll")}</span>
               </label>
               {#if selectedItems.size > 0}
-                <span class="text-sm font-medium text-success">{selectedItems.size} {tr("selected")}</span>
-                <button class="btn btn-xs btn-success btn-ghost" onclick={restoreSelected}>
+                <span class="text-sm font-medium text-success"
+                  >{selectedItems.size} {tr("selected")}</span
+                >
+                <button
+                  class="btn btn-xs btn-success btn-ghost"
+                  onclick={restoreSelected}
+                >
                   <i class="bi bi-arrow-counterclockwise"></i>
                   {tr("restoreFile")}
                 </button>
-                <button class="btn btn-xs btn-error btn-ghost" onclick={deleteSelectedPermanently}>
+                <button
+                  class="btn btn-xs btn-error btn-ghost"
+                  onclick={deleteSelectedPermanently}
+                >
                   <i class="bi bi-x-lg"></i>
                   {tr("deleteForever")}
                 </button>
               {/if}
             </div>
-            <div class="flex items-center gap-3 flex-wrap max-md:w-full max-md:justify-between">
-              <div class="flex items-center gap-2 px-2.5 py-1.5 bg-base-200 border border-base-300 rounded-lg">
+            <div
+              class="flex items-center gap-3 flex-wrap max-md:w-full max-md:justify-between"
+            >
+              <div
+                class="flex items-center gap-2 px-2.5 py-1.5 bg-base-200 border border-base-300 rounded-lg"
+              >
                 <i class="bi bi-search text-sm text-base-content/40"></i>
                 <input
                   type="text"
@@ -318,17 +372,27 @@
                   bind:value={searchQuery}
                 />
               </div>
-              <select class="select select-bordered select-sm" bind:value={sortBy}>
+              <select
+                class="select select-bordered select-sm"
+                bind:value={sortBy}
+              >
                 <option value="deleted_at">{tr("dateDeleted")}</option>
                 <option value="file_name">{tr("name")}</option>
                 <option value="file_size">{tr("size")}</option>
               </select>
               <button
                 class="btn btn-ghost btn-sm btn-square"
-                title={tr(sortOrder === "asc" ? "sortDescending" : "sortAscending")}
-                onclick={() => (sortOrder = sortOrder === "asc" ? "desc" : "asc")}
+                title={tr(
+                  sortOrder === "asc" ? "sortDescending" : "sortAscending"
+                )}
+                onclick={() =>
+                  (sortOrder = sortOrder === "asc" ? "desc" : "asc")}
               >
-                <i class="bi {sortOrder === 'asc' ? 'bi-sort-up' : 'bi-sort-down'}"></i>
+                <i
+                  class="bi {sortOrder === 'asc'
+                    ? 'bi-sort-up'
+                    : 'bi-sort-down'}"
+                ></i>
               </button>
             </div>
           </div>
@@ -336,10 +400,18 @@
 
         <!-- Table or Empty State -->
         {#if filteredItems.length === 0}
-          <div class="flex flex-col items-center justify-center py-16 px-8 text-center">
+          <div
+            class="flex flex-col items-center justify-center py-16 px-8 text-center"
+          >
             <i class="bi bi-trash3 text-5xl text-base-content/20 mb-4"></i>
-            <h3 class="text-base font-semibold text-base-content mb-1">{searchQuery ? tr("noItemsFound") : tr("trashIsEmpty")}</h3>
-            <p class="text-sm text-base-content/60">{searchQuery ? tr("tryDifferentSearch") : tr("deletedFilesAppearHere")}</p>
+            <h3 class="text-base font-semibold text-base-content mb-1">
+              {searchQuery ? tr("noItemsFound") : tr("trashIsEmpty")}
+            </h3>
+            <p class="text-sm text-base-content/60">
+              {searchQuery
+                ? tr("tryDifferentSearch")
+                : tr("deletedFilesAppearHere")}
+            </p>
           </div>
         {:else}
           <div class="overflow-x-auto">
@@ -355,7 +427,7 @@
               </thead>
               <tbody>
                 {#each filteredItems as item (item.id)}
-                  <tr class:bg-success/10={selectedItems.has(item.id)}>
+                  <tr class={selectedItems.has(item.id) ? "bg-success/10" : ""}>
                     <td>
                       <input
                         type="checkbox"
@@ -366,15 +438,29 @@
                     </td>
                     <td>
                       <div class="flex items-center gap-3">
-                        <i class="bi {getFileIcon(item.file_name)} text-lg text-base-content/60"></i>
+                        <i
+                          class="bi {getFileIcon(
+                            item.file_name
+                          )} text-lg text-base-content/60"
+                        ></i>
                         <div class="flex flex-col min-w-0">
-                          <span class="font-medium text-base-content truncate max-w-[300px]">{item.file_name}</span>
-                          <span class="text-xs text-base-content/40 truncate max-w-[300px]">{item.original_path}</span>
+                          <span
+                            class="font-medium text-base-content truncate max-w-[300px]"
+                            >{item.file_name}</span
+                          >
+                          <span
+                            class="text-xs text-base-content/40 truncate max-w-[300px]"
+                            >{item.original_path}</span
+                          >
                         </div>
                       </div>
                     </td>
-                    <td class="font-mono text-sm">{formatFileSize(item.file_size)}</td>
-                    <td class="text-base-content/60">{getRelativeTime(item.deleted_at)}</td>
+                    <td class="font-mono text-sm"
+                      >{formatFileSize(item.file_size)}</td
+                    >
+                    <td class="text-base-content/60"
+                      >{getRelativeTime(item.deleted_at)}</td
+                    >
                     <td>
                       <div class="flex gap-1.5">
                         <button

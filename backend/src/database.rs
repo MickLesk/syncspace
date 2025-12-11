@@ -35,14 +35,13 @@ pub async fn init_db() -> Result<SqlitePool, sqlx::Error> {
     let db_path = PathBuf::from("./data/syncspace.db");
 
     // Ensure parent directory exists
-    if let Some(parent) = db_path.parent() {
-        if let Err(e) = std::fs::create_dir_all(parent) {
+    if let Some(parent) = db_path.parent()
+        && let Err(e) = std::fs::create_dir_all(parent) {
             eprintln!("⚠️ Failed to create data directory: {}", e);
             return Err(sqlx::Error::Configuration(
                 format!("Cannot create data directory: {}", e).into(),
             ));
         }
-    }
 
     if !db_path.exists() {
         println!("📦 Creating new database: {}", db_path.display());
@@ -236,8 +235,8 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 .fetch_optional(pool)
                 .await?;
 
-        if let Some((count,)) = tracker_count {
-            if count == 0 {
+        if let Some((count,)) = tracker_count
+            && count == 0 {
                 println!("📌 Existing database detected. Marking all discovered migrations as executed...");
 
                 // Get all migrations from auto-discovery
@@ -253,7 +252,6 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 }
                 println!("✅ Historical migrations marked");
             }
-        }
     }
 
     // AUTO-DISCOVER all migrations at compile time using macro
@@ -271,12 +269,11 @@ async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 .fetch_optional(pool)
                 .await?;
 
-        if let Some((count,)) = already_run {
-            if count > 0 {
+        if let Some((count,)) = already_run
+            && count > 0 {
                 skipped_count += 1;
                 continue; // Skip already executed migrations
             }
-        }
 
         // Execute the migration
         println!("📋 Running migration: {}", filename);

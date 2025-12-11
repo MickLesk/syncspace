@@ -168,10 +168,10 @@ pub mod sharing {
         let token = format!("{}", Uuid::new_v4());
         let now = Utc::now();
         sqlx::query("INSERT INTO shared_links (id, item_type, item_id, created_by, is_public, allow_download, download_count, created_at) VALUES (?, 'file', ?, ?, ?, 1, 0, ?)")
-            .bind(&id).bind(path).bind(&user.id).bind(1).bind(now.to_rfc3339()).execute(&state.db_pool).await?;
+            .bind(id).bind(path).bind(&user.id).bind(1).bind(now.to_rfc3339()).execute(&state.db_pool).await?;
         
         // Log share activity
-        let file_name = path.split('/').last().unwrap_or(path).to_string();
+        let file_name = path.split('/').next_back().unwrap_or(path).to_string();
         let _ = super::activity::log(
             state,
             &user.id,
@@ -216,7 +216,7 @@ pub mod sharing {
                         .ok()
                         .map(|ndt| Utc.from_utc_datetime(&ndt))
                 })
-                .unwrap_or_else(|| Utc::now());
+                .unwrap_or_else(Utc::now);
 
             // Parse expires_at if present
             let expires_at = r.expires_at.and_then(|s| {

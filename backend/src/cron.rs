@@ -93,7 +93,7 @@ pub fn calculate_next_run(cron_expr: &str, from: DateTime<Utc>) -> Option<DateTi
             return Some(candidate);
         }
 
-        candidate = candidate + chrono::Duration::minutes(1);
+        candidate += chrono::Duration::minutes(1);
     }
 
     None
@@ -133,20 +133,18 @@ fn matches_field(expr: &str, value: u32, _min: u32, _max: u32) -> bool {
     }
 
     // Step values (e.g., */5)
-    if expr.starts_with("*/") {
-        if let Ok(step) = expr[2..].parse::<u32>() {
-            return value % step == 0;
+    if expr.starts_with("*/")
+        && let Ok(step) = expr[2..].parse::<u32>() {
+            return value.is_multiple_of(step);
         }
-    }
 
     // Range (e.g., 1-5)
     if expr.contains('-') {
         let parts: Vec<&str> = expr.split('-').collect();
-        if parts.len() == 2 {
-            if let (Ok(start), Ok(end)) = (parts[0].parse::<u32>(), parts[1].parse::<u32>()) {
+        if parts.len() == 2
+            && let (Ok(start), Ok(end)) = (parts[0].parse::<u32>(), parts[1].parse::<u32>()) {
                 return value >= start && value <= end;
             }
-        }
     }
 
     // List (e.g., 1,3,5)

@@ -294,11 +294,10 @@ pub fn validate_search_query(query: &str) -> Result<String, StatusCode> {
 /// Currently unused but prepared for advanced rate limiting features
 #[allow(dead_code)]
 pub fn is_localhost(headers: &HeaderMap) -> bool {
-    if let Some(forwarded) = headers.get("X-Forwarded-For") {
-        if let Ok(addr) = forwarded.to_str() {
+    if let Some(forwarded) = headers.get("X-Forwarded-For")
+        && let Ok(addr) = forwarded.to_str() {
             return addr.starts_with("127.") || addr.starts_with("::1");
         }
-    }
     
     // Default to not localhost for safety
     false

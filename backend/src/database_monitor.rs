@@ -309,11 +309,10 @@ pub async fn monitor_background(pool: SqlitePool, monitor: std::sync::Arc<Databa
         }
         
         // Periodic database analysis (every 30 minutes)
-        if monitor.uptime_seconds() % 1800 == 0 {
-            if let Err(e) = analyze_database(&pool).await {
-                error!("❌ Database analysis failed: {}", e);
+        if monitor.uptime_seconds().is_multiple_of(1800)
+            && let Err(e) = analyze_database(&pool).await {
+                error!("📊 Database analysis failed: {}", e);
             }
-        }
     }
 }
 

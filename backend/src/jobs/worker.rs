@@ -298,12 +298,11 @@ impl JobWorker {
 
             if let Ok(mut entries) = fs::read_dir(data_dir).await {
                 while let Ok(Some(entry)) = entries.next_entry().await {
-                    if let Ok(metadata) = entry.metadata().await {
-                        if !metadata.is_dir() {
+                    if let Ok(metadata) = entry.metadata().await
+                        && !metadata.is_dir() {
                             file_count += 1;
                             total_size += metadata.len();
                         }
-                    }
                 }
             }
 
