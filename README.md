@@ -1,180 +1,210 @@
-﻿<div align="center">
+﻿# SyncSpace
 
-# 🚀 SyncSpace
+Self-hosted file synchronization built with Rust and Svelte.
 
-**Modern Self-Hosted File Sync**
+![Version](https://img.shields.io/badge/version-1.0--beta-blue)
+![Rust](https://img.shields.io/badge/rust-1.75+-orange)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-Fast, secure, and beautiful file sync built with Rust + Svelte 5.
+## Overview
 
-[![Version](https://img.shields.io/badge/version-0.3.0-blue)](https://github.com/MickLesk/syncspace) [![Rust](https://img.shields.io/badge/Rust-axum%200.8-orange)](https://github.com/tokio-rs/axum) [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)[![Svelte](https://img.shields.io/badge/Svelte-5-red)](https://svelte.dev) [![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)](https://tailwindcss.com)
+SyncSpace is a modern file management and synchronization platform designed for self-hosting. It provides a web-based interface for managing files with real-time updates, full-text search, and secure authentication.
 
-</div>
+**Tech Stack:**
+- Backend: Rust (axum), SQLite, Tantivy search
+- Frontend: Svelte 5, Tailwind CSS v4, Vite
 
----
-## ⚡ Quick Start
+## Quick Start
 
-### Backend:
-
-```bash
-cd backend && cargo run --release # Terminal 1
-```
-
-### Frontend:
+**Prerequisites:** Rust 1.75+, Node.js 18+
 
 ```bash
-cd frontend && npm install && npm run dev  # Terminal 2
+# Backend (Terminal 1)
+cd backend && cargo run --release
+
+# Frontend (Terminal 2)
+cd frontend && npm install && npm run dev
 ```
 
-**Open**: http://localhost:5173 | **Login**: admin/admin
+Open http://localhost:5173 and login with `admin` / `admin`.
 
----
+> Change the default credentials immediately after first login.
 
-### Core
+## Features
 
-- 🎨 **Modern UI** - Tailwind CSS v4, responsive design
-- 🔐 **Secure Auth** - JWT authentication + 2FA (TOTP)## Docs
-- 📁 **File Management** - Upload, download, rename, delete, preview
-- 🔍 **Full-Text Search** - Tantivy search engine with fuzzy matching
-- 🌐 **Real-Time Sync** - WebSocket updates across all clients
+### File Management
+- Upload, download, rename, move, delete files and folders
+- Drag & drop upload with progress tracking
+- File preview (images, videos, PDFs, text, DOCX, Excel)
+- Multi-select with bulk operations
+- Folder navigation with breadcrumbs
 
----
+### Search
+- Full-text search powered by Tantivy
+- Fuzzy matching and relevance ranking
+- Search within file contents (text, PDF)
+
+### Security
+- JWT authentication with 24h expiration
+- Two-factor authentication (TOTP)
+- Argon2 password hashing
+- Rate limiting (5 attempts/minute)
+
+### Real-Time
+- WebSocket-based live updates
+- File changes sync across all connected clients
 
 ### User Experience
+- Dark and light theme
+- English and German localization
+- Responsive design for desktop and mobile
 
-- 📤 **Drag & Drop** - Upload files with visual feedback## License
-
-- 👁️ **File Preview** - Images, PDFs, videos, text, DOCX, Excel
-
-- ✅ **Multi-Select** - Bulk operations with checkboxesApache-2.0 - see [LICENSE](LICENSE)
-
-- 🗂️ **Breadcrumbs** - Easy folder navigation
-
-- 🌍 **Internationalization** - English & German**Made with by [MickLesk](https://github.com/MickLesk)**
-- 🌓 **Dark/Light Theme** - Auto-switching
-
----
-
-## 🏗️ Tech Stack
-
-**Backend**
-
-- Rust + axum 0.8
-- SQLite (SQLx) with 23+ migrations
-- Tantivy 0.25 full-text search
-- JWT + Argon2 + TOTP
-- WebSocket with `notify` crate
-
-**Frontend**
-
-- Svelte 5 (runes: `$state`, `$derived`)
-- Vite (Rolldown variant)
-- Tailwind CSS v4 (pure utility-first)
-- Bootstrap Icons
-- Mammoth (DOCX), PrismJS (code), SheetJS (Excel)
-
----
-
-## 📁 Project Structure
+## Project Structure
 
 ```
-
 syncspace/
-├── backend/ # Rust API + WebSocket
-│ ├── src/ # Source code (main.rs, auth.rs, database.rs, search.rs, api/)
-│ ├── migrations/ # SQLite migrations (23+)
-│ └── data/ # File storage + database
-├── frontend/ # Svelte 5 UI
-│ ├── src/
-│ │ ├── pages/ # Views (Files, Search, Settings, Profile)
-│ │ ├── components/ # Reusable components
-│ │ ├── stores/ # Global state
-│ │ └── lib/ # API client, i18n
-│ └── public/ # Static assets
-└── docs/ # Documentation
-
+├── backend/           # Rust API server
+│   ├── src/           # Source code
+│   │   ├── api/       # Route handlers
+│   │   ├── auth.rs    # Authentication
+│   │   ├── database.rs# Database models
+│   │   └── search.rs  # Search engine
+│   ├── migrations/    # SQLite migrations
+│   └── data/          # Runtime data (db, files)
+├── frontend/          # Svelte web app
+│   ├── src/
+│   │   ├── pages/     # Page components
+│   │   ├── components/# Reusable UI
+│   │   ├── stores/    # State management
+│   │   └── lib/       # Utilities, API client
+│   └── public/        # Static assets
+└── docker/            # Docker configuration
 ```
 
----
+## Configuration
 
-## 🔐 Security
+### Backend
 
-- **JWT Authentication** - 24h token expiration
-- **Two-Factor Auth** - TOTP with QR code setup
-- **Argon2 Hashing** - Memory-hard password protection
-- **Rate Limiting** - 5 attempts per minute
-- **CORS Protection** - Configured for localhost
+The backend uses SQLite and stores all data in `backend/data/`:
+- `syncspace.db` - Database
+- `search_index/` - Tantivy search index
+- Uploaded files
 
-⚠️ **Important**: Change default `admin/admin` credentials immediately!
+Environment variables (optional):
+- `RUST_LOG` - Log level (default: `info`)
+- `DATABASE_URL` - Database path (default: `./data/syncspace.db`)
 
----
+### Frontend
 
-## 🌐 API Highlights
+Configure the API endpoint in `frontend/src/lib/api.js` if running on a different host.
+
+## API
 
 ### Authentication
-
-- `POST /api/auth/login` - Login with optional 2FA
-- `POST /api/auth/setup-2fa` - Generate 2FA QR code
-- `POST /api/auth/change-password` - Change password
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | Login (returns JWT) |
+| POST | `/api/auth/setup-2fa` | Enable 2FA |
+| POST | `/api/auth/change-password` | Change password |
 
 ### Files
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/files/{path}` | List directory |
+| POST | `/api/upload/{path}` | Upload file |
+| DELETE | `/api/files/{path}` | Delete file/folder |
+| PUT | `/api/rename/{path}` | Rename or move |
+| POST | `/api/dirs/{path}` | Create directory |
 
-- `GET /api/files/{path}` - List directory
-- `POST /api/upload/{path}` - Upload file
-- `DELETE /api/files/{path}` - Delete file/folder
-- `PUT /api/rename/{path}` - Rename/move file
-- `POST /api/dirs/{path}` - Create directory
+### Other
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/search?q=` | Full-text search |
+| GET | `/api/ws` | WebSocket connection |
+| GET | `/api/users/profile` | User profile |
+| PUT | `/api/users/settings` | User settings |
 
-### Search & Real-Time
+## Development
 
-- `GET /api/search?q={query}` - Full-text search
-- `GET /api/ws` - WebSocket connection for live updates
+### Using just (recommended)
 
----
+Install: `cargo install just`
 
-## 📚 Documentation
+```bash
+just backend      # Start backend
+just frontend     # Start frontend
+just build        # Production build
+just test         # Run tests
+just lint         # Run linters
+just format       # Format code
+just clean        # Clean artifacts
+```
 
-- **[QUICKSTART.md](docs/QUICKSTART.md)** - 5-minute setup guide
-- **[FEATURES.md](docs/FEATURES.md)** - Complete feature reference
-- **[DATABASE.md](docs/DATABASE.md)** - SQLite schema & migrations
-- **[SEARCH_FEATURE.md](docs/SEARCH_FEATURE.md)** - Tantivy search implementation
-- **[AUTH_README.md](docs/AUTH_README.md)** - Authentication details
+### Manual Commands
 
----
+```bash
+# Backend
+cd backend
+cargo run --release    # Development
+cargo build --release  # Production build
+cargo test             # Run tests
+cargo clippy           # Lint
 
-## 🚧 Roadmap
+# Frontend
+cd frontend
+npm install            # Install dependencies
+npm run dev            # Development server
+npm run build          # Production build
+npm run test           # Run tests
+npm run lint           # Lint
+```
+
+## Docker
+
+```bash
+# Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+## Documentation
+
+Additional documentation is available in the `docs/` directory:
+
+- [QUICKSTART.md](docs/QUICKSTART.md) - Setup guide
+- [DATABASE.md](docs/DATABASE.md) - Database schema
+- [AUTH_README.md](docs/AUTH_README.md) - Authentication details
+
+## Roadmap
 
 - [x] Core file management
 - [x] JWT + 2FA authentication
-- [x] Full-text search (Tantivy)
-- [x] Tailwind v4 migration
-- [x] User profiles & settings
-- [ ] Peer-to-peer synchronization
-- [ ] File versioning & conflict resolution
-- [ ] Mobile apps (Flutter)
-- [ ] Desktop app (Tauri)
+- [x] Full-text search
+- [x] Real-time sync (WebSocket)
+- [x] File preview
+- [ ] Peer-to-peer sync
+- [ ] File versioning
+- [ ] Mobile app (Flutter)
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and linting
+5. Submit a pull request
+
+Please follow [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
+
+## License
+
+MIT License - see [LICENSE](LICENSE)
 
 ---
 
-## 🤝 Contributing
-
-Contributions welcome! Follow [Conventional Commits](https://www.conventionalcommits.org/):
-
-```bash
-feat: add new feature
-fix: bug fix
-docs: update documentation
-```
-
----
-
-## 📄 License
-
-Apache License 2.0 - see [LICENSE](LICENSE)
-
----
-
-## 🙏 Credits
-
-Built with [Svelte](https://svelte.dev) • [axum](https://github.com/tokio-rs/axum) • [Tantivy](https://github.com/quickwit-oss/tantivy) • [Tailwind CSS](https://tailwindcss.com)
-
-**Made with ❤️ by [MickLesk](https://github.com/MickLesk)**
+Created by [MickLesk](https://github.com/MickLesk)

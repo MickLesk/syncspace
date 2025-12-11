@@ -1,144 +1,98 @@
-# Documentation files (private)
-docs/
-
-# Scripts (private)
-scripts/
-
+# ──────────────────────────────────────────────────────────────
 # Rust / Backend
-backend/target/
-backend/Cargo.lock
-backend/**/*.rs.bk
-backend/*.pdb
-backend/*.exe
-backend/*.d
+# ──────────────────────────────────────────────────────────────
+target/
+**/*.rs.bk
+*.pdb
+Cargo.lock
 
-# All Rust build artifacts (debug + release)
-**/target/
-**/target/debug/
-**/target/release/
-**/target/**/deps/
-**/target/**/*.exe
-**/target/**/*.pdb
-**/target/**/*.d
-**/target/**/*.rlib
-**/target/**/*.rmeta
-**/target/**/*.json
-**/.fingerprint/
-**/bin-syncbackend*
-**/syncbackend.exe
-**/syncbackend.pdb
-**/syncbackend.d
-**/dep-bin-syncbackend
-
+# ──────────────────────────────────────────────────────────────
 # Node.js / Frontend
+# ──────────────────────────────────────────────────────────────
 node_modules/
-**/node_modules/
-frontend/node_modules/
-frontend/dist/
-frontend/build/
-frontend/.vite/
-frontend/package-lock.json
-frontend/yarn.lock
-frontend/pnpm-lock.yaml
+dist/
+.vite/
+*.local
+
+# Lock files (regenerated on install)
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# Vite build artifacts
-frontend/dist-ssr/
-frontend/.rollup.cache/
-**/chunk-*.js
-**/chunk-*.css
-
-# Desktop App (Tauri)
-desktop-app/node_modules/
-desktop-app/target/
-desktop-app/dist/
-desktop-app/src-tauri/target/
-
-# Mobile App (Flutter)
-mobile-app/.dart_tool/
-mobile-app/.flutter-plugins
-mobile-app/.flutter-plugins-dependencies
-mobile-app/.packages
-mobile-app/build/
-mobile-app/ios/Pods/
-mobile-app/ios/.symlinks/
-mobile-app/android/.gradle/
-mobile-app/android/app/build/
-
+# ──────────────────────────────────────────────────────────────
 # Application Data
-backend/data/*
-!backend/data/.gitignore
-backend/config.json
-backend/users.json
-backend/*.db
-backend/*.sqlite
-backend/data/syncspace.db
-backend/data/syncspace.db-shm
-backend/data/syncspace.db-wal
-
-# Search Index Files (Tantivy)
-backend/data/search_index/
-data/search_index/
-**/search_index/*.fast
-**/search_index/*.fieldnorm
-**/search_index/*.idx
-**/search_index/*.pos
-**/search_index/*.store
-**/search_index/*.term
-**/search_index/*.json
-**/search_index/.managed.json
-**/search_index/managed.json
-
-# Database files
+# ──────────────────────────────────────────────────────────────
+# Database
 *.db
 *.db-shm
 *.db-wal
 *.sqlite
 *.sqlite3
 
-# Backup files
-*.backup
-data/*.backup
-backend/data/*.backup
+# Search index (Tantivy)
+**/search_index/
 
-# IDE / Editor
-.vscode/
+# File storage
+backend/data/*
+!backend/data/.gitkeep
+
+# ──────────────────────────────────────────────────────────────
+# Environment & Secrets
+# ──────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ──────────────────────────────────────────────────────────────
+# IDE & Editor
+# ──────────────────────────────────────────────────────────────
 .idea/
+.vscode/
 *.swp
 *.swo
 *~
+
+# ──────────────────────────────────────────────────────────────
+# OS Files
+# ──────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# Logs
+# ──────────────────────────────────────────────────────────────
+# Logs & Temp
+# ──────────────────────────────────────────────────────────────
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Environment
-.env
-.env.local
-.env.*.local
-
-# Temporary files
 *.tmp
 *.temp
 *.bak
 *.cache
-backend/target/debug/syncbackend.pdb
-FINAL_STATUS_V1.md
-fix_accessibility.py
-fix_all_accessibility.py
-fix_corrupted.py
-fix_final_batch.py
-fix_final_cleanup.py
-fix_phase2.py
-fix_remaining_errors.py
-frontend/V1_STYLING_COMPLETE.md
-frontend/V1_TESTING_GUIDE.md
-TODO.md
-ultra_safe_fixer.py
-universal_a11y_fixer.py
+*.backup
+
+# ──────────────────────────────────────────────────────────────
+# Mobile (Flutter)
+# ──────────────────────────────────────────────────────────────
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/build/
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/android/.gradle/
+mobile/android/app/build/
+
+# ──────────────────────────────────────────────────────────────
+# Docker
+# ──────────────────────────────────────────────────────────────
+docker-compose.override.yml
+
+# ──────────────────────────────────────────────────────────────
+# Project Specific (internal files)
+# ──────────────────────────────────────────────────────────────
+_backup/
+scripts/
+docs/
+frontend/public

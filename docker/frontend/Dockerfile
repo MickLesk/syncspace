@@ -1,5 +1,5 @@
-# Simple Frontend Build
-FROM node:20-alpine as builder
+# SyncSpace Frontend - Multi-Stage Build
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ FROM nginx:alpine
 # Copy built app
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Simple nginx config
+# Copy nginx config
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80

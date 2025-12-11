@@ -1,0 +1,11 @@
+[
+  {
+    "id": "1448fdd1-ee1b-4a30-bdc1-03e4cb070e7d",
+    "username": "admin",
+    "password_hash": "$argon2id$v=19$m=19456,t=2,p=1$7hgZUigpwf8hO4ely5rYyQ$0wM88n7T3MjsQg+C6HqhQYT0qa2vUYXWWF9UspaCyvA",
+    "totp_secret": null,
+    "totp_enabled": false,
+    "created_at": "2025-10-28T09:35:14.937275Z",
+    "last_login": "2025-11-05T11:45:08.084518500Z"
+  }
+]
