@@ -18,13 +18,16 @@
   import FileToolbar from "../../components/files/FileToolbar.svelte";
   import FileActionsMenu from "../../components/files/FileActionsMenu.svelte";
   import FilePreviewPanel from "../../components/files/FilePreviewPanel.svelte";
-  import BulkTaggingModal from "../../components/files/BulkTaggingModal.svelte";
-  import BatchRenameModal from "../../components/files/BatchRenameModal.svelte";
-  import BatchProgressPanel from "../../components/files/BatchProgressPanel.svelte";
-  import CopyFileModal from "../../components/modals/CopyFileModal.svelte";
-  import MoveFileModal from "../../components/modals/MoveFileModal.svelte";
-  import FileEditorModal from "../../components/editor/FileEditorModal.svelte";
-  import TemplateLibraryModal from "../../components/templates/TemplateLibraryModal.svelte";
+  import LazyModal from "../../components/ui/LazyModal.svelte";
+  
+  // Lazy-loaded modals for better code-splitting
+  const BulkTaggingModal = () => import("../../components/files/BulkTaggingModal.svelte");
+  const BatchRenameModal = () => import("../../components/files/BatchRenameModal.svelte");
+  const BatchProgressPanel = () => import("../../components/files/BatchProgressPanel.svelte");
+  const CopyFileModal = () => import("../../components/modals/CopyFileModal.svelte");
+  const MoveFileModal = () => import("../../components/modals/MoveFileModal.svelte");
+  const FileEditorModal = () => import("../../components/editor/FileEditorModal.svelte");
+  const TemplateLibraryModal = () => import("../../components/templates/TemplateLibraryModal.svelte");
   import api from "../../lib/api";
   import { websocketManager } from "@stores/websocket.js";
 
@@ -1582,42 +1585,48 @@
 />
 
 <!-- Bulk Tagging Modal -->
-{#if showBulkTaggingModal}
-  <BulkTaggingModal
-    selectedFiles={Array.from(selectedFiles)
-      .map((path) => displayFiles().find((f) => f.path === path))
-      .filter(Boolean)}
-    onClose={() => {
-      showBulkTaggingModal = false;
-      selectedFiles.clear();
-      selectedFiles = selectedFiles;
-      selectionMode = false;
-      loadFiles();
-    }}
-  />
-{/if}
+<LazyModal
+  isOpen={showBulkTaggingModal}
+  component={BulkTaggingModal}
+  selectedFiles={Array.from(selectedFiles)
+    .map((path) => displayFiles().find((f) => f.path === path))
+    .filter(Boolean)}
+  onClose={() => {
+    showBulkTaggingModal = false;
+    selectedFiles.clear();
+    selectedFiles = selectedFiles;
+    selectionMode = false;
+    loadFiles();
+  }}
+/>
 
 <!-- Batch Rename Modal -->
-{#if showBatchRenameModal}
-  <BatchRenameModal
-    isOpen={showBatchRenameModal}
-    files={Array.from(selectedFiles)
-      .map((path) => displayFiles().find((f) => f.path === path))
-      .filter(Boolean)}
-    onClose={() => {
-      showBatchRenameModal = false;
-    }}
-    onComplete={() => {
-      selectedFiles.clear();
-      selectedFiles = selectedFiles;
-      selectionMode = false;
-      loadFiles();
-    }}
-  />
-{/if}
+<LazyModal
+  isOpen={showBatchRenameModal}
+  component={BatchRenameModal}
+  files={Array.from(selectedFiles)
+    .map((path) => displayFiles().find((f) => f.path === path))
+    .filter(Boolean)}
+  onClose={() => {
+    showBatchRenameModal = false;
+  }}
+  onComplete={() => {
+    selectedFiles.clear();
+    selectedFiles = selectedFiles;
+    selectionMode = false;
+    loadFiles();
+  }}
+/>
 
 <!-- Batch Progress Panel -->
-<BatchProgressPanel bind:visible={showBatchProgress} />
+{#if showBatchProgress}
+  {#await BatchProgressPanel()}
+    <div class="loading loading-sm"></div>
+  {:then module}
+    {@const Component = module.default}
+    <Component bind:visible={showBatchProgress} />
+  {/await}
+{/if}
 
 <!-- All modals now rendered globally in ModalPortal.svelte -->
 

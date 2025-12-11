@@ -42,19 +42,42 @@ export default defineConfig({
             return 'vendor-icons';
           }
           
-          // UI components chunk
+          // UI components chunk (shared across all views)
           if (id.includes('src/components/ui/') || id.includes('src/components/navigation/')) {
             return 'ui-components';
           }
           
-          // File management chunk
+          // Split pages by category for lazy loading
+          // Each category becomes its own chunk that's loaded on-demand
           if (id.includes('src/pages/files/')) {
-            return 'file-views';
+            return 'page-files';
           }
-          
-          // Admin/Settings chunk
+          if (id.includes('src/pages/admin/')) {
+            return 'page-admin';
+          }
           if (id.includes('src/pages/user/')) {
-            return 'admin-views';
+            return 'page-user';
+          }
+          if (id.includes('src/pages/system/')) {
+            return 'page-system';
+          }
+          if (id.includes('src/pages/tools/')) {
+            return 'page-tools';
+          }
+          if (id.includes('src/pages/settings/')) {
+            return 'page-settings';
+          }
+          if (id.includes('src/pages/rbac/') || id.includes('src/pages/workflow/')) {
+            return 'page-enterprise';
+          }
+          if (id.includes('src/pages/jobs/')) {
+            return 'page-jobs';
+          }
+          if (id.includes('src/pages/analytics/')) {
+            return 'page-analytics';
+          }
+          if (id.includes('src/pages/trash/')) {
+            return 'page-trash';
           }
         }
       }

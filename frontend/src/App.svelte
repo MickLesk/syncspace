@@ -24,59 +24,54 @@
   import AppHeader from "./components/ui/AppHeader.svelte";
   import MobileBottomNav from "./components/navigation/MobileBottomNav.svelte";
 
-  // File Views
-  import FilesView from "./pages/files/FilesView.svelte";
-  import SharedView from "./pages/files/SharedView.svelte";
-  import FavoritesView from "./pages/files/FavoritesView.svelte";
-  import SmartFoldersView from "./pages/files/SmartFoldersView.svelte";
-  import RecentFilesView from "./pages/files/RecentFilesView.svelte";
+  // Dynamic imports for better code-splitting (lazy-loaded per route)
+  // These are loaded on-demand when user navigates to the view
+  const FilesView = () => import("./pages/files/FilesView.svelte");
+  const SharedView = () => import("./pages/files/SharedView.svelte");
+  const FavoritesView = () => import("./pages/files/FavoritesView.svelte");
+  const SmartFoldersView = () => import("./pages/files/SmartFoldersView.svelte");
+  const RecentFilesView = () => import("./pages/files/RecentFilesView.svelte");
+  
+  const TrashView = () => import("./pages/trash/TrashView.svelte");
+  const ActivityView = () => import("./pages/system/ActivityView.svelte");
+  const NotificationsView = () => import("./pages/system/NotificationsView.svelte");
+  const BackupView = () => import("./pages/system/BackupView.svelte");
+  const StorageView = () => import("./pages/system/StorageView.svelte");
+  const UsersView = () => import("./pages/system/UsersView.svelte");
+  
+  const DuplicatesView = () => import("./pages/tools/DuplicatesView.svelte");
+  const FtpSyncView = () => import("./pages/tools/FtpSyncView.svelte");
+  const EmailIntegrationView = () => import("./pages/tools/EmailIntegrationView.svelte");
+  const ArchivesView = () => import("./pages/tools/ArchivesView.svelte");
+  const CompressionView = () => import("./pages/tools/CompressionView.svelte");
+  const TagCloudView = () => import("./pages/TagCloudView.svelte");
+  
+  const AdminView = () => import("./pages/admin/AdminView.svelte");
+  const JobsDashboard = () => import("./pages/JobsDashboard.svelte");
+  const JobsQueueView = () => import("./pages/jobs/JobsQueueView.svelte");
+  const RoleManagementView = () => import("./pages/rbac/RoleManagementView.svelte");
+  const WorkflowBuilderView = () => import("./pages/workflow/WorkflowBuilderView.svelte");
+  const CloudStorageView = () => import("./pages/admin/CloudStorageView.svelte");
+  const AuditComplianceView = () => import("./pages/AuditComplianceView.svelte");
+  const AdminDashboardView = () => import("./pages/admin/AdminDashboardView.svelte");
+  const WebhooksView = () => import("./pages/admin/WebhooksView.svelte");
+  const SystemHealthView = () => import("./pages/admin/SystemHealthView.svelte");
+  const StorageAnalyticsView = () => import("./pages/analytics/StorageAnalyticsView.svelte");
+  const EncryptionView = () => import("./pages/EncryptionView.svelte");
+  const QuotaManagementView = () => import("./pages/QuotaManagementView.svelte");
+  const SystemConfigView = () => import("./pages/admin/SystemConfigView.svelte");
+  const UserGroupsView = () => import("./pages/admin/UserGroupsView.svelte");
+  const GuestAccessView = () => import("./pages/GuestAccessView.svelte");
+  const ThemeCustomizationView = () => import("./pages/ThemeCustomizationView.svelte");
+  
+  const SettingsHub = () => import("./pages/settings/SettingsHub.svelte");
+  const UserProfileView = () => import("./pages/user/UserProfileView.svelte");
+  const UserSettingsView = () => import("./pages/user/UserSettingsView.svelte");
+  const SecurityView = () => import("./pages/user/SecurityView.svelte");
+  const ApiTokensView = () => import("./pages/user/ApiTokensView.svelte");
+  const HelpView = () => import("./pages/user/HelpView.svelte");
 
-  // System Views
-  import TrashView from "./pages/trash/TrashView.svelte";
-  import ActivityView from "./pages/system/ActivityView.svelte";
-  import NotificationsView from "./pages/system/NotificationsView.svelte";
-  import BackupView from "./pages/system/BackupView.svelte";
-  import StorageView from "./pages/system/StorageView.svelte";
-  import UsersView from "./pages/system/UsersView.svelte";
-
-  // Tools Views
-  import DuplicatesView from "./pages/tools/DuplicatesView.svelte";
-  import FtpSyncView from "./pages/tools/FtpSyncView.svelte";
-  import EmailIntegrationView from "./pages/tools/EmailIntegrationView.svelte";
-  import ArchivesView from "./pages/tools/ArchivesView.svelte";
-  import CompressionView from "./pages/tools/CompressionView.svelte";
-  import TagCloudView from "./pages/TagCloudView.svelte";
-
-  // Admin View - Consolidated admin page with tabs
-  import AdminView from "./pages/admin/AdminView.svelte";
-
-  // Jobs & System Management (legacy - kept for direct access if needed)
-  import JobsDashboard from "./pages/JobsDashboard.svelte";
-  import JobsQueueView from "./pages/jobs/JobsQueueView.svelte";
-  import RoleManagementView from "./pages/rbac/RoleManagementView.svelte";
-  import WorkflowBuilderView from "./pages/workflow/WorkflowBuilderView.svelte";
-  import CloudStorageView from "./pages/admin/CloudStorageView.svelte";
-  import AuditComplianceView from "./pages/AuditComplianceView.svelte";
-  import AdminDashboardView from "./pages/admin/AdminDashboardView.svelte";
-  import WebhooksView from "./pages/admin/WebhooksView.svelte";
-  import SystemHealthView from "./pages/admin/SystemHealthView.svelte";
-  import StorageAnalyticsView from "./pages/analytics/StorageAnalyticsView.svelte";
-  import EncryptionView from "./pages/EncryptionView.svelte";
-  import QuotaManagementView from "./pages/QuotaManagementView.svelte";
-  import SystemConfigView from "./pages/admin/SystemConfigView.svelte";
-  import UserGroupsView from "./pages/admin/UserGroupsView.svelte";
-  import GuestAccessView from "./pages/GuestAccessView.svelte";
-  import ThemeCustomizationView from "./pages/ThemeCustomizationView.svelte";
-
-  // User & Settings Views
-  import SettingsHub from "./pages/settings/SettingsHub.svelte";
-  import UserProfileView from "./pages/user/UserProfileView.svelte";
-  import UserSettingsView from "./pages/user/UserSettingsView.svelte";
-  import SecurityView from "./pages/user/SecurityView.svelte";
-  import ApiTokensView from "./pages/user/ApiTokensView.svelte";
-  import HelpView from "./pages/user/HelpView.svelte";
-
-  // UI Components
+  // UI Components (keep static - needed immediately)
   import Toast from "./components/ui/Toast.svelte";
   import LoadingOverlay from "./components/LoadingOverlay.svelte";
   import ErrorBoundary from "./components/ui/ErrorBoundary.svelte";
@@ -86,8 +81,9 @@
   import UploadQueue from "./components/ui/UploadQueue.svelte";
   import CommandPalette from "./components/ui/CommandPalette.svelte";
   import ShortcutsModal from "./components/ui/ShortcutsModal.svelte";
+  import LazyView from "./components/ui/LazyView.svelte";
 
-  // PWA Components
+  // PWA Components (keep static - needed immediately)
   import PWAInstallPrompt from "./components/pwa/PWAInstallPrompt.svelte";
   import OfflineIndicator from "./components/offline/OfflineIndicator.svelte";
 
@@ -99,6 +95,50 @@
   let commandPaletteOpen = $state(false);
   let shortcutsModalOpen = $state(false);
   let currentViewState = $state("dashboard"); // Track current view for commands (start with dashboard)
+
+  // View component mapping for lazy loading
+  const viewComponents = {
+    files: FilesView,
+    shared: SharedView,
+    favorites: FavoritesView,
+    'smart-folders': SmartFoldersView,
+    recent: RecentFilesView,
+    trash: TrashView,
+    users: UsersView,
+    settings: SettingsHub,
+    admin: SettingsHub,
+    profile: UserProfileView,
+    help: HelpView,
+    'user-settings': UserSettingsView,
+    security: SecurityView,
+    storage: StorageView,
+    activity: ActivityView,
+    duplicates: DuplicatesView,
+    'ftp-sync': FtpSyncView,
+    'email-integration': EmailIntegrationView,
+    archives: ArchivesView,
+    compression: CompressionView,
+    'tag-cloud': TagCloudView,
+    backup: BackupView,
+    jobs: JobsDashboard,
+    'jobs-queue': JobsQueueView,
+    roles: RoleManagementView,
+    workflows: WorkflowBuilderView,
+    'cloud-storage': CloudStorageView,
+    encryption: EncryptionView,
+    quota: QuotaManagementView,
+    'system-config': SystemConfigView,
+    'user-groups': UserGroupsView,
+    audit: AuditComplianceView,
+    dashboard: AdminDashboardView,
+    webhooks: WebhooksView,
+    'system-health': SystemHealthView,
+    'storage-analytics': StorageAnalyticsView,
+    'api-tokens': ApiTokensView,
+    notifications: NotificationsView,
+    guests: GuestAccessView,
+    'theme-customization': ThemeCustomizationView,
+  };
 
   // Check if setup is needed
   async function checkSetupStatus() {
@@ -492,84 +532,16 @@
               class="main-content flex-1 overflow-y-auto overflow-x-hidden max-w-full md:pb-0 pb-[calc(72px+env(safe-area-inset-bottom))]"
               style="scrollbar-width: none; -ms-overflow-style: none;"
             >
-              {#if $currentView === "files"}
-                <FilesView />
-              {:else if $currentView === "shared"}
-                <SharedView />
-              {:else if $currentView === "favorites"}
-                <FavoritesView />
-              {:else if $currentView === "smart-folders"}
-                <SmartFoldersView />
-              {:else if $currentView === "recent"}
-                <RecentFilesView />
-              {:else if $currentView === "trash"}
-                <TrashView />
-              {:else if $currentView === "users"}
-                <UsersView />
-              {:else if $currentView === "settings" || $currentView === "admin"}
-                <SettingsHub />
-              {:else if $currentView === "profile"}
-                <UserProfileView />
-              {:else if $currentView === "help"}
-                <HelpView />
-              {:else if $currentView === "user-settings"}
-                <UserSettingsView />
-              {:else if $currentView === "security"}
-                <SecurityView />
-              {:else if $currentView === "storage"}
-                <StorageView />
-              {:else if $currentView === "activity"}
-                <ActivityView />
-              {:else if $currentView === "duplicates"}
-                <DuplicatesView />
-              {:else if $currentView === "ftp-sync"}
-                <FtpSyncView />
-              {:else if $currentView === "email-integration"}
-                <EmailIntegrationView />
-              {:else if $currentView === "archives"}
-                <ArchivesView />
-              {:else if $currentView === "compression"}
-                <CompressionView />
-              {:else if $currentView === "tag-cloud"}
-                <TagCloudView />
-              {:else if $currentView === "backup"}
-                <BackupView />
-              {:else if $currentView === "jobs"}
-                <JobsDashboard />
-              {:else if $currentView === "jobs-queue"}
-                <JobsQueueView />
-              {:else if $currentView === "roles"}
-                <RoleManagementView />
-              {:else if $currentView === "workflows"}
-                <WorkflowBuilderView />
-              {:else if $currentView === "cloud-storage"}
-                <CloudStorageView />
-              {:else if $currentView === "encryption"}
-                <EncryptionView />
-              {:else if $currentView === "quota"}
-                <QuotaManagementView />
-              {:else if $currentView === "system-config"}
-                <SystemConfigView />
-              {:else if $currentView === "user-groups"}
-                <UserGroupsView />
-              {:else if $currentView === "audit"}
-                <AuditComplianceView />
-              {:else if $currentView === "dashboard"}
-                <AdminDashboardView />
-              {:else if $currentView === "webhooks"}
-                <WebhooksView />
-              {:else if $currentView === "system-health"}
-                <SystemHealthView />
-              {:else if $currentView === "storage-analytics"}
-                <StorageAnalyticsView />
-              {:else if $currentView === "api-tokens"}
-                <ApiTokensView />
-              {:else if $currentView === "notifications"}
-                <NotificationsView />
-              {:else if $currentView === "guests"}
-                <GuestAccessView />
-              {:else if $currentView === "theme-customization"}
-                <ThemeCustomizationView />
+              <!-- Lazy-loaded views with loading state -->
+              {#if viewComponents[$currentView]}
+                <LazyView component={viewComponents[$currentView]} />
+              {:else}
+                <div class="flex items-center justify-center h-full">
+                  <div class="text-center">
+                    <i class="bi bi-question-circle text-6xl opacity-50"></i>
+                    <p class="mt-4 text-lg">Unknown view: {$currentView}</p>
+                  </div>
+                </div>
               {/if}
             </main>
           </ErrorBoundary>
