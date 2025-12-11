@@ -442,8 +442,9 @@ async fn main() {
         let config = app_state.config.lock().await;
         config.data_dir.clone()
     };
+    let conversion_ws_tx = app_state.fs_tx.clone();
     let _conversion_handle = tokio::spawn(async move {
-        let worker = conversion_worker::ConversionWorker::new(conversion_pool, conversion_data_dir);
+        let worker = conversion_worker::ConversionWorker::new(conversion_pool, conversion_data_dir, conversion_ws_tx);
         worker.start().await;
     });
 

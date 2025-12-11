@@ -3,6 +3,7 @@
   import { language } from '../../stores/ui.js';
   import { t } from '../../i18n.js';
   import { conversion } from '../../lib/api.js';
+  import { websocketManager } from '../../stores/websocket.js';
   import ConversionCard from './ConversionCard.svelte';
   import ConversionModal from './ConversionModal.svelte';
   import ConversionPresetsModal from './ConversionPresetsModal.svelte';
@@ -14,18 +15,61 @@
   let showCreateModal = $state(false);
   let showPresetsModal = $state(false);
   let refreshInterval = null;
+  let wsUnsubscribe = null;
 
   onMount(async () => {
     await loadData();
-    // Auto-refresh jobs every 3 seconds
-    refreshInterval = setInterval(loadJobs, 3000);
+    
+    // Auto-refresh jobs every 10 seconds (backup for WebSocket)
+    refreshInterval = setInterval(loadJobs, 10000);
+
+    // Connect to WebSocket for real-time updates
+    websocketManager.connect();
+    
+    // Subscribe to conversion progress events
+    wsUnsubscribe = websocketManager.on('conversion_progress', (event) => {
+      handleConversionProgress(event);
+    });
+
+    // Also listen to all WebSocket messages
+    wsUnsubscribe = websocketManager.on('message', (data) => {
+      if (data.event_type === 'conversion_progress') {
+        handleConversionProgress(data);
+      }
+    });
   });
 
   onDestroy(() => {
     if (refreshInterval) {
       clearInterval(refreshInterval);
     }
+    if (wsUnsubscribe) {
+      wsUnsubscribe();
+    }
   });
+
+  function handleConversionProgress(event) {
+    console.log('📊 Conversion progress update:', event);
+    
+    // Update job in the list
+    const index = jobs.findIndex(j => j.job_id === event.job_id);
+    if (index !== -1) {
+      jobs[index] = {
+        ...jobs[index],
+        status: event.status,
+        progress: event.progress,
+        error_message: event.error_message,
+        output_path: event.output_path,
+        completed_at: event.status === 'completed' || event.status === 'failed' 
+          ? new Date().toISOString() 
+          : jobs[index].completed_at,
+      };
+      jobs = [...jobs]; // Trigger reactivity
+    } else {
+      // Job not in list yet, refresh
+      loadJobs();
+    }
+  }
 
   async function loadData() {
     loading = true;

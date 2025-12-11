@@ -1,8 +1,10 @@
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use tokio::time::{sleep, Duration};
+use tokio::sync::broadcast;
 use sqlx::SqlitePool;
 use anyhow::Result;
+use crate::websocket::FileChangeEvent;
 
 /// Conversion Worker - Processes pending conversion jobs in background
 /// 
@@ -12,6 +14,7 @@ pub struct ConversionWorker {
     pool: SqlitePool,
     data_dir: PathBuf,
     tools: ToolsAvailable,
+    ws_tx: broadcast::Sender<FileChangeEvent>,
 }
 
 #[derive(Debug, Clone)]
@@ -23,7 +26,7 @@ pub struct ToolsAvailable {
 }
 
 impl ConversionWorker {
-    pub fn new(pool: SqlitePool, data_dir: PathBuf) -> Self {
+    pub fn new(pool: SqlitePool, data_dir: PathBuf, ws_tx: broadcast::Sender<FileChangeEvent>) -> Self {
         let tools = Self::detect_tools();
         eprintln!("[ConversionWorker] Tool availability:");
         eprintln!("  FFmpeg: {:?}", tools.ffmpeg);
@@ -35,6 +38,7 @@ impl ConversionWorker {
             pool,
             data_dir,
             tools,
+            ws_tx,
         }
     }
 
@@ -108,6 +112,13 @@ impl ConversionWorker {
             .execute(&self.pool)
             .await?;
 
+            // Broadcast processing status
+            let _ = self.ws_tx.send(FileChangeEvent::conversion_progress(
+                job.id.clone(),
+                "processing".to_string(),
+                Some(0.0),
+            ));
+
             // Process the conversion
             match self.convert_file(&job).await {
                 Ok(output_path) => {
@@ -116,6 +127,8 @@ impl ConversionWorker {
                         .await
                         .ok()
                         .map(|m| m.len() as i64);
+
+                    let output_path_str = output_path.to_string_lossy().to_string();
 
                     // Mark as completed
                     sqlx::query(
@@ -127,11 +140,21 @@ impl ConversionWorker {
                             completed_at = CURRENT_TIMESTAMP 
                         WHERE id = ?"
                     )
-                    .bind(output_path.to_string_lossy().to_string())
+                    .bind(&output_path_str)
                     .bind(file_size)
                     .bind(&job.id)
                     .execute(&self.pool)
                     .await?;
+
+                    // Broadcast completion
+                    let _ = self.ws_tx.send(
+                        FileChangeEvent::conversion_progress(
+                            job.id.clone(),
+                            "completed".to_string(),
+                            Some(100.0),
+                        )
+                        .with_output(output_path_str)
+                    );
 
                     eprintln!("[ConversionWorker] Job {} completed successfully", job.id);
                 }
@@ -149,6 +172,16 @@ impl ConversionWorker {
                     .bind(&job.id)
                     .execute(&self.pool)
                     .await?;
+
+                    // Broadcast failure
+                    let _ = self.ws_tx.send(
+                        FileChangeEvent::conversion_progress(
+                            job.id.clone(),
+                            "failed".to_string(),
+                            None,
+                        )
+                        .with_error(error_msg.clone())
+                    );
 
                     eprintln!("[ConversionWorker] Job {} failed: {}", job.id, error_msg);
                 }
