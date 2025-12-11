@@ -12,12 +12,10 @@
 
   // Collapsible group state
   let collapsedGroups = $state({
-    personal: false,
-    "admin-users": false,
-    "admin-system": false,
-    "admin-tools": false,
-    "admin-audit": false,
-    about: false,
+    general: false,
+    users: false,
+    storage: false,
+    automation: false,
   });
 
   function toggleGroup(groupId) {
@@ -29,177 +27,105 @@
     $auth?.user?.role === "admin" || $auth?.user?.is_admin
   );
 
-  // All tabs configuration - organized by category
+  // New organized tabs structure
   const allTabs = [
-    // Personal Settings (everyone)
+    // ALLGEMEINES (Header)
     {
       id: "general",
       icon: "sliders",
-      label: "general",
-      group: "personal",
-      adminOnly: false,
-    },
-    {
-      id: "profile",
-      icon: "person-fill",
-      label: "profile",
-      group: "personal",
+      label: "Allgemein",
+      group: "general",
       adminOnly: false,
     },
     {
       id: "security",
       icon: "shield-lock-fill",
-      label: "security",
-      group: "personal",
+      label: "Sicherheit",
+      group: "general",
       adminOnly: false,
     },
     {
       id: "notifications",
       icon: "bell-fill",
-      label: "notifications",
-      group: "personal",
+      label: "Benachrichtigungen",
+      group: "general",
       adminOnly: false,
     },
 
-    // User & Access Management (admin only)
+    // BENUTZER / GRUPPEN (Admin only) - Combined into one tab
     {
-      id: "users",
+      id: "user-management",
       icon: "people-fill",
-      label: "users",
-      group: "admin-users",
-      adminOnly: true,
-    },
-    {
-      id: "guests",
-      icon: "person-badge",
-      label: "guests.title",
-      group: "admin-users",
-      adminOnly: true,
-    },
-    {
-      id: "roles",
-      icon: "person-badge-fill",
-      label: "roles.title",
-      group: "admin-users",
-      adminOnly: true,
-    },
-    {
-      id: "groups",
-      icon: "people",
-      label: "groups.title",
-      group: "admin-users",
+      label: "Benutzerverwaltung",
+      group: "users",
       adminOnly: true,
     },
     {
       id: "oauth",
       icon: "shield-check",
-      label: "oauth.title",
-      group: "admin-users",
+      label: "OAuth Settings",
+      group: "users",
       adminOnly: true,
     },
     {
       id: "ldap",
       icon: "diagram-3",
-      label: "ldap.title",
-      group: "admin-users",
+      label: "LDAP",
+      group: "users",
       adminOnly: true,
     },
 
-    // System & Storage (admin only)
+    // SPEICHER / DATEIEN (Admin only) - Combined into one tab
     {
-      id: "backup",
-      icon: "cloud-arrow-up-fill",
-      label: "backup.title",
-      group: "admin-system",
-      adminOnly: true,
-    },
-    {
-      id: "cloud-storage",
-      icon: "cloud-fill",
-      label: "cloudStorage.title",
-      group: "admin-system",
-      adminOnly: true,
-    },
-    {
-      id: "quotas",
-      icon: "speedometer2",
-      label: "quotas.title",
-      group: "admin-system",
-      adminOnly: true,
-    },
-    {
-      id: "encryption",
-      icon: "shield-lock-fill",
-      label: "encryption.title",
-      group: "admin-system",
+      id: "storage",
+      icon: "hdd-fill",
+      label: "Speicherverwaltung",
+      group: "storage",
       adminOnly: true,
     },
 
-    // Automation & Tools (admin only)
+    // AUTOMATISIERUNGEN / WORKFLOWS (Admin only)
     {
       id: "jobs",
       icon: "list-task",
-      label: "jobs.title",
-      group: "admin-tools",
+      label: "Hintergrundaufträge",
+      group: "automation",
       adminOnly: true,
     },
     {
       id: "workflows",
       icon: "diagram-3-fill",
-      label: "workflows.title",
-      group: "admin-tools",
+      label: "Workflows",
+      group: "automation",
       adminOnly: true,
     },
     {
       id: "webhooks",
       icon: "link-45deg",
-      label: "webhooks.title",
-      group: "admin-tools",
+      label: "Webhooks",
+      group: "automation",
       adminOnly: true,
     },
     {
       id: "ftp-sync",
       icon: "cloud-arrow-down-fill",
-      label: "ftpSync.title",
-      group: "admin-tools",
+      label: "FTP",
+      group: "automation",
       adminOnly: true,
     },
     {
       id: "email-integration",
       icon: "envelope-fill",
-      label: "emailIntegration.title",
-      group: "admin-tools",
+      label: "E-Mail-Integration",
+      group: "automation",
       adminOnly: true,
     },
 
-    // Analytics & Audit (admin only)
-    {
-      id: "analytics",
-      icon: "bar-chart-line-fill",
-      label: "storageAnalytics",
-      group: "admin-audit",
-      adminOnly: true,
-    },
-    {
-      id: "audit",
-      icon: "shield-check",
-      label: "audit.title",
-      group: "admin-audit",
-      adminOnly: true,
-    },
-    {
-      id: "config",
-      icon: "gear-fill",
-      label: "systemConfig.title",
-      group: "admin-audit",
-      adminOnly: true,
-    },
-
-    // About (everyone)
+    // ÜBER SYNCSPACE (everyone)
     {
       id: "about",
       icon: "info-circle-fill",
-      label: "about",
+      label: "Über SyncSpace",
       group: "about",
       adminOnly: false,
     },
@@ -211,20 +137,11 @@
   );
 
   // Group tabs by category
-  let personalTabs = $derived(
-    visibleTabs.filter((t) => t.group === "personal")
-  );
-  let adminUserTabs = $derived(
-    visibleTabs.filter((t) => t.group === "admin-users")
-  );
-  let adminSystemTabs = $derived(
-    visibleTabs.filter((t) => t.group === "admin-system")
-  );
-  let adminToolsTabs = $derived(
-    visibleTabs.filter((t) => t.group === "admin-tools")
-  );
-  let adminAuditTabs = $derived(
-    visibleTabs.filter((t) => t.group === "admin-audit")
+  let generalTabs = $derived(visibleTabs.filter((t) => t.group === "general"));
+  let usersTabs = $derived(visibleTabs.filter((t) => t.group === "users"));
+  let storageTabs = $derived(visibleTabs.filter((t) => t.group === "storage"));
+  let automationTabs = $derived(
+    visibleTabs.filter((t) => t.group === "automation")
   );
   let aboutTabs = $derived(visibleTabs.filter((t) => t.group === "about"));
 
@@ -251,31 +168,29 @@
   <div class="settings-hub">
     <!-- Sidebar Navigation -->
     <aside class="settings-sidebar">
-      <!-- Personal Section -->
+      <!-- ALLGEMEINES Section -->
       <div class="settings-group">
         <button
           class="group-header"
-          onclick={() => toggleGroup("personal")}
-          aria-expanded={!collapsedGroups.personal}
+          onclick={() => toggleGroup("general")}
+          aria-expanded={!collapsedGroups.general}
         >
-          <span class="group-title"
-            >{tr("settingsHub.personal") || "Personal"}</span
-          >
+          <span class="group-title">Allgemeines</span>
           <i
             class="bi bi-chevron-down toggle-icon"
-            class:collapsed={collapsedGroups.personal}
+            class:collapsed={collapsedGroups.general}
           ></i>
         </button>
-        {#if !collapsedGroups.personal}
+        {#if !collapsedGroups.general}
           <nav class="settings-nav">
-            {#each personalTabs as tab}
+            {#each generalTabs as tab}
               <button
                 class="nav-item"
                 class:active={activeTab === tab.id}
                 onclick={() => setTab(tab.id)}
               >
                 <i class="bi bi-{tab.icon}"></i>
-                <span>{tr(tab.label) || tab.label}</span>
+                <span>{tab.label}</span>
               </button>
             {/each}
           </nav>
@@ -283,124 +198,87 @@
       </div>
 
       {#if isAdmin}
-        <!-- Admin: Users -->
+        <!-- BENUTZER / GRUPPEN -->
         <div class="settings-group">
           <button
             class="group-header"
-            onclick={() => toggleGroup("admin-users")}
-            aria-expanded={!collapsedGroups["admin-users"]}
+            onclick={() => toggleGroup("users")}
+            aria-expanded={!collapsedGroups.users}
           >
-            <span class="group-title"
-              >{tr("settingsHub.userManagement") || "User Management"}</span
-            >
+            <span class="group-title">Benutzer / Gruppen</span>
             <i
               class="bi bi-chevron-down toggle-icon"
-              class:collapsed={collapsedGroups["admin-users"]}
+              class:collapsed={collapsedGroups.users}
             ></i>
           </button>
-          {#if !collapsedGroups["admin-users"]}
+          {#if !collapsedGroups.users}
             <nav class="settings-nav">
-              {#each adminUserTabs as tab}
+              {#each usersTabs as tab}
                 <button
                   class="nav-item"
                   class:active={activeTab === tab.id}
                   onclick={() => setTab(tab.id)}
                 >
                   <i class="bi bi-{tab.icon}"></i>
-                  <span>{tr(tab.label) || tab.label}</span>
+                  <span>{tab.label}</span>
                 </button>
               {/each}
             </nav>
           {/if}
         </div>
 
-        <!-- Admin: Storage -->
+        <!-- SPEICHER / DATEIEN -->
         <div class="settings-group">
           <button
             class="group-header"
-            onclick={() => toggleGroup("admin-system")}
-            aria-expanded={!collapsedGroups["admin-system"]}
+            onclick={() => toggleGroup("storage")}
+            aria-expanded={!collapsedGroups.storage}
           >
-            <span class="group-title"
-              >{tr("settingsHub.storage") || "Storage"}</span
-            >
+            <span class="group-title">Speicher / Dateien</span>
             <i
               class="bi bi-chevron-down toggle-icon"
-              class:collapsed={collapsedGroups["admin-system"]}
+              class:collapsed={collapsedGroups.storage}
             ></i>
           </button>
-          {#if !collapsedGroups["admin-system"]}
+          {#if !collapsedGroups.storage}
             <nav class="settings-nav">
-              {#each adminSystemTabs as tab}
+              {#each storageTabs as tab}
                 <button
                   class="nav-item"
                   class:active={activeTab === tab.id}
                   onclick={() => setTab(tab.id)}
                 >
                   <i class="bi bi-{tab.icon}"></i>
-                  <span>{tr(tab.label) || tab.label}</span>
+                  <span>{tab.label}</span>
                 </button>
               {/each}
             </nav>
           {/if}
         </div>
 
-        <!-- Admin: Automation -->
+        <!-- AUTOMATISIERUNGEN / WORKFLOWS -->
         <div class="settings-group">
           <button
             class="group-header"
-            onclick={() => toggleGroup("admin-tools")}
-            aria-expanded={!collapsedGroups["admin-tools"]}
+            onclick={() => toggleGroup("automation")}
+            aria-expanded={!collapsedGroups.automation}
           >
-            <span class="group-title"
-              >{tr("settingsHub.automation") || "Automation"}</span
-            >
+            <span class="group-title">Automatisierungen / Workflows</span>
             <i
               class="bi bi-chevron-down toggle-icon"
-              class:collapsed={collapsedGroups["admin-tools"]}
+              class:collapsed={collapsedGroups.automation}
             ></i>
           </button>
-          {#if !collapsedGroups["admin-tools"]}
+          {#if !collapsedGroups.automation}
             <nav class="settings-nav">
-              {#each adminToolsTabs as tab}
+              {#each automationTabs as tab}
                 <button
                   class="nav-item"
                   class:active={activeTab === tab.id}
                   onclick={() => setTab(tab.id)}
                 >
                   <i class="bi bi-{tab.icon}"></i>
-                  <span>{tr(tab.label) || tab.label}</span>
-                </button>
-              {/each}
-            </nav>
-          {/if}
-        </div>
-
-        <!-- Admin: Analytics & Audit -->
-        <div class="settings-group">
-          <button
-            class="group-header"
-            onclick={() => toggleGroup("admin-audit")}
-            aria-expanded={!collapsedGroups["admin-audit"]}
-          >
-            <span class="group-title"
-              >{tr("settingsHub.analytics") || "Analytics & Audit"}</span
-            >
-            <i
-              class="bi bi-chevron-down toggle-icon"
-              class:collapsed={collapsedGroups["admin-audit"]}
-            ></i>
-          </button>
-          {#if !collapsedGroups["admin-audit"]}
-            <nav class="settings-nav">
-              {#each adminAuditTabs as tab}
-                <button
-                  class="nav-item"
-                  class:active={activeTab === tab.id}
-                  onclick={() => setTab(tab.id)}
-                >
-                  <i class="bi bi-{tab.icon}"></i>
-                  <span>{tr(tab.label) || tab.label}</span>
+                  <span>{tab.label}</span>
                 </button>
               {/each}
             </nav>
@@ -408,7 +286,7 @@
         </div>
       {/if}
 
-      <!-- About -->
+      <!-- ÜBER SYNCSPACE -->
       <div class="settings-group">
         <nav class="settings-nav">
           {#each aboutTabs as tab}
@@ -418,7 +296,7 @@
               onclick={() => setTab(tab.id)}
             >
               <i class="bi bi-{tab.icon}"></i>
-              <span>{tr(tab.label) || tab.label}</span>
+              <span>{tab.label}</span>
             </button>
           {/each}
         </nav>
@@ -446,20 +324,8 @@
         {/await}
 
         <!-- Admin: Users & Access -->
-      {:else if activeTab === "users"}
-        {#await import("../system/UsersView.svelte") then module}
-          <module.default />
-        {/await}
-      {:else if activeTab === "guests"}
-        {#await import("../GuestAccessView.svelte") then module}
-          <module.default />
-        {/await}
-      {:else if activeTab === "roles"}
-        {#await import("../rbac/RoleManagementView.svelte") then module}
-          <module.default />
-        {/await}
-      {:else if activeTab === "groups"}
-        {#await import("../admin/UserGroupsView.svelte") then module}
+      {:else if activeTab === "user-management"}
+        {#await import("./UserManagement.svelte") then module}
           <module.default />
         {/await}
       {:else if activeTab === "oauth"}
@@ -472,20 +338,12 @@
         {/await}
 
         <!-- Admin: System & Storage -->
+      {:else if activeTab === "storage"}
+        {#await import("./StorageSettings.svelte") then module}
+          <module.default />
+        {/await}
       {:else if activeTab === "backup"}
         {#await import("../system/BackupView.svelte") then module}
-          <module.default />
-        {/await}
-      {:else if activeTab === "cloud-storage"}
-        {#await import("../admin/CloudStorageView.svelte") then module}
-          <module.default />
-        {/await}
-      {:else if activeTab === "quotas"}
-        {#await import("../system/QuotasView.svelte") then module}
-          <module.default />
-        {/await}
-      {:else if activeTab === "encryption"}
-        {#await import("../EncryptionView.svelte") then module}
           <module.default />
         {/await}
 

@@ -291,11 +291,11 @@
                     {getStatusIndicator(user.status).text}
                   </span>
                 </td>
-                <td class="px-6 py-4 text-gray-700 dark:text-gray-300"
-                  >{user.filesCount.toLocaleString()}</td
+                <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
+                  {(user.filesCount || 0).toLocaleString()}</td
                 >
-                <td class="px-6 py-4 text-gray-700 dark:text-gray-300"
-                  >{formatBytes(user.storageUsed)}</td
+                <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
+                  {formatBytes(user.storageUsed || 0)}</td
                 >
                 <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
                   >{formatLastActive(user.lastActive)}</td

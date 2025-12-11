@@ -71,6 +71,35 @@
 - No Rust changes, only frontend/config? → `./target/release/syncbackend.exe` (instant start)
 - Uncertain if changed? → Check git status or use instant start (safer)
 
+**Output Handling Rules (CRITICAL)**:
+
+- ❌ **NEVER** use `2>&1` to redirect stderr to stdout
+- ❌ **NEVER** use `Select-Object -Last X` or any output filtering
+- ❌ **NEVER** suppress warnings or errors
+- ✅ **ALWAYS** show complete, unfiltered output
+- ✅ **ALWAYS** display all errors, warnings, and info messages
+- ✅ **ALWAYS** let the user see full compiler/build output
+
+**Example of WRONG output handling**:
+
+```powershell
+# WRONG: Suppresses errors and warnings
+cargo build --release 2>&1 | Select-Object -Last 5
+
+# WRONG: Hides stderr
+npm install 2>$null
+```
+
+**Example of CORRECT output handling**:
+
+```powershell
+# CORRECT: Full output visible
+cargo build --release
+
+# CORRECT: All output streams shown
+npm install
+```
+
 ### Running the Application
 
 ```bash
@@ -430,8 +459,8 @@ The `database.rs` file contains **ALL database models and connection setup**. It
 <div class="modal-backdrop" onclick={() => showModal = false}></div>
 
 <!-- ✅ CORRECT: Add role, tabindex, and keyboard handler -->
-<div 
-  class="modal-backdrop" 
+<div
+  class="modal-backdrop"
   role="button"
   tabindex="-1"
   onclick={() => showModal = false}
@@ -472,7 +501,7 @@ The `database.rs` file contains **ALL database models and connection setup**. It
 When creating UI components, always verify:
 
 1. **Buttons**: Have visible text OR `aria-label`
-2. **Links**: Have visible text OR `aria-label`  
+2. **Links**: Have visible text OR `aria-label`
 3. **Inputs**: Have associated `<label>` OR `aria-label`
 4. **Clickable divs**: Must have `role="button"`, `tabindex`, and `onkeydown`
 5. **Images**: Have `alt` attribute (empty `alt=""` for decorative images)

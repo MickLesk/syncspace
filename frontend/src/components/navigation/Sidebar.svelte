@@ -78,48 +78,42 @@
     return null;
   }
 
-  // Navigation items - simplified and consolidated
+  // Navigation items - clean structure
   let navItems = $derived([
-    // Main navigation
+    // HOME - Main navigation
     {
       id: "dashboard",
       icon: "speedometer2",
       label: t($currentLang, "dashboard.title"),
-      category: "main",
+      category: "home",
     },
     {
       id: "files",
       icon: "folder-fill",
       label: t($currentLang, "files"),
-      category: "main",
-    },
-    {
-      id: "favorites",
-      icon: "star-fill",
-      label: t($currentLang, "favorites"),
-      category: "main",
+      category: "home",
     },
     {
       id: "shared",
       icon: "share-fill",
       label: t($currentLang, "shared"),
-      category: "main",
+      category: "home",
       badge: sharedCount,
       badgeColor: "blue",
     },
-    // Tools section
     {
-      id: "trash",
-      icon: "trash-fill",
-      label: t($currentLang, "trash"),
-      category: "tools",
-      badge: trashCount,
-      badgeColor: "amber",
+      id: "activity",
+      icon: "clock-history",
+      label: t($currentLang, "activity") || "Historie",
+      category: "home",
+      badge: notificationCount,
+      badgeColor: "green",
     },
+    // WERKZEUGE - Tools section
     {
       id: "storage-analytics",
       icon: "bar-chart-line-fill",
-      label: t($currentLang, "storageAnalytics") || "Storage Analysis",
+      label: t($currentLang, "storageAnalytics") || "Speicheranalyse",
       category: "tools",
     },
     {
@@ -129,30 +123,20 @@
       category: "tools",
     },
     {
-      id: "duplicates",
-      icon: "files",
-      label: t($currentLang, "duplicates") || "Duplicates",
+      id: "backup",
+      icon: "shield-fill-check",
+      label: t($currentLang, "backup") || "Sicherung & Wiederherstellung",
       category: "tools",
     },
     {
-      id: "archives",
-      icon: "file-earmark-zip-fill",
-      label: t($currentLang, "archives") || "Archives",
+      id: "trash",
+      icon: "trash-fill",
+      label: t($currentLang, "trash"),
       category: "tools",
+      badge: trashCount,
+      badgeColor: "amber",
     },
-    {
-      id: "compression",
-      icon: "box-arrow-in-down",
-      label: t($currentLang, "compression") || "Compression",
-      category: "tools",
-    },
-    {
-      id: "conversion",
-      icon: "arrow-repeat",
-      label: t($currentLang, "conversion.title") || "File Conversion",
-      category: "tools",
-    },
-    // Settings - consolidated entry point for all settings + admin
+    // SETTINGS - Single entry point
     {
       id: "settings",
       icon: "gear-fill",
@@ -161,7 +145,7 @@
     },
   ]);
 
-  let mainItems = $derived(navItems.filter((item) => item.category === "main"));
+  let homeItems = $derived(navItems.filter((item) => item.category === "home"));
   let toolsItems = $derived(
     navItems.filter((item) => item.category === "tools")
   );
@@ -315,11 +299,11 @@
       <div
         class="text-[0.625rem] font-bold tracking-widest uppercase text-gray-400 dark:text-gray-500 py-2 px-3 mt-1"
       >
-        {tr("main")}
+        Home
       </div>
     {/if}
     <ul class="list-none p-0 m-0 flex flex-col gap-0.5">
-      {#each mainItems as item (item.id)}
+      {#each homeItems as item (item.id)}
         <li>
           <button
             class="nav-item relative flex items-center gap-3 w-full py-2.5 px-3 rounded-[10px] bg-transparent border-none text-gray-600 dark:text-gray-300 text-sm font-medium cursor-pointer transition-all duration-200 text-left whitespace-nowrap overflow-hidden hover:bg-green-500/8 dark:hover:bg-green-500/12 hover:text-green-500 dark:hover:text-green-400 {$currentView ===
@@ -378,7 +362,7 @@
       <div
         class="text-[0.625rem] font-bold tracking-widest uppercase text-gray-400 dark:text-gray-500 py-2 px-3"
       >
-        {tr("tools")}
+        Werkzeuge
       </div>
     {/if}
     <ul class="list-none p-0 m-0 flex flex-col gap-0.5">

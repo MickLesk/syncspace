@@ -17,14 +17,16 @@ const defaultPreferences = {
   sort_order: 'asc',
   auto_refresh: true,
   upload_progress_visible: true,
+  grid_columns: 4,
 };
 
-// Create writable store
+// Create writable store - SINGLE SOURCE OF TRUTH
 export const preferences = writable(defaultPreferences);
 
 // Store implementation with backend sync
 const createPreferencesStore = () => {
-  const { subscribe, set, update } = writable(defaultPreferences);
+  // Use the SAME store instance as exported preferences
+  const { subscribe, set, update } = preferences;
   
   return {
     subscribe,
@@ -33,8 +35,10 @@ const createPreferencesStore = () => {
     async load() {
       try {
         const response = await api.users.getPreferences();
+        console.log('🔍 [Preferences Store] Loaded from backend:', response);
+        console.log('🔍 [Preferences Store] grid_columns value:', response?.grid_columns, 'type:', typeof response?.grid_columns);
         if (response) {
-          set(response);
+          set(response); // This now updates the EXPORTED preferences store!
           localStorage.setItem(STORAGE_KEY, JSON.stringify(response));
         }
       } catch (error) {

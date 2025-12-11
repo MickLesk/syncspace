@@ -11,6 +11,14 @@
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
+  const tabs = [
+    { id: "general", icon: "sliders", label: "Allgemein" },
+    { id: "notifications", icon: "bell-fill", label: "Benachrichtigungen" },
+    { id: "features", icon: "toggles", label: "Features" },
+  ];
+
+  let activeTab = $state("general");
+
   const languageOptions = [
     { value: "de", label: "🇩🇪 Deutsch", flag: "🇩🇪" },
     { value: "en", label: "🇬🇧 English", flag: "🇬🇧" },
@@ -146,181 +154,211 @@
     </div>
   {/if}
 
-  <div class="settings-grid">
-    <!-- Theme Card -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon amber"><i class="bi bi-palette-fill"></i></div>
-        <div class="card-title">
-          <h3>{tr("theme")}</h3>
-          <p>{tr("themeDescription")}</p>
-        </div>
-      </div>
-      <div class="theme-buttons">
-        {#each themeOptions as option}
-          <button
-            class="theme-btn"
-            class:active={selectedTheme === option.value}
-            disabled={saving}
-            onclick={() => handleThemeChange(option.value)}
-          >
-            <i class="bi {option.icon}"></i>
-            <span>{tr(option.value)}</span>
-          </button>
-        {/each}
-      </div>
-    </div>
+  <!-- Tab Navigation -->
+  <div class="tabs-header">
+    {#each tabs as tab}
+      <button
+        class="tab-button"
+        class:active={activeTab === tab.id}
+        onclick={() => (activeTab = tab.id)}
+      >
+        <i class="bi bi-{tab.icon}"></i>
+        <span>{tab.label}</span>
+      </button>
+    {/each}
+  </div>
 
-    <!-- Language Card -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon blue"><i class="bi bi-translate"></i></div>
-        <div class="card-title">
-          <h3>{tr("language")}</h3>
-          <p>{tr("languageDescription")}</p>
-        </div>
-      </div>
-      <div class="select-wrapper">
-        <select
-          class="select-input"
-          disabled={saving}
-          bind:value={selectedLanguage}
-          onchange={handleLanguageChange}
-        >
-          {#each languageOptions as option}
-            <option value={option.value}>{option.label}</option>
-          {/each}
-        </select>
-      </div>
-    </div>
-
-    <!-- Default View Card -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon purple"><i class="bi bi-grid-fill"></i></div>
-        <div class="card-title">
-          <h3>{tr("defaultView")}</h3>
-          <p>{tr("defaultViewDescription")}</p>
-        </div>
-      </div>
-      <div class="view-buttons">
-        {#each viewOptions as option}
-          <button
-            class="view-btn"
-            class:active={selectedDefaultView === option.value}
-            disabled={saving}
-            onclick={() => {
-              selectedDefaultView = option.value;
-              handleDefaultViewChange();
-            }}
-          >
-            <i class="bi {option.icon}"></i>
-            <span>{tr(option.value === "grid" ? "gridView" : "listView")}</span>
-          </button>
-        {/each}
-      </div>
-
-      <!-- Grid Columns Slider (only visible in grid view) -->
-      {#if selectedDefaultView === "grid"}
-        <div class="mt-4">
-          <RangeSlider
-            bind:value={gridColumns}
-            min={1}
-            max={8}
-            label={tr("columnsPerRow")}
-            showValue={true}
-            showMarkers={true}
-            disabled={saving}
-            oninput={async (e) => {
-              try {
-                await api.users.updatePreferences({
-                  grid_columns: gridColumns,
-                });
-                console.log("✅ Grid columns saved:", gridColumns);
-              } catch (error) {
-                console.error("Failed to save grid columns:", error);
-              }
-            }}
-          />
-        </div>
-      {/if}
-    </div>
-
-    <!-- Notifications Card -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon green"><i class="bi bi-bell-fill"></i></div>
-        <div class="card-title">
-          <h3>{tr("notifications")}</h3>
-          <p>{tr("notificationSettings")}</p>
-        </div>
-      </div>
-      <div class="toggle-list">
-        <div class="toggle-item">
-          <div class="toggle-info">
-            <span class="toggle-label">{tr("emailNotifications")}</span>
-            <span class="toggle-desc">{tr("receiveEmailNotifications")}</span>
+  <!-- Tab Content -->
+  <div class="tab-content">
+    {#if activeTab === "general"}
+      <div class="settings-grid">
+        <!-- Theme Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon amber">
+              <i class="bi bi-palette-fill"></i>
+            </div>
+            <div class="card-title">
+              <h3>{tr("theme")}</h3>
+              <p>{tr("themeDescription")}</p>
+            </div>
           </div>
-          <button
-            class="toggle-switch"
-            class:active={enableNotifications}
-            onclick={() => (enableNotifications = !enableNotifications)}
-            role="switch"
-            aria-checked={enableNotifications}
-            aria-label="Toggle email notifications"
-          >
-            <span class="toggle-knob"></span>
-          </button>
+          <div class="theme-buttons">
+            {#each themeOptions as option}
+              <button
+                class="theme-btn"
+                class:active={selectedTheme === option.value}
+                disabled={saving}
+                onclick={() => handleThemeChange(option.value)}
+              >
+                <i class="bi {option.icon}"></i>
+                <span>{tr(option.value)}</span>
+              </button>
+            {/each}
+          </div>
         </div>
-        <div class="toggle-item">
-          <div class="toggle-info">
-            <span class="toggle-label">{tr("autoBackupNotifications")}</span>
-            <span class="toggle-desc"
-              >{tr("getNotifiedWhenBackupsComplete")}</span
+
+        <!-- Language Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue"><i class="bi bi-translate"></i></div>
+            <div class="card-title">
+              <h3>{tr("language")}</h3>
+              <p>{tr("languageDescription")}</p>
+            </div>
+          </div>
+          <div class="select-wrapper">
+            <select
+              class="select-input"
+              disabled={saving}
+              bind:value={selectedLanguage}
+              onchange={handleLanguageChange}
             >
+              {#each languageOptions as option}
+                <option value={option.value}>{option.label}</option>
+              {/each}
+            </select>
           </div>
-          <button
-            class="toggle-switch"
-            class:active={autoBackupNotify}
-            onclick={() => (autoBackupNotify = !autoBackupNotify)}
-            role="switch"
-            aria-checked={autoBackupNotify}
-            aria-label="Toggle backup notifications"
-          >
-            <span class="toggle-knob"></span>
-          </button>
         </div>
-      </div>
-    </div>
 
-    <!-- Features Card -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon rose"><i class="bi bi-toggles"></i></div>
-        <div class="card-title">
-          <h3>{tr("features")}</h3>
-          <p>{tr("customizeFeatures")}</p>
-        </div>
-      </div>
-      <div class="toggle-list">
-        <div class="toggle-item">
-          <div class="toggle-info">
-            <span class="toggle-label">{tr("enableFavoritesSystem")}</span>
-            <span class="toggle-desc">{tr("showFavoritesInSidebar")}</span>
+        <!-- Default View Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon purple"><i class="bi bi-grid-fill"></i></div>
+            <div class="card-title">
+              <h3>{tr("defaultView")}</h3>
+              <p>{tr("defaultViewDescription")}</p>
+            </div>
           </div>
-          <button
-            class="toggle-switch"
-            class:active={$favoritesEnabled}
-            onclick={() => favoritesEnabled.set(!$favoritesEnabled)}
-            role="switch"
-            aria-checked={$favoritesEnabled}
-            aria-label="Toggle favorites system"
-          >
-            <span class="toggle-knob"></span>
-          </button>
+          <div class="view-buttons">
+            {#each viewOptions as option}
+              <button
+                class="view-btn"
+                class:active={selectedDefaultView === option.value}
+                disabled={saving}
+                onclick={() => {
+                  selectedDefaultView = option.value;
+                  handleDefaultViewChange();
+                }}
+              >
+                <i class="bi {option.icon}"></i>
+                <span
+                  >{tr(option.value === "grid" ? "gridView" : "listView")}</span
+                >
+              </button>
+            {/each}
+          </div>
+
+          <!-- Grid Columns Slider (only visible in grid view) -->
+          {#if selectedDefaultView === "grid"}
+            <div class="mt-4">
+              <RangeSlider
+                bind:value={gridColumns}
+                min={1}
+                max={8}
+                label={tr("columnsPerRow")}
+                showValue={true}
+                showMarkers={true}
+                disabled={saving}
+                oninput={async (e) => {
+                  try {
+                    await api.users.updatePreferences({
+                      grid_columns: gridColumns,
+                    });
+                    console.log("✅ Grid columns saved:", gridColumns);
+                  } catch (error) {
+                    console.error("Failed to save grid columns:", error);
+                  }
+                }}
+              />
+            </div>
+          {/if}
         </div>
       </div>
-    </div>
+    {:else if activeTab === "notifications"}
+      <div class="settings-grid">
+        <!-- Notifications Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green"><i class="bi bi-bell-fill"></i></div>
+            <div class="card-title">
+              <h3>{tr("notifications")}</h3>
+              <p>{tr("notificationSettings")}</p>
+            </div>
+          </div>
+          <div class="toggle-list">
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-label">{tr("emailNotifications")}</span>
+                <span class="toggle-desc"
+                  >{tr("receiveEmailNotifications")}</span
+                >
+              </div>
+              <button
+                class="toggle-switch"
+                class:active={enableNotifications}
+                onclick={() => (enableNotifications = !enableNotifications)}
+                role="switch"
+                aria-checked={enableNotifications}
+                aria-label="Toggle email notifications"
+              >
+                <span class="toggle-knob"></span>
+              </button>
+            </div>
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-label">{tr("autoBackupNotifications")}</span
+                >
+                <span class="toggle-desc"
+                  >{tr("getNotifiedWhenBackupsComplete")}</span
+                >
+              </div>
+              <button
+                class="toggle-switch"
+                class:active={autoBackupNotify}
+                onclick={() => (autoBackupNotify = !autoBackupNotify)}
+                role="switch"
+                aria-checked={autoBackupNotify}
+                aria-label="Toggle backup notifications"
+              >
+                <span class="toggle-knob"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    {:else if activeTab === "features"}
+      <div class="settings-grid">
+        <!-- Features Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon rose"><i class="bi bi-toggles"></i></div>
+            <div class="card-title">
+              <h3>{tr("features")}</h3>
+              <p>{tr("customizeFeatures")}</p>
+            </div>
+          </div>
+          <div class="toggle-list">
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-label">{tr("enableFavoritesSystem")}</span>
+                <span class="toggle-desc">{tr("showFavoritesInSidebar")}</span>
+              </div>
+              <button
+                class="toggle-switch"
+                class:active={$favoritesEnabled}
+                onclick={() => favoritesEnabled.set(!$favoritesEnabled)}
+                role="switch"
+                aria-checked={$favoritesEnabled}
+                aria-label="Toggle favorites system"
+              >
+                <span class="toggle-knob"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    {/if}
   </div>
 {/if}
 
@@ -370,6 +408,70 @@
   :global(.dark) .toast.error {
     background: rgba(220, 38, 38, 0.2);
     color: #fca5a5;
+  }
+
+  /* Tab Navigation */
+  .tabs-header {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0;
+  }
+  :global(.dark) .tabs-header {
+    border-bottom-color: #374151;
+  }
+
+  .tab-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-button:hover {
+    color: #111827;
+    background: #f9fafb;
+  }
+  .tab-button.active {
+    color: #22c55e;
+    border-bottom-color: #22c55e;
+  }
+  .tab-button i {
+    font-size: 1rem;
+  }
+  :global(.dark) .tab-button {
+    color: #9ca3af;
+  }
+  :global(.dark) .tab-button:hover {
+    color: #f9fafb;
+    background: #374151;
+  }
+  :global(.dark) .tab-button.active {
+    color: #22c55e;
+  }
+
+  /* Tab Content */
+  .tab-content {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   /* Grid */

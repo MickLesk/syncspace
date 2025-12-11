@@ -1,5 +1,6 @@
 <script>
   import { onMount, onDestroy } from "svelte";
+  import { get } from "svelte/store";
   import { files, currentPath, currentLang } from "../../stores/ui";
   import { favorites } from "../../stores/favorites";
   import { userPreferences, preferences } from "../../stores/preferences";
@@ -240,18 +241,23 @@
     try {
       await userPreferences.load();
 
-      // Subscribe to preferences store to get current values
-      const unsubscribe = preferences.subscribe((prefs) => {
-        if (prefs && typeof prefs.view_mode === "string") {
-          viewMode = prefs.view_mode;
+      // Get current preferences value directly from store
+      const currentPrefs = get(preferences);
+      console.log(
+        "🔍 [FilesView] Current preferences after load:",
+        currentPrefs
+      );
+
+      if (currentPrefs) {
+        if (typeof currentPrefs.view_mode === "string") {
+          viewMode = currentPrefs.view_mode;
           console.log("📖 Loaded view mode from backend:", viewMode);
         }
-        if (prefs && typeof prefs.grid_columns === "number") {
-          gridColumns = prefs.grid_columns;
+        if (typeof currentPrefs.grid_columns === "number") {
+          gridColumns = currentPrefs.grid_columns;
           console.log("📖 Loaded grid columns from backend:", gridColumns);
         }
-      });
-      unsubscribe(); // Immediately unsubscribe after getting value
+      }
 
       preferencesLoaded = true; // Enable auto-save after loading
 
