@@ -179,8 +179,5 @@ function calculateStats(activities) {
   return stats;
 }
 
-  return stats;
-}
-
 export const activityFeed = createActivityStore();
 export { ACTIVITY_TYPES };

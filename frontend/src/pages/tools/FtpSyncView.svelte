@@ -216,7 +216,6 @@
                   <i class="bi bi-three-dots-vertical"></i>
                 </button>
                 <ul
-                  tabindex="0"
                   class="dropdown-content z-10 menu p-2 shadow bg-base-100 rounded-box w-40"
                 >
                   <li>

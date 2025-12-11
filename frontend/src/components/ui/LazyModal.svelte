@@ -65,8 +65,8 @@
       </div>
     </div>
   {:else if loadedComponent}
-    <svelte:component
-      this={loadedComponent}
+    {@const Component = loadedComponent}
+    <Component
       {isOpen}
       {onClose}
       {...modalProps}

@@ -175,11 +175,11 @@
         <!-- Permissions -->
         <div class="form-control">
           <div class="flex justify-between items-center mb-2">
-            <label class="label">
+            <div class="label">
               <span class="label-text font-semibold"
                 >{tr("rbac.permissions")}</span
               >
-            </label>
+            </div>
             <div class="flex gap-2">
               <button
                 type="button"

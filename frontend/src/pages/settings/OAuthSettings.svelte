@@ -411,11 +411,11 @@
             bind:value={providerForm.redirect_uri}
             placeholder="https://yourdomain.com/api/oauth/callback"
           />
-          <label class="label">
+          <div class="label">
             <span class="label-text-alt text-base-content/60">
               Use this URL in your OAuth provider settings
             </span>
-          </label>
+          </div>
         </div>
 
         <div class="form-control">

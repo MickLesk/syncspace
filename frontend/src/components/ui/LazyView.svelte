@@ -50,5 +50,6 @@
     </div>
   </div>
 {:else if loadedComponent}
-  <svelte:component this={loadedComponent} {...props} />
+  {@const Component = loadedComponent}
+  <Component {...props} />
 {/if}
