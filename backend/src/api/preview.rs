@@ -245,8 +245,8 @@ async fn get_pdf_preview(
 
 pub fn router() -> Router<AppState> {
     Router::new()
+        .route("/preview/metadata/{*path}", get(get_preview_metadata))
+        .route("/preview/video/{*path}", get(get_video_preview))
+        .route("/preview/pdf/{*path}", get(get_pdf_preview))
         .route("/preview/{*path}", get(get_preview))
-        .route("/preview/{*path}/metadata", get(get_preview_metadata))
-        .route("/preview/{*path}/video", get(get_video_preview))
-        .route("/preview/{*path}/pdf", get(get_pdf_preview))
 }

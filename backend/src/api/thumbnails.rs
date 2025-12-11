@@ -258,6 +258,6 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/thumbnails/status", get(get_thumbnail_status))
         .route("/thumbnails/cache/clear", axum::routing::post(clear_thumbnail_cache))
+        .route("/thumbnails/info/{*path}", get(get_thumbnail_info))
         .route("/thumbnails/{*path}", get(get_thumbnail).delete(delete_thumbnail))
-        .route("/thumbnails/{*path}/info", get(get_thumbnail_info))
 }

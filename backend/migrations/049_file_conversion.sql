@@ -66,7 +66,6 @@ INSERT INTO conversion_presets (id, name, description, source_format, target_for
 ('preset_flac_to_mp3', 'FLAC to MP3', 'Convert lossless FLAC to MP3', 'flac', 'mp3', '{"bitrate": "320k", "quality": "ultra"}', 1),
 ('preset_m4a_to_mp3', 'M4A to MP3', 'Convert M4A/AAC to MP3', 'm4a', 'mp3', '{"bitrate": "192k"}', 1);
 
--- Log the migration
-INSERT INTO _migrations_log (migration_name, applied_at) 
-VALUES ('049_file_conversion', CURRENT_TIMESTAMP)
-ON CONFLICT(migration_name) DO NOTHING;
+-- Note: Migration tracking is handled automatically by the backend
+-- No manual INSERT into migrations_tracker needed
+

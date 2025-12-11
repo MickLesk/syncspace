@@ -75,13 +75,13 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/conversion/jobs", axum::routing::post(create_conversion))
         .route("/conversion/jobs", axum::routing::get(list_jobs))
-        .route("/conversion/jobs/:id", axum::routing::get(get_job))
-        .route("/conversion/jobs/:id/cancel", axum::routing::post(cancel_job))
-        .route("/conversion/jobs/:id", axum::routing::delete(delete_job))
+        .route("/conversion/jobs/{id}", axum::routing::get(get_job))
+        .route("/conversion/jobs/{id}/cancel", axum::routing::post(cancel_job))
+        .route("/conversion/jobs/{id}", axum::routing::delete(delete_job))
         .route("/conversion/formats", axum::routing::get(list_formats))
         .route("/conversion/presets", axum::routing::get(list_presets))
         .route("/conversion/presets", axum::routing::post(create_preset))
-        .route("/conversion/presets/:id", axum::routing::delete(delete_preset))
+        .route("/conversion/presets/{id}", axum::routing::delete(delete_preset))
 }
 
 // ============================================================================

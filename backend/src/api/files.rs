@@ -47,8 +47,6 @@ pub fn router() -> Router<AppState> {
     Router::new()
         // Upload file (multipart) - specific route first
         .route("/upload-multipart", post(upload_multipart_handler))
-        // Get thumbnail - specific route
-        .route("/thumbnails/{file_id}", get(get_thumbnail_handler))
         // Recent files
         .route("/files/recent", get(list_recent_files))
         // List files (root)
