@@ -164,13 +164,13 @@
   });
 </script>
 
-<div class="users-settings">
+<div class="flex flex-col gap-6">
   {#if error}
     <div class="alert alert-error">
       <i class="bi bi-exclamation-circle"></i>
       <span>{error}</span>
       <button
-        class="alert-close"
+        class="ml-auto bg-transparent border-none cursor-pointer opacity-60 hover:opacity-100"
         onclick={() => (error = null)}
         aria-label="Close"
       >
@@ -187,10 +187,10 @@
   {/if}
 
   <!-- Header -->
-  <div class="page-header">
+  <div class="flex justify-between items-center gap-4">
     <div>
-      <h2>{tr("settings.users.title")}</h2>
-      <p>{tr("settings.users.description")}</p>
+      <h2 class="text-xl font-semibold text-base-content m-0">{tr("settings.users.title")}</h2>
+      <p class="text-sm text-base-content/60 mt-1 mb-0">{tr("settings.users.description")}</p>
     </div>
     <button class="btn btn-primary" onclick={() => (showAddModal = true)}>
       <i class="bi bi-plus-lg"></i>
@@ -199,34 +199,34 @@
   </div>
 
   <!-- Users Table -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-icon blue">
+  <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+    <div class="flex items-center gap-4 p-5 border-b border-base-300">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg bg-info/20 text-info">
         <i class="bi bi-people"></i>
       </div>
       <div>
-        <h3>{tr("settings.users.user_list")}</h3>
-        <p class="card-subtitle">
+        <h3 class="text-base font-semibold text-base-content m-0">{tr("settings.users.user_list")}</h3>
+        <p class="text-xs text-base-content/60 mt-1 mb-0">
           {users.length}
           {tr("settings.users.users_total")}
         </p>
       </div>
     </div>
 
-    <div class="card-body">
+    <div class="p-5">
       {#if loading}
-        <div class="loading-container">
-          <div class="loading-spinner"></div>
+        <div class="flex flex-col items-center justify-center py-12 gap-4 text-base-content/60">
+          <span class="loading loading-spinner loading-lg text-primary"></span>
           <p>{tr("common.loading")}</p>
         </div>
       {:else if users.length === 0}
-        <div class="empty-state">
-          <i class="bi bi-people"></i>
+        <div class="flex flex-col items-center justify-center py-12 gap-4 text-base-content/60">
+          <i class="bi bi-people text-3xl opacity-50"></i>
           <p>{tr("settings.users.no_users")}</p>
         </div>
       {:else}
-        <div class="table-container">
-          <table class="data-table">
+        <div class="overflow-x-auto -m-5">
+          <table class="table table-zebra w-full">
             <thead>
               <tr>
                 <th>{tr("settings.users.username")}</th>
@@ -239,22 +239,18 @@
             </thead>
             <tbody>
               {#each users as user}
-                <tr>
+                <tr class="hover">
                   <td>
-                    <div class="user-info">
-                      <div class="user-avatar">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full bg-info/20 text-info flex items-center justify-center font-semibold text-sm">
                         {user.username?.charAt(0).toUpperCase() || "U"}
                       </div>
-                      <span class="user-name">{user.username}</span>
+                      <span class="font-medium">{user.username}</span>
                     </div>
                   </td>
                   <td>{user.email || "-"}</td>
                   <td>
-                    <span
-                      class="badge {user.role === 'admin'
-                        ? 'badge-amber'
-                        : 'badge-blue'}"
-                    >
+                    <span class="badge {user.role === 'admin' ? 'badge-warning' : 'badge-info'}">
                       {user.role === "admin"
                         ? tr("settings.users.admin")
                         : tr("settings.users.user")}
@@ -262,26 +258,22 @@
                   </td>
                   <td>{formatDate(user.created_at)}</td>
                   <td>
-                    <span
-                      class="status-dot {user.is_active !== false
-                        ? 'active'
-                        : 'inactive'}"
-                    ></span>
+                    <span class="inline-block w-2 h-2 rounded-full mr-2 {user.is_active !== false ? 'bg-success' : 'bg-base-content/40'}"></span>
                     {user.is_active !== false
                       ? tr("settings.users.active")
                       : tr("settings.users.inactive")}
                   </td>
                   <td>
-                    <div class="action-buttons">
+                    <div class="flex gap-2">
                       <button
-                        class="btn-icon"
+                        class="btn btn-ghost btn-sm btn-square"
                         onclick={() => openEditModal(user)}
                         title={tr("common.edit")}
                       >
                         <i class="bi bi-pencil"></i>
                       </button>
                       <button
-                        class="btn-icon btn-danger"
+                        class="btn btn-ghost btn-sm btn-square hover:btn-error"
                         onclick={() => openDeleteModal(user)}
                         title={tr("common.delete")}
                         disabled={user.username === "admin"}
@@ -513,406 +505,5 @@
 </Modal>
 
 <style>
-  .users-settings {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  /* Alerts */
-  .alert {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-  }
-
-  .alert-error {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
-  }
-
-  .alert-success {
-    background: #f0fdf4;
-    color: #16a34a;
-    border: 1px solid #bbf7d0;
-  }
-
-  :global([data-theme="dark"]) .alert-error {
-    background: rgba(220, 38, 38, 0.1);
-    border-color: rgba(220, 38, 38, 0.3);
-  }
-
-  :global([data-theme="dark"]) .alert-success {
-    background: rgba(22, 163, 74, 0.1);
-    border-color: rgba(22, 163, 74, 0.3);
-  }
-
-  .alert-close {
-    margin-left: auto;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: inherit;
-    opacity: 0.6;
-  }
-
-  .alert-close:hover {
-    opacity: 1;
-  }
-
-  /* Page Header */
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .page-header h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0;
-  }
-
-  :global([data-theme="dark"]) .page-header h2 {
-    color: #f9fafb;
-  }
-
-  .page-header p {
-    font-size: 0.875rem;
-    color: #6b7280;
-    margin: 0.25rem 0 0 0;
-  }
-
-  /* Card */
-  .card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.75rem;
-    overflow: hidden;
-  }
-
-  :global([data-theme="dark"]) .card {
-    background: #1f2937;
-    border-color: #374151;
-  }
-
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.25rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-theme="dark"]) .card-header {
-    border-bottom-color: #374151;
-  }
-
-  .card-header h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0;
-  }
-
-  :global([data-theme="dark"]) .card-header h3 {
-    color: #f9fafb;
-  }
-
-  .card-subtitle {
-    font-size: 0.75rem;
-    color: #6b7280;
-    margin: 0.25rem 0 0 0;
-  }
-
-  .card-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.125rem;
-    flex-shrink: 0;
-  }
-
-  .card-icon.blue {
-    background: #dbeafe;
-    color: #2563eb;
-  }
-
-  :global([data-theme="dark"]) .card-icon.blue {
-    background: rgba(37, 99, 235, 0.2);
-  }
-
-  .card-body {
-    padding: 1.25rem;
-  }
-
-  /* Buttons */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-radius: 0.5rem;
-    border: none;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .btn-primary {
-    background: #22c55e;
-    color: white;
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    background: #16a34a;
-  }
-
-  .btn-danger {
-    background: #ef4444;
-    color: white;
-  }
-
-  .btn-danger:hover:not(:disabled) {
-    background: #dc2626;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Loading & Empty */
-  .loading-container,
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    gap: 1rem;
-    color: #6b7280;
-  }
-
-  .loading-spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid #e5e7eb;
-    border-top-color: #22c55e;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  .empty-state i {
-    font-size: 2rem;
-    opacity: 0.5;
-  }
-
-  /* Table */
-  .table-container {
-    overflow-x: auto;
-    margin: -1.25rem;
-  }
-
-  .data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.875rem;
-  }
-
-  .data-table th {
-    text-align: left;
-    padding: 0.75rem 1.25rem;
-    background: #f9fafb;
-    font-weight: 500;
-    color: #6b7280;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-theme="dark"]) .data-table th {
-    background: #374151;
-    color: #9ca3af;
-    border-bottom-color: #4b5563;
-  }
-
-  .data-table td {
-    padding: 0.75rem 1.25rem;
-    border-top: 1px solid #f3f4f6;
-    color: #374151;
-  }
-
-  :global([data-theme="dark"]) .data-table td {
-    border-top-color: #374151;
-    color: #e5e7eb;
-  }
-
-  .data-table tbody tr:hover {
-    background: #f9fafb;
-  }
-
-  :global([data-theme="dark"]) .data-table tbody tr:hover {
-    background: #374151;
-  }
-
-  /* User Info */
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .user-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #dbeafe;
-    color: #2563eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 0.875rem;
-  }
-
-  :global([data-theme="dark"]) .user-avatar {
-    background: rgba(37, 99, 235, 0.2);
-  }
-
-  .user-name {
-    font-weight: 500;
-  }
-
-  /* Badges */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.625rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 9999px;
-  }
-
-  .badge-blue {
-    background: #dbeafe;
-    color: #2563eb;
-  }
-
-  .badge-amber {
-    background: #fef3c7;
-    color: #d97706;
-  }
-
-  :global([data-theme="dark"]) .badge-blue {
-    background: rgba(37, 99, 235, 0.2);
-  }
-
-  :global([data-theme="dark"]) .badge-amber {
-    background: rgba(217, 119, 6, 0.2);
-  }
-
-  /* Status Dot */
-  .status-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 0.5rem;
-  }
-
-  .status-dot.active {
-    background: #22c55e;
-  }
-
-  .status-dot.inactive {
-    background: #9ca3af;
-  }
-
-  /* Action Buttons */
-  .action-buttons {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .btn-icon {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.375rem;
-    border: 1px solid #e5e7eb;
-    background: white;
-    color: #6b7280;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .btn-icon:hover:not(:disabled) {
-    background: #f3f4f6;
-    color: #374151;
-  }
-
-  .btn-icon.btn-danger:hover:not(:disabled) {
-    background: #fef2f2;
-    color: #dc2626;
-    border-color: #fecaca;
-  }
-
-  .btn-icon:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
-  :global([data-theme="dark"]) .btn-icon {
-    background: #374151;
-    border-color: #4b5563;
-    color: #9ca3af;
-  }
-
-  :global([data-theme="dark"]) .btn-icon:hover:not(:disabled) {
-    background: #4b5563;
-    color: #e5e7eb;
-  }
-
-  :global([data-theme="dark"]) .btn-icon.btn-danger:hover:not(:disabled) {
-    background: rgba(220, 38, 38, 0.1);
-    border-color: rgba(220, 38, 38, 0.3);
-  }
-
-  /* Form */
-  .form-group {
-    margin-bottom: 1rem;
-  }
-
-  .form-group:last-child {
-    margin-bottom: 0;
-  }
-
-  .form-group label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #374151;
-    margin-bottom: 0.5rem;
-  }
-
-  :global([data-theme="dark"]) .form-group label {
-    color: #e5e7eb;
-  }
+  /* Minimal CSS - most styling via Tailwind utilities */
 </style>
