@@ -1,11 +1,11 @@
 <script>
-  import { onMount, onDestroy } from "svelte";
-  import api from "../../lib/api.js";
-  import { currentLang } from "../../stores/ui.js";
-  import { t } from "../../i18n.js";
-  import { success, error as errorToast } from "../../stores/toast.js";
-  import PageWrapper from "../../components/PageWrapper.svelte";
-  import { modals, modalEvents } from "../../stores/modals.js";
+  import { onMount } from "svelte";
+  import api from "../../../lib/api.js";
+  import { currentLang } from "../../../stores/ui.js";
+  import { t } from "../../../i18n.js";
+  import { success, error as errorToast } from "../../../stores/toast.js";
+  import PageWrapper from "../../../components/PageWrapper.svelte";
+  import { modals, modalEvents } from "../../../stores/modals.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 

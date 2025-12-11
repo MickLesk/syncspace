@@ -1,13 +1,13 @@
 <script>
   import { onMount } from "svelte";
-  import { error as errorToast, success } from "../../stores/toast";
-  import { currentLang } from "../../stores/ui.js";
-  import { t } from "../../i18n.js";
-  import api from "../../lib/api";
-  import Chart from "../../components/ui/Chart.svelte";
-  import Loading from "../../components/ui/Loading.svelte";
-  import LoadingState from "../../components/ui/LoadingState.svelte";
-  import EmptyState from "../../components/ui/EmptyState.svelte";
+  import { error as errorToast, success } from "../../../stores/toast";
+  import { currentLang } from "../../../stores/ui.js";
+  import { t } from "../../../i18n.js";
+  import api from "../../../lib/api";
+  import Chart from "../../../components/ui/Chart.svelte";
+  import Loading from "../../../components/ui/Loading.svelte";
+  import LoadingState from "../../../components/ui/LoadingState.svelte";
+  import EmptyState from "../../../components/ui/EmptyState.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 

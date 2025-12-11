@@ -1,14 +1,14 @@
 <script>
   import { onMount } from "svelte";
-  import { currentLang } from "../stores/ui.js";
-  import { t } from "../i18n.js";
-  import PageWrapper from "../components/PageWrapper.svelte";
-  import LoadingState from "../components/ui/LoadingState.svelte";
-  import EmptyState from "../components/ui/EmptyState.svelte";
-  import Modal from "../components/ui/Modal.svelte";
-  import ModernButton from "../components/ui/ModernButton.svelte";
-  import { tags as tagsApi } from "../lib/api.js";
-  import { success, error as errorToast } from "../stores/toast.js";
+  import { currentLang } from "../../../stores/ui.js";
+  import { t } from "../../../i18n.js";
+  import PageWrapper from "../../../components/PageWrapper.svelte";
+  import LoadingState from "../../../components/ui/LoadingState.svelte";
+  import EmptyState from "../../../components/ui/EmptyState.svelte";
+  import Modal from "../../../components/ui/Modal.svelte";
+  import ModernButton from "../../../components/ui/ModernButton.svelte";
+  import { tags as tagsApi } from "../../../lib/api.js";
+  import { success, error as errorToast } from "../../../stores/toast.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 

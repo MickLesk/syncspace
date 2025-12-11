@@ -1,10 +1,10 @@
 <script>
-  import { onMount, onDestroy } from "svelte";
-  import { currentLang } from "../stores/ui.js";
-  import { t } from "../i18n.js";
+  import { onMount } from "svelte";
+  import { currentLang } from "../../../stores/ui.js";
+  import { t } from "../../../i18n.js";
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
-  import * as api from "../lib/api.js";
-  import { modals, modalEvents } from "../stores/modals.js";
+  import * as api from "../../../lib/api.js";
+  import { modals, modalEvents } from "../../../stores/modals.js";
 
   // Import createWebSocket from api
   const { createWebSocket } = api;

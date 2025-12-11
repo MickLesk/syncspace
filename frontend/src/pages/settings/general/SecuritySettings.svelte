@@ -1,9 +1,9 @@
 <script>
   import { onMount } from "svelte";
-  import { currentLang } from "../../stores/ui.js";
-  import { t } from "../../i18n.js";
+  import { currentLang } from "../../../stores/ui.js";
+  import { t } from "../../../i18n.js";
   import QRCode from "qrcode";
-  import { users, auth as authApi } from "../../lib/api.js";
+  import { users, auth as authApi } from "../../../lib/api.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 

@@ -1,7 +1,10 @@
 <script>
   import { onMount } from "svelte";
-  import api from "../../lib/api.js";
-  import { t } from "../../i18n.js";
+  import api from "../../../lib/api.js";
+  import { t } from "../../../i18n.js";
+  import { currentLang } from "../../../stores/ui.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   let schedules = $state([]);
   let backups = $state([]);
@@ -94,7 +97,7 @@
   }
 
   async function deleteSchedule(scheduleId) {
-    if (!confirm($t("backup.confirmDeleteSchedule"))) return;
+    if (!confirm(tr("backup.confirmDeleteSchedule"))) return;
 
     try {
       await api.backup.deleteSchedule(scheduleId);
@@ -127,7 +130,7 @@
         include_paths: ["/"],
       });
 
-      alert($t("backup.backupStarted") + ": " + response.job_id);
+      alert(tr("backup.backupStarted") + ": " + response.job_id);
       await loadBackups();
     } catch (err) {
       error = err.message || "Failed to start backup";
@@ -149,7 +152,7 @@
       });
 
       showRestoreModal = false;
-      alert($t("backup.restoreStarted") + ": " + response.restore_id);
+      alert(tr("backup.restoreStarted") + ": " + response.restore_id);
       resetRestoreForm();
     } catch (err) {
       error = err.message || "Failed to start restore";
@@ -168,7 +171,7 @@
   }
 
   async function cleanupOldBackups() {
-    if (!confirm($t("backup.confirmCleanup"))) return;
+    if (!confirm(tr("backup.confirmCleanup"))) return;
 
     try {
       loading = true;
@@ -258,17 +261,17 @@
   <!-- Header -->
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-3xl font-bold">{$t("backup.title")}</h1>
-      <p class="text-base-content/70 mt-1">{$t("backup.subtitle")}</p>
+      <h1 class="text-3xl font-bold">{tr("backup.title")}</h1>
+      <p class="text-base-content/70 mt-1">{tr("backup.subtitle")}</p>
     </div>
     <div class="flex gap-2">
       <button class="btn btn-outline" onclick={() => cleanupOldBackups()}>
         <i class="bi bi-trash" aria-hidden="true"></i>
-        {$t("backup.cleanup")}
+        {tr("backup.cleanup")}
       </button>
       <button class="btn btn-primary" onclick={() => (showCreateModal = true)}>
         <i class="bi bi-plus-lg" aria-hidden="true"></i>
-        {$t("backup.createSchedule")}
+        {tr("backup.createSchedule")}
       </button>
       <button
         class="btn btn-success"
@@ -276,7 +279,7 @@
         disabled={loading}
       >
         <i class="bi bi-play-fill" aria-hidden="true"></i>
-        {$t("backup.runNow")}
+        {tr("backup.runNow")}
       </button>
     </div>
   </div>
@@ -304,11 +307,11 @@
           <div class="stat-figure text-primary">
             <i class="bi bi-calendar3 text-3xl" aria-hidden="true"></i>
           </div>
-          <div class="stat-title">{$t("backup.totalSchedules")}</div>
+          <div class="stat-title">{tr("backup.totalSchedules")}</div>
           <div class="stat-value text-primary">{stats.total_schedules}</div>
           <div class="stat-desc">
             {stats.active_schedules}
-            {$t("backup.active")}
+            {tr("backup.active")}
           </div>
         </div>
       </div>
@@ -318,12 +321,12 @@
           <div class="stat-figure text-success">
             <i class="bi bi-check-circle text-3xl" aria-hidden="true"></i>
           </div>
-          <div class="stat-title">{$t("backup.successfulBackups")}</div>
+          <div class="stat-title">{tr("backup.successfulBackups")}</div>
           <div class="stat-value text-success">{stats.successful_backups}</div>
           <div class="stat-desc">
-            {$t("backup.of")}
+            {tr("backup.of")}
             {stats.total_backups}
-            {$t("backup.total")}
+            {tr("backup.total")}
           </div>
         </div>
       </div>
@@ -333,7 +336,7 @@
           <div class="stat-figure text-error">
             <i class="bi bi-x-circle text-3xl" aria-hidden="true"></i>
           </div>
-          <div class="stat-title">{$t("backup.failedBackups")}</div>
+          <div class="stat-title">{tr("backup.failedBackups")}</div>
           <div class="stat-value text-error">{stats.failed_backups}</div>
         </div>
       </div>
@@ -343,7 +346,7 @@
           <div class="stat-figure text-info">
             <i class="bi bi-hdd text-3xl" aria-hidden="true"></i>
           </div>
-          <div class="stat-title">{$t("backup.totalSize")}</div>
+          <div class="stat-title">{tr("backup.totalSize")}</div>
           <div class="stat-value text-info text-2xl">
             {formatBytes(stats.total_backup_size)}
           </div>
@@ -353,11 +356,13 @@
   {/if}
 
   <!-- Schedules Section -->
-  <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
+  <div
+    class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all"
+  >
     <div class="card-body">
       <h2 class="card-title">
         <i class="bi bi-calendar-check" aria-hidden="true"></i>
-        {$t("backup.schedules")}
+        {tr("backup.schedules")}
       </h2>
 
       {#if schedules.length === 0}
@@ -366,20 +371,20 @@
             class="bi bi-calendar-x text-6xl text-base-content/20"
             aria-hidden="true"
           ></i>
-          <p class="mt-4 text-base-content/60">{$t("backup.noSchedules")}</p>
+          <p class="mt-4 text-base-content/60">{tr("backup.noSchedules")}</p>
         </div>
       {:else}
         <div class="overflow-x-auto">
           <table class="table table-zebra">
             <thead>
               <tr>
-                <th>{$t("backup.name")}</th>
-                <th>{$t("backup.frequency")}</th>
-                <th>{$t("backup.type")}</th>
-                <th>{$t("backup.nextRun")}</th>
-                <th>{$t("backup.lastRun")}</th>
-                <th>{$t("backup.status")}</th>
-                <th>{$t("backup.actions")}</th>
+                <th>{tr("backup.name")}</th>
+                <th>{tr("backup.frequency")}</th>
+                <th>{tr("backup.type")}</th>
+                <th>{tr("backup.nextRun")}</th>
+                <th>{tr("backup.lastRun")}</th>
+                <th>{tr("backup.status")}</th>
+                <th>{tr("backup.actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -433,8 +438,8 @@
                         onclick={() =>
                           toggleSchedule(schedule.id, schedule.is_active)}
                         title={schedule.is_active
-                          ? $t("backup.disable")
-                          : $t("backup.enable")}
+                          ? tr("backup.disable")
+                          : tr("backup.enable")}
                       >
                         <i
                           class="bi {schedule.is_active
@@ -445,7 +450,7 @@
                       <button
                         class="btn btn-sm btn-error btn-outline"
                         onclick={() => deleteSchedule(schedule.id)}
-                        title={$t("backup.delete")}
+                        title={tr("backup.delete")}
                         aria-label="Delete"
                       >
                         <i class="bi bi-trash" aria-hidden="true"></i>
@@ -462,11 +467,13 @@
   </div>
 
   <!-- Backup History Section -->
-  <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
+  <div
+    class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all"
+  >
     <div class="card-body">
       <h2 class="card-title">
         <i class="bi bi-clock-history" aria-hidden="true"></i>
-        {$t("backup.history")}
+        {tr("backup.history")}
       </h2>
 
       {#if backups.length === 0}
@@ -475,22 +482,22 @@
             class="bi bi-inbox text-6xl text-base-content/20"
             aria-hidden="true"
           ></i>
-          <p class="mt-4 text-base-content/60">{$t("backup.noBackups")}</p>
+          <p class="mt-4 text-base-content/60">{tr("backup.noBackups")}</p>
         </div>
       {:else}
         <div class="overflow-x-auto">
           <table class="table table-zebra">
             <thead>
               <tr>
-                <th>{$t("backup.id")}</th>
-                <th>{$t("backup.type")}</th>
-                <th>{$t("backup.files")}</th>
-                <th>{$t("backup.size")}</th>
-                <th>{$t("backup.progress")}</th>
-                <th>{$t("backup.started")}</th>
-                <th>{$t("backup.duration")}</th>
-                <th>{$t("backup.status")}</th>
-                <th>{$t("backup.actions")}</th>
+                <th>{tr("backup.id")}</th>
+                <th>{tr("backup.type")}</th>
+                <th>{tr("backup.files")}</th>
+                <th>{tr("backup.size")}</th>
+                <th>{tr("backup.progress")}</th>
+                <th>{tr("backup.started")}</th>
+                <th>{tr("backup.duration")}</th>
+                <th>{tr("backup.status")}</th>
+                <th>{tr("backup.actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -511,7 +518,7 @@
                           {Math.round(
                             (1 - backup.compressed_bytes / backup.total_bytes) *
                               100
-                          )}% {$t("backup.compressed")}
+                          )}% {tr("backup.compressed")}
                         </div>
                       {/if}
                     {:else}
@@ -564,7 +571,7 @@
                         <button
                           class="btn btn-sm btn-primary"
                           onclick={() => openRestoreModal(backup)}
-                          title={$t("backup.restore")}
+                          title={tr("backup.restore")}
                         >
                           <i
                             class="bi bi-arrow-counterclockwise"
@@ -576,7 +583,7 @@
                         <button
                           class="btn btn-sm btn-warning"
                           onclick={() => cancelBackup(backup.id)}
-                          title={$t("backup.cancel")}
+                          title={tr("backup.cancel")}
                           aria-label="Cancel"
                         >
                           <i class="bi bi-x-lg" aria-hidden="true"></i>
@@ -600,7 +607,7 @@
     <div class="modal-box max-w-2xl">
       <h3 class="font-bold text-lg mb-4">
         <i class="bi bi-calendar-plus" aria-hidden="true"></i>
-        {$t("backup.createSchedule")}
+        {tr("backup.createSchedule")}
       </h3>
 
       <form
@@ -611,7 +618,7 @@
         class="space-y-4"
       >
         <div class="form-control">
-          <div class="label"><span>{$t("backup.scheduleName")}</span></div>
+          <div class="label"><span>{tr("backup.scheduleName")}</span></div>
           <input
             type="text"
             class="input input-bordered"
@@ -621,7 +628,7 @@
         </div>
 
         <div class="form-control">
-          <div class="label"><span>{$t("backup.description")}</span></div>
+          <div class="label"><span>{tr("backup.description")}</span></div>
           <textarea
             class="textarea textarea-bordered"
             bind:value={scheduleForm.description}
@@ -631,35 +638,35 @@
 
         <div class="grid grid-cols-2 gap-4">
           <div class="form-control">
-            <div class="label"><span>{$t("backup.frequency")}</span></div>
+            <div class="label"><span>{tr("backup.frequency")}</span></div>
             <select
               class="select select-bordered"
               bind:value={scheduleForm.frequency}
             >
-              <option value="manual">{$t("backup.manual")}</option>
-              <option value="hourly">{$t("backup.hourly")}</option>
-              <option value="daily">{$t("backup.daily")}</option>
-              <option value="weekly">{$t("backup.weekly")}</option>
-              <option value="monthly">{$t("backup.monthly")}</option>
+              <option value="manual">{tr("backup.manual")}</option>
+              <option value="hourly">{tr("backup.hourly")}</option>
+              <option value="daily">{tr("backup.daily")}</option>
+              <option value="weekly">{tr("backup.weekly")}</option>
+              <option value="monthly">{tr("backup.monthly")}</option>
             </select>
           </div>
 
           <div class="form-control">
-            <div class="label"><span>{$t("backup.type")}</span></div>
+            <div class="label"><span>{tr("backup.type")}</span></div>
             <select
               class="select select-bordered"
               bind:value={scheduleForm.backup_type}
             >
-              <option value="full">{$t("backup.full")}</option>
-              <option value="incremental">{$t("backup.incremental")}</option>
-              <option value="differential">{$t("backup.differential")}</option>
+              <option value="full">{tr("backup.full")}</option>
+              <option value="incremental">{tr("backup.incremental")}</option>
+              <option value="differential">{tr("backup.differential")}</option>
             </select>
           </div>
         </div>
 
         {#if scheduleForm.frequency === "daily"}
           <div class="form-control">
-            <div class="label"><span>{$t("backup.time")}</span></div>
+            <div class="label"><span>{tr("backup.time")}</span></div>
             <input
               type="time"
               class="input input-bordered"
@@ -670,18 +677,18 @@
 
         {#if scheduleForm.frequency === "weekly"}
           <div class="form-control">
-            <div class="label"><span>{$t("backup.dayOfWeek")}</span></div>
+            <div class="label"><span>{tr("backup.dayOfWeek")}</span></div>
             <select
               class="select select-bordered"
               bind:value={scheduleForm.day_of_week}
             >
-              <option value="0">{$t("backup.sunday")}</option>
-              <option value="1">{$t("backup.monday")}</option>
-              <option value="2">{$t("backup.tuesday")}</option>
-              <option value="3">{$t("backup.wednesday")}</option>
-              <option value="4">{$t("backup.thursday")}</option>
-              <option value="5">{$t("backup.friday")}</option>
-              <option value="6">{$t("backup.saturday")}</option>
+              <option value="0">{tr("backup.sunday")}</option>
+              <option value="1">{tr("backup.monday")}</option>
+              <option value="2">{tr("backup.tuesday")}</option>
+              <option value="3">{tr("backup.wednesday")}</option>
+              <option value="4">{tr("backup.thursday")}</option>
+              <option value="5">{tr("backup.friday")}</option>
+              <option value="6">{tr("backup.saturday")}</option>
             </select>
           </div>
         {/if}
@@ -689,7 +696,7 @@
         <div class="grid grid-cols-3 gap-4">
           <div class="form-control">
             <div class="label">
-              <span>{$t("backup.compressionLevel")}</span>
+              <span>{tr("backup.compressionLevel")}</span>
             </div>
             <input
               type="number"
@@ -701,7 +708,7 @@
           </div>
 
           <div class="form-control">
-            <div class="label"><span>{$t("backup.maxBackups")}</span></div>
+            <div class="label"><span>{tr("backup.maxBackups")}</span></div>
             <input
               type="number"
               min="1"
@@ -711,7 +718,7 @@
           </div>
 
           <div class="form-control">
-            <div class="label"><span>{$t("backup.retentionDays")}</span></div>
+            <div class="label"><span>{tr("backup.retentionDays")}</span></div>
             <input
               type="number"
               min="1"
@@ -723,7 +730,7 @@
 
         <div class="form-control">
           <label class="label cursor-pointer">
-            <span class="label-text">{$t("backup.enableEncryption")}</span>
+            <span class="label-text">{tr("backup.enableEncryption")}</span>
             <input
               type="checkbox"
               class="checkbox"
@@ -741,13 +748,13 @@
               resetScheduleForm();
             }}
           >
-            {$t("common.cancel")}
+            {tr("common.cancel")}
           </button>
           <button type="submit" class="btn btn-primary" disabled={loading}>
             {#if loading}
               <span class="loading loading-spinner loading-sm"></span>
             {/if}
-            {$t("common.create")}
+            {tr("common.create")}
           </button>
         </div>
       </form>
@@ -769,25 +776,25 @@
     <div class="modal-box max-w-xl">
       <h3 class="font-bold text-lg mb-4">
         <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
-        {$t("backup.restoreBackup")}
+        {tr("backup.restoreBackup")}
       </h3>
 
       <div class="mb-4 p-4 bg-base-200 rounded-lg">
         <div class="text-sm space-y-1">
           <div>
-            <strong>{$t("backup.backupId")}:</strong>
+            <strong>{tr("backup.backupId")}:</strong>
             {selectedBackup.id.substring(0, 8)}
           </div>
           <div>
-            <strong>{$t("backup.created")}:</strong>
+            <strong>{tr("backup.created")}:</strong>
             {formatDate(selectedBackup.created_at)}
           </div>
           <div>
-            <strong>{$t("backup.size")}:</strong>
+            <strong>{tr("backup.size")}:</strong>
             {formatBytes(selectedBackup.backup_size)}
           </div>
           <div>
-            <strong>{$t("backup.files")}:</strong>
+            <strong>{tr("backup.files")}:</strong>
             {selectedBackup.total_files}
           </div>
         </div>
@@ -801,18 +808,18 @@
         class="space-y-4"
       >
         <div class="form-control">
-          <div class="label"><span>{$t("backup.restoreType")}</span></div>
+          <div class="label"><span>{tr("backup.restoreType")}</span></div>
           <select
             class="select select-bordered"
             bind:value={restoreForm.restore_type}
           >
-            <option value="full">{$t("backup.fullRestore")}</option>
-            <option value="selective">{$t("backup.selectiveRestore")}</option>
+            <option value="full">{tr("backup.fullRestore")}</option>
+            <option value="selective">{tr("backup.selectiveRestore")}</option>
           </select>
         </div>
 
         <div class="form-control">
-          <div class="label"><span>{$t("backup.destinationPath")}</span></div>
+          <div class="label"><span>{tr("backup.destinationPath")}</span></div>
           <input
             type="text"
             class="input input-bordered"
@@ -823,7 +830,7 @@
 
         <div class="form-control">
           <label class="label cursor-pointer">
-            <span class="label-text">{$t("backup.overwriteExisting")}</span>
+            <span class="label-text">{tr("backup.overwriteExisting")}</span>
             <input
               type="checkbox"
               class="checkbox"
@@ -834,7 +841,7 @@
 
         <div class="alert alert-warning">
           <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
-          <span>{$t("backup.restoreWarning")}</span>
+          <span>{tr("backup.restoreWarning")}</span>
         </div>
 
         <div class="modal-action">
@@ -846,13 +853,13 @@
               resetRestoreForm();
             }}
           >
-            {$t("common.cancel")}
+            {tr("common.cancel")}
           </button>
           <button type="submit" class="btn btn-primary" disabled={loading}>
             {#if loading}
               <span class="loading loading-spinner loading-sm"></span>
             {/if}
-            {$t("backup.startRestore")}
+            {tr("backup.startRestore")}
           </button>
         </div>
       </form>
@@ -867,3 +874,4 @@
     </form>
   </div>
 {/if}
+

@@ -1,9 +1,9 @@
 <script>
   import { onMount } from "svelte";
-  import api from "../../lib/api.js";
-  import { currentLang } from "../../stores/ui.js";
-  import { t } from "../../i18n.js";
-  import PageWrapper from "../../components/PageWrapper.svelte";
+  import api from "../../../lib/api.js";
+  import { currentLang } from "../../../stores/ui.js";
+  import { t } from "../../../i18n.js";
+  import PageWrapper from "../../../components/PageWrapper.svelte";
 
   let overview = $state(null);
   let userStats = $state([]);

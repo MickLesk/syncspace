@@ -4,8 +4,8 @@
     customTheme,
     PRESET_THEMES,
     currentPresetName,
-  } from "../stores/customTheme.js";
-  import { t } from "../i18n.js";
+  } from "../../../stores/customTheme.js";
+  import { t } from "../../../i18n.js";
 
   let showColorPicker = null;
   let showAdvanced = false;

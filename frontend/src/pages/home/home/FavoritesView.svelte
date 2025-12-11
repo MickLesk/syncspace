@@ -1,16 +1,16 @@
 <script>
-  import { onMount, tick } from "svelte";
-  import { currentLang } from "../../stores/ui.js";
-  import { t } from "../../i18n.js";
+  import { onMount } from "svelte";
+  import { currentLang } from "../../../stores/ui.js";
+  import { t } from "../../../i18n.js";
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
-  import { favorites } from "../../stores/favorites";
-  import { currentPath, currentView } from "../../stores/ui.js";
-  import { success, error } from "../../stores/toast";
-  import { modals } from "../../stores/modals";
-  import api, { files as filesApi } from "../../lib/api.js";
-  import { getContextMenuItems } from "../../lib/contextMenuActions.js";
-  import ContextMenu from "../../components/ui/ContextMenu.svelte";
-  import Loading from "../../components/ui/Loading.svelte";
+  import { favorites } from "../../../stores/favorites";
+  import { currentPath, currentView } from "../../../stores/ui.js";
+  import { success, error } from "../../../stores/toast";
+  import { modals } from "../../../stores/modals";
+  import api, { files as filesApi } from "../../../lib/api.js";
+  import { getContextMenuItems } from "../../../lib/contextMenuActions.js";
+  import ContextMenu from "../../../components/ui/ContextMenu.svelte";
+  import Loading from "../../../components/ui/Loading.svelte";
 
   let favoriteFiles = $state([]);
   let loading = $state(false);

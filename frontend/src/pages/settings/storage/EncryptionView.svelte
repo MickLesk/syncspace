@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
-  import { encryption } from "../lib/api.js";
-  import { t } from "../i18n.js";
+  import { encryption } from "../../../lib/api.js";
+  import { t } from "../../../i18n.js";
 
   // State
   let keys = $state([]);

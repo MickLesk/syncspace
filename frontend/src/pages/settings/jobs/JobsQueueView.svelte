@@ -1,7 +1,7 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import api from "../../lib/api.js";
-  import { t } from "../../i18n.js";
+  import api from "../../../lib/api.js";
+  import { t } from "../../../i18n.js";
 
   let jobs = $state([]);
   let loading = $state(true);

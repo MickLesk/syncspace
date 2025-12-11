@@ -1,10 +1,10 @@
 <script>
   import { onMount } from "svelte";
-  import { currentLang } from "../../stores/ui.js";
-  import { t } from "../../i18n.js";
-  import api from "../../lib/api.js";
-  import { formatFileSize, formatDate } from "../../lib/utils.js";
-  import PageWrapper from "../../components/PageWrapper.svelte";
+  import { currentLang } from "../../../stores/ui.js";
+  import { t } from "../../../i18n.js";
+  import api from "../../../lib/api.js";
+  import { formatFileSize, formatDate } from "../../../lib/utils.js";
+  import PageWrapper from "../../../components/PageWrapper.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 

@@ -1,8 +1,8 @@
 <script>
   import { onMount } from "svelte";
-  import { t } from "../../i18n.js";
-  import { rateLimiting, users } from "../../lib/api.js";
-  import { showToast } from "../../stores/toast.js";
+  import { t } from "../../../i18n.js";
+  import { rateLimiting, users } from "../../../lib/api.js";
+  import { showToast } from "../../../stores/toast.js";
 
   // State
   let activeTab = $state("storage");

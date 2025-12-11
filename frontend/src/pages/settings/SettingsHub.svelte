@@ -29,7 +29,7 @@
 
   // New organized tabs structure
   const allTabs = [
-    // ALLGEMEINES (Header)
+    // ALLGEMEINES (Header) - GeneralSettings has its own tabs inside
     {
       id: "general",
       icon: "sliders",
@@ -37,22 +37,8 @@
       group: "general",
       adminOnly: false,
     },
-    {
-      id: "security",
-      icon: "shield-lock-fill",
-      label: "Sicherheit",
-      group: "general",
-      adminOnly: false,
-    },
-    {
-      id: "notifications",
-      icon: "bell-fill",
-      label: "Benachrichtigungen",
-      group: "general",
-      adminOnly: false,
-    },
 
-    // BENUTZER / GRUPPEN (Admin only) - Combined into one tab
+    // BENUTZER / GRUPPEN (Admin only)
     {
       id: "user-management",
       icon: "people-fill",
@@ -60,22 +46,8 @@
       group: "users",
       adminOnly: true,
     },
-    {
-      id: "oauth",
-      icon: "shield-check",
-      label: "OAuth Settings",
-      group: "users",
-      adminOnly: true,
-    },
-    {
-      id: "ldap",
-      icon: "diagram-3",
-      label: "LDAP",
-      group: "users",
-      adminOnly: true,
-    },
 
-    // SPEICHER / DATEIEN (Admin only) - Combined into one tab
+    // SPEICHER / DATEIEN (Admin only) - StorageSettings has its own tabs inside
     {
       id: "storage",
       icon: "hdd-fill",
@@ -314,26 +286,10 @@
         {#await import("../user/UserProfileView.svelte") then module}
           <module.default />
         {/await}
-      {:else if activeTab === "security"}
-        {#await import("./SecurityPolicySettings.svelte") then module}
-          <module.default />
-        {/await}
-      {:else if activeTab === "notifications"}
-        {#await import("./NotificationsSettings.svelte") then module}
-          <module.default />
-        {/await}
 
         <!-- Admin: Users & Access -->
       {:else if activeTab === "user-management"}
-        {#await import("./UserManagement.svelte") then module}
-          <module.default />
-        {/await}
-      {:else if activeTab === "oauth"}
-        {#await import("./OAuthSettings.svelte") then module}
-          <module.default />
-        {/await}
-      {:else if activeTab === "ldap"}
-        {#await import("./LdapSettings.svelte") then module}
+        {#await import("./rbac/UserManagement.svelte") then module}
           <module.default />
         {/await}
 
@@ -343,17 +299,17 @@
           <module.default />
         {/await}
       {:else if activeTab === "backup"}
-        {#await import("../system/BackupView.svelte") then module}
+        {#await import("../home/tools/BackupView.svelte") then module}
           <module.default />
         {/await}
 
         <!-- Admin: Tools -->
       {:else if activeTab === "jobs"}
-        {#await import("../jobs/JobsQueueView.svelte") then module}
+        {#await import("./jobs/JobsQueueView.svelte") then module}
           <module.default />
         {/await}
       {:else if activeTab === "workflows"}
-        {#await import("../workflow/WorkflowBuilderView.svelte") then module}
+        {#await import("./workflow/WorkflowBuilderView.svelte") then module}
           <module.default />
         {/await}
       {:else if activeTab === "webhooks"}
@@ -371,11 +327,11 @@
 
         <!-- Admin: Analytics & Audit -->
       {:else if activeTab === "analytics"}
-        {#await import("../analytics/StorageAnalyticsView.svelte") then module}
+        {#await import("../home/tools/StorageAnalyticsView.svelte") then module}
           <module.default />
         {/await}
       {:else if activeTab === "audit"}
-        {#await import("../AuditComplianceView.svelte") then module}
+        {#await import("./storage/AuditComplianceView.svelte") then module}
           <module.default />
         {/await}
       {:else if activeTab === "config"}

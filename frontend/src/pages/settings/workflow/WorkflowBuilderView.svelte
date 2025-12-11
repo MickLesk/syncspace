@@ -1,11 +1,11 @@
 <script>
-  import { onMount, onDestroy } from "svelte";
-  import { workflow } from "../../lib/api.js";
-  import { currentLang } from "../../stores/ui.js";
-  import { t } from "../../i18n.js";
-  import WorkflowRuleCard from "../../components/workflow/WorkflowRuleCard.svelte";
-  import PageWrapper from "../../components/PageWrapper.svelte";
-  import { modals, modalEvents } from "../../stores/modals.js";
+  import { onMount } from "svelte";
+  import { workflow } from "../../../lib/api.js";
+  import { currentLang } from "../../../stores/ui.js";
+  import { t } from "../../../i18n.js";
+  import WorkflowRuleCard from "../../../components/workflow/WorkflowRuleCard.svelte";
+  import PageWrapper from "../../../components/PageWrapper.svelte";
+  import { modals, modalEvents } from "../../../stores/modals.js";
 
   let rules = $state([]);
   let triggerTypes = $state([]);

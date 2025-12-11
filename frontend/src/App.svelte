@@ -15,7 +15,7 @@
   } from "./stores/serverState";
 
   // Setup & Auth Views
-  import SetupWizard from "./pages/SetupWizard.svelte";
+  import SetupWizard from "./pages/auth/SetupWizard.svelte";
   import Login from "./pages/auth/Login.svelte";
   import Signup from "./pages/auth/Signup.svelte";
 
@@ -26,20 +26,20 @@
 
   // Dynamic imports for better code-splitting (lazy-loaded per route)
   // These are loaded on-demand when user navigates to the view
-  const FilesView = () => import("./pages/files/FilesView.svelte");
-  const SharedView = () => import("./pages/files/SharedView.svelte");
-  const FavoritesView = () => import("./pages/files/FavoritesView.svelte");
+  const FilesView = () => import("./pages/home/home/FilesView.svelte");
+  const SharedView = () => import("./pages/home/home/SharedView.svelte");
+  const FavoritesView = () => import("./pages/home/home/FavoritesView.svelte");
   const SmartFoldersView = () =>
-    import("./pages/files/SmartFoldersView.svelte");
-  const RecentFilesView = () => import("./pages/files/RecentFilesView.svelte");
+    import("./pages/home/home/SmartFoldersView.svelte");
 
-  const TrashView = () => import("./pages/trash/TrashView.svelte");
-  const ActivityView = () => import("./pages/system/ActivityView.svelte");
+  const TrashView = () => import("./pages/home/tools/TrashView.svelte");
+  const ActivityView = () => import("./pages/settings/ActivityView.svelte");
   const NotificationsView = () =>
     import("./pages/system/NotificationsView.svelte");
-  const BackupView = () => import("./pages/system/BackupView.svelte");
-  const StorageView = () => import("./pages/system/StorageView.svelte");
-  const UsersView = () => import("./pages/system/UsersView.svelte");
+  const BackupView = () => import("./pages/home/tools/BackupView.svelte");
+  const StorageView = () =>
+    import("./pages/settings/storage/StorageView.svelte");
+  const UsersView = () => import("./pages/settings/rbac/UsersView.svelte");
 
   const DuplicatesView = () => import("./pages/tools/DuplicatesView.svelte");
   const FtpSyncView = () => import("./pages/tools/FtpSyncView.svelte");
@@ -47,35 +47,39 @@
     import("./pages/tools/EmailIntegrationView.svelte");
   const ArchivesView = () => import("./pages/tools/ArchivesView.svelte");
   const CompressionView = () => import("./pages/tools/CompressionView.svelte");
-  const TagCloudView = () => import("./pages/TagCloudView.svelte");
+  const TagCloudView = () => import("./pages/home/tools/TagCloudView.svelte");
 
   const AdminView = () => import("./pages/admin/AdminView.svelte");
-  const JobsDashboard = () => import("./pages/JobsDashboard.svelte");
-  const JobsQueueView = () => import("./pages/jobs/JobsQueueView.svelte");
+  const JobsDashboard = () =>
+    import("./pages/settings/automations/JobsDashboard.svelte");
+  const JobsQueueView = () =>
+    import("./pages/settings/jobs/JobsQueueView.svelte");
   const RoleManagementView = () =>
-    import("./pages/rbac/RoleManagementView.svelte");
+    import("./pages/settings/rbac/RoleManagementView.svelte");
   const WorkflowBuilderView = () =>
-    import("./pages/workflow/WorkflowBuilderView.svelte");
+    import("./pages/settings/workflow/WorkflowBuilderView.svelte");
   const CloudStorageView = () =>
     import("./pages/admin/CloudStorageView.svelte");
   const AuditComplianceView = () =>
-    import("./pages/AuditComplianceView.svelte");
+    import("./pages/settings/storage/AuditComplianceView.svelte");
   const AdminDashboardView = () =>
     import("./pages/admin/AdminDashboardView.svelte");
   const WebhooksView = () => import("./pages/admin/WebhooksView.svelte");
   const SystemHealthView = () =>
     import("./pages/admin/SystemHealthView.svelte");
   const StorageAnalyticsView = () =>
-    import("./pages/analytics/StorageAnalyticsView.svelte");
-  const EncryptionView = () => import("./pages/EncryptionView.svelte");
+    import("./pages/home/tools/StorageAnalyticsView.svelte");
+  const EncryptionView = () =>
+    import("./pages/settings/storage/EncryptionView.svelte");
   const QuotaManagementView = () =>
-    import("./pages/QuotaManagementView.svelte");
+    import("./pages/settings/storage/QuotaManagementView.svelte");
   const SystemConfigView = () =>
     import("./pages/admin/SystemConfigView.svelte");
   const UserGroupsView = () => import("./pages/admin/UserGroupsView.svelte");
-  const GuestAccessView = () => import("./pages/GuestAccessView.svelte");
+  const GuestAccessView = () =>
+    import("./pages/settings/rbac/GuestAccessView.svelte");
   const ThemeCustomizationView = () =>
-    import("./pages/ThemeCustomizationView.svelte");
+    import("./pages/settings/general/ThemeCustomizationView.svelte");
 
   const SettingsHub = () => import("./pages/settings/SettingsHub.svelte");
   const UserProfileView = () => import("./pages/user/UserProfileView.svelte");
@@ -115,7 +119,6 @@
     shared: SharedView,
     favorites: FavoritesView,
     "smart-folders": SmartFoldersView,
-    recent: RecentFilesView,
     trash: TrashView,
     users: UsersView,
     settings: SettingsHub,
@@ -239,10 +242,10 @@
         "email-integration": "email-integration",
         archives: "archives",
         compression: "compression",
-        tags: "tags",
-        "tag-cloud": "tags",
+        tags: "tag-cloud",
+        "tag-cloud": "tag-cloud",
         jobs: "jobs",
-        "jobs-queue": "jobsQueue",
+        "jobs-queue": "jobs-queue",
         roles: "roles",
         workflows: "workflows",
         "cloud-storage": "cloud-storage",

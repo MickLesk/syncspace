@@ -1,43 +1,43 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { get } from "svelte/store";
-  import { files, currentPath, currentLang } from "../../stores/ui";
-  import { favorites } from "../../stores/favorites";
-  import { userPreferences, preferences } from "../../stores/preferences";
-  import { success, error as errorToast } from "../../stores/toast";
-  import { modals, modalEvents } from "../../stores/modals";
-  import { t } from "../../i18n.js";
-  import PageWrapper from "../../components/PageWrapper.svelte";
-  import Breadcrumbs from "../../components/Breadcrumbs.svelte";
-  // import SearchFilters from "../../components/search/SearchFilters.svelte"; // TODO: Restore from backup
-  import UploadManager from "../../components/files/UploadManager.svelte";
-  import Modal from "../../components/ui/Modal.svelte";
-  import EmptyState from "../../components/ui/EmptyState.svelte";
-  import LoadingState from "../../components/ui/LoadingState.svelte";
-  import VirtualList from "../../components/ui/VirtualList.svelte";
-  import FileCard from "../../components/files/FileCard.svelte";
-  import FileToolbar from "../../components/files/FileToolbar.svelte";
-  import FileActionsMenu from "../../components/files/FileActionsMenu.svelte";
-  import FilePreviewPanel from "../../components/files/FilePreviewPanel.svelte";
-  import LazyModal from "../../components/ui/LazyModal.svelte";
+  import { files, currentPath, currentLang } from "../../../stores/ui";
+  import { favorites } from "../../../stores/favorites";
+  import { userPreferences, preferences } from "../../../stores/preferences";
+  import { success, error as errorToast } from "../../../stores/toast";
+  import { modals, modalEvents } from "../../../stores/modals";
+  import { t } from "../../../i18n.js";
+  import PageWrapper from "../../../components/PageWrapper.svelte";
+  import Breadcrumbs from "../../../components/Breadcrumbs.svelte";
+  // import SearchFilters from "../../../components/search/SearchFilters.svelte"; // TODO: Restore from backup
+  import UploadManager from "../../../components/files/UploadManager.svelte";
+  import Modal from "../../../components/ui/Modal.svelte";
+  import EmptyState from "../../../components/ui/EmptyState.svelte";
+  import LoadingState from "../../../components/ui/LoadingState.svelte";
+  import VirtualList from "../../../components/ui/VirtualList.svelte";
+  import FileCard from "../../../components/files/FileCard.svelte";
+  import FileToolbar from "../../../components/files/FileToolbar.svelte";
+  import FileActionsMenu from "../../../components/files/FileActionsMenu.svelte";
+  import FilePreviewPanel from "../../../components/files/FilePreviewPanel.svelte";
+  import LazyModal from "../../../components/ui/LazyModal.svelte";
 
   // Lazy-loaded modals for better code-splitting
   const BulkTaggingModal = () =>
-    import("../../components/files/BulkTaggingModal.svelte");
+    import("../../../components/files/BulkTaggingModal.svelte");
   const BatchRenameModal = () =>
-    import("../../components/files/BatchRenameModal.svelte");
+    import("../../../components/files/BatchRenameModal.svelte");
   const BatchProgressPanel = () =>
-    import("../../components/files/BatchProgressPanel.svelte");
+    import("../../../components/files/BatchProgressPanel.svelte");
   const CopyFileModal = () =>
-    import("../../components/modals/CopyFileModal.svelte");
+    import("../../../components/modals/CopyFileModal.svelte");
   const MoveFileModal = () =>
-    import("../../components/modals/MoveFileModal.svelte");
+    import("../../../components/modals/MoveFileModal.svelte");
   const FileEditorModal = () =>
-    import("../../components/editor/FileEditorModal.svelte");
+    import("../../../components/editor/FileEditorModal.svelte");
   const TemplateLibraryModal = () =>
-    import("../../components/templates/TemplateLibraryModal.svelte");
-  import api from "../../lib/api";
-  import { websocketManager } from "@stores/websocket.js";
+    import("../../../components/templates/TemplateLibraryModal.svelte");
+  import api from "../../../lib/api";
+  import { websocketManager } from "../../../stores/websocket.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 

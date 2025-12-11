@@ -1,11 +1,11 @@
 <script>
   import { onMount } from "svelte";
-  import { auth } from "../stores/auth";
-  import { currentLang } from "../stores/ui.js";
-  import { t } from "../i18n.js";
-  import ModernCard from "../components/ui/ModernCard.svelte";
-  import ModernButton from "../components/ui/ModernButton.svelte";
-  import * as api from "../lib/api.js";
+  import { auth } from "../../stores/auth";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  import ModernCard from "../../components/ui/ModernCard.svelte";
+  import ModernButton from "../../components/ui/ModernButton.svelte";
+  import * as api from "../../lib/api.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -164,7 +164,10 @@
     <!-- Header -->
     <div class="setup-header">
       <div class="logo">
-        <i class="bi bi-lightning-charge-fill text-6xl text-primary-600" aria-hidden="true"></i>
+        <i
+          class="bi bi-lightning-charge-fill text-6xl text-primary-600"
+          aria-hidden="true"
+        ></i>
       </div>
       <h1
         class="text-4xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent"
@@ -498,7 +501,10 @@
         {#if currentStep === 6}
           <div class="complete-step">
             <div class="success-icon">
-              <i class="bi bi-check-circle-fill text-8xl text-green-500" aria-hidden="true"></i>
+              <i
+                class="bi bi-check-circle-fill text-8xl text-green-500"
+                aria-hidden="true"
+              ></i>
             </div>
             <h2 class="text-3xl font-bold mb-4">
               {tr("setupWizardComplete")}

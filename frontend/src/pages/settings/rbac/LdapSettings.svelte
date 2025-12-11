@@ -1,8 +1,8 @@
 <script>
   import { onMount } from "svelte";
-  import { currentLang } from "../../stores/ui.js";
-  import { t } from "../../i18n.js";
-  import api from "../../lib/api.js";
+  import { currentLang } from "../../../stores/ui.js";
+  import { t } from "../../../i18n.js";
+  import api from "../../../lib/api.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 

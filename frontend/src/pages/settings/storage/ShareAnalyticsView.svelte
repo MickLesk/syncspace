@@ -1,9 +1,9 @@
 <script>
   import { onMount } from "svelte";
-  import { currentLang } from "../../stores/ui";
-  import { t } from "../../i18n.js";
-  import { error as errorToast } from "../../stores/toast.js";
-  import api from "../../lib/api.js";
+  import { currentLang } from "../../../stores/ui";
+  import { t } from "../../../i18n.js";
+  import { error as errorToast } from "../../../stores/toast.js";
+  import api from "../../../lib/api.js";
 
   const tr = (key, ...args) => t($currentLang, key, ...args);
 

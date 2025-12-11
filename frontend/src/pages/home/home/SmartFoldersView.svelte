@@ -1,10 +1,10 @@
 <script>
   import { onMount } from "svelte";
-  import { currentLang } from "../../stores/ui";
-  import { t } from "../../i18n.js";
-  import PageWrapper from "../../components/PageWrapper.svelte";
-  import api from "../../lib/api";
-  import { success, error as errorToast } from "../../stores/toast";
+  import { currentLang } from "../../../stores/ui";
+  import { t } from "../../../i18n.js";
+  import PageWrapper from "../../../components/PageWrapper.svelte";
+  import api from "../../../lib/api";
+  import { success, error as errorToast } from "../../../stores/toast";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -273,12 +273,15 @@
     <!-- Header -->
     <div class="flex justify-between items-start mb-8">
       <div class="flex flex-col gap-1">
-        <h1 class="text-2xl font-semibold flex items-center gap-2 text-base-content">
+        <h1
+          class="text-2xl font-semibold flex items-center gap-2 text-base-content"
+        >
           <i class="bi bi-lightning-fill text-amber-500"></i>
           {tr("smartFolders.title") || "Smart Folders"}
         </h1>
         <p class="text-base-content/60 text-sm">
-          {tr("smartFolders.subtitle") || "Create dynamic folders based on rules"}
+          {tr("smartFolders.subtitle") ||
+            "Create dynamic folders based on rules"}
         </p>
       </div>
       <button class="btn btn-success gap-2" onclick={openCreateModal}>
@@ -296,13 +299,20 @@
       </div>
     {:else if smartFolders.length === 0}
       <!-- Empty State -->
-      <div class="text-center py-16 px-8 bg-base-100 rounded-2xl border-2 border-dashed border-base-300">
-        <div class="w-20 h-20 mx-auto mb-6 bg-amber-100 dark:bg-amber-500/20 rounded-full flex items-center justify-center text-4xl text-amber-500">
+      <div
+        class="text-center py-16 px-8 bg-base-100 rounded-2xl border-2 border-dashed border-base-300"
+      >
+        <div
+          class="w-20 h-20 mx-auto mb-6 bg-amber-100 dark:bg-amber-500/20 rounded-full flex items-center justify-center text-4xl text-amber-500"
+        >
           <i class="bi bi-lightning"></i>
         </div>
-        <h3 class="text-xl font-semibold text-base-content mb-2">{tr("smartFolders.empty") || "No Smart Folders Yet"}</h3>
+        <h3 class="text-xl font-semibold text-base-content mb-2">
+          {tr("smartFolders.empty") || "No Smart Folders Yet"}
+        </h3>
         <p class="text-base-content/60 max-w-md mx-auto">
-          {tr("smartFolders.emptyHint") || "Create your first smart folder to automatically organize files based on rules."}
+          {tr("smartFolders.emptyHint") ||
+            "Create your first smart folder to automatically organize files based on rules."}
         </p>
         <button class="btn btn-success gap-2 mt-4" onclick={openCreateModal}>
           <i class="bi bi-plus-lg"></i>
@@ -320,29 +330,47 @@
             <div class="flex gap-4 mb-4">
               <div
                 class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"
-                style="background-color: {folder.color || '#22c55e'}20; color: {folder.color || '#22c55e'}"
+                style="background-color: {folder.color ||
+                  '#22c55e'}20; color: {folder.color || '#22c55e'}"
               >
                 <i class="bi {folder.icon || 'bi-folder-fill'}"></i>
               </div>
               <div>
                 <h3 class="font-semibold text-base-content">{folder.name}</h3>
                 {#if folder.description}
-                  <p class="text-sm text-base-content/60">{folder.description}</p>
+                  <p class="text-sm text-base-content/60">
+                    {folder.description}
+                  </p>
                 {/if}
               </div>
             </div>
 
-            <div class="flex flex-wrap gap-3 mb-4 pt-4 border-t border-base-300">
-              <span class="flex items-center gap-1.5 text-xs text-base-content/60 bg-base-200 px-2.5 py-1 rounded-full">
+            <div
+              class="flex flex-wrap gap-3 mb-4 pt-4 border-t border-base-300"
+            >
+              <span
+                class="flex items-center gap-1.5 text-xs text-base-content/60 bg-base-200 px-2.5 py-1 rounded-full"
+              >
                 <i class="bi bi-funnel"></i>
-                {folder.conditions_count} {folder.conditions_count === 1 ? tr("rule") : tr("rules")}
+                {folder.conditions_count}
+                {folder.conditions_count === 1 ? tr("rule") : tr("rules")}
               </span>
-              <span class="flex items-center gap-1.5 text-xs text-base-content/60 bg-base-200 px-2.5 py-1 rounded-full">
-                <i class="bi bi-{folder.logic === 'AND' ? 'intersect' : 'union'}"></i>
+              <span
+                class="flex items-center gap-1.5 text-xs text-base-content/60 bg-base-200 px-2.5 py-1 rounded-full"
+              >
+                <i
+                  class="bi bi-{folder.logic === 'AND' ? 'intersect' : 'union'}"
+                ></i>
                 {folder.logic}
               </span>
-              <span class="flex items-center gap-1.5 text-xs bg-base-200 px-2.5 py-1 rounded-full {folder.is_active ? 'text-base-content/60' : 'text-error'}">
-                <i class="bi bi-{folder.is_active ? 'check-circle' : 'x-circle'}"></i>
+              <span
+                class="flex items-center gap-1.5 text-xs bg-base-200 px-2.5 py-1 rounded-full {folder.is_active
+                  ? 'text-base-content/60'
+                  : 'text-error'}"
+              >
+                <i
+                  class="bi bi-{folder.is_active ? 'check-circle' : 'x-circle'}"
+                ></i>
                 {folder.is_active ? tr("active") : tr("inactive")}
               </span>
             </div>
@@ -389,9 +417,17 @@
     >
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <!-- svelte-ignore a11y_click_events_have_key_events -->
-      <div class="bg-base-100 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" onclick={(e) => e.stopPropagation()}>
-        <div class="flex justify-between items-center p-6 border-b border-base-300">
-          <h2 id="modal-title" class="text-xl font-semibold flex items-center gap-2 text-base-content">
+      <div
+        class="bg-base-100 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+        onclick={(e) => e.stopPropagation()}
+      >
+        <div
+          class="flex justify-between items-center p-6 border-b border-base-300"
+        >
+          <h2
+            id="modal-title"
+            class="text-xl font-semibold flex items-center gap-2 text-base-content"
+          >
             <i class="bi bi-lightning-fill text-amber-500"></i>
             {editingFolder
               ? tr("smartFolders.edit") || "Edit Smart Folder"
@@ -409,42 +445,61 @@
         <div class="p-6 overflow-y-auto flex-1">
           <!-- Basic Info -->
           <div class="mb-6">
-            <h3 class="text-sm font-semibold text-base-content/60 mb-4 uppercase tracking-wide">{tr("smartFolders.basicInfo") || "Basic Information"}</h3>
+            <h3
+              class="text-sm font-semibold text-base-content/60 mb-4 uppercase tracking-wide"
+            >
+              {tr("smartFolders.basicInfo") || "Basic Information"}
+            </h3>
 
             <div class="form-control mb-4">
               <label class="label" for="name">
-                <span class="label-text">{tr("smartFolders.name") || "Name"} *</span>
+                <span class="label-text"
+                  >{tr("smartFolders.name") || "Name"} *</span
+                >
               </label>
               <input
                 type="text"
                 id="name"
                 class="input input-bordered w-full"
                 bind:value={formName}
-                placeholder={tr("smartFolders.namePlaceholder") || "e.g., Large Images"}
+                placeholder={tr("smartFolders.namePlaceholder") ||
+                  "e.g., Large Images"}
               />
             </div>
 
             <div class="form-control mb-4">
               <label class="label" for="description">
-                <span class="label-text">{tr("smartFolders.description") || "Description"}</span>
+                <span class="label-text"
+                  >{tr("smartFolders.description") || "Description"}</span
+                >
               </label>
               <input
                 type="text"
                 id="description"
                 class="input input-bordered w-full"
                 bind:value={formDescription}
-                placeholder={tr("smartFolders.descriptionPlaceholder") || "Optional description"}
+                placeholder={tr("smartFolders.descriptionPlaceholder") ||
+                  "Optional description"}
               />
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div class="form-control">
-                <span class="label-text mb-2 block">{tr("smartFolders.icon") || "Icon"}</span>
-                <div class="flex flex-wrap gap-2" role="radiogroup" aria-label="Select icon">
+                <span class="label-text mb-2 block"
+                  >{tr("smartFolders.icon") || "Icon"}</span
+                >
+                <div
+                  class="flex flex-wrap gap-2"
+                  role="radiogroup"
+                  aria-label="Select icon"
+                >
                   {#each iconOptions as icon}
                     <button
                       type="button"
-                      class="w-10 h-10 border-2 rounded-lg flex items-center justify-center text-xl transition-all {formIcon === icon ? 'border-success bg-success/10 text-success' : 'border-base-300 bg-base-100 text-base-content/60 hover:border-success hover:text-success'}"
+                      class="w-10 h-10 border-2 rounded-lg flex items-center justify-center text-xl transition-all {formIcon ===
+                      icon
+                        ? 'border-success bg-success/10 text-success'
+                        : 'border-base-300 bg-base-100 text-base-content/60 hover:border-success hover:text-success'}"
                       onclick={() => (formIcon = icon)}
                       aria-label="Select {icon} icon"
                       aria-pressed={formIcon === icon}
@@ -456,19 +511,29 @@
               </div>
 
               <div class="form-control">
-                <span class="label-text mb-2 block">{tr("smartFolders.color") || "Color"}</span>
-                <div class="flex flex-wrap gap-2" role="radiogroup" aria-label="Select color">
+                <span class="label-text mb-2 block"
+                  >{tr("smartFolders.color") || "Color"}</span
+                >
+                <div
+                  class="flex flex-wrap gap-2"
+                  role="radiogroup"
+                  aria-label="Select color"
+                >
                   {#each colorOptions as color}
                     <button
                       type="button"
-                      class="w-8 h-8 rounded-full border-3 transition-all flex items-center justify-center hover:scale-110 {formColor === color ? 'border-base-content' : 'border-transparent'}"
+                      class="w-8 h-8 rounded-full border-3 transition-all flex items-center justify-center hover:scale-110 {formColor ===
+                      color
+                        ? 'border-base-content'
+                        : 'border-transparent'}"
                       style="background-color: {color}"
                       onclick={() => (formColor = color)}
                       aria-label="Select color {color}"
                       aria-pressed={formColor === color}
                     >
                       {#if formColor === color}
-                        <i class="bi bi-check text-white" aria-hidden="true"></i>
+                        <i class="bi bi-check text-white" aria-hidden="true"
+                        ></i>
                       {/if}
                     </button>
                   {/each}
@@ -480,18 +545,30 @@
           <!-- Conditions -->
           <div class="mb-6">
             <div class="flex justify-between items-center mb-4">
-              <h3 class="text-sm font-semibold text-base-content/60 uppercase tracking-wide">{tr("smartFolders.conditions") || "Conditions"}</h3>
-              <div class="flex border border-base-300 rounded-lg overflow-hidden">
+              <h3
+                class="text-sm font-semibold text-base-content/60 uppercase tracking-wide"
+              >
+                {tr("smartFolders.conditions") || "Conditions"}
+              </h3>
+              <div
+                class="flex border border-base-300 rounded-lg overflow-hidden"
+              >
                 <button
                   type="button"
-                  class="px-3 py-1.5 text-xs font-semibold transition-all {formLogic === 'AND' ? 'bg-success text-white' : 'bg-base-100 text-base-content/60'}"
+                  class="px-3 py-1.5 text-xs font-semibold transition-all {formLogic ===
+                  'AND'
+                    ? 'bg-success text-white'
+                    : 'bg-base-100 text-base-content/60'}"
                   onclick={() => (formLogic = "AND")}
                 >
                   AND
                 </button>
                 <button
                   type="button"
-                  class="px-3 py-1.5 text-xs font-semibold transition-all {formLogic === 'OR' ? 'bg-success text-white' : 'bg-base-100 text-base-content/60'}"
+                  class="px-3 py-1.5 text-xs font-semibold transition-all {formLogic ===
+                  'OR'
+                    ? 'bg-success text-white'
+                    : 'bg-base-100 text-base-content/60'}"
                   onclick={() => (formLogic = "OR")}
                 >
                   OR
@@ -501,33 +578,51 @@
 
             <div class="flex flex-col gap-3">
               {#each formConditions as condition, index}
-                <div class="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
+                <div
+                  class="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center"
+                >
                   <select
                     class="select select-bordered select-sm"
                     value={condition.field}
-                    onchange={(e) => updateConditionField(index, e.target.value)}
+                    onchange={(e) =>
+                      updateConditionField(index, e.target.value)}
                   >
                     {#each conditionFields as field}
                       <option value={field.value}>{field.label}</option>
                     {/each}
                   </select>
 
-                  <select class="select select-bordered select-sm" bind:value={condition.operator}>
+                  <select
+                    class="select select-bordered select-sm"
+                    bind:value={condition.operator}
+                  >
                     {#each operatorsByField[condition.field] || [] as op}
                       <option value={op.value}>{op.label}</option>
                     {/each}
                   </select>
 
                   {#if condition.field === "file_type"}
-                    <select class="select select-bordered select-sm" bind:value={condition.value}>
-                      <option value="">{tr("smartFolders.selectType") || "Select type..."}</option>
+                    <select
+                      class="select select-bordered select-sm"
+                      bind:value={condition.value}
+                    >
+                      <option value=""
+                        >{tr("smartFolders.selectType") ||
+                          "Select type..."}</option
+                      >
                       {#each fileTypePresets as preset}
                         <option value={preset.value}>{preset.label}</option>
                       {/each}
                     </select>
                   {:else if condition.field === "size"}
-                    <select class="select select-bordered select-sm" bind:value={condition.value}>
-                      <option value="">{tr("smartFolders.selectSize") || "Select size..."}</option>
+                    <select
+                      class="select select-bordered select-sm"
+                      bind:value={condition.value}
+                    >
+                      <option value=""
+                        >{tr("smartFolders.selectSize") ||
+                          "Select size..."}</option
+                      >
                       {#each sizePresets as preset}
                         <option value={preset.value}>{preset.label}</option>
                       {/each}
@@ -537,17 +632,23 @@
                       type="number"
                       class="input input-bordered input-sm"
                       bind:value={condition.value}
-                      placeholder={tr("smartFolders.numberOfDays") || "Number of days"}
+                      placeholder={tr("smartFolders.numberOfDays") ||
+                        "Number of days"}
                       min="1"
                     />
                   {:else if condition.field === "date"}
-                    <input type="date" class="input input-bordered input-sm" bind:value={condition.value} />
+                    <input
+                      type="date"
+                      class="input input-bordered input-sm"
+                      bind:value={condition.value}
+                    />
                   {:else}
                     <input
                       type="text"
                       class="input input-bordered input-sm"
                       bind:value={condition.value}
-                      placeholder={tr("smartFolders.enterValue") || "Enter value..."}
+                      placeholder={tr("smartFolders.enterValue") ||
+                        "Enter value..."}
                     />
                   {/if}
 
@@ -576,26 +677,55 @@
 
           <!-- Sorting -->
           <div class="mb-6">
-            <h3 class="text-sm font-semibold text-base-content/60 mb-4 uppercase tracking-wide">{tr("smartFolders.sorting") || "Sorting"}</h3>
+            <h3
+              class="text-sm font-semibold text-base-content/60 mb-4 uppercase tracking-wide"
+            >
+              {tr("smartFolders.sorting") || "Sorting"}
+            </h3>
             <div class="grid grid-cols-2 gap-4">
               <div class="form-control">
                 <label class="label" for="sortBy">
-                  <span class="label-text">{tr("smartFolders.sortBy") || "Sort by"}</span>
+                  <span class="label-text"
+                    >{tr("smartFolders.sortBy") || "Sort by"}</span
+                  >
                 </label>
-                <select id="sortBy" class="select select-bordered" bind:value={formSortBy}>
-                  <option value="name">{tr("smartFolders.name") || "Name"}</option>
-                  <option value="modified">{tr("smartFolders.modifiedDate") || "Modified Date"}</option>
-                  <option value="size">{tr("smartFolders.fields.size") || "Size"}</option>
-                  <option value="type">{tr("smartFolders.type") || "Type"}</option>
+                <select
+                  id="sortBy"
+                  class="select select-bordered"
+                  bind:value={formSortBy}
+                >
+                  <option value="name"
+                    >{tr("smartFolders.name") || "Name"}</option
+                  >
+                  <option value="modified"
+                    >{tr("smartFolders.modifiedDate") ||
+                      "Modified Date"}</option
+                  >
+                  <option value="size"
+                    >{tr("smartFolders.fields.size") || "Size"}</option
+                  >
+                  <option value="type"
+                    >{tr("smartFolders.type") || "Type"}</option
+                  >
                 </select>
               </div>
               <div class="form-control">
                 <label class="label" for="sortOrder">
-                  <span class="label-text">{tr("smartFolders.sortOrder") || "Order"}</span>
+                  <span class="label-text"
+                    >{tr("smartFolders.sortOrder") || "Order"}</span
+                  >
                 </label>
-                <select id="sortOrder" class="select select-bordered" bind:value={formSortOrder}>
-                  <option value="asc">{tr("smartFolders.ascending") || "Ascending"}</option>
-                  <option value="desc">{tr("smartFolders.descending") || "Descending"}</option>
+                <select
+                  id="sortOrder"
+                  class="select select-bordered"
+                  bind:value={formSortOrder}
+                >
+                  <option value="asc"
+                    >{tr("smartFolders.ascending") || "Ascending"}</option
+                  >
+                  <option value="desc"
+                    >{tr("smartFolders.descending") || "Descending"}</option
+                  >
                 </select>
               </div>
             </div>

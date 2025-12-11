@@ -1,15 +1,15 @@
 <script>
   import { onMount } from "svelte";
-  import api from "../../lib/api";
-  import { success, error as errorToast } from "../../stores/toast";
-  import { currentLang } from "../../stores/ui";
-  import { t } from "../../i18n.js";
-  import PageWrapper from "../../components/PageWrapper.svelte";
-  import PageHeader from "../../components/ui/PageHeader.svelte";
-  import ModernCard from "../../components/ui/ModernCard.svelte";
-  import ModernButton from "../../components/ui/ModernButton.svelte";
-  import ShareModal from "../../components/sharing/ShareModal.svelte";
-  import ShareAnalyticsView from "../sharing/ShareAnalyticsView.svelte";
+  import api from "../../../lib/api";
+  import { success, error as errorToast } from "../../../stores/toast";
+  import { currentLang } from "../../../stores/ui";
+  import { t } from "../../../i18n.js";
+  import PageWrapper from "../../../components/PageWrapper.svelte";
+  import PageHeader from "../../../components/ui/PageHeader.svelte";
+  import ModernCard from "../../../components/ui/ModernCard.svelte";
+  import ModernButton from "../../../components/ui/ModernButton.svelte";
+  import ShareModal from "../../../components/sharing/ShareModal.svelte";
+  import ShareAnalyticsView from "../../settings/storage/ShareAnalyticsView.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 

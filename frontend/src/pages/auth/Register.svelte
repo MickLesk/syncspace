@@ -1,11 +1,11 @@
 <script>
-  import { currentLang } from "../stores/ui.js";
-  import { t } from "../i18n.js";
+  import { currentLang } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
-  import { auth } from "../stores/auth";
-  import { setup, auth as authApi } from "../lib/api.js";
-  import ModernCard from "../components/ui/ModernCard.svelte";
-  import ModernButton from "../components/ui/ModernButton.svelte";
+  import { auth } from "../../stores/auth";
+  import { setup, auth as authApi } from "../../lib/api.js";
+  import ModernCard from "../../components/ui/ModernCard.svelte";
+  import ModernButton from "../../components/ui/ModernButton.svelte";
 
   let username = $state("");
   let email = $state("");
