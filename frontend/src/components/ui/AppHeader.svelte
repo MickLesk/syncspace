@@ -372,26 +372,26 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <!-- Material 3 Expressive Header with Glassmorphism -->
-<header class="app-header">
-  <div class="header-container">
+<header class="sticky top-0 z-[1000] h-16 bg-gradient-to-br from-white/95 to-slate-50/90 dark:from-gray-800/95 dark:to-gray-900/90 backdrop-blur-md border-b border-blue-500/10 dark:border-blue-500/15 shadow-[0_4px_20px_rgba(59,130,246,0.08)] dark:shadow-[0_4px_20px_rgba(59,130,246,0.12)] text-gray-900 dark:text-gray-50">
+  <div class="flex items-center justify-between h-full px-6 max-w-full mx-auto">
     <!-- Left: Logo & Current View Name -->
-    <div class="header-left">
-      <div class="brand-logo">
-        <div class="logo-icon">
+    <div class="flex items-center min-w-[200px]">
+      <div class="flex items-center gap-3 cursor-pointer transition-transform duration-200 hover:scale-105">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 flex items-center justify-center text-xl text-white shadow-[0_6px_16px_rgba(16,185,129,0.35)]">
           <i class={currentViewIcon}></i>
         </div>
-        <span class="brand-name">{currentViewName}</span>
+        <span class="text-xl font-bold bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 bg-clip-text text-transparent tracking-tight max-lg:hidden">{currentViewName}</span>
       </div>
     </div>
 
     <!-- Center: Enhanced Search Bar -->
-    <div class="header-center">
-      <div class="search-container-new">
-        <div class="search-input-wrapper">
-          <i class="bi bi-search search-icon-new" aria-hidden="true"></i>
+    <div class="flex-1 flex justify-center max-w-[600px] mx-4 lg:mx-8">
+      <div class="relative flex w-full gap-2">
+        <div class="relative flex-1 flex items-center h-11 bg-gradient-to-br from-white/80 to-slate-50/70 dark:from-gray-800/80 dark:to-gray-900/70 backdrop-blur-md border border-blue-500/15 dark:border-blue-500/20 rounded-xl px-4 transition-all duration-200 shadow-[0_2px_8px_rgba(59,130,246,0.05)] dark:shadow-[0_2px_8px_rgba(59,130,246,0.08)] focus-within:bg-gradient-to-br focus-within:from-white/95 focus-within:to-slate-50/90 dark:focus-within:from-gray-700/95 dark:focus-within:to-gray-800/90 focus-within:border-blue-500/40 dark:focus-within:border-blue-500/50 focus-within:shadow-[0_8px_24px_rgba(59,130,246,0.15)] dark:focus-within:shadow-[0_8px_24px_rgba(59,130,246,0.2)]">
+          <i class="bi bi-search text-lg text-gray-900/50 dark:text-white/50 mr-3 transition-colors" aria-hidden="true"></i>
           <input
             type="text"
-            class="search-input-new"
+            class="flex-1 border-none bg-transparent outline-none text-sm text-gray-900 dark:text-gray-50 placeholder:text-gray-900/40 dark:placeholder:text-white/40"
             placeholder="{t($currentLang, 'searchPlaceholder')}..."
             bind:value={searchQuery}
             bind:this={searchInputRef}
@@ -403,129 +403,93 @@
           />
           {#if searchQuery}
             <button
-              class="search-clear-btn"
+              class="flex items-center justify-center w-6 h-6 border-none bg-gray-900/10 dark:bg-white/10 rounded-full cursor-pointer transition-all mr-2 hover:bg-gray-900/20 dark:hover:bg-white/20"
               onclick={() => {
                 searchQuery = "";
                 searchResults = [];
-                showSearchDropdown = false; // Close dropdown when clearing
+                showSearchDropdown = false;
               }}
               aria-label="Clear search"
             >
               <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           {/if}
-          <kbd class="search-kbd-new">Ctrl K</kbd>
+          <kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-900/15 dark:border-white/15 rounded-md text-xs font-mono text-gray-900/60 dark:text-white/60">Ctrl K</kbd>
         </div>
 
         <!-- Search Dropdown -->
         {#if showSearchDropdown}
-          <div class="search-dropdown" bind:this={searchDropdownRef}>
+          <div class="absolute top-[calc(100%+0.5rem)] left-0 right-[50px] bg-white dark:bg-gray-700 border border-gray-900/10 dark:border-white/10 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] max-h-[400px] overflow-y-auto z-[1000] animate-[dropdownSlide_0.2s_ease-out]" bind:this={searchDropdownRef}>
             {#if searchQuery.trim() && searchResults.length > 0}
-              <div class="search-section">
-                <div class="search-section-title">Results</div>
+              <div class="p-2">
+                <div class="text-xs font-semibold uppercase tracking-wider text-gray-900/50 dark:text-white/50 px-3 py-2">Results</div>
                 {#each searchResults as result}
                   <button
-                    class="search-result-item"
+                    class="flex items-center gap-3 w-full px-3 py-3 border-none bg-transparent cursor-pointer rounded-lg transition-all text-left hover:bg-gray-900/5 dark:hover:bg-white/5"
                     onclick={() => selectSearchResult(result)}
                   >
                     <i
-                      class="bi bi-{result.icon} text-{result.type === 'folder'
-                        ? 'warning'
-                        : 'info'}"
+                      class="bi bi-{result.icon} text-lg w-6 shrink-0 {result.type === 'folder' ? 'text-amber-500' : 'text-blue-500'}"
                     ></i>
-                    <div class="search-result-content">
-                      <div class="search-result-name">{result.name}</div>
-                      <div class="search-result-meta">
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-medium text-gray-900 dark:text-gray-50 truncate">{result.name}</div>
+                      <div class="flex items-center gap-3 text-[0.7rem] text-gray-900/50 dark:text-white/50 mt-0.5">
                         {#if result.path}
-                          <span class="search-result-folder">
-                            <i class="bi bi-folder2 text-xs" aria-hidden="true"
-                            ></i>
+                          <span class="flex items-center gap-1 max-w-[200px] truncate">
+                            <i class="bi bi-folder2 text-xs" aria-hidden="true"></i>
                             {result.path}
                           </span>
                         {/if}
                         {#if result.size > 0}
-                          <span class="search-result-size">
-                            {formatFileSize(result.size)}
-                          </span>
+                          <span class="shrink-0 opacity-80">{formatFileSize(result.size)}</span>
                         {/if}
                       </div>
                     </div>
-                    <i
-                      class="bi bi-arrow-return-left text-xs opacity-40"
-                      aria-hidden="true"
-                    ></i>
+                    <i class="bi bi-arrow-return-left text-xs opacity-40" aria-hidden="true"></i>
                   </button>
                 {/each}
               </div>
             {:else if !searchQuery.trim() && recentSearches.length > 0}
-              <div class="search-section">
-                <div class="search-section-header">
-                  <div class="search-section-title">
-                    {t($currentLang, "recentSearches")}
-                  </div>
-                  <button
-                    class="search-clear-all"
-                    onclick={clearRecentSearches}
-                  >
-                    {t($currentLang, "clear")}
-                  </button>
+              <div class="p-2">
+                <div class="flex items-center justify-between px-3 py-2">
+                  <div class="text-xs font-semibold uppercase tracking-wider text-gray-900/50 dark:text-white/50">{t($currentLang, "recentSearches")}</div>
+                  <button class="text-xs text-blue-500 bg-transparent border-none cursor-pointer px-2 py-1 rounded transition-all hover:bg-blue-500/10" onclick={clearRecentSearches}>{t($currentLang, "clear")}</button>
                 </div>
                 {#each recentSearches.slice(0, 5) as recent}
                   <button
-                    class="search-result-item"
+                    class="flex items-center gap-3 w-full px-3 py-3 border-none bg-transparent cursor-pointer rounded-lg transition-all text-left hover:bg-gray-900/5 dark:hover:bg-white/5"
                     onclick={() => selectRecentSearch(recent)}
                   >
-                    <i class="bi bi-clock-history opacity-60" aria-hidden="true"
-                    ></i>
-                    <div class="search-result-content">
-                      <div class="search-result-name">{recent}</div>
+                    <i class="bi bi-clock-history opacity-60" aria-hidden="true"></i>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-medium text-gray-900 dark:text-gray-50 truncate">{recent}</div>
                     </div>
-                    <i
-                      class="bi bi-arrow-return-left text-xs opacity-40"
-                      aria-hidden="true"
-                    ></i>
+                    <i class="bi bi-arrow-return-left text-xs opacity-40" aria-hidden="true"></i>
                   </button>
                 {/each}
               </div>
             {:else if searchQuery.trim()}
-              <div class="search-empty">
-                <i class="bi bi-search opacity-40 text-2xl" aria-hidden="true"
-                ></i>
+              <div class="flex flex-col items-center justify-center py-12 px-8 text-center">
+                <i class="bi bi-search opacity-40 text-2xl" aria-hidden="true"></i>
                 <p class="text-sm opacity-60 mt-2">No results found</p>
               </div>
             {:else}
-              <div class="search-empty">
-                <i class="bi bi-search opacity-40 text-2xl" aria-hidden="true"
-                ></i>
+              <div class="flex flex-col items-center justify-center py-12 px-8 text-center">
+                <i class="bi bi-search opacity-40 text-2xl" aria-hidden="true"></i>
                 <p class="text-sm opacity-60 mt-2">Search files and folders</p>
-                <div class="search-shortcuts mt-3">
-                  <div class="search-shortcut-item">
-                    <kbd
-                      class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"
-                      >Ctrl</kbd
-                    >
+                <div class="flex flex-col gap-2 items-center mt-3">
+                  <div class="flex items-center gap-1 text-xs">
+                    <kbd class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">Ctrl</kbd>
                     <span>+</span>
-                    <kbd
-                      class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"
-                      >K</kbd
-                    >
+                    <kbd class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">K</kbd>
                     <span class="text-xs opacity-60 ml-2">Quick search</span>
                   </div>
-                  <div class="search-shortcut-item">
-                    <kbd
-                      class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"
-                      >Ctrl</kbd
-                    >
+                  <div class="flex items-center gap-1 text-xs">
+                    <kbd class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">Ctrl</kbd>
                     <span>+</span>
-                    <kbd
-                      class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"
-                      >Shift</kbd
-                    >
+                    <kbd class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">Shift</kbd>
                     <span>+</span>
-                    <kbd
-                      class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"
-                      >F</kbd
-                    >
+                    <kbd class="px-2 py-1 text-xs font-semibold bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">F</kbd>
                     <span class="text-xs opacity-60 ml-2">Advanced</span>
                   </div>
                 </div>
@@ -537,7 +501,7 @@
     </div>
 
     <!-- Right: Actions -->
-    <div class="header-right">
+    <div class="flex items-center gap-3 min-w-[200px] justify-end relative z-[100]">
       <!-- WebSocket Connection Status with Dropdown -->
       <div class="relative group">
         <button
@@ -546,53 +510,27 @@
         >
           <span class="relative flex h-3 w-3">
             {#if backendOnline}
-              <span
-                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"
-              ></span>
-              <span
-                class="relative inline-flex rounded-full h-3 w-3 bg-green-500"
-              ></span>
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
             {:else}
-              <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"
-              ></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
             {/if}
           </span>
-          <span
-            class="text-sm font-medium {backendOnline
-              ? 'text-gray-700 dark:text-gray-200'
-              : 'text-red-600 dark:text-red-400'}"
-            >{backendOnline ? "Online" : "Offline"}</span
-          >
+          <span class="text-sm font-medium {backendOnline ? 'text-gray-700 dark:text-gray-200' : 'text-red-600 dark:text-red-400'}">{backendOnline ? "Online" : "Offline"}</span>
         </button>
       </div>
 
-      <!-- Activity Feed Toggle Button (moved from App.svelte) -->
+      <!-- Activity Feed Toggle Button -->
       <button
         onclick={toggleActivityFeed}
-        class="relative p-2 rounded-lg transition-all duration-300 hover:scale-110"
-        class:bg-gradient-to-br={showActivityFeed}
-        class:from-primary-500={showActivityFeed}
-        class:to-secondary-500={showActivityFeed}
-        class:hover:bg-gray-100={!showActivityFeed}
-        class:dark:hover:bg-gray-800={!showActivityFeed}
+        class="relative p-2 rounded-lg transition-all duration-300 hover:scale-110 {showActivityFeed ? 'bg-gradient-to-br from-emerald-500 to-green-600' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}"
         title={showActivityFeed ? "Hide Activity Feed" : "Show Activity Feed"}
       >
-        <i
-          class="bi bi-activity text-xl transition-colors duration-300"
-          class:text-white={showActivityFeed}
-          class:text-primary-500={!showActivityFeed}
-          class:dark:text-primary-400={!showActivityFeed}
-        ></i>
-
-        <!-- Pulse Indicator when closed -->
+        <i class="bi bi-activity text-xl transition-colors duration-300 {showActivityFeed ? 'text-white' : 'text-emerald-500 dark:text-emerald-400'}"></i>
         {#if !showActivityFeed}
           <span class="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-            <span
-              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"
-            ></span>
-            <span
-              class="relative inline-flex rounded-full h-2 w-2 bg-primary-500"
-            ></span>
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
         {/if}
       </button>
@@ -603,9 +541,7 @@
         class="p-2 rounded-lg transition-all duration-300 hover:scale-110 hover:bg-gray-100 dark:hover:bg-gray-800"
         title="Help & Support"
       >
-        <i
-          class="bi bi-question-circle text-xl text-gray-600 dark:text-gray-400"
-        ></i>
+        <i class="bi bi-question-circle text-xl text-gray-600 dark:text-gray-400"></i>
       </button>
 
       <!-- Theme Toggle -->
@@ -615,14 +551,14 @@
       <NotificationBell />
 
       <!-- User Menu -->
-      <div class="user-menu-container">
+      <div class="relative">
         <button
-          class="user-avatar-button"
+          class="bg-transparent border-none cursor-pointer p-0"
           onclick={() => (showUserDropdown = !showUserDropdown)}
         >
-          <div class="user-avatar">
-            <span class="user-initials">{userInitials}</span>
-            <div class="user-status-indicator"></div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-fuchsia-500 flex items-center justify-center relative transition-all duration-200 border-2 border-gray-900/10 dark:border-white/10 shadow-[0_2px_8px_rgba(99,102,241,0.2)] hover:scale-105 hover:border-gray-900/20 dark:hover:border-white/20 hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)]">
+            <span class="text-sm font-bold text-white">{userInitials}</span>
+            <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-blue-500 dark:border-gray-800 rounded-full"></div>
           </div>
         </button>
 
@@ -636,111 +572,96 @@
             tabindex="0"
           ></div>
 
-          <div class="user-dropdown-new">
-            <div class="user-dropdown-header-new">
-              <div class="user-avatar-large-new">
-                <span class="user-initials-large">{userInitials}</span>
-                <div class="user-status-indicator-large"></div>
+          <div class="absolute right-0 top-[calc(100%+0.75rem)] z-[100] w-80 bg-white dark:bg-gray-800 border border-gray-900/10 dark:border-white/10 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] overflow-hidden animate-[slideDown_0.2s_ease]">
+            <div class="p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center gap-4">
+              <div class="relative w-15 h-15 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shrink-0 text-white text-2xl font-bold border-3 border-white shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+                <span>{userInitials}</span>
+                <div class="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white"></div>
               </div>
-              <div class="user-info-new">
-                <p class="user-name-new">{$auth.username || "Admin"}</p>
-                <p class="user-role-new">
-                  <span
-                    class="px-2 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded-full"
-                    >Administrator</span
-                  >
+              <div class="flex-1 min-w-0">
+                <p class="text-lg font-bold text-gray-900 dark:text-gray-50 m-0 truncate">{$auth.username || "Admin"}</p>
+                <p class="m-0 mb-2">
+                  <span class="px-2 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded-full">Administrator</span>
                 </p>
-                <p class="user-email-new">admin@syncspace.local</p>
+                <p class="text-[0.8125rem] text-gray-900/60 dark:text-white/60 m-0 truncate">admin@syncspace.local</p>
               </div>
             </div>
 
-            <div class="divider-new"></div>
+            <div class="h-px bg-gray-900/8 dark:bg-white/10"></div>
 
-            <ul class="user-menu-new">
+            <ul class="list-none p-2 m-0">
               <li>
                 <button
-                  class="user-menu-item-new"
+                  class="flex items-center gap-3.5 px-4 py-3.5 w-full cursor-pointer rounded-lg transition-all text-gray-900 dark:text-gray-50 hover:bg-gray-900/5 dark:hover:bg-white/10"
                   onclick={() => navigateAndClose("profile")}
                 >
-                  <i class="bi bi-person-circle" aria-hidden="true"></i>
-                  <div class="menu-item-content">
-                    <span class="menu-item-label">Profile</span>
-                    <span class="menu-item-desc">View and edit profile</span>
+                  <i class="bi bi-person-circle text-xl w-6 text-center text-gray-900/70 dark:text-white/70" aria-hidden="true"></i>
+                  <div class="flex-1 min-w-0">
+                    <span class="block text-sm font-semibold text-gray-900 dark:text-gray-50">Profile</span>
+                    <span class="block text-xs text-gray-900/50 dark:text-white/50 mt-0.5">View and edit profile</span>
                   </div>
-                  <i
-                    class="bi bi-chevron-right menu-item-arrow"
-                    aria-hidden="true"
-                  ></i>
+                  <i class="bi bi-chevron-right text-sm text-gray-900/30 dark:text-white/30 transition-transform group-hover:translate-x-0.5" aria-hidden="true"></i>
                 </button>
               </li>
               <li>
                 <button
-                  class="user-menu-item-new"
+                  class="flex items-center gap-3.5 px-4 py-3.5 w-full cursor-pointer rounded-lg transition-all text-gray-900 dark:text-gray-50 hover:bg-gray-900/5 dark:hover:bg-white/10"
                   onclick={() => navigateAndClose("user-settings")}
                 >
-                  <i class="bi bi-sliders" aria-hidden="true"></i>
-                  <div class="menu-item-content">
-                    <span class="menu-item-label">Settings</span>
-                    <span class="menu-item-desc">Preferences & options</span>
+                  <i class="bi bi-sliders text-xl w-6 text-center text-gray-900/70 dark:text-white/70" aria-hidden="true"></i>
+                  <div class="flex-1 min-w-0">
+                    <span class="block text-sm font-semibold text-gray-900 dark:text-gray-50">Settings</span>
+                    <span class="block text-xs text-gray-900/50 dark:text-white/50 mt-0.5">Preferences & options</span>
                   </div>
-                  <i
-                    class="bi bi-chevron-right menu-item-arrow"
-                    aria-hidden="true"
-                  ></i>
+                  <i class="bi bi-chevron-right text-sm text-gray-900/30 dark:text-white/30 transition-transform" aria-hidden="true"></i>
                 </button>
               </li>
               <li>
                 <button
-                  class="user-menu-item-new"
+                  class="flex items-center gap-3.5 px-4 py-3.5 w-full cursor-pointer rounded-lg transition-all text-gray-900 dark:text-gray-50 hover:bg-gray-900/5 dark:hover:bg-white/10"
                   onclick={() => navigateAndClose("security")}
                 >
-                  <i class="bi bi-shield-lock" aria-hidden="true"></i>
-                  <div class="menu-item-content">
-                    <span class="menu-item-label">Security</span>
-                    <span class="menu-item-desc">2FA & password</span>
+                  <i class="bi bi-shield-lock text-xl w-6 text-center text-gray-900/70 dark:text-white/70" aria-hidden="true"></i>
+                  <div class="flex-1 min-w-0">
+                    <span class="block text-sm font-semibold text-gray-900 dark:text-gray-50">Security</span>
+                    <span class="block text-xs text-gray-900/50 dark:text-white/50 mt-0.5">2FA & password</span>
                   </div>
-                  <i
-                    class="bi bi-chevron-right menu-item-arrow"
-                    aria-hidden="true"
-                  ></i>
+                  <i class="bi bi-chevron-right text-sm text-gray-900/30 dark:text-white/30 transition-transform" aria-hidden="true"></i>
                 </button>
               </li>
               <li>
                 <button
-                  class="user-menu-item-new"
+                  class="flex items-center gap-3.5 px-4 py-3.5 w-full cursor-pointer rounded-lg transition-all text-gray-900 dark:text-gray-50 hover:bg-gray-900/5 dark:hover:bg-white/10"
                   onclick={() => navigateAndClose("storage")}
                 >
-                  <i class="bi bi-hdd-fill" aria-hidden="true"></i>
-                  <div class="menu-item-content">
-                    <span class="menu-item-label">Storage</span>
-                    <span class="menu-item-desc">Usage & analytics</span>
+                  <i class="bi bi-hdd-fill text-xl w-6 text-center text-gray-900/70 dark:text-white/70" aria-hidden="true"></i>
+                  <div class="flex-1 min-w-0">
+                    <span class="block text-sm font-semibold text-gray-900 dark:text-gray-50">Storage</span>
+                    <span class="block text-xs text-gray-900/50 dark:text-white/50 mt-0.5">Usage & analytics</span>
                   </div>
-                  <i
-                    class="bi bi-chevron-right menu-item-arrow"
-                    aria-hidden="true"
-                  ></i>
+                  <i class="bi bi-chevron-right text-sm text-gray-900/30 dark:text-white/30 transition-transform" aria-hidden="true"></i>
                 </button>
               </li>
             </ul>
 
-            <div class="divider-new"></div>
+            <div class="h-px bg-gray-900/8 dark:bg-white/10"></div>
 
-            <ul class="user-menu-new">
+            <ul class="list-none p-2 m-0">
               <li>
-                <button class="user-menu-item-new">
-                  <i class="bi bi-question-circle" aria-hidden="true"></i>
-                  <div class="menu-item-content">
-                    <span class="menu-item-label">Help & Support</span>
+                <button class="flex items-center gap-3.5 px-4 py-3.5 w-full cursor-pointer rounded-lg transition-all text-gray-900 dark:text-gray-50 hover:bg-gray-900/5 dark:hover:bg-white/10">
+                  <i class="bi bi-question-circle text-xl w-6 text-center text-gray-900/70 dark:text-white/70" aria-hidden="true"></i>
+                  <div class="flex-1 min-w-0">
+                    <span class="block text-sm font-semibold text-gray-900 dark:text-gray-50">Help & Support</span>
                   </div>
                 </button>
               </li>
             </ul>
 
-            <div class="divider-new"></div>
+            <div class="h-px bg-gray-900/8 dark:bg-white/10"></div>
 
-            <div class="user-dropdown-footer-new">
-              <button class="logout-button-new" onclick={handleLogout}>
-                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+            <div class="p-3 bg-gray-50/50 dark:bg-gray-900/50">
+              <button class="flex items-center justify-center gap-2 w-full px-4 py-3 border-none bg-transparent text-red-500 dark:text-red-400 text-sm font-semibold rounded-lg cursor-pointer transition-all hover:bg-red-500/10 dark:hover:bg-red-400/15" onclick={handleLogout}>
+                <i class="bi bi-box-arrow-right text-lg" aria-hidden="true"></i>
                 <span>Log Out</span>
               </button>
             </div>
@@ -843,364 +764,7 @@
 />
 
 <style>
-  /* Material 3 Expressive Header with V1 Glasmorphism */
-  .app-header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    height: 64px;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.95),
-      rgba(248, 250, 252, 0.9)
-    );
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border-bottom: 1px solid rgba(59, 130, 246, 0.1);
-    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.08);
-    color: #111827;
-  }
-
-  /* Dark Mode */
-  :global(.dark) .app-header {
-    background: linear-gradient(
-      135deg,
-      rgba(31, 41, 55, 0.95),
-      rgba(17, 24, 39, 0.9)
-    );
-    border-bottom: 1px solid rgba(59, 130, 246, 0.15);
-    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.12);
-    color: #f9fafb;
-  }
-
-  .header-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 100%;
-    padding: 0 1.5rem;
-    max-width: 100%;
-    margin: 0 auto;
-  }
-
-  /* Left Section - Brand */
-  .header-left {
-    display: flex;
-    align-items: center;
-    min-width: 200px;
-  }
-
-  .brand-logo {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-  }
-
-  .brand-logo:hover {
-    transform: scale(1.05);
-  }
-
-  .logo-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    color: white;
-    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
-  }
-
-  .brand-name {
-    font-size: 1.25rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: -0.02em;
-  }
-
-  /* Center Section - Search */
-  .header-center {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    max-width: 600px;
-    margin: 0 2rem;
-  }
-
-  .search-container {
-    display: flex;
-    width: 100%;
-    gap: 0.5rem;
-  }
-
-  .search-button {
-    flex: 1;
-    height: 44px;
-    background: #f9fafb;
-    border: 1px solid rgba(17, 24, 39, 0.2);
-    border-radius: 12px;
-    padding: 0 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: #111827;
-    transition: all 0.2s ease;
-    cursor: pointer;
-  }
-
-  .search-button:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(248, 250, 252, 1),
-      rgba(243, 244, 246, 1)
-    );
-    border-color: rgba(59, 130, 246, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
-  }
-
-  :global(.dark) .search-button:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(55, 65, 81, 1),
-      rgba(31, 41, 55, 1)
-    );
-    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
-  }
-
-  .search-icon {
-    font-size: 1.125rem;
-    color: rgba(17, 24, 39, 0.7);
-  }
-
-  .search-text {
-    flex: 1;
-    text-align: left;
-    font-size: 0.875rem;
-    color: rgba(17, 24, 39, 0.6);
-  }
-
-  .search-kbd {
-    padding: 0.25rem 0.5rem;
-    background: #f3f4f6;
-    border: 1px solid rgba(17, 24, 39, 0.2);
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-family: ui-monospace, monospace;
-    color: rgba(17, 24, 39, 0.7);
-  }
-
-  .advanced-button {
-    width: 44px;
-    height: 44px;
-    background: #f9fafb;
-    border: 1px solid rgba(17, 24, 39, 0.2);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #111827;
-    font-size: 1.125rem;
-    transition: all 0.2s ease;
-    cursor: pointer;
-  }
-
-  .advanced-button:hover {
-    background: #f3f4f6;
-    border-color: rgba(17, 24, 39, 0.3);
-    transform: translateY(-1px);
-  }
-
-  /* New Enhanced Search Styles */
-  .search-container-new {
-    position: relative;
-    display: flex;
-    width: 100%;
-    gap: 0.5rem;
-  }
-
-  .search-input-wrapper {
-    position: relative;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    height: 44px;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.8),
-      rgba(248, 250, 252, 0.7)
-    );
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(59, 130, 246, 0.15);
-    border-radius: 12px;
-    padding: 0 1rem;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.05);
-  }
-
-  :global(.dark) .search-input-wrapper {
-    background: linear-gradient(
-      135deg,
-      rgba(31, 41, 55, 0.8),
-      rgba(17, 24, 39, 0.7)
-    );
-    border-color: rgba(59, 130, 246, 0.2);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
-  }
-
-  .search-input-wrapper:focus-within {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.95),
-      rgba(248, 250, 252, 0.9)
-    );
-    border-color: rgba(59, 130, 246, 0.4);
-    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
-  }
-
-  :global(.dark) .search-input-wrapper:focus-within {
-    background: linear-gradient(
-      135deg,
-      rgba(55, 65, 81, 0.95),
-      rgba(31, 41, 55, 0.9)
-    );
-    border-color: rgba(59, 130, 246, 0.5);
-    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
-  }
-
-  .search-icon-new {
-    font-size: 1.125rem;
-    color: rgba(17, 24, 39, 0.5);
-    margin-right: 0.75rem;
-    transition: color 0.2s;
-  }
-
-  :global(.dark) .search-icon-new {
-    color: rgba(255, 255, 255, 0.5);
-  }
-
-  .search-input-wrapper:focus-within .search-icon-new {
-    color: #3b82f6;
-  }
-
-  .search-input-new {
-    flex: 1;
-    border: none;
-    background: transparent;
-    outline: none;
-    font-size: 0.875rem;
-    color: #111827;
-  }
-
-  :global(.dark) .search-input-new {
-    color: #f9fafb;
-  }
-
-  .search-input-new::placeholder {
-    color: rgba(17, 24, 39, 0.4);
-  }
-
-  :global(.dark) .search-input-new::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-  }
-
-  .search-clear-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    border: none;
-    background: rgba(17, 24, 39, 0.1);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-right: 0.5rem;
-  }
-
-  .search-clear-btn:hover {
-    background: rgba(17, 24, 39, 0.2);
-  }
-
-  .search-kbd-new {
-    padding: 0.25rem 0.5rem;
-    background: #f3f4f6;
-    border: 1px solid rgba(17, 24, 39, 0.15);
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-family: ui-monospace, monospace;
-    color: rgba(17, 24, 39, 0.6);
-  }
-
-  :global(.dark) .search-kbd-new {
-    background: #374151;
-    border-color: rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.6);
-  }
-
-  .advanced-button-new {
-    width: 44px;
-    height: 44px;
-    background: #f9fafb;
-    border: 2px solid rgba(17, 24, 39, 0.1);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(17, 24, 39, 0.7);
-    font-size: 1.125rem;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-  }
-
-  :global(.dark) .advanced-button-new {
-    background: #2d3748;
-    border-color: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  .advanced-button-new:hover {
-    background: #f3f4f6;
-    border-color: rgba(59, 130, 246, 0.3);
-    color: #3b82f6;
-    transform: translateY(-1px);
-  }
-
-  :global(.dark) .advanced-button-new:hover {
-    background: #374151;
-    border-color: rgba(59, 130, 246, 0.3);
-    color: #3b82f6;
-  }
-
-  /* Search Dropdown */
-  .search-dropdown {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    left: 0;
-    right: 50px;
-    background: white;
-    border: 1px solid rgba(17, 24, 39, 0.1);
-    border-radius: 12px;
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2);
-    max-height: 400px;
-    overflow-y: auto;
-    z-index: 1000;
-    animation: dropdownSlide 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  :global(.dark) .search-dropdown {
-    background: #2d3748;
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
+  /* Keyframe animations that cannot be expressed in Tailwind */
   @keyframes dropdownSlide {
     from {
       opacity: 0;
@@ -1211,307 +775,7 @@
       transform: translateY(0);
     }
   }
-
-  .search-section {
-    padding: 0.5rem;
-  }
-
-  .search-section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.5rem 0.75rem;
-  }
-
-  .search-section-title {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: rgba(17, 24, 39, 0.5);
-    padding: 0.5rem 0.75rem;
-  }
-
-  :global(.dark) .search-section-title {
-    color: rgba(255, 255, 255, 0.5);
-  }
-
-  .search-clear-all {
-    font-size: 0.75rem;
-    color: #3b82f6;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    transition: all 0.2s;
-  }
-
-  .search-clear-all:hover {
-    background: rgba(59, 130, 246, 0.1);
-  }
-
-  .search-result-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    padding: 0.75rem;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: left;
-  }
-
-  .search-result-item:hover {
-    background: rgba(17, 24, 39, 0.05);
-  }
-
-  :global(.dark) .search-result-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  .search-result-item i:first-child {
-    font-size: 1.125rem;
-    width: 1.5rem;
-    flex-shrink: 0;
-  }
-
-  .search-result-content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .search-result-name {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #111827;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  :global(.dark) .search-result-name {
-    color: #f9fafb;
-  }
-
-  .search-result-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 0.7rem;
-    color: rgba(17, 24, 39, 0.5);
-    margin-top: 0.125rem;
-  }
-
-  :global(.dark) .search-result-meta {
-    color: rgba(255, 255, 255, 0.5);
-  }
-
-  .search-result-folder {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .search-result-size {
-    flex-shrink: 0;
-    opacity: 0.8;
-  }
-
-  .search-result-snippet {
-    font-size: 0.7rem;
-    color: rgba(17, 24, 39, 0.6);
-    margin-top: 0.25rem;
-    line-height: 1.3;
-    max-height: 2.6em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-  }
-
-  :global(.dark) .search-result-snippet {
-    color: rgba(255, 255, 255, 0.6);
-  }
-
-  .search-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 2rem;
-    text-align: center;
-  }
-
-  .search-shortcuts {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  .search-shortcut-item {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.75rem;
-  }
-
-  /* Right Section - Actions */
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-width: 200px;
-    justify-content: flex-end;
-    position: relative;
-    z-index: 100;
-  }
-
-  .action-button {
-    width: 44px;
-    height: 44px;
-    background: #f9fafb;
-    border: 1px solid rgba(17, 24, 39, 0.2);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #111827;
-    font-size: 1.125rem;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    position: relative;
-  }
-
-  .action-button:hover {
-    background: #f3f4f6;
-    border-color: rgba(17, 24, 39, 0.3);
-    transform: translateY(-1px);
-  }
-
-  /* Theme Toggle Animation */
-  .theme-icon-wrapper {
-    position: relative;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .theme-icon {
-    animation: themeRotate 0.5s ease;
-  }
-
-  @keyframes themeRotate {
-    from {
-      transform: rotate(0deg) scale(0.8);
-      opacity: 0;
-    }
-    to {
-      transform: rotate(360deg) scale(1);
-      opacity: 1;
-    }
-  }
-
-  /* Notification Badge */
-  .notification-icon-wrapper {
-    position: relative;
-  }
-
-  .notification-badge {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    width: 18px;
-    height: 18px;
-    background: #ef4444;
-    color: white;
-    border-radius: 50%;
-    font-size: 0.625rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #3b82f6;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
-    }
-  }
-
-  /* User Avatar */
-  .user-menu-container {
-    position: relative;
-  }
-
-  .user-avatar-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-  }
-
-  .user-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    transition: all 0.2s ease;
-    border: 2px solid rgba(17, 24, 39, 0.1);
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
-  }
-
-  .user-avatar-button:hover .user-avatar {
-    transform: scale(1.05);
-    border-color: rgba(17, 24, 39, 0.2);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-  }
-
-  .user-initials {
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: white;
-  }
-
-  .user-status-indicator {
-    position: absolute;
-    bottom: -2px;
-    right: -2px;
-    width: 12px;
-    height: 12px;
-    background: #10b981;
-    border: 2px solid #3b82f6;
-    border-radius: 50%;
-  }
-
-  /* Dropdown Styles */
-  .dropdown-content {
-    animation: slideDown 0.2s ease;
-    margin-top: 0.75rem;
-  }
-
+  
   @keyframes slideDown {
     from {
       opacity: 0;
@@ -1522,722 +786,15 @@
       transform: translateY(0);
     }
   }
-
-  /* Notification Dropdown */
-  .notification-dropdown {
-    width: 360px;
-    background: white;
-    border: 1px solid #f3f4f6;
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-  }
-
-  .notification-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid #f3f4f6;
-  }
-
-  .notification-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #111827;
-  }
-
-  .notification-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  .notification-item {
-    all: unset;
-    display: flex;
-    align-items: start;
-    gap: 0.75rem;
-    padding: 1rem 1.25rem;
-    width: 100%;
-    cursor: pointer;
-    transition: background 0.2s ease;
-    border-bottom: 1px solid #f3f4f6;
-  }
-
-  .notification-item:hover {
-    background: #f9fafb;
-  }
-
-  .notification-item:last-child {
-    border-bottom: none;
-  }
-
-  .notification-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 1rem;
-  }
-
-  .notification-icon.success {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
-  }
-
-  .notification-icon.info {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-  }
-
-  .notification-icon.warning {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
-  }
-
-  .notification-content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .notification-text {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #111827;
-    margin: 0;
-  }
-
-  .notification-time {
-    font-size: 0.75rem;
-    color: rgba(17, 24, 39, 0.6);
-    margin: 0.25rem 0 0 0;
-  }
-
-  .notification-footer {
-    padding: 0.75rem;
-    border-top: 1px solid #f3f4f6;
-  }
-
-  /* New Notification Dropdown Styles */
-  .notification-dropdown-new {
-    width: 400px;
-    background: white !important;
-    border: 1px solid rgba(17, 24, 39, 0.1);
-    border-radius: 16px;
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-    max-height: 600px;
-    display: flex;
-    flex-direction: column;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-
-  :global(.dark) .notification-dropdown-new {
-    background: rgb(31 41 55) !important;
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-  }
-
-  .notification-header-new {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid rgba(17, 24, 39, 0.08);
-    background: #f9fafb !important;
-  }
-
-  :global(.dark) .notification-header-new {
-    background: rgb(17 24 39) !important;
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .notification-title-new {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #111827;
-    margin: 0 0 0.75rem 0;
-  }
-
-  :global(.dark) .notification-title-new {
-    color: #f9fafb;
-  }
-
-  .notification-header-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .notification-action-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border: none;
-    background: rgba(17, 24, 39, 0.05);
-    color: rgba(17, 24, 39, 0.7);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  :global(.dark) .notification-action-btn {
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  .notification-action-btn:hover {
-    background: rgba(17, 24, 39, 0.1);
-    color: #111827;
-  }
-
-  :global(.dark) .notification-action-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #f9fafb;
-  }
-
-  .notification-action-btn.text-error {
-    color: #ef4444;
-  }
-
-  :global(.dark) .notification-action-btn.text-error {
-    color: #f87171;
-  }
-
-  .notification-action-btn.text-error:hover {
-    background: rgba(239, 68, 68, 0.1);
-  }
-
-  :global(.dark) .notification-action-btn.text-error:hover {
-    background: rgba(248, 113, 113, 0.15);
-  }
-
-  .notification-list-new {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    overflow-y: auto;
-    flex: 1;
-  }
-
-  .notification-item-new {
-    all: unset;
-    display: flex;
-    align-items: start;
-    gap: 0.875rem;
-    padding: 1rem 1.25rem;
-    width: 100%;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    border-bottom: 1px solid rgba(17, 24, 39, 0.05);
-    position: relative;
-  }
-
-  :global(.dark) .notification-item-new {
-    border-bottom-color: rgba(255, 255, 255, 0.05);
-  }
-
-  .notification-item-new:hover {
-    background: rgba(17, 24, 39, 0.03);
-  }
-
-  :global(.dark) .notification-item-new:hover {
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  .notification-item-new.unread {
-    background: rgba(59, 130, 246, 0.03);
-  }
-
-  :global(.dark) .notification-item-new.unread {
-    background: rgba(59, 130, 246, 0.1);
-  }
-
-  .notification-item-new.unread:hover {
-    background: rgba(59, 130, 246, 0.06);
-  }
-
-  :global(.dark) .notification-item-new.unread:hover {
-    background: rgba(59, 130, 246, 0.15);
-  }
-
-  .notification-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: white;
-    font-size: 0.875rem;
-    font-weight: 600;
-  }
-
-  .notification-icon-new {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 1.125rem;
-  }
-
-  .notification-icon-new.success {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
-  }
-
-  .notification-icon-new.info {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-  }
-
-  .notification-icon-new.warning {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
-  }
-
-  .notification-content-new {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .notification-title-text {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 0.25rem 0;
-  }
-
-  :global(.dark) .notification-title-text {
-    color: #f9fafb;
-  }
-
-  .notification-message {
-    font-size: 0.8125rem;
-    color: rgba(17, 24, 39, 0.7);
-    margin: 0 0 0.5rem 0;
-    line-height: 1.4;
-  }
-
-  :global(.dark) .notification-message {
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  .notification-time-new {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.75rem;
-    color: rgba(17, 24, 39, 0.5);
-    margin: 0;
-  }
-
-  :global(.dark) .notification-time-new {
-    color: rgba(255, 255, 255, 0.5);
-  }
-
-  .notification-unread-indicator {
-    position: absolute;
-    top: 1.25rem;
-    right: 1.25rem;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-  }
-
-  .notification-footer-new {
-    padding: 0.75rem;
-    border-top: 1px solid rgba(17, 24, 39, 0.08);
-    background: rgba(#f9fafb, 0.3);
-  }
-
-  :global(.dark) .notification-footer-new {
-    background: rgba(17, 24, 39, 0.5);
-    border-top-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .notification-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-    text-align: center;
-  }
-
-  /* User Dropdown */
-  .user-dropdown {
-    width: 280px;
-    background: white;
-    border: 1px solid #f3f4f6;
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-  }
-
-  .user-dropdown-header {
-    padding: 1.25rem;
-    background: linear-gradient(
-      135deg,
-      rgba(99, 102, 241, 0.08),
-      rgba(139, 92, 246, 0.08),
-      rgba(217, 70, 239, 0.08)
-    );
-    border-bottom: 1px solid #f3f4f6;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .user-avatar-large {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid white;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
-  }
-
-  .user-initials-large {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: white;
-  }
-
-  .user-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .user-name {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .user-email {
-    font-size: 0.75rem;
-    color: rgba(17, 24, 39, 0.6);
-    margin: 0.25rem 0 0 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .user-menu {
-    list-style: none;
-    padding: 0.5rem;
-    margin: 0;
-  }
-
-  .user-menu-item {
-    all: unset;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    width: 100%;
-    cursor: pointer;
-    border-radius: 10px;
-    transition: all 0.2s ease;
-    font-size: 0.875rem;
-    color: #111827;
-  }
-
-  .user-menu-item:hover {
-    background: #f9fafb;
-  }
-
-  .user-menu-item.logout {
-    color: #ef4444;
-  }
-
-  .user-menu-item.logout:hover {
-    background: rgba(239, 68, 68, 0.1);
-  }
-
-  .divider {
-    height: 1px;
-    background: #f3f4f6;
-    margin: 0.5rem 0;
-  }
-
-  /* Responsive */
-  @media (max-width: 1024px) {
-    .brand-name {
-      display: none;
-    }
-
-    .header-center {
-      margin: 0 1rem;
-    }
-  }
-
-  /* New User Dropdown Styles */
-  .user-dropdown-new {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 0.75rem);
-    z-index: 100;
-    width: 320px;
-    background: white;
-    border: 1px solid rgba(17, 24, 39, 0.1);
-    border-radius: 16px;
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    animation: slideDown 0.2s ease;
-  }
-
-  :global(.dark) .user-dropdown-new {
-    background: rgb(31 41 55);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-  }
-
-  .user-dropdown-header-new {
-    padding: 1.5rem;
-    background: linear-gradient(
-      135deg,
-      rgba(59, 130, 246, 0.1),
-      rgba(139, 92, 246, 0.1)
-    );
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .user-avatar-large-new {
-    position: relative;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: white;
-    font-size: 1.5rem;
-    font-weight: 700;
-    border: 3px solid white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .user-status-indicator-large {
-    position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #10b981;
-    border: 2px solid white;
-  }
-
-  .user-info-new {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .user-name-new {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #111827;
-    margin: 0 0 0.25rem 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  :global(.dark) .user-name-new {
-    color: #f9fafb;
-  }
-
-  .user-role-new {
-    margin: 0 0 0.5rem 0;
-  }
-
-  .user-email-new {
-    font-size: 0.8125rem;
-    color: rgba(17, 24, 39, 0.6);
-    margin: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  :global(.dark) .user-email-new {
-    color: rgba(255, 255, 255, 0.6);
-  }
-
-  .divider-new {
-    height: 1px;
-    background: rgba(17, 24, 39, 0.08);
-    margin: 0;
-  }
-
-  :global(.dark) .divider-new {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .user-menu-new {
-    list-style: none;
-    padding: 0.5rem;
-    margin: 0;
-  }
-
-  .user-menu-item-new {
-    all: unset;
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-    padding: 0.875rem 1rem;
-    width: 100%;
-    cursor: pointer;
-    border-radius: 10px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    color: #111827;
-  }
-
-  :global(.dark) .user-menu-item-new {
-    color: #f9fafb;
-  }
-
-  .user-menu-item-new:hover {
-    background: rgba(17, 24, 39, 0.05);
-  }
-
-  :global(.dark) .user-menu-item-new:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .user-menu-item-new > i:first-child {
-    font-size: 1.25rem;
-    width: 24px;
-    text-align: center;
-    color: rgba(17, 24, 39, 0.7);
-  }
-
-  :global(.dark) .user-menu-item-new > i:first-child {
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  .menu-item-content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .menu-item-label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #111827;
-  }
-
-  :global(.dark) .menu-item-label {
-    color: #f9fafb;
-  }
-
-  .menu-item-desc {
-    display: block;
-    font-size: 0.75rem;
-    color: rgba(17, 24, 39, 0.5);
-    margin-top: 0.125rem;
-  }
-
-  :global(.dark) .menu-item-desc {
-    color: rgba(255, 255, 255, 0.5);
-  }
-
-  .menu-item-arrow {
-    font-size: 0.875rem;
-    color: rgba(17, 24, 39, 0.3);
-    transition: transform 0.2s;
-  }
-
-  :global(.dark) .menu-item-arrow {
-    color: rgba(255, 255, 255, 0.3);
-  }
-
-  .user-menu-item-new:hover .menu-item-arrow {
-    transform: translateX(2px);
-    color: rgba(17, 24, 39, 0.6);
-  }
-
-  :global(.dark) .user-menu-item-new:hover .menu-item-arrow {
-    color: rgba(255, 255, 255, 0.6);
-  }
-
-  .user-dropdown-footer-new {
-    padding: 0.75rem;
-    background: rgba(249, 250, 251, 0.5);
-  }
-
-  :global(.dark) .user-dropdown-footer-new {
-    background: rgba(17, 24, 39, 0.5);
-  }
-
-  .logout-button-new {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: none;
-    background: transparent;
-    color: #ef4444;
-    font-size: 0.875rem;
-    font-weight: 600;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  :global(.dark) .logout-button-new {
-    color: #f87171;
-  }
-
-  .logout-button-new:hover {
-    background: rgba(239, 68, 68, 0.1);
-  }
-
-  :global(.dark) .logout-button-new:hover {
-    background: rgba(248, 113, 113, 0.15);
-  }
-
-  .logout-button-new i {
-    font-size: 1.125rem;
-  }
-
-  @media (max-width: 768px) {
-    .search-text {
-      display: none;
-    }
-
-    .search-kbd {
-      display: none;
-    }
-
-    .header-center {
-      max-width: 400px;
-    }
+  
+  /* Custom width utilities */
+  .w-15 {
+    width: 3.75rem;
+  }
+  .h-15 {
+    height: 3.75rem;
+  }
+  .border-3 {
+    border-width: 3px;
   }
 </style>
