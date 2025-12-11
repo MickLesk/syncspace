@@ -1,40 +1,40 @@
 <script>
   /**
    * LazyModal - Dynamic modal loader with Svelte 5 runes
-   * 
+   *
    * Usage:
-   *   <LazyModal 
-   *     isOpen={showModal} 
+   *   <LazyModal
+   *     isOpen={showModal}
    *     component={BulkTaggingModal}
    *     props={{ files: selectedFiles }}
    *     on:close={() => showModal = false}
    *   />
    */
-  
+
   let { isOpen = false, component, onClose, ...modalProps } = $props();
-  
+
   let loadedComponent = $state(null);
   let isLoading = $state(false);
   let error = $state(null);
-  
+
   // Load component when modal opens
   $effect(() => {
     if (isOpen && component && !loadedComponent) {
       isLoading = true;
       error = null;
-      
+
       component()
         .then((module) => {
           loadedComponent = module.default;
           isLoading = false;
         })
         .catch((err) => {
-          console.error('Failed to load modal:', err);
+          console.error("Failed to load modal:", err);
           error = err;
           isLoading = false;
         });
     }
-    
+
     // Clean up when modal closes
     if (!isOpen) {
       // Optional: Keep loaded component in cache
@@ -65,6 +65,11 @@
       </div>
     </div>
   {:else if loadedComponent}
-    <svelte:component this={loadedComponent} {isOpen} {onClose} {...modalProps} />
+    <svelte:component
+      this={loadedComponent}
+      {isOpen}
+      {onClose}
+      {...modalProps}
+    />
   {/if}
 {/if}

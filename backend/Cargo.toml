@@ -61,7 +61,7 @@ zip = "6.0"
 tar = "0.4"
 flate2 = "1.1.7"
 async-compression = { version = "0.4", features = ["tokio", "gzip", "brotli", "zstd"] }
-image = "0.25"
+image = { version = "0.25", features = ["jpeg", "png", "webp", "gif", "bmp"] }
 tempfile = "3.23"
 sysinfo = "0.37"  # System information (CPU, memory, disk usage)
 regex = "1.11"  # Input validation

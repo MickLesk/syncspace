@@ -1,25 +1,25 @@
 <script>
   /**
    * LazyView Component - Wrapper for dynamic imports with loading state
-   * 
+   *
    * Usage:
    *   <LazyView component={FilesView} />
-   * 
+   *
    * Where FilesView = () => import("./pages/files/FilesView.svelte")
    */
-  
+
   let { component, ...props } = $props();
-  
+
   let loadedComponent = $state(null);
   let isLoading = $state(true);
   let error = $state(null);
-  
+
   // Load component dynamically
   $effect(() => {
     isLoading = true;
     error = null;
     loadedComponent = null;
-    
+
     if (component) {
       component()
         .then((module) => {
@@ -27,7 +27,7 @@
           isLoading = false;
         })
         .catch((err) => {
-          console.error('Failed to load component:', err);
+          console.error("Failed to load component:", err);
           error = err;
           isLoading = false;
         });

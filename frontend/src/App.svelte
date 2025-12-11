@@ -29,41 +29,54 @@
   const FilesView = () => import("./pages/files/FilesView.svelte");
   const SharedView = () => import("./pages/files/SharedView.svelte");
   const FavoritesView = () => import("./pages/files/FavoritesView.svelte");
-  const SmartFoldersView = () => import("./pages/files/SmartFoldersView.svelte");
+  const SmartFoldersView = () =>
+    import("./pages/files/SmartFoldersView.svelte");
   const RecentFilesView = () => import("./pages/files/RecentFilesView.svelte");
-  
+
   const TrashView = () => import("./pages/trash/TrashView.svelte");
   const ActivityView = () => import("./pages/system/ActivityView.svelte");
-  const NotificationsView = () => import("./pages/system/NotificationsView.svelte");
+  const NotificationsView = () =>
+    import("./pages/system/NotificationsView.svelte");
   const BackupView = () => import("./pages/system/BackupView.svelte");
   const StorageView = () => import("./pages/system/StorageView.svelte");
   const UsersView = () => import("./pages/system/UsersView.svelte");
-  
+
   const DuplicatesView = () => import("./pages/tools/DuplicatesView.svelte");
   const FtpSyncView = () => import("./pages/tools/FtpSyncView.svelte");
-  const EmailIntegrationView = () => import("./pages/tools/EmailIntegrationView.svelte");
+  const EmailIntegrationView = () =>
+    import("./pages/tools/EmailIntegrationView.svelte");
   const ArchivesView = () => import("./pages/tools/ArchivesView.svelte");
   const CompressionView = () => import("./pages/tools/CompressionView.svelte");
   const TagCloudView = () => import("./pages/TagCloudView.svelte");
-  
+
   const AdminView = () => import("./pages/admin/AdminView.svelte");
   const JobsDashboard = () => import("./pages/JobsDashboard.svelte");
   const JobsQueueView = () => import("./pages/jobs/JobsQueueView.svelte");
-  const RoleManagementView = () => import("./pages/rbac/RoleManagementView.svelte");
-  const WorkflowBuilderView = () => import("./pages/workflow/WorkflowBuilderView.svelte");
-  const CloudStorageView = () => import("./pages/admin/CloudStorageView.svelte");
-  const AuditComplianceView = () => import("./pages/AuditComplianceView.svelte");
-  const AdminDashboardView = () => import("./pages/admin/AdminDashboardView.svelte");
+  const RoleManagementView = () =>
+    import("./pages/rbac/RoleManagementView.svelte");
+  const WorkflowBuilderView = () =>
+    import("./pages/workflow/WorkflowBuilderView.svelte");
+  const CloudStorageView = () =>
+    import("./pages/admin/CloudStorageView.svelte");
+  const AuditComplianceView = () =>
+    import("./pages/AuditComplianceView.svelte");
+  const AdminDashboardView = () =>
+    import("./pages/admin/AdminDashboardView.svelte");
   const WebhooksView = () => import("./pages/admin/WebhooksView.svelte");
-  const SystemHealthView = () => import("./pages/admin/SystemHealthView.svelte");
-  const StorageAnalyticsView = () => import("./pages/analytics/StorageAnalyticsView.svelte");
+  const SystemHealthView = () =>
+    import("./pages/admin/SystemHealthView.svelte");
+  const StorageAnalyticsView = () =>
+    import("./pages/analytics/StorageAnalyticsView.svelte");
   const EncryptionView = () => import("./pages/EncryptionView.svelte");
-  const QuotaManagementView = () => import("./pages/QuotaManagementView.svelte");
-  const SystemConfigView = () => import("./pages/admin/SystemConfigView.svelte");
+  const QuotaManagementView = () =>
+    import("./pages/QuotaManagementView.svelte");
+  const SystemConfigView = () =>
+    import("./pages/admin/SystemConfigView.svelte");
   const UserGroupsView = () => import("./pages/admin/UserGroupsView.svelte");
   const GuestAccessView = () => import("./pages/GuestAccessView.svelte");
-  const ThemeCustomizationView = () => import("./pages/ThemeCustomizationView.svelte");
-  
+  const ThemeCustomizationView = () =>
+    import("./pages/ThemeCustomizationView.svelte");
+
   const SettingsHub = () => import("./pages/settings/SettingsHub.svelte");
   const UserProfileView = () => import("./pages/user/UserProfileView.svelte");
   const UserSettingsView = () => import("./pages/user/UserSettingsView.svelte");
@@ -101,7 +114,7 @@
     files: FilesView,
     shared: SharedView,
     favorites: FavoritesView,
-    'smart-folders': SmartFoldersView,
+    "smart-folders": SmartFoldersView,
     recent: RecentFilesView,
     trash: TrashView,
     users: UsersView,
@@ -109,35 +122,35 @@
     admin: SettingsHub,
     profile: UserProfileView,
     help: HelpView,
-    'user-settings': UserSettingsView,
+    "user-settings": UserSettingsView,
     security: SecurityView,
     storage: StorageView,
     activity: ActivityView,
     duplicates: DuplicatesView,
-    'ftp-sync': FtpSyncView,
-    'email-integration': EmailIntegrationView,
+    "ftp-sync": FtpSyncView,
+    "email-integration": EmailIntegrationView,
     archives: ArchivesView,
     compression: CompressionView,
-    'tag-cloud': TagCloudView,
+    "tag-cloud": TagCloudView,
     backup: BackupView,
     jobs: JobsDashboard,
-    'jobs-queue': JobsQueueView,
+    "jobs-queue": JobsQueueView,
     roles: RoleManagementView,
     workflows: WorkflowBuilderView,
-    'cloud-storage': CloudStorageView,
+    "cloud-storage": CloudStorageView,
     encryption: EncryptionView,
     quota: QuotaManagementView,
-    'system-config': SystemConfigView,
-    'user-groups': UserGroupsView,
+    "system-config": SystemConfigView,
+    "user-groups": UserGroupsView,
     audit: AuditComplianceView,
     dashboard: AdminDashboardView,
     webhooks: WebhooksView,
-    'system-health': SystemHealthView,
-    'storage-analytics': StorageAnalyticsView,
-    'api-tokens': ApiTokensView,
+    "system-health": SystemHealthView,
+    "storage-analytics": StorageAnalyticsView,
+    "api-tokens": ApiTokensView,
     notifications: NotificationsView,
     guests: GuestAccessView,
-    'theme-customization': ThemeCustomizationView,
+    "theme-customization": ThemeCustomizationView,
   };
 
   // Check if setup is needed
@@ -383,64 +396,66 @@
     // Global keyboard shortcuts
     const handleGlobalKeydown = (e) => {
       // Prevent shortcuts when typing in input/textarea
-      const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName);
+      const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(
+        e.target.tagName
+      );
       const isContentEditable = e.target.isContentEditable;
-      
+
       // Ctrl+K / Cmd+K - Command Palette (always works)
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
         e.preventDefault();
         commandPaletteOpen = true;
         return;
       }
-      
+
       // Ctrl+? or Cmd+? for help
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "?") {
         e.preventDefault();
         shortcutsModalOpen = true;
         return;
       }
-      
+
       // Don't trigger other shortcuts while typing
       if (isTyping || isContentEditable) return;
-      
+
       // Ctrl+F / Cmd+F - Focus search (in AppHeader)
-      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+      if ((e.ctrlKey || e.metaKey) && e.key === "f") {
         e.preventDefault();
         const searchInput = document.querySelector('input[type="search"]');
         if (searchInput) searchInput.focus();
         return;
       }
-      
+
       // Ctrl+U / Cmd+U - Trigger upload
-      if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+      if ((e.ctrlKey || e.metaKey) && e.key === "u") {
         e.preventDefault();
         // Trigger file upload if on files view
-        if ($currentView === 'files') {
+        if ($currentView === "files") {
           const uploadInput = document.querySelector('input[type="file"]');
           if (uploadInput) uploadInput.click();
         }
         return;
       }
-      
+
       // Ctrl+N / Cmd+N - New folder
-      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+      if ((e.ctrlKey || e.metaKey) && e.key === "n") {
         e.preventDefault();
-        if ($currentView === 'files') {
+        if ($currentView === "files") {
           // Dispatch event to FilesView to open create folder modal
-          window.dispatchEvent(new CustomEvent('trigger-new-folder'));
+          window.dispatchEvent(new CustomEvent("trigger-new-folder"));
         }
         return;
       }
-      
+
       // Ctrl+Shift+A / Cmd+Shift+A - Advanced search
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "A") {
         e.preventDefault();
-        window.dispatchEvent(new CustomEvent('trigger-advanced-search'));
+        window.dispatchEvent(new CustomEvent("trigger-advanced-search"));
         return;
       }
-      
+
       // ESC - Close modals/panels
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         if (commandPaletteOpen) {
           commandPaletteOpen = false;
         } else if (shortcutsModalOpen) {
@@ -477,26 +492,26 @@
         break;
       case "new-folder":
         // Trigger folder creation in FilesView
-        if ($currentView === 'files') {
-          window.dispatchEvent(new CustomEvent('trigger-new-folder'));
+        if ($currentView === "files") {
+          window.dispatchEvent(new CustomEvent("trigger-new-folder"));
         } else {
           // Navigate to files view first
-          currentView.set('files');
-          currentViewState = 'files';
+          currentView.set("files");
+          currentViewState = "files";
           setTimeout(() => {
-            window.dispatchEvent(new CustomEvent('trigger-new-folder'));
+            window.dispatchEvent(new CustomEvent("trigger-new-folder"));
           }, 100);
         }
         break;
       case "upload-file":
         // Trigger file upload
-        if ($currentView === 'files') {
+        if ($currentView === "files") {
           const uploadInput = document.querySelector('input[type="file"]');
           if (uploadInput) uploadInput.click();
         } else {
           // Navigate to files view first
-          currentView.set('files');
-          currentViewState = 'files';
+          currentView.set("files");
+          currentViewState = "files";
           setTimeout(() => {
             const uploadInput = document.querySelector('input[type="file"]');
             if (uploadInput) uploadInput.click();
@@ -505,7 +520,7 @@
         break;
       case "bulk-delete":
         // Trigger bulk delete in current view
-        window.dispatchEvent(new CustomEvent('trigger-bulk-delete'));
+        window.dispatchEvent(new CustomEvent("trigger-bulk-delete"));
         break;
       case "search":
         // Focus search input
@@ -517,11 +532,11 @@
         break;
       case "advanced-search":
         // Trigger advanced search modal
-        window.dispatchEvent(new CustomEvent('trigger-advanced-search'));
+        window.dispatchEvent(new CustomEvent("trigger-advanced-search"));
         break;
       case "saved-searches":
         // Trigger saved searches modal
-        window.dispatchEvent(new CustomEvent('trigger-saved-searches'));
+        window.dispatchEvent(new CustomEvent("trigger-saved-searches"));
         break;
       default:
         break;

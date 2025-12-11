@@ -19,15 +19,22 @@
   import FileActionsMenu from "../../components/files/FileActionsMenu.svelte";
   import FilePreviewPanel from "../../components/files/FilePreviewPanel.svelte";
   import LazyModal from "../../components/ui/LazyModal.svelte";
-  
+
   // Lazy-loaded modals for better code-splitting
-  const BulkTaggingModal = () => import("../../components/files/BulkTaggingModal.svelte");
-  const BatchRenameModal = () => import("../../components/files/BatchRenameModal.svelte");
-  const BatchProgressPanel = () => import("../../components/files/BatchProgressPanel.svelte");
-  const CopyFileModal = () => import("../../components/modals/CopyFileModal.svelte");
-  const MoveFileModal = () => import("../../components/modals/MoveFileModal.svelte");
-  const FileEditorModal = () => import("../../components/editor/FileEditorModal.svelte");
-  const TemplateLibraryModal = () => import("../../components/templates/TemplateLibraryModal.svelte");
+  const BulkTaggingModal = () =>
+    import("../../components/files/BulkTaggingModal.svelte");
+  const BatchRenameModal = () =>
+    import("../../components/files/BatchRenameModal.svelte");
+  const BatchProgressPanel = () =>
+    import("../../components/files/BatchProgressPanel.svelte");
+  const CopyFileModal = () =>
+    import("../../components/modals/CopyFileModal.svelte");
+  const MoveFileModal = () =>
+    import("../../components/modals/MoveFileModal.svelte");
+  const FileEditorModal = () =>
+    import("../../components/editor/FileEditorModal.svelte");
+  const TemplateLibraryModal = () =>
+    import("../../components/templates/TemplateLibraryModal.svelte");
   import api from "../../lib/api";
   import { websocketManager } from "@stores/websocket.js";
 

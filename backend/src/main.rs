@@ -25,6 +25,7 @@ mod services;
 mod status;
 mod websocket;
 mod workers;
+mod conversion_worker;
 
 // New modules from POST_ALPHA_ROADMAP
 // NOTE: These are feature modules that need AppState/API integration
@@ -41,6 +42,7 @@ mod thumbnails;
 mod virus_scan;
 
 use std::net::SocketAddr;
+use std::path::PathBuf;
 use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -144,6 +146,7 @@ pub struct Config {
     pub max_file_size: usize,
     pub allowed_origins: Vec<String>,
     pub database_url: String,
+    pub data_dir: PathBuf,
 }
 
 impl Default for Config {
@@ -152,6 +155,7 @@ impl Default for Config {
             max_file_size: 100 * 1024 * 1024, // 100 MB
             allowed_origins: vec!["http://localhost:5173".to_string()],
             database_url: "sqlite:./data/syncspace.db".to_string(),
+            data_dir: PathBuf::from("./data"),
         }
     }
 }
@@ -430,6 +434,17 @@ async fn main() {
     let cron_scheduler = cron::CronScheduler::new(app_state.db_pool.clone());
     let _cron_handle = tokio::spawn(async move {
         cron_scheduler.start().await;
+    });
+
+    // Start conversion worker
+    let conversion_pool = app_state.db_pool.clone();
+    let conversion_data_dir = {
+        let config = app_state.config.lock().await;
+        config.data_dir.clone()
+    };
+    let _conversion_handle = tokio::spawn(async move {
+        let worker = conversion_worker::ConversionWorker::new(conversion_pool, conversion_data_dir);
+        worker.start().await;
     });
 
     // Start periodic cleanup tasks for auth security
