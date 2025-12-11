@@ -112,7 +112,7 @@ pub async fn get_preferences(state: &AppState, user: &UserInfo) -> Result<serde_
     match prefs {
         Some(p) => {
             let grid_cols = p.grid_columns.unwrap_or(4);
-            log::info!("📖 GET preferences for user {}: grid_columns = {}", user.id, grid_cols);
+            tracing::info!("📖 GET preferences for user {}: grid_columns = {}", user.id, grid_cols);
             Ok(serde_json::json!({
                 "view_mode": p.view_mode, 
                 "sort_by": p.sort_by, 
@@ -123,7 +123,7 @@ pub async fn get_preferences(state: &AppState, user: &UserInfo) -> Result<serde_
             }))
         }
         None => {
-            log::info!("📖 GET preferences for user {} - returning defaults (grid_columns=4)", user.id);
+            tracing::info!("📖 GET preferences for user {} - returning defaults (grid_columns=4)", user.id);
             Ok(serde_json::json!({
                 "view_mode": "grid", 
                 "sort_by": "name", 
@@ -150,7 +150,7 @@ pub async fn update_preferences(
         let id = Uuid::new_v4().to_string();
         sqlx::query("INSERT INTO user_preferences (id, user_id, view_mode, sort_by, sort_order, grid_columns, created_at, updated_at) VALUES (?, ?, 'grid', 'name', 'asc', 4, ?, ?)")
             .bind(&id).bind(&user.id).bind(&now).bind(&now).execute(&state.db_pool).await?;
-        log::info!("✅ Created new preferences for user {} with grid_columns=4", user.id);
+        tracing::info!("✅ Created new preferences for user {} with grid_columns=4", user.id);
     }
 
     if let Some(view_mode) = prefs.get("view_mode").and_then(|v| v.as_str()) {
@@ -160,7 +160,7 @@ pub async fn update_preferences(
             .bind(&user.id)
             .execute(&state.db_pool)
             .await?;
-        log::info!("✅ Updated view_mode={} for user {}", view_mode, user.id);
+        tracing::info!("✅ Updated view_mode={} for user {}", view_mode, user.id);
     }
     if let Some(sort_by) = prefs.get("sort_by").and_then(|v| v.as_str()) {
         sqlx::query("UPDATE user_preferences SET sort_by = ?, updated_at = ? WHERE user_id = ?")
@@ -169,7 +169,7 @@ pub async fn update_preferences(
             .bind(&user.id)
             .execute(&state.db_pool)
             .await?;
-        log::info!("✅ Updated sort_by={} for user {}", sort_by, user.id);
+        tracing::info!("✅ Updated sort_by={} for user {}", sort_by, user.id);
     }
     if let Some(grid_columns) = prefs.get("grid_columns").and_then(|v| v.as_i64()) {
         sqlx::query("UPDATE user_preferences SET grid_columns = ?, updated_at = ? WHERE user_id = ?")
@@ -178,7 +178,7 @@ pub async fn update_preferences(
             .bind(&user.id)
             .execute(&state.db_pool)
             .await?;
-        log::info!("✅ Updated grid_columns={} for user {}", grid_columns, user.id);
+        tracing::info!("✅ Updated grid_columns={} for user {}", grid_columns, user.id);
     }
     Ok(())
 }
