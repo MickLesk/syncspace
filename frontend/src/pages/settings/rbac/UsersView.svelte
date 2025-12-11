@@ -60,13 +60,14 @@
   }
 
   function formatLastActive(date) {
-    const diff = Date.now() - date;
+    if (!date) return tr("never") || "Nie";
+    const diff = Date.now() - new Date(date).getTime();
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     if (minutes < 1) return tr("justNow");
     if (minutes < 60) return tr("minutesAgo", minutes);
     if (hours < 24) return tr("hoursAgo", hours);
-    return date.toLocaleDateString();
+    return new Date(date).toLocaleDateString();
   }
 
   function toggleSelectUser(userId) {

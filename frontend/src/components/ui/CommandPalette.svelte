@@ -273,7 +273,7 @@
   <div
     class="fixed inset-0 bg-black/50 z-40"
     onclick={() => (isOpen = false)}
-    onkeydown={(e) => e.key === 'Escape' && (isOpen = false)}
+    onkeydown={(e) => e.key === "Escape" && (isOpen = false)}
     role="button"
     tabindex="0"
   ></div>

@@ -1,18 +1,48 @@
 <script>
-  import { onMount } from "svelte";
-  import { currentLang } from "../../stores/ui.js";
-  import { t } from "../../i18n.js";
+  import { currentLang } from "../../../stores/ui.js";
+  import { t } from "../../../i18n.js";
+  import UsersView from "./UsersView.svelte";
+  import UsersSettings from "./UsersSettings.svelte";
+  import RoleManagementView from "./RoleManagementView.svelte";
+  import GuestAccessView from "./GuestAccessView.svelte";
+  import OAuthSettings from "./OAuthSettings.svelte";
+  import LdapSettings from "./LdapSettings.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   const tabs = [
-    { id: "users", icon: "people-fill", label: "Benutzer" },
-    { id: "groups", icon: "people", label: "Gruppen" },
-    { id: "roles", icon: "person-badge-fill", label: "Rollen" },
-    { id: "guests", icon: "person-badge", label: "Gastzugänge" },
+    {
+      id: "users",
+      icon: "people-fill",
+      label: "Benutzer",
+      component: UsersView,
+    },
+    {
+      id: "users-settings",
+      icon: "person-gear",
+      label: "Benutzer-Einstellungen",
+      component: UsersSettings,
+    },
+    {
+      id: "roles",
+      icon: "person-badge-fill",
+      label: "Rollen & Rechte",
+      component: RoleManagementView,
+    },
+    {
+      id: "guests",
+      icon: "person-badge",
+      label: "Gastzugänge",
+      component: GuestAccessView,
+    },
+    { id: "oauth", icon: "key-fill", label: "OAuth", component: OAuthSettings },
+    { id: "ldap", icon: "server", label: "LDAP", component: LdapSettings },
   ];
 
   let activeTab = $state("users");
+  let ActiveComponent = $derived(
+    tabs.find((t) => t.id === activeTab)?.component || UsersView
+  );
 </script>
 
 <!-- Tab Navigation -->
@@ -31,23 +61,7 @@
 
 <!-- Tab Content -->
 <div class="tab-content">
-  {#if activeTab === "users"}
-    {#await import("../system/UsersView.svelte") then module}
-      <module.default />
-    {/await}
-  {:else if activeTab === "groups"}
-    {#await import("../admin/UserGroupsView.svelte") then module}
-      <module.default />
-    {/await}
-  {:else if activeTab === "roles"}
-    {#await import("../rbac/RoleManagementView.svelte") then module}
-      <module.default />
-    {/await}
-  {:else if activeTab === "guests"}
-    {#await import("../GuestAccessView.svelte") then module}
-      <module.default />
-    {/await}
-  {/if}
+  <ActiveComponent />
 </div>
 
 <style>

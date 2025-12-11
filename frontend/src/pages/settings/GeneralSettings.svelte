@@ -1,366 +1,92 @@
 <script>
-  import { onMount } from "svelte";
-  import {
-    currentTheme,
-    currentLang,
-    favoritesEnabled,
-  } from "../../stores/ui.js";
+  import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
-  import api from "../../lib/api.js";
-  import RangeSlider from "../../components/ui/RangeSlider.svelte";
+  import GeneralSettingsTab from "./general/GeneralSettingsTab.svelte";
+  import NotificationsTab from "./general/NotificationsTab.svelte";
+  import NotificationsSettings from "./general/NotificationsSettings.svelte";
+  import SecurityTab from "./general/SecurityTab.svelte";
+  import SecuritySettings from "./general/SecuritySettings.svelte";
+  import SecurityPolicySettings from "./general/SecurityPolicySettings.svelte";
+  import FeaturesTab from "./general/FeaturesTab.svelte";
+  import ThemeCustomizationView from "./general/ThemeCustomizationView.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   const tabs = [
-    { id: "general", icon: "sliders", label: "Allgemein" },
-    { id: "notifications", icon: "bell-fill", label: "Benachrichtigungen" },
-    { id: "features", icon: "toggles", label: "Features" },
+    {
+      id: "general",
+      icon: "sliders",
+      label: "Allgemein",
+      component: GeneralSettingsTab,
+    },
+    {
+      id: "theme",
+      icon: "palette-fill",
+      label: "Design",
+      component: ThemeCustomizationView,
+    },
+    {
+      id: "notifications",
+      icon: "bell-fill",
+      label: "Benachrichtigungen",
+      component: NotificationsTab,
+    },
+    {
+      id: "notif-settings",
+      icon: "bell",
+      label: "Benachrichtigungs-Details",
+      component: NotificationsSettings,
+    },
+    {
+      id: "security",
+      icon: "shield-lock-fill",
+      label: "Sicherheit",
+      component: SecurityTab,
+    },
+    {
+      id: "security-settings",
+      icon: "shield-check",
+      label: "Sicherheits-Einstellungen",
+      component: SecuritySettings,
+    },
+    {
+      id: "security-policy",
+      icon: "shield-exclamation",
+      label: "Sicherheitsrichtlinien",
+      component: SecurityPolicySettings,
+    },
+    {
+      id: "features",
+      icon: "toggles",
+      label: "Features",
+      component: FeaturesTab,
+    },
   ];
 
   let activeTab = $state("general");
-
-  const languageOptions = [
-    { value: "de", label: "🇩🇪 Deutsch", flag: "🇩🇪" },
-    { value: "en", label: "🇬🇧 English", flag: "🇬🇧" },
-  ];
-
-  const themeOptions = [
-    { value: "light", icon: "bi-sun-fill", color: "amber" },
-    { value: "dark", icon: "bi-moon-fill", color: "indigo" },
-    { value: "auto", icon: "bi-circle-half", color: "gray" },
-  ];
-
-  const viewOptions = [
-    { value: "grid", icon: "bi-grid-3x3-gap-fill" },
-    { value: "list", icon: "bi-list-ul" },
-  ];
-
-  let loading = $state(true);
-  let saving = $state(false);
-  let selectedTheme = $state("auto");
-  let selectedLanguage = $state("en");
-  let selectedDefaultView = $state("grid");
-  let gridColumns = $state(4);
-  let enableNotifications = $state(true);
-  let autoBackupNotify = $state(true);
-  let saveMessage = $state("");
-  let saveSuccess = $state(false);
-
-  onMount(async () => {
-    await loadSettings();
-  });
-
-  async function loadSettings() {
-    try {
-      loading = true;
-      const response = await api.users.getSettings();
-      const prefs = await api.users.getPreferences();
-      selectedTheme = response.theme || "auto";
-      selectedLanguage = response.language || "en";
-      selectedDefaultView = response.default_view || "grid";
-      gridColumns = prefs?.grid_columns || 4;
-      currentTheme.set(
-        selectedTheme === "auto" ? detectSystemTheme() : selectedTheme
-      );
-      currentLang.set(selectedLanguage);
-    } catch (error) {
-      console.error("Failed to load settings:", error);
-    } finally {
-      loading = false;
-    }
-  }
-
-  function detectSystemTheme() {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  }
-
-  async function saveSettings() {
-    try {
-      saving = true;
-      saveMessage = "";
-      await api.users.updateSettings({
-        theme: selectedTheme,
-        language: selectedLanguage,
-        default_view: selectedDefaultView,
-      });
-      await api.users.updatePreferences({
-        grid_columns: gridColumns,
-      });
-      applyTheme(selectedTheme);
-      currentLang.set(selectedLanguage);
-      saveMessage = tr("settingsSavedSuccess");
-      saveSuccess = true;
-      setTimeout(() => {
-        saveMessage = "";
-      }, 3000);
-    } catch (error) {
-      console.error("Failed to save settings:", error);
-      saveMessage = tr("failedToSaveSettings");
-      saveSuccess = false;
-      setTimeout(() => {
-        saveMessage = "";
-      }, 3000);
-    } finally {
-      saving = false;
-    }
-  }
-
-  function applyTheme(theme) {
-    const html = document.documentElement;
-    const effectiveTheme = theme === "auto" ? detectSystemTheme() : theme;
-    html.classList.remove("light", "dark");
-    html.classList.add(effectiveTheme);
-    html.setAttribute("data-theme", effectiveTheme);
-    html.style.colorScheme = effectiveTheme;
-    currentTheme.set(effectiveTheme);
-  }
-
-  function handleThemeChange(theme) {
-    selectedTheme = theme;
-    applyTheme(theme);
-    saveSettings();
-  }
-
-  function handleLanguageChange() {
-    saveSettings();
-  }
-
-  function handleDefaultViewChange() {
-    saveSettings();
-  }
-
-  if (typeof window !== "undefined") {
-    window
-      .matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", () => {
-        if (selectedTheme === "auto") applyTheme("auto");
-      });
-  }
+  let ActiveComponent = $derived(
+    tabs.find((t) => t.id === activeTab)?.component || GeneralSettingsTab
+  );
 </script>
 
-{#if loading}
-  <div class="loading-container"><div class="spinner"></div></div>
-{:else}
-  {#if saveMessage}
-    <div class="toast" class:success={saveSuccess} class:error={!saveSuccess}>
-      <i
-        class="bi {saveSuccess
-          ? 'bi-check-circle-fill'
-          : 'bi-exclamation-circle-fill'}"
-      ></i>
-      {saveMessage}
-    </div>
-  {/if}
+<!-- Tab Navigation -->
+<div class="tabs-header">
+  {#each tabs as tab}
+    <button
+      class="tab-button"
+      class:active={activeTab === tab.id}
+      onclick={() => (activeTab = tab.id)}
+    >
+      <i class="bi bi-{tab.icon}"></i>
+      <span>{tab.label}</span>
+    </button>
+  {/each}
+</div>
 
-  <!-- Tab Navigation -->
-  <div class="tabs-header">
-    {#each tabs as tab}
-      <button
-        class="tab-button"
-        class:active={activeTab === tab.id}
-        onclick={() => (activeTab = tab.id)}
-      >
-        <i class="bi bi-{tab.icon}"></i>
-        <span>{tab.label}</span>
-      </button>
-    {/each}
-  </div>
-
-  <!-- Tab Content -->
-  <div class="tab-content">
-    {#if activeTab === "general"}
-      <div class="settings-grid">
-        <!-- Theme Card -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon amber">
-              <i class="bi bi-palette-fill"></i>
-            </div>
-            <div class="card-title">
-              <h3>{tr("theme")}</h3>
-              <p>{tr("themeDescription")}</p>
-            </div>
-          </div>
-          <div class="theme-buttons">
-            {#each themeOptions as option}
-              <button
-                class="theme-btn"
-                class:active={selectedTheme === option.value}
-                disabled={saving}
-                onclick={() => handleThemeChange(option.value)}
-              >
-                <i class="bi {option.icon}"></i>
-                <span>{tr(option.value)}</span>
-              </button>
-            {/each}
-          </div>
-        </div>
-
-        <!-- Language Card -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon blue"><i class="bi bi-translate"></i></div>
-            <div class="card-title">
-              <h3>{tr("language")}</h3>
-              <p>{tr("languageDescription")}</p>
-            </div>
-          </div>
-          <div class="select-wrapper">
-            <select
-              class="select-input"
-              disabled={saving}
-              bind:value={selectedLanguage}
-              onchange={handleLanguageChange}
-            >
-              {#each languageOptions as option}
-                <option value={option.value}>{option.label}</option>
-              {/each}
-            </select>
-          </div>
-        </div>
-
-        <!-- Default View Card -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon purple"><i class="bi bi-grid-fill"></i></div>
-            <div class="card-title">
-              <h3>{tr("defaultView")}</h3>
-              <p>{tr("defaultViewDescription")}</p>
-            </div>
-          </div>
-          <div class="view-buttons">
-            {#each viewOptions as option}
-              <button
-                class="view-btn"
-                class:active={selectedDefaultView === option.value}
-                disabled={saving}
-                onclick={() => {
-                  selectedDefaultView = option.value;
-                  handleDefaultViewChange();
-                }}
-              >
-                <i class="bi {option.icon}"></i>
-                <span
-                  >{tr(option.value === "grid" ? "gridView" : "listView")}</span
-                >
-              </button>
-            {/each}
-          </div>
-
-          <!-- Grid Columns Slider (only visible in grid view) -->
-          {#if selectedDefaultView === "grid"}
-            <div class="mt-4">
-              <RangeSlider
-                bind:value={gridColumns}
-                min={1}
-                max={8}
-                label={tr("columnsPerRow")}
-                showValue={true}
-                showMarkers={true}
-                disabled={saving}
-                oninput={async (e) => {
-                  try {
-                    await api.users.updatePreferences({
-                      grid_columns: gridColumns,
-                    });
-                    console.log("✅ Grid columns saved:", gridColumns);
-                  } catch (error) {
-                    console.error("Failed to save grid columns:", error);
-                  }
-                }}
-              />
-            </div>
-          {/if}
-        </div>
-      </div>
-    {:else if activeTab === "notifications"}
-      <div class="settings-grid">
-        <!-- Notifications Card -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon green"><i class="bi bi-bell-fill"></i></div>
-            <div class="card-title">
-              <h3>{tr("notifications")}</h3>
-              <p>{tr("notificationSettings")}</p>
-            </div>
-          </div>
-          <div class="toggle-list">
-            <div class="toggle-item">
-              <div class="toggle-info">
-                <span class="toggle-label">{tr("emailNotifications")}</span>
-                <span class="toggle-desc"
-                  >{tr("receiveEmailNotifications")}</span
-                >
-              </div>
-              <button
-                class="toggle-switch"
-                class:active={enableNotifications}
-                onclick={() => (enableNotifications = !enableNotifications)}
-                role="switch"
-                aria-checked={enableNotifications}
-                aria-label="Toggle email notifications"
-              >
-                <span class="toggle-knob"></span>
-              </button>
-            </div>
-            <div class="toggle-item">
-              <div class="toggle-info">
-                <span class="toggle-label">{tr("autoBackupNotifications")}</span
-                >
-                <span class="toggle-desc"
-                  >{tr("getNotifiedWhenBackupsComplete")}</span
-                >
-              </div>
-              <button
-                class="toggle-switch"
-                class:active={autoBackupNotify}
-                onclick={() => (autoBackupNotify = !autoBackupNotify)}
-                role="switch"
-                aria-checked={autoBackupNotify}
-                aria-label="Toggle backup notifications"
-              >
-                <span class="toggle-knob"></span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    {:else if activeTab === "features"}
-      <div class="settings-grid">
-        <!-- Features Card -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon rose"><i class="bi bi-toggles"></i></div>
-            <div class="card-title">
-              <h3>{tr("features")}</h3>
-              <p>{tr("customizeFeatures")}</p>
-            </div>
-          </div>
-          <div class="toggle-list">
-            <div class="toggle-item">
-              <div class="toggle-info">
-                <span class="toggle-label">{tr("enableFavoritesSystem")}</span>
-                <span class="toggle-desc">{tr("showFavoritesInSidebar")}</span>
-              </div>
-              <button
-                class="toggle-switch"
-                class:active={$favoritesEnabled}
-                onclick={() => favoritesEnabled.set(!$favoritesEnabled)}
-                role="switch"
-                aria-checked={$favoritesEnabled}
-                aria-label="Toggle favorites system"
-              >
-                <span class="toggle-knob"></span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    {/if}
-  </div>
-{/if}
+<!-- Tab Content -->
+<div class="tab-content">
+  <ActiveComponent />
+</div>
 
 <style>
   .loading-container {
@@ -479,6 +205,10 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 1.5rem;
+  }
+
+  .col-span-full {
+    grid-column: 1 / -1;
   }
 
   /* Card */

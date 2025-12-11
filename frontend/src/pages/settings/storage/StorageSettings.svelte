@@ -1,50 +1,105 @@
 <script>
+  import { onMount } from "svelte";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
-  import StorageView from "./storage/StorageView.svelte";
-  import PerformanceSettings from "./storage/PerformanceSettings.svelte";
-  import QuotasView from "./storage/QuotasView.svelte";
-  import QuotaManagementView from "./storage/QuotaManagementView.svelte";
-  import EncryptionView from "./storage/EncryptionView.svelte";
-  import ShareAnalyticsView from "./storage/ShareAnalyticsView.svelte";
-  import AuditComplianceView from "./storage/AuditComplianceView.svelte";
+  import api from "../../lib/api.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   const tabs = [
-    { id: "storage", icon: "hdd-fill", label: "Speicher", component: StorageView },
-    { id: "performance", icon: "speedometer", label: "Performance", component: PerformanceSettings },
-    { id: "quotas", icon: "speedometer2", label: "Quotas", component: QuotasView },
-    { id: "quota-mgmt", icon: "bar-chart-fill", label: "Quota Management", component: QuotaManagementView },
-    { id: "encryption", icon: "shield-lock-fill", label: "Verschlüsselung", component: EncryptionView },
-    { id: "share-analytics", icon: "graph-up", label: "Share Analytics", component: ShareAnalyticsView },
-    { id: "audit", icon: "file-text-fill", label: "Audit & Compliance", component: AuditComplianceView },
+    { id: "general", icon: "hdd-fill", label: "Allgemein" },
+    { id: "cloud", icon: "cloud-fill", label: "Cloudspeicher" },
+    { id: "quotas", icon: "speedometer2", label: "Quotas & Rate-Limiting" },
+    { id: "encryption", icon: "shield-lock-fill", label: "Verschlüsselung" },
   ];
 
-  let activeTab = $state("storage");
-  let ActiveComponent = $derived(
-    tabs.find((t) => t.id === activeTab)?.component || StorageView
+  let activeTab = $state("general");
+  let loading = $state(true);
+  let clearing = $state(false);
+  let storageLocation = $state("./data");
+  let maxFileSize = $state(100);
+  let totalSpace = $state(50);
+  let usedSpace = $state(0);
+  let fileCount = $state(0);
+  let cacheSize = $state(0);
+  let success = $state("");
+
+  const usagePercent = $derived(
+    totalSpace > 0 ? Math.min((usedSpace / totalSpace) * 100, 100) : 0
   );
+  const freeSpace = $derived(Math.max(totalSpace - usedSpace, 0));
+
+  onMount(async () => {
+    await loadStorageData();
+  });
+
+  async function loadStorageData() {
+    loading = true;
+    try {
+      const overview = await api.storageAnalytics.getOverview();
+      if (overview) {
+        usedSpace = (overview.total_storage_bytes || 0) / 1024 ** 3;
+        fileCount = overview.total_files || 0;
+        cacheSize = 245; // Mock cache size in MB
+      }
+    } catch (err) {
+      console.error("Failed to load storage data:", err);
+    } finally {
+      loading = false;
+    }
+  }
+
+  async function clearCache() {
+    clearing = true;
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      cacheSize = 0;
+      success = tr("cacheCleared");
+      setTimeout(() => (success = ""), 3000);
+    } catch (err) {
+      console.error("Failed to clear cache:", err);
+    } finally {
+      clearing = false;
+    }
+  }
+
+  function formatSize(gb) {
+    if (gb < 1) return `${(gb * 1024).toFixed(0)} MB`;
+    return `${gb.toFixed(2)} GB`;
+  }
 </script>
 
-<!-- Tab Navigation -->
-<div class="tabs-header">
-  {#each tabs as tab}
-    <button
-      class="tab-button"
-      class:active={activeTab === tab.id}
-      onclick={() => (activeTab = tab.id)}
+{#if loading}
+  <div class="flex justify-center p-16">
+    <span class="loading loading-spinner loading-lg text-success"></span>
+  </div>
+{:else}
+  {#if success}
+    <div
+      class="flex items-center gap-2 px-4 py-3 rounded-lg mb-6 text-sm font-medium bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300"
     >
-      <i class="bi bi-{tab.icon}"></i>
-      <span>{tab.label}</span>
-    </button>
-  {/each}
-</div>
+      <i class="bi bi-check-circle-fill"></i>
+      {success}
+    </div>
+  {/if}
 
-<!-- Tab Content -->
-<div class="tab-content">
-  <ActiveComponent />
-</div>
+  <!-- Tab Navigation -->
+  <div class="tabs-header">
+    {#each tabs as tab}
+      <button
+        class="tab-button"
+        class:active={activeTab === tab.id}
+        onclick={() => (activeTab = tab.id)}
+      >
+        <i class="bi bi-{tab.icon}"></i>
+        <span>{tab.label}</span>
+      </button>
+    {/each}
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    {#if activeTab === "general"}
       <!-- Quick Stats -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div

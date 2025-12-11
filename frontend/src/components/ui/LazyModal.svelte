@@ -66,10 +66,6 @@
     </div>
   {:else if loadedComponent}
     {@const Component = loadedComponent}
-    <Component
-      {isOpen}
-      {onClose}
-      {...modalProps}
-    />
+    <Component {isOpen} {onClose} {...modalProps} />
   {/if}
 {/if}

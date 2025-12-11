@@ -140,7 +140,9 @@
             disabled={role !== null}
             required
           />
-          <div class="label"><span class="label-text">{tr("rbac.roleNameHint")}</span></div>
+          <div class="label">
+            <span class="label-text">{tr("rbac.roleNameHint")}</span>
+          </div>
         </div>
 
         <!-- Display Name -->
@@ -228,10 +230,12 @@
             {/each}
           </div>
 
-          <div class="label"><span class="label-text">
+          <div class="label">
+            <span class="label-text">
               {formData.permissions.length}
               {tr("rbac.permissionsSelected")}
-            </span></div>
+            </span>
+          </div>
         </div>
       </div>
     </form>
