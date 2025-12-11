@@ -5,6 +5,7 @@
   import { t } from "../../i18n.js";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
+  import RangeSlider from "../../components/ui/RangeSlider.svelte";
   import api from "../../lib/api.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
@@ -14,6 +15,7 @@
     theme: "auto",
     language: "en",
     defaultView: "grid",
+    gridColumns: 4,
     emailNotifications: true,
     desktopNotifications: false,
     soundEffects: true,
@@ -28,10 +30,12 @@
     loading = true;
     try {
       const userSettings = await api.users.getSettings();
+      const userPrefs = await api.users.getPreferences();
       settings = {
         theme: userSettings.theme || "auto", // Default to AUTO
         language: userSettings.language || "en",
         defaultView: userSettings.default_view || "grid",
+        gridColumns: userPrefs?.grid_columns || 4,
         emailNotifications: userSettings.email_notifications ?? true,
         desktopNotifications: userSettings.desktop_notifications ?? false,
         soundEffects: userSettings.sound_effects ?? true,
@@ -66,6 +70,7 @@
         sound_effects: settings.soundEffects,
         compact_mode: settings.compactMode,
         view_mode: settings.defaultView, // Also save in preferences for consistency
+        grid_columns: settings.gridColumns,
       });
 
       // Update global stores
@@ -174,6 +179,30 @@
               {tr("compactMode")}
             </div>
           </div>
+
+          <!-- Grid Columns Slider (only visible in grid view) -->
+          {#if settings.defaultView === "grid"}
+            <div class="col-span-2">
+              <RangeSlider
+                bind:value={settings.gridColumns}
+                min={1}
+                max={8}
+                label={tr("columnsPerRow")}
+                showValue={true}
+                showMarkers={true}
+                oninput={async (e) => {
+                  try {
+                    await api.users.updatePreferences({
+                      grid_columns: settings.gridColumns,
+                    });
+                    console.log("✅ Grid columns saved:", settings.gridColumns);
+                  } catch (error) {
+                    console.error("Failed to save grid columns:", error);
+                  }
+                }}
+              />
+            </div>
+          {/if}
         </div>
       </div>
     {/snippet}

@@ -420,7 +420,7 @@
   {:else}
     <!-- Overall Health Status -->
     {#if health}
-      <div class="card bg-base-100 shadow-sm border border-base-300">
+      <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
         <div class="card-body">
           <div class="flex items-center gap-4">
             <div
@@ -454,7 +454,7 @@
     <!-- Resource Metrics Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
       <!-- CPU Card -->
-      <div class="card bg-base-100 shadow-sm border border-base-300">
+      <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
         <div class="card-body">
           <div class="flex items-center gap-2 mb-4">
             <i class="bi bi-cpu text-lg text-primary" aria-hidden="true"></i>
@@ -502,7 +502,7 @@
       </div>
 
       <!-- Memory Card -->
-      <div class="card bg-base-100 shadow-sm border border-base-300">
+      <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
         <div class="card-body">
           <div class="flex items-center gap-2 mb-4">
             <i class="bi bi-memory text-lg text-secondary" aria-hidden="true"
@@ -552,7 +552,7 @@
       </div>
 
       <!-- Disk Card -->
-      <div class="card bg-base-100 shadow-sm border border-base-300">
+      <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
         <div class="card-body">
           <div class="flex items-center gap-2 mb-4">
             <i class="bi bi-hdd text-lg text-accent" aria-hidden="true"></i>
@@ -597,7 +597,7 @@
       </div>
 
       <!-- Process Card -->
-      <div class="card bg-base-100 shadow-sm border border-base-300">
+      <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
         <div class="card-body">
           <div class="flex items-center gap-2 mb-4">
             <i class="bi bi-terminal text-lg text-info" aria-hidden="true"></i>
@@ -644,7 +644,7 @@
     <!-- Service Health Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
       <!-- Database Health -->
-      <div class="card bg-base-100 shadow-sm border border-base-300">
+      <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
@@ -700,7 +700,7 @@
       </div>
 
       <!-- Connection Pool -->
-      <div class="card bg-base-100 shadow-sm border border-base-300">
+      <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
@@ -752,7 +752,7 @@
       </div>
 
       <!-- Search Index Health -->
-      <div class="card bg-base-100 shadow-sm border border-base-300">
+      <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
@@ -808,7 +808,7 @@
       </div>
 
       <!-- WebSocket Health -->
-      <div class="card bg-base-100 shadow-sm border border-base-300">
+      <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
@@ -866,7 +866,7 @@
 
     <!-- Application Metrics -->
     {#if applicationMetrics}
-      <div class="card bg-base-100 shadow-sm border border-base-300">
+      <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
         <div class="card-body">
           <h3 class="font-semibold mb-4 flex items-center gap-2">
             <i class="bi bi-graph-up text-primary" aria-hidden="true"></i>
@@ -927,7 +927,7 @@
     {/if}
 
     <!-- Historical Metrics -->
-    <div class="card bg-base-100 shadow-sm border border-base-300">
+    <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
       <div class="card-body">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-semibold flex items-center gap-2">
@@ -983,7 +983,7 @@
     </div>
 
     <!-- Health Alerts -->
-    <div class="card bg-base-100 shadow-sm border border-base-300">
+    <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
       <div class="card-body">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-semibold flex items-center gap-2">

@@ -92,14 +92,15 @@
   <div class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
     <!-- Modern Header with Glass Effect -->
     <div
-      class="mb-8 bg-base-100/50 backdrop-blur-xl rounded-2xl shadow-2xl border border-base-300 p-8"
+      class="mb-8 bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all p-8"
     >
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-4">
           <div
             class="p-4 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl shadow-lg"
           >
-            <i class="bi bi-shield-check text-3xl text-white" aria-hidden="true"></i>
+            <i class="bi bi-shield-check text-3xl text-white" aria-hidden="true"
+            ></i>
           </div>
           <div>
             <h1
@@ -126,16 +127,19 @@
       </div>
     {:else if roles.length === 0}
       <div
-        class="text-center py-20 bg-base-100/50 backdrop-blur-xl rounded-2xl border border-base-300"
+        class="text-center py-20 bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
       >
-        <i class="bi bi-shield-x text-6xl text-base-content/30 mb-4" aria-hidden="true"></i>
+        <i
+          class="bi bi-shield-x text-6xl text-base-content/30 mb-4"
+          aria-hidden="true"
+        ></i>
         <p class="text-lg text-base-content/60">{tr("rbac.noRoles")}</p>
       </div>
     {:else}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {#each roles as role}
           <div
-            class="card bg-base-100 shadow-lg border border-gray-200 dark:border-gray-700"
+            class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all"
           >
             <div class="card-body">
               <div class="flex justify-between items-start mb-3">
@@ -162,7 +166,8 @@
               {/if}
 
               <div class="flex items-center gap-2 mb-4">
-                <i class="bi bi-shield-check text-primary" aria-hidden="true"></i>
+                <i class="bi bi-shield-check text-primary" aria-hidden="true"
+                ></i>
                 <span class="text-sm">
                   {getPermissionCount(role)}
                   {tr("rbac.permissions")}
@@ -178,7 +183,12 @@
                   {tr("rbac.viewPermissions")}
                 </button>
                 {#if !role.is_system}
-                  <button aria-label="Edit" onclick={() => openEditRole(role)} class="btn btn-sm btn-ghost"><i class="bi bi-pencil" aria-hidden="true"></i></button>
+                  <button
+                    aria-label="Edit"
+                    onclick={() => openEditRole(role)}
+                    class="btn btn-sm btn-ghost"
+                    ><i class="bi bi-pencil" aria-hidden="true"></i></button
+                  >
                 {/if}
               </div>
             </div>
@@ -188,7 +198,10 @@
 
       {#if roles.length === 0}
         <div class="text-center py-12">
-          <i class="bi bi-shield-x text-4xl text-gray-400 mb-4" aria-hidden="true"></i>
+          <i
+            class="bi bi-shield-x text-4xl text-gray-400 mb-4"
+            aria-hidden="true"
+          ></i>
           <p class="text-gray-600 dark:text-gray-400">
             {tr("rbac.noRoles")}
           </p>

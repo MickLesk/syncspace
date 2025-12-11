@@ -199,7 +199,7 @@
   </div>
 
   <!-- Users Table -->
-  <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+  <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden">
     <div class="flex items-center gap-4 p-5 border-b border-base-300">
       <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg bg-info/20 text-info">
         <i class="bi bi-people"></i>

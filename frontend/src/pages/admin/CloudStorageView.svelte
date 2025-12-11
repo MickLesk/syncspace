@@ -270,7 +270,7 @@
     <div class="max-w-7xl mx-auto">
       <!-- Modern Header -->
       <div
-        class="mb-8 bg-base-100/50 backdrop-blur-xl rounded-2xl shadow-2xl border border-base-300 p-8"
+        class="mb-8 bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all p-8"
       >
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-4">
@@ -392,7 +392,7 @@
 
       <!-- Tabs -->
       <div
-        class="flex gap-3 mb-6 p-2 bg-base-100/50 backdrop-blur-xl rounded-xl border border-base-300"
+        class="flex gap-3 mb-6 p-2 bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
       >
         <button
           class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all {selectedTab ===
@@ -453,7 +453,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {#each backends as backend}
                 <div
-                  class="card bg-base-100 shadow-xl border border-base-300 hover:shadow-2xl transition-shadow"
+                  class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all hover:shadow-2xl transition-shadow"
                 >
                   <div class="card-body">
                     <div class="flex items-start justify-between">
@@ -586,7 +586,7 @@
 
           {#if migrations.length === 0}
             <div
-              class="text-center py-16 bg-base-100/50 backdrop-blur-xl rounded-2xl border border-base-300"
+              class="text-center py-16 bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
             >
               <i
                 class="bi bi-arrow-left-right text-6xl text-base-content/30 mb-4"
@@ -597,7 +597,7 @@
             </div>
           {:else}
             <div
-              class="overflow-x-auto bg-base-100 rounded-xl border border-base-300"
+              class="overflow-x-auto bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
             >
               <table class="table w-full">
                 <thead>

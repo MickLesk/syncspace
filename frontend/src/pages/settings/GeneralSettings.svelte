@@ -7,6 +7,7 @@
   } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import api from "../../lib/api.js";
+  import RangeSlider from "../../components/ui/RangeSlider.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -31,6 +32,7 @@
   let selectedTheme = $state("auto");
   let selectedLanguage = $state("en");
   let selectedDefaultView = $state("grid");
+  let gridColumns = $state(4);
   let enableNotifications = $state(true);
   let autoBackupNotify = $state(true);
   let saveMessage = $state("");
@@ -44,9 +46,11 @@
     try {
       loading = true;
       const response = await api.users.getSettings();
+      const prefs = await api.users.getPreferences();
       selectedTheme = response.theme || "auto";
       selectedLanguage = response.language || "en";
       selectedDefaultView = response.default_view || "grid";
+      gridColumns = prefs?.grid_columns || 4;
       currentTheme.set(
         selectedTheme === "auto" ? detectSystemTheme() : selectedTheme
       );
@@ -72,6 +76,9 @@
         theme: selectedTheme,
         language: selectedLanguage,
         default_view: selectedDefaultView,
+      });
+      await api.users.updatePreferences({
+        grid_columns: gridColumns,
       });
       applyTheme(selectedTheme);
       currentLang.set(selectedLanguage);
@@ -212,6 +219,31 @@
           </button>
         {/each}
       </div>
+
+      <!-- Grid Columns Slider (only visible in grid view) -->
+      {#if selectedDefaultView === "grid"}
+        <div class="mt-4">
+          <RangeSlider
+            bind:value={gridColumns}
+            min={1}
+            max={8}
+            label={tr("columnsPerRow")}
+            showValue={true}
+            showMarkers={true}
+            disabled={saving}
+            oninput={async (e) => {
+              try {
+                await api.users.updatePreferences({
+                  grid_columns: gridColumns,
+                });
+                console.log("✅ Grid columns saved:", gridColumns);
+              } catch (error) {
+                console.error("Failed to save grid columns:", error);
+              }
+            }}
+          />
+        </div>
+      {/if}
     </div>
 
     <!-- Notifications Card -->

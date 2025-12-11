@@ -1,8 +1,8 @@
 <script>
-  import { onMount } from 'svelte';
-  import { language } from '../../stores/ui.js';
-  import { t } from '../../i18n.js';
-  import { conversion } from '../../lib/api.js';
+  import { onMount } from "svelte";
+  import { language } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  import { conversion } from "../../lib/api.js";
 
   let { formats, onclose } = $props();
 
@@ -10,8 +10,8 @@
   let loading = $state(true);
   let error = $state(null);
   let showCreateForm = $state(false);
-  let newPresetName = $state('');
-  let newPresetFormat = $state('');
+  let newPresetName = $state("");
+  let newPresetFormat = $state("");
 
   onMount(async () => {
     await loadPresets();
@@ -23,8 +23,8 @@
     try {
       presets = await conversion.listPresets();
     } catch (err) {
-      error = err.message || 'Failed to load presets';
-      console.error('Load presets error:', err);
+      error = err.message || "Failed to load presets";
+      console.error("Load presets error:", err);
     } finally {
       loading = false;
     }
@@ -35,25 +35,26 @@
 
     try {
       await conversion.createPreset(newPresetName, newPresetFormat, {});
-      newPresetName = '';
-      newPresetFormat = '';
+      newPresetName = "";
+      newPresetFormat = "";
       showCreateForm = false;
       await loadPresets();
     } catch (err) {
-      error = err.message || 'Failed to create preset';
-      console.error('Create preset error:', err);
+      error = err.message || "Failed to create preset";
+      console.error("Create preset error:", err);
     }
   }
 
   async function handleDeletePreset(presetId, presetName) {
-    if (!confirm(t($language, 'conversion.confirmDeletePreset', presetName))) return;
+    if (!confirm(t($language, "conversion.confirmDeletePreset", presetName)))
+      return;
 
     try {
       await conversion.deletePreset(presetId);
       await loadPresets();
     } catch (err) {
-      error = err.message || 'Failed to delete preset';
-      console.error('Delete preset error:', err);
+      error = err.message || "Failed to delete preset";
+      console.error("Delete preset error:", err);
     }
   }
 
@@ -68,23 +69,23 @@
     ...(formats.image || []),
     ...(formats.document || []),
     ...(formats.video || []),
-    ...(formats.audio || [])
+    ...(formats.audio || []),
   ]);
 </script>
 
-<div 
+<div
   class="modal modal-open"
   role="dialog"
   tabindex="-1"
   onclick={handleBackdropClick}
-  onkeydown={(e) => e.key === 'Escape' && onclose()}
+  onkeydown={(e) => e.key === "Escape" && onclose()}
 >
   <div class="modal-box max-w-2xl" role="document">
     <!-- Header -->
     <div class="mb-4 flex items-center justify-between">
       <h3 class="text-xl font-bold text-base-content">
         <i class="bi bi-bookmark mr-2"></i>
-        {t($language, 'conversion.presets')}
+        {t($language, "conversion.presets")}
       </h3>
       <button
         onclick={onclose}
@@ -109,7 +110,9 @@
         <div class="space-y-3">
           <div class="form-control">
             <label for="presetName" class="label">
-              <span class="label-text">{t($language, 'conversion.presetName')}</span>
+              <span class="label-text"
+                >{t($language, "conversion.presetName")}</span
+              >
             </label>
             <input
               id="presetName"
@@ -122,14 +125,18 @@
 
           <div class="form-control">
             <label for="presetFormat" class="label">
-              <span class="label-text">{t($language, 'conversion.targetFormat')}</span>
+              <span class="label-text"
+                >{t($language, "conversion.targetFormat")}</span
+              >
             </label>
             <select
               id="presetFormat"
               bind:value={newPresetFormat}
               class="select select-bordered select-sm"
             >
-              <option value="" disabled>{t($language, 'conversion.selectFormat')}</option>
+              <option value="" disabled
+                >{t($language, "conversion.selectFormat")}</option
+              >
               {#each allFormats as format}
                 <option value={format}>{format.toUpperCase()}</option>
               {/each}
@@ -140,12 +147,12 @@
             <button
               onclick={() => {
                 showCreateForm = false;
-                newPresetName = '';
-                newPresetFormat = '';
+                newPresetName = "";
+                newPresetFormat = "";
               }}
               class="btn btn-ghost btn-sm"
             >
-              {t($language, 'cancel')}
+              {t($language, "cancel")}
             </button>
             <button
               onclick={handleCreatePreset}
@@ -153,18 +160,18 @@
               disabled={!newPresetName || !newPresetFormat}
             >
               <i class="bi bi-check-lg"></i>
-              {t($language, 'conversion.savePreset')}
+              {t($language, "conversion.savePreset")}
             </button>
           </div>
         </div>
       </div>
     {:else}
       <button
-        onclick={() => showCreateForm = true}
+        onclick={() => (showCreateForm = true)}
         class="btn btn-primary btn-sm mb-4 w-full"
       >
         <i class="bi bi-plus-lg"></i>
-        {t($language, 'conversion.createPreset')}
+        {t($language, "conversion.createPreset")}
       </button>
     {/if}
 
@@ -177,7 +184,7 @@
       {:else if presets.length === 0}
         <div class="text-center py-8 text-base-content/60">
           <i class="bi bi-bookmark text-4xl mb-2 block"></i>
-          <p>{t($language, 'conversion.noJobs')}</p>
+          <p>{t($language, "conversion.noJobs")}</p>
         </div>
       {:else}
         {#each presets as preset (preset.preset_id)}
@@ -188,7 +195,7 @@
                   {preset.name}
                 </div>
                 <div class="text-sm text-base-content/60">
-                  {t($language, 'conversion.targetFormat')}: {preset.target_format.toUpperCase()}
+                  {t($language, "conversion.targetFormat")}: {preset.target_format.toUpperCase()}
                   {#if preset.is_system}
                     <span class="badge badge-ghost badge-xs ml-2">System</span>
                   {/if}
@@ -196,9 +203,10 @@
               </div>
               {#if !preset.is_system}
                 <button
-                  onclick={() => handleDeletePreset(preset.preset_id, preset.name)}
+                  onclick={() =>
+                    handleDeletePreset(preset.preset_id, preset.name)}
                   class="btn btn-error btn-xs"
-                  aria-label={t($language, 'conversion.deletePreset')}
+                  aria-label={t($language, "conversion.deletePreset")}
                 >
                   <i class="bi bi-trash"></i>
                 </button>
@@ -212,7 +220,7 @@
     <!-- Actions -->
     <div class="modal-action">
       <button onclick={onclose} class="btn btn-ghost">
-        {t($language, 'close')}
+        {t($language, "close")}
       </button>
     </div>
   </div>

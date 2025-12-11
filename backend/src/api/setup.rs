@@ -52,14 +52,14 @@ pub fn router() -> Router<AppState> {
 /// Check if setup is needed
 async fn get_setup_status(State(state): State<AppState>) -> Result<Json<SetupStatus>, StatusCode> {
     // Check if setup has been completed
-    let setup_completed: Option<(bool,)> = sqlx::query_as(
+    let setup_completed: Option<(i64,)> = sqlx::query_as(
         "SELECT setup_completed FROM system_settings WHERE id = 1"
     )
     .fetch_optional(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
-    let completed = setup_completed.map(|(c,)| c).unwrap_or(false);
+    let completed = setup_completed.map(|(c,)| c != 0).unwrap_or(false);
     
     // Check if any admin user exists
     let admin_count: Option<(i64,)> = sqlx::query_as(
@@ -83,14 +83,14 @@ async fn complete_setup(
     Json(req): Json<CompleteSetupRequest>,
 ) -> Result<StatusCode, StatusCode> {
     // Validate that setup hasn't been completed yet
-    let setup_completed: Option<(bool,)> = sqlx::query_as(
+    let setup_completed: Option<(i64,)> = sqlx::query_as(
         "SELECT setup_completed FROM system_settings WHERE id = 1"
     )
     .fetch_optional(&state.db_pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
-    if setup_completed.map(|(c,)| c).unwrap_or(false) {
+    if setup_completed.map(|(c,)| c != 0).unwrap_or(false) {
         return Err(StatusCode::CONFLICT); // Setup already completed
     }
     

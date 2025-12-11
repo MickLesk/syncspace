@@ -266,7 +266,7 @@
                   {$t("comments.react")}
                 </button>
                 <ul
-                  class="dropdown-content bg-base-100 border border-base-300 rounded-lg p-2 flex gap-1"
+                  class="dropdown-content bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all rounded-lg p-2 flex gap-1"
                 >
                   {#each commonEmojis as emoji}
                     <button

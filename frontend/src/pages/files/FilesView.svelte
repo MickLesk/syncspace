@@ -43,6 +43,7 @@
   let loading = $state(true);
   let searchQuery = $state("");
   let viewMode = $state("grid");
+  let gridColumns = $state(4);
   let sortBy = $state("name");
   let sortOrder = $state("asc");
   let showFoldersOnly = $state(false);
@@ -201,6 +202,26 @@
     return result;
   });
 
+  // Computed: Dynamic grid class based on gridColumns preference
+  let gridClass = $derived(() => {
+    if (viewMode !== "grid") return "";
+
+    // Map columns to Tailwind classes
+    const colClasses = {
+      1: "grid-cols-1",
+      2: "grid-cols-2",
+      3: "grid-cols-3",
+      4: "grid-cols-4",
+      5: "grid-cols-5",
+      6: "grid-cols-6",
+      7: "grid-cols-7",
+      8: "grid-cols-8",
+    };
+
+    const colClass = colClasses[gridColumns] || "grid-cols-4";
+    return `grid ${colClass} gap-4 grid-stagger`;
+  });
+
   let unsubscribeFileEvent;
   let handlePopstateRef = null;
   let preferencesLoaded = $state(false);
@@ -224,6 +245,10 @@
         if (prefs && typeof prefs.view_mode === "string") {
           viewMode = prefs.view_mode;
           console.log("📖 Loaded view mode from backend:", viewMode);
+        }
+        if (prefs && typeof prefs.grid_columns === "number") {
+          gridColumns = prefs.grid_columns;
+          console.log("📖 Loaded grid columns from backend:", gridColumns);
         }
       });
       unsubscribe(); // Immediately unsubscribe after getting value
@@ -1476,7 +1501,7 @@
         <!-- Regular rendering for small file lists (≤50 items) -->
         <div
           class={viewMode === "grid"
-            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 grid-stagger"
+            ? gridClass()
             : "flex flex-col gap-2 list-stagger"}
         >
           {#each displayFiles() as file (file.file_path || file.name)}

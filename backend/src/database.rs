@@ -601,6 +601,7 @@ pub struct UserPreferences {
     pub notification_sound: bool,
     pub activity_visible: bool,
     pub show_online_status: bool,
+    pub grid_columns: Option<i32>,
     pub created_at: String,
     pub updated_at: String,
 }

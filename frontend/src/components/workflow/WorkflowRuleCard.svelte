@@ -25,7 +25,7 @@
   }
 </script>
 
-<div class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow">
+<div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all hover:shadow-lg transition-shadow">
   <div class="card-body p-4">
     <!-- Header -->
     <div class="flex justify-between items-start mb-3">

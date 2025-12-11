@@ -245,7 +245,9 @@
     </div>
   {:else if tokens.length === 0}
     <!-- Empty State -->
-    <div class="card bg-base-200 border border-base-300">
+    <div
+      class="card bg-gradient-to-br from-base-200/80 to-base-200/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all"
+    >
       <div class="card-body items-center text-center py-16">
         <i
           class="bi bi-key text-6xl text-base-content/30 mb-4"
@@ -271,7 +273,7 @@
     <div class="space-y-4">
       {#each tokens as token (token.id)}
         <div
-          class="card bg-base-100 border border-base-300 shadow-sm hover:shadow-md transition-shadow"
+          class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all shadow-sm hover:shadow-md transition-shadow"
         >
           <div class="card-body p-4">
             <div class="flex items-start justify-between gap-4">

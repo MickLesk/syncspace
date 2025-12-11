@@ -1,12 +1,12 @@
 <script>
-  import { onMount, onDestroy } from 'svelte';
-  import { language } from '../../stores/ui.js';
-  import { t } from '../../i18n.js';
-  import { conversion } from '../../lib/api.js';
-  import { websocketManager } from '../../stores/websocket.js';
-  import ConversionCard from './ConversionCard.svelte';
-  import ConversionModal from './ConversionModal.svelte';
-  import ConversionPresetsModal from './ConversionPresetsModal.svelte';
+  import { onMount, onDestroy } from "svelte";
+  import { language } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  import { conversion } from "../../lib/api.js";
+  import { websocketManager } from "../../stores/websocket.js";
+  import ConversionCard from "./ConversionCard.svelte";
+  import ConversionModal from "./ConversionModal.svelte";
+  import ConversionPresetsModal from "./ConversionPresetsModal.svelte";
 
   let jobs = $state([]);
   let formats = $state({});
@@ -19,21 +19,21 @@
 
   onMount(async () => {
     await loadData();
-    
+
     // Auto-refresh jobs every 10 seconds (backup for WebSocket)
     refreshInterval = setInterval(loadJobs, 10000);
 
     // Connect to WebSocket for real-time updates
     websocketManager.connect();
-    
+
     // Subscribe to conversion progress events
-    wsUnsubscribe = websocketManager.on('conversion_progress', (event) => {
+    wsUnsubscribe = websocketManager.on("conversion_progress", (event) => {
       handleConversionProgress(event);
     });
 
     // Also listen to all WebSocket messages
-    wsUnsubscribe = websocketManager.on('message', (data) => {
-      if (data.event_type === 'conversion_progress') {
+    wsUnsubscribe = websocketManager.on("message", (data) => {
+      if (data.event_type === "conversion_progress") {
         handleConversionProgress(data);
       }
     });
@@ -49,10 +49,10 @@
   });
 
   function handleConversionProgress(event) {
-    console.log('📊 Conversion progress update:', event);
-    
+    console.log("📊 Conversion progress update:", event);
+
     // Update job in the list
-    const index = jobs.findIndex(j => j.job_id === event.job_id);
+    const index = jobs.findIndex((j) => j.job_id === event.job_id);
     if (index !== -1) {
       jobs[index] = {
         ...jobs[index],
@@ -60,9 +60,10 @@
         progress: event.progress,
         error_message: event.error_message,
         output_path: event.output_path,
-        completed_at: event.status === 'completed' || event.status === 'failed' 
-          ? new Date().toISOString() 
-          : jobs[index].completed_at,
+        completed_at:
+          event.status === "completed" || event.status === "failed"
+            ? new Date().toISOString()
+            : jobs[index].completed_at,
       };
       jobs = [...jobs]; // Trigger reactivity
     } else {
@@ -77,13 +78,13 @@
     try {
       const [jobsData, formatsData] = await Promise.all([
         conversion.listJobs(),
-        conversion.listFormats()
+        conversion.listFormats(),
       ]);
       jobs = jobsData;
       formats = formatsData;
     } catch (err) {
-      error = err.message || 'Failed to load conversion data';
-      console.error('Load conversion data error:', err);
+      error = err.message || "Failed to load conversion data";
+      console.error("Load conversion data error:", err);
     } finally {
       loading = false;
     }
@@ -93,7 +94,7 @@
     try {
       jobs = await conversion.listJobs();
     } catch (err) {
-      console.error('Refresh jobs error:', err);
+      console.error("Refresh jobs error:", err);
     }
   }
 
@@ -102,17 +103,17 @@
       await conversion.cancelJob(jobId);
       await loadJobs();
     } catch (err) {
-      console.error('Cancel job error:', err);
+      console.error("Cancel job error:", err);
     }
   }
 
   async function handleDeleteJob(jobId) {
-    if (!confirm(t($language, 'conversion.confirmDelete'))) return;
+    if (!confirm(t($language, "conversion.confirmDelete"))) return;
     try {
       await conversion.deleteJob(jobId);
       await loadJobs();
     } catch (err) {
-      console.error('Delete job error:', err);
+      console.error("Delete job error:", err);
     }
   }
 
@@ -123,13 +124,11 @@
 
   // Separate jobs by status
   const activeJobs = $derived(
-    jobs.filter(j => j.status === 'pending' || j.status === 'processing')
+    jobs.filter((j) => j.status === "pending" || j.status === "processing")
   );
-  const completedJobs = $derived(
-    jobs.filter(j => j.status === 'completed')
-  );
+  const completedJobs = $derived(jobs.filter((j) => j.status === "completed"));
   const failedJobs = $derived(
-    jobs.filter(j => j.status === 'failed' || j.status === 'cancelled')
+    jobs.filter((j) => j.status === "failed" || j.status === "cancelled")
   );
 </script>
 
@@ -140,36 +139,36 @@
       <div>
         <h1 class="text-2xl font-bold text-base-content">
           <i class="bi bi-arrow-repeat mr-2"></i>
-          {t($language, 'conversion.title')}
+          {t($language, "conversion.title")}
         </h1>
         <p class="mt-1 text-sm text-base-content/60">
-          {t($language, 'conversion.subtitle')}
+          {t($language, "conversion.subtitle")}
         </p>
       </div>
       <div class="flex gap-2">
         <button
-          onclick={() => showPresetsModal = true}
+          onclick={() => (showPresetsModal = true)}
           class="btn btn-ghost btn-sm"
-          aria-label={t($language, 'conversion.presets')}
+          aria-label={t($language, "conversion.presets")}
         >
           <i class="bi bi-bookmark"></i>
-          {t($language, 'conversion.presets')}
+          {t($language, "conversion.presets")}
         </button>
         <button
           onclick={loadData}
           class="btn btn-ghost btn-sm"
-          aria-label={t($language, 'conversion.refreshJobs')}
+          aria-label={t($language, "conversion.refreshJobs")}
         >
           <i class="bi bi-arrow-clockwise"></i>
-          {t($language, 'conversion.refreshJobs')}
+          {t($language, "conversion.refreshJobs")}
         </button>
         <button
-          onclick={() => showCreateModal = true}
+          onclick={() => (showCreateModal = true)}
           class="btn btn-primary btn-sm"
-          aria-label={t($language, 'conversion.createJob')}
+          aria-label={t($language, "conversion.createJob")}
         >
           <i class="bi bi-plus-lg"></i>
-          {t($language, 'conversion.createJob')}
+          {t($language, "conversion.createJob")}
         </button>
       </div>
     </div>
@@ -190,17 +189,17 @@
       <div class="flex flex-col items-center justify-center py-12 text-center">
         <i class="bi bi-arrow-repeat mb-4 text-6xl text-base-content/20"></i>
         <h3 class="mb-2 text-xl font-semibold text-base-content">
-          {t($language, 'conversion.noJobs')}
+          {t($language, "conversion.noJobs")}
         </h3>
         <p class="mb-6 text-base-content/60">
-          {t($language, 'conversion.noJobsHint')}
+          {t($language, "conversion.noJobsHint")}
         </p>
         <button
-          onclick={() => showCreateModal = true}
+          onclick={() => (showCreateModal = true)}
           class="btn btn-primary"
         >
           <i class="bi bi-plus-lg"></i>
-          {t($language, 'conversion.createJob')}
+          {t($language, "conversion.createJob")}
         </button>
       </div>
     {:else}
@@ -209,7 +208,7 @@
         <div class="mb-8">
           <h2 class="mb-4 text-lg font-semibold text-base-content">
             <i class="bi bi-hourglass-split mr-2"></i>
-            {t($language, 'conversion.statusProcessing')}
+            {t($language, "conversion.statusProcessing")}
             <span class="badge badge-primary ml-2">{activeJobs.length}</span>
           </h2>
           <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -229,7 +228,7 @@
         <div class="mb-8">
           <h2 class="mb-4 text-lg font-semibold text-base-content">
             <i class="bi bi-check-circle mr-2"></i>
-            {t($language, 'conversion.statusCompleted')}
+            {t($language, "conversion.statusCompleted")}
             <span class="badge badge-success ml-2">{completedJobs.length}</span>
           </h2>
           <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -248,7 +247,7 @@
         <div>
           <h2 class="mb-4 text-lg font-semibold text-base-content">
             <i class="bi bi-x-circle mr-2"></i>
-            {t($language, 'conversion.statusFailed')}
+            {t($language, "conversion.statusFailed")}
             <span class="badge badge-error ml-2">{failedJobs.length}</span>
           </h2>
           <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -269,7 +268,7 @@
 {#if showCreateModal}
   <ConversionModal
     {formats}
-    onclose={() => showCreateModal = false}
+    onclose={() => (showCreateModal = false)}
     oncreated={handleJobCreated}
   />
 {/if}
@@ -277,6 +276,6 @@
 {#if showPresetsModal}
   <ConversionPresetsModal
     {formats}
-    onclose={() => showPresetsModal = false}
+    onclose={() => (showPresetsModal = false)}
   />
 {/if}

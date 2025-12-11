@@ -221,7 +221,7 @@
         {:else}
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {#each allTags as tag}
-              <div class="card bg-base-100 border border-base-300">
+              <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
                 <div
                   class="card-body p-3 flex-row items-center justify-between gap-2"
                 >

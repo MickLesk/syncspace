@@ -112,7 +112,7 @@
   {:else if performanceData}
     <!-- System Status Overview -->
     <div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
-      <div class="bg-base-100 border border-base-300 rounded-xl p-5 flex flex-col gap-3">
+      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all p-5 flex flex-col gap-3">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-success/20 text-success">
             <i class="bi bi-cpu"></i>
@@ -130,7 +130,7 @@
         </div>
       </div>
 
-      <div class="bg-base-100 border border-base-300 rounded-xl p-5 flex flex-col gap-3">
+      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all p-5 flex flex-col gap-3">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-info/20 text-info">
             <i class="bi bi-memory"></i>
@@ -148,7 +148,7 @@
         </div>
       </div>
 
-      <div class="bg-base-100 border border-base-300 rounded-xl p-5 flex flex-col gap-3">
+      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all p-5 flex flex-col gap-3">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-warning/20 text-warning">
             <i class="bi bi-hdd"></i>
@@ -166,7 +166,7 @@
         </div>
       </div>
 
-      <div class="bg-base-100 border border-base-300 rounded-xl p-5 flex flex-col gap-3">
+      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all p-5 flex flex-col gap-3">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-violet-500/20 text-violet-500">
             <i class="bi bi-clock-history"></i>
@@ -180,7 +180,7 @@
     </div>
 
     <!-- Detailed Metrics -->
-    <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+    <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden">
       <div class="flex items-center gap-4 p-5 border-b border-base-300">
         <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg bg-success/20 text-success shrink-0">
           <i class="bi bi-speedometer2"></i>
@@ -232,7 +232,7 @@
     </div>
 
     <!-- Maintenance Actions -->
-    <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+    <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden">
       <div class="flex items-center gap-4 p-5 border-b border-base-300">
         <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg bg-info/20 text-info shrink-0">
           <i class="bi bi-tools"></i>

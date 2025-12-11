@@ -100,7 +100,7 @@
 
 {#if visible && operations.length > 0}
   <div
-    class="fixed bottom-4 right-4 w-[360px] max-w-[calc(100vw-2rem)] bg-base-100 border border-base-300 rounded-2xl shadow-xl dark:shadow-2xl z-[100] overflow-hidden"
+    class="fixed bottom-4 right-4 w-[360px] max-w-[calc(100vw-2rem)] bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all rounded-2xl shadow-xl dark:shadow-2xl z-[100] overflow-hidden"
   >
     <div
       class="flex items-center justify-between px-4 py-3 border-b border-base-300 bg-base-200"

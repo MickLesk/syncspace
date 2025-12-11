@@ -314,7 +314,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {#each smartFolders as folder (folder.id)}
           <div
-            class="bg-base-100 border border-base-300 rounded-2xl p-6 transition-all hover:shadow-lg border-l-4"
+            class="bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all rounded-2xl p-6 transition-all hover:shadow-lg border-l-4"
             style="border-left-color: {folder.color || '#22c55e'}"
           >
             <div class="flex gap-4 mb-4">

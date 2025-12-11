@@ -127,7 +127,7 @@
     <div class="max-w-7xl mx-auto">
       <!-- Modern Header with Glass Effect -->
       <div
-        class="mb-8 bg-base-100/50 backdrop-blur-xl rounded-2xl shadow-2xl border border-base-300 p-8"
+        class="mb-8 bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all p-8"
       >
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-4">

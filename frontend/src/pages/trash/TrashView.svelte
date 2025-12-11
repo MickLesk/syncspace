@@ -263,7 +263,7 @@
         class="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4 mb-6"
       >
         <div
-          class="flex items-center gap-4 p-4 bg-base-100 border border-base-300 rounded-xl"
+          class="flex items-center gap-4 p-4 bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all"
         >
           <div
             class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-success/10 text-success"
@@ -282,7 +282,7 @@
           </div>
         </div>
         <div
-          class="flex items-center gap-4 p-4 bg-base-100 border border-base-300 rounded-xl"
+          class="flex items-center gap-4 p-4 bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all"
         >
           <div
             class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-blue-500/10 text-blue-500"
@@ -304,7 +304,7 @@
 
       <!-- Table Card -->
       <div
-        class="bg-base-100 border border-base-300 rounded-xl overflow-hidden"
+        class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden"
       >
         <div class="flex items-center gap-3 p-4 border-b border-base-300">
           <div

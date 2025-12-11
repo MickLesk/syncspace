@@ -353,7 +353,7 @@
   {/if}
 
   <!-- Schedules Section -->
-  <div class="card bg-base-100 shadow-lg">
+  <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
     <div class="card-body">
       <h2 class="card-title">
         <i class="bi bi-calendar-check" aria-hidden="true"></i>
@@ -462,7 +462,7 @@
   </div>
 
   <!-- Backup History Section -->
-  <div class="card bg-base-100 shadow-lg">
+  <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
     <div class="card-body">
       <h2 class="card-title">
         <i class="bi bi-clock-history" aria-hidden="true"></i>

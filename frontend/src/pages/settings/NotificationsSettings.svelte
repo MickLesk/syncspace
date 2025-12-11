@@ -141,7 +141,7 @@
   <div class="max-w-full">
     <div class="grid grid-cols-2 gap-4 mb-4 max-lg:grid-cols-1">
       <!-- SMTP Card -->
-      <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden transition-all" class:border-primary={smtpEnabled} class:shadow-sm={smtpEnabled}>
+      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden transition-all" class:border-primary={smtpEnabled} class:shadow-sm={smtpEnabled}>
         <div class="flex items-center gap-3 p-4">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-info/20 text-info shrink-0">
             <i class="bi bi-envelope-fill"></i>
@@ -196,7 +196,7 @@
       </div>
 
       <!-- Gotify Card -->
-      <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden transition-all" class:border-primary={gotifyEnabled} class:shadow-sm={gotifyEnabled}>
+      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden transition-all" class:border-primary={gotifyEnabled} class:shadow-sm={gotifyEnabled}>
         <div class="flex items-center gap-3 p-4">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-warning/20 text-warning shrink-0">
             <i class="bi bi-bell-fill"></i>
@@ -238,7 +238,7 @@
       </div>
 
       <!-- ntfy Card -->
-      <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden transition-all" class:border-primary={ntfyEnabled} class:shadow-sm={ntfyEnabled}>
+      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden transition-all" class:border-primary={ntfyEnabled} class:shadow-sm={ntfyEnabled}>
         <div class="flex items-center gap-3 p-4">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-success/20 text-success shrink-0">
             <i class="bi bi-broadcast"></i>
@@ -274,7 +274,7 @@
       </div>
 
       <!-- Apprise Card -->
-      <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden transition-all" class:border-primary={appriseEnabled} class:shadow-sm={appriseEnabled}>
+      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden transition-all" class:border-primary={appriseEnabled} class:shadow-sm={appriseEnabled}>
         <div class="flex items-center gap-3 p-4">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-pink-500/20 text-pink-500 shrink-0">
             <i class="bi bi-lightning-fill"></i>
@@ -303,7 +303,7 @@
     </div>
 
     <!-- Events Card -->
-    <div class="bg-base-100 border border-base-300 rounded-xl p-4 mb-4">
+    <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all p-4 mb-4">
       <div class="flex items-center gap-3 mb-4">
         <div class="w-10 h-10 rounded-lg bg-violet-500/20 text-violet-500 flex items-center justify-center text-lg">
           <i class="bi bi-lightning-charge"></i>

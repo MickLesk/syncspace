@@ -1,17 +1,17 @@
 <script>
-  import { language } from '../../stores/ui.js';
-  import { t } from '../../i18n.js';
-  import { conversion } from '../../lib/api.js';
-  import { currentPath } from '../../stores/files.js';
+  import { language } from "../../stores/ui.js";
+  import { t } from "../../i18n.js";
+  import { conversion } from "../../lib/api.js";
+  import { currentPath } from "../../stores/files.js";
 
   let { formats, onclose, oncreated } = $props();
 
-  let sourcePath = $state('');
-  let targetFormat = $state('');
+  let sourcePath = $state("");
+  let targetFormat = $state("");
   let quality = $state(85);
-  let resolution = $state('');
-  let bitrate = $state('');
-  let codec = $state('');
+  let resolution = $state("");
+  let bitrate = $state("");
+  let codec = $state("");
   let stripMetadata = $state(false);
   let loading = $state(false);
   let error = $state(null);
@@ -24,7 +24,7 @@
 
   async function handleSubmit() {
     if (!sourcePath || !targetFormat) {
-      error = 'Please select a file and target format';
+      error = "Please select a file and target format";
       return;
     }
 
@@ -42,8 +42,8 @@
       await conversion.createJob(sourcePath, targetFormat, options);
       oncreated();
     } catch (err) {
-      error = err.message || 'Failed to create conversion job';
-      console.error('Create conversion error:', err);
+      error = err.message || "Failed to create conversion job";
+      console.error("Create conversion error:", err);
     } finally {
       loading = false;
     }
@@ -56,19 +56,19 @@
   }
 </script>
 
-<div 
+<div
   class="modal modal-open"
   role="dialog"
   tabindex="-1"
   onclick={handleBackdropClick}
-  onkeydown={(e) => e.key === 'Escape' && onclose()}
+  onkeydown={(e) => e.key === "Escape" && onclose()}
 >
   <div class="modal-box max-w-2xl" role="document">
     <!-- Header -->
     <div class="mb-4 flex items-center justify-between">
       <h3 class="text-xl font-bold text-base-content">
         <i class="bi bi-arrow-repeat mr-2"></i>
-        {t($language, 'conversion.convertFile')}
+        {t($language, "conversion.convertFile")}
       </h3>
       <button
         onclick={onclose}
@@ -88,11 +88,18 @@
     {/if}
 
     <!-- Form -->
-    <form onsubmit={e => { e.preventDefault(); handleSubmit(); }} class="space-y-4">
+    <form
+      onsubmit={(e) => {
+        e.preventDefault();
+        handleSubmit();
+      }}
+      class="space-y-4"
+    >
       <!-- Source File -->
       <div class="form-control">
         <label for="sourcePath" class="label">
-          <span class="label-text">{t($language, 'conversion.sourceFile')}</span>
+          <span class="label-text">{t($language, "conversion.sourceFile")}</span
+          >
         </label>
         <input
           id="sourcePath"
@@ -113,7 +120,9 @@
       <!-- Target Format -->
       <div class="form-control">
         <label for="targetFormat" class="label">
-          <span class="label-text">{t($language, 'conversion.targetFormat')}</span>
+          <span class="label-text"
+            >{t($language, "conversion.targetFormat")}</span
+          >
         </label>
         <select
           id="targetFormat"
@@ -121,10 +130,12 @@
           class="select select-bordered w-full"
           required
         >
-          <option value="" disabled>{t($language, 'conversion.selectFormat')}</option>
-          
+          <option value="" disabled
+            >{t($language, "conversion.selectFormat")}</option
+          >
+
           {#if imageFormats.length > 0}
-            <optgroup label={t($language, 'conversion.imageFormats')}>
+            <optgroup label={t($language, "conversion.imageFormats")}>
               {#each imageFormats as format}
                 <option value={format}>{format.toUpperCase()}</option>
               {/each}
@@ -132,7 +143,7 @@
           {/if}
 
           {#if documentFormats.length > 0}
-            <optgroup label={t($language, 'conversion.documentFormats')}>
+            <optgroup label={t($language, "conversion.documentFormats")}>
               {#each documentFormats as format}
                 <option value={format}>{format.toUpperCase()}</option>
               {/each}
@@ -140,7 +151,7 @@
           {/if}
 
           {#if videoFormats.length > 0}
-            <optgroup label={t($language, 'conversion.videoFormats')}>
+            <optgroup label={t($language, "conversion.videoFormats")}>
               {#each videoFormats as format}
                 <option value={format}>{format.toUpperCase()}</option>
               {/each}
@@ -148,7 +159,7 @@
           {/if}
 
           {#if audioFormats.length > 0}
-            <optgroup label={t($language, 'conversion.audioFormats')}>
+            <optgroup label={t($language, "conversion.audioFormats")}>
               {#each audioFormats as format}
                 <option value={format}>{format.toUpperCase()}</option>
               {/each}
@@ -159,13 +170,15 @@
 
       <!-- Options (conditional based on format type) -->
       {#if targetFormat}
-        <div class="divider text-sm">{t($language, 'conversion.options')}</div>
+        <div class="divider text-sm">{t($language, "conversion.options")}</div>
 
         <!-- Image/Video Quality -->
         {#if imageFormats.includes(targetFormat) || videoFormats.includes(targetFormat)}
           <div class="form-control">
             <label for="quality" class="label">
-              <span class="label-text">{t($language, 'conversion.quality')}</span>
+              <span class="label-text"
+                >{t($language, "conversion.quality")}</span
+              >
               <span class="label-text-alt">{quality}%</span>
             </label>
             <input
@@ -183,9 +196,15 @@
         {#if videoFormats.includes(targetFormat)}
           <div class="form-control">
             <label for="resolution" class="label">
-              <span class="label-text">{t($language, 'conversion.resolution')}</span>
+              <span class="label-text"
+                >{t($language, "conversion.resolution")}</span
+              >
             </label>
-            <select id="resolution" bind:value={resolution} class="select select-bordered select-sm">
+            <select
+              id="resolution"
+              bind:value={resolution}
+              class="select select-bordered select-sm"
+            >
               <option value="">Original</option>
               <option value="1920x1080">1080p (1920x1080)</option>
               <option value="1280x720">720p (1280x720)</option>
@@ -196,9 +215,13 @@
 
           <div class="form-control">
             <label for="codec" class="label">
-              <span class="label-text">{t($language, 'conversion.codec')}</span>
+              <span class="label-text">{t($language, "conversion.codec")}</span>
             </label>
-            <select id="codec" bind:value={codec} class="select select-bordered select-sm">
+            <select
+              id="codec"
+              bind:value={codec}
+              class="select select-bordered select-sm"
+            >
               <option value="">Default</option>
               <option value="libx264">H.264</option>
               <option value="libx265">H.265 (HEVC)</option>
@@ -211,9 +234,15 @@
         {#if audioFormats.includes(targetFormat)}
           <div class="form-control">
             <label for="bitrate" class="label">
-              <span class="label-text">{t($language, 'conversion.bitrate')}</span>
+              <span class="label-text"
+                >{t($language, "conversion.bitrate")}</span
+              >
             </label>
-            <select id="bitrate" bind:value={bitrate} class="select select-bordered select-sm">
+            <select
+              id="bitrate"
+              bind:value={bitrate}
+              class="select select-bordered select-sm"
+            >
               <option value="">Default</option>
               <option value="320k">320 kbps</option>
               <option value="256k">256 kbps</option>
@@ -233,7 +262,9 @@
                 bind:checked={stripMetadata}
                 class="checkbox checkbox-primary"
               />
-              <span class="label-text">{t($language, 'conversion.stripMetadata')}</span>
+              <span class="label-text"
+                >{t($language, "conversion.stripMetadata")}</span
+              >
             </label>
           </div>
         {/if}
@@ -247,7 +278,7 @@
           class="btn btn-ghost"
           disabled={loading}
         >
-          {t($language, 'cancel')}
+          {t($language, "cancel")}
         </button>
         <button
           type="submit"
@@ -259,7 +290,7 @@
           {:else}
             <i class="bi bi-arrow-repeat"></i>
           {/if}
-          {t($language, 'conversion.convertFile')}
+          {t($language, "conversion.convertFile")}
         </button>
       </div>
     </form>

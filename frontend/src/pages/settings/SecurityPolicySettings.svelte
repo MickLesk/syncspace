@@ -161,7 +161,7 @@
     <!-- Top Row: Password + 2FA -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <!-- Password Policy Card -->
-      <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden">
         <div class="flex items-center gap-3 p-4 border-b border-base-200">
           <div class="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400">
             <i class="bi bi-key-fill"></i>
@@ -210,7 +210,7 @@
       </div>
 
       <!-- 2FA Policy Card -->
-      <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden">
         <div class="flex items-center gap-3 p-4 border-b border-base-200">
           <div class="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400">
             <i class="bi bi-shield-lock-fill"></i>
@@ -260,7 +260,7 @@
     <!-- Middle Row: Session + Login -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <!-- Session Policy Card -->
-      <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden">
         <div class="flex items-center gap-3 p-4 border-b border-base-200">
           <div class="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
             <i class="bi bi-clock-history"></i>
@@ -297,7 +297,7 @@
       </div>
 
       <!-- Login Security Card -->
-      <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden">
         <div class="flex items-center gap-3 p-4 border-b border-base-200">
           <div class="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
             <i class="bi bi-box-arrow-in-right"></i>
@@ -334,7 +334,7 @@
     </div>
 
     <!-- IP Security Card - Full Width -->
-    <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+    <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden">
       <div class="flex items-center gap-3 p-4 border-b border-base-200">
         <div class="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 bg-purple-100 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400">
           <i class="bi bi-globe"></i>
