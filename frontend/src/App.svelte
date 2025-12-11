@@ -382,10 +382,72 @@
 
     // Global keyboard shortcuts
     const handleGlobalKeydown = (e) => {
+      // Prevent shortcuts when typing in input/textarea
+      const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName);
+      const isContentEditable = e.target.isContentEditable;
+      
+      // Ctrl+K / Cmd+K - Command Palette (always works)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        commandPaletteOpen = true;
+        return;
+      }
+      
       // Ctrl+? or Cmd+? for help
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "?") {
         e.preventDefault();
         shortcutsModalOpen = true;
+        return;
+      }
+      
+      // Don't trigger other shortcuts while typing
+      if (isTyping || isContentEditable) return;
+      
+      // Ctrl+F / Cmd+F - Focus search (in AppHeader)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        const searchInput = document.querySelector('input[type="search"]');
+        if (searchInput) searchInput.focus();
+        return;
+      }
+      
+      // Ctrl+U / Cmd+U - Trigger upload
+      if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+        e.preventDefault();
+        // Trigger file upload if on files view
+        if ($currentView === 'files') {
+          const uploadInput = document.querySelector('input[type="file"]');
+          if (uploadInput) uploadInput.click();
+        }
+        return;
+      }
+      
+      // Ctrl+N / Cmd+N - New folder
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        if ($currentView === 'files') {
+          // Dispatch event to FilesView to open create folder modal
+          window.dispatchEvent(new CustomEvent('trigger-new-folder'));
+        }
+        return;
+      }
+      
+      // Ctrl+Shift+A / Cmd+Shift+A - Advanced search
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('trigger-advanced-search'));
+        return;
+      }
+      
+      // ESC - Close modals/panels
+      if (e.key === 'Escape') {
+        if (commandPaletteOpen) {
+          commandPaletteOpen = false;
+        } else if (shortcutsModalOpen) {
+          shortcutsModalOpen = false;
+        } else if (showActivityFeed) {
+          showActivityFeed = false;
+        }
       }
     };
     window.addEventListener("keydown", handleGlobalKeydown);
@@ -414,27 +476,52 @@
         shortcutsModalOpen = true;
         break;
       case "new-folder":
-        console.log("Create new folder");
-        // TODO: Trigger folder creation modal
+        // Trigger folder creation in FilesView
+        if ($currentView === 'files') {
+          window.dispatchEvent(new CustomEvent('trigger-new-folder'));
+        } else {
+          // Navigate to files view first
+          currentView.set('files');
+          currentViewState = 'files';
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('trigger-new-folder'));
+          }, 100);
+        }
         break;
       case "upload-file":
-        console.log("Upload file");
-        // TODO: Trigger upload
+        // Trigger file upload
+        if ($currentView === 'files') {
+          const uploadInput = document.querySelector('input[type="file"]');
+          if (uploadInput) uploadInput.click();
+        } else {
+          // Navigate to files view first
+          currentView.set('files');
+          currentViewState = 'files';
+          setTimeout(() => {
+            const uploadInput = document.querySelector('input[type="file"]');
+            if (uploadInput) uploadInput.click();
+          }, 100);
+        }
         break;
       case "bulk-delete":
-        console.log("Bulk delete");
-        // TODO: Show bulk delete UI
+        // Trigger bulk delete in current view
+        window.dispatchEvent(new CustomEvent('trigger-bulk-delete'));
         break;
       case "search":
-        currentView.set("search");
+        // Focus search input
+        const searchInput = document.querySelector('input[type="search"]');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
         break;
       case "advanced-search":
-        console.log("Advanced search");
-        // TODO: Show advanced search modal
+        // Trigger advanced search modal
+        window.dispatchEvent(new CustomEvent('trigger-advanced-search'));
         break;
       case "saved-searches":
-        console.log("Saved searches");
-        // TODO: Show saved searches modal
+        // Trigger saved searches modal
+        window.dispatchEvent(new CustomEvent('trigger-saved-searches'));
         break;
       default:
         break;

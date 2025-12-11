@@ -28,7 +28,7 @@
       items: [
         { keys: ["Ctrl", "U"], description: tr("shortcuts.uploadFile") },
         {
-          keys: ["Ctrl", "Shift", "N"],
+          keys: ["Ctrl", "N"],
           description: tr("shortcuts.newFolder"),
         },
         { keys: ["Ctrl", "D"], description: tr("shortcuts.deleteFile") },
@@ -52,7 +52,7 @@
       items: [
         { keys: ["Ctrl", "F"], description: tr("shortcuts.quickSearch") },
         {
-          keys: ["Ctrl", "Shift", "F"],
+          keys: ["Ctrl", "Shift", "A"],
           description: tr("shortcuts.advancedSearch"),
         },
         {
