@@ -5659,8 +5659,108 @@ const virusScan = {
   },
 };
 
+// ==================== FILE CONVERSION ====================
+const conversion = {
+  /**
+   * Create a new conversion job
+   */
+  async createJob(sourcePath, targetFormat, options = {}) {
+    const response = await fetch(`${API_BASE}/conversion/jobs`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ source_path: sourcePath, target_format: targetFormat, options }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List all conversion jobs for current user
+   */
+  async listJobs() {
+    const response = await fetch(`${API_BASE}/conversion/jobs`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get conversion job status
+   */
+  async getJob(jobId) {
+    const response = await fetch(`${API_BASE}/conversion/jobs/${encodeURIComponent(jobId)}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Cancel a conversion job
+   */
+  async cancelJob(jobId) {
+    const response = await fetch(`${API_BASE}/conversion/jobs/${encodeURIComponent(jobId)}/cancel`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a conversion job
+   */
+  async deleteJob(jobId) {
+    const response = await fetch(`${API_BASE}/conversion/jobs/${encodeURIComponent(jobId)}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List available conversion formats
+   */
+  async listFormats() {
+    const response = await fetch(`${API_BASE}/conversion/formats`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * List conversion presets
+   */
+  async listPresets() {
+    const response = await fetch(`${API_BASE}/conversion/presets`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create a new conversion preset
+   */
+  async createPreset(name, targetFormat, options = {}) {
+    const response = await fetch(`${API_BASE}/conversion/presets`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ name, target_format: targetFormat, options }),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete a conversion preset
+   */
+  async deletePreset(presetId) {
+    const response = await fetch(`${API_BASE}/conversion/presets/${encodeURIComponent(presetId)}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+};
+
 // Add late-defined exports to api object
-Object.assign(api, { encryption, quota, groups, guests, rateLimiting, admin, ftp, email, oauth, ldap, archives, compression, thumbnails, preview, virusScan });
+Object.assign(api, { encryption, quota, groups, guests, rateLimiting, admin, ftp, email, oauth, ldap, archives, compression, thumbnails, preview, virusScan, conversion });
 
 // Export individual modules for direct import
-export { thumbnails, preview, virusScan };
+export { thumbnails, preview, virusScan, conversion };

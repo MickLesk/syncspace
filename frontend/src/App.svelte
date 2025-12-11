@@ -131,6 +131,7 @@
     "email-integration": EmailIntegrationView,
     archives: ArchivesView,
     compression: CompressionView,
+    conversion: () => import("./pages/conversion/ConversionView.svelte"),
     "tag-cloud": TagCloudView,
     backup: BackupView,
     jobs: JobsDashboard,

@@ -146,6 +146,12 @@
       label: t($currentLang, "compression") || "Compression",
       category: "tools",
     },
+    {
+      id: "conversion",
+      icon: "arrow-repeat",
+      label: t($currentLang, "conversion.title") || "File Conversion",
+      category: "tools",
+    },
     // Settings - consolidated entry point for all settings + admin
     {
       id: "settings",
