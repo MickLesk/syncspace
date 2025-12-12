@@ -3,6 +3,8 @@
   import { currentLang } from "../../../stores/ui.js";
   import { t } from "../../../i18n.js";
   import api from "../../../lib/api.js";
+  import ModernButton from "../../../components/ui/ModernButton.svelte";
+  import StandardGlassCard from "../../../components/ui/StandardGlassCard.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -244,8 +246,9 @@
           </h3>
           <div class="flex gap-2">
             {#if configs.length > 0}
-              <button
-                class="btn btn-outline btn-sm"
+              <ModernButton
+                variant="outline"
+                size="sm"
                 onclick={syncAllConfigs}
                 disabled={syncing}
               >
@@ -255,12 +258,12 @@
                   <i class="bi bi-arrow-repeat"></i>
                 {/if}
                 Sync All
-              </button>
+              </ModernButton>
             {/if}
-            <button class="btn btn-primary btn-sm" onclick={openAddConfig}>
+            <ModernButton variant="primary" size="sm" onclick={openAddConfig}>
               <i class="bi bi-plus-lg"></i>
               Add Configuration
-            </button>
+            </ModernButton>
           </div>
         </div>
 
@@ -312,8 +315,9 @@
                     {/if}
                   </div>
                   <div class="flex gap-1 ml-4">
-                    <button
-                      class="btn btn-ghost btn-sm"
+                    <ModernButton
+                      variant="ghost"
+                      size="sm"
                       onclick={() => testConnection(config)}
                       disabled={testing}
                       aria-label="Test connection"
@@ -323,9 +327,10 @@
                       {:else}
                         <i class="bi bi-plug"></i>
                       {/if}
-                    </button>
-                    <button
-                      class="btn btn-ghost btn-sm"
+                    </ModernButton>
+                    <ModernButton
+                      variant="ghost"
+                      size="sm"
                       onclick={() => syncUsers(config)}
                       disabled={syncing}
                       aria-label="Sync users"
@@ -335,21 +340,23 @@
                       {:else}
                         <i class="bi bi-arrow-repeat"></i>
                       {/if}
-                    </button>
-                    <button
-                      class="btn btn-ghost btn-sm"
+                    </ModernButton>
+                    <ModernButton
+                      variant="ghost"
+                      size="sm"
                       onclick={() => openEditConfig(config)}
                       aria-label="Edit configuration"
                     >
                       <i class="bi bi-pencil"></i>
-                    </button>
-                    <button
-                      class="btn btn-ghost btn-sm text-error"
+                    </ModernButton>
+                    <ModernButton
+                      variant="danger"
+                      size="sm"
                       onclick={() => deleteConfig(config)}
                       aria-label="Delete configuration"
                     >
                       <i class="bi bi-trash"></i>
-                    </button>
+                    </ModernButton>
                   </div>
                 </div>
               </div>
@@ -631,13 +638,13 @@
       </div>
 
       <div class="modal-action">
-        <button class="btn btn-ghost" onclick={closeModal}>Cancel</button>
-        <button class="btn btn-primary" onclick={saveConfig} disabled={saving}>
+        <ModernButton variant="ghost" onclick={closeModal}>Cancel</ModernButton>
+        <ModernButton variant="primary" onclick={saveConfig} disabled={saving}>
           {#if saving}
             <span class="loading loading-spinner loading-sm"></span>
           {/if}
           {editingConfig ? "Update" : "Create"} Configuration
-        </button>
+        </ModernButton>
       </div>
     </div>
   </div>

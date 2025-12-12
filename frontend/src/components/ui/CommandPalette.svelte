@@ -153,7 +153,7 @@
       category: tr("commandPalette.settings"),
       items: [
         {
-          id: "user-settings",
+          id: "settings",
           label: tr("commandPalette.userSettings"),
           description: tr("commandPalette.userSettingsDesc"),
           icon: "bi-gear",

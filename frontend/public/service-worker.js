@@ -4,7 +4,6 @@
 const CACHE_NAME = 'syncspace-v1';
 const API_CACHE = 'syncspace-api-v1';
 const IMAGE_CACHE = 'syncspace-images-v1';
-const OFFLINE_URL = '/offline.html';
 
 // URLs to cache on install
 const PRECACHE_URLS = [
@@ -12,7 +11,6 @@ const PRECACHE_URLS = [
   '/index.html',
   '/manifest.json',
   '/favicon.ico',
-  '/offline.html',
 ];
 
 // API endpoints to cache
@@ -117,9 +115,9 @@ async function networkFirstStrategy(request, cacheName) {
       return cached;
     }
 
-    // Return offline page for document requests
+    // Return index page for document requests
     if (request.destination === 'document') {
-      return caches.match(OFFLINE_URL);
+      return caches.match('/index.html');
     }
 
     // Return error response
@@ -156,9 +154,9 @@ async function cacheFirstStrategy(request, cacheName) {
   } catch (error) {
     console.log('[ServiceWorker] Network request failed for:', request.url);
 
-    // Return offline page for document requests
+    // Return index page for document requests
     if (request.destination === 'document') {
-      return caches.match(OFFLINE_URL);
+      return caches.match('/index.html');
     }
 
     // Return error response

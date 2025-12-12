@@ -3,6 +3,9 @@
   import { t } from "../../../i18n.js";
   import { guests } from "../../../lib/api.js";
   import { showToast } from "../../../stores/toast.js";
+  import ModernButton from "../../../components/ui/ModernButton.svelte";
+  import StandardGlassCard from "../../../components/ui/StandardGlassCard.svelte";
+  import StandardButton from "../../../components/ui/StandardButton.svelte";
 
   // State
   let activeTab = $state("users");
@@ -367,34 +370,28 @@
   {/if}
 
   <!-- Tabs -->
-  <div class="tabs tabs-boxed mb-6 bg-base-200 p-1">
-    <button
-      class="tab {activeTab === 'users'
-        ? 'tab-active bg-primary text-primary-content'
-        : ''}"
+  <div class="flex gap-2 mb-6">
+    <ModernButton
+      variant={activeTab === "users" ? "primary" : "ghost"}
       onclick={() => (activeTab = "users")}
     >
       <i class="bi bi-person-badge mr-2"></i>
       {$t("guests.tabUsers")}
-    </button>
-    <button
-      class="tab {activeTab === 'links'
-        ? 'tab-active bg-primary text-primary-content'
-        : ''}"
+    </ModernButton>
+    <ModernButton
+      variant={activeTab === "links" ? "primary" : "ghost"}
       onclick={() => (activeTab = "links")}
     >
       <i class="bi bi-link-45deg mr-2"></i>
       {$t("guests.tabLinks")}
-    </button>
-    <button
-      class="tab {activeTab === 'invitations'
-        ? 'tab-active bg-primary text-primary-content'
-        : ''}"
+    </ModernButton>
+    <ModernButton
+      variant={activeTab === "invitations" ? "primary" : "ghost"}
       onclick={() => (activeTab = "invitations")}
     >
       <i class="bi bi-envelope mr-2"></i>
       {$t("guests.tabInvitations")}
-    </button>
+    </ModernButton>
   </div>
 
   <!-- Content -->
@@ -405,10 +402,10 @@
   {:else if activeTab === "users"}
     <!-- Guest Users Tab -->
     <div class="flex justify-end mb-4">
-      <button class="btn btn-primary" onclick={() => openGuestModal()}>
+      <ModernButton variant="primary" onclick={() => openGuestModal()}>
         <i class="bi bi-plus-lg mr-2"></i>
         {$t("guests.createGuest")}
-      </button>
+      </ModernButton>
     </div>
 
     {#if guestUsers.length === 0}
@@ -466,27 +463,30 @@
                 </td>
                 <td>
                   <div class="flex gap-1">
-                    <button
-                      class="btn btn-ghost btn-xs"
+                    <ModernButton
+                      variant="ghost"
+                      size="sm"
                       title={$t("guests.viewActivity")}
                       onclick={() => viewGuestActivity(guest)}
                     >
                       <i class="bi bi-activity"></i>
-                    </button>
-                    <button
-                      class="btn btn-ghost btn-xs"
+                    </ModernButton>
+                    <ModernButton
+                      variant="ghost"
+                      size="sm"
                       title={$t("guests.editGuest")}
                       onclick={() => openGuestModal(guest)}
                     >
                       <i class="bi bi-pencil"></i>
-                    </button>
-                    <button
-                      class="btn btn-ghost btn-xs text-error"
+                    </ModernButton>
+                    <ModernButton
+                      variant="danger"
+                      size="sm"
                       title={$t("guests.deleteGuest")}
                       onclick={() => deleteGuest(guest)}
                     >
                       <i class="bi bi-trash"></i>
-                    </button>
+                    </ModernButton>
                   </div>
                 </td>
               </tr>
@@ -498,10 +498,10 @@
   {:else if activeTab === "links"}
     <!-- Access Links Tab -->
     <div class="flex justify-end mb-4">
-      <button class="btn btn-primary" onclick={() => openLinkModal()}>
+      <ModernButton variant="primary" onclick={() => openLinkModal()}>
         <i class="bi bi-plus-lg mr-2"></i>
         {$t("guests.createLink")}
-      </button>
+      </ModernButton>
     </div>
 
     {#if accessLinks.length === 0}

@@ -2,11 +2,11 @@
   import { currentLang } from "../../../stores/ui.js";
   import { t } from "../../../i18n.js";
   import UsersView from "./UsersView.svelte";
-  import UsersSettings from "./UsersSettings.svelte";
   import RoleManagementView from "./RoleManagementView.svelte";
   import GuestAccessView from "./GuestAccessView.svelte";
   import OAuthSettings from "./OAuthSettings.svelte";
   import LdapSettings from "./LdapSettings.svelte";
+  import ModernButton from "../../../components/ui/ModernButton.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -16,12 +16,6 @@
       icon: "people-fill",
       label: "Benutzer",
       component: UsersView,
-    },
-    {
-      id: "users-settings",
-      icon: "person-gear",
-      label: "Benutzer-Einstellungen",
-      component: UsersSettings,
     },
     {
       id: "roles",
@@ -48,14 +42,14 @@
 <!-- Tab Navigation -->
 <div class="tabs-header">
   {#each tabs as tab}
-    <button
-      class="tab-button"
-      class:active={activeTab === tab.id}
+    <ModernButton
+      variant={activeTab === tab.id ? "primary" : "ghost"}
       onclick={() => (activeTab = tab.id)}
+      class="tab-button"
     >
       <i class="bi bi-{tab.icon}"></i>
       <span>{tab.label}</span>
-    </button>
+    </ModernButton>
   {/each}
 </div>
 

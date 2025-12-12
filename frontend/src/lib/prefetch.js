@@ -85,7 +85,7 @@ export function prefetchNearbyRoutes(currentView) {
   const routeGroups = {
     'files': ['shared', 'recent', 'trash'],
     'search': ['files', 'activity'],
-    'settings': ['profile', 'user-settings', 'security'],
+    'settings': ['profile', 'security'],
     'activity': ['notifications', 'backup'],
     'storage': ['backup', 'duplicates'],
   };

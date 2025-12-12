@@ -4060,7 +4060,6 @@ export const api = {
   webhooks,
   systemHealth,
   apiTokens,
-  themes,
 };
 
 // ============================================================================

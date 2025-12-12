@@ -126,7 +126,6 @@
     admin: SettingsHub,
     profile: UserProfileView,
     help: HelpView,
-    "user-settings": UserSettingsView,
     security: SecurityView,
     storage: StorageView,
     activity: ActivityView,
@@ -161,20 +160,32 @@
   // Check if setup is needed
   async function checkSetupStatus() {
     try {
-      const response = await fetch(
-        `${new URL(window.location.href).protocol}//${new URL(window.location.href).hostname}:8080/api/setup/status`
-      );
+      const url = `${new URL(window.location.href).protocol}//${new URL(window.location.href).hostname}:8080/api/setup/status`;
+      console.log("🔍 Checking setup status at:", url);
+
+      const response = await fetch(url);
+      console.log("📡 Setup status response:", response.status, response.ok);
+
       if (response.ok) {
         const data = await response.json();
-        setupCompleted = data.setup_completed;
+        console.log("📋 Setup status data:", data);
+        // If admin exists, force setup completion regardless of database flag
+        setupCompleted = data.setup_completed || data.has_admin;
+        console.log(
+          "✅ Setup completed:",
+          setupCompleted,
+          "(forced true if admin exists)"
+        );
       } else {
+        console.warn("⚠️ Setup status error response, assuming setup done");
         setupCompleted = true; // Assume setup done if error
       }
     } catch (e) {
-      console.error("Setup status check failed:", e);
+      console.error("❌ Setup status check failed:", e);
       setupCompleted = true; // Assume setup done if backend unreachable
     } finally {
       setupCheckDone = true;
+      console.log("🏁 Setup check done. setupCompleted =", setupCompleted);
     }
   }
 
@@ -259,7 +270,6 @@
         "storage-analytics": "storage-analytics",
         settings: "settings",
         profile: "profile",
-        "user-settings": "user-settings",
         security: "security",
         "api-tokens": "api-tokens",
         showcase: "showcase",

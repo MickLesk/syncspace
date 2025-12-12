@@ -90,21 +90,6 @@
 </script>
 
 <PageWrapper gradient>
-  <PageHeader
-    title={tr("users")}
-    subtitle="{filteredUsers.length} {filteredUsers.length !== 1
-      ? tr('usersPlural')
-      : tr('userSingular')}"
-    icon="people-fill"
-  >
-    {#snippet actions()}
-      <ModernButton variant="gradient">
-        <i class="bi bi-plus-lg mr-2" aria-hidden="true"></i>
-        {tr("addUser")}
-      </ModernButton>
-    {/snippet}
-  </PageHeader>
-
   <!-- View Mode and Filters -->
   <ModernCard variant="glass" class="mb-6">
     <div class="p-4">
@@ -113,26 +98,27 @@
         <div
           class="flex rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700"
         >
-          <button
+          <ModernButton
+            variant={viewMode === "table" ? "primary" : "ghost"}
             onclick={() => (viewMode = "table")}
-            class="px-3 py-2 text-sm transition-colors {viewMode === 'table'
-              ? 'bg-primary-600 text-white'
-              : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
+            class="rounded-none"
             aria-label={tr("tableView")}
           >
             <i class="bi bi-table" aria-hidden="true"></i>
-          </button>
-          <button
+          </ModernButton>
+          <ModernButton
+            variant={viewMode === "cards" ? "primary" : "ghost"}
             onclick={() => (viewMode = "cards")}
-            class="px-3 py-2 text-sm border-l-2 border-gray-200 dark:border-gray-700 transition-colors {viewMode ===
-            'cards'
-              ? 'bg-primary-600 text-white'
-              : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}"
+            class="rounded-none border-l-2 border-gray-200 dark:border-gray-700"
             aria-label={tr("cardsView")}
           >
             <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i>
-          </button>
+          </ModernButton>
         </div>
+        <ModernButton variant="gradient">
+          <i class="bi bi-plus-lg mr-2" aria-hidden="true"></i>
+          {tr("addUser")}
+        </ModernButton>
       </div>
 
       <!-- Filters -->

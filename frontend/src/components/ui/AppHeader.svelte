@@ -754,7 +754,7 @@
               <li>
                 <button
                   class="flex items-center gap-3.5 px-4 py-3.5 w-full cursor-pointer rounded-lg transition-all text-gray-900 dark:text-gray-50 hover:bg-gray-900/5 dark:hover:bg-white/10"
-                  onclick={() => navigateAndClose("user-settings")}
+                  onclick={() => navigateAndClose("settings")}
                 >
                   <i
                     class="bi bi-sliders text-xl w-6 text-center text-gray-900/70 dark:text-white/70"
