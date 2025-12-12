@@ -12,6 +12,17 @@
 - **Real-time**: WebSocket file system events with `notify` crate (`ws://localhost:8080/api/ws`)
 - **Search**: Tantivy 0.25 full-text search with fuzzy matching, BM25 ranking (`backend/src/search.rs`)
 
+**Frontend Technology Rules (CRITICAL)**:
+
+- ✅ **Svelte 5 ONLY**: Use runes (`$state`, `$derived`, `$effect`, `$bindable`) - NO Svelte 4 patterns
+- ✅ **Tailwind CSS v4 ONLY**: Pure utility classes - NO custom CSS, NO style blocks, NO CSS files
+- ✅ **Component-First**: Use UI component system (`components/ui/UI*.svelte`) - NO native HTML elements
+- ✅ **NO Script Bloat**: Keep `<script>` minimal - logic in components, state in stores
+- ✅ **NO CSS Hacking**: Use Tailwind utilities + DaisyUI components ONLY
+- ❌ **NO Inline Styles**: Never use `style="..."` attributes
+- ❌ **NO Custom CSS**: Never create `.css` files or `<style>` blocks
+- ❌ **NO Native Elements**: Use `<UIButton>` instead of `<button>`, `<UIInput>` instead of `<input>`
+
 **Backend-First Philosophy**:
 
 - ❌ **No localStorage/sessionStorage** for app state - use backend preferences
@@ -142,10 +153,71 @@ cd frontend && npm run dev
 1. Create `.svelte` file in `frontend/src/components/` or `frontend/src/pages/`
 2. Import and register in `frontend/src/App.svelte` routing (hash-based)
 3. Use `frontend/src/lib/api.js` for HTTP calls with automatic JWT headers
-4. Use Tailwind v4 utilities + DaisyUI components for styling
+4. **ALWAYS use UI components** from `components/ui/` - see UI Component System below
 5. Use Bootstrap Icons for icon elements: `<i class="bi bi-icon-name"></i>`
 6. Use stores from `frontend/src/stores/` for global state
 7. Follow Svelte 5 patterns: `$state()`, `$derived()`, `$effect()` for reactivity
+
+## UI Component System (CRITICAL)
+
+**Component-First Architecture**: ALL UI elements MUST use reusable components from `components/ui/`. NO native HTML elements (button, input, select, etc.) allowed in pages.
+
+**Available UI Components** (`frontend/src/components/ui/`):
+
+**Form Components**:
+
+- `UIInput.svelte` - Text inputs, passwords, numbers with labels/errors
+- `UISelect.svelte` - Dropdowns with options, placeholders
+- `UIToggle.svelte` - Switches/checkboxes with descriptions
+- `UITextarea.svelte` - Multi-line text inputs
+- `UICheckbox.svelte` - Individual checkboxes with labels
+- `UIRadio.svelte` - Radio button groups
+- `UIFileUpload.svelte` - File upload with drag & drop
+
+**Action Components**:
+
+- `UIButton.svelte` - Buttons with variants (primary, ghost, outline, danger)
+- `ModernButton.svelte` - Gradient buttons (legacy, migrate to UIButton)
+
+**Layout Components**:
+
+- `UICard.svelte` - Glass-morphism cards (replaces StandardGlassCard)
+- `UIModal.svelte` - Overlay modals with backdrop (replaces StandardModal)
+- `UITabs.svelte` - Tab navigation systems
+- `UIBreadcrumbs.svelte` - Navigation breadcrumbs
+
+**Feedback Components**:
+
+- `UIToast.svelte` - Toast notifications (integrate with stores/toast.js)
+- `UIAlert.svelte` - Inline alerts/warnings
+- `UIBadge.svelte` - Status badges
+- `EmptyState.svelte` - Empty state placeholders
+- `LoadingState.svelte` - Loading skeletons
+
+**Naming Convention**:
+
+- ✅ **UI-Prefix**: All design system components use `UI*` naming
+- ❌ **NO Standard-Prefix**: Migrate all `Standard*` to `UI*`
+- ❌ **NO Native Elements**: Always use UI components
+
+**Component Usage Examples**:
+
+```svelte
+<!-- ❌ WRONG: Native HTML -->
+<button class="btn btn-primary">Click</button>
+<input type="text" placeholder="Name" />
+
+<!-- ✅ CORRECT: UI Components -->
+<UIButton variant="primary">Click</UIButton>
+<UIInput placeholder="Name" bind:value={name} />
+```
+
+**Toast Integration** (CRITICAL):
+
+- Use `showToast(message, type)` from `stores/toast.js`
+- Types: `"success"`, `"error"`, `"warning"`, `"info"`
+- NO inline error/success messages in pages
+- Example: `showToast("Erfolgreich gespeichert", "success")`
 
 ## Backend-First API Patterns
 

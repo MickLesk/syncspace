@@ -6,6 +6,7 @@
   import WorkflowRuleCard from "../../../components/workflow/WorkflowRuleCard.svelte";
   import PageWrapper from "../../../components/PageWrapper.svelte";
   import { modals, modalEvents } from "../../../stores/modals.js";
+  import ModernButton from "../../../components/ui/ModernButton.svelte";
 
   let rules = $state([]);
   let triggerTypes = $state([]);
@@ -150,10 +151,10 @@
               </p>
             </div>
           </div>
-          <button class="btn btn-primary gap-2" onclick={openCreateRule}>
-            <i class="bi bi-plus-circle" aria-hidden="true"></i>
+          <ModernButton variant="primary" onclick={openCreateRule}>
+            <i class="bi bi-plus-circle mr-2" aria-hidden="true"></i>
             {t($currentLang, "workflow.createRule")}
-          </button>
+          </ModernButton>
         </div>
 
         <!-- Modern Filters in Grid -->
@@ -221,10 +222,14 @@
 
             <div class="form-control">
               <div class="label opacity-0">Actions</div>
-              <button onclick={clearFilters} class="btn btn-outline w-full">
-                <i class="bi bi-x-circle" aria-hidden="true"></i>
+              <ModernButton
+                onclick={clearFilters}
+                variant="outline"
+                class="w-full"
+              >
+                <i class="bi bi-x-circle mr-2" aria-hidden="true"></i>
                 {t($currentLang, "workflow.clearFilters")}
-              </button>
+              </ModernButton>
             </div>
           </div>
         </div>

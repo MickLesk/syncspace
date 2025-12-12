@@ -3,8 +3,13 @@
   import { currentLang } from "../../../stores/ui.js";
   import { t } from "../../../i18n.js";
   import api from "../../../lib/api.js";
-  import ModernButton from "../../../components/ui/ModernButton.svelte";
+  import { showToast } from "../../../stores/toast.js";
   import StandardGlassCard from "../../../components/ui/StandardGlassCard.svelte";
+  import StandardButton from "../../../components/ui/StandardButton.svelte";
+  import StandardModal from "../../../components/ui/StandardModal.svelte";
+  import StandardInput from "../../../components/ui/StandardInput.svelte";
+  import StandardSelect from "../../../components/ui/StandardSelect.svelte";
+  import StandardToggle from "../../../components/ui/StandardToggle.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -18,7 +23,7 @@
   // LDAP Configurations
   let configs = $state([]);
 
-  // Add/Edit Config Modal
+  // Modern Modal State
   let showConfigModal = $state(false);
   let editingConfig = $state(null);
   let configForm = $state({
@@ -38,6 +43,14 @@
     enabled: true,
     sync_interval_minutes: 60,
   });
+
+  const syncIntervalOptions = [
+    { value: 15, label: "15 Minuten" },
+    { value: 30, label: "30 Minuten" },
+    { value: 60, label: "1 Stunde" },
+    { value: 240, label: "4 Stunden" },
+    { value: 1440, label: "24 Stunden" }
+  ];
 
   onMount(async () => {
     await loadConfigs();
@@ -103,12 +116,11 @@
 
   async function saveConfig() {
     if (!configForm.name || !configForm.host || !configForm.base_dn) {
-      error = "Name, Host, and Base DN are required";
+      showToast("Name, Host und Base DN sind erforderlich", "error");
       return;
     }
 
     saving = true;
-    error = "";
     try {
       const data = { ...configForm };
       // Don't send empty password on update
@@ -118,23 +130,44 @@
 
       if (editingConfig) {
         await api.ldap.updateConfig(editingConfig.id, data);
-        success = "LDAP configuration updated successfully";
+        showToast("LDAP-Konfiguration erfolgreich aktualisiert", "success");
       } else {
         await api.ldap.createConfig(data);
-        success = "LDAP configuration created successfully";
+        showToast("LDAP-Konfiguration erfolgreich erstellt", "success");
       }
       showConfigModal = false;
       await loadConfigs();
-      setTimeout(() => (success = ""), 3000);
     } catch (e) {
-      error = e.message || "Failed to save configuration";
+      showToast(e.message || "Fehler beim Speichern der Konfiguration", "error");
     } finally {
       saving = false;
     }
   }
 
+  function openAddConfig() {
+    editingConfig = null;
+    configForm = {
+      name: "",
+      host: "",
+      port: 389,
+      use_ssl: false,
+      bind_dn: "",
+      bind_password: "",
+      base_dn: "",
+      user_filter: "(objectClass=person)",
+      username_attribute: "uid",
+      email_attribute: "mail",
+      display_name_attribute: "cn",
+      group_filter: "(objectClass=group)",
+      group_membership_attribute: "memberOf",
+      enabled: true,
+      sync_interval_minutes: 60,
+    };
+    showConfigModal = true;
+  }
+
   async function deleteConfig(config) {
-    if (!confirm(`Delete LDAP configuration "${config.name}"?`)) return;
+    if (!confirm(`LDAP-Konfiguration "${config.name}" löschen?`)) return;
     try {
       await api.ldap.deleteConfig(config.id);
       success = "Configuration deleted successfully";
@@ -209,443 +242,299 @@
   }
 </script>
 
-<div class="ldap-settings">
-  {#if error}
-    <div class="alert alert-error mb-4">
-      <i class="bi bi-exclamation-circle-fill"></i>
-      <span>{error}</span>
-      <button
-        class="btn btn-ghost btn-sm"
-        onclick={() => (error = "")}
-        aria-label="Dismiss"
-      >
-        <i class="bi bi-x"></i>
-      </button>
-    </div>
-  {/if}
+<!-- Modern Header -->
+<div class="mb-8 flex items-center justify-between">
+  <div>
+    <h1 class="text-3xl font-bold text-white mb-2">
+      <i class="bi bi-diagram-3-fill mr-3"></i>
+      LDAP & Active Directory
+    </h1>
+    <p class="text-white/80">Verwalten Sie LDAP/AD-Verbindungen für Benutzer-Synchronisation</p>
+  </div>
+  <StandardButton variant="primary" onclick={openAddConfig}>
+    <i class="bi bi-plus-lg mr-2"></i>
+    Neue Konfiguration
+  </StandardButton>
+</div>
 
-  {#if success}
-    <div class="alert alert-success mb-4">
-      <i class="bi bi-check-circle-fill"></i>
-      <span>{success}</span>
+{#if loading}
+  <StandardGlassCard>
+    <div class="flex items-center justify-center py-12">
+      <div class="loading loading-spinner loading-lg"></div>
+      <span class="ml-4 text-white/80">Lade LDAP-Konfigurationen...</span>
     </div>
-  {/if}
+  </StandardGlassCard>
+{:else if configs.length === 0}
+  <StandardGlassCard>
+    <div class="text-center py-16">
+      <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="bi bi-diagram-3 text-2xl text-white/60"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-white mb-2">Keine LDAP-Konfigurationen</h3>
+      <p class="text-white/60 mb-6">Fügen Sie einen LDAP/AD-Server hinzu, um Benutzer zu synchronisieren</p>
+      <StandardButton variant="primary" onclick={openAddConfig}>
+        <i class="bi bi-plus-lg mr-2"></i>
+        Erste Konfiguration erstellen
+      </StandardButton>
+    </div>
+  </StandardGlassCard>
+{:else}
+  <!-- Configuration Tips -->
+  <StandardGlassCard class="mb-6">
+    <div class="p-6">
+      <h3 class="text-lg font-semibold text-white mb-4">
+        <i class="bi bi-lightbulb mr-2"></i>
+        Konfigurationstipps
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-white/70">
+        <div>
+          <strong class="text-white">Active Directory:</strong> Port 389 (LDAP) oder 636 (LDAPS)
+        </div>
+        <div>
+          <strong class="text-white">Bind DN Format:</strong> cn=admin,dc=example,dc=com
+        </div>
+        <div>
+          <strong class="text-white">Benutzer Filter:</strong> (objectClass=user)
+        </div>
+        <div>
+          <strong class="text-white">Gruppen Filter:</strong> (objectClass=group)
+        </div>
+      </div>
+    </div>
+  </StandardGlassCard>
 
-  {#if loading}
-    <div class="flex justify-center py-12">
-      <span class="loading loading-spinner loading-lg"></span>
-    </div>
-  {:else}
-    <!-- LDAP Configurations -->
-    <div class="card bg-base-200">
-      <div class="card-body">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="card-title">
-            <i class="bi bi-diagram-3 text-primary"></i>
-            LDAP/Active Directory Configurations
-          </h3>
-          <div class="flex gap-2">
-            {#if configs.length > 0}
-              <ModernButton
-                variant="outline"
+  <!-- LDAP Configurations -->
+  <div class="grid grid-cols-1 gap-6">
+    {#each configs as config (config.id)}
+      <StandardGlassCard>
+          <!-- Configuration Header -->
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <h3 class="text-xl font-semibold text-white">{config.name}</h3>
+                {#if config.enabled}
+                  <span class="badge badge-success badge-sm">Aktiv</span>
+                {:else}
+                  <span class="badge badge-ghost badge-sm">Inaktiv</span>
+                {/if}
+              </div>
+              <p class="text-white/60 text-sm">{config.host}:{config.port}</p>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex gap-2">
+              <StandardButton
+                variant="ghost"
                 size="sm"
-                onclick={syncAllConfigs}
+                onclick={() => testConnection(config)}
+                disabled={testing}
+                title="Verbindung testen"
+              >
+                {#if testing}
+                  <span class="loading loading-spinner loading-xs"></span>
+                {:else}
+                  <i class="bi bi-plug"></i>
+                {/if}
+              </StandardButton>
+              <StandardButton
+                variant="ghost"
+                size="sm"
+                onclick={() => syncUsers(config)}
                 disabled={syncing}
+                title="Benutzer synchronisieren"
               >
                 {#if syncing}
                   <span class="loading loading-spinner loading-xs"></span>
                 {:else}
                   <i class="bi bi-arrow-repeat"></i>
                 {/if}
-                Sync All
-              </ModernButton>
-            {/if}
-            <ModernButton variant="primary" size="sm" onclick={openAddConfig}>
-              <i class="bi bi-plus-lg"></i>
-              Add Configuration
-            </ModernButton>
-          </div>
-        </div>
-
-        {#if configs.length === 0}
-          <div class="text-center py-8 text-base-content/60">
-            <i class="bi bi-diagram-3 text-4xl mb-2"></i>
-            <p>No LDAP configurations</p>
-            <p class="text-sm">Add an LDAP/AD server to sync users</p>
-          </div>
-        {:else}
-          <div class="space-y-4">
-            {#each configs as config}
-              <div class="bg-base-100 rounded-lg p-4">
-                <div class="flex justify-between items-start">
-                  <div class="flex-1">
-                    <div class="flex items-center gap-3 mb-2">
-                      <h4 class="font-bold text-lg">{config.name}</h4>
-                      {#if config.enabled}
-                        <span class="badge badge-success badge-sm">Enabled</span
-                        >
-                      {:else}
-                        <span class="badge badge-ghost badge-sm">Disabled</span>
-                      {/if}
-                    </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <span class="text-base-content/60">Host:</span>
-                        <p class="font-mono">{config.host}:{config.port}</p>
-                      </div>
-                      <div>
-                        <span class="text-base-content/60">Base DN:</span>
-                        <p class="font-mono text-xs">{config.base_dn}</p>
-                      </div>
-                      <div>
-                        <span class="text-base-content/60">SSL:</span>
-                        <p>{config.use_ssl ? "Yes" : "No"}</p>
-                      </div>
-                      <div>
-                        <span class="text-base-content/60">Sync Interval:</span>
-                        <p>{config.sync_interval_minutes} min</p>
-                      </div>
-                    </div>
-                    {#if config.last_sync}
-                      <p class="text-xs text-base-content/50 mt-2">
-                        Last synced: {new Date(
-                          config.last_sync
-                        ).toLocaleString()}
-                      </p>
-                    {/if}
-                  </div>
-                  <div class="flex gap-1 ml-4">
-                    <ModernButton
-                      variant="ghost"
-                      size="sm"
-                      onclick={() => testConnection(config)}
-                      disabled={testing}
-                      aria-label="Test connection"
-                    >
-                      {#if testing}
-                        <span class="loading loading-spinner loading-xs"></span>
-                      {:else}
-                        <i class="bi bi-plug"></i>
-                      {/if}
-                    </ModernButton>
-                    <ModernButton
-                      variant="ghost"
-                      size="sm"
-                      onclick={() => syncUsers(config)}
-                      disabled={syncing}
-                      aria-label="Sync users"
-                    >
-                      {#if syncing}
-                        <span class="loading loading-spinner loading-xs"></span>
-                      {:else}
-                        <i class="bi bi-arrow-repeat"></i>
-                      {/if}
-                    </ModernButton>
-                    <ModernButton
-                      variant="ghost"
-                      size="sm"
-                      onclick={() => openEditConfig(config)}
-                      aria-label="Edit configuration"
-                    >
-                      <i class="bi bi-pencil"></i>
-                    </ModernButton>
-                    <ModernButton
-                      variant="danger"
-                      size="sm"
-                      onclick={() => deleteConfig(config)}
-                      aria-label="Delete configuration"
-                    >
-                      <i class="bi bi-trash"></i>
-                    </ModernButton>
-                  </div>
-                </div>
-              </div>
-            {/each}
-          </div>
-        {/if}
-
-        <!-- Help Section -->
-        <div class="divider"></div>
-        <div class="text-sm text-base-content/70">
-          <h4 class="font-medium mb-2">Configuration Tips:</h4>
-          <ul class="list-disc list-inside space-y-1">
-            <li>For Active Directory, use port 389 (LDAP) or 636 (LDAPS)</li>
-            <li>
-              Bind DN format: <code class="bg-base-300 px-1 rounded"
-                >cn=admin,dc=example,dc=com</code
+              </StandardButton>
+              <StandardButton
+                variant="ghost"
+                size="sm"
+                onclick={() => openEditConfig(config)}
+                title="Konfiguration bearbeiten"
               >
-            </li>
-            <li>
-              User filter example: <code class="bg-base-300 px-1 rounded"
-                >(objectClass=user)</code
+                <i class="bi bi-pencil"></i>
+              </StandardButton>
+              <StandardButton
+                variant="outline-error"
+                size="sm"
+                onclick={() => deleteConfig(config)}
+                title="Konfiguration löschen"
               >
-            </li>
-            <li>
-              Group filter for AD: <code class="bg-base-300 px-1 rounded"
-                >(objectClass=group)</code
-              >
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  {/if}
-</div>
-
-<!-- Add/Edit Config Modal -->
-{#if showConfigModal}
-  <div class="modal modal-open">
-    <div
-      class="modal-backdrop"
-      role="button"
-      tabindex="-1"
-      onclick={closeModal}
-      onkeydown={(e) => e.key === "Escape" && closeModal()}
-    ></div>
-    <div class="modal-box max-w-2xl">
-      <h3 class="font-bold text-lg mb-4">
-        {editingConfig ? "Edit LDAP Configuration" : "Add LDAP Configuration"}
-      </h3>
-
-      <div class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-        <!-- Basic Settings -->
-        <div class="bg-base-200 rounded-lg p-4">
-          <h4 class="font-medium mb-3 flex items-center gap-2">
-            <i class="bi bi-gear"></i>
-            Basic Settings
-          </h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="form-control md:col-span-2">
-              <label class="label" for="config-name">
-                <span class="label-text">Configuration Name *</span>
-              </label>
-              <input
-                id="config-name"
-                type="text"
-                class="input input-bordered w-full"
-                bind:value={configForm.name}
-                placeholder="e.g., Corporate AD"
-              />
-            </div>
-            <div class="form-control">
-              <label class="label" for="config-host">
-                <span class="label-text">Host *</span>
-              </label>
-              <input
-                id="config-host"
-                type="text"
-                class="input input-bordered w-full"
-                bind:value={configForm.host}
-                placeholder="ldap.example.com"
-              />
-            </div>
-            <div class="form-control">
-              <label class="label" for="config-port">
-                <span class="label-text">Port</span>
-              </label>
-              <input
-                id="config-port"
-                type="number"
-                class="input input-bordered w-full"
-                bind:value={configForm.port}
-              />
-            </div>
-            <div class="form-control md:col-span-2">
-              <label class="label cursor-pointer justify-start gap-3">
-                <input
-                  type="checkbox"
-                  class="toggle toggle-primary"
-                  bind:checked={configForm.use_ssl}
-                  onchange={handlePortChange}
-                />
-                <span class="label-text">Use SSL/TLS (LDAPS)</span>
-              </label>
+                <i class="bi bi-trash"></i>
+              </StandardButton>
             </div>
           </div>
-        </div>
 
-        <!-- Bind Credentials -->
-        <div class="bg-base-200 rounded-lg p-4">
-          <h4 class="font-medium mb-3 flex items-center gap-2">
-            <i class="bi bi-key"></i>
-            Bind Credentials
-          </h4>
-          <div class="space-y-4">
-            <div class="form-control">
-              <label class="label" for="bind-dn">
-                <span class="label-text">Bind DN</span>
-              </label>
-              <input
-                id="bind-dn"
-                type="text"
-                class="input input-bordered w-full font-mono text-sm"
-                bind:value={configForm.bind_dn}
-                placeholder="cn=admin,dc=example,dc=com"
-              />
+          <!-- Configuration Details -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="bg-white/5 rounded-lg p-3">
+              <div class="text-white/60 text-xs uppercase tracking-wider mb-1">Base DN</div>
+              <div class="text-white font-mono text-sm break-all">{config.base_dn}</div>
             </div>
-            <div class="form-control">
-              <label class="label" for="bind-password">
-                <span class="label-text">Bind Password</span>
-              </label>
-              <input
-                id="bind-password"
-                type="password"
-                class="input input-bordered w-full"
-                bind:value={configForm.bind_password}
-                placeholder={editingConfig
-                  ? "Leave empty to keep existing"
-                  : "Enter password"}
-              />
+            <div class="bg-white/5 rounded-lg p-3">
+              <div class="text-white/60 text-xs uppercase tracking-wider mb-1">SSL/TLS</div>
+              <div class="text-white">{config.use_ssl ? "Aktiviert" : "Deaktiviert"}</div>
             </div>
-            <div class="form-control">
-              <label class="label" for="base-dn">
-                <span class="label-text">Base DN *</span>
-              </label>
-              <input
-                id="base-dn"
-                type="text"
-                class="input input-bordered w-full font-mono text-sm"
-                bind:value={configForm.base_dn}
-                placeholder="dc=example,dc=com"
-              />
+            <div class="bg-white/5 rounded-lg p-3">
+              <div class="text-white/60 text-xs uppercase tracking-wider mb-1">Sync-Intervall</div>
+              <div class="text-white">{config.sync_interval_minutes} Minuten</div>
             </div>
           </div>
-        </div>
 
-        <!-- User Mapping -->
-        <div class="bg-base-200 rounded-lg p-4">
-          <h4 class="font-medium mb-3 flex items-center gap-2">
-            <i class="bi bi-person"></i>
-            User Mapping
-          </h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="form-control md:col-span-2">
-              <label class="label" for="user-filter">
-                <span class="label-text">User Filter</span>
-              </label>
-              <input
-                id="user-filter"
-                type="text"
-                class="input input-bordered w-full font-mono text-sm"
-                bind:value={configForm.user_filter}
-                placeholder="(objectClass=person)"
-              />
+          {#if config.last_sync}
+            <div class="text-xs text-white/50 border-t border-white/10 pt-3">
+              Zuletzt synchronisiert: {new Date(config.last_sync).toLocaleString("de-DE")}
             </div>
-            <div class="form-control">
-              <label class="label" for="username-attr">
-                <span class="label-text">Username Attribute</span>
-              </label>
-              <input
-                id="username-attr"
-                type="text"
-                class="input input-bordered w-full"
-                bind:value={configForm.username_attribute}
-                placeholder="uid"
-              />
-            </div>
-            <div class="form-control">
-              <label class="label" for="email-attr">
-                <span class="label-text">Email Attribute</span>
-              </label>
-              <input
-                id="email-attr"
-                type="text"
-                class="input input-bordered w-full"
-                bind:value={configForm.email_attribute}
-                placeholder="mail"
-              />
-            </div>
-            <div class="form-control md:col-span-2">
-              <label class="label" for="display-name-attr">
-                <span class="label-text">Display Name Attribute</span>
-              </label>
-              <input
-                id="display-name-attr"
-                type="text"
-                class="input input-bordered w-full"
-                bind:value={configForm.display_name_attribute}
-                placeholder="cn"
-              />
-            </div>
-          </div>
-        </div>
-
-        <!-- Group Mapping -->
-        <div class="bg-base-200 rounded-lg p-4">
-          <h4 class="font-medium mb-3 flex items-center gap-2">
-            <i class="bi bi-people"></i>
-            Group Mapping
-          </h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="form-control">
-              <label class="label" for="group-filter">
-                <span class="label-text">Group Filter</span>
-              </label>
-              <input
-                id="group-filter"
-                type="text"
-                class="input input-bordered w-full font-mono text-sm"
-                bind:value={configForm.group_filter}
-                placeholder="(objectClass=group)"
-              />
-            </div>
-            <div class="form-control">
-              <label class="label" for="group-membership-attr">
-                <span class="label-text">Group Membership Attribute</span>
-              </label>
-              <input
-                id="group-membership-attr"
-                type="text"
-                class="input input-bordered w-full"
-                bind:value={configForm.group_membership_attribute}
-                placeholder="memberOf"
-              />
-            </div>
-          </div>
-        </div>
-
-        <!-- Sync Settings -->
-        <div class="bg-base-200 rounded-lg p-4">
-          <h4 class="font-medium mb-3 flex items-center gap-2">
-            <i class="bi bi-arrow-repeat"></i>
-            Sync Settings
-          </h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="form-control">
-              <label class="label" for="sync-interval">
-                <span class="label-text">Sync Interval (minutes)</span>
-              </label>
-              <input
-                id="sync-interval"
-                type="number"
-                class="input input-bordered w-full"
-                bind:value={configForm.sync_interval_minutes}
-                min="5"
-              />
-            </div>
-            <div class="form-control flex items-end">
-              <label class="label cursor-pointer justify-start gap-3">
-                <input
-                  type="checkbox"
-                  class="toggle toggle-primary"
-                  bind:checked={configForm.enabled}
-                />
-                <span class="label-text">Enable Configuration</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-action">
-        <ModernButton variant="ghost" onclick={closeModal}>Cancel</ModernButton>
-        <ModernButton variant="primary" onclick={saveConfig} disabled={saving}>
-          {#if saving}
-            <span class="loading loading-spinner loading-sm"></span>
           {/if}
-          {editingConfig ? "Update" : "Create"} Configuration
-        </ModernButton>
-      </div>
-    </div>
+        </div>
+      </StandardGlassCard>
+    {/each}
   </div>
 {/if}
+
+<!-- Modern LDAP Configuration Modal -->
+<StandardModal 
+  bind:showModal={showConfigModal} 
+  title={editingConfig ? "LDAP-Konfiguration bearbeiten" : "Neue LDAP-Konfiguration"}
+  size="lg"
+>
+  <div class="space-y-6">
+    <!-- Grundeinstellungen -->
+    <div class="space-y-4">
+      <h4 class="text-white font-medium flex items-center gap-2 border-b border-white/10 pb-2">
+        <i class="bi bi-gear"></i>
+        Grundeinstellungen
+      </h4>
+      
+      <StandardInput
+        label="Konfigurationsname"
+        placeholder="z.B. Unternehmens-AD"
+        bind:value={configForm.name}
+        required
+      />
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <StandardInput
+          label="Host"
+          placeholder="ldap.example.com"
+          bind:value={configForm.host}
+          required
+        />
+        
+        <StandardInput
+          type="number"
+          label="Port"
+          bind:value={configForm.port}
+        />
+      </div>
+      
+      <StandardToggle
+        bind:checked={configForm.use_ssl}
+        label="SSL/TLS verwenden (LDAPS)"
+        description="Aktiviert verschlüsselte Verbindung über Port 636"
+      />
+    </div>
+
+    <!-- Authentifizierung -->
+    <div class="space-y-4">
+      <h4 class="text-white font-medium flex items-center gap-2 border-b border-white/10 pb-2">
+        <i class="bi bi-key"></i>
+        Authentifizierung
+      </h4>
+      
+      <StandardInput
+        label="Bind DN"
+        placeholder="cn=admin,dc=example,dc=com"
+        bind:value={configForm.bind_dn}
+        class="font-mono"
+      />
+      
+      <StandardInput
+        type="password"
+        label="Bind-Passwort"
+        placeholder={editingConfig ? "Leer lassen für bestehendes" : "Passwort eingeben"}
+        bind:value={configForm.bind_password}
+      />
+      
+      <StandardInput
+        label="Base DN"
+        placeholder="dc=example,dc=com"
+        bind:value={configForm.base_dn}
+        required
+        class="font-mono"
+      />
+    </div>
+
+    <!-- Benutzer-Mapping -->
+    <div class="space-y-4">
+      <h4 class="text-white font-medium flex items-center gap-2 border-b border-white/10 pb-2">
+        <i class="bi bi-person"></i>
+        Benutzer-Mapping
+      </h4>
+      
+      <StandardInput
+        label="Benutzer-Filter"
+        placeholder="(objectClass=person)"
+        bind:value={configForm.user_filter}
+        class="font-mono"
+      />
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <StandardInput
+          label="Benutzername-Attribut"
+          placeholder="uid"
+          bind:value={configForm.username_attribute}
+        />
+        
+        <StandardInput
+          label="E-Mail-Attribut"
+          placeholder="mail"
+          bind:value={configForm.email_attribute}
+        />
+      </div>
+      
+      <StandardInput
+        label="Anzeigename-Attribut"
+        placeholder="cn"
+        bind:value={configForm.display_name_attribute}
+      />
+    </div>
+
+    <!-- Synchronisation -->
+    <div class="space-y-4">
+      <h4 class="text-white font-medium flex items-center gap-2 border-b border-white/10 pb-2">
+        <i class="bi bi-arrow-repeat"></i>
+        Synchronisation
+      </h4>
+      
+      <StandardSelect
+        label="Sync-Intervall"
+        options={syncIntervalOptions}
+        bind:value={configForm.sync_interval_minutes}
+      />
+      
+      <StandardToggle
+        bind:checked={configForm.enabled}
+        label="Konfiguration aktivieren"
+        description="Automatische Synchronisation aktivieren"
+      />
+    </div>
+  </div>
+
+  <svelte:fragment slot="actions">
+    <StandardButton variant="ghost" onclick={() => showConfigModal = false}>
+      Abbrechen
+    </StandardButton>
+    <StandardButton 
+      variant="primary" 
+      onclick={saveConfig} 
+      disabled={saving}
+      class={saving ? "loading" : ""}
+    >
+      {saving ? "Speichere..." : editingConfig ? "Aktualisieren" : "Erstellen"}
+    </StandardButton>
+  </svelte:fragment>
+</StandardModal>
