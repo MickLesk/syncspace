@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
   import PageWrapper from "../../components/PageWrapper.svelte";
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";

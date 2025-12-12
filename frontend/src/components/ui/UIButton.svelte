@@ -1,4 +1,4 @@
-<!-- StandardButton.svelte - Consistent button styles -->
+<!-- UIButton.svelte - Consistent button styles -->
 <script>
   export let variant = "default"; // 'default', 'primary', 'danger', 'success', 'ghost'
   export let size = "md"; // 'xs', 'sm', 'md', 'lg', 'xl'

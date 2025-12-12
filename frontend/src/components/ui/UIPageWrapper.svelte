@@ -1,4 +1,4 @@
-<!-- StandardPageWrapper.svelte - Consistent page layout for all views -->
+<!-- UIPageWrapper.svelte - Consistent page layout for all views -->
 <script>
   export let title = "";
   export let subtitle = "";

@@ -1,10 +1,10 @@
-<!-- StandardSelect.svelte - Einheitliche Select-Komponente -->
+<!-- UIInput.svelte - Einheitliche Input-Komponente -->
 <script>
   let {
-    options = [],
-    value = $bindable(""),
-    placeholder = "Wählen...",
+    type = "text",
+    placeholder = "",
     label = "",
+    value = $bindable(""),
     disabled = false,
     required = false,
     error = "",
@@ -23,26 +23,17 @@
     </label>
   {/if}
 
-  <select
-    bind:value
+  <input
+    {type}
+    {placeholder}
     {disabled}
     {required}
-    class="select select-bordered w-full bg-white/5 border-white/20 text-white
+    bind:value
+    class="input input-bordered w-full bg-white/5 border-white/20 text-white placeholder-white/40
            focus:border-white/40 focus:bg-white/10 transition-all
            {error ? 'border-red-400 focus:border-red-400' : ''}"
     {...restProps}
-  >
-    {#if placeholder}
-      <option value="" disabled>{placeholder}</option>
-    {/if}
-    {#each options as option}
-      {#if typeof option === "string"}
-        <option value={option}>{option}</option>
-      {:else}
-        <option value={option.value}>{option.label}</option>
-      {/if}
-    {/each}
-  </select>
+  />
 
   {#if error}
     <label class="label">

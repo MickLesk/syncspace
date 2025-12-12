@@ -90,7 +90,7 @@
   const HelpView = () => import("./pages/user/HelpView.svelte");
 
   // UI Components (keep static - needed immediately)
-  import Toast from "./components/ui/Toast.svelte";
+  import UIToast from "./components/ui/UIToast.svelte";
   import LoadingOverlay from "./components/LoadingOverlay.svelte";
   import ErrorBoundary from "./components/ui/ErrorBoundary.svelte";
   import ActivityFeed from "./components/ActivityFeed.svelte";
@@ -694,7 +694,7 @@
 {/if}
 
 <!-- Global Components -->
-<Toast />
+<UIToast />
 <LoadingOverlay />
 
 <!-- Command Palette -->

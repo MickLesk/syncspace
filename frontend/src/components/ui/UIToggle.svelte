@@ -1,4 +1,4 @@
-<!-- StandardToggle.svelte - Einheitliche Toggle/Switch-Komponente -->
+<!-- UIToggle.svelte - Einheitliche Toggle/Switch-Komponente -->
 <script>
   let {
     checked = $bindable(false),

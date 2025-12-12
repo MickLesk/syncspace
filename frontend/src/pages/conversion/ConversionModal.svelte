@@ -1,5 +1,11 @@
 <script>
   import { language } from "../../stores/ui.js";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UISelect from "../../../components/ui/UISelect.svelte";
+  import UIToggle from "../../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
+  import UIModal from "../../../components/ui/UIModal.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
   import { t } from "../../i18n.js";
   import { conversion } from "../../lib/api.js";
   import { currentPath } from "../../stores/files.js";
@@ -214,19 +220,11 @@
           </div>
 
           <div class="form-control">
-            <label for="codec" class="label">
-              <span class="label-text">{t($language, "conversion.codec")}</span>
-            </label>
-            <select
-              id="codec"
-              bind:value={codec}
-              class="select select-bordered select-sm"
-            >
-              <option value="">Default</option>
-              <option value="libx264">H.264</option>
-              <option value="libx265">H.265 (HEVC)</option>
-              <option value="libvpx-vp9">VP9</option>
-            </select>
+            <UISelect
+  label={t($language, "conversion.codec")}
+  bind:value={codec}
+  options={[{ value: "", label: "Default" }, { value: "libx264", label: "H.264" }, { value: "libx265", label: "H.265 (HEVC)" }, { value: "libvpx-vp9", label: "VP9" }}]}
+/>
           </div>
         {/if}
 

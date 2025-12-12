@@ -5,10 +5,10 @@
   import t from "../../../i18n.js";
 
   // Standard UI Components
-  import StandardGlassCard from "../../../components/ui/StandardGlassCard.svelte";
-  import StandardTabs from "../../../components/ui/StandardTabs.svelte";
-  import StandardButton from "../../../components/ui/StandardButton.svelte";
-  import StandardModal from "../../../components/ui/StandardModal.svelte";
+  import UICard from "../../../components/ui/UICard.svelte";
+  import UITabs from "../../../components/ui/UITabs.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
+  import UIModal from "../../../components/ui/UIModal.svelte";
 
   // State with Svelte 5 runes
   let overview = $state(null);
@@ -232,23 +232,23 @@
 
         <!-- Action Buttons -->
         <div class="flex items-center space-x-2">
-          <StandardButton
+          <UIButton
             variant="default"
             icon="arrow-clockwise"
             onclick={loadAllData}
             disabled={loading}
           >
             {t("common.refresh") || "Aktualisieren"}
-          </StandardButton>
+          </UIButton>
 
-          <StandardButton
+          <UIButton
             variant="primary"
             icon="download"
             onclick={handleExport}
             disabled={loading || !overview}
           >
             {t("common.export") || "Exportieren"}
-          </StandardButton>
+          </UIButton>
         </div>
       </div>
     </div>
@@ -256,7 +256,7 @@
     <!-- Overview Stats Cards (only show on overview tab) -->
     {#if activeTab === "overview" && overview}
       <div class="grid-4 grid-gap mb-6">
-        <StandardGlassCard
+        <UICard
           title={t("storage.totalFiles") || "Gesamte Dateien"}
           icon="file-earmark"
           padding="p-4"
@@ -267,9 +267,9 @@
           <p class="text-caption mt-1">
             {t("storage.filesInSystem") || "Dateien im System"}
           </p>
-        </StandardGlassCard>
+        </UICard>
 
-        <StandardGlassCard
+        <UICard
           title={t("storage.totalSize") || "Gesamtgröße"}
           icon="hdd"
           padding="p-4"
@@ -280,9 +280,9 @@
           <p class="text-caption mt-1">
             {t("storage.usedSpace") || "Verwendeter Speicherplatz"}
           </p>
-        </StandardGlassCard>
+        </UICard>
 
-        <StandardGlassCard
+        <UICard
           title={t("storage.averageFileSize") || "Durchschnittsgröße"}
           icon="file-bar-graph"
           padding="p-4"
@@ -291,9 +291,9 @@
             {formatBytes(overview.averageFileSizeBytes)}
           </div>
           <p class="text-caption mt-1">{t("storage.perFile") || "pro Datei"}</p>
-        </StandardGlassCard>
+        </UICard>
 
-        <StandardGlassCard
+        <UICard
           title={t("storage.activeUsers") || "Aktive Benutzer"}
           icon="people"
           padding="p-4"
@@ -304,14 +304,14 @@
           <p class="text-caption mt-1">
             {t("storage.withFiles") || "mit Dateien"}
           </p>
-        </StandardGlassCard>
+        </UICard>
       </div>
     {/if}
 
     <!-- Main Analytics Content -->
-    <StandardGlassCard {loading} {error}>
+    <UICard {loading} {error}>
       <!-- Tabs -->
-      <StandardTabs
+      <UITabs
         {tabs}
         {activeTab}
         variant="default"
@@ -322,7 +322,7 @@
       {#if activeTab === "overview" && overview}
         <div class="section-spacing">
           <!-- File Type Distribution Chart Placeholder -->
-          <StandardGlassCard
+          <UICard
             title={t("storage.fileTypeDistribution") || "Dateityp-Verteilung"}
             icon="pie-chart"
             padding="p-6"
@@ -340,7 +340,7 @@
                 </p>
               </div>
             </div>
-          </StandardGlassCard>
+          </UICard>
         </div>
       {:else if activeTab === "users"}
         <div class="section-spacing">
@@ -503,7 +503,7 @@
                 </span>
               </p>
 
-              <StandardButton
+              <UIButton
                 variant="danger"
                 icon="trash"
                 onclick={() => {
@@ -511,7 +511,7 @@
                 }}
               >
                 {t("storage.cleanupDuplicates") || "Duplikate bereinigen"}
-              </StandardButton>
+              </UIButton>
             </div>
           {:else}
             <div class="text-center py-8">
@@ -527,7 +527,7 @@
         </div>
       {:else if activeTab === "growth"}
         <div class="section-spacing">
-          <StandardGlassCard
+          <UICard
             title={t("storage.growthChart") || "Wachstumsdiagramm"}
             icon="graph-up"
             padding="p-6"
@@ -546,7 +546,7 @@
                 </p>
               </div>
             </div>
-          </StandardGlassCard>
+          </UICard>
         </div>
       {:else}
         <!-- Loading State -->
@@ -559,12 +559,12 @@
           </p>
         </div>
       {/if}
-    </StandardGlassCard>
+    </UICard>
   </div>
 </div>
 
 <!-- Export Modal -->
-<StandardModal
+<UIModal
   bind:show={showExportModal}
   title={t("storage.exportData") || "Daten exportieren"}
   size="md"
@@ -600,4 +600,4 @@
       </label>
     </div>
   </div>
-</StandardModal>
+</UIModal>

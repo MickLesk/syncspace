@@ -1,5 +1,7 @@
 <script>
   import { onMount } from "svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UITextarea from "../../../components/ui/UITextarea.svelte";
   import { showToast } from "../../stores/toast.js";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";

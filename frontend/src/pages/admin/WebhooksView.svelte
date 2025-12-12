@@ -4,6 +4,10 @@
    * Create and manage webhooks for external integrations
    */
   import { onMount, onDestroy } from "svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UIToggle from "../../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
 

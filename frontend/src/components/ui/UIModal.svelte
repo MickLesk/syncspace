@@ -1,4 +1,4 @@
-<!-- StandardModal.svelte - Consistent modal dialogs -->
+<!-- UIModal.svelte - Consistent modal dialogs -->
 <script>
   export let show = false;
   export let title = "";

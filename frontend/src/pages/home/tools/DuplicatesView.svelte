@@ -6,10 +6,10 @@
   import { formatBytes } from "../../lib/utils.js";
   
   // Standard UI Components
-  import StandardGlassCard from "../../components/ui/StandardGlassCard.svelte";
-  import StandardButton from "../../components/ui/StandardButton.svelte";
-  import StandardModal from "../../components/ui/StandardModal.svelte";
-  import StandardTabs from "../../components/ui/StandardTabs.svelte";
+  import UICard from "../../components/ui/UICard.svelte";
+  import UIButton from "../../components/ui/UIButton.svelte";
+  import UIModal from "../../components/ui/UIModal.svelte";
+  import UITabs from "../../components/ui/UITabs.svelte";
 
   // State with Svelte 5 runes
   let scanning = $state(false);
@@ -253,7 +253,7 @@
         
         <!-- Action Buttons -->
         <div class="flex items-center space-x-2">
-          <StandardButton
+          <UIButton
             variant="primary"
             icon="search"
             onclick={scanForDuplicates}
@@ -261,14 +261,14 @@
             loading={scanning}
           >
             {scanning ? t("duplicates.scanning") || "Suche läuft..." : t("duplicates.startScan") || "Scan starten"}
-          </StandardButton>
+          </UIButton>
         </div>
       </div>
     </div>
 
     <!-- Stats Cards -->
     <div class="grid-4 grid-gap mb-6">
-      <StandardGlassCard 
+      <UICard 
         title={t("duplicates.totalGroups") || "Duplikat-Gruppen"} 
         icon="collection"
         padding="p-4"
@@ -277,9 +277,9 @@
           {duplicateGroups.length}
         </div>
         <p class="text-caption mt-1">{t("duplicates.groupsFound") || "Gruppen gefunden"}</p>
-      </StandardGlassCard>
+      </UICard>
 
-      <StandardGlassCard 
+      <UICard 
         title={t("duplicates.totalFiles") || "Betroffene Dateien"} 
         icon="files"
         padding="p-4"
@@ -288,9 +288,9 @@
           {totalFiles}
         </div>
         <p class="text-caption mt-1">{t("duplicates.filesInGroups") || "Dateien in Gruppen"}</p>
-      </StandardGlassCard>
+      </UICard>
 
-      <StandardGlassCard 
+      <UICard 
         title={t("duplicates.wastedSpace") || "Verschwendeter Platz"} 
         icon="hdd-stack"
         padding="p-4"
@@ -299,9 +299,9 @@
           {formatBytes(totalWastedSpace)}
         </div>
         <p class="text-caption mt-1">{t("duplicates.couldBeSaved") || "Könnte gespart werden"}</p>
-      </StandardGlassCard>
+      </UICard>
 
-      <StandardGlassCard 
+      <UICard 
         title={t("duplicates.selectedForDeletion") || "Zum Löschen"} 
         icon="check-circle"
         padding="p-4"
@@ -310,16 +310,16 @@
           {selectedCount}
         </div>
         <p class="text-caption mt-1">{t("duplicates.selectedFiles") || "Ausgewählte Dateien"}</p>
-      </StandardGlassCard>
+      </UICard>
     </div>
 
     <!-- Main Content -->
-    <StandardGlassCard 
+    <UICard 
       loading={loading} 
       error={error}
     >
       <!-- Tabs -->
-      <StandardTabs 
+      <UITabs 
         {tabs} 
         {activeTab} 
         variant="default"
@@ -350,14 +350,14 @@
                 {t("duplicates.scanDescription") || "Durchsuchen Sie Ihre Dateien nach Duplikaten basierend auf Inhalt und Größe"}
               </p>
               
-              <StandardButton
+              <UIButton
                 variant="primary"
                 icon="search"
                 onclick={scanForDuplicates}
                 size="lg"
               >
                 {t("duplicates.startScan") || "Scan starten"}
-              </StandardButton>
+              </UIButton>
             {/if}
           </div>
         </div>
@@ -368,7 +368,7 @@
           {#if duplicateGroups.length > 0}
             <div class="space-y-4">
               {#each duplicateGroups as group, groupIndex}
-                <StandardGlassCard
+                <UICard
                   title={t("duplicates.group") || "Gruppe"} 
                   subtitle={`${group.count} ${t("duplicates.files") || "Dateien"} • ${formatBytes(group.totalSize || 0)}`}
                   icon="files"
@@ -407,7 +407,7 @@
                       </div>
                     {/each}
                   </div>
-                </StandardGlassCard>
+                </UICard>
               {/each}
             </div>
           {:else}
@@ -431,13 +431,13 @@
                   <p class="text-caption">{t("duplicates.autoSelectDescription") || "Automatisch die besten Kandidaten zum Löschen auswählen"}</p>
                 </div>
                 
-                <StandardButton
+                <UIButton
                   variant="primary"
                   icon="magic"
                   onclick={autoSelectDuplicates}
                 >
                   {t("duplicates.autoSelect") || "Auto-Auswahl"}
-                </StandardButton>
+                </UIButton>
               </div>
             </div>
 
@@ -455,13 +455,13 @@
                     </div>
                   </div>
                   
-                  <StandardButton
+                  <UIButton
                     variant="danger"
                     icon="trash"
                     onclick={deleteSelectedDuplicates}
                   >
                     {t("duplicates.deleteSelected") || "Ausgewählte löschen"}
-                  </StandardButton>
+                  </UIButton>
                 </div>
               </div>
             {/if}
@@ -469,7 +469,7 @@
             <!-- File groups with selection -->
             <div class="space-y-4">
               {#each duplicateGroups as group}
-                <StandardGlassCard
+                <UICard
                   title={`${t("duplicates.group") || "Gruppe"} - ${group.files.filter(f => !f.selected).length} ${t("duplicates.remaining") || "verbleibend"}`}
                   subtitle={`${group.files.filter(f => f.selected).length} ${t("duplicates.toDelete") || "zum Löschen"}`}
                   icon="files"
@@ -506,7 +506,7 @@
                       </div>
                     {/each}
                   </div>
-                </StandardGlassCard>
+                </UICard>
               {/each}
             </div>
           {:else}
@@ -518,12 +518,12 @@
           {/if}
         </div>
       {/if}
-    </StandardGlassCard>
+    </UICard>
   </div>
 </div>
 
 <!-- Delete Confirmation Modal -->
-<StandardModal
+<UIModal
   bind:show={showDeleteModal}
   title={t("duplicates.confirmDeletion") || "Löschen bestätigen"}
   size="md"
@@ -549,4 +549,4 @@
       </p>
     </div>
   </div>
-</StandardModal>
+</UIModal>

@@ -1,11 +1,17 @@
 <script>
   import { onMount } from "svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UITextarea from "../../../components/ui/UITextarea.svelte";
+  import UISelect from "../../../components/ui/UISelect.svelte";
+  import UIToggle from "../../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
+  import UIModal from "../../../components/ui/UIModal.svelte";
   import { t } from "../../../i18n.js";
   import { guests } from "../../../lib/api.js";
   import { showToast } from "../../../stores/toast.js";
   import ModernButton from "../../../components/ui/ModernButton.svelte";
-  import StandardGlassCard from "../../../components/ui/StandardGlassCard.svelte";
-  import StandardButton from "../../../components/ui/StandardButton.svelte";
+  import UICard from "../../../components/ui/UICard.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
 
   // State
   let activeTab = $state("users");
@@ -678,74 +684,45 @@
 
       <div class="space-y-4">
         <div class="form-control">
-          <label class="label" for="guest-name">
-            <span class="label-text">{$t("guests.guestName")} *</span>
-          </label>
-          <input
-            id="guest-name"
-            type="text"
-            class="input input-bordered"
-            bind:value={guestForm.display_name}
-            placeholder="John Doe"
-          />
+          <UIInput
+  label="{$t("guests.guestName")} *"
+  bind:value={guestForm.display_name}
+  placeholder="John Doe"
+/>
         </div>
 
         <div class="form-control">
-          <label class="label" for="guest-email">
-            <span class="label-text">{$t("guests.guestEmail")}</span>
-          </label>
-          <input
-            id="guest-email"
-            type="email"
-            class="input input-bordered"
-            bind:value={guestForm.email}
-            placeholder="john@example.com"
-          />
+          <UIInput
+  label={$t("guests.guestEmail")}
+  type="email"
+  bind:value={guestForm.email}
+  placeholder="john@example.com"
+/>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div class="form-control">
-            <label class="label" for="guest-expires">
-              <span class="label-text">{$t("guests.expiresIn")}</span>
-            </label>
-            <select
-              id="guest-expires"
-              class="select select-bordered"
-              bind:value={guestForm.expires_in_days}
-            >
-              <option value={7}>7 {$t("guests.days")}</option>
-              <option value={14}>14 {$t("guests.days")}</option>
-              <option value={30}>30 {$t("guests.days")}</option>
-              <option value={90}>90 {$t("guests.days")}</option>
-              <option value={365}>365 {$t("guests.days")}</option>
-            </select>
+            <UISelect
+  label={$t("guests.expiresIn")}
+  bind:value={guestForm.expires_in_days}
+/>
           </div>
 
           <div class="form-control">
-            <label class="label" for="guest-max">
-              <span class="label-text">{$t("guests.maxAccesses")}</span>
-            </label>
-            <input
-              id="guest-max"
-              type="number"
-              class="input input-bordered"
-              bind:value={guestForm.max_accesses}
-              placeholder={$t("guests.unlimited")}
-              min="1"
-            />
+            <UIInput
+  label={$t("guests.maxAccesses")}
+  type="number"
+  bind:value={guestForm.max_accesses}
+/>
           </div>
         </div>
 
         <div class="form-control">
-          <label class="label" for="guest-notes">
-            <span class="label-text">{$t("guests.guestNotes")}</span>
-          </label>
-          <textarea
-            id="guest-notes"
-            class="textarea textarea-bordered"
-            bind:value={guestForm.notes}
-            rows="2"
-          ></textarea>
+          <UITextarea
+  label={$t("guests.guestNotes")}
+  bind:value={guestForm.notes}
+  rows={2}
+/>
         </div>
 
         <fieldset class="form-control">
@@ -819,76 +796,44 @@
 
       <div class="space-y-4">
         <div class="form-control">
-          <label class="label" for="link-path">
-            <span class="label-text">{$t("guests.filePath")} *</span>
-          </label>
-          <input
-            id="link-path"
-            type="text"
-            class="input input-bordered font-mono"
-            bind:value={linkForm.file_path}
-            placeholder="/documents/report.pdf"
-          />
+          <UIInput
+  label="{$t("guests.filePath")} *"
+  bind:value={linkForm.file_path}
+  placeholder="/documents/report.pdf"
+/>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div class="form-control">
-            <label class="label" for="link-type">
-              <span class="label-text">{$t("guests.accessType")}</span>
-            </label>
-            <select
-              id="link-type"
-              class="select select-bordered"
+            <UISelect
+              label={$t("guests.accessType")}
               bind:value={linkForm.access_type}
-            >
-              <option value="file">{$t("guests.typeFile")}</option>
-              <option value="folder">{$t("guests.typeFolder")}</option>
-            </select>
+              options={[{ value: "file", label: $t("guests.typeFile") }, { value: "folder", label: $t("guests.typeFolder") }}]}
+            />
           </div>
 
           <div class="form-control">
-            <label class="label" for="link-expires">
-              <span class="label-text">{$t("guests.expiresIn")}</span>
-            </label>
-            <select
-              id="link-expires"
-              class="select select-bordered"
-              bind:value={linkForm.expires_in_days}
-            >
-              <option value={1}>1 {$t("guests.days")}</option>
-              <option value={7}>7 {$t("guests.days")}</option>
-              <option value={14}>14 {$t("guests.days")}</option>
-              <option value={30}>30 {$t("guests.days")}</option>
-              <option value={null}>{$t("guests.never")}</option>
-            </select>
+            <UISelect
+  label={$t("guests.expiresIn")}
+  bind:value={linkForm.expires_in_days}
+/>
           </div>
         </div>
 
         <div class="form-control">
-          <label class="label" for="link-password">
-            <span class="label-text">{$t("guests.password")}</span>
-          </label>
-          <input
-            id="link-password"
-            type="password"
-            class="input input-bordered"
-            bind:value={linkForm.password}
-            placeholder={$t("guests.noPassword")}
-          />
+          <UIInput
+  label={$t("guests.password")}
+  type="password"
+  bind:value={linkForm.password}
+/>
         </div>
 
         <div class="form-control">
-          <label class="label" for="link-max">
-            <span class="label-text">{$t("guests.maxAccesses")}</span>
-          </label>
-          <input
-            id="link-max"
-            type="number"
-            class="input input-bordered"
-            bind:value={linkForm.max_accesses}
-            placeholder={$t("guests.unlimited")}
-            min="1"
-          />
+          <UIInput
+  label={$t("guests.maxAccesses")}
+  type="number"
+  bind:value={linkForm.max_accesses}
+/>
         </div>
 
         <div class="form-control">
@@ -950,45 +895,28 @@
 
       <div class="space-y-4">
         <div class="form-control">
-          <label class="label" for="invite-email">
-            <span class="label-text">{$t("guests.inviteEmail")} *</span>
-          </label>
-          <input
-            id="invite-email"
-            type="email"
-            class="input input-bordered"
-            bind:value={invitationForm.email}
-            placeholder="guest@example.com"
-          />
+          <UIInput
+  label="{$t("guests.inviteEmail")} *"
+  type="email"
+  bind:value={invitationForm.email}
+  placeholder="guest@example.com"
+/>
         </div>
 
         <div class="form-control">
-          <label class="label" for="invite-expires">
-            <span class="label-text">{$t("guests.expiresIn")}</span>
-          </label>
-          <select
-            id="invite-expires"
-            class="select select-bordered"
-            bind:value={invitationForm.expires_in_days}
-          >
-            <option value={1}>1 {$t("guests.days")}</option>
-            <option value={7}>7 {$t("guests.days")}</option>
-            <option value={14}>14 {$t("guests.days")}</option>
-            <option value={30}>30 {$t("guests.days")}</option>
-          </select>
+          <UISelect
+  label={$t("guests.expiresIn")}
+  bind:value={invitationForm.expires_in_days}
+/>
         </div>
 
         <div class="form-control">
-          <label class="label" for="invite-message">
-            <span class="label-text">{$t("guests.inviteMessage")}</span>
-          </label>
-          <textarea
-            id="invite-message"
-            class="textarea textarea-bordered"
-            bind:value={invitationForm.message}
-            rows="3"
-            placeholder="Optional personal message..."
-          ></textarea>
+          <UITextarea
+  label={$t("guests.inviteMessage")}
+  bind:value={invitationForm.message}
+  rows={3}
+  placeholder="Optional personal message..."
+/>
         </div>
 
         <div class="form-control">

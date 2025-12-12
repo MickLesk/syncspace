@@ -1,4 +1,4 @@
-<!-- StandardTabs.svelte - Consistent tab interface -->
+<!-- UITabs.svelte - Consistent tab interface -->
 <script>
   export let tabs = []; // Array of {id, label, icon?, badge?, disabled?}
   export let activeTab = "";

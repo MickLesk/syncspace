@@ -1,4 +1,4 @@
-<!-- StandardForm.svelte - Einheitlicher Form-Container -->
+<!-- UIForm.svelte - Einheitlicher Form-Container -->
 <script>
   let { 
     title = "",
@@ -10,7 +10,7 @@
   } = $props();
 </script>
 
-<StandardGlassCard class={className}>
+<UICard class={className}>
   <form on:submit|preventDefault={onSubmit} class="p-6 space-y-6">
     {#if title || subtitle}
       <div class="border-b border-white/10 pb-4">
@@ -33,8 +33,8 @@
       </div>
     {/if}
   </form>
-</StandardGlassCard>
+</UICard>
 
 <script>
-  import StandardGlassCard from './StandardGlassCard.svelte';
+  import UICard from './UICard.svelte';
 </script>

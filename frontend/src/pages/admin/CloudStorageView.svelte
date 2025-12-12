@@ -1,5 +1,11 @@
 <script>
   import { onMount, onDestroy } from "svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UISelect from "../../../components/ui/UISelect.svelte";
+  import UIToggle from "../../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
+  import UIModal from "../../../components/ui/UIModal.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
   import api from "../../lib/api.js";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
@@ -745,78 +751,49 @@
         {#if backendForm.backend_type === "s3" || backendForm.backend_type === "minio"}
           <div class="grid grid-cols-2 gap-4">
             <div class="form-control">
-              <label class="label" for="config-endpoint">
-                <span class="label-text">{tr("cloudStorage.endpoint")}</span>
-              </label>
-              <input
-                id="config-endpoint"
-                type="text"
-                class="input input-bordered"
-                bind:value={backendForm.config.endpoint}
-                placeholder="s3.amazonaws.com"
-              />
+              <UIInput
+  label={tr("cloudStorage.endpoint")}
+  bind:value={backendForm.config.endpoint}
+  placeholder="s3.amazonaws.com"
+/>
             </div>
             <div class="form-control">
-              <label class="label" for="config-bucket">
-                <span class="label-text">{tr("cloudStorage.bucket")}</span>
-              </label>
-              <input
-                id="config-bucket"
-                type="text"
-                class="input input-bordered"
-                bind:value={backendForm.config.bucket}
-                placeholder="my-bucket"
-              />
+              <UIInput
+  label={tr("cloudStorage.bucket")}
+  bind:value={backendForm.config.bucket}
+  placeholder="my-bucket"
+/>
             </div>
             <div class="form-control">
-              <label class="label" for="config-region">
-                <span class="label-text">{tr("cloudStorage.region")}</span>
-              </label>
-              <input
-                id="config-region"
-                type="text"
-                class="input input-bordered"
-                bind:value={backendForm.config.region}
-                placeholder="us-east-1"
-              />
+              <UIInput
+  label={tr("cloudStorage.region")}
+  bind:value={backendForm.config.region}
+  placeholder="us-east-1"
+/>
             </div>
             <div class="form-control">
-              <label class="label" for="config-access-key">
-                <span class="label-text">{tr("cloudStorage.accessKey")}</span>
-              </label>
-              <input
-                id="config-access-key"
-                type="text"
-                class="input input-bordered"
-                bind:value={backendForm.config.access_key}
-                placeholder="AKIAIOSFODNN7EXAMPLE"
-              />
+              <UIInput
+  label={tr("cloudStorage.accessKey")}
+  bind:value={backendForm.config.access_key}
+  placeholder="AKIAIOSFODNN7EXAMPLE"
+/>
             </div>
             <div class="form-control col-span-2">
-              <label class="label" for="config-secret-key">
-                <span class="label-text">{tr("cloudStorage.secretKey")}</span>
-              </label>
-              <input
-                id="config-secret-key"
-                type="password"
-                class="input input-bordered"
-                bind:value={backendForm.config.secret_key}
-                placeholder="••••••••"
-              />
+              <UIInput
+  label={tr("cloudStorage.secretKey")}
+  type="password"
+  bind:value={backendForm.config.secret_key}
+  placeholder="••••••••"
+/>
             </div>
           </div>
         {:else if backendForm.backend_type === "local"}
           <div class="form-control">
-            <label class="label" for="config-path">
-              <span class="label-text">{tr("cloudStorage.basePath")}</span>
-            </label>
-            <input
-              id="config-path"
-              type="text"
-              class="input input-bordered"
-              bind:value={backendForm.config.base_path}
-              placeholder="./data"
-            />
+            <UIInput
+  label={tr("cloudStorage.basePath")}
+  bind:value={backendForm.config.base_path}
+  placeholder="./data"
+/>
           </div>
         {/if}
 

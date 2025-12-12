@@ -1,14 +1,18 @@
 <script>
   import { onMount } from "svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UISelect from "../../../components/ui/UISelect.svelte";
+  import UIToggle from "../../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
   import { currentLang } from "../../../stores/ui.js";
   import t from "../../../i18n.js";
   import api from "../../../lib/api.js";
   import { formatFileSize, formatDate } from "../../../lib/utils.js";
 
   // Standard UI Components
-  import StandardGlassCard from "../../../components/ui/StandardGlassCard.svelte";
-  import StandardButton from "../../../components/ui/StandardButton.svelte";
-  import StandardModal from "../../../components/ui/StandardModal.svelte";
+  import UICard from "../../../components/ui/UICard.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
+  import UIModal from "../../../components/ui/UIModal.svelte";
 
   // State with Svelte 5 runes
   let trashItems = $state([]);
@@ -239,30 +243,30 @@
 
         <!-- Action Buttons -->
         <div class="flex items-center space-x-2">
-          <StandardButton
+          <UIButton
             variant="default"
             icon="arrow-clockwise"
             onclick={loadTrashItems}
             disabled={loading}
           >
             {t("common.refresh") || "Aktualisieren"}
-          </StandardButton>
+          </UIButton>
 
-          <StandardButton
+          <UIButton
             variant="danger"
             icon="trash"
             onclick={emptyTrash}
             disabled={loading || trashItems.length === 0 || actionLoading}
           >
             {t("trash.emptyTrash") || "Papierkorb leeren"}
-          </StandardButton>
+          </UIButton>
         </div>
       </div>
     </div>
 
     <!-- Stats Cards -->
     <div class="grid-3 grid-gap mb-6">
-      <StandardGlassCard
+      <UICard
         title={t("trash.itemCount") || "Anzahl Dateien"}
         icon="file-earmark"
         padding="p-4"
@@ -273,9 +277,9 @@
         <p class="text-caption mt-1">
           {t("trash.itemsInTrash") || "Dateien im Papierkorb"}
         </p>
-      </StandardGlassCard>
+      </UICard>
 
-      <StandardGlassCard
+      <UICard
         title={t("trash.totalSize") || "Gesamtgröße"}
         icon="hdd"
         padding="p-4"
@@ -286,9 +290,9 @@
         <p class="text-caption mt-1">
           {t("trash.spaceUsed") || "Verwendeter Speicherplatz"}
         </p>
-      </StandardGlassCard>
+      </UICard>
 
-      <StandardGlassCard
+      <UICard
         title={t("trash.selectedCount") || "Ausgewählt"}
         icon="check-circle"
         padding="p-4"
@@ -299,11 +303,11 @@
         <p class="text-caption mt-1">
           {t("trash.selectedItems") || "Ausgewählte Dateien"}
         </p>
-      </StandardGlassCard>
+      </UICard>
     </div>
 
     <!-- Main Content -->
-    <StandardGlassCard {loading} {error}>
+    <UICard {loading} {error}>
       <!-- Controls -->
       <div
         class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6"
@@ -339,7 +343,7 @@
             >
           </select>
 
-          <StandardButton
+          <UIButton
             variant="ghost"
             icon={sortOrder === "asc" ? "sort-up" : "sort-down"}
             iconPosition="only"
@@ -367,23 +371,23 @@
             </div>
 
             <div class="flex items-center space-x-2">
-              <StandardButton
+              <UIButton
                 variant="primary"
                 icon="arrow-counterclockwise"
                 onclick={handleBulkRestore}
                 disabled={actionLoading}
               >
                 {t("trash.restoreSelected") || "Wiederherstellen"}
-              </StandardButton>
+              </UIButton>
 
-              <StandardButton
+              <UIButton
                 variant="danger"
                 icon="trash"
                 onclick={handleBulkDelete}
                 disabled={actionLoading}
               >
                 {t("trash.deleteSelected") || "Endgültig löschen"}
-              </StandardButton>
+              </UIButton>
             </div>
           </div>
         </div>
@@ -466,7 +470,7 @@
 
                 <!-- Actions -->
                 <div class="flex items-center space-x-1 w-24 justify-end">
-                  <StandardButton
+                  <UIButton
                     variant="ghost"
                     icon="arrow-counterclockwise"
                     iconPosition="only"
@@ -475,7 +479,7 @@
                     aria-label="Datei wiederherstellen"
                   />
 
-                  <StandardButton
+                  <UIButton
                     variant="ghost"
                     icon="trash"
                     iconPosition="only"
@@ -507,12 +511,12 @@
           </p>
         </div>
       {/if}
-    </StandardGlassCard>
+    </UICard>
   </div>
 </div>
 
 <!-- Restore Confirmation Modal -->
-<StandardModal
+<UIModal
   bind:show={showRestoreModal}
   title={t("trash.confirmRestore") || "Dateien wiederherstellen"}
   size="md"
@@ -533,10 +537,10 @@
       </p>
     </div>
   </div>
-</StandardModal>
+</UIModal>
 
 <!-- Delete Confirmation Modal -->
-<StandardModal
+<UIModal
   bind:show={showDeleteModal}
   title={t("trash.confirmPermanentDelete") || "Dateien endgültig löschen"}
   size="md"
@@ -569,4 +573,4 @@
       </p>
     </div>
   </div>
-</StandardModal>
+</UIModal>

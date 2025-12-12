@@ -1,4 +1,4 @@
-<!-- StandardGlassCard.svelte - Consistent glass morphism cards -->
+<!-- UICard.svelte - Consistent glass morphism cards -->
 <script>
   export let title = "";
   export let subtitle = "";

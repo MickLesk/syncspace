@@ -1,5 +1,12 @@
 <script>
   import { onMount } from "svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UITextarea from "../../../components/ui/UITextarea.svelte";
+  import UISelect from "../../../components/ui/UISelect.svelte";
+  import UIToggle from "../../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
+  import UIModal from "../../../components/ui/UIModal.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import api from "../../lib/api.js";
@@ -436,30 +443,19 @@
 
       <div class="space-y-4">
         <div class="form-control">
-          <label class="label" for="compress-files">
-            <span class="label-text">Files to Compress (comma-separated)</span>
-          </label>
-          <textarea
-            id="compress-files"
-            class="textarea textarea-bordered w-full h-24"
-            bind:value={compressForm.files}
-            placeholder="path/to/file1.txt, path/to/file2.log"
-          ></textarea>
+          <UITextarea
+  label="Files to Compress (comma-separated)"
+  bind:value={compressForm.files}
+  rows={4}
+  placeholder="path/to/file1.txt, path/to/file2.log"
+/>
         </div>
 
         <div class="form-control">
-          <label class="label" for="compress-algorithm">
-            <span class="label-text">Algorithm</span>
-          </label>
-          <select
-            id="compress-algorithm"
-            class="select select-bordered w-full"
-            bind:value={compressForm.algorithm}
-          >
-            {#each algorithms as algo}
-              <option value={algo.id}>{algo.name} ({algo.extension})</option>
-            {/each}
-          </select>
+          <UISelect
+  label="Algorithm"
+  bind:value={compressForm.algorithm}
+/>
           {#if selectedAlgorithm}
             <div class="label">
               <span class="label-text-alt text-base-content/60">
@@ -491,16 +487,11 @@
         </div>
 
         <div class="form-control">
-          <label class="label" for="compress-destination">
-            <span class="label-text">Destination (optional)</span>
-          </label>
-          <input
-            id="compress-destination"
-            type="text"
-            class="input input-bordered w-full"
-            bind:value={compressForm.destination}
-            placeholder="Same as source"
-          />
+          <UIInput
+  label="Destination (optional)"
+  bind:value={compressForm.destination}
+  placeholder="Same as source"
+/>
         </div>
 
         <div class="form-control">
@@ -554,28 +545,20 @@
 
       <div class="space-y-4">
         <div class="form-control">
-          <label class="label" for="decompress-files">
-            <span class="label-text">Compressed Files (comma-separated)</span>
-          </label>
-          <textarea
-            id="decompress-files"
-            class="textarea textarea-bordered w-full h-24"
-            bind:value={decompressForm.files}
-            placeholder="path/to/file.gz, path/to/file.zst"
-          ></textarea>
+          <UITextarea
+  label="Compressed Files (comma-separated)"
+  bind:value={decompressForm.files}
+  rows={4}
+  placeholder="path/to/file.gz, path/to/file.zst"
+/>
         </div>
 
         <div class="form-control">
-          <label class="label" for="decompress-destination">
-            <span class="label-text">Destination (optional)</span>
-          </label>
-          <input
-            id="decompress-destination"
-            type="text"
-            class="input input-bordered w-full"
-            bind:value={decompressForm.destination}
-            placeholder="Same as source"
-          />
+          <UIInput
+  label="Destination (optional)"
+  bind:value={decompressForm.destination}
+  placeholder="Same as source"
+/>
         </div>
 
         <div class="form-control">

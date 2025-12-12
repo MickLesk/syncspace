@@ -1,5 +1,11 @@
 <script>
   import PageWrapper from "../../components/PageWrapper.svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UISelect from "../../../components/ui/UISelect.svelte";
+  import UIToggle from "../../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
+  import UIModal from "../../../components/ui/UIModal.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
@@ -374,88 +380,54 @@
       >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="form-control">
-            <label class="label" for="email-name">
-              <span class="label-text">Account Name</span>
-            </label>
-            <input
-              type="text"
-              id="email-name"
-              class="input input-bordered"
-              bind:value={formData.name}
-              required
-              placeholder="Work Email"
-            />
+            <UIInput
+  label="Account Name"
+  bind:value={formData.name}
+  placeholder="Work Email"
+  required
+/>
           </div>
 
           <div class="form-control">
-            <label class="label" for="email-address">
-              <span class="label-text">Email Address</span>
-            </label>
-            <input
-              type="email"
-              id="email-address"
-              class="input input-bordered"
-              bind:value={formData.email_address}
-              required
-              placeholder="user@example.com"
-            />
+            <UIInput
+  label="Email Address"
+  type="email"
+  bind:value={formData.email_address}
+  placeholder="user@example.com"
+  required
+/>
           </div>
 
           <div class="form-control">
-            <label class="label" for="email-protocol">
-              <span class="label-text">Protocol</span>
-            </label>
-            <select
-              id="email-protocol"
-              class="select select-bordered"
-              bind:value={formData.protocol}
-              onchange={onProtocolChange}
-            >
-              {#each protocols as proto}
-                <option value={proto.value}>{proto.label}</option>
-              {/each}
-            </select>
+            <UISelect
+  label="Protocol"
+  bind:value={formData.protocol}
+/>
           </div>
 
           <div class="form-control">
-            <label class="label" for="email-server">
-              <span class="label-text">Server</span>
-            </label>
-            <input
-              type="text"
-              id="email-server"
-              class="input input-bordered"
-              bind:value={formData.server}
-              required
-              placeholder="imap.gmail.com"
-            />
+            <UIInput
+  label="Server"
+  bind:value={formData.server}
+  placeholder="imap.gmail.com"
+  required
+/>
           </div>
 
           <div class="form-control">
-            <label class="label" for="email-port">
-              <span class="label-text">Port</span>
-            </label>
-            <input
-              type="number"
-              id="email-port"
-              class="input input-bordered"
-              bind:value={formData.port}
-              min="1"
-              max="65535"
-            />
+            <UIInput
+  label="Port"
+  type="number"
+  bind:value={formData.port}
+/>
           </div>
 
           <div class="form-control">
-            <label class="label" for="email-username">
-              <span class="label-text">Username</span>
-            </label>
-            <input
-              type="text"
-              id="email-username"
-              class="input input-bordered"
-              bind:value={formData.username}
-              required
-            />
+            <UIInput
+  label="Username"
+  bind:value={formData.username}
+  required
+/>
           </div>
 
           <div class="form-control md:col-span-2">
@@ -476,30 +448,20 @@
           </div>
 
           <div class="form-control">
-            <label class="label" for="email-folder">
-              <span class="label-text">Attachment Folder</span>
-            </label>
-            <input
-              type="text"
-              id="email-folder"
-              class="input input-bordered font-mono"
-              bind:value={formData.attachment_folder}
-              placeholder="/email_attachments"
-            />
+            <UIInput
+  label="Attachment Folder"
+  bind:value={formData.attachment_folder}
+  placeholder="/email_attachments"
+/>
           </div>
 
           <div class="form-control">
-            <label class="label" for="email-interval">
-              <span class="label-text">Fetch Interval (minutes)</span>
-            </label>
-            <input
-              type="number"
-              id="email-interval"
-              class="input input-bordered"
-              bind:value={formData.fetch_interval_minutes}
-              min="5"
-              disabled={!formData.auto_fetch}
-            />
+            <UIInput
+  label="Fetch Interval (minutes)"
+  type="number"
+  bind:value={formData.fetch_interval_minutes}
+  disabled
+/>
           </div>
 
           <div class="form-control">

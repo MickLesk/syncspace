@@ -1,11 +1,15 @@
 <script>
   import { onMount } from "svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UISelect from "../../../components/ui/UISelect.svelte";
+  import UIToggle from "../../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
   import { themeStore } from "../../stores/themes.js";
   import { authStore } from "../../stores/auth.js";
-  import StandardGlassCard from "../../components/ui/StandardGlassCard.svelte";
-  import StandardTabs from "../../components/ui/StandardTabs.svelte";
-  import StandardButton from "../../components/ui/StandardButton.svelte";
-  import StandardModal from "../../components/ui/StandardModal.svelte";
+  import UICard from "../../components/ui/UICard.svelte";
+  import UITabs from "../../components/ui/UITabs.svelte";
+  import UIButton from "../../components/ui/UIButton.svelte";
+  import UIModal from "../../components/ui/UIModal.svelte";
 
   let themes = [];
   let activeTheme = null;
@@ -168,25 +172,25 @@
     </p>
   </div>
 
-  <StandardTabs bind:currentTab {tabs} />
+  <UITabs bind:currentTab {tabs} />
 
   {#if error}
     <div class="alert alert-error mb-4">
       <i class="bi bi-exclamation-triangle"></i>
       <span>{error}</span>
-      <StandardButton
+      <UIButton
         size="sm"
         variant="ghost"
         onclick={() => themeStore.clearError()}
       >
         <i class="bi bi-x"></i>
-      </StandardButton>
+      </UIButton>
     </div>
   {/if}
 
   <!-- Preset Tab -->
   {#if currentTab === "presets"}
-    <StandardGlassCard>
+    <UICard>
       <div class="space-y-8">
         {#each presetCategories as category}
           {#if getPresetsByCategory(category.id).length > 0}
@@ -223,7 +227,7 @@
                       <p class="text-sm text-white/70">{preset.description}</p>
                     </div>
                     <div class="theme-actions">
-                      <StandardButton
+                      <UIButton
                         variant="primary"
                         size="sm"
                         onclick={() => createFromPreset(preset)}
@@ -231,7 +235,7 @@
                       >
                         <i class="bi bi-download me-1"></i>
                         Verwenden
-                      </StandardButton>
+                      </UIButton>
                     </div>
                   </div>
                 {/each}
@@ -240,19 +244,19 @@
           {/if}
         {/each}
       </div>
-    </StandardGlassCard>
+    </UICard>
   {/if}
 
   <!-- Custom Themes Tab -->
   {#if currentTab === "custom"}
-    <StandardGlassCard>
+    <UICard>
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-semibold text-white">Meine Themes</h2>
         <div class="flex gap-2">
-          <StandardButton variant="secondary" onclick={handleImportFile}>
+          <UIButton variant="secondary" onclick={handleImportFile}>
             <i class="bi bi-upload me-1"></i>
             Theme importieren
-          </StandardButton>
+          </UIButton>
         </div>
       </div>
 
@@ -262,12 +266,12 @@
           <p class="text-white/70 mb-4">
             Noch keine benutzerdefinierten Themes erstellt.
           </p>
-          <StandardButton
+          <UIButton
             variant="primary"
             onclick={() => (currentTab = "editor")}
           >
             Erstes Theme erstellen
-          </StandardButton>
+          </UIButton>
         </div>
       {:else}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -312,7 +316,7 @@
               <div class="theme-actions">
                 <div class="flex gap-2">
                   {#if activeTheme?.id !== theme.id}
-                    <StandardButton
+                    <UIButton
                       variant="primary"
                       size="sm"
                       onclick={() => activateTheme(theme.id)}
@@ -320,34 +324,34 @@
                     >
                       <i class="bi bi-check me-1"></i>
                       Aktivieren
-                    </StandardButton>
+                    </UIButton>
                   {/if}
 
-                  <StandardButton
+                  <UIButton
                     variant="ghost"
                     size="sm"
                     onclick={() => openEditModal(theme)}
                   >
                     <i class="bi bi-pencil"></i>
-                  </StandardButton>
+                  </UIButton>
 
-                  <StandardButton
+                  <UIButton
                     variant="ghost"
                     size="sm"
                     onclick={() => exportTheme(theme.id)}
                   >
                     <i class="bi bi-download"></i>
-                  </StandardButton>
+                  </UIButton>
 
                   {#if theme.is_custom}
-                    <StandardButton
+                    <UIButton
                       variant="ghost"
                       size="sm"
                       onclick={() => deleteTheme(theme.id)}
                       class="text-red-400 hover:text-red-300"
                     >
                       <i class="bi bi-trash"></i>
-                    </StandardButton>
+                    </UIButton>
                   {/if}
                 </div>
               </div>
@@ -355,12 +359,12 @@
           {/each}
         </div>
       {/if}
-    </StandardGlassCard>
+    </UICard>
   {/if}
 
   <!-- Theme Editor Tab -->
   {#if currentTab === "editor"}
-    <StandardGlassCard>
+    <UICard>
       <h2 class="text-xl font-semibold text-white mb-6">Theme-Editor</h2>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -514,14 +518,14 @@
           </div>
 
           <div class="pt-4">
-            <StandardButton
+            <UIButton
               variant="primary"
               onclick={createCustomTheme}
               disabled={isLoading}
             >
               <i class="bi bi-plus me-1"></i>
               Theme erstellen
-            </StandardButton>
+            </UIButton>
           </div>
         </div>
 
@@ -573,12 +577,12 @@
           </div>
         </div>
       </div>
-    </StandardGlassCard>
+    </UICard>
   {/if}
 </div>
 
 <!-- Edit Modal -->
-<StandardModal bind:showModal={showEditModal} title="Theme bearbeiten">
+<UIModal bind:showModal={showEditModal} title="Theme bearbeiten">
   {#if editingTheme}
     <div class="space-y-4">
       <div>
@@ -613,19 +617,19 @@
     </div>
 
     <svelte:fragment slot="actions">
-      <StandardButton variant="ghost" onclick={() => (showEditModal = false)}>
+      <UIButton variant="ghost" onclick={() => (showEditModal = false)}>
         Abbrechen
-      </StandardButton>
-      <StandardButton
+      </UIButton>
+      <UIButton
         variant="primary"
         onclick={saveEditedTheme}
         disabled={isLoading}
       >
         Speichern
-      </StandardButton>
+      </UIButton>
     </svelte:fragment>
   {/if}
-</StandardModal>
+</UIModal>
 
 <!-- Hidden file input for import -->
 <input

@@ -1,5 +1,12 @@
 <script>
   import { onMount } from "svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UITextarea from "../../../components/ui/UITextarea.svelte";
+  import UISelect from "../../../components/ui/UISelect.svelte";
+  import UIToggle from "../../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
+  import UIModal from "../../../components/ui/UIModal.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import api from "../../lib/api.js";
@@ -458,33 +465,18 @@
 
       <div class="space-y-4">
         <div class="form-control">
-          <label class="label" for="archive-name">
-            <span class="label-text">Archive Name *</span>
-          </label>
-          <input
-            id="archive-name"
-            type="text"
-            class="input input-bordered w-full"
-            bind:value={createForm.archiveName}
-            placeholder="my-archive"
-          />
+          <UIInput
+  label="Archive Name *"
+  bind:value={createForm.archiveName}
+  placeholder="my-archive"
+/>
         </div>
 
         <div class="form-control">
-          <label class="label" for="archive-format">
-            <span class="label-text">Format</span>
-          </label>
-          <select
-            id="archive-format"
-            class="select select-bordered w-full"
-            bind:value={createForm.format}
-          >
-            {#each formats as format}
-              <option value={format.id}
-                >{format.name} ({format.extension})</option
-              >
-            {/each}
-          </select>
+          <UISelect
+  label="Format"
+  bind:value={createForm.format}
+/>
         </div>
 
         <div class="form-control">
@@ -510,30 +502,21 @@
 
         {#if formats.find((f) => f.id === createForm.format)?.supports_password}
           <div class="form-control">
-            <label class="label" for="archive-password">
-              <span class="label-text">Password (optional)</span>
-            </label>
-            <input
-              id="archive-password"
-              type="password"
-              class="input input-bordered w-full"
-              bind:value={createForm.password}
-              placeholder="Leave empty for no password"
-            />
+            <UIInput
+  label="Password (optional)"
+  type="password"
+  bind:value={createForm.password}
+  placeholder="Leave empty for no password"
+/>
           </div>
         {/if}
 
         <div class="form-control">
-          <label class="label" for="archive-destination">
-            <span class="label-text">Destination (optional)</span>
-          </label>
-          <input
-            id="archive-destination"
-            type="text"
-            class="input input-bordered w-full"
-            bind:value={createForm.destination}
-            placeholder="Current directory"
-          />
+          <UIInput
+  label="Destination (optional)"
+  bind:value={createForm.destination}
+  placeholder="Current directory"
+/>
         </div>
 
         <div class="form-control">
@@ -601,29 +584,20 @@
         </div>
 
         <div class="form-control">
-          <label class="label" for="extract-destination">
-            <span class="label-text">Extract To</span>
-          </label>
-          <input
-            id="extract-destination"
-            type="text"
-            class="input input-bordered w-full"
-            bind:value={extractForm.destination}
-            placeholder="Destination folder"
-          />
+          <UIInput
+  label="Extract To"
+  bind:value={extractForm.destination}
+  placeholder="Destination folder"
+/>
         </div>
 
         <div class="form-control">
-          <label class="label" for="extract-password">
-            <span class="label-text">Password (if protected)</span>
-          </label>
-          <input
-            id="extract-password"
-            type="password"
-            class="input input-bordered w-full"
-            bind:value={extractForm.password}
-            placeholder="Leave empty if not password-protected"
-          />
+          <UIInput
+  label="Password (if protected)"
+  type="password"
+  bind:value={extractForm.password}
+  placeholder="Leave empty if not password-protected"
+/>
         </div>
 
         <div class="form-control">

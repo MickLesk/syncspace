@@ -1,5 +1,8 @@
 <script>
   import { onMount } from "svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UISelect from "../../../components/ui/UISelect.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
   import api from "../../../lib/api";
   import { success, error as errorToast } from "../../../stores/toast";
   import { currentLang } from "../../../stores/ui";

@@ -2,9 +2,15 @@
   import { onMount } from "svelte";
   import { currentLang } from "../../../stores/ui.js";
   import { t } from "../../../i18n.js";
+  import { showToast } from "../../../stores/toast.js";
   import api from "../../../lib/api.js";
   import ModernButton from "../../../components/ui/ModernButton.svelte";
-  import StandardGlassCard from "../../../components/ui/StandardGlassCard.svelte";
+  import UICard from "../../../components/ui/UICard.svelte";
+  import UIModal from "../../../components/ui/UIModal.svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UISelect from "../../../components/ui/UISelect.svelte";
+  import UIToggle from "../../../components/ui/UIToggle.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -359,77 +365,36 @@
 
       <div class="space-y-4">
         <div class="form-control">
-          <label class="label" for="provider-select">
-            <span class="label-text">Provider</span>
-          </label>
-          <select
-            id="provider-select"
-            class="select select-bordered w-full"
-            bind:value={providerForm.provider}
-            disabled={!!editingProvider}
-          >
-            {#each providerOptions as option}
-              <option value={option.id}>{option.name}</option>
-            {/each}
-          </select>
+          <UISelect label="Provider" bind:value={providerForm.provider} />
         </div>
 
-        <div class="form-control">
-          <label class="label" for="client-id">
-            <span class="label-text">Client ID</span>
-          </label>
-          <input
-            id="client-id"
-            type="text"
-            class="input input-bordered w-full"
-            bind:value={providerForm.client_id}
-            placeholder="Enter client ID"
-          />
-        </div>
+        <UIInput
+          label="Client ID"
+          bind:value={providerForm.client_id}
+          placeholder="Enter client ID"
+          required
+        />
 
-        <div class="form-control">
-          <label class="label" for="client-secret">
-            <span class="label-text">Client Secret</span>
-          </label>
-          <input
-            id="client-secret"
-            type="password"
-            class="input input-bordered w-full"
-            bind:value={providerForm.client_secret}
-            placeholder={editingProvider
-              ? "Leave empty to keep existing"
-              : "Enter client secret"}
-          />
-        </div>
+        <UIInput
+          label="Client Secret"
+          type="password"
+          bind:value={providerForm.client_secret}
+          placeholder={editingProvider
+            ? "Leave empty to keep existing"
+            : "Enter client secret"}
+        />
 
-        <div class="form-control">
-          <label class="label" for="redirect-uri">
-            <span class="label-text">Redirect URI</span>
-          </label>
-          <input
-            id="redirect-uri"
-            type="url"
-            class="input input-bordered w-full"
-            bind:value={providerForm.redirect_uri}
-            placeholder="https://yourdomain.com/api/oauth/callback"
-          />
-          <div class="label">
-            <span class="label-text-alt text-base-content/60">
-              Use this URL in your OAuth provider settings
-            </span>
-          </div>
-        </div>
+        <UIInput
+          label="Redirect URI"
+          type="url"
+          bind:value={providerForm.redirect_uri}
+          placeholder="https://yourdomain.com/api/oauth/callback"
+        />
+        <p class="text-sm text-white/60 -mt-2">
+          Use this URL in your OAuth provider settings
+        </p>
 
-        <div class="form-control">
-          <label class="label cursor-pointer">
-            <span class="label-text">Enabled</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-primary"
-              bind:checked={providerForm.enabled}
-            />
-          </label>
-        </div>
+        <UIToggle label="Enabled" bind:checked={providerForm.enabled} />
       </div>
 
       <div class="modal-action">

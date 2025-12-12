@@ -32,8 +32,8 @@
   </label>
 
   {#if error}
-    <label class="label">
+    <div class="label">
       <span class="label-text-alt text-red-400">{error}</span>
-    </label>
+    </div>
   {/if}
 </div>

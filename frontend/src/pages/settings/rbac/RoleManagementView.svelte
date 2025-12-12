@@ -4,9 +4,12 @@
   import { currentLang } from "../../../stores/ui.js";
   import { t } from "../../../i18n.js";
   import { showToast } from "../../../stores/toast.js";
-  import StandardGlassCard from "../../../components/ui/StandardGlassCard.svelte";
-  import StandardButton from "../../../components/ui/StandardButton.svelte";
-  import StandardModal from "../../../components/ui/StandardModal.svelte";
+  import UICard from "../../../components/ui/UICard.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
+  import UIModal from "../../../components/ui/UIModal.svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UITextarea from "../../../components/ui/UITextarea.svelte";
+  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -220,24 +223,24 @@
       Verwalten Sie Benutzerrollen und deren Berechtigungen
     </p>
   </div>
-  <StandardButton variant="primary" onclick={openCreateModal}>
+  <UIButton variant="primary" onclick={openCreateModal}>
     <i class="bi bi-plus-lg mr-2"></i>
     Neue Rolle
-  </StandardButton>
+  </UIButton>
 </div>
 
 {#if loading}
-  <StandardGlassCard>
+  <UICard>
     <div class="flex items-center justify-center py-12">
       <div class="loading loading-spinner loading-lg"></div>
       <span class="ml-4 text-white/80">Lade Rollen...</span>
     </div>
-  </StandardGlassCard>
+  </UICard>
 {:else}
   <!-- Roles Grid -->
   <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
     {#each roles as role (role.id)}
-      <StandardGlassCard>
+      <UICard>
         <div class="p-6">
           <!-- Role Header -->
           <div class="flex items-start justify-between mb-4">
@@ -277,7 +280,7 @@
 
           <!-- Actions -->
           <div class="flex gap-2 pt-4 border-t border-white/10">
-            <StandardButton
+            <UIButton
               variant="ghost"
               size="sm"
               onclick={() => openEditModal(role)}
@@ -285,145 +288,105 @@
             >
               <i class="bi bi-pencil mr-1"></i>
               Bearbeiten
-            </StandardButton>
+            </UIButton>
             {#if !role.is_system}
-              <StandardButton
+              <UIButton
                 variant="outline-error"
                 size="sm"
                 onclick={() => deleteRole(role)}
               >
                 <i class="bi bi-trash"></i>
-              </StandardButton>
+              </UIButton>
             {/if}
           </div>
         </div>
-      </StandardGlassCard>
+      </UICard>
     {/each}
   </div>
 {/if}
 
 <!-- Create Role Modal -->
-<StandardModal bind:showModal={showCreateModal} title="Neue Rolle erstellen">
+<UIModal bind:showModal={showCreateModal} title="Neue Rolle erstellen">
   <div class="space-y-4">
-    <div>
-      <label class="block text-sm font-medium text-white mb-2">Rollenname</label
-      >
-      <input
-        type="text"
-        bind:value={newRole.name}
-        class="input input-bordered w-full bg-white/5 border-white/20 text-white"
-        placeholder="z.B. Editor, Reviewer..."
-      />
-    </div>
+    <UIInput
+      label="Rollenname"
+      bind:value={newRole.name}
+      placeholder="z.B. Editor, Reviewer..."
+      required
+    />
+
+    <UITextarea
+      label="Beschreibung"
+      bind:value={newRole.description}
+      rows={3}
+      placeholder="Beschreibung der Rolle..."
+    />
 
     <div>
-      <label class="block text-sm font-medium text-white mb-2"
-        >Beschreibung</label
-      >
-      <textarea
-        bind:value={newRole.description}
-        class="textarea textarea-bordered w-full bg-white/5 border-white/20 text-white"
-        rows="3"
-        placeholder="Beschreibung der Rolle..."
-      ></textarea>
-    </div>
-
-    <div>
-      <label class="block text-sm font-medium text-white mb-3"
-        >Berechtigungen</label
-      >
+      <div class="label">
+        <span class="label-text text-white font-medium">Berechtigungen</span>
+      </div>
       <div class="space-y-2">
         {#each availablePermissions as permission}
-          <label
-            class="flex items-center p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer"
-          >
-            <input
-              type="checkbox"
-              class="checkbox checkbox-primary mr-3"
-              checked={newRole.permissions.includes(permission.id)}
-              onchange={() => togglePermission(permission.id, newRole)}
-            />
-            <div class="flex-1">
-              <div class="text-white font-medium">{permission.label}</div>
-              <div class="text-white/60 text-sm">{permission.description}</div>
-            </div>
-          </label>
+          <UICheckbox
+            bind:checked={newRole.permissions[permission.id]}
+            label={permission.name}
+            description={permission.description}
+          />
         {/each}
       </div>
     </div>
   </div>
 
   <svelte:fragment slot="actions">
-    <StandardButton variant="ghost" onclick={() => (showCreateModal = false)}>
+    <UIButton variant="ghost" onclick={() => (showCreateModal = false)}>
       Abbrechen
-    </StandardButton>
-    <StandardButton
+    </UIButton>
+    <UIButton
       variant="primary"
       onclick={createRole}
       disabled={isCreating}
       class={isCreating ? "loading" : ""}
     >
       {isCreating ? "Erstelle..." : "Rolle erstellen"}
-    </StandardButton>
+    </UIButton>
   </svelte:fragment>
-</StandardModal>
+</UIModal>
 
 <!-- Edit Role Modal -->
 {#if editingRole}
-  <StandardModal bind:showModal={showEditModal} title="Rolle bearbeiten">
+  <UIModal bind:showModal={showEditModal} title="Rolle bearbeiten">
     <div class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-white mb-2"
-          >Rollenname</label
-        >
-        <input
-          type="text"
-          bind:value={editingRole.name}
-          class="input input-bordered w-full bg-white/5 border-white/20 text-white"
-          disabled={editingRole.is_system}
-        />
-        {#if editingRole.is_system}
-          <p class="text-yellow-400 text-sm mt-1">
-            System-Rollen können nicht umbenannt werden
-          </p>
-        {/if}
-      </div>
+      <UIInput
+        label="Rollenname"
+        bind:value={editingRole.name}
+        disabled={editingRole.is_system}
+      />
+      {#if editingRole.is_system}
+        <p class="text-yellow-400 text-sm mt-1">
+          System-Rollen können nicht umbenannt werden
+        </p>
+      {/if}
+
+      <UITextarea
+        label="Beschreibung"
+        bind:value={editingRole.description}
+        rows={3}
+        disabled={editingRole.is_system}
+      />
 
       <div>
-        <label class="block text-sm font-medium text-white mb-2"
-          >Beschreibung</label
-        >
-        <textarea
-          bind:value={editingRole.description}
-          class="textarea textarea-bordered w-full bg-white/5 border-white/20 text-white"
-          rows="3"
-          disabled={editingRole.is_system}
-        ></textarea>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-white mb-3"
-          >Berechtigungen</label
-        >
+        <div class="label">
+          <span class="label-text text-white font-medium">Berechtigungen</span>
+        </div>
         <div class="space-y-2">
           {#each availablePermissions as permission}
-            <label
-              class="flex items-center p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                class="checkbox checkbox-primary mr-3"
-                checked={editingRole.permissions.includes(permission.id)}
-                disabled={editingRole.is_system}
-                onchange={() => togglePermission(permission.id, editingRole)}
-              />
-              <div class="flex-1">
-                <div class="text-white font-medium">{permission.label}</div>
-                <div class="text-white/60 text-sm">
-                  {permission.description}
-                </div>
-              </div>
-            </label>
+            <UICheckbox
+              bind:checked={editingRole.permissions[permission.id]}
+              label={permission.name}
+              description={permission.description}
+              disabled={editingRole.is_system}
+            />
           {/each}
         </div>
         {#if editingRole.is_system}
@@ -435,17 +398,17 @@
     </div>
 
     <svelte:fragment slot="actions">
-      <StandardButton variant="ghost" onclick={() => (showEditModal = false)}>
+      <UIButton variant="ghost" onclick={() => (showEditModal = false)}>
         Abbrechen
-      </StandardButton>
-      <StandardButton
+      </UIButton>
+      <UIButton
         variant="primary"
         onclick={saveRole}
         disabled={isSaving || editingRole.is_system}
         class={isSaving ? "loading" : ""}
       >
         {isSaving ? "Speichere..." : "Speichern"}
-      </StandardButton>
+      </UIButton>
     </svelte:fragment>
-  </StandardModal>
+  </UIModal>
 {/if}

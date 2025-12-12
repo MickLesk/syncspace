@@ -1,5 +1,11 @@
 <script>
   import PageWrapper from "../../components/PageWrapper.svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UISelect from "../../../components/ui/UISelect.svelte";
+  import UIToggle from "../../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
+  import UIModal from "../../../components/ui/UIModal.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";
@@ -327,58 +333,37 @@
       >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="form-control">
-            <label class="label" for="conn-name">
-              <span class="label-text">Connection Name</span>
-            </label>
-            <input
-              type="text"
-              id="conn-name"
-              class="input input-bordered"
-              bind:value={formData.name}
-              required
-              placeholder="My FTP Server"
-            />
+            <UIInput
+  label="Connection Name"
+  bind:value={formData.name}
+  placeholder="My FTP Server"
+  required
+/>
           </div>
 
           <div class="form-control">
-            <label class="label" for="conn-host">
-              <span class="label-text">Host</span>
-            </label>
-            <input
-              type="text"
-              id="conn-host"
-              class="input input-bordered"
-              bind:value={formData.host}
-              required
-              placeholder="ftp.example.com"
-            />
+            <UIInput
+  label="Host"
+  bind:value={formData.host}
+  placeholder="ftp.example.com"
+  required
+/>
           </div>
 
           <div class="form-control">
-            <label class="label" for="conn-port">
-              <span class="label-text">Port</span>
-            </label>
-            <input
-              type="number"
-              id="conn-port"
-              class="input input-bordered"
-              bind:value={formData.port}
-              min="1"
-              max="65535"
-            />
+            <UIInput
+  label="Port"
+  type="number"
+  bind:value={formData.port}
+/>
           </div>
 
           <div class="form-control">
-            <label class="label" for="conn-username">
-              <span class="label-text">Username</span>
-            </label>
-            <input
-              type="text"
-              id="conn-username"
-              class="input input-bordered"
-              bind:value={formData.username}
-              required
-            />
+            <UIInput
+  label="Username"
+  bind:value={formData.username}
+  required
+/>
           </div>
 
           <div class="form-control md:col-span-2">
@@ -399,59 +384,36 @@
           </div>
 
           <div class="form-control">
-            <label class="label" for="conn-remote-path">
-              <span class="label-text">Remote Path</span>
-            </label>
-            <input
-              type="text"
-              id="conn-remote-path"
-              class="input input-bordered font-mono"
-              bind:value={formData.remote_path}
-              placeholder="/"
-            />
+            <UIInput
+  label="Remote Path"
+  bind:value={formData.remote_path}
+  placeholder="/"
+/>
           </div>
 
           <div class="form-control">
-            <label class="label" for="conn-local-path">
-              <span class="label-text">Local Path</span>
-            </label>
-            <input
-              type="text"
-              id="conn-local-path"
-              class="input input-bordered font-mono"
-              bind:value={formData.local_path}
-              required
-              placeholder="/ftp-sync/server1"
-            />
+            <UIInput
+  label="Local Path"
+  bind:value={formData.local_path}
+  placeholder="/ftp-sync/server1"
+  required
+/>
           </div>
 
           <div class="form-control">
-            <label class="label" for="conn-direction">
-              <span class="label-text">Sync Direction</span>
-            </label>
-            <select
-              id="conn-direction"
-              class="select select-bordered"
-              bind:value={formData.sync_direction}
-            >
-              {#each syncDirections as dir}
-                <option value={dir.value}>{dir.label}</option>
-              {/each}
-            </select>
+            <UISelect
+  label="Sync Direction"
+  bind:value={formData.sync_direction}
+/>
           </div>
 
           <div class="form-control">
-            <label class="label" for="conn-interval">
-              <span class="label-text">Sync Interval (minutes)</span>
-            </label>
-            <input
-              type="number"
-              id="conn-interval"
-              class="input input-bordered"
-              bind:value={formData.sync_interval_minutes}
-              min="5"
-              disabled={!formData.auto_sync}
-            />
+            <UIInput
+  label="Sync Interval (minutes)"
+  type="number"
+  bind:value={formData.sync_interval_minutes}
+  disabled
+/>
           </div>
 
           <div class="form-control">

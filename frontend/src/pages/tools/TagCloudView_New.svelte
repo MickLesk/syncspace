@@ -1,15 +1,19 @@
 <script>
   import { onMount } from "svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UISelect from "../../../components/ui/UISelect.svelte";
+  import UIToggle from "../../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
   import { currentLang } from "../../../stores/ui.js";
   import t from "../../../i18n.js";
   import { tags as tagsApi } from "../../../lib/api.js";
   import { success, error as errorToast } from "../../../stores/toast.js";
 
   // Standard UI Components
-  import StandardGlassCard from "../../../components/ui/StandardGlassCard.svelte";
-  import StandardButton from "../../../components/ui/StandardButton.svelte";
-  import StandardModal from "../../../components/ui/StandardModal.svelte";
-  import StandardTabs from "../../../components/ui/StandardTabs.svelte";
+  import UICard from "../../../components/ui/UICard.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
+  import UIModal from "../../../components/ui/UIModal.svelte";
+  import UITabs from "../../../components/ui/UITabs.svelte";
 
   // State with Svelte 5 runes
   let loading = $state(true);
@@ -288,29 +292,29 @@
 
         <!-- Action Buttons -->
         <div class="flex items-center space-x-2">
-          <StandardButton
+          <UIButton
             variant="default"
             icon="arrow-clockwise"
             onclick={loadTags}
             disabled={loading}
           >
             {t("common.refresh") || "Aktualisieren"}
-          </StandardButton>
+          </UIButton>
 
-          <StandardButton
+          <UIButton
             variant="primary"
             icon="plus"
             onclick={() => (showCreateTagModal = true)}
           >
             {t("tags.createTag") || "Tag erstellen"}
-          </StandardButton>
+          </UIButton>
         </div>
       </div>
     </div>
 
     <!-- Stats Cards -->
     <div class="grid-4 grid-gap mb-6">
-      <StandardGlassCard
+      <UICard
         title={t("tags.totalTags") || "Gesamte Tags"}
         icon="tags"
         padding="p-4"
@@ -321,9 +325,9 @@
         <p class="text-caption mt-1">
           {t("tags.tagsInSystem") || "Tags im System"}
         </p>
-      </StandardGlassCard>
+      </UICard>
 
-      <StandardGlassCard
+      <UICard
         title={t("tags.mostUsed") || "Meistverwendet"}
         icon="trophy"
         padding="p-4"
@@ -334,9 +338,9 @@
         <p class="text-caption mt-1">
           {t("tags.usageCount") || "Verwendungen"}
         </p>
-      </StandardGlassCard>
+      </UICard>
 
-      <StandardGlassCard
+      <UICard
         title={t("tags.selectedCount") || "Ausgewählt"}
         icon="check-circle"
         padding="p-4"
@@ -347,9 +351,9 @@
         <p class="text-caption mt-1">
           {t("tags.selectedTags") || "Ausgewählte Tags"}
         </p>
-      </StandardGlassCard>
+      </UICard>
 
-      <StandardGlassCard
+      <UICard
         title={t("tags.averageUsage") || "Durchschnitt"}
         icon="bar-chart"
         padding="p-4"
@@ -365,13 +369,13 @@
         <p class="text-caption mt-1">
           {t("tags.avgUsage") || "Ø Verwendungen"}
         </p>
-      </StandardGlassCard>
+      </UICard>
     </div>
 
     <!-- Main Content -->
-    <StandardGlassCard {loading} {error}>
+    <UICard {loading} {error}>
       <!-- Tabs -->
-      <StandardTabs
+      <UITabs
         {tabs}
         {activeTab}
         variant="default"
@@ -445,13 +449,13 @@
               </span>
             </div>
 
-            <StandardButton
+            <UIButton
               variant="danger"
               icon="trash"
               onclick={deleteBulkTags}
             >
               {t("tags.deleteSelected") || "Ausgewählte löschen"}
-            </StandardButton>
+            </UIButton>
           </div>
         </div>
       {/if}
@@ -518,7 +522,7 @@
                   </div>
 
                   <div class="flex items-center space-x-2">
-                    <StandardButton
+                    <UIButton
                       variant="ghost"
                       icon="eye"
                       iconPosition="only"
@@ -527,7 +531,7 @@
                       aria-label="Tag-Dateien anzeigen"
                     />
 
-                    <StandardButton
+                    <UIButton
                       variant="ghost"
                       icon="trash"
                       iconPosition="only"
@@ -584,7 +588,7 @@
                   </label>
 
                   <div class="flex items-center space-x-2">
-                    <StandardButton
+                    <UIButton
                       variant="ghost"
                       icon="pencil"
                       iconPosition="only"
@@ -595,7 +599,7 @@
                       aria-label="Tag bearbeiten"
                     />
 
-                    <StandardButton
+                    <UIButton
                       variant="ghost"
                       icon="trash"
                       iconPosition="only"
@@ -621,12 +625,12 @@
           </div>
         {/if}
       {/if}
-    </StandardGlassCard>
+    </UICard>
   </div>
 </div>
 
 <!-- Create Tag Modal -->
-<StandardModal
+<UIModal
   bind:show={showCreateTagModal}
   title={t("tags.createNewTag") || "Neuen Tag erstellen"}
   size="md"
@@ -672,10 +676,10 @@
       </label>
     </div>
   </div>
-</StandardModal>
+</UIModal>
 
 <!-- Tag Files Modal -->
-<StandardModal
+<UIModal
   bind:show={showTagModal}
   title={selectedTag
     ? `${t("tags.filesWithTag") || "Dateien mit Tag"}: ${selectedTag.name}`
@@ -716,7 +720,7 @@
       </p>
     </div>
   {/if}
-</StandardModal>
+</UIModal>
 
 <style>
   .tag-cloud {

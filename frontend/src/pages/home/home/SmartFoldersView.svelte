@@ -1,5 +1,8 @@
 <script>
   import { onMount } from "svelte";
+  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UISelect from "../../../components/ui/UISelect.svelte";
+  import UIButton from "../../../components/ui/UIButton.svelte";
   import { currentLang } from "../../../stores/ui";
   import { t } from "../../../i18n.js";
   import PageWrapper from "../../../components/PageWrapper.svelte";

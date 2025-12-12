@@ -18,7 +18,7 @@
 
 <div class="form-control w-full {className}">
   {#if label}
-    <label class="label">
+    <label for="textarea-{label}" class="label">
       <span class="label-text text-white font-medium">
         {label}
         {#if required}<span class="text-red-400">*</span>{/if}
@@ -31,6 +31,7 @@
   {/if}
 
   <textarea
+    id="textarea-{label}"
     {placeholder}
     {disabled}
     {required}
@@ -44,8 +45,8 @@
   ></textarea>
 
   {#if error}
-    <label class="label">
+    <div class="label">
       <span class="label-text-alt text-red-400">{error}</span>
-    </label>
+    </div>
   {/if}
 </div>
