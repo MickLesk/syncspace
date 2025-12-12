@@ -7,7 +7,7 @@
   import UIModal from "../../../components/ui/UIModal.svelte";
   import UIButton from "../../../components/ui/UIButton.svelte";
   import { encryption } from "../../../lib/api.js";
-  import { t } from "../../../i18n.js";
+  import { currentLang } from "../../../stores/ui.js";`nimport { t } from "../../../i18n.js";`n`n  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   // State
   let keys = $state([]);
@@ -64,15 +64,15 @@
 
   async function createKey() {
     if (!newKeyName.trim()) {
-      error = $t("encryption.errorNameRequired");
+      error = tr("encryption.errorNameRequired");
       return;
     }
     if (newKeyPassword.length < 8) {
-      error = $t("encryption.errorPasswordMin");
+      error = tr("encryption.errorPasswordMin");
       return;
     }
     if (newKeyPassword !== confirmPassword) {
-      error = $t("encryption.errorPasswordMismatch");
+      error = tr("encryption.errorPasswordMismatch");
       return;
     }
 
@@ -90,11 +90,11 @@
 
   async function rotateKey() {
     if (rotateNewPassword.length < 8) {
-      error = $t("encryption.errorPasswordMin");
+      error = tr("encryption.errorPasswordMin");
       return;
     }
     if (rotateNewPassword !== rotateConfirmPassword) {
-      error = $t("encryption.errorPasswordMismatch");
+      error = tr("encryption.errorPasswordMismatch");
       return;
     }
 
@@ -166,13 +166,13 @@
     <div>
       <h1 class="text-2xl font-bold flex items-center gap-3">
         <i class="bi bi-shield-lock-fill text-primary"></i>
-        {$t("encryption.title")}
+        {tr("encryption.title")}
       </h1>
-      <p class="text-base-content/60 mt-1">{$t("encryption.subtitle")}</p>
+      <p class="text-base-content/60 mt-1">{tr("encryption.subtitle")}</p>
     </div>
     <button class="btn btn-primary" onclick={() => (showCreateKeyModal = true)}>
       <i class="bi bi-plus-lg"></i>
-      {$t("encryption.createKey")}
+      {tr("encryption.createKey")}
     </button>
   </div>
 
@@ -202,32 +202,32 @@
           <div class="stat-figure text-primary">
             <i class="bi bi-key-fill text-3xl"></i>
           </div>
-          <div class="stat-title">{$t("encryption.totalKeys")}</div>
+          <div class="stat-title">{tr("encryption.totalKeys")}</div>
           <div class="stat-value text-primary">{keys.length}</div>
         </div>
         <div class="stat bg-base-200 rounded-lg">
           <div class="stat-figure text-success">
             <i class="bi bi-check-circle-fill text-3xl"></i>
           </div>
-          <div class="stat-title">{$t("encryption.activeKeys")}</div>
+          <div class="stat-title">{tr("encryption.activeKeys")}</div>
           <div class="stat-value text-success">{activeKeys}</div>
         </div>
         <div class="stat bg-base-200 rounded-lg">
           <div class="stat-figure text-info">
             <i class="bi bi-file-earmark-lock-fill text-3xl"></i>
           </div>
-          <div class="stat-title">{$t("encryption.encryptedFiles")}</div>
+          <div class="stat-title">{tr("encryption.encryptedFiles")}</div>
           <div class="stat-value text-info">{totalEncryptedFiles}</div>
         </div>
         <div class="stat bg-base-200 rounded-lg">
           <div class="stat-figure text-warning">
             <i class="bi bi-shield-fill-check text-3xl"></i>
           </div>
-          <div class="stat-title">{$t("encryption.status")}</div>
+          <div class="stat-title">{tr("encryption.status")}</div>
           <div class="stat-value text-warning text-lg">
             {settings.encryption_enabled
-              ? $t("encryption.enabled")
-              : $t("encryption.disabled")}
+              ? tr("encryption.enabled")
+              : tr("encryption.disabled")}
           </div>
         </div>
       </div>
@@ -238,26 +238,26 @@
           <div class="bg-base-200 rounded-lg p-4">
             <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
               <i class="bi bi-key"></i>
-              {$t("encryption.encryptionKeys")}
+              {tr("encryption.encryptionKeys")}
             </h2>
 
             {#if keys.length === 0}
               <div class="text-center py-12 text-base-content/50">
                 <i class="bi bi-key text-5xl mb-4 block"></i>
-                <p>{$t("encryption.noKeys")}</p>
-                <p class="text-sm mt-2">{$t("encryption.noKeysHint")}</p>
+                <p>{tr("encryption.noKeys")}</p>
+                <p class="text-sm mt-2">{tr("encryption.noKeysHint")}</p>
               </div>
             {:else}
               <div class="overflow-x-auto">
                 <table class="table table-zebra">
                   <thead>
                     <tr>
-                      <th>{$t("encryption.keyName")}</th>
-                      <th>{$t("encryption.filesEncrypted")}</th>
-                      <th>{$t("encryption.created")}</th>
-                      <th>{$t("encryption.lastUsed")}</th>
-                      <th>{$t("encryption.status")}</th>
-                      <th>{$t("encryption.actions")}</th>
+                      <th>{tr("encryption.keyName")}</th>
+                      <th>{tr("encryption.filesEncrypted")}</th>
+                      <th>{tr("encryption.created")}</th>
+                      <th>{tr("encryption.lastUsed")}</th>
+                      <th>{tr("encryption.status")}</th>
+                      <th>{tr("encryption.actions")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -283,11 +283,11 @@
                         <td>
                           {#if key.is_active}
                             <span class="badge badge-success badge-sm"
-                              >{$t("encryption.active")}</span
+                              >{tr("encryption.active")}</span
                             >
                           {:else}
                             <span class="badge badge-error badge-sm"
-                              >{$t("encryption.inactive")}</span
+                              >{tr("encryption.inactive")}</span
                             >
                           {/if}
                         </td>
@@ -295,7 +295,7 @@
                           <div class="flex gap-1">
                             <button
                               class="btn btn-ghost btn-xs"
-                              title={$t("encryption.rotateKey")}
+                              title={tr("encryption.rotateKey")}
                               onclick={() => openRotateModal(key)}
                               disabled={!key.is_active}
                             >
@@ -303,7 +303,7 @@
                             </button>
                             <button
                               class="btn btn-ghost btn-xs text-error"
-                              title={$t("encryption.deleteKey")}
+                              title={tr("encryption.deleteKey")}
                               onclick={() => openDeleteConfirm(key)}
                               disabled={key.files_count > 0}
                             >
@@ -325,7 +325,7 @@
           <div class="bg-base-200 rounded-lg p-4">
             <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
               <i class="bi bi-gear"></i>
-              {$t("encryption.settings")}
+              {tr("encryption.settings")}
             </h2>
 
             <div class="space-y-4">
@@ -339,10 +339,10 @@
                   />
                   <div>
                     <span class="label-text font-medium"
-                      >{$t("encryption.enableEncryption")}</span
+                      >{tr("encryption.enableEncryption")}</span
                     >
                     <p class="text-xs text-base-content/60">
-                      {$t("encryption.enableEncryptionDesc")}
+                      {tr("encryption.enableEncryptionDesc")}
                     </p>
                   </div>
                 </label>
@@ -359,10 +359,10 @@
                   />
                   <div>
                     <span class="label-text font-medium"
-                      >{$t("encryption.autoEncrypt")}</span
+                      >{tr("encryption.autoEncrypt")}</span
                     >
                     <p class="text-xs text-base-content/60">
-                      {$t("encryption.autoEncryptDesc")}
+                      {tr("encryption.autoEncryptDesc")}
                     </p>
                   </div>
                 </label>
@@ -379,10 +379,10 @@
                   />
                   <div>
                     <span class="label-text font-medium"
-                      >{$t("encryption.encryptFileNames")}</span
+                      >{tr("encryption.encryptFileNames")}</span
                     >
                     <p class="text-xs text-base-content/60">
-                      {$t("encryption.encryptFileNamesDesc")}
+                      {tr("encryption.encryptFileNamesDesc")}
                     </p>
                   </div>
                 </label>
@@ -392,7 +392,7 @@
                 <div class="form-control">
                   <div class="label">
                     <span class="label-text font-medium"
-                      >{$t("encryption.defaultKey")}</span
+                      >{tr("encryption.defaultKey")}</span
                     >
                   </div>
                   <select
@@ -400,7 +400,7 @@
                     bind:value={settings.default_key_id}
                     onchange={updateSettings}
                   >
-                    <option value={null}>{$t("encryption.selectKey")}</option>
+                    <option value={null}>{tr("encryption.selectKey")}</option>
                     {#each keys.filter((k) => k.is_active) as key}
                       <option value={key.id}>{key.name}</option>
                     {/each}
@@ -413,8 +413,8 @@
             <div class="alert alert-info mt-6">
               <i class="bi bi-info-circle"></i>
               <div class="text-sm">
-                <p class="font-medium">{$t("encryption.infoTitle")}</p>
-                <p class="text-xs mt-1">{$t("encryption.infoDesc")}</p>
+                <p class="font-medium">{tr("encryption.infoTitle")}</p>
+                <p class="text-xs mt-1">{tr("encryption.infoDesc")}</p>
               </div>
             </div>
           </div>
@@ -430,48 +430,48 @@
     <div class="modal-box">
       <h3 class="font-bold text-lg flex items-center gap-2">
         <i class="bi bi-key-fill text-primary"></i>
-        {$t("encryption.createNewKey")}
+        {tr("encryption.createNewKey")}
       </h3>
       <div class="py-4 space-y-4">
         <div class="form-control">
           <div class="label">
-            <span class="label-text">{$t("encryption.keyName")}</span>
+            <span class="label-text">{tr("encryption.keyName")}</span>
           </div>
           <input
             type="text"
             class="input input-bordered w-full"
-            placeholder={$t("encryption.keyNamePlaceholder")}
+            placeholder={tr("encryption.keyNamePlaceholder")}
             bind:value={newKeyName}
-            aria-label={$t("encryption.keyName")}
+            aria-label={tr("encryption.keyName")}
           />
         </div>
         <div class="form-control">
           <div class="label">
-            <span class="label-text">{$t("encryption.password")}</span>
+            <span class="label-text">{tr("encryption.password")}</span>
           </div>
           <input
             type="password"
             class="input input-bordered w-full"
-            placeholder={$t("encryption.passwordPlaceholder")}
+            placeholder={tr("encryption.passwordPlaceholder")}
             bind:value={newKeyPassword}
-            aria-label={$t("encryption.password")}
+            aria-label={tr("encryption.password")}
           />
           <div class="label">
             <span class="label-text-alt text-base-content/60"
-              >{$t("encryption.passwordHint")}</span
+              >{tr("encryption.passwordHint")}</span
             >
           </div>
         </div>
         <div class="form-control">
           <div class="label">
-            <span class="label-text">{$t("encryption.confirmPassword")}</span>
+            <span class="label-text">{tr("encryption.confirmPassword")}</span>
           </div>
           <input
             type="password"
             class="input input-bordered w-full"
-            placeholder={$t("encryption.confirmPasswordPlaceholder")}
+            placeholder={tr("encryption.confirmPasswordPlaceholder")}
             bind:value={confirmPassword}
-            aria-label={$t("encryption.confirmPassword")}
+            aria-label={tr("encryption.confirmPassword")}
           />
         </div>
       </div>
@@ -485,11 +485,11 @@
             confirmPassword = "";
           }}
         >
-          {$t("common.cancel")}
+          {tr("common.cancel")}
         </button>
         <button class="btn btn-primary" onclick={createKey}>
           <i class="bi bi-plus-lg"></i>
-          {$t("encryption.create")}
+          {tr("encryption.create")}
         </button>
       </div>
     </div>
@@ -509,44 +509,44 @@
     <div class="modal-box">
       <h3 class="font-bold text-lg flex items-center gap-2">
         <i class="bi bi-arrow-repeat text-warning"></i>
-        {$t("encryption.rotateKeyTitle")}
+        {tr("encryption.rotateKeyTitle")}
       </h3>
       <p class="text-sm text-base-content/60 mt-2">
-        {$t("encryption.rotateKeyDesc", { name: selectedKey.name })}
+        {tr("encryption.rotateKeyDesc", { name: selectedKey.name })}
       </p>
       <div class="py-4 space-y-4">
         <div class="form-control">
           <div class="label">
-            <span class="label-text">{$t("encryption.currentPassword")}</span>
+            <span class="label-text">{tr("encryption.currentPassword")}</span>
           </div>
           <input
             type="password"
             class="input input-bordered w-full"
             bind:value={rotateOldPassword}
-            aria-label={$t("encryption.currentPassword")}
+            aria-label={tr("encryption.currentPassword")}
           />
         </div>
         <div class="form-control">
           <div class="label">
-            <span class="label-text">{$t("encryption.newPassword")}</span>
+            <span class="label-text">{tr("encryption.newPassword")}</span>
           </div>
           <input
             type="password"
             class="input input-bordered w-full"
             bind:value={rotateNewPassword}
-            aria-label={$t("encryption.newPassword")}
+            aria-label={tr("encryption.newPassword")}
           />
         </div>
         <div class="form-control">
           <div class="label">
-            <span class="label-text">{$t("encryption.confirmNewPassword")}</span
+            <span class="label-text">{tr("encryption.confirmNewPassword")}</span
             >
           </div>
           <input
             type="password"
             class="input input-bordered w-full"
             bind:value={rotateConfirmPassword}
-            aria-label={$t("encryption.confirmNewPassword")}
+            aria-label={tr("encryption.confirmNewPassword")}
           />
         </div>
       </div>
@@ -561,11 +561,11 @@
             selectedKey = null;
           }}
         >
-          {$t("common.cancel")}
+          {tr("common.cancel")}
         </button>
         <button class="btn btn-warning" onclick={rotateKey}>
           <i class="bi bi-arrow-repeat"></i>
-          {$t("encryption.rotate")}
+          {tr("encryption.rotate")}
         </button>
       </div>
     </div>
@@ -585,10 +585,10 @@
     <div class="modal-box">
       <h3 class="font-bold text-lg flex items-center gap-2 text-error">
         <i class="bi bi-exclamation-triangle"></i>
-        {$t("encryption.deleteKeyTitle")}
+        {tr("encryption.deleteKeyTitle")}
       </h3>
       <p class="py-4">
-        {$t("encryption.deleteKeyConfirm", { name: selectedKey.name })}
+        {tr("encryption.deleteKeyConfirm", { name: selectedKey.name })}
       </p>
       <div class="modal-action">
         <button
@@ -598,11 +598,11 @@
             selectedKey = null;
           }}
         >
-          {$t("common.cancel")}
+          {tr("common.cancel")}
         </button>
         <button class="btn btn-error" onclick={deleteKey}>
           <i class="bi bi-trash"></i>
-          {$t("common.delete")}
+          {tr("common.delete")}
         </button>
       </div>
     </div>

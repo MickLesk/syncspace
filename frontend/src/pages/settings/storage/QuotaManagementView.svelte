@@ -5,7 +5,7 @@
   import UIModal from "../../../components/ui/UIModal.svelte";
   import UIButton from "../../../components/ui/UIButton.svelte";
   import api from "../../../lib/api.js";
-  import { t } from "../../../i18n.js";
+  import { currentLang } from "../../../stores/ui.js";`nimport { t } from "../../../i18n.js";`n`n  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   // State
   let quotas = $state([]);
@@ -33,7 +33,7 @@
   // Format bytes to human readable
   function formatBytes(bytes) {
     if (bytes === 0) return "0 B";
-    if (bytes === -1) return $t("quota.unlimited");
+    if (bytes === -1) return tr("quota.unlimited");
     const k = 1024;
     const sizes = ["B", "KB", "MB", "GB", "TB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -80,7 +80,7 @@
         quotas = myQuota ? [myQuota] : [];
       }
     } catch (e) {
-      error = e.message || $t("quota.loadError");
+      error = e.message || tr("quota.loadError");
     } finally {
       loading = false;
     }
@@ -124,13 +124,13 @@
 
       await api.quota.setUserQuota(editingUser.user_id, quotaBytes);
 
-      successMessage = $t("quota.updateSuccess");
+      successMessage = tr("quota.updateSuccess");
       setTimeout(() => (successMessage = ""), 3000);
 
       closeEditModal();
       await loadQuotas();
     } catch (e) {
-      error = e.message || $t("quota.updateError");
+      error = e.message || tr("quota.updateError");
     } finally {
       saving = false;
     }
@@ -145,13 +145,13 @@
     try {
       await api.quota.setUserQuota(editingUser.user_id, -1);
 
-      successMessage = $t("quota.updateSuccess");
+      successMessage = tr("quota.updateSuccess");
       setTimeout(() => (successMessage = ""), 3000);
 
       closeEditModal();
       await loadQuotas();
     } catch (e) {
-      error = e.message || $t("quota.updateError");
+      error = e.message || tr("quota.updateError");
     } finally {
       saving = false;
     }
@@ -167,7 +167,7 @@
   <div class="flex items-center justify-between mb-6">
     <div class="flex items-center gap-3">
       <i class="bi bi-pie-chart text-2xl text-primary"></i>
-      <h1 class="text-2xl font-bold">{$t("quota.title")}</h1>
+      <h1 class="text-2xl font-bold">{tr("quota.title")}</h1>
     </div>
     <button
       class="btn btn-ghost btn-sm"
@@ -175,7 +175,7 @@
       disabled={loading}
     >
       <i class="bi bi-arrow-clockwise" class:animate-spin={loading}></i>
-      {$t("common.refresh")}
+      {tr("common.refresh")}
     </button>
   </div>
 
@@ -207,14 +207,14 @@
       <div class="card-body">
         <h2 class="card-title">
           <i class="bi bi-person-circle text-primary"></i>
-          {$t("quota.myStorage")}
+          {tr("quota.myStorage")}
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <div class="stat bg-base-100 rounded-lg">
             <div class="stat-figure text-primary">
               <i class="bi bi-hdd text-3xl"></i>
             </div>
-            <div class="stat-title">{$t("quota.used")}</div>
+            <div class="stat-title">{tr("quota.used")}</div>
             <div class="stat-value text-lg">
               {formatBytes(myQuota.used_bytes || 0)}
             </div>
@@ -223,7 +223,7 @@
             <div class="stat-figure text-secondary">
               <i class="bi bi-database text-3xl"></i>
             </div>
-            <div class="stat-title">{$t("quota.total")}</div>
+            <div class="stat-title">{tr("quota.total")}</div>
             <div class="stat-value text-lg">
               {formatBytes(myQuota.quota_bytes || 0)}
             </div>
@@ -232,7 +232,7 @@
             <div class="stat-figure text-accent">
               <i class="bi bi-box text-3xl"></i>
             </div>
-            <div class="stat-title">{$t("quota.available")}</div>
+            <div class="stat-title">{tr("quota.available")}</div>
             <div class="stat-value text-lg">
               {formatBytes(
                 Math.max(
@@ -246,7 +246,7 @@
         <!-- Progress bar -->
         <div class="mt-4">
           <div class="flex justify-between text-sm mb-1">
-            <span>{$t("quota.usageLabel")}</span>
+            <span>{tr("quota.usageLabel")}</span>
             <span
               >{getUsagePercent(
                 myQuota.used_bytes || 0,
@@ -273,7 +273,7 @@
         <div class="flex items-center justify-between mb-4">
           <h2 class="card-title">
             <i class="bi bi-people text-primary"></i>
-            {$t("quota.allUsers")}
+            {tr("quota.allUsers")}
           </h2>
           <!-- Search -->
           <div class="form-control">
@@ -283,7 +283,7 @@
               </span>
               <input
                 type="text"
-                placeholder={$t("quota.searchPlaceholder")}
+                placeholder={tr("quota.searchPlaceholder")}
                 class="input input-bordered input-sm w-64"
                 bind:value={searchQuery}
               />
@@ -298,18 +298,18 @@
         {:else if filteredQuotas.length === 0}
           <div class="text-center py-8 text-base-content/60">
             <i class="bi bi-inbox text-4xl mb-2"></i>
-            <p>{$t("quota.noUsers")}</p>
+            <p>{tr("quota.noUsers")}</p>
           </div>
         {:else}
           <div class="overflow-x-auto">
             <table class="table table-zebra">
               <thead>
                 <tr>
-                  <th>{$t("quota.user")}</th>
-                  <th>{$t("quota.used")}</th>
-                  <th>{$t("quota.total")}</th>
-                  <th>{$t("quota.usage")}</th>
-                  <th class="text-right">{$t("common.actions")}</th>
+                  <th>{tr("quota.user")}</th>
+                  <th>{tr("quota.used")}</th>
+                  <th>{tr("quota.total")}</th>
+                  <th>{tr("quota.usage")}</th>
+                  <th class="text-right">{tr("common.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -356,7 +356,7 @@
                       <button
                         class="btn btn-ghost btn-sm"
                         onclick={() => openEditModal(quota)}
-                        title={$t("quota.edit")}
+                        title={tr("quota.edit")}
                       >
                         <i class="bi bi-pencil"></i>
                       </button>
@@ -374,7 +374,7 @@
               <div class="text-2xl font-bold text-primary">
                 {filteredQuotas.length}
               </div>
-              <div class="text-sm opacity-70">{$t("quota.totalUsers")}</div>
+              <div class="text-sm opacity-70">{tr("quota.totalUsers")}</div>
             </div>
             <div class="text-center">
               <div class="text-2xl font-bold text-secondary">
@@ -385,7 +385,7 @@
                   )
                 )}
               </div>
-              <div class="text-sm opacity-70">{$t("quota.totalUsed")}</div>
+              <div class="text-sm opacity-70">{tr("quota.totalUsed")}</div>
             </div>
             <div class="text-center">
               <div class="text-2xl font-bold text-accent">
@@ -396,7 +396,7 @@
                   )
                 )}
               </div>
-              <div class="text-sm opacity-70">{$t("quota.totalAllocated")}</div>
+              <div class="text-sm opacity-70">{tr("quota.totalAllocated")}</div>
             </div>
             <div class="text-center">
               <div class="text-2xl font-bold text-warning">
@@ -405,7 +405,7 @@
                     getUsagePercent(q.used_bytes || 0, q.quota_bytes || 0) >= 90
                 ).length}
               </div>
-              <div class="text-sm opacity-70">{$t("quota.nearLimit")}</div>
+              <div class="text-sm opacity-70">{tr("quota.nearLimit")}</div>
             </div>
           </div>
         {/if}
@@ -420,7 +420,7 @@
     <div class="modal-box">
       <h3 class="font-bold text-lg flex items-center gap-2">
         <i class="bi bi-pencil-square text-primary"></i>
-        {$t("quota.editTitle")}
+        {tr("quota.editTitle")}
       </h3>
 
       <div class="py-4">
@@ -437,7 +437,7 @@
               {editingUser.username || editingUser.user_id}
             </div>
             <div class="text-sm opacity-50">
-              {$t("quota.currentUsage")}: {formatBytes(
+              {tr("quota.currentUsage")}: {formatBytes(
                 editingUser.used_bytes || 0
               )}
             </div>
@@ -446,7 +446,7 @@
 
         <div class="form-control">
           <div class="label">
-            <span class="label-text">{$t("quota.newQuota")}</span>
+            <span class="label-text">{tr("quota.newQuota")}</span>
           </div>
           <div class="flex gap-2">
             <input
@@ -455,7 +455,7 @@
               bind:value={editQuotaValue}
               min="0"
               step="0.1"
-              aria-label={$t("quota.newQuota")}
+              aria-label={tr("quota.newQuota")}
             />
             <select
               class="select select-bordered w-24"
@@ -471,7 +471,7 @@
         <!-- Quick presets -->
         <div class="mt-4">
           <div class="label">
-            <span class="label-text">{$t("quota.presets")}</span>
+            <span class="label-text">{tr("quota.presets")}</span>
           </div>
           <div class="flex flex-wrap gap-2">
             <button
@@ -535,7 +535,7 @@
       <div class="modal-action">
         <button class="btn btn-ghost" onclick={setUnlimited} disabled={saving}>
           <i class="bi bi-infinity"></i>
-          {$t("quota.setUnlimited")}
+          {tr("quota.setUnlimited")}
         </button>
         <div class="flex-1"></div>
         <button
@@ -543,7 +543,7 @@
           onclick={closeEditModal}
           disabled={saving}
         >
-          {$t("common.cancel")}
+          {tr("common.cancel")}
         </button>
         <button class="btn btn-primary" onclick={saveQuota} disabled={saving}>
           {#if saving}
@@ -551,7 +551,7 @@
           {:else}
             <i class="bi bi-check-lg"></i>
           {/if}
-          {$t("common.save")}
+          {tr("common.save")}
         </button>
       </div>
     </div>

@@ -40,12 +40,12 @@
   // Chart data for disk usage
   const diskChartData = $derived([
     {
-      label: $t("used"),
+      label: tr("used"),
       value: diskStats.used_bytes,
       color: "rgb(239, 68, 68)",
     },
     {
-      label: $t("available"),
+      label: tr("available"),
       value: diskStats.available_bytes,
       color: "rgb(34, 197, 94)",
     },
@@ -69,13 +69,13 @@
   // File type categories
   const getTypeCategories = () => ({
     images: {
-      label: $t("images"),
+      label: tr("images"),
       icon: "image",
       color: "purple",
       extensions: [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg"],
     },
     documents: {
-      label: $t("documents"),
+      label: tr("documents"),
       icon: "file-text",
       color: "blue",
       extensions: [
@@ -92,25 +92,25 @@
       ],
     },
     videos: {
-      label: $t("videos"),
+      label: tr("videos"),
       icon: "film",
       color: "red",
       extensions: [".mp4", ".avi", ".mov", ".mkv", ".webm", ".flv"],
     },
     audio: {
-      label: $t("audio"),
+      label: tr("audio"),
       icon: "music-note-beamed",
       color: "green",
       extensions: [".mp3", ".wav", ".ogg", ".m4a", ".flac", ".aac"],
     },
     archives: {
-      label: $t("archives"),
+      label: tr("archives"),
       icon: "file-zip",
       color: "yellow",
       extensions: [".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"],
     },
     other: {
-      label: $t("file"),
+      label: tr("file"),
       icon: "file-earmark",
       color: "gray",
       extensions: [],
@@ -126,9 +126,9 @@
   async function loadDiskStats() {
     loadingDisk = true;
     try {
-      diskStats = await api.system.storage();
+      diskStats = await api.system.getStorageInfo();
     } catch (err) {
-      errorToast(err.message || $t("failedToLoadDiskStatistics"));
+      errorToast(err.message || tr("failedToLoadDiskStatistics"));
     } finally {
       loadingDisk = false;
     }
@@ -138,7 +138,7 @@
     loading = true;
     try {
       // Use backend stats endpoint
-      const basicStats = await api.system.stats();
+      const basicStats = await api.system.getStats();
       const files = await api.files.list("");
 
       stats = {
@@ -149,7 +149,7 @@
       };
     } catch (err) {
       console.error("Failed to load storage statistics:", err);
-      errorToast(err.message || $t("failedToLoadStorageStatistics"));
+      errorToast(err.message || tr("failedToLoadStorageStatistics"));
     } finally {
       loading = false;
     }
@@ -641,15 +641,15 @@
                   >
                   <th
                     class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
-                    >{$t("name")}</th
+                    >{tr("name")}</th
                   >
                   <th
                     class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
-                    >{$t("size")}</th
+                    >{tr("size")}</th
                   >
                   <th
                     class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300"
-                    >% {$t("total")}</th
+                    >% {tr("total")}</th
                   >
                 </tr>
               </thead>

@@ -6,9 +6,12 @@
   import UICheckbox from "../../../components/ui/UICheckbox.svelte";
   import UIModal from "../../../components/ui/UIModal.svelte";
   import UIButton from "../../../components/ui/UIButton.svelte";
+  import { currentLang } from "../../../stores/ui.js";
   import { t } from "../../../i18n.js";
   import { rateLimiting, users } from "../../../lib/api.js";
   import { showToast } from "../../../stores/toast.js";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   // State
   let activeTab = $state("storage");
@@ -151,11 +154,11 @@
         selectedUser.id || selectedUser.user_id,
         bandwidthForm
       );
-      showToast($t("quotas.saved"), "success");
+      showToast(tr("quotas.saved"), "success");
       showQuotaModal = false;
       await loadData();
     } catch (e) {
-      showToast($t("quotas.saveError") + ": " + e.message, "error");
+      showToast(tr("quotas.saveError") + ": " + e.message, "error");
     }
   }
 
@@ -185,22 +188,22 @@
       } else {
         await rateLimiting.createRateLimit(rateLimitForm);
       }
-      showToast($t("quotas.rateLimitSaved"), "success");
+      showToast(tr("quotas.rateLimitSaved"), "success");
       showRateLimitModal = false;
       await loadData();
     } catch (e) {
-      showToast($t("quotas.saveError") + ": " + e.message, "error");
+      showToast(tr("quotas.saveError") + ": " + e.message, "error");
     }
   }
 
   async function deleteRateLimit(id) {
-    if (!confirm($t("quotas.confirmDeleteRateLimit"))) return;
+    if (!confirm(tr("quotas.confirmDeleteRateLimit"))) return;
     try {
       await rateLimiting.deleteRateLimit(id);
-      showToast($t("quotas.rateLimitDeleted"), "success");
+      showToast(tr("quotas.rateLimitDeleted"), "success");
       await loadData();
     } catch (e) {
-      showToast($t("quotas.deleteError") + ": " + e.message, "error");
+      showToast(tr("quotas.deleteError") + ": " + e.message, "error");
     }
   }
 
@@ -211,7 +214,7 @@
       });
       await loadData();
     } catch (e) {
-      showToast($t("quotas.toggleError") + ": " + e.message, "error");
+      showToast(tr("quotas.toggleError") + ": " + e.message, "error");
     }
   }
 
@@ -232,12 +235,12 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
-      <h1 class="text-2xl font-bold">{$t("quotas.title")}</h1>
-      <p class="text-base-content/60">{$t("quotas.description")}</p>
+      <h1 class="text-2xl font-bold">{tr("quotas.title")}</h1>
+      <p class="text-base-content/60">{tr("quotas.description")}</p>
     </div>
     <button class="btn btn-primary" onclick={() => openRateLimitModal()}>
       <i class="bi bi-plus-lg mr-2"></i>
-      {$t("quotas.addRateLimit")}
+      {tr("quotas.addRateLimit")}
     </button>
   </div>
 
@@ -250,7 +253,7 @@
       <i class="bi bi-exclamation-triangle"></i>
       <span>{error}</span>
       <button class="btn btn-sm btn-ghost" onclick={loadData}
-        >{$t("common.retry")}</button
+        >{tr("common.retry")}</button
       >
     </div>
   {:else}
@@ -261,11 +264,11 @@
           <div class="stat-figure text-primary">
             <i class="bi bi-people text-3xl"></i>
           </div>
-          <div class="stat-title">{$t("quotas.totalUsers")}</div>
+          <div class="stat-title">{tr("quotas.totalUsers")}</div>
           <div class="stat-value text-primary">{quotaStats.total_users}</div>
           <div class="stat-desc">
             {quotaStats.users_with_quotas}
-            {$t("quotas.withQuotas")}
+            {tr("quotas.withQuotas")}
           </div>
         </div>
 
@@ -273,13 +276,13 @@
           <div class="stat-figure text-secondary">
             <i class="bi bi-hdd text-3xl"></i>
           </div>
-          <div class="stat-title">{$t("quotas.storageAllocated")}</div>
+          <div class="stat-title">{tr("quotas.storageAllocated")}</div>
           <div class="stat-value text-secondary">
             {formatBytes(quotaStats.total_storage_allocated)}
           </div>
           <div class="stat-desc">
             {formatBytes(quotaStats.total_storage_used)}
-            {$t("quotas.used")}
+            {tr("quotas.used")}
           </div>
         </div>
 
@@ -287,20 +290,20 @@
           <div class="stat-figure text-warning">
             <i class="bi bi-exclamation-triangle text-3xl"></i>
           </div>
-          <div class="stat-title">{$t("quotas.nearLimit")}</div>
+          <div class="stat-title">{tr("quotas.nearLimit")}</div>
           <div class="stat-value text-warning">
             {quotaStats.users_near_limit}
           </div>
-          <div class="stat-desc">{$t("quotas.usersNearLimit")}</div>
+          <div class="stat-desc">{tr("quotas.usersNearLimit")}</div>
         </div>
 
         <div class="stat bg-base-200 rounded-lg">
           <div class="stat-figure text-error">
             <i class="bi bi-x-circle text-3xl"></i>
           </div>
-          <div class="stat-title">{$t("quotas.overLimit")}</div>
+          <div class="stat-title">{tr("quotas.overLimit")}</div>
           <div class="stat-value text-error">{quotaStats.users_over_limit}</div>
-          <div class="stat-desc">{$t("quotas.usersOverLimit")}</div>
+          <div class="stat-desc">{tr("quotas.usersOverLimit")}</div>
         </div>
       </div>
     {/if}
@@ -313,7 +316,7 @@
         onclick={() => (activeTab = "storage")}
       >
         <i class="bi bi-hdd mr-2"></i>
-        {$t("quotas.storageQuotas")}
+        {tr("quotas.storageQuotas")}
       </button>
       <button
         class="tab"
@@ -321,7 +324,7 @@
         onclick={() => (activeTab = "bandwidth")}
       >
         <i class="bi bi-speedometer mr-2"></i>
-        {$t("quotas.bandwidthQuotas")}
+        {tr("quotas.bandwidthQuotas")}
       </button>
       <button
         class="tab"
@@ -329,7 +332,7 @@
         onclick={() => (activeTab = "rateLimits")}
       >
         <i class="bi bi-shield-check mr-2"></i>
-        {$t("quotas.rateLimits")}
+        {tr("quotas.rateLimits")}
       </button>
     </div>
 
@@ -339,17 +342,17 @@
         class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all"
       >
         <div class="card-body">
-          <h2 class="card-title">{$t("quotas.userStorageQuotas")}</h2>
+          <h2 class="card-title">{tr("quotas.userStorageQuotas")}</h2>
           <div class="overflow-x-auto">
             <table class="table table-zebra">
               <thead>
                 <tr>
-                  <th>{$t("quotas.user")}</th>
-                  <th>{$t("quotas.limit")}</th>
-                  <th>{$t("quotas.used")}</th>
-                  <th>{$t("quotas.usage")}</th>
-                  <th>{$t("quotas.status")}</th>
-                  <th>{$t("quotas.actions")}</th>
+                  <th>{tr("quotas.user")}</th>
+                  <th>{tr("quotas.limit")}</th>
+                  <th>{tr("quotas.used")}</th>
+                  <th>{tr("quotas.usage")}</th>
+                  <th>{tr("quotas.status")}</th>
+                  <th>{tr("quotas.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -374,7 +377,7 @@
                     <td>
                       {#if quota?.is_unlimited}
                         <span class="badge badge-info"
-                          >{$t("quotas.unlimited")}</span
+                          >{tr("quotas.unlimited")}</span
                         >
                       {:else}
                         {formatBytes(quota?.storage_limit_bytes || 10737418240)}
@@ -397,19 +400,19 @@
                     <td>
                       {#if quota?.is_unlimited}
                         <span class="badge badge-ghost"
-                          >{$t("quotas.unlimited")}</span
+                          >{tr("quotas.unlimited")}</span
                         >
                       {:else if percent >= 100}
                         <span class="badge badge-error"
-                          >{$t("quotas.exceeded")}</span
+                          >{tr("quotas.exceeded")}</span
                         >
                       {:else if percent >= 80}
                         <span class="badge badge-warning"
-                          >{$t("quotas.warning")}</span
+                          >{tr("quotas.warning")}</span
                         >
                       {:else}
                         <span class="badge badge-success"
-                          >{$t("quotas.ok")}</span
+                          >{tr("quotas.ok")}</span
                         >
                       {/if}
                     </td>
@@ -437,18 +440,18 @@
         class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all"
       >
         <div class="card-body">
-          <h2 class="card-title">{$t("quotas.userBandwidthQuotas")}</h2>
+          <h2 class="card-title">{tr("quotas.userBandwidthQuotas")}</h2>
           <div class="overflow-x-auto">
             <table class="table table-zebra">
               <thead>
                 <tr>
-                  <th>{$t("quotas.user")}</th>
-                  <th>{$t("quotas.dailyUpload")}</th>
-                  <th>{$t("quotas.dailyDownload")}</th>
-                  <th>{$t("quotas.monthlyUpload")}</th>
-                  <th>{$t("quotas.monthlyDownload")}</th>
-                  <th>{$t("quotas.status")}</th>
-                  <th>{$t("quotas.actions")}</th>
+                  <th>{tr("quotas.user")}</th>
+                  <th>{tr("quotas.dailyUpload")}</th>
+                  <th>{tr("quotas.dailyDownload")}</th>
+                  <th>{tr("quotas.monthlyUpload")}</th>
+                  <th>{tr("quotas.monthlyDownload")}</th>
+                  <th>{tr("quotas.status")}</th>
+                  <th>{tr("quotas.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -502,11 +505,11 @@
                     <td>
                       {#if quota?.is_unlimited}
                         <span class="badge badge-ghost"
-                          >{$t("quotas.unlimited")}</span
+                          >{tr("quotas.unlimited")}</span
                         >
                       {:else}
                         <span class="badge badge-info"
-                          >{$t("quotas.limited")}</span
+                          >{tr("quotas.limited")}</span
                         >
                       {/if}
                     </td>
@@ -534,23 +537,23 @@
       {#if rateLimitStats}
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div class="stat bg-base-200 rounded-lg">
-            <div class="stat-title">{$t("quotas.totalRules")}</div>
+            <div class="stat-title">{tr("quotas.totalRules")}</div>
             <div class="stat-value text-lg">{rateLimitStats.total_rules}</div>
           </div>
           <div class="stat bg-base-200 rounded-lg">
-            <div class="stat-title">{$t("quotas.activeRules")}</div>
+            <div class="stat-title">{tr("quotas.activeRules")}</div>
             <div class="stat-value text-lg text-success">
               {rateLimitStats.active_rules}
             </div>
           </div>
           <div class="stat bg-base-200 rounded-lg">
-            <div class="stat-title">{$t("quotas.requestsToday")}</div>
+            <div class="stat-title">{tr("quotas.requestsToday")}</div>
             <div class="stat-value text-lg">
               {rateLimitStats.requests_today}
             </div>
           </div>
           <div class="stat bg-base-200 rounded-lg">
-            <div class="stat-title">{$t("quotas.rateLimitedToday")}</div>
+            <div class="stat-title">{tr("quotas.rateLimitedToday")}</div>
             <div class="stat-value text-lg text-warning">
               {rateLimitStats.requests_rate_limited_today}
             </div>
@@ -562,19 +565,19 @@
         class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all"
       >
         <div class="card-body">
-          <h2 class="card-title">{$t("quotas.rateLimitRules")}</h2>
+          <h2 class="card-title">{tr("quotas.rateLimitRules")}</h2>
           <div class="overflow-x-auto">
             <table class="table table-zebra">
               <thead>
                 <tr>
-                  <th>{$t("quotas.target")}</th>
-                  <th>{$t("quotas.endpoint")}</th>
-                  <th>{$t("quotas.perMinute")}</th>
-                  <th>{$t("quotas.perHour")}</th>
-                  <th>{$t("quotas.perDay")}</th>
-                  <th>{$t("quotas.burst")}</th>
-                  <th>{$t("quotas.status")}</th>
-                  <th>{$t("quotas.actions")}</th>
+                  <th>{tr("quotas.target")}</th>
+                  <th>{tr("quotas.endpoint")}</th>
+                  <th>{tr("quotas.perMinute")}</th>
+                  <th>{tr("quotas.perHour")}</th>
+                  <th>{tr("quotas.perDay")}</th>
+                  <th>{tr("quotas.burst")}</th>
+                  <th>{tr("quotas.status")}</th>
+                  <th>{tr("quotas.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -583,17 +586,17 @@
                     <td>
                       {#if limit.role_name}
                         <span class="badge badge-primary"
-                          >{$t("quotas.role")}: {limit.role_name}</span
+                          >{tr("quotas.role")}: {limit.role_name}</span
                         >
                       {:else if limit.user_id}
                         <span class="badge badge-secondary"
-                          >{$t("quotas.user")}: {getUserName(
+                          >{tr("quotas.user")}: {getUserName(
                             limit.user_id
                           )}</span
                         >
                       {:else}
                         <span class="badge badge-ghost"
-                          >{$t("quotas.global")}</span
+                          >{tr("quotas.global")}</span
                         >
                       {/if}
                     </td>
@@ -644,7 +647,7 @@
   <div class="modal modal-open">
     <div class="modal-box max-w-2xl">
       <h3 class="font-bold text-lg mb-4">
-        {$t("quotas.editQuotasFor")}
+        {tr("quotas.editQuotasFor")}
         {selectedUser?.username || selectedUser?.display_name}
       </h3>
 
@@ -652,7 +655,7 @@
       <div class="form-control mb-4">
         <label class="label cursor-pointer">
           <span class="label-text font-semibold"
-            >{$t("quotas.unlimitedStorage")}</span
+            >{tr("quotas.unlimitedStorage")}</span
           >
           <input
             type="checkbox"
@@ -665,7 +668,7 @@
       {#if !quotaForm.is_unlimited}
         <div class="form-control mb-4">
           <div class="label">
-            <span class="label-text">{$t("quotas.storageLimit")} (GB)</span>
+            <span class="label-text">{tr("quotas.storageLimit")} (GB)</span>
           </div>
           <input
             type="number"
@@ -682,7 +685,7 @@
 
         <div class="form-control mb-4">
           <div class="label">
-            <span class="label-text">{$t("quotas.warningThreshold")} (%)</span>
+            <span class="label-text">{tr("quotas.warningThreshold")} (%)</span>
           </div>
           <input
             type="number"
@@ -695,13 +698,13 @@
         </div>
       {/if}
 
-      <div class="divider">{$t("quotas.bandwidthLimits")}</div>
+      <div class="divider">{tr("quotas.bandwidthLimits")}</div>
 
       <!-- Bandwidth Quota -->
       <div class="form-control mb-4">
         <label class="label cursor-pointer">
           <span class="label-text font-semibold"
-            >{$t("quotas.unlimitedBandwidth")}</span
+            >{tr("quotas.unlimitedBandwidth")}</span
           >
           <input
             type="checkbox"
@@ -715,7 +718,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div class="form-control">
             <div class="label">
-              <span class="label-text">{$t("quotas.dailyUpload")} (GB)</span>
+              <span class="label-text">{tr("quotas.dailyUpload")} (GB)</span>
             </div>
             <input
               type="number"
@@ -727,13 +730,13 @@
                 (bandwidthForm.daily_upload_limit_bytes = e.target.value
                   ? gbToBytes(parseFloat(e.target.value))
                   : null)}
-              placeholder={$t("quotas.noLimit")}
+              placeholder={tr("quotas.noLimit")}
               aria-label="Daily upload limit in GB"
             />
           </div>
           <div class="form-control">
             <div class="label">
-              <span class="label-text">{$t("quotas.dailyDownload")} (GB)</span>
+              <span class="label-text">{tr("quotas.dailyDownload")} (GB)</span>
             </div>
             <input
               type="number"
@@ -745,13 +748,13 @@
                 (bandwidthForm.daily_download_limit_bytes = e.target.value
                   ? gbToBytes(parseFloat(e.target.value))
                   : null)}
-              placeholder={$t("quotas.noLimit")}
+              placeholder={tr("quotas.noLimit")}
               aria-label="Daily download limit in GB"
             />
           </div>
           <div class="form-control">
             <div class="label">
-              <span class="label-text">{$t("quotas.monthlyUpload")} (GB)</span>
+              <span class="label-text">{tr("quotas.monthlyUpload")} (GB)</span>
             </div>
             <input
               type="number"
@@ -763,13 +766,13 @@
                 (bandwidthForm.monthly_upload_limit_bytes = e.target.value
                   ? gbToBytes(parseFloat(e.target.value))
                   : null)}
-              placeholder={$t("quotas.noLimit")}
+              placeholder={tr("quotas.noLimit")}
               aria-label="Monthly upload limit in GB"
             />
           </div>
           <div class="form-control">
             <div class="label">
-              <span class="label-text">{$t("quotas.monthlyDownload")} (GB)</span
+              <span class="label-text">{tr("quotas.monthlyDownload")} (GB)</span
               >
             </div>
             <input
@@ -782,7 +785,7 @@
                 (bandwidthForm.monthly_download_limit_bytes = e.target.value
                   ? gbToBytes(parseFloat(e.target.value))
                   : null)}
-              placeholder={$t("quotas.noLimit")}
+              placeholder={tr("quotas.noLimit")}
               aria-label="Monthly download limit in GB"
             />
           </div>
@@ -791,10 +794,10 @@
 
       <div class="modal-action">
         <button class="btn btn-ghost" onclick={() => (showQuotaModal = false)}
-          >{$t("common.cancel")}</button
+          >{tr("common.cancel")}</button
         >
         <button class="btn btn-primary" onclick={saveQuota}
-          >{$t("common.save")}</button
+          >{tr("common.save")}</button
         >
       </div>
     </div>
@@ -814,13 +817,13 @@
     <div class="modal-box">
       <h3 class="font-bold text-lg mb-4">
         {selectedRateLimit
-          ? $t("quotas.editRateLimit")
-          : $t("quotas.addRateLimit")}
+          ? tr("quotas.editRateLimit")
+          : tr("quotas.addRateLimit")}
       </h3>
 
       <div class="form-control mb-4">
         <div class="label">
-          <span class="label-text">{$t("quotas.targetType")}</span>
+          <span class="label-text">{tr("quotas.targetType")}</span>
         </div>
         <select
           class="select select-bordered"
@@ -828,7 +831,7 @@
           onchange={() => (rateLimitForm.user_id = null)}
           aria-label="Target type"
         >
-          <option value={null}>{$t("quotas.selectRole")}</option>
+          <option value={null}>{tr("quotas.selectRole")}</option>
           <option value="admin">Admin</option>
           <option value="user">User</option>
           <option value="guest">Guest</option>
@@ -838,7 +841,7 @@
 
       <div class="form-control mb-4">
         <div class="label">
-          <span class="label-text">{$t("quotas.endpointPattern")}</span>
+          <span class="label-text">{tr("quotas.endpointPattern")}</span>
         </div>
         <input
           type="text"
@@ -848,14 +851,14 @@
           aria-label="Endpoint pattern"
         />
         <div class="label">
-          <span class="label-text-alt">{$t("quotas.endpointHelp")}</span>
+          <span class="label-text-alt">{tr("quotas.endpointHelp")}</span>
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div class="form-control">
           <div class="label">
-            <span class="label-text">{$t("quotas.perMinute")}</span>
+            <span class="label-text">{tr("quotas.perMinute")}</span>
           </div>
           <input
             type="number"
@@ -867,7 +870,7 @@
         </div>
         <div class="form-control">
           <div class="label">
-            <span class="label-text">{$t("quotas.perHour")}</span>
+            <span class="label-text">{tr("quotas.perHour")}</span>
           </div>
           <input
             type="number"
@@ -879,7 +882,7 @@
         </div>
         <div class="form-control">
           <div class="label">
-            <span class="label-text">{$t("quotas.perDay")}</span>
+            <span class="label-text">{tr("quotas.perDay")}</span>
           </div>
           <input
             type="number"
@@ -891,7 +894,7 @@
         </div>
         <div class="form-control">
           <div class="label">
-            <span class="label-text">{$t("quotas.burstLimit")}</span>
+            <span class="label-text">{tr("quotas.burstLimit")}</span>
           </div>
           <input
             type="number"
@@ -905,7 +908,7 @@
 
       <div class="form-control mt-4">
         <label class="label cursor-pointer">
-          <span class="label-text">{$t("quotas.enabled")}</span>
+          <span class="label-text">{tr("quotas.enabled")}</span>
           <input
             type="checkbox"
             class="toggle toggle-success"
@@ -918,10 +921,10 @@
         <button
           class="btn btn-ghost"
           onclick={() => (showRateLimitModal = false)}
-          >{$t("common.cancel")}</button
+          >{tr("common.cancel")}</button
         >
         <button class="btn btn-primary" onclick={saveRateLimit}
-          >{$t("common.save")}</button
+          >{tr("common.save")}</button
         >
       </div>
     </div>
