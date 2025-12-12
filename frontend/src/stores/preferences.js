@@ -18,6 +18,7 @@ const defaultPreferences = {
   auto_refresh: true,
   upload_progress_visible: true,
   grid_columns: 4,
+  language: 'de',
 };
 
 // Create writable store - SINGLE SOURCE OF TRUTH

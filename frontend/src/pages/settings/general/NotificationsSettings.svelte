@@ -141,43 +141,99 @@
   <div class="max-w-full">
     <div class="grid grid-cols-2 gap-4 mb-4 max-lg:grid-cols-1">
       <!-- SMTP Card -->
-      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden transition-all" class:border-primary={smtpEnabled} class:shadow-sm={smtpEnabled}>
+      <div
+        class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden transition-all"
+        class:border-primary={smtpEnabled}
+        class:shadow-sm={smtpEnabled}
+      >
         <div class="flex items-center gap-3 p-4">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-info/20 text-info shrink-0">
+          <div
+            class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-info/20 text-info shrink-0"
+          >
             <i class="bi bi-envelope-fill"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <h3 class="text-[0.9375rem] font-semibold text-base-content m-0 mb-0.5">{tr("settings.notifications.smtp")}</h3>
-            <p class="text-xs text-base-content/60 m-0">{tr("settings.notifications.smtp_desc")}</p>
+            <h3
+              class="text-[0.9375rem] font-semibold text-base-content m-0 mb-0.5"
+            >
+              {tr("settings.notifications.smtp")}
+            </h3>
+            <p class="text-xs text-base-content/60 m-0">
+              {tr("settings.notifications.smtp_desc")}
+            </p>
           </div>
-          <input type="checkbox" class="toggle toggle-primary toggle-sm" bind:checked={smtpEnabled} aria-label="Enable SMTP" />
+          <input
+            type="checkbox"
+            class="toggle toggle-primary toggle-sm"
+            bind:checked={smtpEnabled}
+            aria-label="Enable SMTP"
+          />
         </div>
         {#if smtpEnabled}
           <div class="px-4 pb-4 border-t border-base-300 -mt-2 pt-4">
             <div class="grid grid-cols-2 gap-3 mb-3">
               <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-base-content/60">{tr("settings.notifications.smtp_host")}</span>
-                <input type="text" class="input input-sm input-bordered w-full" bind:value={smtpHost} placeholder="smtp.example.com" />
+                <span class="text-xs font-medium text-base-content/60"
+                  >{tr("settings.notifications.smtp_host")}</span
+                >
+                <input
+                  type="text"
+                  class="input input-sm input-bordered w-full"
+                  bind:value={smtpHost}
+                  placeholder="smtp.example.com"
+                />
               </div>
               <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-base-content/60">{tr("settings.notifications.smtp_port")}</span>
-                <input type="number" class="input input-sm input-bordered w-full" bind:value={smtpPort} />
+                <span class="text-xs font-medium text-base-content/60"
+                  >{tr("settings.notifications.smtp_port")}</span
+                >
+                <input
+                  type="number"
+                  class="input input-sm input-bordered w-full"
+                  bind:value={smtpPort}
+                />
               </div>
               <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-base-content/60">{tr("settings.notifications.smtp_user")}</span>
-                <input type="text" class="input input-sm input-bordered w-full" bind:value={smtpUsername} placeholder="user@example.com" />
+                <span class="text-xs font-medium text-base-content/60"
+                  >{tr("settings.notifications.smtp_user")}</span
+                >
+                <input
+                  type="text"
+                  class="input input-sm input-bordered w-full"
+                  bind:value={smtpUsername}
+                  placeholder="user@example.com"
+                />
               </div>
               <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-base-content/60">{tr("settings.notifications.smtp_password")}</span>
-                <input type="password" class="input input-sm input-bordered w-full" bind:value={smtpPassword} placeholder="••••••••" />
+                <span class="text-xs font-medium text-base-content/60"
+                  >{tr("settings.notifications.smtp_password")}</span
+                >
+                <input
+                  type="password"
+                  class="input input-sm input-bordered w-full"
+                  bind:value={smtpPassword}
+                  placeholder="••••••••"
+                />
               </div>
               <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-base-content/60">{tr("settings.notifications.smtp_from")}</span>
-                <input type="email" class="input input-sm input-bordered w-full" bind:value={smtpFromEmail} placeholder="noreply@example.com" />
+                <span class="text-xs font-medium text-base-content/60"
+                  >{tr("settings.notifications.smtp_from")}</span
+                >
+                <input
+                  type="email"
+                  class="input input-sm input-bordered w-full"
+                  bind:value={smtpFromEmail}
+                  placeholder="noreply@example.com"
+                />
               </div>
               <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-base-content/60">{tr("settings.notifications.smtp_security")}</span>
-                <select class="select select-sm select-bordered w-full" bind:value={smtpSecure}>
+                <span class="text-xs font-medium text-base-content/60"
+                  >{tr("settings.notifications.smtp_security")}</span
+                >
+                <select
+                  class="select select-sm select-bordered w-full"
+                  bind:value={smtpSecure}
+                >
                   <option value="tls">TLS</option>
                   <option value="ssl">SSL</option>
                   <option value="none">{tr("common.none")}</option>
@@ -185,8 +241,17 @@
               </div>
             </div>
             <div class="flex gap-2">
-              <input type="email" class="input input-sm input-bordered flex-1" bind:value={testEmailAddress} placeholder={tr("settings.notifications.test_email")} />
-              <button class="btn btn-sm btn-ghost" onclick={() => testService("smtp")} disabled={testing || !testEmailAddress}>
+              <input
+                type="email"
+                class="input input-sm input-bordered flex-1"
+                bind:value={testEmailAddress}
+                placeholder={tr("settings.notifications.test_email")}
+              />
+              <button
+                class="btn btn-sm btn-ghost"
+                onclick={() => testService("smtp")}
+                disabled={testing || !testEmailAddress}
+              >
                 <i class="bi bi-send"></i>
                 {tr("settings.notifications.test")}
               </button>
@@ -196,31 +261,67 @@
       </div>
 
       <!-- Gotify Card -->
-      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden transition-all" class:border-primary={gotifyEnabled} class:shadow-sm={gotifyEnabled}>
+      <div
+        class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden transition-all"
+        class:border-primary={gotifyEnabled}
+        class:shadow-sm={gotifyEnabled}
+      >
         <div class="flex items-center gap-3 p-4">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-warning/20 text-warning shrink-0">
+          <div
+            class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-warning/20 text-warning shrink-0"
+          >
             <i class="bi bi-bell-fill"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <h3 class="text-[0.9375rem] font-semibold text-base-content m-0 mb-0.5">{tr("settings.notifications.gotify")}</h3>
-            <p class="text-xs text-base-content/60 m-0">{tr("settings.notifications.gotify_desc")}</p>
+            <h3
+              class="text-[0.9375rem] font-semibold text-base-content m-0 mb-0.5"
+            >
+              {tr("settings.notifications.gotify")}
+            </h3>
+            <p class="text-xs text-base-content/60 m-0">
+              {tr("settings.notifications.gotify_desc")}
+            </p>
           </div>
-          <input type="checkbox" class="toggle toggle-primary toggle-sm" bind:checked={gotifyEnabled} aria-label="Enable Gotify" />
+          <input
+            type="checkbox"
+            class="toggle toggle-primary toggle-sm"
+            bind:checked={gotifyEnabled}
+            aria-label="Enable Gotify"
+          />
         </div>
         {#if gotifyEnabled}
           <div class="px-4 pb-4 border-t border-base-300 -mt-2 pt-4">
             <div class="grid grid-cols-2 gap-3 mb-3">
               <div class="flex flex-col gap-1 col-span-2">
-                <span class="text-xs font-medium text-base-content/60">{tr("settings.notifications.gotify_url")}</span>
-                <input type="url" class="input input-sm input-bordered w-full" bind:value={gotifyUrl} placeholder="https://gotify.example.com" />
+                <span class="text-xs font-medium text-base-content/60"
+                  >{tr("settings.notifications.gotify_url")}</span
+                >
+                <input
+                  type="url"
+                  class="input input-sm input-bordered w-full"
+                  bind:value={gotifyUrl}
+                  placeholder="https://gotify.example.com"
+                />
               </div>
               <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-base-content/60">{tr("settings.notifications.gotify_token")}</span>
-                <input type="password" class="input input-sm input-bordered w-full" bind:value={gotifyToken} placeholder="App Token" />
+                <span class="text-xs font-medium text-base-content/60"
+                  >{tr("settings.notifications.gotify_token")}</span
+                >
+                <input
+                  type="password"
+                  class="input input-sm input-bordered w-full"
+                  bind:value={gotifyToken}
+                  placeholder="App Token"
+                />
               </div>
               <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-base-content/60">{tr("settings.notifications.gotify_priority")}</span>
-                <select class="select select-sm select-bordered w-full" bind:value={gotifyPriority}>
+                <span class="text-xs font-medium text-base-content/60"
+                  >{tr("settings.notifications.gotify_priority")}</span
+                >
+                <select
+                  class="select select-sm select-bordered w-full"
+                  bind:value={gotifyPriority}
+                >
                   <option value={1}>1 - Min</option>
                   <option value={3}>3 - Low</option>
                   <option value={5}>5 - Normal</option>
@@ -229,7 +330,11 @@
                 </select>
               </div>
             </div>
-            <button class="btn btn-sm btn-ghost" onclick={() => testService("gotify")} disabled={testing}>
+            <button
+              class="btn btn-sm btn-ghost"
+              onclick={() => testService("gotify")}
+              disabled={testing}
+            >
               <i class="bi bi-send"></i>
               {tr("settings.notifications.test")}
             </button>
@@ -238,34 +343,76 @@
       </div>
 
       <!-- ntfy Card -->
-      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden transition-all" class:border-primary={ntfyEnabled} class:shadow-sm={ntfyEnabled}>
+      <div
+        class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden transition-all"
+        class:border-primary={ntfyEnabled}
+        class:shadow-sm={ntfyEnabled}
+      >
         <div class="flex items-center gap-3 p-4">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-success/20 text-success shrink-0">
+          <div
+            class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-success/20 text-success shrink-0"
+          >
             <i class="bi bi-broadcast"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <h3 class="text-[0.9375rem] font-semibold text-base-content m-0 mb-0.5">{tr("settings.notifications.ntfy")}</h3>
-            <p class="text-xs text-base-content/60 m-0">{tr("settings.notifications.ntfy_desc")}</p>
+            <h3
+              class="text-[0.9375rem] font-semibold text-base-content m-0 mb-0.5"
+            >
+              {tr("settings.notifications.ntfy")}
+            </h3>
+            <p class="text-xs text-base-content/60 m-0">
+              {tr("settings.notifications.ntfy_desc")}
+            </p>
           </div>
-          <input type="checkbox" class="toggle toggle-primary toggle-sm" bind:checked={ntfyEnabled} aria-label="Enable ntfy" />
+          <input
+            type="checkbox"
+            class="toggle toggle-primary toggle-sm"
+            bind:checked={ntfyEnabled}
+            aria-label="Enable ntfy"
+          />
         </div>
         {#if ntfyEnabled}
           <div class="px-4 pb-4 border-t border-base-300 -mt-2 pt-4">
             <div class="grid grid-cols-2 gap-3 mb-3">
               <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-base-content/60">{tr("settings.notifications.ntfy_url")}</span>
-                <input type="url" class="input input-sm input-bordered w-full" bind:value={ntfyUrl} placeholder="https://ntfy.sh" />
+                <span class="text-xs font-medium text-base-content/60"
+                  >{tr("settings.notifications.ntfy_url")}</span
+                >
+                <input
+                  type="url"
+                  class="input input-sm input-bordered w-full"
+                  bind:value={ntfyUrl}
+                  placeholder="https://ntfy.sh"
+                />
               </div>
               <div class="flex flex-col gap-1">
-                <span class="text-xs font-medium text-base-content/60">{tr("settings.notifications.ntfy_topic")}</span>
-                <input type="text" class="input input-sm input-bordered w-full" bind:value={ntfyTopic} placeholder="syncspace-alerts" />
+                <span class="text-xs font-medium text-base-content/60"
+                  >{tr("settings.notifications.ntfy_topic")}</span
+                >
+                <input
+                  type="text"
+                  class="input input-sm input-bordered w-full"
+                  bind:value={ntfyTopic}
+                  placeholder="syncspace-alerts"
+                />
               </div>
               <div class="flex flex-col gap-1 col-span-2">
-                <span class="text-xs font-medium text-base-content/60">{tr("settings.notifications.ntfy_token")}</span>
-                <input type="password" class="input input-sm input-bordered w-full" bind:value={ntfyToken} placeholder={tr("common.optional")} />
+                <span class="text-xs font-medium text-base-content/60"
+                  >{tr("settings.notifications.ntfy_token")}</span
+                >
+                <input
+                  type="password"
+                  class="input input-sm input-bordered w-full"
+                  bind:value={ntfyToken}
+                  placeholder={tr("common.optional")}
+                />
               </div>
             </div>
-            <button class="btn btn-sm btn-ghost" onclick={() => testService("ntfy")} disabled={testing}>
+            <button
+              class="btn btn-sm btn-ghost"
+              onclick={() => testService("ntfy")}
+              disabled={testing}
+            >
               <i class="bi bi-send"></i>
               {tr("settings.notifications.test")}
             </button>
@@ -274,26 +421,54 @@
       </div>
 
       <!-- Apprise Card -->
-      <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden transition-all" class:border-primary={appriseEnabled} class:shadow-sm={appriseEnabled}>
+      <div
+        class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden transition-all"
+        class:border-primary={appriseEnabled}
+        class:shadow-sm={appriseEnabled}
+      >
         <div class="flex items-center gap-3 p-4">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-pink-500/20 text-pink-500 shrink-0">
+          <div
+            class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-pink-500/20 text-pink-500 shrink-0"
+          >
             <i class="bi bi-lightning-fill"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <h3 class="text-[0.9375rem] font-semibold text-base-content m-0 mb-0.5">{tr("settings.notifications.apprise")}</h3>
-            <p class="text-xs text-base-content/60 m-0">{tr("settings.notifications.apprise_desc")}</p>
+            <h3
+              class="text-[0.9375rem] font-semibold text-base-content m-0 mb-0.5"
+            >
+              {tr("settings.notifications.apprise")}
+            </h3>
+            <p class="text-xs text-base-content/60 m-0">
+              {tr("settings.notifications.apprise_desc")}
+            </p>
           </div>
-          <input type="checkbox" class="toggle toggle-primary toggle-sm" bind:checked={appriseEnabled} aria-label="Enable Apprise" />
+          <input
+            type="checkbox"
+            class="toggle toggle-primary toggle-sm"
+            bind:checked={appriseEnabled}
+            aria-label="Enable Apprise"
+          />
         </div>
         {#if appriseEnabled}
           <div class="px-4 pb-4 border-t border-base-300 -mt-2 pt-4">
             <div class="grid grid-cols-2 gap-3 mb-3">
               <div class="flex flex-col gap-1 col-span-2">
-                <span class="text-xs font-medium text-base-content/60">{tr("settings.notifications.apprise_url")}</span>
-                <input type="url" class="input input-sm input-bordered w-full" bind:value={appriseUrl} placeholder="http://localhost:8000/notify" />
+                <span class="text-xs font-medium text-base-content/60"
+                  >{tr("settings.notifications.apprise_url")}</span
+                >
+                <input
+                  type="url"
+                  class="input input-sm input-bordered w-full"
+                  bind:value={appriseUrl}
+                  placeholder="http://localhost:8000/notify"
+                />
               </div>
             </div>
-            <button class="btn btn-sm btn-ghost" onclick={() => testService("apprise")} disabled={testing}>
+            <button
+              class="btn btn-sm btn-ghost"
+              onclick={() => testService("apprise")}
+              disabled={testing}
+            >
               <i class="bi bi-send"></i>
               {tr("settings.notifications.test")}
             </button>
@@ -303,46 +478,105 @@
     </div>
 
     <!-- Events Card -->
-    <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all p-4 mb-4">
+    <div
+      class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all p-4 mb-4"
+    >
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-lg bg-violet-500/20 text-violet-500 flex items-center justify-center text-lg">
+        <div
+          class="w-10 h-10 rounded-lg bg-violet-500/20 text-violet-500 flex items-center justify-center text-lg"
+        >
           <i class="bi bi-lightning-charge"></i>
         </div>
         <div>
-          <h3 class="text-[0.9375rem] font-semibold text-base-content m-0 mb-0.5">{tr("settings.notifications.events")}</h3>
-          <p class="text-xs text-base-content/60 m-0">{tr("settings.notifications.events_desc")}</p>
+          <h3
+            class="text-[0.9375rem] font-semibold text-base-content m-0 mb-0.5"
+          >
+            {tr("settings.notifications.events")}
+          </h3>
+          <p class="text-xs text-base-content/60 m-0">
+            {tr("settings.notifications.events_desc")}
+          </p>
         </div>
       </div>
       <div class="grid grid-cols-3 gap-2 max-md:grid-cols-2 max-sm:grid-cols-1">
-        <label class="flex items-center gap-2 px-3 py-2.5 bg-base-200 rounded-lg cursor-pointer hover:bg-base-300 transition-colors">
-          <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" bind:checked={notifyOnShare} />
+        <label
+          class="flex items-center gap-2 px-3 py-2.5 bg-base-200 rounded-lg cursor-pointer hover:bg-base-300 transition-colors"
+        >
+          <input
+            type="checkbox"
+            class="checkbox checkbox-sm checkbox-primary"
+            bind:checked={notifyOnShare}
+          />
           <i class="bi bi-share text-sm text-base-content/60"></i>
-          <span class="text-[0.8125rem] text-base-content">{tr("settings.notifications.on_share")}</span>
+          <span class="text-[0.8125rem] text-base-content"
+            >{tr("settings.notifications.on_share")}</span
+          >
         </label>
-        <label class="flex items-center gap-2 px-3 py-2.5 bg-base-200 rounded-lg cursor-pointer hover:bg-base-300 transition-colors">
-          <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" bind:checked={notifyOnComment} />
+        <label
+          class="flex items-center gap-2 px-3 py-2.5 bg-base-200 rounded-lg cursor-pointer hover:bg-base-300 transition-colors"
+        >
+          <input
+            type="checkbox"
+            class="checkbox checkbox-sm checkbox-primary"
+            bind:checked={notifyOnComment}
+          />
           <i class="bi bi-chat text-sm text-base-content/60"></i>
-          <span class="text-[0.8125rem] text-base-content">{tr("settings.notifications.on_comment")}</span>
+          <span class="text-[0.8125rem] text-base-content"
+            >{tr("settings.notifications.on_comment")}</span
+          >
         </label>
-        <label class="flex items-center gap-2 px-3 py-2.5 bg-base-200 rounded-lg cursor-pointer hover:bg-base-300 transition-colors">
-          <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" bind:checked={notifyOnUpload} />
+        <label
+          class="flex items-center gap-2 px-3 py-2.5 bg-base-200 rounded-lg cursor-pointer hover:bg-base-300 transition-colors"
+        >
+          <input
+            type="checkbox"
+            class="checkbox checkbox-sm checkbox-primary"
+            bind:checked={notifyOnUpload}
+          />
           <i class="bi bi-cloud-upload text-sm text-base-content/60"></i>
-          <span class="text-[0.8125rem] text-base-content">{tr("settings.notifications.on_upload")}</span>
+          <span class="text-[0.8125rem] text-base-content"
+            >{tr("settings.notifications.on_upload")}</span
+          >
         </label>
-        <label class="flex items-center gap-2 px-3 py-2.5 bg-base-200 rounded-lg cursor-pointer hover:bg-base-300 transition-colors">
-          <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" bind:checked={notifyOnBackup} />
+        <label
+          class="flex items-center gap-2 px-3 py-2.5 bg-base-200 rounded-lg cursor-pointer hover:bg-base-300 transition-colors"
+        >
+          <input
+            type="checkbox"
+            class="checkbox checkbox-sm checkbox-primary"
+            bind:checked={notifyOnBackup}
+          />
           <i class="bi bi-archive text-sm text-base-content/60"></i>
-          <span class="text-[0.8125rem] text-base-content">{tr("settings.notifications.on_backup")}</span>
+          <span class="text-[0.8125rem] text-base-content"
+            >{tr("settings.notifications.on_backup")}</span
+          >
         </label>
-        <label class="flex items-center gap-2 px-3 py-2.5 bg-base-200 rounded-lg cursor-pointer hover:bg-base-300 transition-colors">
-          <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" bind:checked={notifyOnLogin} />
+        <label
+          class="flex items-center gap-2 px-3 py-2.5 bg-base-200 rounded-lg cursor-pointer hover:bg-base-300 transition-colors"
+        >
+          <input
+            type="checkbox"
+            class="checkbox checkbox-sm checkbox-primary"
+            bind:checked={notifyOnLogin}
+          />
           <i class="bi bi-box-arrow-in-right text-sm text-base-content/60"></i>
-          <span class="text-[0.8125rem] text-base-content">{tr("settings.notifications.on_login")}</span>
+          <span class="text-[0.8125rem] text-base-content"
+            >{tr("settings.notifications.on_login")}</span
+          >
         </label>
-        <label class="flex items-center gap-2 px-3 py-2.5 bg-base-200 rounded-lg cursor-pointer hover:bg-base-300 transition-colors">
-          <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" bind:checked={notifyOnError} />
-          <i class="bi bi-exclamation-triangle text-sm text-base-content/60"></i>
-          <span class="text-[0.8125rem] text-base-content">{tr("settings.notifications.on_error")}</span>
+        <label
+          class="flex items-center gap-2 px-3 py-2.5 bg-base-200 rounded-lg cursor-pointer hover:bg-base-300 transition-colors"
+        >
+          <input
+            type="checkbox"
+            class="checkbox checkbox-sm checkbox-primary"
+            bind:checked={notifyOnError}
+          />
+          <i class="bi bi-exclamation-triangle text-sm text-base-content/60"
+          ></i>
+          <span class="text-[0.8125rem] text-base-content"
+            >{tr("settings.notifications.on_error")}</span
+          >
         </label>
       </div>
     </div>

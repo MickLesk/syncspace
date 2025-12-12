@@ -280,24 +280,6 @@
     color: #fb7185;
   }
 
-  .card-title h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 0.25rem 0;
-  }
-  .card-title p {
-    font-size: 0.8125rem;
-    color: #6b7280;
-    margin: 0;
-  }
-  :global(.dark) .card-title h3 {
-    color: #f9fafb;
-  }
-  :global(.dark) .card-title p {
-    color: #9ca3af;
-  }
-
   /* Theme Buttons */
   .theme-buttons {
     display: flex;
@@ -327,9 +309,7 @@
     border-color: #22c55e;
     color: #166534;
   }
-  .theme-btn i {
-    font-size: 1.25rem;
-  }
+
   :global(.dark) .theme-btn {
     background: #374151;
     color: #9ca3af;
@@ -372,9 +352,7 @@
     border-color: #22c55e;
     color: #166534;
   }
-  .view-btn i {
-    font-size: 1.125rem;
-  }
+
   :global(.dark) .view-btn {
     background: #374151;
     color: #9ca3af;
@@ -479,9 +457,7 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s;
   }
-  .toggle-switch.active .toggle-knob {
-    transform: translateX(20px);
-  }
+
   :global(.dark) .toggle-switch {
     background: #4b5563;
   }

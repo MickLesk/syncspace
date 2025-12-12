@@ -189,8 +189,12 @@
   <!-- Header -->
   <div class="flex justify-between items-center gap-4">
     <div>
-      <h2 class="text-xl font-semibold text-base-content m-0">{tr("settings.users.title")}</h2>
-      <p class="text-sm text-base-content/60 mt-1 mb-0">{tr("settings.users.description")}</p>
+      <h2 class="text-xl font-semibold text-base-content m-0">
+        {tr("settings.users.title")}
+      </h2>
+      <p class="text-sm text-base-content/60 mt-1 mb-0">
+        {tr("settings.users.description")}
+      </p>
     </div>
     <button class="btn btn-primary" onclick={() => (showAddModal = true)}>
       <i class="bi bi-plus-lg"></i>
@@ -199,13 +203,19 @@
   </div>
 
   <!-- Users Table -->
-  <div class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden">
+  <div
+    class="bg-gradient-to-br from-base-100/80 to-base-100/40 rounded-xl backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all overflow-hidden"
+  >
     <div class="flex items-center gap-4 p-5 border-b border-base-300">
-      <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg bg-info/20 text-info">
+      <div
+        class="w-9 h-9 rounded-lg flex items-center justify-center text-lg bg-info/20 text-info"
+      >
         <i class="bi bi-people"></i>
       </div>
       <div>
-        <h3 class="text-base font-semibold text-base-content m-0">{tr("settings.users.user_list")}</h3>
+        <h3 class="text-base font-semibold text-base-content m-0">
+          {tr("settings.users.user_list")}
+        </h3>
         <p class="text-xs text-base-content/60 mt-1 mb-0">
           {users.length}
           {tr("settings.users.users_total")}
@@ -215,12 +225,16 @@
 
     <div class="p-5">
       {#if loading}
-        <div class="flex flex-col items-center justify-center py-12 gap-4 text-base-content/60">
+        <div
+          class="flex flex-col items-center justify-center py-12 gap-4 text-base-content/60"
+        >
           <span class="loading loading-spinner loading-lg text-primary"></span>
           <p>{tr("common.loading")}</p>
         </div>
       {:else if users.length === 0}
-        <div class="flex flex-col items-center justify-center py-12 gap-4 text-base-content/60">
+        <div
+          class="flex flex-col items-center justify-center py-12 gap-4 text-base-content/60"
+        >
           <i class="bi bi-people text-3xl opacity-50"></i>
           <p>{tr("settings.users.no_users")}</p>
         </div>
@@ -242,7 +256,9 @@
                 <tr class="hover">
                   <td>
                     <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 rounded-full bg-info/20 text-info flex items-center justify-center font-semibold text-sm">
+                      <div
+                        class="w-8 h-8 rounded-full bg-info/20 text-info flex items-center justify-center font-semibold text-sm"
+                      >
                         {user.username?.charAt(0).toUpperCase() || "U"}
                       </div>
                       <span class="font-medium">{user.username}</span>
@@ -250,7 +266,11 @@
                   </td>
                   <td>{user.email || "-"}</td>
                   <td>
-                    <span class="badge {user.role === 'admin' ? 'badge-warning' : 'badge-info'}">
+                    <span
+                      class="badge {user.role === 'admin'
+                        ? 'badge-warning'
+                        : 'badge-info'}"
+                    >
                       {user.role === "admin"
                         ? tr("settings.users.admin")
                         : tr("settings.users.user")}
@@ -258,7 +278,12 @@
                   </td>
                   <td>{formatDate(user.created_at)}</td>
                   <td>
-                    <span class="inline-block w-2 h-2 rounded-full mr-2 {user.is_active !== false ? 'bg-success' : 'bg-base-content/40'}"></span>
+                    <span
+                      class="inline-block w-2 h-2 rounded-full mr-2 {user.is_active !==
+                      false
+                        ? 'bg-success'
+                        : 'bg-base-content/40'}"
+                    ></span>
                     {user.is_active !== false
                       ? tr("settings.users.active")
                       : tr("settings.users.inactive")}

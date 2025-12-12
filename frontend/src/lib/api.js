@@ -4060,6 +4060,125 @@ export const api = {
   webhooks,
   systemHealth,
   apiTokens,
+  themes,
+};
+
+// ============================================================================
+// THEME MANAGEMENT
+// ============================================================================
+
+export const themes = {
+  // --- User Themes ---
+
+  /**
+   * Get all themes for current user
+   */
+  async getUserThemes() {
+    const response = await fetch(`${API_BASE}/themes`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Get specific theme by ID
+   */
+  async getTheme(themeId) {
+    const response = await fetch(`${API_BASE}/themes/${themeId}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Create new theme
+   */
+  async createTheme(themeData) {
+    const response = await fetch(`${API_BASE}/themes`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(themeData),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Update existing theme
+   */
+  async updateTheme(themeId, updates) {
+    const response = await fetch(`${API_BASE}/themes/${themeId}`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(updates),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Delete theme
+   */
+  async deleteTheme(themeId) {
+    const response = await fetch(`${API_BASE}/themes/${themeId}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    
+    if (response.status === 204) {
+      return null; // No content response
+    }
+    return handleResponse(response);
+  },
+
+  /**
+   * Activate theme (set as active for user)
+   */
+  async activateTheme(themeId) {
+    const response = await fetch(`${API_BASE}/themes/${themeId}/activate`, {
+      method: "POST",
+      headers: getHeaders(),
+    });
+    
+    if (response.status === 200) {
+      return null; // Success response
+    }
+    return handleResponse(response);
+  },
+
+  // --- Theme Presets ---
+
+  /**
+   * Get available theme presets
+   */
+  async getPresets() {
+    const response = await fetch(`${API_BASE}/themes/presets`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  // --- Import/Export ---
+
+  /**
+   * Export theme as JSON
+   */
+  async exportTheme(themeId) {
+    const response = await fetch(`${API_BASE}/themes/export/${themeId}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  /**
+   * Import theme from JSON data
+   */
+  async importTheme(themeData) {
+    const response = await fetch(`${API_BASE}/themes/import`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(themeData),
+    });
+    return handleResponse(response);
+  },
 };
 
 // ============================================================================

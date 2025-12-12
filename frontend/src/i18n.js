@@ -8508,8 +8508,20 @@ export const translations = {
   }
 };
 
-// Translation helper function
+// Translation helper function with safe parameter handling
 export function t(lang, key, ...args) {
+  // Handle case where only key is provided (backwards compatibility)
+  if (typeof lang === 'string' && key === undefined) {
+    key = lang;
+    lang = getCurrentLanguage();
+  }
+  
+  // Ensure key is defined and is a string
+  if (!key || typeof key !== 'string') {
+    console.warn(`[i18n] Invalid translation key:`, key);
+    return key || '';
+  }
+  
   // Handle nested keys like 'rbac.title'
   const keys = key.split('.');
   let text = translations[lang];
@@ -8572,6 +8584,22 @@ export function formatRelativeTime(lang, date) {
   if (weeks < 4) return t(lang, 'weeksAgo', weeks);
   if (months < 12) return t(lang, 'monthsAgo', months);
   return t(lang, 'yearsAgo', years);
+}
+
+// Get current language from preferences or localStorage
+function getCurrentLanguage() {
+  // Try to get from localStorage first (faster)
+  try {
+    const prefs = JSON.parse(localStorage.getItem('userPreferences') || '{}');
+    return prefs.language || 'de';
+  } catch {
+    return 'de'; // Default to German
+  }
+}
+
+// Default export for single-parameter usage
+export default function tDefault(key, ...args) {
+  return t(getCurrentLanguage(), key, ...args);
 }
 
 // Format file size with locale

@@ -49,6 +49,7 @@ pub mod storage_analytics;
 pub mod system;
 pub mod system_health;
 pub mod tags;
+pub mod themes;
 pub mod trash;
 pub mod upload_chunk;
 pub mod users;
@@ -118,6 +119,7 @@ pub fn build_api_router(state: AppState) -> Router<AppState> {
                 .merge(system::router())
                 .merge(performance::router())
                 .merge(notifications::router())
+                .merge(themes::router())
                 .merge(comments::router())
                 .merge(trash::router())
                 .merge(batch::router())

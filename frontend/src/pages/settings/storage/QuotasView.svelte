@@ -329,7 +329,9 @@
 
     <!-- Storage Quotas Tab -->
     {#if activeTab === "storage"}
-      <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
+      <div
+        class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all"
+      >
         <div class="card-body">
           <h2 class="card-title">{$t("quotas.userStorageQuotas")}</h2>
           <div class="overflow-x-auto">
@@ -425,7 +427,9 @@
 
     <!-- Bandwidth Quotas Tab -->
     {#if activeTab === "bandwidth"}
-      <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
+      <div
+        class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all"
+      >
         <div class="card-body">
           <h2 class="card-title">{$t("quotas.userBandwidthQuotas")}</h2>
           <div class="overflow-x-auto">
@@ -548,7 +552,9 @@
         </div>
       {/if}
 
-      <div class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all">
+      <div
+        class="card bg-gradient-to-br from-base-100/80 to-base-100/40 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(34,197,94,0.15)] transition-all"
+      >
         <div class="card-body">
           <h2 class="card-title">{$t("quotas.rateLimitRules")}</h2>
           <div class="overflow-x-auto">

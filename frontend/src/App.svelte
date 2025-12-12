@@ -41,7 +41,8 @@
     import("./pages/settings/storage/StorageView.svelte");
   const UsersView = () => import("./pages/settings/rbac/UsersView.svelte");
 
-  const DuplicatesView = () => import("./pages/tools/DuplicatesView.svelte");
+  const DuplicatesView = () =>
+    import("./pages/home/tools/DuplicatesView.svelte");
   const FtpSyncView = () => import("./pages/tools/FtpSyncView.svelte");
   const EmailIntegrationView = () =>
     import("./pages/tools/EmailIntegrationView.svelte");

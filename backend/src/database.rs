@@ -431,6 +431,7 @@ pub struct User {
     pub default_view: String,
     pub language: String,
     pub theme: String,
+    pub active_theme_id: Option<String>, // Reference to user_themes table
 
     // Timestamps
     pub created_at: String,
@@ -628,6 +629,36 @@ pub struct FavoriteItem {
     pub is_directory: bool,
     pub created_at: String,
     pub favorited_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct UserTheme {
+    pub id: String,
+    pub user_id: String,
+    pub theme_name: String,
+    pub is_custom: bool,
+    
+    // Color scheme
+    pub primary_color: Option<String>,
+    pub secondary_color: Option<String>,
+    pub accent_color: Option<String>,
+    pub background_color: Option<String>,
+    pub surface_color: Option<String>,
+    pub text_color: Option<String>,
+    
+    // Layout preferences
+    pub density: String,
+    pub font_size: String,
+    pub border_radius: i32,
+    pub shadow_intensity: i32,
+    
+    // Advanced settings
+    pub glass_effect: bool,
+    pub animations: bool,
+    pub high_contrast: bool,
+    
+    pub created_at: String,
+    pub updated_at: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
