@@ -5878,7 +5878,7 @@ const conversion = {
 };
 
 // Add late-defined exports to api object
-Object.assign(api, { encryption, quota, groups, guests, rateLimiting, admin, ftp, email, oauth, ldap, archives, compression, thumbnails, preview, virusScan, conversion });
+Object.assign(api, { themes, encryption, quota, groups, guests, rateLimiting, admin, ftp, email, oauth, ldap, archives, compression, thumbnails, preview, virusScan, conversion });
 
 // Export individual modules for direct import
 export { thumbnails, preview, virusScan, conversion };

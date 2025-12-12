@@ -83,6 +83,8 @@
     import("./pages/settings/general/ThemeCustomizationView.svelte");
 
   const SettingsHub = () => import("./pages/settings/SettingsHub.svelte");
+  const GeneralSettings = () =>
+    import("./pages/settings/GeneralSettings.svelte");
   const UserProfileView = () => import("./pages/user/UserProfileView.svelte");
   const UserSettingsView = () => import("./pages/user/UserSettingsView.svelte");
   const SecurityView = () => import("./pages/user/SecurityView.svelte");
@@ -123,6 +125,7 @@
     trash: TrashView,
     users: UsersView,
     settings: SettingsHub,
+    "settings-general": GeneralSettings,
     admin: SettingsHub,
     profile: UserProfileView,
     help: HelpView,

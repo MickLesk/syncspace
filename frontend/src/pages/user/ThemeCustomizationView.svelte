@@ -1,9 +1,9 @@
 <script>
   import { onMount } from "svelte";
-  import UIInput from "../../../components/ui/UIInput.svelte";
-  import UISelect from "../../../components/ui/UISelect.svelte";
-  import UIToggle from "../../../components/ui/UIToggle.svelte";
-  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
+  import UIInput from "../../components/ui/UIInput.svelte";
+  import UISelect from "../../components/ui/UISelect.svelte";
+  import UIToggle from "../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../components/ui/UICheckbox.svelte";
   import { themeStore } from "../../stores/themes.js";
   import { authStore } from "../../stores/auth.js";
   import UICard from "../../components/ui/UICard.svelte";
@@ -266,10 +266,7 @@
           <p class="text-white/70 mb-4">
             Noch keine benutzerdefinierten Themes erstellt.
           </p>
-          <UIButton
-            variant="primary"
-            onclick={() => (currentTab = "editor")}
-          >
+          <UIButton variant="primary" onclick={() => (currentTab = "editor")}>
             Erstes Theme erstellen
           </UIButton>
         </div>
@@ -615,8 +612,10 @@
         </div>
       </div>
     </div>
+  {/if}
 
-    <svelte:fragment slot="actions">
+  <svelte:fragment slot="actions">
+    {#if editingTheme}
       <UIButton variant="ghost" onclick={() => (showEditModal = false)}>
         Abbrechen
       </UIButton>
@@ -627,8 +626,8 @@
       >
         Speichern
       </UIButton>
-    </svelte:fragment>
-  {/if}
+    {/if}
+  </svelte:fragment>
 </UIModal>
 
 <!-- Hidden file input for import -->

@@ -1,11 +1,11 @@
 <script>
   import PageWrapper from "../../components/PageWrapper.svelte";
-  import UIInput from "../../../components/ui/UIInput.svelte";
-  import UISelect from "../../../components/ui/UISelect.svelte";
-  import UIToggle from "../../../components/ui/UIToggle.svelte";
-  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
-  import UIModal from "../../../components/ui/UIModal.svelte";
-  import UIButton from "../../../components/ui/UIButton.svelte";
+  import UIInput from "../../components/ui/UIInput.svelte";
+  import UISelect from "../../components/ui/UISelect.svelte";
+  import UIToggle from "../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../components/ui/UICheckbox.svelte";
+  import UIModal from "../../components/ui/UIModal.svelte";
+  import UIButton from "../../components/ui/UIButton.svelte";
   import PageHeader from "../../components/ui/PageHeader.svelte";
   import ModernCard from "../../components/ui/ModernCard.svelte";
   import ModernButton from "../../components/ui/ModernButton.svelte";

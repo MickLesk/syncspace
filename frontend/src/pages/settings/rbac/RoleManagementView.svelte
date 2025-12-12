@@ -4,8 +4,12 @@
   import { currentLang } from "../../../stores/ui.js";
   import { t } from "../../../i18n.js";
   import { showToast } from "../../../stores/toast.js";
-  import UICard from "../../../components/ui/UICard.svelte";
-  import UIButton from "../../../components/ui/UIButton.svelte";
+  import PageWrapper from "../../../components/PageWrapper.svelte";
+  import PageHeader from "../../../components/ui/PageHeader.svelte";
+  import ModernCard from "../../../components/ui/ModernCard.svelte";
+  import ModernButton from "../../../components/ui/ModernButton.svelte";
+  import EmptyState from "../../../components/ui/EmptyState.svelte";
+  import LoadingState from "../../../components/ui/LoadingState.svelte";
   import UIModal from "../../../components/ui/UIModal.svelte";
   import UIInput from "../../../components/ui/UIInput.svelte";
   import UITextarea from "../../../components/ui/UITextarea.svelte";
@@ -212,101 +216,151 @@
   }
 </script>
 
-<!-- Modern Header -->
-<div class="mb-8 flex items-center justify-between">
-  <div>
-    <h1 class="text-3xl font-bold text-white mb-2">
-      <i class="bi bi-person-badge-fill mr-3"></i>
-      Rollen & Rechte
-    </h1>
-    <p class="text-white/80">
-      Verwalten Sie Benutzerrollen und deren Berechtigungen
-    </p>
-  </div>
-  <UIButton variant="primary" onclick={openCreateModal}>
-    <i class="bi bi-plus-lg mr-2"></i>
-    Neue Rolle
-  </UIButton>
-</div>
-
-{#if loading}
-  <UICard>
-    <div class="flex items-center justify-center py-12">
-      <div class="loading loading-spinner loading-lg"></div>
-      <span class="ml-4 text-white/80">Lade Rollen...</span>
+<PageWrapper gradient>
+  <!-- Modern Header -->
+  <ModernCard variant="glass" class="mb-6">
+    <div class="p-6">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            <i class="bi bi-person-badge-fill mr-2" aria-hidden="true"></i>
+            Rollen & Rechte
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400">
+            Verwalten Sie Benutzerrollen und deren Berechtigungen
+          </p>
+        </div>
+        <ModernButton variant="gradient" onclick={openCreateModal}>
+          <i class="bi bi-plus-lg mr-2" aria-hidden="true"></i>
+          Neue Rolle
+        </ModernButton>
+      </div>
     </div>
-  </UICard>
-{:else}
-  <!-- Roles Grid -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-    {#each roles as role (role.id)}
-      <UICard>
-        <div class="p-6">
-          <!-- Role Header -->
-          <div class="flex items-start justify-between mb-4">
-            <div class="flex-1">
-              <h3 class="text-xl font-semibold text-white mb-1">{role.name}</h3>
-              <p class="text-white/70 text-sm">{role.description}</p>
-            </div>
-            {#if role.is_system}
-              <span class="badge badge-primary badge-sm">System</span>
-            {:else}
-              <span class="badge badge-secondary badge-sm"
-                >Benutzerdefiniert</span
-              >
-            {/if}
-          </div>
+  </ModernCard>
 
-          <!-- User Count -->
-          <div class="flex items-center text-white/60 text-sm mb-4">
-            <i class="bi bi-people-fill mr-2"></i>
-            {role.user_count} Benutzer
-          </div>
-
-          <!-- Permissions -->
-          <div class="mb-4">
-            <h4 class="text-white/80 font-medium mb-2">Berechtigungen:</h4>
-            <div class="flex flex-wrap gap-2">
-              {#each role.permissions as permissionId}
-                <span class="badge badge-outline badge-sm">
-                  {getPermissionLabel(permissionId)}
+  {#if loading}
+    <LoadingState variant="grid" count={6} message="Lade Rollen..." />
+  {:else if roles.length === 0}
+    <EmptyState
+      icon="🎭"
+      title="Keine Rollen vorhanden"
+      description="Erstellen Sie Ihre erste Rolle für die Benutzerverwaltung"
+    />
+  {:else}
+    <!-- Roles Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      {#each roles as role (role.id)}
+        <ModernCard variant="glass">
+          <div class="p-6">
+            <!-- Role Header -->
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex-1">
+                <h3
+                  class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1"
+                >
+                  {role.name}
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">
+                  {role.description}
+                </p>
+              </div>
+              {#if role.is_system}
+                <span
+                  class="px-2 py-1 text-xs font-medium rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300"
+                >
+                  System
                 </span>
-              {/each}
-              {#if role.permissions.length === 0}
-                <span class="text-white/40 text-sm">Keine Berechtigungen</span>
+              {:else}
+                <span
+                  class="px-2 py-1 text-xs font-medium rounded-full bg-secondary-100 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-300"
+                >
+                  Benutzerdefiniert
+                </span>
+              {/if}
+            </div>
+
+            <!-- User Count -->
+            <div
+              class="flex items-center text-gray-600 dark:text-gray-400 text-sm mb-4"
+            >
+              <i class="bi bi-people-fill mr-2" aria-hidden="true"></i>
+              {role.user_count} Benutzer
+            </div>
+
+            <!-- Permissions -->
+            <div class="mb-4">
+              <h4
+                class="text-gray-700 dark:text-gray-300 font-medium text-sm mb-2"
+              >
+                Berechtigungen:
+              </h4>
+              <div class="flex flex-wrap gap-2">
+                {#each role.permissions as permissionId}
+                  <span
+                    class="px-2 py-1 text-xs font-medium rounded-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                  >
+                    {getPermissionLabel(permissionId)}
+                  </span>
+                {/each}
+                {#if role.permissions.length === 0}
+                  <span class="text-gray-400 dark:text-gray-500 text-sm"
+                    >Keine Berechtigungen</span
+                  >
+                {/if}
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div
+              class="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700"
+            >
+              <ModernButton
+                variant="ghost"
+                size="sm"
+                onclick={() => openEditModal(role)}
+                class="flex-1"
+              >
+                <i class="bi bi-pencil mr-1" aria-hidden="true"></i>
+                Bearbeiten
+              </ModernButton>
+              {#if !role.is_system}
+                <ModernButton
+                  variant="danger"
+                  size="sm"
+                  onclick={() => deleteRole(role)}
+                  aria-label="Rolle löschen"
+                >
+                  <i class="bi bi-trash" aria-hidden="true"></i>
+                </ModernButton>
               {/if}
             </div>
           </div>
-
-          <!-- Actions -->
-          <div class="flex gap-2 pt-4 border-t border-white/10">
-            <UIButton
-              variant="ghost"
-              size="sm"
-              onclick={() => openEditModal(role)}
-              class="flex-1"
-            >
-              <i class="bi bi-pencil mr-1"></i>
-              Bearbeiten
-            </UIButton>
-            {#if !role.is_system}
-              <UIButton
-                variant="outline-error"
-                size="sm"
-                onclick={() => deleteRole(role)}
-              >
-                <i class="bi bi-trash"></i>
-              </UIButton>
-            {/if}
-          </div>
-        </div>
-      </UICard>
-    {/each}
-  </div>
-{/if}
+        </ModernCard>
+      {/each}
+    </div>
+  {/if}
+</PageWrapper>
 
 <!-- Create Role Modal -->
-<UIModal bind:showModal={showCreateModal} title="Neue Rolle erstellen">
+<UIModal
+  bind:show={showCreateModal}
+  title="Neue Rolle erstellen"
+  size="lg"
+  loading={isCreating}
+  actions={[
+    {
+      label: "Abbrechen",
+      variant: "secondary",
+      onClick: () => (showCreateModal = false),
+    },
+    {
+      label: isCreating ? "Erstelle..." : "Rolle erstellen",
+      variant: "primary",
+      onClick: createRole,
+      disabled: isCreating,
+    },
+  ]}
+>
   <div class="space-y-4">
     <UIInput
       label="Rollenname"
@@ -324,7 +378,9 @@
 
     <div>
       <div class="label">
-        <span class="label-text text-white font-medium">Berechtigungen</span>
+        <span class="label-text text-gray-900 dark:text-gray-100 font-medium"
+          >Berechtigungen</span
+        >
       </div>
       <div class="space-y-2">
         {#each availablePermissions as permission}
@@ -337,25 +393,29 @@
       </div>
     </div>
   </div>
-
-  <svelte:fragment slot="actions">
-    <UIButton variant="ghost" onclick={() => (showCreateModal = false)}>
-      Abbrechen
-    </UIButton>
-    <UIButton
-      variant="primary"
-      onclick={createRole}
-      disabled={isCreating}
-      class={isCreating ? "loading" : ""}
-    >
-      {isCreating ? "Erstelle..." : "Rolle erstellen"}
-    </UIButton>
-  </svelte:fragment>
 </UIModal>
 
 <!-- Edit Role Modal -->
 {#if editingRole}
-  <UIModal bind:showModal={showEditModal} title="Rolle bearbeiten">
+  <UIModal
+    bind:show={showEditModal}
+    title="Rolle bearbeiten"
+    size="lg"
+    loading={isSaving}
+    actions={[
+      {
+        label: "Abbrechen",
+        variant: "secondary",
+        onClick: () => (showEditModal = false),
+      },
+      {
+        label: isSaving ? "Speichere..." : "Speichern",
+        variant: "primary",
+        onClick: saveRole,
+        disabled: isSaving || editingRole.is_system,
+      },
+    ]}
+  >
     <div class="space-y-4">
       <UIInput
         label="Rollenname"
@@ -363,7 +423,7 @@
         disabled={editingRole.is_system}
       />
       {#if editingRole.is_system}
-        <p class="text-yellow-400 text-sm mt-1">
+        <p class="text-yellow-600 dark:text-yellow-400 text-sm mt-1">
           System-Rollen können nicht umbenannt werden
         </p>
       {/if}
@@ -377,7 +437,9 @@
 
       <div>
         <div class="label">
-          <span class="label-text text-white font-medium">Berechtigungen</span>
+          <span class="label-text text-gray-900 dark:text-gray-100 font-medium"
+            >Berechtigungen</span
+          >
         </div>
         <div class="space-y-2">
           {#each availablePermissions as permission}
@@ -390,25 +452,11 @@
           {/each}
         </div>
         {#if editingRole.is_system}
-          <p class="text-yellow-400 text-sm mt-2">
+          <p class="text-yellow-600 dark:text-yellow-400 text-sm mt-2">
             System-Rollen-Berechtigungen können nicht geändert werden
           </p>
         {/if}
       </div>
     </div>
-
-    <svelte:fragment slot="actions">
-      <UIButton variant="ghost" onclick={() => (showEditModal = false)}>
-        Abbrechen
-      </UIButton>
-      <UIButton
-        variant="primary"
-        onclick={saveRole}
-        disabled={isSaving || editingRole.is_system}
-        class={isSaving ? "loading" : ""}
-      >
-        {isSaving ? "Speichere..." : "Speichern"}
-      </UIButton>
-    </svelte:fragment>
   </UIModal>
 {/if}

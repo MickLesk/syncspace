@@ -1,10 +1,10 @@
 <script>
   import { onMount } from "svelte";
-  import UIInput from "../../../components/ui/UIInput.svelte";
-  import UITextarea from "../../../components/ui/UITextarea.svelte";
-  import UIToggle from "../../../components/ui/UIToggle.svelte";
-  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
-  import UIButton from "../../../components/ui/UIButton.svelte";
+  import UIInput from "../../components/ui/UIInput.svelte";
+  import UITextarea from "../../components/ui/UITextarea.svelte";
+  import UIToggle from "../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../components/ui/UICheckbox.svelte";
+  import UIButton from "../../components/ui/UIButton.svelte";
   import { auth } from "../../stores/auth";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";

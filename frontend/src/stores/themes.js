@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import { api } from '../lib/api.js';
-import { authStore } from './auth.js';
+import { auth } from './auth.js';
 
 function createThemeStore() {
   const { subscribe, set, update } = writable({

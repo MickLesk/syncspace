@@ -1,7 +1,7 @@
 <script>
   import { currentLang } from "../../stores/ui";
-  import UIInput from "../../../components/ui/UIInput.svelte";
-  import UIButton from "../../../components/ui/UIButton.svelte";
+  import UIInput from "../../components/ui/UIInput.svelte";
+  import UIButton from "../../components/ui/UIButton.svelte";
   import { t } from "../../i18n.js";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));

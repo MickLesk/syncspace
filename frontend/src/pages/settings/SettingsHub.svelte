@@ -55,6 +55,27 @@
       group: "storage",
       adminOnly: true,
     },
+    {
+      id: "backup",
+      icon: "cloud-upload-fill",
+      label: "Backups",
+      group: "storage",
+      adminOnly: true,
+    },
+    {
+      id: "analytics",
+      icon: "bar-chart-fill",
+      label: "Speicheranalyse",
+      group: "storage",
+      adminOnly: true,
+    },
+    {
+      id: "audit",
+      icon: "shield-check",
+      label: "Audit & Compliance",
+      group: "storage",
+      adminOnly: true,
+    },
 
     // AUTOMATISIERUNGEN / WORKFLOWS (Admin only)
     {
@@ -89,6 +110,13 @@
       id: "email-integration",
       icon: "envelope-fill",
       label: "E-Mail-Integration",
+      group: "automation",
+      adminOnly: true,
+    },
+    {
+      id: "config",
+      icon: "gear-fill",
+      label: "Systemkonfiguration",
       group: "automation",
       adminOnly: true,
     },
@@ -280,10 +308,6 @@
       <!-- Personal Settings -->
       {#if activeTab === "general"}
         {#await import("./GeneralSettings.svelte") then module}
-          <module.default />
-        {/await}
-      {:else if activeTab === "profile"}
-        {#await import("../user/UserProfileView.svelte") then module}
           <module.default />
         {/await}
 

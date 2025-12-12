@@ -6,12 +6,17 @@
   import UIToggle from "../../../components/ui/UIToggle.svelte";
   import UICheckbox from "../../../components/ui/UICheckbox.svelte";
   import UIModal from "../../../components/ui/UIModal.svelte";
+  import { currentLang } from "../../../stores/ui.js";
   import { t } from "../../../i18n.js";
   import { guests } from "../../../lib/api.js";
   import { showToast } from "../../../stores/toast.js";
+  import PageWrapper from "../../../components/PageWrapper.svelte";
+  import ModernCard from "../../../components/ui/ModernCard.svelte";
   import ModernButton from "../../../components/ui/ModernButton.svelte";
-  import UICard from "../../../components/ui/UICard.svelte";
-  import UIButton from "../../../components/ui/UIButton.svelte";
+  import EmptyState from "../../../components/ui/EmptyState.svelte";
+  import LoadingState from "../../../components/ui/LoadingState.svelte";
+
+  const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
   // State
   let activeTab = $state("users");
@@ -65,6 +70,7 @@
 
   // Activity
   let selectedGuestActivity = $state(null);
+  let showActivityModal = $state(false);
   let guestActivity = $state([]);
 
   onMount(() => {
@@ -92,7 +98,7 @@
       invitations = invitationsRes?.invitations || [];
     } catch (error) {
       console.error("Failed to load guest data:", error);
-      showToast($t("guests.loadError"), "error");
+      showToast(tr("guests.loadError"), "error");
     } finally {
       loading = false;
     }
@@ -131,41 +137,42 @@
 
   async function saveGuest() {
     if (!guestForm.display_name.trim()) {
-      showToast($t("guests.nameRequired"), "error");
+      showToast(tr("guests.nameRequired"), "error");
       return;
     }
 
     try {
       if (editingGuest) {
         await guests.update(editingGuest.id, guestForm);
-        showToast($t("guests.guestUpdated"), "success");
+        showToast(tr("guests.guestUpdated"), "success");
       } else {
         await guests.create(guestForm);
-        showToast($t("guests.guestCreated"), "success");
+        showToast(tr("guests.guestCreated"), "success");
       }
       showGuestModal = false;
       await loadData();
     } catch (error) {
       console.error("Failed to save guest:", error);
-      showToast($t("guests.createError"), "error");
+      showToast(tr("guests.createError"), "error");
     }
   }
 
   async function deleteGuest(guest) {
-    if (!confirm($t("guests.deleteGuestConfirm"))) return;
+    if (!confirm(tr("guests.deleteGuestConfirm"))) return;
 
     try {
       await guests.delete(guest.id);
-      showToast($t("guests.guestDeleted"), "success");
+      showToast(tr("guests.guestDeleted"), "success");
       await loadData();
     } catch (error) {
       console.error("Failed to delete guest:", error);
-      showToast($t("guests.deleteError"), "error");
+      showToast(tr("guests.deleteError"), "error");
     }
   }
 
   async function viewGuestActivity(guest) {
     selectedGuestActivity = guest;
+    showActivityModal = true;
     try {
       const res = await guests.getActivity(guest.id, { limit: 50 });
       guestActivity = res?.activity || [];
@@ -208,54 +215,54 @@
 
   async function saveLink() {
     if (!linkForm.file_path.trim()) {
-      showToast($t("guests.filePathRequired"), "error");
+      showToast(tr("guests.filePathRequired"), "error");
       return;
     }
 
     try {
       if (editingLink) {
         await guests.updateLink(editingLink.id, linkForm);
-        showToast($t("guests.linkUpdated"), "success");
+        showToast(tr("guests.linkUpdated"), "success");
       } else {
         await guests.createLink(linkForm);
-        showToast($t("guests.linkCreated"), "success");
+        showToast(tr("guests.linkCreated"), "success");
       }
       showLinkModal = false;
       await loadData();
     } catch (error) {
       console.error("Failed to save link:", error);
-      showToast($t("guests.createError"), "error");
+      showToast(tr("guests.createError"), "error");
     }
   }
 
   async function toggleLink(link) {
     try {
       await guests.toggleLink(link.id);
-      showToast($t("guests.linkToggled"), "success");
+      showToast(tr("guests.linkToggled"), "success");
       await loadData();
     } catch (error) {
       console.error("Failed to toggle link:", error);
-      showToast($t("guests.updateError"), "error");
+      showToast(tr("guests.updateError"), "error");
     }
   }
 
   async function deleteLink(link) {
-    if (!confirm($t("guests.deleteLinkConfirm"))) return;
+    if (!confirm(tr("guests.deleteLinkConfirm"))) return;
 
     try {
       await guests.deleteLink(link.id);
-      showToast($t("guests.linkDeleted"), "success");
+      showToast(tr("guests.linkDeleted"), "success");
       await loadData();
     } catch (error) {
       console.error("Failed to delete link:", error);
-      showToast($t("guests.deleteError"), "error");
+      showToast(tr("guests.deleteError"), "error");
     }
   }
 
   function copyLink(link) {
     const url = `${window.location.origin}/guest/${link.token}`;
     navigator.clipboard.writeText(url);
-    showToast($t("guests.linkCopied"), "success");
+    showToast(tr("guests.linkCopied"), "success");
   }
 
   // Invitation Functions
@@ -274,46 +281,46 @@
 
   async function sendInvitation() {
     if (!invitationForm.email.trim()) {
-      showToast($t("guests.emailRequired"), "error");
+      showToast(tr("guests.emailRequired"), "error");
       return;
     }
 
     try {
       await guests.createInvitation(invitationForm);
-      showToast($t("guests.invitationCreated"), "success");
+      showToast(tr("guests.invitationCreated"), "success");
       showInvitationModal = false;
       await loadData();
     } catch (error) {
       console.error("Failed to send invitation:", error);
-      showToast($t("guests.createError"), "error");
+      showToast(tr("guests.createError"), "error");
     }
   }
 
   async function resendInvitation(invitation) {
     try {
       await guests.resendInvitation(invitation.id);
-      showToast($t("guests.invitationResent"), "success");
+      showToast(tr("guests.invitationResent"), "success");
     } catch (error) {
       console.error("Failed to resend invitation:", error);
-      showToast($t("guests.updateError"), "error");
+      showToast(tr("guests.updateError"), "error");
     }
   }
 
   async function deleteInvitation(invitation) {
-    if (!confirm($t("guests.deleteInvitationConfirm"))) return;
+    if (!confirm(tr("guests.deleteInvitationConfirm"))) return;
 
     try {
       await guests.deleteInvitation(invitation.id);
-      showToast($t("guests.invitationDeleted"), "success");
+      showToast(tr("guests.invitationDeleted"), "success");
       await loadData();
     } catch (error) {
       console.error("Failed to delete invitation:", error);
-      showToast($t("guests.deleteError"), "error");
+      showToast(tr("guests.deleteError"), "error");
     }
   }
 
   function formatDate(dateStr) {
-    if (!dateStr) return $t("guests.never");
+    if (!dateStr) return tr("guests.never");
     const date = new Date(dateStr);
     return date.toLocaleDateString(undefined, {
       year: "numeric",
@@ -330,48 +337,71 @@
   }
 </script>
 
-<div class="p-6 max-w-7xl mx-auto">
+<PageWrapper gradient>
   <!-- Header -->
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold text-base-content">{$t("guests.title")}</h1>
-    <p class="text-base-content/60 mt-1">{$t("guests.subtitle")}</p>
-  </div>
+  <ModernCard variant="glass" class="mb-6">
+    <div class="p-6">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            <i class="bi bi-person-check-fill mr-2" aria-hidden="true"></i>
+            {tr("guests.title")}
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400">
+            {tr("guests.subtitle")}
+          </p>
+        </div>
+      </div>
+    </div>
+  </ModernCard>
 
   <!-- Stats Cards -->
   {#if stats}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <div class="bg-base-200 rounded-xl p-4">
-        <div class="text-3xl font-bold text-primary">
-          {stats.active_guests || 0}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <ModernCard variant="glass">
+        <div class="p-4">
+          <div
+            class="text-3xl font-bold text-primary-600 dark:text-primary-400"
+          >
+            {stats.active_guests || 0}
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-400">
+            {tr("guests.activeGuests")}
+          </div>
         </div>
-        <div class="text-sm text-base-content/60">
-          {$t("guests.activeGuests")}
+      </ModernCard>
+      <ModernCard variant="glass">
+        <div class="p-4">
+          <div
+            class="text-3xl font-bold text-secondary-600 dark:text-secondary-400"
+          >
+            {stats.active_links || 0}
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-400">
+            {tr("guests.activeLinks")}
+          </div>
         </div>
-      </div>
-      <div class="bg-base-200 rounded-xl p-4">
-        <div class="text-3xl font-bold text-secondary">
-          {stats.active_links || 0}
+      </ModernCard>
+      <ModernCard variant="glass">
+        <div class="p-4">
+          <div class="text-3xl font-bold text-accent-600 dark:text-accent-400">
+            {stats.pending_invitations || 0}
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-400">
+            {tr("guests.pendingInvitations")}
+          </div>
         </div>
-        <div class="text-sm text-base-content/60">
-          {$t("guests.activeLinks")}
+      </ModernCard>
+      <ModernCard variant="glass">
+        <div class="p-4">
+          <div class="text-3xl font-bold text-info-600 dark:text-info-400">
+            {stats.total_accesses || 0}
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-400">
+            {tr("guests.totalAccesses")}
+          </div>
         </div>
-      </div>
-      <div class="bg-base-200 rounded-xl p-4">
-        <div class="text-3xl font-bold text-accent">
-          {stats.pending_invitations || 0}
-        </div>
-        <div class="text-sm text-base-content/60">
-          {$t("guests.pendingInvitations")}
-        </div>
-      </div>
-      <div class="bg-base-200 rounded-xl p-4">
-        <div class="text-3xl font-bold text-info">
-          {stats.total_accesses || 0}
-        </div>
-        <div class="text-sm text-base-content/60">
-          {$t("guests.totalAccesses")}
-        </div>
-      </div>
+      </ModernCard>
     </div>
   {/if}
 
@@ -382,21 +412,21 @@
       onclick={() => (activeTab = "users")}
     >
       <i class="bi bi-person-badge mr-2"></i>
-      {$t("guests.tabUsers")}
+      {tr("guests.tabUsers")}
     </ModernButton>
     <ModernButton
       variant={activeTab === "links" ? "primary" : "ghost"}
       onclick={() => (activeTab = "links")}
     >
       <i class="bi bi-link-45deg mr-2"></i>
-      {$t("guests.tabLinks")}
+      {tr("guests.tabLinks")}
     </ModernButton>
     <ModernButton
       variant={activeTab === "invitations" ? "primary" : "ghost"}
       onclick={() => (activeTab = "invitations")}
     >
       <i class="bi bi-envelope mr-2"></i>
-      {$t("guests.tabInvitations")}
+      {tr("guests.tabInvitations")}
     </ModernButton>
   </div>
 
@@ -410,26 +440,26 @@
     <div class="flex justify-end mb-4">
       <ModernButton variant="primary" onclick={() => openGuestModal()}>
         <i class="bi bi-plus-lg mr-2"></i>
-        {$t("guests.createGuest")}
+        {tr("guests.createGuest")}
       </ModernButton>
     </div>
 
     {#if guestUsers.length === 0}
       <div class="text-center py-12 bg-base-200 rounded-xl">
         <i class="bi bi-person-badge text-5xl text-base-content/30"></i>
-        <p class="mt-4 text-base-content/60">{$t("guests.noGuests")}</p>
-        <p class="text-sm text-base-content/40">{$t("guests.noGuestsHint")}</p>
+        <p class="mt-4 text-base-content/60">{tr("guests.noGuests")}</p>
+        <p class="text-sm text-base-content/40">{tr("guests.noGuestsHint")}</p>
       </div>
     {:else}
       <div class="overflow-x-auto">
         <table class="table table-zebra">
           <thead>
             <tr>
-              <th>{$t("guests.guestName")}</th>
-              <th>{$t("guests.guestEmail")}</th>
-              <th>{$t("guests.permissions")}</th>
-              <th>{$t("guests.accessCount")}</th>
-              <th>{$t("guests.expiresIn")}</th>
+              <th>{tr("guests.guestName")}</th>
+              <th>{tr("guests.guestEmail")}</th>
+              <th>{tr("guests.permissions")}</th>
+              <th>{tr("guests.accessCount")}</th>
+              <th>{tr("guests.expiresIn")}</th>
               <th></th>
             </tr>
           </thead>
@@ -461,7 +491,7 @@
                 <td>
                   {#if isExpired(guest.expires_at)}
                     <span class="badge badge-error badge-sm"
-                      >{$t("guests.expired")}</span
+                      >{tr("guests.expired")}</span
                     >
                   {:else}
                     {formatDate(guest.expires_at)}
@@ -472,7 +502,7 @@
                     <ModernButton
                       variant="ghost"
                       size="sm"
-                      title={$t("guests.viewActivity")}
+                      title={tr("guests.viewActivity")}
                       onclick={() => viewGuestActivity(guest)}
                     >
                       <i class="bi bi-activity"></i>
@@ -480,7 +510,7 @@
                     <ModernButton
                       variant="ghost"
                       size="sm"
-                      title={$t("guests.editGuest")}
+                      title={tr("guests.editGuest")}
                       onclick={() => openGuestModal(guest)}
                     >
                       <i class="bi bi-pencil"></i>
@@ -488,7 +518,7 @@
                     <ModernButton
                       variant="danger"
                       size="sm"
-                      title={$t("guests.deleteGuest")}
+                      title={tr("guests.deleteGuest")}
                       onclick={() => deleteGuest(guest)}
                     >
                       <i class="bi bi-trash"></i>
@@ -506,15 +536,15 @@
     <div class="flex justify-end mb-4">
       <ModernButton variant="primary" onclick={() => openLinkModal()}>
         <i class="bi bi-plus-lg mr-2"></i>
-        {$t("guests.createLink")}
+        {tr("guests.createLink")}
       </ModernButton>
     </div>
 
     {#if accessLinks.length === 0}
       <div class="text-center py-12 bg-base-200 rounded-xl">
         <i class="bi bi-link-45deg text-5xl text-base-content/30"></i>
-        <p class="mt-4 text-base-content/60">{$t("guests.noLinks")}</p>
-        <p class="text-sm text-base-content/40">{$t("guests.noLinksHint")}</p>
+        <p class="mt-4 text-base-content/60">{tr("guests.noLinks")}</p>
+        <p class="text-sm text-base-content/40">{tr("guests.noLinksHint")}</p>
       </div>
     {:else}
       <div class="space-y-3">
@@ -536,7 +566,7 @@
                   {#if link.password_hash}
                     <span class="badge badge-warning badge-sm">
                       <i class="bi bi-lock-fill mr-1"></i>
-                      {$t("guests.passwordProtected")}
+                      {tr("guests.passwordProtected")}
                     </span>
                   {/if}
                 </div>
@@ -544,7 +574,7 @@
                   <span>
                     <i class="bi bi-eye mr-1"></i>
                     {link.access_count}
-                    {$t("guests.accessCount").toLowerCase()}
+                    {tr("guests.accessCount").toLowerCase()}
                   </span>
                   {#if link.expires_at}
                     <span>
@@ -558,7 +588,7 @@
                 <button
                   class="btn btn-ghost btn-sm"
                   onclick={() => copyLink(link)}
-                  title={$t("guests.copyLink")}
+                  title={tr("guests.copyLink")}
                 >
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -567,19 +597,19 @@
                   class="toggle toggle-primary toggle-sm"
                   checked={link.is_active}
                   onchange={() => toggleLink(link)}
-                  title={$t("guests.toggleActive")}
+                  title={tr("guests.toggleActive")}
                 />
                 <button
                   class="btn btn-ghost btn-sm"
                   onclick={() => openLinkModal(link)}
-                  title={$t("guests.editLink")}
+                  title={tr("guests.editLink")}
                 >
                   <i class="bi bi-pencil"></i>
                 </button>
                 <button
                   class="btn btn-ghost btn-sm text-error"
                   onclick={() => deleteLink(link)}
-                  title={$t("guests.deleteLink")}
+                  title={tr("guests.deleteLink")}
                 >
                   <i class="bi bi-trash"></i>
                 </button>
@@ -594,16 +624,16 @@
     <div class="flex justify-end mb-4">
       <button class="btn btn-primary" onclick={() => openInvitationModal()}>
         <i class="bi bi-plus-lg mr-2"></i>
-        {$t("guests.sendInvitation")}
+        {tr("guests.sendInvitation")}
       </button>
     </div>
 
     {#if invitations.length === 0}
       <div class="text-center py-12 bg-base-200 rounded-xl">
         <i class="bi bi-envelope text-5xl text-base-content/30"></i>
-        <p class="mt-4 text-base-content/60">{$t("guests.noInvitations")}</p>
+        <p class="mt-4 text-base-content/60">{tr("guests.noInvitations")}</p>
         <p class="text-sm text-base-content/40">
-          {$t("guests.noInvitationsHint")}
+          {tr("guests.noInvitationsHint")}
         </p>
       </div>
     {:else}
@@ -611,9 +641,9 @@
         <table class="table table-zebra">
           <thead>
             <tr>
-              <th>{$t("guests.inviteEmail")}</th>
-              <th>{$t("guests.permissions")}</th>
-              <th>{$t("guests.expiresIn")}</th>
+              <th>{tr("guests.inviteEmail")}</th>
+              <th>{tr("guests.permissions")}</th>
+              <th>{tr("guests.expiresIn")}</th>
               <th></th>
             </tr>
           </thead>
@@ -640,7 +670,7 @@
                 <td>
                   {#if isExpired(invitation.expires_at)}
                     <span class="badge badge-error badge-sm"
-                      >{$t("guests.expired")}</span
+                      >{tr("guests.expired")}</span
                     >
                   {:else}
                     {formatDate(invitation.expires_at)}
@@ -650,7 +680,7 @@
                   <div class="flex gap-1">
                     <button
                       class="btn btn-ghost btn-xs"
-                      title={$t("guests.resendInvitation")}
+                      title={tr("guests.resendInvitation")}
                       onclick={() => resendInvitation(invitation)}
                       disabled={isExpired(invitation.expires_at)}
                     >
@@ -658,7 +688,7 @@
                     </button>
                     <button
                       class="btn btn-ghost btn-xs text-error"
-                      title={$t("guests.deleteInvitation")}
+                      title={tr("guests.deleteInvitation")}
                       onclick={() => deleteInvitation(invitation)}
                     >
                       <i class="bi bi-trash"></i>
@@ -672,360 +702,264 @@
       </div>
     {/if}
   {/if}
-</div>
 
-<!-- Guest User Modal -->
-{#if showGuestModal}
-  <div class="modal modal-open">
-    <div class="modal-box">
-      <h3 class="font-bold text-lg mb-4">
-        {editingGuest ? $t("guests.editGuest") : $t("guests.createGuest")}
-      </h3>
+  <!-- Guest User Modal -->
+  <UIModal
+    bind:show={showGuestModal}
+    title={editingGuest ? tr("guests.editGuest") : tr("guests.createGuest")}
+    size="lg"
+    actions={[
+      {
+        label: tr("guests.cancel"),
+        variant: "secondary",
+        onClick: () => (showGuestModal = false),
+      },
+      {
+        label: editingGuest ? tr("guests.save") : tr("guests.create"),
+        variant: "primary",
+        onClick: saveGuest,
+      },
+    ]}
+  >
+    <div class="space-y-4">
+      <UIInput
+        label="{tr('guests.guestName')} *"
+        bind:value={guestForm.display_name}
+        placeholder="John Doe"
+      />
 
-      <div class="space-y-4">
-        <div class="form-control">
-          <UIInput
-  label="{$t("guests.guestName")} *"
-  bind:value={guestForm.display_name}
-  placeholder="John Doe"
-/>
-        </div>
+      <UIInput
+        label={tr("guests.guestEmail")}
+        type="email"
+        bind:value={guestForm.email}
+        placeholder="john@example.com"
+      />
 
-        <div class="form-control">
-          <UIInput
-  label={$t("guests.guestEmail")}
-  type="email"
-  bind:value={guestForm.email}
-  placeholder="john@example.com"
-/>
-        </div>
+      <div class="grid grid-cols-2 gap-4">
+        <UISelect
+          label={tr("guests.expiresIn")}
+          bind:value={guestForm.expires_in_days}
+        />
 
-        <div class="grid grid-cols-2 gap-4">
-          <div class="form-control">
-            <UISelect
-  label={$t("guests.expiresIn")}
-  bind:value={guestForm.expires_in_days}
-/>
-          </div>
-
-          <div class="form-control">
-            <UIInput
-  label={$t("guests.maxAccesses")}
-  type="number"
-  bind:value={guestForm.max_accesses}
-/>
-          </div>
-        </div>
-
-        <div class="form-control">
-          <UITextarea
-  label={$t("guests.guestNotes")}
-  bind:value={guestForm.notes}
-  rows={2}
-/>
-        </div>
-
-        <fieldset class="form-control">
-          <legend class="label">
-            <span class="label-text">{$t("guests.permissions")}</span>
-          </legend>
-          <div class="flex flex-wrap gap-4">
-            <label class="label cursor-pointer gap-2">
-              <input
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-sm"
-                bind:checked={guestForm.can_view}
-              />
-              <span class="label-text">{$t("guests.canView")}</span>
-            </label>
-            <label class="label cursor-pointer gap-2">
-              <input
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-sm"
-                bind:checked={guestForm.can_download}
-              />
-              <span class="label-text">{$t("guests.canDownload")}</span>
-            </label>
-            <label class="label cursor-pointer gap-2">
-              <input
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-sm"
-                bind:checked={guestForm.can_upload}
-              />
-              <span class="label-text">{$t("guests.canUpload")}</span>
-            </label>
-            <label class="label cursor-pointer gap-2">
-              <input
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-sm"
-                bind:checked={guestForm.can_comment}
-              />
-              <span class="label-text">{$t("guests.canComment")}</span>
-            </label>
-          </div>
-        </fieldset>
+        <UIInput
+          label={tr("guests.maxAccesses")}
+          type="number"
+          bind:value={guestForm.max_accesses}
+        />
       </div>
 
-      <div class="modal-action">
-        <button class="btn" onclick={() => (showGuestModal = false)}>
-          {$t("guests.cancel")}
-        </button>
-        <button class="btn btn-primary" onclick={saveGuest}>
-          {editingGuest ? $t("guests.save") : $t("guests.create")}
-        </button>
+      <UITextarea
+        label={tr("guests.guestNotes")}
+        bind:value={guestForm.notes}
+        rows={2}
+      />
+
+      <div>
+        <div class="mb-2">
+          <span class="text-sm font-medium">{tr("guests.permissions")}</span>
+        </div>
+        <div class="flex flex-wrap gap-4">
+          <UICheckbox
+            bind:checked={guestForm.can_view}
+            label={tr("guests.canView")}
+          />
+          <UICheckbox
+            bind:checked={guestForm.can_download}
+            label={tr("guests.canDownload")}
+          />
+          <UICheckbox
+            bind:checked={guestForm.can_upload}
+            label={tr("guests.canUpload")}
+          />
+          <UICheckbox
+            bind:checked={guestForm.can_comment}
+            label={tr("guests.canComment")}
+          />
+        </div>
       </div>
     </div>
-    <div
-      class="modal-backdrop"
-      role="button"
-      tabindex="0"
-      aria-label="Close modal"
-      onclick={() => (showGuestModal = false)}
-      onkeydown={(e) => e.key === "Escape" && (showGuestModal = false)}
-    ></div>
-  </div>
-{/if}
+  </UIModal>
 
-<!-- Link Modal -->
-{#if showLinkModal}
-  <div class="modal modal-open">
-    <div class="modal-box">
-      <h3 class="font-bold text-lg mb-4">
-        {editingLink ? $t("guests.editLink") : $t("guests.createLink")}
-      </h3>
+  <!-- Link Modal -->
+  <UIModal
+    bind:show={showLinkModal}
+    title={editingLink ? tr("guests.editLink") : tr("guests.createLink")}
+    size="lg"
+    actions={[
+      {
+        label: tr("guests.cancel"),
+        variant: "secondary",
+        onClick: () => (showLinkModal = false),
+      },
+      {
+        label: editingLink ? tr("guests.save") : tr("guests.create"),
+        variant: "primary",
+        onClick: saveLink,
+      },
+    ]}
+  >
+    <div class="space-y-4">
+      <UIInput
+        label="{tr('guests.filePath')} *"
+        bind:value={linkForm.file_path}
+        placeholder="/documents/report.pdf"
+      />
 
-      <div class="space-y-4">
-        <div class="form-control">
-          <UIInput
-  label="{$t("guests.filePath")} *"
-  bind:value={linkForm.file_path}
-  placeholder="/documents/report.pdf"
-/>
-        </div>
+      <div class="grid grid-cols-2 gap-4">
+        <UISelect
+          label={tr("guests.accessType")}
+          bind:value={linkForm.access_type}
+          options={[
+            { value: "file", label: tr("guests.typeFile") },
+            { value: "folder", label: tr("guests.typeFolder") },
+          ]}
+        />
 
-        <div class="grid grid-cols-2 gap-4">
-          <div class="form-control">
-            <UISelect
-              label={$t("guests.accessType")}
-              bind:value={linkForm.access_type}
-              options={[{ value: "file", label: $t("guests.typeFile") }, { value: "folder", label: $t("guests.typeFolder") }}]}
-            />
-          </div>
-
-          <div class="form-control">
-            <UISelect
-  label={$t("guests.expiresIn")}
-  bind:value={linkForm.expires_in_days}
-/>
-          </div>
-        </div>
-
-        <div class="form-control">
-          <UIInput
-  label={$t("guests.password")}
-  type="password"
-  bind:value={linkForm.password}
-/>
-        </div>
-
-        <div class="form-control">
-          <UIInput
-  label={$t("guests.maxAccesses")}
-  type="number"
-  bind:value={linkForm.max_accesses}
-/>
-        </div>
-
-        <div class="form-control">
-          <span class="label-text">{$t("guests.permissions")}</span>
-          <div class="flex flex-wrap gap-4 mt-2">
-            <label class="label cursor-pointer gap-2">
-              <input
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-sm"
-                bind:checked={linkForm.can_view}
-              />
-              <span class="label-text">{$t("guests.canView")}</span>
-            </label>
-            <label class="label cursor-pointer gap-2">
-              <input
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-sm"
-                bind:checked={linkForm.can_download}
-              />
-              <span class="label-text">{$t("guests.canDownload")}</span>
-            </label>
-            <label class="label cursor-pointer gap-2">
-              <input
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-sm"
-                bind:checked={linkForm.can_upload}
-              />
-              <span class="label-text">{$t("guests.canUpload")}</span>
-            </label>
-          </div>
-        </div>
+        <UISelect
+          label={tr("guests.expiresIn")}
+          bind:value={linkForm.expires_in_days}
+        />
       </div>
 
-      <div class="modal-action">
-        <button class="btn" onclick={() => (showLinkModal = false)}>
-          {$t("guests.cancel")}
-        </button>
-        <button class="btn btn-primary" onclick={saveLink}>
-          {editingLink ? $t("guests.save") : $t("guests.create")}
-        </button>
+      <UIInput
+        label={tr("guests.password")}
+        type="password"
+        bind:value={linkForm.password}
+      />
+
+      <UIInput
+        label={tr("guests.maxAccesses")}
+        type="number"
+        bind:value={linkForm.max_accesses}
+      />
+
+      <div>
+        <div class="mb-2">
+          <span class="text-sm font-medium">{tr("guests.permissions")}</span>
+        </div>
+        <div class="flex flex-wrap gap-4">
+          <UICheckbox
+            bind:checked={linkForm.can_view}
+            label={tr("guests.canView")}
+          />
+          <UICheckbox
+            bind:checked={linkForm.can_download}
+            label={tr("guests.canDownload")}
+          />
+          <UICheckbox
+            bind:checked={linkForm.can_upload}
+            label={tr("guests.canUpload")}
+          />
+        </div>
       </div>
     </div>
-    <div
-      class="modal-backdrop"
-      role="button"
-      tabindex="0"
-      aria-label="Close modal"
-      onclick={() => (showLinkModal = false)}
-      onkeydown={(e) => e.key === "Escape" && (showLinkModal = false)}
-    ></div>
-  </div>
-{/if}
+  </UIModal>
 
-<!-- Invitation Modal -->
-{#if showInvitationModal}
-  <div class="modal modal-open">
-    <div class="modal-box">
-      <h3 class="font-bold text-lg mb-4">{$t("guests.sendInvitation")}</h3>
+  <!-- Invitation Modal -->
+  <UIModal
+    bind:show={showInvitationModal}
+    title={tr("guests.sendInvitation")}
+    size="lg"
+    actions={[
+      {
+        label: tr("guests.cancel"),
+        variant: "secondary",
+        onClick: () => (showInvitationModal = false),
+      },
+      {
+        label: tr("guests.sendInvitation"),
+        variant: "primary",
+        onClick: sendInvitation,
+      },
+    ]}
+  >
+    <div class="space-y-4">
+      <UIInput
+        label="{tr('guests.inviteEmail')} *"
+        type="email"
+        bind:value={invitationForm.email}
+        placeholder="guest@example.com"
+      />
 
-      <div class="space-y-4">
-        <div class="form-control">
-          <UIInput
-  label="{$t("guests.inviteEmail")} *"
-  type="email"
-  bind:value={invitationForm.email}
-  placeholder="guest@example.com"
-/>
+      <UISelect
+        label={tr("guests.expiresIn")}
+        bind:value={invitationForm.expires_in_days}
+      />
+
+      <UITextarea
+        label={tr("guests.inviteMessage")}
+        bind:value={invitationForm.message}
+        rows={3}
+        placeholder="Optional personal message..."
+      />
+
+      <div>
+        <div class="mb-2">
+          <span class="text-sm font-medium">{tr("guests.permissions")}</span>
         </div>
-
-        <div class="form-control">
-          <UISelect
-  label={$t("guests.expiresIn")}
-  bind:value={invitationForm.expires_in_days}
-/>
+        <div class="flex flex-wrap gap-4">
+          <UICheckbox
+            bind:checked={invitationForm.can_view}
+            label={tr("guests.canView")}
+          />
+          <UICheckbox
+            bind:checked={invitationForm.can_download}
+            label={tr("guests.canDownload")}
+          />
+          <UICheckbox
+            bind:checked={invitationForm.can_upload}
+            label={tr("guests.canUpload")}
+          />
+          <UICheckbox
+            bind:checked={invitationForm.can_comment}
+            label={tr("guests.canComment")}
+          />
         </div>
-
-        <div class="form-control">
-          <UITextarea
-  label={$t("guests.inviteMessage")}
-  bind:value={invitationForm.message}
-  rows={3}
-  placeholder="Optional personal message..."
-/>
-        </div>
-
-        <div class="form-control">
-          <span class="label-text">{$t("guests.permissions")}</span>
-          <div class="flex flex-wrap gap-4 mt-2">
-            <label class="label cursor-pointer gap-2">
-              <input
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-sm"
-                bind:checked={invitationForm.can_view}
-              />
-              <span class="label-text">{$t("guests.canView")}</span>
-            </label>
-            <label class="label cursor-pointer gap-2">
-              <input
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-sm"
-                bind:checked={invitationForm.can_download}
-              />
-              <span class="label-text">{$t("guests.canDownload")}</span>
-            </label>
-            <label class="label cursor-pointer gap-2">
-              <input
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-sm"
-                bind:checked={invitationForm.can_upload}
-              />
-              <span class="label-text">{$t("guests.canUpload")}</span>
-            </label>
-            <label class="label cursor-pointer gap-2">
-              <input
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-sm"
-                bind:checked={invitationForm.can_comment}
-              />
-              <span class="label-text">{$t("guests.canComment")}</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-action">
-        <button class="btn" onclick={() => (showInvitationModal = false)}>
-          {$t("guests.cancel")}
-        </button>
-        <button class="btn btn-primary" onclick={sendInvitation}>
-          {$t("guests.sendInvitation")}
-        </button>
       </div>
     </div>
-    <div
-      class="modal-backdrop"
-      role="button"
-      tabindex="0"
-      aria-label="Close modal"
-      onclick={() => (showInvitationModal = false)}
-      onkeydown={(e) => e.key === "Escape" && (showInvitationModal = false)}
-    ></div>
-  </div>
-{/if}
+  </UIModal>
 
-<!-- Activity Modal -->
-{#if selectedGuestActivity}
-  <div class="modal modal-open">
-    <div class="modal-box max-w-2xl">
-      <h3 class="font-bold text-lg mb-4">
-        {$t("guests.guestActivity")}: {selectedGuestActivity.display_name}
-      </h3>
-
-      {#if guestActivity.length === 0}
-        <div class="text-center py-8 text-base-content/60">
-          <i class="bi bi-activity text-3xl mb-2"></i>
-          <p>{$t("guests.noActivity")}</p>
-        </div>
-      {:else}
-        <div class="space-y-2 max-h-96 overflow-y-auto">
-          {#each guestActivity as activity}
-            <div class="flex items-center gap-3 p-2 bg-base-200 rounded-lg">
-              <i class="bi bi-clock text-base-content/40"></i>
-              <div class="flex-1">
-                <span class="font-medium">{activity.action}</span>
-                {#if activity.file_path}
-                  <span class="text-sm text-base-content/60 ml-2"
-                    >{activity.file_path}</span
-                  >
-                {/if}
-              </div>
-              <span class="text-xs text-base-content/40"
-                >{formatDate(activity.accessed_at)}</span
-              >
+  <!-- Activity Modal -->
+  <UIModal
+    bind:show={showActivityModal}
+    title="{tr('guests.guestActivity')}: {selectedGuestActivity?.display_name ||
+      ''}"
+    size="xl"
+    actions={[
+      {
+        label: "Close",
+        variant: "secondary",
+        onClick: () => {
+          showActivityModal = false;
+          selectedGuestActivity = null;
+        },
+      },
+    ]}
+  >
+    {#if guestActivity.length === 0}
+      <div class="text-center py-8 text-base-content/60">
+        <i class="bi bi-activity text-3xl mb-2"></i>
+        <p>{tr("guests.noActivity")}</p>
+      </div>
+    {:else}
+      <div class="space-y-2 max-h-96 overflow-y-auto">
+        {#each guestActivity as activity}
+          <div class="flex items-center gap-3 p-2 bg-base-200 rounded-lg">
+            <i class="bi bi-clock text-base-content/40"></i>
+            <div class="flex-1">
+              <span class="font-medium">{activity.action}</span>
+              {#if activity.file_path}
+                <span class="text-sm text-base-content/60 ml-2"
+                  >{activity.file_path}</span
+                >
+              {/if}
             </div>
-          {/each}
-        </div>
-      {/if}
-
-      <div class="modal-action">
-        <button class="btn" onclick={() => (selectedGuestActivity = null)}>
-          Close
-        </button>
+            <span class="text-xs text-base-content/40"
+              >{formatDate(activity.accessed_at)}</span
+            >
+          </div>
+        {/each}
       </div>
-    </div>
-    <div
-      class="modal-backdrop"
-      role="button"
-      tabindex="0"
-      aria-label={$t("common.close")}
-      onclick={() => (selectedGuestActivity = null)}
-      onkeydown={(e) =>
-        (e.key === "Enter" || e.key === " ") && (selectedGuestActivity = null)}
-    ></div>
-  </div>
-{/if}
+    {/if}
+  </UIModal>
+</PageWrapper>

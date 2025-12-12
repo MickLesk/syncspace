@@ -1,19 +1,19 @@
 <script>
   import { onMount } from "svelte";
-  import UIInput from "../../../components/ui/UIInput.svelte";
-  import UISelect from "../../../components/ui/UISelect.svelte";
-  import UIToggle from "../../../components/ui/UIToggle.svelte";
-  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
+  import UIInput from "../../components/ui/UIInput.svelte";
+  import UISelect from "../../components/ui/UISelect.svelte";
+  import UIToggle from "../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../components/ui/UICheckbox.svelte";
   import { currentLang } from "../../../stores/ui.js";
   import t from "../../../i18n.js";
   import { tags as tagsApi } from "../../../lib/api.js";
   import { success, error as errorToast } from "../../../stores/toast.js";
 
   // Standard UI Components
-  import UICard from "../../../components/ui/UICard.svelte";
-  import UIButton from "../../../components/ui/UIButton.svelte";
-  import UIModal from "../../../components/ui/UIModal.svelte";
-  import UITabs from "../../../components/ui/UITabs.svelte";
+  import UICard from "../../components/ui/UICard.svelte";
+  import UIButton from "../../components/ui/UIButton.svelte";
+  import UIModal from "../../components/ui/UIModal.svelte";
+  import UITabs from "../../components/ui/UITabs.svelte";
 
   // State with Svelte 5 runes
   let loading = $state(true);

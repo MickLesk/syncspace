@@ -1,9 +1,9 @@
 <script>
   import { auth } from "../../stores/auth.js";
-  import UIInput from "../../../components/ui/UIInput.svelte";
-  import UIToggle from "../../../components/ui/UIToggle.svelte";
-  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
-  import UIButton from "../../../components/ui/UIButton.svelte";
+  import UIInput from "../../components/ui/UIInput.svelte";
+  import UIToggle from "../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../components/ui/UICheckbox.svelte";
+  import UIButton from "../../components/ui/UIButton.svelte";
   import { currentLang } from "../../stores/ui.js";
   import { t } from "../../i18n.js";
   import * as api from "../../lib/api.js";

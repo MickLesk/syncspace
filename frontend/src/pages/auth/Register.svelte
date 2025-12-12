@@ -1,6 +1,6 @@
 <script>
   import { currentLang } from "../../stores/ui.js";
-  import UIInput from "../../../components/ui/UIInput.svelte";
+  import UIInput from "../../components/ui/UIInput.svelte";
   import { t } from "../../i18n.js";
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
   import { auth } from "../../stores/auth";

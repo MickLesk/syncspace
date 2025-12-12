@@ -4,13 +4,15 @@
   import { t } from "../../../i18n.js";
   import { showToast } from "../../../stores/toast.js";
   import api from "../../../lib/api.js";
+  import PageWrapper from "../../../components/PageWrapper.svelte";
+  import ModernCard from "../../../components/ui/ModernCard.svelte";
   import ModernButton from "../../../components/ui/ModernButton.svelte";
-  import UICard from "../../../components/ui/UICard.svelte";
+  import EmptyState from "../../../components/ui/EmptyState.svelte";
+  import LoadingState from "../../../components/ui/LoadingState.svelte";
   import UIModal from "../../../components/ui/UIModal.svelte";
   import UIInput from "../../../components/ui/UIInput.svelte";
   import UISelect from "../../../components/ui/UISelect.svelte";
   import UIToggle from "../../../components/ui/UIToggle.svelte";
-  import UIButton from "../../../components/ui/UIButton.svelte";
 
   const tr = $derived((key, ...args) => t($currentLang, key, ...args));
 
@@ -174,121 +176,150 @@
   }
 </script>
 
-<div class="oauth-settings">
-  {#if error}
-    <div class="alert alert-error mb-4">
-      <i class="bi bi-exclamation-circle-fill"></i>
-      <span>{error}</span>
-      <button
-        class="btn btn-ghost btn-sm"
-        onclick={() => (error = "")}
-        aria-label="Dismiss"
-      >
-        <i class="bi bi-x"></i>
-      </button>
+<PageWrapper gradient>
+  <ModernCard>
+    <div class="flex items-center justify-between flex-wrap gap-4 mb-8">
+      <div>
+        <h1
+          class="text-3xl font-bold text-neutral-content flex items-center gap-3"
+        >
+          <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+          OAuth Einstellungen
+        </h1>
+        <p class="text-base-content/70 mt-2">
+          Konfigurieren Sie OAuth-Provider für Single Sign-On
+        </p>
+      </div>
+      <ModernButton variant="primary" onclick={openAddProvider}>
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+        Provider hinzufügen
+      </ModernButton>
     </div>
-  {/if}
 
-  {#if success}
-    <div class="alert alert-success mb-4">
-      <i class="bi bi-check-circle-fill"></i>
-      <span>{success}</span>
-    </div>
-  {/if}
+    {#if error}
+      <div class="alert alert-error mb-6">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span>{error}</span>
+        <button
+          class="btn btn-ghost btn-sm"
+          onclick={() => (error = "")}
+          aria-label="Dismiss"
+        >
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+    {/if}
 
-  {#if loading}
-    <div class="flex justify-center py-12">
-      <span class="loading loading-spinner loading-lg"></span>
-    </div>
-  {:else}
-    <!-- OAuth Providers Configuration (Admin) -->
-    <div class="card bg-base-200 mb-6">
-      <div class="card-body">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="card-title">
-            <i class="bi bi-gear text-primary"></i>
-            OAuth Providers Configuration
-          </h3>
-          <button class="btn btn-primary btn-sm" onclick={openAddProvider}>
-            <i class="bi bi-plus-lg"></i>
-            Add Provider
-          </button>
-        </div>
+    {#if success}
+      <div class="alert alert-success mb-6">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>{success}</span>
+      </div>
+    {/if}
+
+    {#if loading}
+      <LoadingState />
+    {:else}
+      <!-- OAuth Providers Configuration -->
+      <div class="mb-8">
+        <h2
+          class="text-xl font-semibold text-neutral-content mb-4 flex items-center gap-2"
+        >
+          <i class="bi bi-gear text-primary"></i>
+          OAuth Providers Configuration
+        </h2>
 
         {#if providers.length === 0}
-          <div class="text-center py-8 text-base-content/60">
-            <i class="bi bi-shield-x text-4xl mb-2"></i>
-            <p>No OAuth providers configured</p>
-            <p class="text-sm">Add a provider to enable social login</p>
-          </div>
+          <EmptyState
+            icon="shield-x"
+            title="Keine OAuth Provider konfiguriert"
+            description="Füge einen Provider hinzu um Social Login zu aktivieren"
+          >
+            <ModernButton variant="primary" onclick={openAddProvider}>
+              <i class="bi bi-plus-lg"></i>
+              Provider hinzufügen
+            </ModernButton>
+          </EmptyState>
         {:else}
-          <div class="overflow-x-auto">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Provider</th>
-                  <th>Client ID</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {#each providers as provider}
-                  {@const info = getProviderInfo(provider.provider)}
-                  <tr>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <i class="bi bi-{info.icon}" style="color: {info.color}"
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {#each providers as provider}
+              {@const info = getProviderInfo(provider.provider)}
+              <ModernCard variant="glass">
+                <div class="p-4">
+                  <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="w-12 h-12 rounded-xl flex items-center justify-center"
+                        style="background-color: {info.color}20"
+                      >
+                        <i
+                          class="bi bi-{info.icon} text-2xl"
+                          style="color: {info.color}"
+                          aria-hidden="true"
                         ></i>
-                        <span class="font-medium">{info.name}</span>
                       </div>
-                    </td>
-                    <td>
-                      <code class="text-xs bg-base-300 px-2 py-1 rounded">
-                        {provider.client_id?.substring(0, 20)}...
-                      </code>
-                    </td>
-                    <td>
-                      {#if provider.enabled}
-                        <span class="badge badge-success">Enabled</span>
-                      {:else}
-                        <span class="badge badge-ghost">Disabled</span>
-                      {/if}
-                    </td>
-                    <td>
-                      <div class="flex gap-1">
-                        <button
-                          class="btn btn-ghost btn-xs"
-                          onclick={() => openEditProvider(provider)}
-                          aria-label="Edit provider"
-                        >
-                          <i class="bi bi-pencil"></i>
-                        </button>
-                        <button
-                          class="btn btn-ghost btn-xs text-error"
-                          onclick={() => deleteProvider(provider)}
-                          aria-label="Delete provider"
-                        >
-                          <i class="bi bi-trash"></i>
-                        </button>
+                      <div>
+                        <h3 class="font-bold text-lg text-neutral-content">
+                          {info.name}
+                        </h3>
+                        <p class="text-sm text-base-content/60">
+                          {#if provider.enabled}
+                            <span class="text-success flex items-center gap-1">
+                              <i class="bi bi-check-circle-fill"></i>
+                              Aktiviert
+                            </span>
+                          {:else}
+                            <span
+                              class="text-base-content/40 flex items-center gap-1"
+                            >
+                              <i class="bi bi-x-circle"></i>
+                              Deaktiviert
+                            </span>
+                          {/if}
+                        </p>
                       </div>
-                    </td>
-                  </tr>
-                {/each}
-              </tbody>
-            </table>
+                    </div>
+                    <div class="flex gap-2">
+                      <ModernButton
+                        variant="ghost"
+                        size="sm"
+                        onclick={() => openEditProvider(provider)}
+                        aria-label="Edit provider"
+                      >
+                        <i class="bi bi-pencil"></i>
+                      </ModernButton>
+                      <ModernButton
+                        variant="ghost"
+                        size="sm"
+                        class="text-error hover:text-error"
+                        onclick={() => deleteProvider(provider)}
+                        aria-label="Delete provider"
+                      >
+                        <i class="bi bi-trash"></i>
+                      </ModernButton>
+                    </div>
+                  </div>
+                  <div class="text-sm">
+                    <p class="text-base-content/60 mb-1">Client ID:</p>
+                    <code class="text-xs bg-base-300 px-2 py-1 rounded">
+                      {provider.client_id?.substring(0, 30)}...
+                    </code>
+                  </div>
+                </div>
+              </ModernCard>
+            {/each}
           </div>
         {/if}
       </div>
-    </div>
 
-    <!-- Linked Accounts (User) -->
-    <div class="card bg-base-200">
-      <div class="card-body">
-        <h3 class="card-title mb-4">
+      <!-- Linked Accounts -->
+      <div>
+        <h2
+          class="text-xl font-semibold text-neutral-content mb-4 flex items-center gap-2"
+        >
           <i class="bi bi-link-45deg text-primary"></i>
-          Linked Accounts
-        </h3>
+          Verknüpfte Accounts
+        </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {#each providerOptions as option}
@@ -298,118 +329,126 @@
             {@const providerConfig = providers.find(
               (p) => p.provider === option.id
             )}
-            <div
-              class="flex items-center justify-between p-4 bg-base-100 rounded-lg"
-            >
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-10 h-10 rounded-full flex items-center justify-center"
-                  style="background-color: {option.color}20"
-                >
-                  <i
-                    class="bi bi-{option.icon} text-lg"
-                    style="color: {option.color}"
-                  ></i>
+            <ModernCard variant="glass">
+              <div class="p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 rounded-full flex items-center justify-center"
+                    style="background-color: {option.color}20"
+                  >
+                    <i
+                      class="bi bi-{option.icon} text-lg"
+                      style="color: {option.color}"
+                      aria-hidden="true"
+                    ></i>
+                  </div>
+                  <div>
+                    <p class="font-medium text-neutral-content">
+                      {option.name}
+                    </p>
+                    {#if linked}
+                      <p class="text-xs text-success flex items-center gap-1">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Verbunden
+                      </p>
+                    {:else}
+                      <p class="text-xs text-base-content/60">
+                        Nicht verbunden
+                      </p>
+                    {/if}
+                  </div>
                 </div>
                 <div>
-                  <p class="font-medium">{option.name}</p>
                   {#if linked}
-                    <p class="text-xs text-success">Connected</p>
+                    <ModernButton
+                      variant="outline"
+                      size="sm"
+                      class="text-error hover:text-error"
+                      onclick={() => unlinkAccount(linked)}
+                    >
+                      Trennen
+                    </ModernButton>
+                  {:else if providerConfig?.enabled}
+                    <ModernButton
+                      variant="primary"
+                      size="sm"
+                      onclick={() => linkProvider(option.id)}
+                    >
+                      Verknüpfen
+                    </ModernButton>
                   {:else}
-                    <p class="text-xs text-base-content/60">Not connected</p>
+                    <span class="text-xs text-base-content/40"
+                      >Nicht verfügbar</span
+                    >
                   {/if}
                 </div>
               </div>
-              <div>
-                {#if linked}
-                  <button
-                    class="btn btn-ghost btn-sm text-error"
-                    onclick={() => unlinkAccount(linked)}
-                  >
-                    Unlink
-                  </button>
-                {:else if providerConfig?.enabled}
-                  <button
-                    class="btn btn-primary btn-sm"
-                    onclick={() => linkProvider(option.id)}
-                  >
-                    Link
-                  </button>
-                {:else}
-                  <span class="text-xs text-base-content/40">Not available</span
-                  >
-                {/if}
-              </div>
-            </div>
+            </ModernCard>
           {/each}
         </div>
       </div>
-    </div>
-  {/if}
-</div>
+    {/if}
+  </ModernCard>
+</PageWrapper>
 
 <!-- Add/Edit Provider Modal -->
-{#if showProviderModal}
-  <div class="modal modal-open">
-    <div
-      class="modal-backdrop"
-      role="button"
-      tabindex="-1"
-      onclick={closeModal}
-      onkeydown={(e) => e.key === "Escape" && closeModal()}
-    ></div>
-    <div class="modal-box">
-      <h3 class="font-bold text-lg mb-4">
-        {editingProvider ? "Edit OAuth Provider" : "Add OAuth Provider"}
-      </h3>
+<UIModal
+  bind:show={showProviderModal}
+  title={editingProvider
+    ? "OAuth Provider bearbeiten"
+    : "OAuth Provider hinzufügen"}
+  size="lg"
+  actions={[
+    {
+      label: "Abbrechen",
+      variant: "secondary",
+      onClick: closeModal,
+    },
+    {
+      label: editingProvider ? "Aktualisieren" : "Hinzufügen",
+      variant: "primary",
+      onClick: saveProvider,
+      disabled: saving,
+    },
+  ]}
+  loading={saving}
+>
+  <div class="space-y-4">
+    <UISelect
+      label="Provider"
+      bind:value={providerForm.provider}
+      options={providerOptions.map((p) => ({ value: p.id, label: p.name }))}
+      disabled={!!editingProvider}
+    />
 
-      <div class="space-y-4">
-        <div class="form-control">
-          <UISelect label="Provider" bind:value={providerForm.provider} />
-        </div>
+    <UIInput
+      label="Client ID"
+      bind:value={providerForm.client_id}
+      placeholder="Client ID eingeben"
+      required
+    />
 
-        <UIInput
-          label="Client ID"
-          bind:value={providerForm.client_id}
-          placeholder="Enter client ID"
-          required
-        />
+    <UIInput
+      label="Client Secret"
+      type="password"
+      bind:value={providerForm.client_secret}
+      placeholder={editingProvider
+        ? "Leer lassen um beizubehalten"
+        : "Client Secret eingeben"}
+    />
 
-        <UIInput
-          label="Client Secret"
-          type="password"
-          bind:value={providerForm.client_secret}
-          placeholder={editingProvider
-            ? "Leave empty to keep existing"
-            : "Enter client secret"}
-        />
+    <UIInput
+      label="Redirect URI"
+      type="url"
+      bind:value={providerForm.redirect_uri}
+      placeholder="https://yourdomain.com/api/oauth/callback"
+      description="Verwende diese URL in deinen OAuth Provider Einstellungen"
+    />
 
-        <UIInput
-          label="Redirect URI"
-          type="url"
-          bind:value={providerForm.redirect_uri}
-          placeholder="https://yourdomain.com/api/oauth/callback"
-        />
-        <p class="text-sm text-white/60 -mt-2">
-          Use this URL in your OAuth provider settings
-        </p>
-
-        <UIToggle label="Enabled" bind:checked={providerForm.enabled} />
-      </div>
-
-      <div class="modal-action">
-        <button class="btn btn-ghost" onclick={closeModal}>Cancel</button>
-        <button
-          class="btn btn-primary"
-          onclick={saveProvider}
-          disabled={saving}
-        >
-          {#if saving}
-            <span class="loading loading-spinner loading-sm"></span>
-          {/if}
-          {editingProvider ? "Update" : "Add"} Provider
-        </button>
-      </div>
-    </div>
+    <UIToggle
+      label="Aktiviert"
+      bind:checked={providerForm.enabled}
+      description="Provider für Benutzer verfügbar machen"
+    />
   </div>
-{/if}
+</UIModal>

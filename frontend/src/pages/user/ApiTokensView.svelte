@@ -1,11 +1,11 @@
 <script>
   import { onMount } from "svelte";
-  import UIInput from "../../../components/ui/UIInput.svelte";
-  import UISelect from "../../../components/ui/UISelect.svelte";
-  import UIToggle from "../../../components/ui/UIToggle.svelte";
-  import UICheckbox from "../../../components/ui/UICheckbox.svelte";
-  import UIModal from "../../../components/ui/UIModal.svelte";
-  import UIButton from "../../../components/ui/UIButton.svelte";
+  import UIInput from "../../components/ui/UIInput.svelte";
+  import UISelect from "../../components/ui/UISelect.svelte";
+  import UIToggle from "../../components/ui/UIToggle.svelte";
+  import UICheckbox from "../../components/ui/UICheckbox.svelte";
+  import UIModal from "../../components/ui/UIModal.svelte";
+  import UIButton from "../../components/ui/UIButton.svelte";
   import { apiTokens } from "../../lib/api.js";
   import { t } from "../../i18n.js";
 
