@@ -18,7 +18,7 @@
     "postcss": "^8.5.6",
     "sv": "^0.11.0",
     "svelte": "^5.46.0",
-    "svelte-check": "^4.3.4",
+    "svelte-check": "^4.3.5",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
     "vite": "npm:rolldown-vite@7.1.14"
