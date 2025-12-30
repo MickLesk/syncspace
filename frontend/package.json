@@ -16,7 +16,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "autoprefixer": "^10.4.23",
     "postcss": "^8.5.6",
-    "sv": "^0.11.1",
+    "sv": "^0.11.2",
     "svelte": "^5.46.1",
     "svelte-check": "^4.3.5",
     "tailwindcss": "^4.1.18",
