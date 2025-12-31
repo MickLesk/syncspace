@@ -54,7 +54,7 @@ similar = "2.3"  # Text diffing library for version comparison
 mime_guess = "2.0"  # MIME type detection from filenames
 
 # HTTP Client (for webhooks)
-reqwest = { version = "0.12", features = ["json"] }
+reqwest = { version = "0.13", features = ["json"] }
 
 # Advanced Features
 zip = "7.0"
